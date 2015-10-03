@@ -1,0 +1,8 @@
+[alias]
+  app        = //app:bin
+
+[android]
+  target = android-23
+
+[project]
+  ignore = .git
