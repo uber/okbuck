@@ -76,7 +76,7 @@ Android Studio + Gradle已经是大部分安卓开发者的开发环境，为了
 如果你在使用OkBuck的过程中遇到了什么问题（bug），请[提一个issue](https://github.com/Piasy/OkBuck/issues/new)，另外如果能把`./gradle okbuck`任务执行时的输出内容也提供上，那就是极好的了。
 
 ## TODO
-+  处理apt，provided等类型的依赖，目前都是统一的compile
++  ~~处理apt，provided等类型的依赖，目前都是统一的compile~~
 +  test/androidTest的支持，product flavor支持
 +  依赖冲突解决方案优化
 +  本地jar包依赖失败解决方案优化

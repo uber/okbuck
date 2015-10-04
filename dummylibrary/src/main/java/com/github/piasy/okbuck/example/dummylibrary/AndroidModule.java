@@ -22,24 +22,18 @@
  * SOFTWARE.
  */
 
-apply plugin: 'java'
+package com.github.piasy.okbuck.example.dummylibrary;
 
-sourceCompatibility = JavaVersion.VERSION_1_7
-targetCompatibility = JavaVersion.VERSION_1_7
+import dagger.Module;
+import dagger.Provides;
 
-configurations {
-    provided
-}
-
-sourceSets {
-    main {
-        compileClasspath += configurations.provided
+/**
+ * Created by Piasy{github.com/Piasy} on 15/10/4.
+ */
+@Module
+public class AndroidModule {
+    @Provides
+    DummyAndroidClass provideDummyAndroidClass() {
+        return new DummyAndroidClass();
     }
-}
-
-dependencies {
-    compile 'com.google.code.gson:gson:2.3.1'
-    compile 'com.google.dagger:dagger:2.0.1'
-    compile 'org.glassfish:javax.annotation:10.0-b28'
-    provided 'com.google.dagger:dagger-compiler:2.0.1'
 }

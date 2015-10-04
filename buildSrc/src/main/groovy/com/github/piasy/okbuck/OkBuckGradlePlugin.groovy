@@ -29,7 +29,11 @@ import com.android.build.gradle.LibraryPlugin
 import org.apache.commons.io.IOUtils
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.artifacts.UnknownConfigurationException
 import org.gradle.api.plugins.JavaPlugin
+
+import java.util.jar.JarEntry
+import java.util.jar.JarFile
 
 class OkBuckGradlePlugin implements Plugin<Project> {
 
@@ -58,15 +62,21 @@ class OkBuckGradlePlugin implements Plugin<Project> {
             }
             printAllSubProjects(allSubProjects)
 
-            // get all sub projects dependencies, internal(project) or external(maven), then filter
-            // internal dependency's external dependencies
+            // get all sub projects compile dependencies, internal(project) or external(maven),
+            // then filter internal dependency's external dependencies
             Map<String, Set<File>> allSubProjectsExternalDeps = new HashMap<>()
             Map<String, Set<String>> allSubProjectsInternalDeps = new HashMap<>()
             getAllSubProjectsDeps(project, allSubProjects, allSubProjectsExternalDeps,
                     allSubProjectsInternalDeps)
             filterInternalsExternalDeps(project, allSubProjectsExternalDeps,
                     allSubProjectsInternalDeps)
-            printDeps(project, allSubProjectsExternalDeps, allSubProjectsInternalDeps)
+            // get all sub projects apt/provided dependencies, internal(project) or external(maven)
+            // TODO handle internal(project) apt dependencies
+            Map<String, Set<File>> allSubProjectsAptDeps = new HashMap<>()
+            getAllSubProjectsAptDeps(project, allSubProjectsAptDeps, true)
+
+            printDeps(project, allSubProjectsExternalDeps, allSubProjectsInternalDeps,
+                    allSubProjectsAptDeps)
 
             File thirdPartyLibsDir = new File(".okbuck")
             if (thirdPartyLibsDir.exists() && !overwrite) {
@@ -74,7 +84,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                         "third-party libs dir already exist, set overwrite property to true to overwrite existing file.")
             } else {
                 genAllSubProjectsBUCK(project, thirdPartyLibsDir, allSubProjectsExternalDeps,
-                        allSubProjectsInternalDeps, overwrite)
+                        allSubProjectsInternalDeps, allSubProjectsAptDeps, overwrite)
             }
         }
     }
@@ -83,6 +93,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
             Project project, File thirdPartyLibsDir,
             Map<String, Set<File>> allSubProjectsExternalDeps,
             Map<String, Set<String>> allSubProjectsInternalDeps,
+            Map<String, Set<File>> allSubProjectsAptDeps,
             boolean overwrite
     ) {
         project.subprojects { prj ->
@@ -97,7 +108,18 @@ class OkBuckGradlePlugin implements Plugin<Project> {
             } else {
                 genAndroidProjectThirdPartyLibsBUCK(subProjectLibsDir)
             }
+
+            File aptDir = new File(
+                    "${thirdPartyLibsDir.absolutePath}${File.separator}annotation_processor_deps")
+            if (!aptDir.exists()) {
+                aptDir.mkdirs()
+            }
+            copyDependencies(aptDir, allSubProjectsAptDeps.get(prj.name))
+            genAndroidProjectThirdPartyLibsBUCK(aptDir)
         }
+        Map<String, Set<String>> annotationProcessors = new HashMap<>()
+        extractAnnotationProcessors(project, annotationProcessors)
+
         // create BUCK file for each sub project
         if (project.okbuck.keystore.isEmpty() || project.okbuck.keystoreProperties.isEmpty() ||
                 project.okbuck.resPackages == null) {
@@ -114,7 +136,8 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                     int type = getSubProjectType(prj)
                     switch (type) {
                         case JAVA_LIB_PROJECT:
-                            genJavaLibSubProjectBUCK(prj, allSubProjectsInternalDeps.get(prj.name))
+                            genJavaLibSubProjectBUCK(prj, allSubProjectsInternalDeps.get(prj.name),
+                                    annotationProcessors.get(prj.name))
                             break
                         case ANDROID_LIB_PROJECT:
                             if (resPackages.get(prj.name) == null ||
@@ -124,7 +147,8 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                             } else {
                                 genAndroidLibSubProjectBUCK(prj,
                                         allSubProjectsInternalDeps.get(prj.name),
-                                        resPackages.get(prj.name))
+                                        resPackages.get(prj.name),
+                                        annotationProcessors.get(prj.name))
                             }
                             break
                         case ANDROID_APP_PROJECT:
@@ -135,11 +159,47 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                             } else {
                                 genAndroidAppSubProjectBUCK(prj,
                                         allSubProjectsInternalDeps.get(prj.name),
-                                        resPackages.get(prj.name))
+                                        resPackages.get(prj.name),
+                                        annotationProcessors.get(prj.name))
                             }
                             break
                     }
                 }
+            }
+        }
+    }
+
+    private static void getAllSubProjectsAptDeps(
+            Project project, Map<String, Set<File>> allSubProjectsAptDeps, boolean excludeCompile
+    ) {
+        project.subprojects { prj ->
+            Set<File> subProjectCompileDeps = new HashSet<>()
+            try {
+                prj.configurations.getByName("compile").resolve().each { dependency ->
+                    subProjectCompileDeps.add(dependency)
+                }
+            } catch (UnknownConfigurationException e) {
+                println "${prj.name} doesn't contain compile configuration"
+            }
+
+            allSubProjectsAptDeps.put(prj.name, new HashSet<File>())
+            try {
+                prj.configurations.getByName("apt").resolve().each { dependency ->
+                    if (!excludeCompile || !subProjectCompileDeps.contains(dependency)) {
+                        allSubProjectsAptDeps.get(prj.name).add(dependency)
+                    }
+                }
+            } catch (UnknownConfigurationException e) {
+                println "${prj.name} doesn't contain apt configuration"
+            }
+            try {
+                prj.configurations.getByName("provided").resolve().each { dependency ->
+                    if (!excludeCompile || !subProjectCompileDeps.contains(dependency)) {
+                        allSubProjectsAptDeps.get(prj.name).add(dependency)
+                    }
+                }
+            } catch (UnknownConfigurationException e) {
+                println "${prj.name} doesn't contain provided configuration"
             }
         }
     }
@@ -196,7 +256,8 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     }
 
     private static void genAndroidAppSubProjectBUCK(
-            Project project, Set<String> internalDeps, String resPackage
+            Project project, Set<String> internalDeps, String resPackage,
+            Set<String> annotationProcessors
     ) {
         println "generating sub project ${project.name}'s BUCK"
         PrintWriter printWriter = new PrintWriter(
@@ -227,6 +288,22 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         printWriter.println("\t\t'//.okbuck/${project.name}:all-jars',")
         printWriter.println("\t\t'//.okbuck/${project.name}:all-aars',")
         printWriter.println("\t],")
+
+        printWriter.println("\tannotation_processors = [")
+        for (String processor : annotationProcessors) {
+            printWriter.println("\t\t'${processor}',")
+        }
+        printWriter.println("\t],")
+        printWriter.println("\tannotation_processor_deps = [")
+        for (String dep : internalDeps) {
+            printWriter.println("\t\t'//${dep}:src',")
+        }
+        printWriter.println("\t\t'//.okbuck/${project.name}:all-jars',")
+        printWriter.println("\t\t'//.okbuck/${project.name}:all-aars',")
+        printWriter.println("\t\t'//.okbuck/annotation_processor_deps:all-jars',")
+        printWriter.println("\t\t'//.okbuck/annotation_processor_deps:all-aars',")
+        printWriter.println("\t],")
+
         printWriter.println(")")
         printWriter.println()
 
@@ -250,7 +327,8 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     }
 
     private static void genAndroidLibSubProjectBUCK(
-            Project project, Set<String> internalDeps, String resPackage
+            Project project, Set<String> internalDeps, String resPackage,
+            Set<String> annotationProcessors
     ) {
         println "generating sub project ${project.name}'s BUCK"
         PrintWriter printWriter = new PrintWriter(
@@ -282,6 +360,22 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         printWriter.println("\t\t'//.okbuck/${project.name}:all-aars',")
         printWriter.println("\t],")
         printWriter.println("\tvisibility = ['PUBLIC'],")
+
+        printWriter.println("\tannotation_processors = [")
+        for (String processor : annotationProcessors) {
+            printWriter.println("\t\t'${processor}',")
+        }
+        printWriter.println("\t],")
+        printWriter.println("\tannotation_processor_deps = [")
+        for (String dep : internalDeps) {
+            printWriter.println("\t\t'//${dep}:src',")
+        }
+        printWriter.println("\t\t'//.okbuck/${project.name}:all-jars',")
+        printWriter.println("\t\t'//.okbuck/${project.name}:all-aars',")
+        printWriter.println("\t\t'//.okbuck/annotation_processor_deps:all-jars',")
+        printWriter.println("\t\t'//.okbuck/annotation_processor_deps:all-aars',")
+        printWriter.println("\t],")
+
         printWriter.println(")")
         printWriter.println()
 
@@ -293,7 +387,9 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         printWriter.close()
     }
 
-    private static void genJavaLibSubProjectBUCK(Project project, Set<String> internalDeps) {
+    private static void genJavaLibSubProjectBUCK(
+            Project project, Set<String> internalDeps, Set<String> annotationProcessors
+    ) {
         println "generating sub project ${project.name}'s BUCK"
         PrintWriter printWriter = new PrintWriter(
                 new FileOutputStream("${project.projectDir.absolutePath}${File.separator}BUCK"))
@@ -313,6 +409,20 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         }
         printWriter.println("\t],")
         printWriter.println("\tvisibility = ['PUBLIC'],")
+
+        printWriter.println("\tannotation_processors = [")
+        for (String processor : annotationProcessors) {
+            printWriter.println("\t\t'${processor}',")
+        }
+        printWriter.println("\t],")
+        printWriter.println("\tannotation_processor_deps = [")
+        for (String dep : internalDeps) {
+            printWriter.println("\t\t'//${dep}:src',")
+        }
+        printWriter.println("\t\t'//.okbuck/${project.name}:all-jars',")
+        printWriter.println("\t\t'//.okbuck/annotation_processor_deps:all-jars',")
+        printWriter.println("\t],")
+
         printWriter.println(")")
         printWriter.println()
 
@@ -329,6 +439,35 @@ class OkBuckGradlePlugin implements Plugin<Project> {
             println "copying ${dep.absolutePath} into .okbuck/${dir.name}"
             IOUtils.copy(new FileInputStream(dep), new FileOutputStream(
                     new File(dir.absolutePath + File.separator + dep.name)))
+        }
+    }
+
+    private static void extractAnnotationProcessors(
+            Project project, Map<String, Set<String>> annotationProcessors
+    ) {
+        Map<String, Set<File>> allSubProjectsAptDeps = new HashMap<>()
+        getAllSubProjectsAptDeps(project, allSubProjectsAptDeps, false)
+        project.subprojects { prj ->
+            annotationProcessors.put(prj.name, new HashSet<String>())
+
+            for (File file : allSubProjectsAptDeps.get(prj.name)) {
+                try {
+                    JarFile jar = new JarFile(file)
+                    for (JarEntry entry : jar.entries()) {
+                        if (entry.name.equals(
+                                "META-INF/services/javax.annotation.processing.Processor")) {
+                            BufferedReader reader = new BufferedReader(
+                                    new InputStreamReader(jar.getInputStream(entry)))
+                            String processor = reader.readLine()
+                            reader.close()
+                            annotationProcessors.get(prj.name).add(processor)
+                            break
+                        }
+                    }
+                } catch (Exception e) {
+                    println "extract processor from ${file.absolutePath} failed!"
+                }
+            }
         }
     }
 
@@ -463,16 +602,24 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     private static void printDeps(
             Project project,
             Map<String, Set<File>> allSubProjectsExternalDeps,
-            Map<String, Set<String>> allSubProjectsInternalDeps
+            Map<String, Set<String>> allSubProjectsInternalDeps,
+            Map<String, Set<File>> allSubProjectsAptDeps
     ) {
         project.subprojects { prj ->
             println "${prj.name}'s deps:"
+            println "<<< internal"
             for (String projectDep : allSubProjectsInternalDeps.get(prj.name)) {
                 println "\t${projectDep}"
             }
+            println ">>>\n<<< external"
             for (File mavenDep : allSubProjectsExternalDeps.get(prj.name)) {
                 println "\t${mavenDep.absolutePath}"
             }
+            println ">>>\n<<< apt"
+            for (File mavenDep : allSubProjectsAptDeps.get(prj.name)) {
+                println "\t${mavenDep.absolutePath}"
+            }
+            println ">>>"
         }
     }
 }

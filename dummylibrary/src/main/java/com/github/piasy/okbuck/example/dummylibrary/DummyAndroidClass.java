@@ -31,7 +31,7 @@ import com.google.gson.GsonBuilder;
  * Created by Piasy{github.com/Piasy} on 15/10/4.
  */
 public class DummyAndroidClass {
-    public static String getAndroidWord(Context context) {
+    public String getAndroidWord(Context context) {
         String mock = "{\"lang\":\"" + context.getString(R.string.dummy_library_android_str) + "\"}";
         return new GsonBuilder().create().fromJson(mock, DummyObject.class).lang;
     }

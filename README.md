@@ -69,7 +69,7 @@ OkBuck can only generate the buck config for you, so if your source code is inco
 If you come with bugs of OkBuck, please [open an issue](https://github.com/Piasy/OkBuck/issues/new), and it's really appreciated to post the output of `./gradle okbuck` at the same time.
 
 ## TODO
-+  handle apt, provided dependencies
++  ~~handle apt, provided dependencies~~
 +  test/androidTest support, product flavor support
 +  better solution for dependency conflict
 +  better solution for local jar dependency

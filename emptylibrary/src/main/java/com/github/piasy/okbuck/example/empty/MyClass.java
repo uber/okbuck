@@ -22,24 +22,6 @@
  * SOFTWARE.
  */
 
-apply plugin: 'java'
+package com.github.piasy.okbuck.example.empty;
 
-sourceCompatibility = JavaVersion.VERSION_1_7
-targetCompatibility = JavaVersion.VERSION_1_7
-
-configurations {
-    provided
-}
-
-sourceSets {
-    main {
-        compileClasspath += configurations.provided
-    }
-}
-
-dependencies {
-    compile 'com.google.code.gson:gson:2.3.1'
-    compile 'com.google.dagger:dagger:2.0.1'
-    compile 'org.glassfish:javax.annotation:10.0-b28'
-    provided 'com.google.dagger:dagger-compiler:2.0.1'
-}
+public class MyClass {}

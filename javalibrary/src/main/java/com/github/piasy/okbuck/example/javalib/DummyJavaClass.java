@@ -27,7 +27,7 @@ package com.github.piasy.okbuck.example.javalib;
 import com.google.gson.GsonBuilder;
 
 public class DummyJavaClass {
-    public static String getJavaWord() {
+    public String getJavaWord() {
         String mock = "{\"lang\":\"Java\"}";
         return new GsonBuilder().create().fromJson(mock, DummyObject.class).lang;
     }
