@@ -458,9 +458,11 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                                 "META-INF/services/javax.annotation.processing.Processor")) {
                             BufferedReader reader = new BufferedReader(
                                     new InputStreamReader(jar.getInputStream(entry)))
-                            String processor = reader.readLine()
+                            String processor;
+                            while ((processor = reader.readLine()) != null) {
+                                annotationProcessors.get(prj.name).add(processor)
+                            }
                             reader.close()
-                            annotationProcessors.get(prj.name).add(processor)
                             break
                         }
                     }

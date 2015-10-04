@@ -38,7 +38,7 @@ Android Studio + Gradle已经是大部分安卓开发者的开发环境，为了
 ## 更多工作
 当然上面所说的12行只是配置，如果你的代码和buck不兼容，另外如果之前的依赖声明比较混乱，则可能需要更多的工作 :)
 
-1. 处理依赖冲突
++  处理依赖冲突
 
     执行`buck install app`的时候，可能遇到 `*** has already been defined` 或者
     
@@ -52,7 +52,7 @@ Android Studio + Gradle已经是大部分安卓开发者的开发环境，为了
     
     这个问题的解决OkBuck将会进行优化，不过对于工程本身来说，移除冲突依赖也是有必要的，即便在运行app的时候不会报错，运行espresso测试的时候也可能会报错。
 
-2. 以前本地jar包依赖可能会依赖失败
++  以前本地jar包依赖可能会依赖失败
 
     现象：以前使用gradle时，moduleA以本地jar包依赖gson，moduleB依赖moduleA，在moduleB中可以正常引用gson，但是使用OkBuck之后，可能moduleB是无法引用gson的。
     
@@ -60,7 +60,7 @@ Android Studio + Gradle已经是大部分安卓开发者的开发环境，为了
     
     这个问题OkBuck接下来绝对是要解决的。
     
-3. `R`的引用问题
++  `R`的引用问题
 
     buck构建生成的`R`中的定义，都不是final的，所以如果你使用了ButterKnife等这样的库，那这两者将不兼容；临时方案是：把ButterKnife的`@Bind`/`@InjectView`转换为`ButterKnife.findById`，`@OnClick`转换为手动设置`OnClickListener`。
     
@@ -68,9 +68,11 @@ Android Studio + Gradle已经是大部分安卓开发者的开发环境，为了
     
     另外多个module中声明同名的资源可能会引起问题，例如：每个module下都有一个AndroidManifest.xml文件，里面都有`Application`标签且设置了`android:label`属性，那么最终`buck install app`的时候，安装的APP的名字是什么将是未定义的。可以在每个module的AndroidManifest.xml中指定不同名字的string资源，这样将不会有资源与app的string资源冲突。
 
-4. 可能还有更多的工作需要进行，或者说更多的坑等着你踩 :) 。不过为了以后每次编译的畅快淋漓，值啊！
++  `javax.annotation`依赖，如果依赖了`javax.annotation`，请使用`compile` scope 而不是`provided` scope。
 
-5. 完整例子可以参考本repo对OkBuck的使用。
++  可能还有更多的工作需要进行，或者说更多的坑等着你踩 :) 。不过为了以后每次编译的畅快淋漓，值啊！
+
++  完整例子可以参考本repo对OkBuck的使用。
 
 ## Troubleshooting
 如果你在使用OkBuck的过程中遇到了什么问题（bug），请[提一个issue](https://github.com/Piasy/OkBuck/issues/new)，另外如果能把`./gradle okbuck`任务执行时的输出内容也提供上，那就是极好的了。
