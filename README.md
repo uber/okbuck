@@ -5,6 +5,8 @@ A gradle plugin that helps developer migrate to code with Android Studio + Gradl
  	
 Only Twelve line config to migrate from Android Studio + gradle to facebook BUCK.
 
+[中文版](README-zh.md)
+
 ## Why OkBuck?
 Android Studio + Gradle has been many Android developers' option, and to migrate to buck, there are many works to be done, both difficult and buggy. OkBuck aims to provide a gradle plugin, which will do these buggy job for you automaticlly after several lines configuration.
 
