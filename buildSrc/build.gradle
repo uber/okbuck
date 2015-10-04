@@ -65,16 +65,6 @@ task sourcesJar(type: Jar) {
     classifier = 'sources'
 }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            repository(url: "file:///Users/piasy/.m2/repository")
-        }
-    }
-}
-
-uploadArchives.dependsOn ':build'
-
 dependencies {
     compile gradleApi()
     compile localGroovy()
@@ -86,8 +76,7 @@ dependencies {
 def siteUrl = 'https://github.com/Piasy/OkBuck'
 def gitUrl = 'https://github.com/Piasy/OkBuck.git'
 def publishGroup = 'com.github.piasy'
-def publishVersion = '0.0.1'
-
+def publishVersion = '0.1.0'
 
 group = publishGroup
 version = publishVersion
@@ -114,7 +103,6 @@ bintray {
     user = properties.getProperty("bintray.user")
     key = properties.getProperty("bintray.apikey")
     publications = ['mavenJava'] //When uploading Maven-based publication files
-    configurations = ['archives'] //When uploading Maven-based publication files
     dryRun = false //Whether to run this as dry-run, without deploying
     publish = true //If version should be auto published after an upload
     pkg {
