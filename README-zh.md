@@ -10,19 +10,8 @@ Android Studio + Gradle已经是大部分安卓开发者的开发环境，为了
 通过对已有基于gradle构建的安卓工程添加几行配置，OkBuck将自动为你编写BUCK配置文件，引入工程的第三方依赖。如果你已经安装了buck，那么配置完成之后直接`buck install app`就可以构建成功了。当然，前提是你得代码与buck兼容，关于兼容性问题后面将详细说明。
 
 ## 如何使用OkBuck
-1. 工程根目录build.gradle的`buildscript`标签中加入：
+1. 工程根目录build.gradle的buildscript dependencies部分加入：`classpath 'com.github.piasy:okbuck-gradle-plugin:0.0.1'`
     
-    ```gradle
-    repositories {
-        maven {
-            url  "http://dl.bintray.com/piasy/maven"
-        }
-    }
-    dependencies {
-        classpath 'com.github.piasy:okbuck-gradle-plugin:0.0.1'
-    }
-    ```
-
 2. 工程根目录build.gradle最外层加入apply语句：`apply plugin: 'com.github.piasy.okbuck-gradle-plugin'`
 
 3. 工程根目录build.gradle最外层加入`okbuck`标签：
@@ -44,7 +33,7 @@ Android Studio + Gradle已经是大部分安卓开发者的开发环境，为了
     
 4. 执行`./gradlew okbuck`命令，命令执行完毕后，将在工程目录下生成.buckconfig文件，.okbuck目录，以及每个module根目录下生成一个BUCK文件，此时在工程根目录执行`buck install app`即可开始使用buck构建安装了（假设你的application module叫app），开始体验buck构建的畅快淋漓吧 :)
 
-5. 关于12行：当OkBuck可以从maven central下载之后（很快），第一步配置只需要`classpath 'com.github.piasy:okbuck-gradle-plugin:0.0.1'`一行，第二步只有一行，第三步有十行，所以真的只有12行！
+5. 关于12行：~~当OkBuck可以从jcenter下载之后（很快），~~第一步配置只需要`classpath 'com.github.piasy:okbuck-gradle-plugin:0.0.1'`一行，第二步只有一行，第三步有十行，所以真的只有12行！
 
 ## 更多工作
 当然上面所说的12行只是配置，如果你的代码和buck不兼容，另外如果之前的依赖声明比较混乱，则可能需要更多的工作 :)
