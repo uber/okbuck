@@ -17,7 +17,7 @@ Android Studio + Gradle has been many Android developers' option, and to migrate
 +  After you run `./gradlew okbuck` in your project root directory, you can run `buck install app` now (suppose your application module names `app`).
 
 ## How to use OkBuck?
-1. Add this lines into buildscript dependencies part of root project build.gradle: `classpath 'com.github.piasy:okbuck-gradle-plugin:0.0.1'`
+1. Add this lines into buildscript dependencies part of root project build.gradle: `classpath "com.github.piasy:okbuck-gradle-plugin:${latest version}"`
 
 2. Add this line into root project build.gradle: `apply plugin: 'com.github.piasy.okbuck-gradle-plugin'`
 

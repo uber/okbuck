@@ -10,7 +10,7 @@ Android Studio + Gradle已经是大部分安卓开发者的开发环境，为了
 通过对已有基于gradle构建的安卓工程添加几行配置，OkBuck将自动为你编写BUCK配置文件，引入工程的第三方依赖。如果你已经安装了buck，那么配置完成之后直接`buck install app`就可以构建成功了。当然，前提是你得代码与buck兼容，关于兼容性问题后面将详细说明。
 
 ## 如何使用OkBuck
-1. 工程根目录build.gradle的buildscript dependencies部分加入：`classpath 'com.github.piasy:okbuck-gradle-plugin:0.0.1'`
+1. 工程根目录build.gradle的buildscript dependencies部分加入：`classpath "com.github.piasy:okbuck-gradle-plugin:${latest version}"`
     
 2. 工程根目录build.gradle最外层加入apply语句：`apply plugin: 'com.github.piasy.okbuck-gradle-plugin'`
 
