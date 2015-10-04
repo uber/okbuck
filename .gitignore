@@ -10,3 +10,7 @@
 .idea/
 buck-out/
 .buckd/
+
+.okbuck/
+.buckconfig
+**/BUCK

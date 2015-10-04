@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">OkBuck</string>
+    <string name="app_android_str">Android</string>
 </resources>

@@ -18,6 +18,19 @@ allprojects {
     }
 }
 
+apply plugin: 'com.github.piasy.okbuck-gradle-plugin'
+
+okbuck {
+    target "android-23"
+    keystore "debug.keystore"
+    keystoreProperties "debug.keystore.properties"
+    overwrite true
+    resPackages = [
+        dummylibrary: 'com.github.piasy.okbuck.example.dummylibrary',
+        app: 'com.github.piasy.okbuck.example',
+    ]
+}
+
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
