@@ -23,7 +23,7 @@ before_script:
   - touch buildSrc/bintray.properties
 
 script:
-  - sh ./gradlew okbuck && ./bin/buck install app
+  - sh ./gradlew okbuck && ./buck/bin/buck install app
 
 notifications:
   email: false
