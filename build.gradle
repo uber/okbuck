@@ -22,8 +22,8 @@ apply plugin: 'com.github.piasy.okbuck-gradle-plugin'
 
 okbuck {
     target "android-23"
-    keystore "debug.keystore"
-    keystoreProperties "debug.keystore.properties"
+    keystoreDir ".okbuck/keystore"
+    signConfigName "release"
     overwrite true
     resPackages = [
         dummylibrary: 'com.github.piasy.okbuck.example.dummylibrary',

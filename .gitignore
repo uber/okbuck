@@ -11,6 +11,6 @@
 buck-out/
 .buckd/
 
-.okbuck/
+.okbuck
 .buckconfig
 **/BUCK

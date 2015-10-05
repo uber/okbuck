@@ -3,7 +3,7 @@
 [![Master branch build status](https://travis-ci.org/Piasy/OkBuck.svg?branch=master)](https://travis-ci.org/Piasy/OkBuck)
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-OkBuck-green.svg?style=flat)](https://android-arsenal.com/details/1/2593)
 
-12行配置从Android Studio + Gradle构建体系迁移到facebook的BUCK构建体系，且保持两者同时兼容使用，编码使用AS，享受安卓最强大IDE的功能，打包、安装、测试用BUCK，享受安卓最快构建系统的畅快淋漓，两者互不干扰。从此妈妈再也不用担心我在编译安卓工程时睡着了，而且真的只要12行！
+~~12~~ **10**行配置从Android Studio + Gradle构建体系迁移到facebook的BUCK构建体系，且保持两者同时兼容使用，编码使用AS，享受安卓最强大IDE的功能，打包、安装、测试用BUCK，享受安卓最快构建系统的畅快淋漓，两者互不干扰。从此妈妈再也不用担心我在编译安卓工程时睡着了，而且真的只要~~12~~ **10**行！
 
 ## 为什么要有OkBuck？
 Android Studio + Gradle已经是大部分安卓开发者的开发环境，为了体验BUCK超快的构建过程，从已有的工程进行迁移到BUCK环境是一个工作量较大、较繁琐、而且还不一定会的过程。OkBuck希望提供一个gradle plugin，通过对工程build.gradle简单地配置后，自动完成向BUCK的迁移。
@@ -33,11 +33,33 @@ Android Studio + Gradle已经是大部分安卓开发者的开发环境，为了
     }
     ```
 
-    其中`android-23`相当于gradle指定`targetSdkVersion 23`；`debug.keystore`和`debug.keystore.properties`分别代表的是签名文件和签名配置文件，需要放到application module的根目录下，用于指定签名文件；`overwrite`指定是否覆盖已有的buck配置文件；`resPackages`用于指定每个Android library module和Android application module的R文件的包名，你需要在resPackages里面为每个module指定包名，将dummylibrary/app替换为你的module的名字，引号里面的内容通常都是对应module的AndroidManifest.xml中的包名。
+    +  其中`android-23`相当于gradle指定`targetSdkVersion 23`；
+    +  ~~`debug.keystore`和`debug.keystore.properties`分别代表的是签名文件和签名配置文件，需要放到application module的根目录下，用于指定签名文件；~~
+    +  再也不用在OkBuck里指定签名配置了：
+      +  只要你已经在build.gradle中设置了**刚好一个**签名配置
+      +  但是你需要配置git，ignore你的签名秘钥和配置，把这一行加入到**工程根目录的.gitignore文件中**：`.okbuck/keystore`
+      +  但是如果你在build.gradle中配置了多个签名配置，或者想要把OkBuck生成的签名配置放到另一个目录（**但必须是工程根目录的子目录**），你可以像下面这样配置，其中`keystoreDir`指定OkBuck生成的签名配置的路径（相对于工程根目录，不要前导的`/`哟），`signConfigName`指定多个签名配置中的一个。
+        ```gradle
+            okbuck {
+                target "android-23"
+                keystoreDir ".okbuck/keystore"
+                signConfigName "release"
+                overwrite true
+                resPackages = [
+                    dummylibrary: 'com.github.piasy.okbuck.example.dummylibrary',
+                    app: 'com.github.piasy.okbuck.example',
+                    common: 'com.github.piasy.okbuck.example.common',
+                ]
+            }
+        ```
+        +  同样记得配置git，ignore签名配置
+        +  完整的例子可以参考本repo的app module，[工程根目录build.gradle](build.gradle), [app module的build.gradle](app/build.gradle)
+    +  `overwrite`指定是否覆盖已有的buck配置文件；
+    +  `resPackages`用于指定每个Android library module和Android application module的R文件的包名，你需要在resPackages里面为每个module指定包名，将dummylibrary/app替换为你的module的名字，引号里面的内容通常都是对应module的AndroidManifest.xml中的包名。
     
 4. 执行`./gradlew okbuck`命令，命令执行完毕后，将在工程目录下生成.buckconfig文件，.okbuck目录，以及每个module根目录下生成一个BUCK文件，此时在工程根目录执行`buck install app`即可开始使用buck构建安装了（假设你的application module叫app），开始体验buck构建的畅快淋漓吧 :)
 
-5. 关于12行：~~当OkBuck可以从jcenter下载之后（很快），~~第一步配置只需要`classpath 'com.github.piasy:okbuck-gradle-plugin:0.0.1'`一行，第二步只有一行，第三步有十行，所以真的只有12行！
+5. 关于~~12~~ **10**行：~~当OkBuck可以从jcenter下载之后（很快），~~ 第一步配置只需要`classpath "com.github.piasy:okbuck-gradle-plugin:${latest version}"`一行，第二步只有一行，第三步有~~十~~ **八**行，所以真的只有~~12~~ **10**行！
 
 ## 更多工作
 当然上面所说的12行只是配置，如果你的代码和buck不兼容，另外如果之前的依赖声明比较混乱，则可能需要更多的工作 :)
@@ -112,6 +134,7 @@ Android Studio + Gradle已经是大部分安卓开发者的开发环境，为了
 ## TODO
 +  ~~处理apt，provided等类型的依赖，目前都是统一的compile~~
 +  aar依赖中res的引用问题
++  debugCompile/releaseCompile support
 +  ~~build config~~ 只支持defaultConfig dsl 下的配置，因为buck不支持multi-product flavors，具体例子请见app module
 +  ~~product flavor support~~ buck不支持，[参考](http://stackoverflow.com/a/26001029/3077508)
 +  test/androidTest support

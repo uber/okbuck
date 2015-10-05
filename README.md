@@ -5,7 +5,7 @@
 
 A gradle plugin that helps developer migrate to code with Android Studio + Gradle, but build &amp;&amp; install with buck.
  	
-Only Twelve line config to migrate from Android Studio + gradle to facebook BUCK.
+Only ~~Twelve~~ **Ten** line config to migrate from Android Studio + gradle to facebook BUCK.
 
 [中文版](README-zh.md)
 
@@ -30,8 +30,6 @@ Further more, you can still use OkBuck to maintain your BUCK build system when y
     ```gradle
     okbuck {
         target "android-23"
-        keystore "debug.keystore"
-        keystoreProperties "debug.keystore.properties"
         overwrite true
         resPackages = [
             dummylibrary: 'com.github.piasy.okbuck.example.dummylibrary',
@@ -40,11 +38,33 @@ Further more, you can still use OkBuck to maintain your BUCK build system when y
     }
     ```
 
-    `android-23` works equally with `targetSdkVersion 23`; `debug.keystore` and `debug.keystore.properties` are signing related file, which should be put under **application module's root directory**; `overwrite` is used to control whether overwrite existing buck files; `resPackages` is used to set Android library module and Android Application module's package name for generated resources (`R` in common cases), you need substitute dummylibrary/app with your own module name, and set the corrosponding package name inside the single quote, which should be the same package name specified in the corrosponding module's AndroidManifest.xml.
+    +  `android-23` works equally with `targetSdkVersion 23`; 
+    +  ~~`debug.keystore` and `debug.keystore.properties` are signing related file, which should be put under **application module's root directory**~~
+    +  no need to specify signing config anymore:
+      +  if you have already set **only one** signing config in your build.gradle
+      +  but you need to configure git to ignore your signing secrete, add this line to your **root project .gitignore file**: `.okbuck/keystore`
+      +  if you have multiple signing config, or you want put your signing config in another dir which **under your root project dir**, you can set it like below, `keystoreDir` is used to config the path OkBuck to put your generated signing config (relative to your root project dir, no prefix `/`), and `signConfigName` is to set the name of the signing config you want to use.
+        ```gradle
+            okbuck {
+                target "android-23"
+                keystoreDir ".okbuck/keystore"
+                signConfigName "release"
+                overwrite true
+                resPackages = [
+                    dummylibrary: 'com.github.piasy.okbuck.example.dummylibrary',
+                    app: 'com.github.piasy.okbuck.example',
+                    common: 'com.github.piasy.okbuck.example.common',
+                ]
+            }
+        ```
+        +  but also remember to configure git to ignore your signing secrete
+        +  full example could be found in the app module of this repo, [root project build.gradle](build.gradle), [app module build.gradle](app/build.gradle)
+    +  `overwrite` is used to control whether overwrite existing buck files; 
+    +  `resPackages` is used to set Android library module and Android Application module's package name for generated resources (`R` in common cases), you need substitute dummylibrary/app with your own module name, and set the corrosponding package name inside the single quote, which should be the same package name specified in the corrosponding module's AndroidManifest.xml.
     
 4. After executing the okbuck gradle task by `./gradlew okbuck`, you can run `buck install app` now, enjoy your life with buck :)
 
-5. It's really only 12 lines config: ~~step one will only need one line `classpath 'com.github.piasy:okbuck-gradle-plugin:0.0.1'` when OkBuck is sync to jcenter (this will be soon)~~ available now, and then these three steps above only need 12 lines!
+5. It's really only ~~12~~ **10** lines config: ~~step one will only need one line `classpath 'com.github.piasy:okbuck-gradle-plugin:0.0.1'` when OkBuck is sync to jcenter (this will be soon)~~ available now, and then these three steps above only need ~~12~~ **10** lines!
 
 ## More job need to be done
 OkBuck can only generate the buck config for you, so if your source code is incompitable with buck, you need do more job.
@@ -105,6 +125,7 @@ If you come with bugs of OkBuck, please [open an issue](https://github.com/Piasy
 ## TODO
 +  ~~handle apt, provided dependencies~~
 +  res reference on aar dependency
++  debugCompile/releaseCompile support
 +  ~~build config~~ only under defaultConfig dsl will work, see below item
 +  ~~product flavor support~~ it seems buck doesn't support multi-product flavors, [see](http://stackoverflow.com/a/26001029/3077508), or do I miss something?
 +  test/androidTest support

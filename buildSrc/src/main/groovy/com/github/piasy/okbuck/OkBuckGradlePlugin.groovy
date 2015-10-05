@@ -27,11 +27,13 @@ package com.github.piasy.okbuck
 import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.LibraryPlugin
 import com.android.build.gradle.internal.dsl.ProductFlavor
-import com.android.builder.internal.ClassFieldImpl
+import com.android.build.gradle.internal.dsl.SigningConfig
 import com.android.builder.model.ClassField
 import org.apache.commons.io.IOUtils
+import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.UnknownDomainObjectException
 import org.gradle.api.artifacts.UnknownConfigurationException
 import org.gradle.api.plugins.JavaPlugin
 
@@ -119,49 +121,45 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         extractAnnotationProcessors(project, annotationProcessors)
 
         // create BUCK file for each sub project
-        if (project.okbuck.keystore.isEmpty() || project.okbuck.keystoreProperties.isEmpty() ||
-                project.okbuck.resPackages == null) {
-            throw new IllegalArgumentException(
-                    "keystore, keystoreProperties, and resPackages must be specified.")
-        } else {
-            Map<String, String> resPackages = project.okbuck.resPackages
-            project.subprojects { prj ->
-                File buck = new File("${prj.projectDir.absolutePath}${File.separator}BUCK")
-                if (buck.exists() && !overwrite) {
-                    throw new IllegalStateException(
-                            "sub project ${prj.name}'s BUCK file already exist,  set overwrite property to true to overwrite existing file.")
-                } else {
-                    int type = getSubProjectType(prj)
-                    switch (type) {
-                        case JAVA_LIB_PROJECT:
-                            genJavaLibSubProjectBUCK(prj, allSubProjectsInternalDeps.get(prj.name),
+        Map<String, String> resPackages = project.okbuck.resPackages
+        project.subprojects { prj ->
+            File buck = new File("${prj.projectDir.absolutePath}${File.separator}BUCK")
+            if (buck.exists() && !overwrite) {
+                throw new IllegalStateException(
+                        "sub project ${prj.name}'s BUCK file already exist,  set overwrite property to true to overwrite existing file.")
+            } else {
+                int type = getSubProjectType(prj)
+                switch (type) {
+                    case JAVA_LIB_PROJECT:
+                        genJavaLibSubProjectBUCK(prj, allSubProjectsInternalDeps.get(prj.name),
+                                annotationProcessors.get(prj.name))
+                        break
+                    case ANDROID_LIB_PROJECT:
+                        if (resPackages.get(prj.name) == null ||
+                                resPackages.get(prj.name).isEmpty()) {
+                            throw new IllegalArgumentException(
+                                    "resPackages entry for ${prj.name} must be set")
+                        } else {
+                            genAndroidLibSubProjectBUCK(prj,
+                                    allSubProjectsInternalDeps.get(prj.name),
+                                    resPackages.get(prj.name),
                                     annotationProcessors.get(prj.name))
-                            break
-                        case ANDROID_LIB_PROJECT:
-                            if (resPackages.get(prj.name) == null ||
-                                    resPackages.get(prj.name).isEmpty()) {
-                                throw new IllegalArgumentException(
-                                        "resPackages entry for ${prj.name} must be set")
-                            } else {
-                                genAndroidLibSubProjectBUCK(prj,
-                                        allSubProjectsInternalDeps.get(prj.name),
-                                        resPackages.get(prj.name),
-                                        annotationProcessors.get(prj.name))
-                            }
-                            break
-                        case ANDROID_APP_PROJECT:
-                            if (resPackages.get(prj.name) == null ||
-                                    resPackages.get(prj.name).isEmpty()) {
-                                throw new IllegalArgumentException(
-                                        "resPackages entry for ${prj.name} must be set")
-                            } else {
-                                genAndroidAppSubProjectBUCK(prj,
-                                        allSubProjectsInternalDeps.get(prj.name),
-                                        resPackages.get(prj.name),
-                                        annotationProcessors.get(prj.name))
-                            }
-                            break
-                    }
+                        }
+                        break
+                    case ANDROID_APP_PROJECT:
+                        if (resPackages.get(prj.name) == null ||
+                                resPackages.get(prj.name).isEmpty()) {
+                            throw new IllegalArgumentException(
+                                    "resPackages entry for ${prj.name} must be set")
+                        } else {
+                            genAndroidAppSubProjectBUCK(prj,
+                                    allSubProjectsInternalDeps.get(prj.name),
+                                    resPackages.get(prj.name),
+                                    annotationProcessors.get(prj.name),
+                                    (String) project.okbuck.keystoreDir,
+                                    (String) project.okbuck.signConfigName)
+                        }
+                        break
                 }
             }
         }
@@ -256,17 +254,16 @@ class OkBuckGradlePlugin implements Plugin<Project> {
 
     private static void genAndroidAppSubProjectBUCK(
             Project project, Set<String> internalDeps, String resPackage,
-            Set<String> annotationProcessors
+            Set<String> annotationProcessors,
+            String keystoreDir, String signConfigName
     ) {
         println "generating sub project ${project.name}'s BUCK"
         PrintWriter printWriter = new PrintWriter(
                 new FileOutputStream("${project.projectDir.absolutePath}${File.separator}BUCK"))
-        printWriter.println("keystore(")
-        printWriter.println("\tname = '${project.name}_keystore',")
-        printWriter.println("\tstore = '${project.okbuck.keystore}',")
-        printWriter.println("\tproperties = '${project.okbuck.keystoreProperties}',")
-        printWriter.println(")")
-        printWriter.println()
+
+        getSignConfigs(project,
+                new File(project.rootProject.projectDir.absolutePath + File.separator +
+                        keystoreDir), signConfigName)
 
         printWriter.println("android_resource(")
         printWriter.println("\tname = 'res',")
@@ -330,7 +327,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         printWriter.println("android_binary(")
         printWriter.println("\tname = 'bin',")
         printWriter.println("\tmanifest = 'src/main/AndroidManifest.xml',")
-        printWriter.println("\tkeystore = ':${project.name}_keystore',")
+        printWriter.println("\tkeystore = '//${keystoreDir}:${project.name}_keystore',")
         printWriter.println("\tdeps = [")
         printWriter.println("\t\t':res',")
         printWriter.println("\t\t':src',")
@@ -344,6 +341,51 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         printWriter.println(")")
         printWriter.println()
         printWriter.close()
+    }
+
+    private static void getSignConfigs(Project project, File dir, String signConfigName) {
+        if (!dir.exists()) {
+            dir.mkdirs()
+        }
+        try {
+            project.extensions.getByName("android").metaPropertyValues.each { prop ->
+                if ("signingConfigs".equals(prop.name) && NamedDomainObjectContainer.class.
+                        isAssignableFrom(prop.type)) {
+                    NamedDomainObjectContainer<SigningConfig> signConfig = (NamedDomainObjectContainer<SigningConfig>) prop.value
+                    SigningConfig config
+                    if (signConfig.size() == 1) {
+                        config = signConfig.getAt(0)
+                    } else {
+                        config = signConfig.getByName(signConfigName)
+                    }
+                    IOUtils.copy(new FileInputStream(config.getStoreFile()),
+                            new FileOutputStream(new File(
+                                    "${dir.absolutePath}${File.separator}${project.name}.keystore")))
+                    PrintWriter writer = new PrintWriter(new FileOutputStream(new File(
+                            "${dir.absolutePath}${File.separator}${project.name}.keystore.properties")))
+                    writer.println("key.store=${project.name}.keystore")
+                    writer.println("key.alias=${config.getKeyAlias()}")
+                    writer.println("key.store.password=${config.getStorePassword()}")
+                    writer.println("key.alias.password=${config.getKeyPassword()}")
+                    writer.close()
+
+                    writer = new PrintWriter(new FileOutputStream(new File(
+                            "${dir.absolutePath}${File.separator}BUCK")))
+                    writer.println("keystore(")
+                    writer.println("\tname = '${project.name}_keystore',")
+                    writer.println("\tstore = '${project.name}.keystore',")
+                    writer.println("\tproperties = '${project.name}.keystore.properties',")
+                    writer.println("\tvisibility = ['//${project.name}:bin'],")
+                    writer.println(")")
+                    writer.close()
+                }
+            }
+        } catch (UnknownDomainObjectException e) {
+            throw new IllegalStateException(
+                    "Can not figure out sign config, please make sure you have only one sign config in your build.gradle, or set signConfigName in okbuck dsl.")
+        } catch (Exception e) {
+            throw new IllegalStateException("get ${project.name}'s sign config fail!")
+        }
     }
 
     private static void genAndroidLibSubProjectBUCK(
@@ -435,7 +477,8 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         if (type == ANDROID_LIB_PROJECT || type == ANDROID_APP_PROJECT) {
             try {
                 project.extensions.getByName("android").metaPropertyValues.each { prop ->
-                    if ("defaultConfig".equals(prop.name) && ProductFlavor.class.isAssignableFrom(prop.type)) {
+                    if ("defaultConfig".equals(prop.name) && ProductFlavor.class.isAssignableFrom(
+                            prop.type)) {
                         ProductFlavor flavor = (ProductFlavor) prop.value
                         for (ClassField classField : flavor.buildConfigFields.values()) {
                             ret.add("${classField.type} ${classField.name} = ${classField.value}")
@@ -690,8 +733,8 @@ class OkBuckGradlePlugin implements Plugin<Project> {
 
 class OkBuckExtension {
     String target = "android-23"
-    String keystore = ""
-    String keystoreProperties = ""
+    String signConfigName = ""
+    String keystoreDir = ".okbuck/keystore"
     boolean overwrite = false
     Map<String, String> resPackages
 }
