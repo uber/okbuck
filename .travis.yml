@@ -1,13 +1,10 @@
 # Disabling sudo moves build to the Container Based Infrastructure on Travis CI
-os: osx
 
 before_install:
-    - brew update
-    - brew tap facebook/fb
-    - brew install --HEAD buck
-    - brew install watchman
+    - sh ./install_buck.sh
 
 language: android
+jdk: oraclejdk7
 
 android:
   components:
@@ -25,7 +22,7 @@ before_script:
   - touch buildSrc/bintray.properties
 
 script:
-  - sh ./gradlew okbuck && buck install app
+  - sh ./gradlew okbuck && ./bin/buck install app
 
 notifications:
   email: false
