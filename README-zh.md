@@ -30,7 +30,7 @@ Android Studio + Gradle已经是大部分安卓开发者的开发环境，为了
     }
     ```
 
-    其中`android-23`相当于gradle指定`targetSdkVersion 23`；`debug.keystore`和`debug.keystore.properties`分别代表的是签名文件和签名配置文件，需要放到application module的根目录下，用于指定签名文件；`overwrite`指定是否覆盖已有的buck配置文件；`resPackages`用于指定每个Android library module和Android application module的R文件的包名。
+    其中`android-23`相当于gradle指定`targetSdkVersion 23`；`debug.keystore`和`debug.keystore.properties`分别代表的是签名文件和签名配置文件，需要放到application module的根目录下，用于指定签名文件；`overwrite`指定是否覆盖已有的buck配置文件；`resPackages`用于指定每个Android library module和Android application module的R文件的包名，你需要在resPackages里面为每个module指定包名，将dummylibrary/app替换为你的module的名字，引号里面的内容通常都是对应module的AndroidManifest.xml中的包名。
     
 4. 执行`./gradlew okbuck`命令，命令执行完毕后，将在工程目录下生成.buckconfig文件，.okbuck目录，以及每个module根目录下生成一个BUCK文件，此时在工程根目录执行`buck install app`即可开始使用buck构建安装了（假设你的application module叫app），开始体验buck构建的畅快淋漓吧 :)
 
@@ -96,7 +96,7 @@ Android Studio + Gradle已经是大部分安卓开发者的开发环境，为了
 +  依赖冲突解决方案优化
 +  本地jar包依赖失败解决方案优化
 +  更多需要自定义配置的选项
-+  ci
++  ~~ci~~
 +  代码优化/java doc
 
 ## 致谢

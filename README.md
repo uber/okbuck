@@ -37,7 +37,7 @@ Android Studio + Gradle has been many Android developers' option, and to migrate
     }
     ```
 
-    `android-23` works equally with `targetSdkVersion 23`; `debug.keystore` and `debug.keystore.properties` are signing related file, which should be put under **application module's root directory**; `overwrite` is used to control whether overwrite existing buck files; `resPackages` is used to set Android library module and Android Application module's package name for generated resources (`R` in common cases).
+    `android-23` works equally with `targetSdkVersion 23`; `debug.keystore` and `debug.keystore.properties` are signing related file, which should be put under **application module's root directory**; `overwrite` is used to control whether overwrite existing buck files; `resPackages` is used to set Android library module and Android Application module's package name for generated resources (`R` in common cases), you need substitute dummylibrary/app with your own module name, and set the corrosponding package name inside the single quote, which should be the same package name specified in the corrosponding module's AndroidManifest.xml.
     
 4. After executing the okbuck gradle task by `./gradlew okbuck`, you can run `buck install app` now, enjoy your life with buck :)
 
@@ -89,7 +89,7 @@ If you come with bugs of OkBuck, please [open an issue](https://github.com/Piasy
 +  better solution for dependency conflict
 +  better solution for local jar dependency
 +  more configuration option
-+  ci
++  ~~ci~~
 +  code optimization/java doc
 
 ## Acknowledgement
