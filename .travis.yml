@@ -1,5 +1,5 @@
 # Disabling sudo moves build to the Container Based Infrastructure on Travis CI
-sudo: required
+sudo: false
 
 before_install:
     - sh ./install_buck.sh
