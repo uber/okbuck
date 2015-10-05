@@ -55,18 +55,13 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                 genBuckConfig(project, buckConfig)
             }
 
-            // get all sub projects
-            Set<String> allSubProjects = new HashSet<>()
-            project.subprojects { prj ->
-                allSubProjects.add(prj.name)
-            }
-            printAllSubProjects(allSubProjects)
+            printAllSubProjects(project)
 
             // get all sub projects compile dependencies, internal(project) or external(maven),
             // then filter internal dependency's external dependencies
             Map<String, Set<File>> allSubProjectsExternalDeps = new HashMap<>()
             Map<String, Set<String>> allSubProjectsInternalDeps = new HashMap<>()
-            getAllSubProjectsDeps(project, allSubProjects, allSubProjectsExternalDeps,
+            getAllSubProjectsDeps(project, allSubProjectsExternalDeps,
                     allSubProjectsInternalDeps)
             filterInternalsExternalDeps(project, allSubProjectsExternalDeps,
                     allSubProjectsInternalDeps)
@@ -206,31 +201,32 @@ class OkBuckGradlePlugin implements Plugin<Project> {
 
     private static void getAllSubProjectsDeps(
             Project project,
-            Set<String> allSubProjects,
             Map<String, Set<File>> allSubProjectsExternalDeps,
             Map<String, Set<String>> allSubProjectsInternalDeps
     ) {
         project.subprojects { prj ->
+            // for each sub project
             allSubProjectsExternalDeps.put(prj.name, new HashSet<File>())
             allSubProjectsInternalDeps.put(prj.name, new HashSet<String>())
             prj.configurations.compile.resolve().each { dependency ->
+                // for each of its compile dependency, if dep's path start with **another** sub
+                // project's build path, it's an internal dependency(project), otherwise, it's an
+                // external dependency, whether maven/m2/local jars.
                 boolean isProjectDep = false
                 String projectDep = ""
-                for (String name : allSubProjects) {
-                    if (dependency.absolutePath.contains(
-                            "${File.separator}${name}${File.separator}") &&
-                            !dependency.absolutePath.contains(
-                                    "${File.separator}${prj.name}${File.separator}")) {
+                for (Project subProject : project.subprojects) {
+                    if (!prj.projectDir.equals(subProject.projectDir) && dependency.absolutePath.
+                            startsWith(subProject.buildDir.absolutePath)) {
                         isProjectDep = true
-                        projectDep = name
+                        projectDep = subProject.name
                         break
                     }
                 }
                 if (isProjectDep) {
-                    println "${prj.name}'s dependency ${dependency.name} is an internal dependency, sub project: ${projectDep}"
+                    println "${prj.name}'s dependency ${dependency.absolutePath} is an internal dependency, sub project: ${projectDep}"
                     allSubProjectsInternalDeps.get(prj.name).add(projectDep)
                 } else {
-                    println "${prj.name}'s dependency ${dependency.name} is an external dependency"
+                    println "${prj.name}'s dependency ${dependency.absolutePath} is an external dependency"
                     allSubProjectsExternalDeps.get(prj.name).add(dependency)
                 }
             }
@@ -247,7 +243,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
             for (String projectDep : allSubProjectsInternalDeps.get(prj.name)) {
                 for (File mavenDep : allSubProjectsExternalDeps.get(projectDep)) {
                     if (allSubProjectsExternalDeps.get(prj.name).contains(mavenDep)) {
-                        println "${prj.name}'s dependency ${mavenDep.name} is contained in ${projectDep}, exclude it"
+                        println "${prj.name}'s dependency ${mavenDep.absolutePath} is contained in ${projectDep}, exclude it"
                         allSubProjectsExternalDeps.get(prj.name).remove(mavenDep)
                     }
                 }
@@ -595,9 +591,9 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         return UNKNOWN
     }
 
-    private static void printAllSubProjects(Set<String> allSubProjects) {
-        for (String name : allSubProjects) {
-            println "Sub project: ${name}"
+    private static void printAllSubProjects(Project project) {
+        project.subprojects { prj ->
+            println "Sub project: ${prj.name}"
         }
     }
 

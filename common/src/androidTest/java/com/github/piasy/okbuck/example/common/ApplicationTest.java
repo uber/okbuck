@@ -22,33 +22,16 @@
  * SOFTWARE.
  */
 
-apply plugin: 'com.android.library'
-apply plugin: 'com.neenbedankt.android-apt'
+package com.github.piasy.okbuck.example.common;
 
-android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.1"
+import android.app.Application;
+import android.test.ApplicationTestCase;
 
-    defaultConfig {
-        minSdkVersion 15
-        targetSdkVersion 23
-        versionCode 1
-        versionName "1.0"
+/**
+ * <a href="http://d.android.com/tools/testing/testing_android.html">Testing Fundamentals</a>
+ */
+public class ApplicationTest extends ApplicationTestCase<Application> {
+    public ApplicationTest() {
+        super(Application.class);
     }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
-}
-
-dependencies {
-    testCompile 'junit:junit:4.12'
-
-    compile 'com.android.support:appcompat-v7:23.0.1'
-    provided 'com.google.dagger:dagger-compiler:2.0.1'
-    compile project(':javalibrary')
-    compile project(':common')
-    compile 'com.pushtorefresh.storio:sqlite:1.3.0'
 }

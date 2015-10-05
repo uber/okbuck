@@ -22,33 +22,18 @@
  * SOFTWARE.
  */
 
-apply plugin: 'com.android.library'
-apply plugin: 'com.neenbedankt.android-apt'
+package com.github.piasy.okbuck.example.common;
 
-android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.1"
+import org.junit.Test;
 
-    defaultConfig {
-        minSdkVersion 15
-        targetSdkVersion 23
-        versionCode 1
-        versionName "1.0"
+import static org.junit.Assert.*;
+
+/**
+ * To work on unit tests, switch the Test Artifact in the Build Variants view.
+ */
+public class ExampleUnitTest {
+    @Test
+    public void addition_isCorrect() throws Exception {
+        assertEquals(4, 2 + 2);
     }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
-}
-
-dependencies {
-    testCompile 'junit:junit:4.12'
-
-    compile 'com.android.support:appcompat-v7:23.0.1'
-    provided 'com.google.dagger:dagger-compiler:2.0.1'
-    compile project(':javalibrary')
-    compile project(':common')
-    compile 'com.pushtorefresh.storio:sqlite:1.3.0'
 }

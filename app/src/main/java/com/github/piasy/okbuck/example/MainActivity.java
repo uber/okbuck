@@ -1,7 +1,9 @@
 package com.github.piasy.okbuck.example;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.widget.TextView;
 import butterknife.ButterKnife;
 import com.github.piasy.okbuck.example.dummylibrary.DummyAndroidClass;
@@ -30,6 +32,13 @@ public class MainActivity extends AppCompatActivity {
 
         mTextView.setText(String.format("%s %s, --from %s.", getString(R.string.app_android_str),
                 mDummyAndroidClass.getAndroidWord(this), mDummyJavaClass.getJavaWord()));
+
+        mTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, CollapsingAppBarActivity.class));
+            }
+        });
     }
 
     private void bind() {

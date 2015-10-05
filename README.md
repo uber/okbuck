@@ -63,15 +63,27 @@ OkBuck can only generate the buck config for you, so if your source code is inco
 
 +  `javax.annotation` dependency: if your module depends on `javax.annotation`, use the `compile` scope rather than `provided` scope.
 
++  buck can't compile with java 8, so it's incompitable with retrolambda, no more lambda :(
+    
 +  Maybe there are more caveats waiting for you, but for the super fast build brought by buck, it's worthwhile.
 
 +  The rest modules in this repo is a full example usage of OkBuck.
+
+## Known caveats
++  Not compitable with `ButterKnife` (buck)
++  Not compitable with `RetroLambda` (buck)
++  `javax.annotation` dependency should be `compile` scope, rather `provided` (OkBuck)
++  Cross module reference on `R` (buck), see above and avoid it
++  Could not refer to design support library's string resource `appbar_scrolling_view_behavior` (buck), that's the specific scenario of the above caveat, quick solution:
+  +  define your own string resource: `<string name="my_appbar_scrolling_view_behavior" translatable="false">android.support.design.widget.AppBarLayout$ScrollingViewBehavior</string>`, and use it in your layout file
+  +  or use the content directly in your layout file: `app:layout_behavior="android.support.design.widget.AppBarLayout$ScrollingViewBehavior"`
 
 ## Troubleshooting
 If you come with bugs of OkBuck, please [open an issue](https://github.com/Piasy/OkBuck/issues/new), and it's really appreciated to post the output of `./gradle okbuck` at the same time.
 
 ## TODO
 +  ~~handle apt, provided dependencies~~
++  res reference on aar dependency
 +  test/androidTest support, product flavor support
 +  better solution for dependency conflict
 +  better solution for local jar dependency

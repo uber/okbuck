@@ -70,15 +70,27 @@ Android Studio + Gradle已经是大部分安卓开发者的开发环境，为了
 
 +  `javax.annotation`依赖，如果依赖了`javax.annotation`，请使用`compile` scope 而不是`provided` scope。
 
++  buck不能使用java 8编译，所以与retrolambda不兼容，暂时告别lambda了 :(
+
 +  可能还有更多的工作需要进行，或者说更多的坑等着你踩 :) 。不过为了以后每次编译的畅快淋漓，值啊！
 
 +  完整例子可以参考本repo对OkBuck的使用。
+
+## 已知的“坑”
++  与`ButterKnife`不兼容 (buck)
++  与`RetroLambda`不兼容 (buck)
++  `javax.annotation`依赖请使用`compile` scope 而不是`provided` scope (OkBuck)
++  对`R`的跨module引用会有问题 (buck)，详见上文
++  无法引用design support库的string resource `appbar_scrolling_view_behavior` (buck)，其实是上一条的具体情形，因为资源的定义在design support库里面，跨module引用了，解决方案：
+  +  在自己module的string.xml里面定义：`<string name="my_appbar_scrolling_view_behavior" translatable="false">android.support.design.widget.AppBarLayout$ScrollingViewBehavior</string>`，然后在layout中引用
+  +  或者直接在layout中把内容硬编码进去：`app:layout_behavior="android.support.design.widget.AppBarLayout$ScrollingViewBehavior"`
 
 ## Troubleshooting
 如果你在使用OkBuck的过程中遇到了什么问题（bug），请[提一个issue](https://github.com/Piasy/OkBuck/issues/new)，另外如果能把`./gradle okbuck`任务执行时的输出内容也提供上，那就是极好的了。
 
 ## TODO
 +  ~~处理apt，provided等类型的依赖，目前都是统一的compile~~
++  aar依赖中res的引用问题
 +  test/androidTest的支持，product flavor支持
 +  依赖冲突解决方案优化
 +  本地jar包依赖失败解决方案优化
