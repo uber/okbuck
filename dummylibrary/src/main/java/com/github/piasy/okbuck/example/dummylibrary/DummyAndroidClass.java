@@ -32,6 +32,9 @@ import com.google.gson.GsonBuilder;
  */
 public class DummyAndroidClass {
     public String getAndroidWord(Context context) {
+        if (!BuildConfig.DUMMY_CONFIG) {
+            throw new IllegalStateException("BuildConfig.DUMMY_CONFIG should be true");
+        }
         String mock = "{\"lang\":\"" + context.getString(R.string.dummy_library_android_str) + "\"}";
         return new GsonBuilder().create().fromJson(mock, DummyObject.class).lang;
     }

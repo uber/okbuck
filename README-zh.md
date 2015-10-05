@@ -63,7 +63,24 @@ Android Studio + Gradle已经是大部分安卓开发者的开发环境，为了
     临时解决方案：moduleA改为以远程方式（maven）依赖gson，使用OkBuck之后，此时moduleB就可以引用gson了。
     
     这个问题OkBuck接下来绝对是要解决的。
+
++  versionCode, versionName, targetSdkVersion, minSdkVersion的定义，需要放到AndroidManifest.xml文件中，而不是放在build.gradle文件里面，示例：
+
+    ```xml
+    <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.github.piasy.okbuck.example"
+          android:versionCode="1"
+          android:versionName="1.0"
+        >
     
+        <uses-sdk
+                android:targetSdkVersion="23"
+                android:minSdkVersion="15"
+                />
+                ...
+    </manifest>
+    ```
+
 +  `R`的引用问题
 
     buck构建生成的`R`中的定义，都不是final的，所以如果你使用了ButterKnife等这样的库，那这两者将不兼容；临时方案是：把ButterKnife的`@Bind`/`@InjectView`转换为`ButterKnife.findById`，`@OnClick`转换为手动设置`OnClickListener`。
@@ -95,7 +112,9 @@ Android Studio + Gradle已经是大部分安卓开发者的开发环境，为了
 ## TODO
 +  ~~处理apt，provided等类型的依赖，目前都是统一的compile~~
 +  aar依赖中res的引用问题
-+  test/androidTest的支持，product flavor支持
++  ~~build config~~ 只支持defaultConfig dsl 下的配置，因为buck不支持multi-product flavors，具体例子请见app module
++  ~~product flavor support~~ buck不支持，[参考](http://stackoverflow.com/a/26001029/3077508)
++  test/androidTest support
 +  依赖冲突解决方案优化
 +  本地jar包依赖失败解决方案优化
 +  更多需要自定义配置的选项

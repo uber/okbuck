@@ -22,7 +22,9 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".CollapsingAppBarActivity"/>
+        <activity android:name=".CollapsingAppBarActivity"
+                  android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+                />
     </application>
 
 </manifest>

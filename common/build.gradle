@@ -33,6 +33,8 @@ android {
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
+
+        buildConfigField "boolean", "COMMON_CONFIG", "true"
     }
     buildTypes {
         release {

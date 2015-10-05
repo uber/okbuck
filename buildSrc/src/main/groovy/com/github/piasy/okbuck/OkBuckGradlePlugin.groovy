@@ -26,6 +26,9 @@ package com.github.piasy.okbuck
 
 import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.LibraryPlugin
+import com.android.build.gradle.internal.dsl.ProductFlavor
+import com.android.builder.internal.ClassFieldImpl
+import com.android.builder.model.ClassField
 import org.apache.commons.io.IOUtils
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -268,7 +271,27 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         printWriter.println("android_resource(")
         printWriter.println("\tname = 'res',")
         printWriter.println("\tres = 'src/main/res',")
+        File assets = new File("${project.projectDir.absolutePath}/src/main/assets")
+        if (assets.exists()) {
+            println "sub project ${project.name}'s assets exist include it"
+            printWriter.println("\tassets = 'src/main/assets',")
+        } else {
+            println "sub project ${project.name}'s assets not exist"
+        }
         printWriter.println("\tpackage = '${resPackage}',")
+        printWriter.println("\tvisibility = ['//${project.name}:src'],")
+        printWriter.println(")")
+        printWriter.println()
+
+        printWriter.println("android_build_config(")
+        printWriter.println("\tname = 'build_config',")
+        printWriter.println("\tpackage = '${resPackage}',")
+        printWriter.println("\tvalues = [")
+        List<String> buildConfigFields = getDefaultConfigBuildConfigField(project)
+        for (String field : buildConfigFields) {
+            printWriter.println("\t\t'${field}',")
+        }
+        printWriter.println("\t],")
         printWriter.println("\tvisibility = ['//${project.name}:src'],")
         printWriter.println(")")
         printWriter.println()
@@ -278,6 +301,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         printWriter.println("\tsrcs = glob(['src/main/java/**/*.java']),")
         printWriter.println("\tdeps = [")
         printWriter.println("\t\t':res',")
+        printWriter.println("\t\t':build_config',")
         for (String dep : internalDeps) {
             printWriter.println("\t\t'//${dep}:src',")
         }
@@ -332,7 +356,27 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         printWriter.println("android_resource(")
         printWriter.println("\tname = 'res',")
         printWriter.println("\tres = 'src/main/res',")
+        File assets = new File("${project.projectDir.absolutePath}/src/main/assets")
+        if (assets.exists()) {
+            println "sub project ${project.name}'s assets exist include it"
+            printWriter.println("\tassets = 'src/main/assets',")
+        } else {
+            println "sub project ${project.name}'s assets not exist"
+        }
         printWriter.println("\tpackage = '${resPackage}',")
+        printWriter.println("\tvisibility = ['//${project.name}:src'],")
+        printWriter.println(")")
+        printWriter.println()
+
+        printWriter.println("android_build_config(")
+        printWriter.println("\tname = 'build_config',")
+        printWriter.println("\tpackage = '${resPackage}',")
+        printWriter.println("\tvalues = [")
+        List<String> buildConfigFields = getDefaultConfigBuildConfigField(project)
+        for (String field : buildConfigFields) {
+            printWriter.println("\t\t'${field}',")
+        }
+        printWriter.println("\t],")
         printWriter.println("\tvisibility = ['//${project.name}:src'],")
         printWriter.println(")")
         printWriter.println()
@@ -342,6 +386,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         printWriter.println("\tsrcs = glob(['src/main/java/**/*.java']),")
         printWriter.println("\tdeps = [")
         printWriter.println("\t\t':res',")
+        printWriter.println("\t\t':build_config',")
         for (String dep : internalDeps) {
             printWriter.println("\t\t'//${dep}:src',")
         }
@@ -381,6 +426,27 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         printWriter.println(")")
 
         printWriter.close()
+    }
+
+    private static List<String> getDefaultConfigBuildConfigField(Project project) {
+        println "get ${project.name}'s buildConfigField:"
+        List<String> ret = new ArrayList<>()
+        int type = getSubProjectType(project)
+        if (type == ANDROID_LIB_PROJECT || type == ANDROID_APP_PROJECT) {
+            try {
+                project.extensions.getByName("android").metaPropertyValues.each { prop ->
+                    if ("defaultConfig".equals(prop.name) && ProductFlavor.class.isAssignableFrom(prop.type)) {
+                        ProductFlavor flavor = (ProductFlavor) prop.value
+                        for (ClassField classField : flavor.buildConfigFields.values()) {
+                            ret.add("${classField.type} ${classField.name} = ${classField.value}")
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                println "get ${project.name}'s buildConfigField fail!"
+            }
+        }
+        return ret
     }
 
     private static void genJavaLibSubProjectBUCK(

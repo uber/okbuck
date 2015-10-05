@@ -33,12 +33,14 @@ public class MainActivity extends AppCompatActivity {
         mTextView.setText(String.format("%s %s, --from %s.", getString(R.string.app_android_str),
                 mDummyAndroidClass.getAndroidWord(this), mDummyJavaClass.getJavaWord()));
 
-        mTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, CollapsingAppBarActivity.class));
-            }
-        });
+        if (BuildConfig.CAN_JUMP) {
+            mTextView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startActivity(new Intent(MainActivity.this, CollapsingAppBarActivity.class));
+                }
+            });
+        }
     }
 
     private void bind() {

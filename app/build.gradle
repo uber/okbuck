@@ -5,12 +5,25 @@ android {
     compileSdkVersion 23
     buildToolsVersion "23.0.1"
 
+    defaultConfig {
+        buildConfigField "boolean", "CAN_JUMP", "true"
+    }
+
     signingConfigs {
         debug {
             storeFile file("debug.keystore")
             storePassword "android"
             keyAlias "androiddebugkey"
             keyPassword "android"
+        }
+    }
+
+    productFlavors {
+        dev {
+            buildConfigField "boolean", "CAN_JUMP", "true"
+        }
+        prod {
+            buildConfigField "boolean", "CAN_JUMP", "false"
         }
     }
 
