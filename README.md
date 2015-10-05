@@ -91,6 +91,6 @@ If you come with bugs of OkBuck, please [open an issue](https://github.com/Piasy
 +  ci
 +  code optimization/java doc
 
-## 致谢
+## Acknowledgement
 +  Thanks for Facebook open source [buck](https://github.com/facebook/buck) build system.
 +  Thanks for the discussion and help from [promeG](https://github.com/promeG/) during my development.
