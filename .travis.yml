@@ -8,7 +8,7 @@ before_install:
     - brew install watchman
 
 language: android
-jdk: oraclejdk7
+jdk: oraclejdk8
 
 android:
   components:
