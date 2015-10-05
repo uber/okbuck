@@ -1,5 +1,6 @@
 # OkBuck
 [ ![Download](https://api.bintray.com/packages/piasy/maven/OkBuck/images/download.svg) ](https://bintray.com/piasy/maven/OkBuck/_latestVersion)
+[![Master branch build status](https://travis-ci.org/Piasy/OkBuck.svg?branch=master)](https://travis-ci.org/Piasy/OkBuck)
 
 A gradle plugin that helps developer migrate to code with Android Studio + Gradle, but build &amp;&amp; install with buck.
  	
