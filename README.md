@@ -1,6 +1,7 @@
 # OkBuck
 [ ![Download](https://api.bintray.com/packages/piasy/maven/OkBuck/images/download.svg) ](https://bintray.com/piasy/maven/OkBuck/_latestVersion)
 [![Master branch build status](https://travis-ci.org/Piasy/OkBuck.svg?branch=master)](https://travis-ci.org/Piasy/OkBuck)
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-OkBuck-green.svg?style=flat)](https://android-arsenal.com/details/1/2593)
 
 A gradle plugin that helps developer migrate to code with Android Studio + Gradle, but build &amp;&amp; install with buck.
  	
@@ -10,6 +11,8 @@ Only Twelve line config to migrate from Android Studio + gradle to facebook BUCK
 
 ## Why OkBuck?
 Android Studio + Gradle has been many Android developers' option, and to migrate to buck, there are many works to be done, both difficult and buggy. OkBuck aims to provide a gradle plugin, which will do these buggy job for you automaticlly after several lines configuration.
+
+Further more, you can still use OkBuck to maintain your BUCK build system when your gradle configurations changes, OkBuck let you even needn't know how to write the magic BUCK script! 
 
 ## What will OkBuck do for you?
 +  Generate `.buckconfig`.
