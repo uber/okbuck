@@ -39,24 +39,6 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     void apply(Project project) {
         project.extensions.create("okbuck", OkBuckExtension)
 
-        Task okBuck = project.task('okbuck')
-        dependsOnBundleRelease(okBuck, project)
-        okBuck << {
-            applyWithBuildVariant(project, "release")
-        }
-
-        Task okBuckDebug = project.task('okbuckDebug')
-        dependsOnBundleRelease(okBuckDebug, project)
-        okBuckDebug << {
-            applyWithBuildVariant(project, "debug")
-        }
-
-        Task okBuckRelease = project.task('okbuckRelease')
-        dependsOnBundleRelease(okBuckRelease, project)
-        okBuckRelease << {
-            applyWithBuildVariant(project, "release")
-        }
-
         Task okBuckClean = project.task('okbuckClean')
         okBuckClean << {
             File keyStoreDir = new File(project.projectDir.absolutePath + File.separator + (String) project.okbuck.keystoreDir)
@@ -74,6 +56,27 @@ class OkBuckGradlePlugin implements Plugin<Project> {
 
         project.getTasksByName("clean", true).each { task ->
             task.dependsOn(okBuckClean)
+        }
+
+        Task okBuck = project.task('okbuck')
+        dependsOnBundleRelease(okBuck, project)
+        okBuck.dependsOn(okBuckClean)
+        okBuck << {
+            applyWithBuildVariant(project, "release")
+        }
+
+        Task okBuckDebug = project.task('okbuckDebug')
+        dependsOnBundleRelease(okBuckDebug, project)
+        okBuckDebug.dependsOn(okBuckClean)
+        okBuckDebug << {
+            applyWithBuildVariant(project, "debug")
+        }
+
+        Task okBuckRelease = project.task('okbuckRelease')
+        dependsOnBundleRelease(okBuckRelease, project)
+        okBuckRelease.dependsOn(okBuckClean)
+        okBuckRelease << {
+            applyWithBuildVariant(project, "release")
         }
     }
 
