@@ -59,30 +59,33 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         }
 
         Task okBuck = project.task('okbuck')
-        dependsOnBundleRelease(okBuck, project)
+        dependsOnBuild(okBuck, project)
         okBuck.dependsOn(okBuckClean)
         okBuck << {
             applyWithBuildVariant(project, "release")
         }
 
         Task okBuckDebug = project.task('okbuckDebug')
-        dependsOnBundleRelease(okBuckDebug, project)
+        dependsOnBuild(okBuckDebug, project)
         okBuckDebug.dependsOn(okBuckClean)
         okBuckDebug << {
             applyWithBuildVariant(project, "debug")
         }
 
         Task okBuckRelease = project.task('okbuckRelease')
-        dependsOnBundleRelease(okBuckRelease, project)
+        dependsOnBuild(okBuckRelease, project)
         okBuckRelease.dependsOn(okBuckClean)
         okBuckRelease << {
             applyWithBuildVariant(project, "release")
         }
     }
 
-    private static dependsOnBundleRelease(Task task, Project project) {
+    private static dependsOnBuild(Task task, Project project) {
         project.getTasksByName("bundleRelease", true).each { bundleRelease ->
             task.dependsOn(bundleRelease)
+        }
+        project.getTasksByName("jar", true).each { jar ->
+            task.dependsOn(jar)
         }
     }
 
