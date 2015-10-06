@@ -124,6 +124,7 @@ class BuckFileGenerator {
                         } else {
                             genAndroidLibSubProjectBUCK(project,
                                     mAllSubProjectsInternalDependencies.get(project.name),
+                                    mAllSubProjectsExternalDependencies.get(project.name),
                                     mResPackages.get(project.name),
                                     mAnnotationProcessors.get(project.name))
                         }
@@ -136,6 +137,7 @@ class BuckFileGenerator {
                         } else {
                             genAndroidAppSubProjectBUCK(project,
                                     mAllSubProjectsInternalDependencies.get(project.name),
+                                    mAllSubProjectsExternalDependencies.get(project.name),
                                     mResPackages.get(project.name),
                                     mAnnotationProcessors.get(project.name), mKeystoreDir,
                                     mSignConfigName, mBuildVariant)
@@ -216,6 +218,7 @@ class BuckFileGenerator {
         printWriter.println("\tandroid_prebuilt_aar(")
         printWriter.println("\t\tname = name,")
         printWriter.println("\t\taar = aarfile,")
+        printWriter.println("\t\tvisibility = ['PUBLIC',],")
         printWriter.println("\t)")
         printWriter.println()
 
@@ -227,11 +230,12 @@ class BuckFileGenerator {
         printWriter.println("\t],")
         printWriter.println(")")
         printWriter.println()
+
         printWriter.close()
     }
 
-    private static void genAndroidAppSubProjectBUCK(
-            Project project, Set<String> internalDeps, String resPackage,
+    private void genAndroidAppSubProjectBUCK(
+            Project project, Set<String> internalDeps, Set<File> externalDeps, String resPackage,
             Set<String> annotationProcessors,
             String keystoreDir, String signConfigName, String buildVariant
     ) {
@@ -254,6 +258,19 @@ class BuckFileGenerator {
             println "sub project ${project.name}'s assets not exist"
         }
         printWriter.println("\tpackage = '${resPackage}',")
+        printWriter.println("\tdeps = [")
+        for (String internalDep : internalDeps) {
+            if (includeInternalSubProjectResDep(mRootProject, internalDep)) {
+                printWriter.println("\t\t'//${internalDep}:res',")
+            }
+        }
+        printWriter.println()
+        for (File externalDep : externalDeps) {
+            if (externalDep.name.endsWith(".aar")) {
+                printWriter.println("\t\t'//.okbuck/${project.name}:aar__${externalDep.name}',")
+            }
+        }
+        printWriter.println("\t],")
         printWriter.println("\tvisibility = ['//${project.name}:src'],")
         printWriter.println(")")
         printWriter.println()
@@ -277,11 +294,20 @@ class BuckFileGenerator {
         printWriter.println("\tdeps = [")
         printWriter.println("\t\t':res',")
         printWriter.println("\t\t':build_config',")
-        for (String dep : internalDeps) {
-            printWriter.println("\t\t'//${dep}:src',")
+        printWriter.println()
+        for (String internalDep : internalDeps) {
+            printWriter.println("\t\t'//${internalDep}:src',")
+            if (includeInternalSubProjectResDep(mRootProject, internalDep)) {
+                printWriter.println("\t\t'//${internalDep}:res',")
+            }
+        }
+        printWriter.println()
+        for (File externalDep : externalDeps) {
+            if (externalDep.name.endsWith(".aar")) {
+                printWriter.println("\t\t'//.okbuck/${project.name}:aar__${externalDep.name}',")
+            }
         }
         printWriter.println("\t\t'//.okbuck/${project.name}:all-jars',")
-        printWriter.println("\t\t'//.okbuck/${project.name}:all-aars',")
         printWriter.println("\t],")
 
         printWriter.println("\tannotation_processors = [")
@@ -290,8 +316,8 @@ class BuckFileGenerator {
         }
         printWriter.println("\t],")
         printWriter.println("\tannotation_processor_deps = [")
-        for (String dep : internalDeps) {
-            printWriter.println("\t\t'//${dep}:src',")
+        for (String internalDep : internalDeps) {
+            printWriter.println("\t\t'//${internalDep}:src',")
         }
         printWriter.println("\t\t'//.okbuck/${project.name}:all-jars',")
         printWriter.println("\t\t'//.okbuck/${project.name}:all-aars',")
@@ -321,6 +347,20 @@ class BuckFileGenerator {
         printWriter.println(")")
         printWriter.println()
         printWriter.close()
+    }
+
+    private static boolean includeInternalSubProjectResDep(
+            Project rootProject, String internalDepName
+    ) {
+        for (Project project : rootProject.rootProject.subprojects) {
+            if (project.name.equals(internalDepName)) {
+                int type = AndroidProjectHelper.getSubProjectType(project)
+                return type == AndroidProjectHelper.ANDROID_APP_PROJECT ||
+                        type ==
+                        AndroidProjectHelper.ANDROID_LIB_PROJECT
+            }
+        }
+        return false
     }
 
     private static void genSignConfigs(Project project, File dir, String signConfigName) {
@@ -368,8 +408,8 @@ class BuckFileGenerator {
         }
     }
 
-    private static void genAndroidLibSubProjectBUCK(
-            Project project, Set<String> internalDeps, String resPackage,
+    private void genAndroidLibSubProjectBUCK(
+            Project project, Set<String> internalDeps, Set<File> externalDeps, String resPackage,
             Set<String> annotationProcessors
     ) {
         println "generating sub project ${project.name}'s BUCK"
@@ -386,7 +426,20 @@ class BuckFileGenerator {
             println "sub project ${project.name}'s assets not exist"
         }
         printWriter.println("\tpackage = '${resPackage}',")
-        printWriter.println("\tvisibility = ['//${project.name}:src'],")
+        printWriter.println("\tdeps = [")
+        for (String internalDep : internalDeps) {
+            if (includeInternalSubProjectResDep(mRootProject, internalDep)) {
+                printWriter.println("\t\t'//${internalDep}:res',")
+            }
+        }
+        printWriter.println()
+        for (File externalDep : externalDeps) {
+            if (externalDep.name.endsWith(".aar")) {
+                printWriter.println("\t\t'//.okbuck/${project.name}:aar__${externalDep.name}',")
+            }
+        }
+        printWriter.println("\t],")
+        printWriter.println("\tvisibility = ['PUBLIC'],")
         printWriter.println(")")
         printWriter.println()
 
@@ -409,18 +462,32 @@ class BuckFileGenerator {
         printWriter.println("\tdeps = [")
         printWriter.println("\t\t':res',")
         printWriter.println("\t\t':build_config',")
-        for (String dep : internalDeps) {
-            printWriter.println("\t\t'//${dep}:src',")
+        printWriter.println()
+        for (String internalDep : internalDeps) {
+            printWriter.println("\t\t'//${internalDep}:src',")
+            if (includeInternalSubProjectResDep(mRootProject, internalDep)) {
+                printWriter.println("\t\t'//${internalDep}:res',")
+            }
+        }
+        printWriter.println()
+        for (File externalDep : externalDeps) {
+            if (externalDep.name.endsWith(".aar")) {
+                printWriter.println("\t\t'//.okbuck/${project.name}:aar__${externalDep.name}',")
+            }
         }
         printWriter.println("\t\t'//.okbuck/${project.name}:all-jars',")
-        printWriter.println("\t\t'//.okbuck/${project.name}:all-aars',")
         printWriter.println("\t],")
         printWriter.println("\texported_deps = [")
-        for (String dep : internalDeps) {
-            printWriter.println("\t\t'//${dep}:src',")
+        for (String internalDep : internalDeps) {
+            printWriter.println("\t\t'//${internalDep}:src',")
+        }
+        printWriter.println()
+        for (File externalDep : externalDeps) {
+            if (externalDep.name.endsWith(".aar")) {
+                printWriter.println("\t\t'//.okbuck/${project.name}:aar__${externalDep.name}',")
+            }
         }
         printWriter.println("\t\t'//.okbuck/${project.name}:all-jars',")
-        printWriter.println("\t\t'//.okbuck/${project.name}:all-aars',")
         printWriter.println("\t],")
         printWriter.println("\tvisibility = ['PUBLIC'],")
 
@@ -430,8 +497,8 @@ class BuckFileGenerator {
         }
         printWriter.println("\t],")
         printWriter.println("\tannotation_processor_deps = [")
-        for (String dep : internalDeps) {
-            printWriter.println("\t\t'//${dep}:src',")
+        for (String internalDep : internalDeps) {
+            printWriter.println("\t\t'//${internalDep}:src',")
         }
         printWriter.println("\t\t'//.okbuck/${project.name}:all-jars',")
         printWriter.println("\t\t'//.okbuck/${project.name}:all-aars',")

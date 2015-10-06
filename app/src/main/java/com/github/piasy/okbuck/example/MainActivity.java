@@ -32,8 +32,12 @@ public class MainActivity extends AppCompatActivity {
         DummyComponent component = DaggerDummyComponent.builder().build();
         component.inject(this);
 
-        mTextView.setText(String.format("%s %s, --from %s.", getString(R.string.app_android_str),
+        mTextView.setText(String.format("%s %s, --from %s.", getString(
+                com.github.piasy.okbuck.example.dummylibrary.R.string.dummy_library_android_str),
                 mDummyAndroidClass.getAndroidWord(this), mDummyJavaClass.getJavaWord()));
+
+        // using explicit reference to cross module R reference:
+        int id = android.support.design.R.string.appbar_scrolling_view_behavior;
 
         if (BuildConfig.CAN_JUMP) {
             mTextView.setOnClickListener(new View.OnClickListener() {

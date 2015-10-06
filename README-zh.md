@@ -126,7 +126,7 @@ Android Studio + Gradle已经是大部分安卓开发者的开发环境，为了
 +  与`ButterKnife`不兼容 (buck)
 +  与`RetroLambda`不兼容 (buck)
 +  `javax.annotation`依赖请使用`compile` scope 而不是`provided` scope (OkBuck)
-+  对`R`的跨module引用会有问题 (buck)，详见上文
++  对`R`的跨module引用会有问题 (buck)，在java代码中跨module引用R的内容，需要显式指明该module的R类的包名，详见上文
 +  无法引用design support库的string resource `appbar_scrolling_view_behavior` (buck)，其实是上一条的具体情形，因为资源的定义在design support库里面，跨module引用了，解决方案：
   +  在自己module的string.xml里面定义：`<string name="my_appbar_scrolling_view_behavior" translatable="false">android.support.design.widget.AppBarLayout$ScrollingViewBehavior</string>`，然后在layout中引用
   +  或者直接在layout中把内容硬编码进去：`app:layout_behavior="android.support.design.widget.AppBarLayout$ScrollingViewBehavior"`
@@ -137,7 +137,7 @@ Android Studio + Gradle已经是大部分安卓开发者的开发环境，为了
 
 ## TODO
 +  ~~处理apt，provided等类型的依赖，目前都是统一的compile~~
-+  aar依赖中res的引用问题
++  ~~aar依赖中res的引用问题~~ 在java代码中跨module引用R需要显式指明其包名，在xml中可以正常引用
 +  让buck打包的apk能支持调试
 +  ~~debugCompile/releaseCompile support~~
 +  ~~build config~~ 只支持defaultConfig dsl 下的配置，因为buck不支持multi-product flavors，具体例子请见app module
