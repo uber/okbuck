@@ -121,6 +121,7 @@ OkBuck can only generate the buck config for you, so if your source code is inco
 +  Could not refer to design support library's string resource `appbar_scrolling_view_behavior` (buck), that's the specific scenario of the above caveat, quick solution:
   +  define your own string resource: `<string name="my_appbar_scrolling_view_behavior" translatable="false">android.support.design.widget.AppBarLayout$ScrollingViewBehavior</string>`, and use it in your layout file
   +  or use the content directly in your layout file: `app:layout_behavior="android.support.design.widget.AppBarLayout$ScrollingViewBehavior"`
++  (buck & OkBuck) BUCK doesn't support debuggable apk generation easily, current quick solution is add `android:debuggable="true"` to your AndroidManifest.xml, OkBuck will fix this in near future.
 
 ## Troubleshooting
 If you come with bugs of OkBuck, please [open an issue](https://github.com/Piasy/OkBuck/issues/new), and it's really appreciated to post the output of `./gradle okbuck` at the same time.
