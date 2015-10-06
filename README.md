@@ -32,8 +32,8 @@ Further more, you can still use OkBuck to maintain your BUCK build system when y
         target "android-23"
         overwrite true
         resPackages = [
-            dummylibrary: 'com.github.piasy.okbuck.example.dummylibrary',
-            app: 'com.github.piasy.okbuck.example',
+            'dummylibrary': 'com.github.piasy.okbuck.example.dummylibrary',
+            'app': 'com.github.piasy.okbuck.example',
         ]
     }
     ```
@@ -51,9 +51,9 @@ Further more, you can still use OkBuck to maintain your BUCK build system when y
                 signConfigName "release"
                 overwrite true
                 resPackages = [
-                    dummylibrary: 'com.github.piasy.okbuck.example.dummylibrary',
-                    app: 'com.github.piasy.okbuck.example',
-                    common: 'com.github.piasy.okbuck.example.common',
+                    'dummylibrary': 'com.github.piasy.okbuck.example.dummylibrary',
+                    'app': 'com.github.piasy.okbuck.example',
+                    'common': 'com.github.piasy.okbuck.example.common',
                 ]
             }
         ```
@@ -146,3 +146,10 @@ If you come with bugs of OkBuck, please [open an issue](https://github.com/Piasy
 ## Acknowledgement
 +  Thanks for Facebook open source [buck](https://github.com/facebook/buck) build system.
 +  Thanks for the discussion and help from [promeG](https://github.com/promeG/) during my development.
+
+## Who is using OkBuck?
+User | Repo
+--- | ---
+[Piasy](https://github.com/Piasy) | [AndroidTDDBootStrap](https://github.com/Piasy/AndroidTDDBootStrap)
+
+If you are using OkBuck in your open source project, [send me a e-mail](mailto:xz4215@gmail.com) with your repo url, I'll add your repo in this list.

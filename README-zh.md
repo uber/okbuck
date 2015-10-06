@@ -27,8 +27,8 @@ Android Studio + Gradle已经是大部分安卓开发者的开发环境，为了
         keystoreProperties "debug.keystore.properties"
         overwrite true
         resPackages = [
-            dummylibrary: 'com.github.piasy.okbuck.example.dummylibrary',
-            app: 'com.github.piasy.okbuck.example',
+            'dummylibrary': 'com.github.piasy.okbuck.example.dummylibrary',
+            'app': 'com.github.piasy.okbuck.example',
         ]
     }
     ```
@@ -46,9 +46,9 @@ Android Studio + Gradle已经是大部分安卓开发者的开发环境，为了
                 signConfigName "release"
                 overwrite true
                 resPackages = [
-                    dummylibrary: 'com.github.piasy.okbuck.example.dummylibrary',
-                    app: 'com.github.piasy.okbuck.example',
-                    common: 'com.github.piasy.okbuck.example.common',
+                    'dummylibrary': 'com.github.piasy.okbuck.example.dummylibrary',
+                    'app': 'com.github.piasy.okbuck.example',
+                    'common': 'com.github.piasy.okbuck.example.common',
                 ]
             }
         ```
@@ -153,3 +153,10 @@ Android Studio + Gradle已经是大部分安卓开发者的开发环境，为了
 ## 致谢
 +  首先感谢Facebook开源的[buck](https://github.com/facebook/buck)构建系统
 +  感谢[promeG](https://github.com/promeG/)在开发过程中的讨论与指导
+
+## 谁用了OkBuck？
+User | Repo
+--- | ---
+[Piasy](https://github.com/Piasy) | [AndroidTDDBootStrap](https://github.com/Piasy/AndroidTDDBootStrap)，[手把手应用教程](http://blog.piasy.com/AndroidTDDBootStrap-Use-OkBuck/)
+
+如果你也在开源项目中使用了OkBuck，可以把repo的链接[发邮件给我](mailto:xz4215@gmail.com)，我会把你的repo加入到这个列表中。
