@@ -27,9 +27,9 @@ package com.github.piasy.okbuck
 import com.github.piasy.okbuck.analyzer.DependencyAnalyzer
 import com.github.piasy.okbuck.generator.BuckFileGenerator
 import com.github.piasy.okbuck.generator.DotBuckConfigGenerator
-import com.github.piasy.okbuck.helper.AndroidProjectHelper
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.Task
 
 /**
  * task added: okbuck, okbuckDebug, okbuckRelease, and okbuck is the shortcut for okbuckRelease
@@ -39,30 +39,47 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     void apply(Project project) {
         project.extensions.create("okbuck", OkBuckExtension)
 
-        project.task('okbuck') << {
-            /*project.subprojects { prj ->
-                if (AndroidProjectHelper.getSubProjectType(prj) == AndroidProjectHelper.ANDROID_APP_PROJECT) {
-                    prj.extensions.getByName("android").metaPropertyValues.each { prop ->
-                        try {
-                            print prop.name
-                            print "\t ${prop.type}"
-                            print "\t ${prop.value}"
-                            print "\n"
-                        } catch (Exception e) {
-                            print " ... exception...\n"
-                        }
-                    }
-                }
-            }*/
+        Task okBuck = project.task('okbuck')
+        dependsOnBundleRelease(okBuck, project)
+        okBuck << {
             applyWithBuildVariant(project, "release")
         }
 
-        project.task('okbuckDebug') << {
+        Task okBuckDebug = project.task('okbuckDebug')
+        dependsOnBundleRelease(okBuckDebug, project)
+        okBuckDebug << {
             applyWithBuildVariant(project, "debug")
         }
 
-        project.task('okbuckRelease') << {
+        Task okBuckRelease = project.task('okbuckRelease')
+        dependsOnBundleRelease(okBuckRelease, project)
+        okBuckRelease << {
             applyWithBuildVariant(project, "release")
+        }
+
+        Task okBuckClean = project.task('okbuckClean')
+        okBuckClean << {
+            File keyStoreDir = new File(project.projectDir.absolutePath + File.separator + (String) project.okbuck.keystoreDir)
+            keyStoreDir.deleteDir()
+            File dotOkBuck = new File("${project.projectDir.absolutePath}${File.separator}.okbuck")
+            dotOkBuck.deleteDir()
+            File dotBuckConfig = new File(
+                    "${project.projectDir.absolutePath}${File.separator}.buckconfig")
+            dotBuckConfig.delete()
+            project.subprojects { prj ->
+                File buck = new File("${prj.projectDir.absolutePath}${File.separator}BUCK")
+                buck.delete()
+            }
+        }
+
+        project.getTasksByName("clean", true).each { task ->
+            task.dependsOn(okBuckClean)
+        }
+    }
+
+    private static dependsOnBundleRelease(Task task, Project project) {
+        project.getTasksByName("bundleRelease", true).each { bundleRelease ->
+            task.dependsOn(bundleRelease)
         }
     }
 

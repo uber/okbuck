@@ -306,7 +306,8 @@ class BuckFileGenerator {
         printWriter.println("\tname = 'bin',")
         printWriter.println("\tmanifest = 'src/main/AndroidManifest.xml',")
         printWriter.println("\tkeystore = '//${keystoreDir}:${project.name}_keystore',")
-        printWriter.println("\tpackage_type = '${buildVariant}',")
+        // not included until proguard support
+        //printWriter.println("\tpackage_type = '${buildVariant}',")
         printWriter.println("\tdeps = [")
         printWriter.println("\t\t':res',")
         printWriter.println("\t\t':src',")
