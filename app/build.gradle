@@ -23,6 +23,7 @@ android {
 
     defaultConfig {
         buildConfigField "boolean", "CAN_JUMP", "true"
+        buildConfigField "boolean", "XLOG_ENABLED", "true"
     }
 
     signingConfigs {
@@ -63,11 +64,13 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    packagingOptions {
+        exclude 'META-INF/services/javax.annotation.processing.Processor'
+    }
 }
 
 dependencies {
-    testCompile 'junit:junit:4.12'
-
     compile 'com.jakewharton:butterknife:7.0.1'
 
     compile 'com.android.support:design:23.0.1'
@@ -75,4 +78,12 @@ dependencies {
 
     apt 'com.google.dagger:dagger-compiler:2.0.1'
     compile project(':dummylibrary')
+
+    debugCompile 'com.github.promeg:xlog-android:2.1.1'
+    debugCompile 'com.github.promeg:xlog-compiler:2.1.1'
+
+    releaseCompile 'com.github.promeg:xlog-android-idle:2.1.1'
+
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.mockito:mockito-core:1.9.5'
 }

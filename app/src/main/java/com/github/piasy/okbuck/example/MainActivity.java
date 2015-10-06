@@ -8,11 +8,13 @@ import android.widget.TextView;
 import butterknife.ButterKnife;
 import com.github.piasy.okbuck.example.dummylibrary.DummyAndroidClass;
 import com.github.piasy.okbuck.example.javalib.DummyJavaClass;
+import com.promegu.xlog.base.XLog;
 import javax.inject.Inject;
 
 /**
  * Created by Piasy{github.com/Piasy} on 15/10/3.
  */
+@XLog
 public class MainActivity extends AppCompatActivity {
     TextView mTextView;
 

@@ -33,7 +33,7 @@ Android Studio + Gradle已经是大部分安卓开发者的开发环境，为了
     }
     ```
 
-    +  其中`android-23`相当于gradle指定`targetSdkVersion 23`；
+    +  其中`android-23`相当于gradle指定`compileSdkVersion 23`；
     +  ~~`debug.keystore`和`debug.keystore.properties`分别代表的是签名文件和签名配置文件，需要放到application module的根目录下，用于指定签名文件；~~
     +  再也不用在OkBuck里指定签名配置了：
       +  只要你已经在build.gradle中设置了**刚好一个**签名配置
@@ -58,7 +58,10 @@ Android Studio + Gradle已经是大部分安卓开发者的开发环境，为了
     +  `resPackages`用于指定每个Android library module和Android application module的R文件的包名，你需要在resPackages里面为每个module指定包名，将dummylibrary/app替换为你的module的名字，引号里面的内容通常都是对应module的AndroidManifest.xml中的包名。
     
 4. 执行`./gradlew okbuck`命令，命令执行完毕后，将在工程目录下生成.buckconfig文件，.okbuck目录，以及每个module根目录下生成一个BUCK文件，此时在工程根目录执行`buck install app`即可开始使用buck构建安装了（假设你的application module叫app），开始体验buck构建的畅快淋漓吧 :)
-
+    +  加入`apply plugin: 'com.github.piasy.okbuck-gradle-plugin'`后，OkBuck将为你的工程生成三个gradle task：`okbuck`，`okbuckDebug`，和`okbuckRelease`
+    +  `okbuck`等同于`okbuckRelease`
+    +  `okbuckDebug`和`okbuckRelease`将使你在build.gradle中声明的`debugCompile`和`releaseCompile`依赖可以在buck的构建中正确引用，包括annotation processor哟！
+    
 5. 关于~~12~~ **10**行：~~当OkBuck可以从jcenter下载之后（很快），~~ 第一步配置只需要`classpath "com.github.piasy:okbuck-gradle-plugin:${latest version}"`一行，第二步只有一行，第三步有~~十~~ **八**行，所以真的只有~~12~~ **10**行！
 
 ## 更多工作
@@ -134,15 +137,17 @@ Android Studio + Gradle已经是大部分安卓开发者的开发环境，为了
 ## TODO
 +  ~~处理apt，provided等类型的依赖，目前都是统一的compile~~
 +  aar依赖中res的引用问题
-+  debugCompile/releaseCompile support
++  让buck打包的apk能支持调试
++  ~~debugCompile/releaseCompile support~~
 +  ~~build config~~ 只支持defaultConfig dsl 下的配置，因为buck不支持multi-product flavors，具体例子请见app module
 +  ~~product flavor support~~ buck不支持，[参考](http://stackoverflow.com/a/26001029/3077508)
 +  test/androidTest support
++  proguard support
 +  依赖冲突解决方案优化
 +  本地jar包依赖失败解决方案优化
 +  更多需要自定义配置的选项
 +  ~~ci~~
-+  代码优化/java doc
++  ~~代码优化/java doc~~
 
 ## 致谢
 +  首先感谢Facebook开源的[buck](https://github.com/facebook/buck)构建系统
