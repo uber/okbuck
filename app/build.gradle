@@ -26,13 +26,14 @@ android {
     }
 
     signingConfigs {
-        debug {
+        // comment this off for ci
+        /*debug {
             // you can set secrete like this to avoid expose your secrete in build.gradle
             storeFile file(props['key.store'])
             storePassword props['key.store.password']
             keyAlias props['key.alias']
             keyPassword props['key.alias.password']
-        }
+        }*/
 
         release {
             // or just set values directly
