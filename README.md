@@ -126,7 +126,7 @@ OkBuck can only generate the buck config for you, so if your source code is inco
 +  (buck & OkBuck) BUCK doesn't support debuggable apk generation easily, current quick solution is add `android:debuggable="true"` to your AndroidManifest.xml, OkBuck will fix this in near future.
 
 ## Troubleshooting
-If you come with bugs of OkBuck, please [open an issue](https://github.com/Piasy/OkBuck/issues/new), and it's really appreciated to post the output of `./gradle okbuck` at the same time.
+If you come with bugs of OkBuck, please [open an issue](https://github.com/Piasy/OkBuck/issues/new), and it's really appreciated to post the output of `./gradle okbuck --stacktrace` at the same time.
 
 ## TODO
 +  ~~handle apt, provided dependencies~~

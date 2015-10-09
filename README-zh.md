@@ -133,7 +133,7 @@ Android Studio + Gradle已经是大部分安卓开发者的开发环境，为了
 +  (buck & OkBuck) 目前想要使BUCK打包出支持debug的（可调试，可查看log）apk并不容易，目前的暴力方法是在AndroidManifest.xml文件中加入`android:debuggable="true"`，OkBuck将尽快解决这个问题
 
 ## Troubleshooting
-如果你在使用OkBuck的过程中遇到了什么问题（bug），请[提一个issue](https://github.com/Piasy/OkBuck/issues/new)，另外如果能把`./gradle okbuck`任务执行时的输出内容也提供上，那就是极好的了。
+如果你在使用OkBuck的过程中遇到了什么问题（bug），请[提一个issue](https://github.com/Piasy/OkBuck/issues/new)，另外如果能把`./gradle okbuck --stacktrace`任务执行时的输出内容也提供上，那就是极好的了。
 
 ## TODO
 +  ~~处理apt，provided等类型的依赖，目前都是统一的compile~~
