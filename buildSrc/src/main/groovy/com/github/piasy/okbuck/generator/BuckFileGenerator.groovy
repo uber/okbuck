@@ -36,7 +36,7 @@ import org.gradle.api.UnknownDomainObjectException
 class BuckFileGenerator {
     private final Project mRootProject
     private final Map<String, Set<File>> mAllSubProjectsExternalDependencies
-    private final Map<String, Set<String>> mAllSubProjectsInternalDependencies
+    private final Map<String, Set<Project>> mAllSubProjectsInternalDependencies
     private final Map<String, Set<File>> mAllSubProjectsAptDependencies
     private final Map<String, Set<String>> mAnnotationProcessors
     private final File mThirdPartyLibsDir
@@ -48,7 +48,7 @@ class BuckFileGenerator {
 
     public BuckFileGenerator(
             Project rootProject, Map<String, Set<File>> allSubProjectsExternalDependencies,
-            Map<String, Set<String>> allSubProjectsInternalDependencies,
+            Map<String, Set<Project>> allSubProjectsInternalDependencies,
             Map<String, Set<File>> allSubProjectsAptDependencies,
             Map<String, Set<String>> annotationProcessors, File thirdPartyLibsDir,
             Map<String, String> resPackages, boolean overwrite, String keystoreDir,
@@ -235,7 +235,7 @@ class BuckFileGenerator {
     }
 
     private void genAndroidAppSubProjectBUCK(
-            Project project, Set<String> internalDeps, Set<File> externalDeps, String resPackage,
+            Project project, Set<Project> internalDeps, Set<File> externalDeps, String resPackage,
             Set<String> annotationProcessors,
             String keystoreDir, String signConfigName, String buildVariant
     ) {
@@ -259,9 +259,9 @@ class BuckFileGenerator {
         }
         printWriter.println("\tpackage = '${resPackage}',")
         printWriter.println("\tdeps = [")
-        for (String internalDep : internalDeps) {
-            if (includeInternalSubProjectResDep(mRootProject, internalDep)) {
-                printWriter.println("\t\t'//${internalDep}:res',")
+        for (Project internalDep : internalDeps) {
+            if (includeInternalSubProjectResDep(internalDep)) {
+                printWriter.println("\t\t'/${getPathDiff(mRootProject, internalDep)}:res',")
             }
         }
         printWriter.println()
@@ -295,10 +295,10 @@ class BuckFileGenerator {
         printWriter.println("\t\t':res',")
         printWriter.println("\t\t':build_config',")
         printWriter.println()
-        for (String internalDep : internalDeps) {
-            printWriter.println("\t\t'//${internalDep}:src',")
-            if (includeInternalSubProjectResDep(mRootProject, internalDep)) {
-                printWriter.println("\t\t'//${internalDep}:res',")
+        for (Project internalDep : internalDeps) {
+            printWriter.println("\t\t'/${getPathDiff(mRootProject, internalDep)}:src',")
+            if (includeInternalSubProjectResDep(internalDep)) {
+                printWriter.println("\t\t'/${getPathDiff(mRootProject, internalDep)}:res',")
             }
         }
         printWriter.println()
@@ -316,8 +316,8 @@ class BuckFileGenerator {
         }
         printWriter.println("\t],")
         printWriter.println("\tannotation_processor_deps = [")
-        for (String internalDep : internalDeps) {
-            printWriter.println("\t\t'//${internalDep}:src',")
+        for (Project internalDep : internalDeps) {
+            printWriter.println("\t\t'/${getPathDiff(mRootProject, internalDep)}:src',")
         }
         printWriter.println("\t\t'//.okbuck/${project.name}:all-jars',")
         printWriter.println("\t\t'//.okbuck/${project.name}:all-aars',")
@@ -349,18 +349,11 @@ class BuckFileGenerator {
         printWriter.close()
     }
 
-    private static boolean includeInternalSubProjectResDep(
-            Project rootProject, String internalDepName
-    ) {
-        for (Project project : rootProject.rootProject.subprojects) {
-            if (project.name.equals(internalDepName)) {
-                int type = AndroidProjectHelper.getSubProjectType(project)
-                return type == AndroidProjectHelper.ANDROID_APP_PROJECT ||
-                        type ==
-                        AndroidProjectHelper.ANDROID_LIB_PROJECT
-            }
-        }
-        return false
+    private static boolean includeInternalSubProjectResDep(Project internalDep) {
+        int type = AndroidProjectHelper.getSubProjectType(internalDep)
+        return type == AndroidProjectHelper.ANDROID_APP_PROJECT ||
+                type ==
+                AndroidProjectHelper.ANDROID_LIB_PROJECT
     }
 
     private static void genSignConfigs(Project project, File dir, String signConfigName) {
@@ -409,7 +402,7 @@ class BuckFileGenerator {
     }
 
     private void genAndroidLibSubProjectBUCK(
-            Project project, Set<String> internalDeps, Set<File> externalDeps, String resPackage,
+            Project project, Set<Project> internalDeps, Set<File> externalDeps, String resPackage,
             Set<String> annotationProcessors
     ) {
         println "generating sub project ${project.name}'s BUCK"
@@ -427,9 +420,9 @@ class BuckFileGenerator {
         }
         printWriter.println("\tpackage = '${resPackage}',")
         printWriter.println("\tdeps = [")
-        for (String internalDep : internalDeps) {
-            if (includeInternalSubProjectResDep(mRootProject, internalDep)) {
-                printWriter.println("\t\t'//${internalDep}:res',")
+        for (Project internalDep : internalDeps) {
+            if (includeInternalSubProjectResDep(internalDep)) {
+                printWriter.println("\t\t'/${getPathDiff(mRootProject, internalDep)}:res',")
             }
         }
         printWriter.println()
@@ -463,10 +456,10 @@ class BuckFileGenerator {
         printWriter.println("\t\t':res',")
         printWriter.println("\t\t':build_config',")
         printWriter.println()
-        for (String internalDep : internalDeps) {
-            printWriter.println("\t\t'//${internalDep}:src',")
-            if (includeInternalSubProjectResDep(mRootProject, internalDep)) {
-                printWriter.println("\t\t'//${internalDep}:res',")
+        for (Project internalDep : internalDeps) {
+            printWriter.println("\t\t'/${getPathDiff(mRootProject, internalDep)}:src',")
+            if (includeInternalSubProjectResDep(internalDep)) {
+                printWriter.println("\t\t'/${getPathDiff(mRootProject, internalDep)}:res',")
             }
         }
         printWriter.println()
@@ -478,8 +471,8 @@ class BuckFileGenerator {
         printWriter.println("\t\t'//.okbuck/${project.name}:all-jars',")
         printWriter.println("\t],")
         printWriter.println("\texported_deps = [")
-        for (String internalDep : internalDeps) {
-            printWriter.println("\t\t'//${internalDep}:src',")
+        for (Project internalDep : internalDeps) {
+            printWriter.println("\t\t'/${getPathDiff(mRootProject, internalDep)}:src',")
         }
         printWriter.println()
         for (File externalDep : externalDeps) {
@@ -497,8 +490,8 @@ class BuckFileGenerator {
         }
         printWriter.println("\t],")
         printWriter.println("\tannotation_processor_deps = [")
-        for (String internalDep : internalDeps) {
-            printWriter.println("\t\t'//${internalDep}:src',")
+        for (Project internalDep : internalDeps) {
+            printWriter.println("\t\t'/${getPathDiff(mRootProject, internalDep)}:src',")
         }
         printWriter.println("\t\t'//.okbuck/${project.name}:all-jars',")
         printWriter.println("\t\t'//.okbuck/${project.name}:all-aars',")
@@ -541,8 +534,8 @@ class BuckFileGenerator {
         return ret
     }
 
-    private static void genJavaLibSubProjectBUCK(
-            Project project, Set<String> internalDeps, Set<String> annotationProcessors
+    private void genJavaLibSubProjectBUCK(
+            Project project, Set<Project> internalDeps, Set<String> annotationProcessors
     ) {
         println "generating sub project ${project.name}'s BUCK"
         PrintWriter printWriter = new PrintWriter(
@@ -552,14 +545,14 @@ class BuckFileGenerator {
         printWriter.println("\tsrcs = glob(['src/main/java/**/*.java']),")
         printWriter.println("\tdeps = [")
         printWriter.println("\t\t'//.okbuck/${project.name}:all-jars',")
-        for (String dep : internalDeps) {
-            printWriter.println("\t\t'//${dep}:src',")
+        for (Project internalDep : internalDeps) {
+            printWriter.println("\t\t'/${getPathDiff(mRootProject, internalDep)}:src',")
         }
         printWriter.println("\t],")
         printWriter.println("\texported_deps = [")
         printWriter.println("\t\t'//.okbuck/${project.name}:all-jars',")
-        for (String dep : internalDeps) {
-            printWriter.println("\t\t'//${dep}:src',")
+        for (Project internalDep : internalDeps) {
+            printWriter.println("\t\t'/${getPathDiff(mRootProject, internalDep)}:src',")
         }
         printWriter.println("\t],")
         printWriter.println("\tvisibility = ['PUBLIC'],")
@@ -570,8 +563,8 @@ class BuckFileGenerator {
         }
         printWriter.println("\t],")
         printWriter.println("\tannotation_processor_deps = [")
-        for (String dep : internalDeps) {
-            printWriter.println("\t\t'//${dep}:src',")
+        for (Project internalDep : internalDeps) {
+            printWriter.println("\t\t'/${getPathDiff(mRootProject, internalDep)}:src',")
         }
         printWriter.println("\t\t'//.okbuck/${project.name}:all-jars',")
         printWriter.println("\t\t'//.okbuck/annotation_processor_deps:all-jars',")
@@ -586,5 +579,9 @@ class BuckFileGenerator {
         printWriter.println(")")
 
         printWriter.close()
+    }
+
+    private static String getPathDiff(Project rootProject, Project project) {
+        return project.projectDir.absolutePath.substring(rootProject.projectDir.absolutePath.length())
     }
 }
