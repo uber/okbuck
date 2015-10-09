@@ -131,6 +131,7 @@ Android Studio + Gradle已经是大部分安卓开发者的开发环境，为了
   +  在自己module的string.xml里面定义：`<string name="my_appbar_scrolling_view_behavior" translatable="false">android.support.design.widget.AppBarLayout$ScrollingViewBehavior</string>`，然后在layout中引用
   +  或者直接在layout中把内容硬编码进去：`app:layout_behavior="android.support.design.widget.AppBarLayout$ScrollingViewBehavior"`
 +  (buck & OkBuck) 目前想要使BUCK打包出支持debug的（可调试，可查看log）apk并不容易，目前的暴力方法是在AndroidManifest.xml文件中加入`android:debuggable="true"`，OkBuck将尽快解决这个问题
++  (OkBuck) OkBuck支持一个project里面有多个application module，但是它们的签名配置必须一样，即各自build.gradle中signingConfigs标签的内容必须一致，如果保证这一点有问题，我建议你将工程一分为二，公共代码抽离为公用的库，这样也方便以后你有更多的project需要使用公用的代码
 
 ## Troubleshooting
 如果你在使用OkBuck的过程中遇到了什么问题（bug），请[提一个issue](https://github.com/Piasy/OkBuck/issues/new)，另外如果能把`./gradle okbuck --stacktrace`任务执行时的输出内容也提供上，那就是极好的了。
