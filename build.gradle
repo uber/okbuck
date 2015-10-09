@@ -29,6 +29,7 @@ okbuck {
         dummylibrary: 'com.github.piasy.okbuck.example.dummylibrary',
         app: 'com.github.piasy.okbuck.example',
         common: 'com.github.piasy.okbuck.example.common',
+        emptylibrary: 'com.github.piasy.okbuck.example.empty',
     ]
 }
 

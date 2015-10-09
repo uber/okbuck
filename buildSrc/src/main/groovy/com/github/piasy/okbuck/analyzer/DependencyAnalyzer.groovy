@@ -178,28 +178,32 @@ class DependencyAnalyzer {
             // for each sub project
             mAllSubProjectsExternalDependencies.put(project.name, new HashSet<File>())
             mAllSubProjectsInternalDependencies.put(project.name, new HashSet<String>())
-            project.configurations.compile.resolve().each { dependency ->
-                // for each of its compile dependency, if dependency's path start with
-                // **another** sub project's build path, it's an internal dependency(project),
-                // otherwise, it's an external dependency, whether maven/m2/local jar/aar.
-                boolean isProjectDep = false
-                String projectDep = ""
-                for (Project subProject : mRootProject.subprojects) {
-                    if (!project.projectDir.equals(
-                            subProject.projectDir) && dependency.absolutePath.
-                            startsWith(subProject.buildDir.absolutePath)) {
-                        isProjectDep = true
-                        projectDep = subProject.name
-                        break
+            try {
+                project.configurations.getByName("compile").resolve().each { dependency ->
+                    // for each of its compile dependency, if dependency's path start with
+                    // **another** sub project's build path, it's an internal dependency(project),
+                    // otherwise, it's an external dependency, whether maven/m2/local jar/aar.
+                    boolean isProjectDep = false
+                    String projectDep = ""
+                    for (Project subProject : mRootProject.subprojects) {
+                        if (!project.projectDir.equals(
+                                subProject.projectDir) && dependency.absolutePath.
+                                startsWith(subProject.buildDir.absolutePath)) {
+                            isProjectDep = true
+                            projectDep = subProject.name
+                            break
+                        }
+                    }
+                    if (isProjectDep) {
+                        println "${project.name}'s dependency ${dependency.absolutePath} is an internal dependency, sub project: ${projectDep}"
+                        mAllSubProjectsInternalDependencies.get(project.name).add(projectDep)
+                    } else {
+                        println "${project.name}'s dependency ${dependency.absolutePath} is an external dependency"
+                        mAllSubProjectsExternalDependencies.get(project.name).add(dependency)
                     }
                 }
-                if (isProjectDep) {
-                    println "${project.name}'s dependency ${dependency.absolutePath} is an internal dependency, sub project: ${projectDep}"
-                    mAllSubProjectsInternalDependencies.get(project.name).add(projectDep)
-                } else {
-                    println "${project.name}'s dependency ${dependency.absolutePath} is an external dependency"
-                    mAllSubProjectsExternalDependencies.get(project.name).add(dependency)
-                }
+            } catch (Exception e) {
+                println "${project.name} doesn't have compile dependencies"
             }
 
             try {
