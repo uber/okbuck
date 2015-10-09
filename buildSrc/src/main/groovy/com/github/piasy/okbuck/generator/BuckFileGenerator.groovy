@@ -245,7 +245,7 @@ class BuckFileGenerator {
 
         genSignConfigs(project,
                 new File(project.rootProject.projectDir.absolutePath + File.separator +
-                        keystoreDir), signConfigName)
+                        keystoreDir + File.separator + project.name), signConfigName)
 
         printWriter.println("android_resource(")
         printWriter.println("\tname = 'res',")
@@ -331,7 +331,7 @@ class BuckFileGenerator {
         printWriter.println("android_binary(")
         printWriter.println("\tname = 'bin',")
         printWriter.println("\tmanifest = 'src/main/AndroidManifest.xml',")
-        printWriter.println("\tkeystore = '//${keystoreDir}:${project.name}_keystore',")
+        printWriter.println("\tkeystore = '//${keystoreDir}/${project.name}:${project.name}_keystore',")
         // not included until proguard support
         //printWriter.println("\tpackage_type = '${buildVariant}',")
         printWriter.println("\tdeps = [")
