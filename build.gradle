@@ -28,6 +28,7 @@ okbuck {
     resPackages = [
         dummylibrary: 'com.github.piasy.okbuck.example.dummylibrary',
         app: 'com.github.piasy.okbuck.example',
+        anotherapp: 'com.github.piasy.okbuck.example.anotherapp',
         common: 'com.github.piasy.okbuck.example.common',
         emptylibrary: 'com.github.piasy.okbuck.example.empty',
     ]
