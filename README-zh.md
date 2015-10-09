@@ -58,8 +58,8 @@ Android Studio + Gradle已经是大部分安卓开发者的开发环境，为了
     +  `resPackages`用于指定每个Android library module和Android application module的R文件的包名，你需要在resPackages里面为每个module指定包名，将dummylibrary/app替换为你的module的名字，引号里面的内容通常都是对应module的AndroidManifest.xml中的包名。
     
 4. 执行`./gradlew okbuck`命令，命令执行完毕后，将在工程目录下生成.buckconfig文件，.okbuck目录，以及每个module根目录下生成一个BUCK文件，此时在工程根目录执行`buck install app`即可开始使用buck构建安装了（假设你的application module叫app），开始体验buck构建的畅快淋漓吧 :)
-    +  加入`apply plugin: 'com.github.piasy.okbuck-gradle-plugin'`后，OkBuck将为你的工程生成三个gradle task：`okbuck`，`okbuckDebug`，和`okbuckRelease`
-    +  `okbuck`等同于`okbuckRelease`
+    +  加入`apply plugin: 'com.github.piasy.okbuck-gradle-plugin'`后，OkBuck将为你的工程生成三个gradle task：`okbuck`，`okbuckDebug` `okbuckRelease` 和 `okbuckClean`
+    +  执行`okbuckClean` 将**删除所有**OkBuck生成的文件
     +  `okbuckDebug`和`okbuckRelease`将使你在build.gradle中声明的`debugCompile`和`releaseCompile`依赖可以在buck的构建中正确引用，包括annotation processor哟！
     
 5. 关于~~12~~ **10**行：~~当OkBuck可以从jcenter下载之后（很快），~~ 第一步配置只需要`classpath "com.github.piasy:okbuck-gradle-plugin:${latest version}"`一行，第二步只有一行，第三步有~~十~~ **八**行，所以真的只有~~12~~ **10**行！
