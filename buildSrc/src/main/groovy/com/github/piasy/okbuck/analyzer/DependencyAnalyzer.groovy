@@ -34,12 +34,12 @@ class DependencyAnalyzer {
     private final Project mRootProject
     private final String mBuildVariant
     private final Map<String, Set<File>> mAllSubProjectsExternalDependencies = new HashMap<>()
-    private final Map<String, Set<String>> mAllSubProjectsInternalDependencies = new HashMap<>()
+    private final Map<String, Set<Project>> mAllSubProjectsInternalDependencies = new HashMap<>()
     private final Map<String, Set<File>> mAllSubProjectsAptDependencies = new HashMap<>()
     private final Map<String, Set<String>> mAnnotationProcessors = new HashMap<>()
 
     private final Map<String, Set<File>> mAllSubProjectsExternalTestDependencies = new HashMap<>()
-    private final Map<String, Set<String>> mAllSubProjectsInternalTestDependencies = new HashMap<>()
+    private final Map<String, Set<Project>> mAllSubProjectsInternalTestDependencies = new HashMap<>()
 
     public DependencyAnalyzer(Project rootProject, String variant) {
         mRootProject = rootProject
@@ -74,7 +74,7 @@ class DependencyAnalyzer {
         return mAllSubProjectsExternalDependencies
     }
 
-    public Map<String, Set<String>> getAllSubProjectsInternalDependencies() {
+    public Map<String, Set<Project>> getAllSubProjectsInternalDependencies() {
         return mAllSubProjectsInternalDependencies
     }
 
@@ -128,9 +128,9 @@ class DependencyAnalyzer {
     private excludeInternalsExternalDependencies() {
         mRootProject.subprojects { project ->
             // for each sub project
-            for (String projectDep : mAllSubProjectsInternalDependencies.get(project.name)) {
+            for (Project projectDep : mAllSubProjectsInternalDependencies.get(project.name)) {
                 // for each internal dependency of this sub project
-                for (File mavenDep : mAllSubProjectsExternalDependencies.get(projectDep)) {
+                for (File mavenDep : mAllSubProjectsExternalDependencies.get(projectDep.name)) {
                     // iterate over the external dependencies of this **internal dependency**
 
                     // if the **internal dependency**'s external dependency is contained in the sub
@@ -138,7 +138,7 @@ class DependencyAnalyzer {
                     // is contained by the sub project's internal dependency
                     if (mAllSubProjectsExternalDependencies.get(project.name).contains(mavenDep)) {
                         // so exclude it
-                        println "${project.name}'s compile dependency ${mavenDep.absolutePath} is contained in ${projectDep}, exclude it"
+                        println "${project.name}'s compile dependency ${mavenDep.absolutePath} is contained in ${projectDep.name}, exclude it"
                         mAllSubProjectsExternalDependencies.get(project.name).remove(mavenDep)
                     }
                 }
@@ -177,20 +177,20 @@ class DependencyAnalyzer {
         mRootProject.subprojects { project ->
             // for each sub project
             mAllSubProjectsExternalDependencies.put(project.name, new HashSet<File>())
-            mAllSubProjectsInternalDependencies.put(project.name, new HashSet<String>())
+            mAllSubProjectsInternalDependencies.put(project.name, new HashSet<Project>())
             try {
                 project.configurations.getByName("compile").resolve().each { dependency ->
                     // for each of its compile dependency, if dependency's path start with
                     // **another** sub project's build path, it's an internal dependency(project),
                     // otherwise, it's an external dependency, whether maven/m2/local jar/aar.
                     boolean isProjectDep = false
-                    String projectDep = ""
+                    Project projectDep = null
                     for (Project subProject : mRootProject.subprojects) {
                         if (!project.projectDir.equals(
                                 subProject.projectDir) && dependency.absolutePath.
                                 startsWith(subProject.buildDir.absolutePath)) {
                             isProjectDep = true
-                            projectDep = subProject.name
+                            projectDep = subProject
                             break
                         }
                     }
@@ -209,13 +209,13 @@ class DependencyAnalyzer {
             try {
                 project.configurations.getByName("${mBuildVariant}Compile").resolve().each { dependency ->
                     boolean isProjectDep = false
-                    String projectDep = ""
+                    Project projectDep = null
                     for (Project subProject : mRootProject.subprojects) {
                         if (!project.projectDir.equals(
                                 subProject.projectDir) && dependency.absolutePath.
                                 startsWith(subProject.buildDir.absolutePath)) {
                             isProjectDep = true
-                            projectDep = subProject.name
+                            projectDep = subProject
                             break
                         }
                     }

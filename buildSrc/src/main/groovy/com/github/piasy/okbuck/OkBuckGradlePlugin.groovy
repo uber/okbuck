@@ -106,7 +106,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
 
         // step 3: retrieve analyse result
         Map<String, Set<File>> allSubProjectsExternalDependencies = dependencyAnalyzer.allSubProjectsExternalDependencies
-        Map<String, Set<String>> allSubProjectsInternalDependencies = dependencyAnalyzer.allSubProjectsInternalDependencies
+        Map<String, Set<Project>> allSubProjectsInternalDependencies = dependencyAnalyzer.allSubProjectsInternalDependencies
         Map<String, Set<File>> allSubProjectsAptDependencies = dependencyAnalyzer.allSubProjectsAptDependencies
         Map<String, Set<String>> allSubProjectsAnnotationProcessors = dependencyAnalyzer.annotationProcessors
 
@@ -138,15 +138,15 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     private static printDeps(
             Project project,
             Map<String, Set<File>> allSubProjectsExternalDeps,
-            Map<String, Set<String>> allSubProjectsInternalDeps,
+            Map<String, Set<Project>> allSubProjectsInternalDeps,
             Map<String, Set<File>> allSubProjectsAptDeps,
             Map<String, Set<String>> annotationProcessors
     ) {
         project.subprojects { prj ->
             println "${prj.name}'s deps:"
             println "<<< internal"
-            for (String projectDep : allSubProjectsInternalDeps.get(prj.name)) {
-                println "\t${projectDep}"
+            for (Project projectDep : allSubProjectsInternalDeps.get(prj.name)) {
+                println "\t${projectDep.name}"
             }
             println ">>>\n<<< external"
             for (File mavenDep : allSubProjectsExternalDeps.get(prj.name)) {
