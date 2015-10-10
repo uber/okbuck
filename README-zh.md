@@ -39,6 +39,7 @@ Android Studio + Gradle已经是大部分安卓开发者的开发环境，为了
       +  只要你已经在build.gradle中设置了**刚好一个**签名配置
       +  但是你需要配置git，ignore你的签名秘钥和配置，把这一行加入到**工程根目录的.gitignore文件中**：`.okbuck/keystore`
       +  但是如果你在build.gradle中配置了多个签名配置，或者想要把OkBuck生成的签名配置放到另一个目录（**但必须是工程根目录的子目录**），你可以像下面这样配置，其中`keystoreDir`指定OkBuck生成的签名配置的路径（相对于工程根目录，不要前导的`/`哟），`signConfigName`指定多个签名配置中的一个。
+        
         ```gradle
             okbuck {
                 target "android-23"
@@ -52,6 +53,7 @@ Android Studio + Gradle已经是大部分安卓开发者的开发环境，为了
                 ]
             }
         ```
+        
         +  同样记得配置git，ignore签名配置
         +  完整的例子可以参考本repo的app module，[工程根目录build.gradle](build.gradle), [app module的build.gradle](app/build.gradle)
     +  `overwrite`指定是否覆盖已有的buck配置文件；

@@ -44,6 +44,7 @@ Further more, you can still use OkBuck to maintain your BUCK build system when y
       +  if you have already set **only one** signing config in your build.gradle
       +  but you need to configure git to ignore your signing secrete, add this line to your **root rootProject .gitignore file**: `.okbuck/keystore`
       +  if you have multiple signing config, or you want put your signing config in another dir which **under your root rootProject dir**, you can set it like below, `keystoreDir` is used to config the path OkBuck to put your generated signing config (relative to your root rootProject dir, no prefix `/`), and `signConfigName` is to set the name of the signing config you want to use.
+        
         ```gradle
             okbuck {
                 target "android-23"
@@ -57,6 +58,7 @@ Further more, you can still use OkBuck to maintain your BUCK build system when y
                 ]
             }
         ```
+        
         +  but also remember to configure git to ignore your signing secrete
         +  full example could be found in the app module of this repo, [root rootProject build.gradle](build.gradle), [app module build.gradle](app/build.gradle)
     +  `overwrite` is used to control whether overwrite existing buck files; 
@@ -125,7 +127,7 @@ OkBuck can only generate the buck config for you, so if your source code is inco
   +  define your own string resource: `<string name="my_appbar_scrolling_view_behavior" translatable="false">android.support.design.widget.AppBarLayout$ScrollingViewBehavior</string>`, and use it in your layout file
   +  or use the content directly in your layout file: `app:layout_behavior="android.support.design.widget.AppBarLayout$ScrollingViewBehavior"`
 +  (buck & OkBuck) BUCK doesn't support debuggable apk generation easily, current quick solution is add `android:debuggable="true"` to your AndroidManifest.xml, OkBuck will fix this in near future.
-+  Multiple application module: OkBuck only support multiple application module with one limitation, they should be set with the same signing config in their module build.gradle, if this bother you, you could split these two application module into two separate project. 
++  (buck) Multiple application module: OkBuck only support multiple application module with one limitation, they should be set with the same signing config in their module build.gradle, if this bother you, you could split these two application module into two separate project. 
 
 ## Troubleshooting
 If you come with bugs of OkBuck, please [open an issue](https://github.com/Piasy/OkBuck/issues/new), and it's really appreciated to post the output of `./gradle okbuck --stacktrace` at the same time.
