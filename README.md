@@ -119,8 +119,8 @@ OkBuck can only generate the buck config for you, so if your source code is inco
 +  The rest modules in this repo is a full example usage of OkBuck.
 
 ## Known caveats
-+  Not compitable with `ButterKnife` (buck)
-+  Not compitable with `RetroLambda` (buck)
++  Not compatible with `ButterKnife` (buck)
++  Not compatible with `RetroLambda` (buck)
 +  `javax.annotation` dependency should be `compile` scope, rather `provided` (OkBuck)
 +  Cross module reference on `R` (buck), should use explicit reference in java code, see above
 +  Could not refer to design support library's string resource `appbar_scrolling_view_behavior` (buck), that's the specific scenario of the above caveat, quick solution:
