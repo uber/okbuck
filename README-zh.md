@@ -3,7 +3,7 @@
 [![Master branch build status](https://travis-ci.org/Piasy/OkBuck.svg?branch=master)](https://travis-ci.org/Piasy/OkBuck)
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-OkBuck-green.svg?style=flat)](https://android-arsenal.com/details/1/2593)
 
-~~12~~ **10**行配置从Android Studio + Gradle构建体系迁移到facebook的BUCK构建体系，且保持两者同时兼容使用，编码使用AS，享受安卓最强大IDE的功能，打包、安装、测试用BUCK，享受安卓最快构建系统的畅快淋漓，两者互不干扰。从此妈妈再也不用担心我在编译安卓工程时睡着了，而且真的只要~~12~~ **10**行！
+**10**行配置从Android Studio + Gradle构建体系迁移到facebook的BUCK构建体系，且保持两者同时兼容使用，编码使用AS，享受安卓最强大IDE的功能，打包、安装、测试用BUCK，享受安卓最快构建系统的畅快淋漓，两者互不干扰。从此妈妈再也不用担心我在编译安卓工程时睡着了，而且真的只要**10**行！
 
 ## 为什么要有OkBuck？
 Android Studio + Gradle已经是大部分安卓开发者的开发环境，为了体验BUCK超快的构建过程，从已有的工程进行迁移到BUCK环境是一个工作量较大、较繁琐、而且还不一定会的过程。OkBuck希望提供一个gradle plugin，通过对工程build.gradle简单地配置后，自动完成向BUCK的迁移。
@@ -64,10 +64,10 @@ Android Studio + Gradle已经是大部分安卓开发者的开发环境，为了
     +  执行`okbuckClean` 将**删除所有**OkBuck生成的文件
     +  `okbuckDebug`和`okbuckRelease`将使你在build.gradle中声明的`debugCompile`和`releaseCompile`依赖可以在buck的构建中正确引用，包括annotation processor哟！
     
-5. 关于~~12~~ **10**行：~~当OkBuck可以从jcenter下载之后（很快），~~ 第一步配置只需要`classpath "com.github.piasy:okbuck-gradle-plugin:${latest version}"`一行，第二步只有一行，第三步有~~十~~ **八**行，所以真的只有~~12~~ **10**行！
+5. 关于10行：第一步一行，第二步只有一行，第三步有八行，所以真的只有10行！
 
 ## 更多工作
-当然上面所说的12行只是配置，如果你的代码和buck不兼容，另外如果之前的依赖声明比较混乱，则可能需要更多的工作 :)
+当然上面所说的10行只是配置，如果你的代码和buck不兼容，另外如果之前的依赖声明比较混乱，则可能需要更多的工作 :)
 
 +  处理依赖冲突
 
@@ -124,6 +124,8 @@ Android Studio + Gradle已经是大部分安卓开发者的开发环境，为了
 
 +  完整例子可以参考本repo对OkBuck的使用。
 
++  [更多需要的更改](https://github.com/Piasy/OkBuck/wiki/Known-caveats)
+
 ## 已知的“坑”
 +  与`ButterKnife`不兼容 (buck)
 +  与`RetroLambda`不兼容 (buck)
@@ -134,6 +136,7 @@ Android Studio + Gradle已经是大部分安卓开发者的开发环境，为了
   +  或者直接在layout中把内容硬编码进去：`app:layout_behavior="android.support.design.widget.AppBarLayout$ScrollingViewBehavior"`
 +  (buck & OkBuck) 目前想要使BUCK打包出支持debug的（可调试，可查看log）apk并不容易，目前的暴力方法是在AndroidManifest.xml文件中加入`android:debuggable="true"`，OkBuck将尽快解决这个问题
 +  (OkBuck) OkBuck支持一个project里面有多个application module，但是它们的签名配置必须一样，即各自build.gradle中signingConfigs标签的内容必须一致，如果保证这一点有问题，我建议你将工程一分为二，公共代码抽离为公用的库，这样也方便以后你有更多的project需要使用公用的代码
++  [更多](https://github.com/Piasy/OkBuck/wiki/Known-caveats)
 
 ## Troubleshooting
 如果你在使用OkBuck的过程中遇到了什么问题（bug），请[提一个issue](https://github.com/Piasy/OkBuck/issues/new)，另外如果能把`./gradle okbuck --stacktrace`任务执行时的输出内容也提供上，那就是极好的了。

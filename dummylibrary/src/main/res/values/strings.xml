@@ -23,6 +23,7 @@
   -->
 
 <resources>
-    <string name="app_name">OkBuck</string>
+    <string name="app_name">DummyLibrary</string>
     <string name="dummy_library_android_str">Android</string>
+    <string name="test_string">test in dummy</string>
 </resources>

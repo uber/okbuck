@@ -3,27 +3,33 @@
 [![Master branch build status](https://travis-ci.org/Piasy/OkBuck.svg?branch=master)](https://travis-ci.org/Piasy/OkBuck)
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-OkBuck-green.svg?style=flat)](https://android-arsenal.com/details/1/2593)
 
-A gradle plugin that helps developer migrate to code with Android Studio + Gradle, but build &amp;&amp; install with buck.
- 	
-Only ~~Twelve~~ **Ten** line config to migrate from Android Studio + gradle to facebook BUCK.
+OkBuck is a gradle plugin, aiming to help developers utilize the super fast build system: BUCK, based on the existing project with Android Studio + gradle, and keep both build systems work, with less to only **10 lines of configuration**.
 
 [中文版](README-zh.md)
 
 ## Why OkBuck?
-Android Studio + Gradle has been many Android developers' option, and to migrate to buck, there are many works to be done, both difficult and buggy. OkBuck aims to provide a gradle plugin, which will do these buggy job for you automaticlly after several lines configuration.
+Android Studio + Gradle has already been many Android developers' option, and to migrate to buck, there are many works to be done, which are difficult and buggy. OkBuck aims to provide a gradle plugin, which will do these buggy job for you automaticlly after several lines configuration.
 
-Further more, you can still use OkBuck to maintain your BUCK build system when your gradle configurations changes, OkBuck let you even needn't know how to write the magic BUCK script! 
+Further more, you can still use OkBuck to maintain your BUCK build system when your gradle configurations changes, OkBuck let you even needn't write one line of the magic BUCK script! 
 
 ## What will OkBuck do for you?
 +  Generate `.buckconfig`.
 +  Copy third-party libraries' jar/aar files to your rootProject directory.
 +  Generate `BUCK` file for third-party libraries and each sub modules.
-+  After you run `./gradlew okbuck` in your rootProject root directory, you can run `buck install app` now (suppose your application module names `app`).
++  After you run `./gradlew okbuck` in your rootProject root directory, you can run `buck install app` (suppose your application module names `app` and you have already installed BUCK).
 
 ## How to use OkBuck?
-1. Add this lines into buildscript dependencies part of root rootProject build.gradle: `classpath "com.github.piasy:okbuck-gradle-plugin:${latest version}"`
+1. Add this lines into buildscript dependencies part of root rootProject build.gradle (the latest version is displayed on the download badge above): 
 
-2. Add this line into root rootProject build.gradle: `apply plugin: 'com.github.piasy.okbuck-gradle-plugin'`
+    ```groovy
+    classpath "com.github.piasy:okbuck-gradle-plugin:${latest version}"
+    ```
+
+2. Add this line into root rootProject build.gradle: 
+
+    ```groovy
+    apply plugin: 'com.github.piasy.okbuck-gradle-plugin'
+    ```
 
 3. Add this `okbuck` block into root rootProject build.gradle:
     
@@ -37,97 +43,52 @@ Further more, you can still use OkBuck to maintain your BUCK build system when y
         ]
     }
     ```
+4. Run `./gradlew okbuck` and then run `buck install app`, enjoy your life with BUCK.
 
-    +  `android-23` works equally with `compileSdkVersion 23`; 
-    +  ~~`debug.keystore` and `debug.keystore.properties` are signing related file, which should be put under **application module's root directory**~~
-    +  no need to specify signing config anymore:
-      +  if you have already set **only one** signing config in your build.gradle
-      +  but you need to configure git to ignore your signing secrete, add this line to your **root rootProject .gitignore file**: `.okbuck/keystore`
-      +  if you have multiple signing config, or you want put your signing config in another dir which **under your root rootProject dir**, you can set it like below, `keystoreDir` is used to config the path OkBuck to put your generated signing config (relative to your root rootProject dir, no prefix `/`), and `signConfigName` is to set the name of the signing config you want to use.
-        
-        ```gradle
-            okbuck {
-                target "android-23"
-                keystoreDir ".okbuck/keystore"
-                signConfigName "release"
-                overwrite true
-                resPackages = [
-                    'dummylibrary': 'com.github.piasy.okbuck.example.dummylibrary',
-                    'app': 'com.github.piasy.okbuck.example',
-                    'common': 'com.github.piasy.okbuck.example.common',
-                ]
-            }
-        ```
-        
-        +  but also remember to configure git to ignore your signing secrete
-        +  full example could be found in the app module of this repo, [root rootProject build.gradle](build.gradle), [app module build.gradle](app/build.gradle)
-    +  `overwrite` is used to control whether overwrite existing buck files; 
-    +  `resPackages` is used to set Android library module and Android Application module's package name for generated resources (`R` in common cases), you need substitute dummylibrary/app with your own module name, and set the corrosponding package name inside the single quote, which should be the same package name specified in the corrosponding module's AndroidManifest.xml.
-    
-4. After executing the okbuck gradle task by `./gradlew okbuck`, you can run `buck install app` now, enjoy your life with buck :)
-    +  there are 4 tasks added into your gradle project after you add `apply plugin: 'com.github.piasy.okbuck-gradle-plugin'`, `okbuck`, `okbuckDebug`, `okbuckRelease`, and `okbuckClean`
-    +  `okbuckClean` will **remove all** files generated by OkBuck
-    +  `okbuck` is the shortcut for `okbuckRelease`
-    +  `okbuckDebug` and `okbuckRelease` will make your `debugCompile` and `releaseCompile` dependencies visible in buck's build, including annotation processor
+## Explanations
++  `android-23` works equally with `compileSdkVersion 23`.
++  `overwrite` is used to control whether overwrite existing buck files; 
++  OkBuck will extract signing config defined in your build.gradle, and the generated BUCK signing configs is put under `/.okbuck/keystore` folder.
+  +  You needn't do anything if you have already set **only one** signing config in your build.gradle, but note that there is a default signing config named `debug` generated by android gradle plugin.
+  +  But you need to configure git to ignore your signing secrete, add this line to your **root rootProject .gitignore file**:
 
-5. It's really only ~~12~~ **10** lines config: ~~step one will only need one line `classpath 'com.github.piasy:okbuck-gradle-plugin:0.0.1'` when OkBuck is sync to jcenter (this will be soon)~~ available now, and then these three steps above only need ~~12~~ **10** lines!
-
-## More job need to be done
-OkBuck can only generate the buck config for you, so if your source code is incompitable with buck, you need do more job.
-
-+  Dependency conflict:
-
-    If you see `*** has already been defined` or
-    
-    ```java
-    BUILD FAILED: //app:bin#dex_merge failed on step dx with an exception:
-    Multiple dex files define***
-    com.android.dex.DexException: Multiple dex files define ***
     ```
-    
-    when you run `buck install app`, you come with dependency confliction, which means multiple modules (let's name them moduleA and moduleB) depend on the same dependency (such as gson), and another module (name it moduleC) depends on moduleA and moduleB, disaster happens. Current work-around is to move all common dependencies into one module, such as moduleA, and make all modules depend on moduleA. This will be addressed in future releases of OkBuck.
-
-+  Dependencies in local libs directory may not be imported correctly. Current work-around is to avoid use local dependencies, but this problem will be definitely addressed soon by OkBuck.
-    
-+  References to `R`. Buck is not compitable with libraries like ButterKnife, because R definitions generated by buck are not final, current work-around is change `@Bind`/`@InjectView` to `ButterKnife.findById`, and change `@OnClick` to `setOnClickListener`, etc. 
-
-+  And reference to `R` resources from another module may also have problems, should use explicit reference in java code, and also avoid defining resources in different module with the same resources name.
-
-+  versionCode, versionName, targetSdkVersion, minSdkVersion should be set in AndroidManifest.xml rather in build.gradle, example:
-
-    ```xml
-    <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.github.piasy.okbuck.example"
-          android:versionCode="1"
-          android:versionName="1.0"
-        >
-    
-        <uses-sdk
-                android:targetSdkVersion="23"
-                android:minSdkVersion="15"
-                />
-                ...
-    </manifest>
+    .okbuck/keystore
     ```
-
-+  `javax.annotation` dependency: if your module depends on `javax.annotation`, use the `compile` scope rather than `provided` scope.
-
-+  buck can't compile with java 8, so it's incompitable with retrolambda, no more lambda :(
+  +  If you defined multiple signing configs (including the default `debug` one), or you want to put OkBuck's generated signing config in another folder which **must be under your root rootProject folder**, you can set it like below, `keystoreDir` is used to set the path OkBuck to put your generated signing config (relative to your root rootProject folder, no prefix `/`), and `signConfigName` is to set the name of the signing config you want to use.
     
-+  Maybe there are more caveats waiting for you, but for the super fast build brought by buck, it's worthwhile.
+    ```gradle
+    okbuck {
+        target "android-23"
+        keystoreDir ".okbuck/keystore"
+        signConfigName "release"
+        overwrite true
+        resPackages = [
+            'dummylibrary': 'com.github.piasy.okbuck.example.dummylibrary',
+            'app': 'com.github.piasy.okbuck.example',
+        ]
+    }
+    ```
+  +  But also remember to configure git to ignore your signing secrete.
+  +  Full example could be found in the app module of this repo, [root rootProject build.gradle](build.gradle), [app module build.gradle](app/build.gradle).
 
-+  The rest modules in this repo is a full example usage of OkBuck.
++  `resPackages` is used to set Android library module and Android Application module's package name for generated resources (`R` in common cases), you need substitute dummylibrary/app with your own module name, and set the corresponding package name inside the single quote, which should be the same package name specified in the corresponding module's `AndroidManifest.xml`.
+    
++  There are 4 tasks added into your gradle project after apply OkBuck, `okbuck`, `okbuckDebug`, `okbuckRelease`, and `okbuckClean`.
+    +  `okbuckClean` will **delete all** files generated by OkBuck.
+    +  `okbuck` is the shortcut for `okbuckRelease`.
+    +  `okbuckDebug` and `okbuckRelease` will make your `debugCompile` and `releaseCompile` dependencies visible in buck's build, including annotation processor.
 
-## Known caveats
-+  Not compatible with `ButterKnife` (buck)
-+  Not compatible with `RetroLambda` (buck)
-+  `javax.annotation` dependency should be `compile` scope, rather `provided` (OkBuck)
-+  Cross module reference on `R` (buck), should use explicit reference in java code, see above
-+  Could not refer to design support library's string resource `appbar_scrolling_view_behavior` (buck), that's the specific scenario of the above caveat, quick solution:
-  +  define your own string resource: `<string name="my_appbar_scrolling_view_behavior" translatable="false">android.support.design.widget.AppBarLayout$ScrollingViewBehavior</string>`, and use it in your layout file
-  +  or use the content directly in your layout file: `app:layout_behavior="android.support.design.widget.AppBarLayout$ScrollingViewBehavior"`
-+  (buck & OkBuck) BUCK doesn't support debuggable apk generation easily, current quick solution is add `android:debuggable="true"` to your AndroidManifest.xml, OkBuck will fix this in near future.
-+  (buck) Multiple application module: OkBuck only support multiple application module with one limitation, they should be set with the same signing config in their module build.gradle, if this bother you, you could split these two application module into two separate project. 
+## More jobs need to be done
+OkBuck can only generate BUCK configs for you, so if your source code is incompatible with BUCK, you need do more jobs.
+
+Read more on [Known caveats wiki page](https://github.com/Piasy/OkBuck/wiki/Known-caveats). 
+
+Maybe there are more caveats waiting for you, but for the super fast build brought by buck, it's worthwhile.
+
+The rest modules in this repo is a full example usage of OkBuck.
+
+## [Known caveats](https://github.com/Piasy/OkBuck/wiki/Known-caveats)
 
 ## Troubleshooting
 If you come with bugs of OkBuck, please [open an issue](https://github.com/Piasy/OkBuck/issues/new), and it's really appreciated to post the output of `./gradle okbuck --stacktrace` at the same time.
@@ -157,3 +118,13 @@ User | Repo
 [Piasy](https://github.com/Piasy) | [AndroidTDDBootStrap](https://github.com/Piasy/AndroidTDDBootStrap)
 
 If you are using OkBuck in your open source project, [send me a e-mail](mailto:xz4215@gmail.com) with your repo url, I'll add your repo in this list.
+
+## Change log
++  0.2.6: fix [#14](https://github.com/Piasy/OkBuck/issues/14)
++  0.2.5: fix [#15](https://github.com/Piasy/OkBuck/issues/15)
++  0.2.4: fix [#12](https://github.com/Piasy/OkBuck/issues/12)
++  0.2.3: fix [#11](https://github.com/Piasy/OkBuck/issues/11)
++  0.2.2: fix [#6](https://github.com/Piasy/OkBuck/issues/6)
++  [v0.2.1](https://github.com/Piasy/OkBuck/releases/tag/v0.2.1)
++  [v0.1.0](https://github.com/Piasy/OkBuck/releases/tag/v0.1.0)
++  [v0.0.1](https://github.com/Piasy/OkBuck/releases/tag/v0.0.1)
