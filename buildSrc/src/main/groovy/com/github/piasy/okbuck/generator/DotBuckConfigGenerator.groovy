@@ -78,7 +78,7 @@ class DotBuckConfigGenerator {
 
             printWriter.println()
             printWriter.println("[project]")
-            printWriter.println("\tignore = .git")
+            printWriter.println("\tignore = .git, **/.svn")
             printWriter.close()
         }
     }
