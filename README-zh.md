@@ -5,6 +5,8 @@
 
 **10**行配置从Android Studio + Gradle构建体系迁移到facebook的BUCK构建体系，且保持两者同时兼容使用，编码使用AS，享受安卓最强大IDE的功能，打包、安装、测试用BUCK，享受安卓最快构建系统的畅快淋漓，两者互不干扰。从此妈妈再也不用担心我在编译安卓工程时睡着了，而且真的只要**10**行！
 
+如果在使用的过程中遇到了BUCK或者OkBuck的问题，欢迎加入OkBuck使用问题交流群：170102067。
+
 ## 为什么要有OkBuck？
 Android Studio + Gradle已经是大部分安卓开发者的开发环境，为了体验BUCK超快的构建过程，从已有的工程进行迁移到BUCK环境是一个工作量较大、较繁琐、而且还不一定会的过程。OkBuck希望提供一个gradle plugin，通过对工程build.gradle简单地配置后，自动完成向BUCK的迁移。
 
@@ -140,8 +142,6 @@ Android Studio + Gradle已经是大部分安卓开发者的开发环境，为了
 
 ## Troubleshooting
 如果你在使用OkBuck的过程中遇到了什么问题（bug），请[提一个issue](https://github.com/Piasy/OkBuck/issues/new)，另外如果能把`./gradle okbuck --stacktrace`任务执行时的输出内容也提供上，那就是极好的了。
-
-另外如果在使用的过程中遇到了BUCK或者OkBuck的问题，欢迎加入OkBuck使用问题交流群：170102067。
 
 ## TODO
 +  ~~处理apt，provided等类型的依赖，目前都是统一的compile~~
