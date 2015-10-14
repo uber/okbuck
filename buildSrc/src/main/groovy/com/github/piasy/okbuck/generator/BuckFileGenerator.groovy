@@ -247,33 +247,11 @@ class BuckFileGenerator {
                 new File(project.rootProject.projectDir.absolutePath + File.separator +
                         keystoreDir + File.separator + project.name), signConfigName)
 
-        printWriter.println("android_resource(")
-        printWriter.println("\tname = 'res',")
-        printWriter.println("\tres = 'src/main/res',")
-        File assets = new File("${project.projectDir.absolutePath}/src/main/assets")
-        if (assets.exists()) {
-            println "sub project ${project.name}'s assets exist include it"
-            printWriter.println("\tassets = 'src/main/assets',")
-        } else {
-            println "sub project ${project.name}'s assets not exist"
+        File resDir = new File("${project.projectDir.absolutePath}/src/main/res")
+        boolean resExists = resDir.exists()
+        if (resExists) {
+            generateResRule(printWriter, project, resPackage, internalDeps, externalDeps)
         }
-        printWriter.println("\tpackage = '${resPackage}',")
-        printWriter.println("\tdeps = [")
-        for (Project internalDep : internalDeps) {
-            if (includeInternalSubProjectResDep(internalDep)) {
-                printWriter.println("\t\t'/${getPathDiff(mRootProject, internalDep)}:res',")
-            }
-        }
-        printWriter.println()
-        for (File externalDep : externalDeps) {
-            if (externalDep.name.endsWith(".aar")) {
-                printWriter.println("\t\t'//.okbuck/${project.name}:aar__${externalDep.name}',")
-            }
-        }
-        printWriter.println("\t],")
-        printWriter.println("\tvisibility = ['//${project.name}:src'],")
-        printWriter.println(")")
-        printWriter.println()
 
         printWriter.println("android_build_config(")
         printWriter.println("\tname = 'build_config',")
@@ -292,12 +270,15 @@ class BuckFileGenerator {
         printWriter.println("\tname = 'src',")
         printWriter.println("\tsrcs = glob(['src/main/java/**/*.java']),")
         printWriter.println("\tdeps = [")
-        printWriter.println("\t\t':res',")
+        if (resExists) {
+            printWriter.println("\t\t':res',")
+        }
         printWriter.println("\t\t':build_config',")
         printWriter.println()
         for (Project internalDep : internalDeps) {
             printWriter.println("\t\t'/${getPathDiff(mRootProject, internalDep)}:src',")
-            if (includeInternalSubProjectResDep(internalDep)) {
+            File internalDepResDir = new File("${internalDep.projectDir.absolutePath}/src/main/res")
+            if (includeInternalSubProjectResDep(internalDep) && internalDepResDir.exists()) {
                 printWriter.println("\t\t'/${getPathDiff(mRootProject, internalDep)}:res',")
             }
         }
@@ -351,9 +332,7 @@ class BuckFileGenerator {
 
     private static boolean includeInternalSubProjectResDep(Project internalDep) {
         int type = AndroidProjectHelper.getSubProjectType(internalDep)
-        return type == AndroidProjectHelper.ANDROID_APP_PROJECT ||
-                type ==
-                AndroidProjectHelper.ANDROID_LIB_PROJECT
+        return type == AndroidProjectHelper.ANDROID_LIB_PROJECT
     }
 
     private static void genSignConfigs(Project project, File dir, String signConfigName) {
@@ -408,33 +387,11 @@ class BuckFileGenerator {
         println "generating sub project ${project.name}'s BUCK"
         PrintWriter printWriter = new PrintWriter(
                 new FileOutputStream("${project.projectDir.absolutePath}${File.separator}BUCK"))
-        printWriter.println("android_resource(")
-        printWriter.println("\tname = 'res',")
-        printWriter.println("\tres = 'src/main/res',")
-        File assets = new File("${project.projectDir.absolutePath}/src/main/assets")
-        if (assets.exists()) {
-            println "sub project ${project.name}'s assets exist include it"
-            printWriter.println("\tassets = 'src/main/assets',")
-        } else {
-            println "sub project ${project.name}'s assets not exist"
+        File resDir = new File("${project.projectDir.absolutePath}/src/main/res")
+        boolean resExists = resDir.exists()
+        if (resExists) {
+            generateResRule(printWriter, project, resPackage, internalDeps, externalDeps)
         }
-        printWriter.println("\tpackage = '${resPackage}',")
-        printWriter.println("\tdeps = [")
-        for (Project internalDep : internalDeps) {
-            if (includeInternalSubProjectResDep(internalDep)) {
-                printWriter.println("\t\t'/${getPathDiff(mRootProject, internalDep)}:res',")
-            }
-        }
-        printWriter.println()
-        for (File externalDep : externalDeps) {
-            if (externalDep.name.endsWith(".aar")) {
-                printWriter.println("\t\t'//.okbuck/${project.name}:aar__${externalDep.name}',")
-            }
-        }
-        printWriter.println("\t],")
-        printWriter.println("\tvisibility = ['PUBLIC'],")
-        printWriter.println(")")
-        printWriter.println()
 
         printWriter.println("android_build_config(")
         printWriter.println("\tname = 'build_config',")
@@ -453,12 +410,15 @@ class BuckFileGenerator {
         printWriter.println("\tname = 'src',")
         printWriter.println("\tsrcs = glob(['src/main/java/**/*.java']),")
         printWriter.println("\tdeps = [")
-        printWriter.println("\t\t':res',")
+        if (resExists) {
+            printWriter.println("\t\t':res',")
+        }
         printWriter.println("\t\t':build_config',")
         printWriter.println()
         for (Project internalDep : internalDeps) {
             printWriter.println("\t\t'/${getPathDiff(mRootProject, internalDep)}:src',")
-            if (includeInternalSubProjectResDep(internalDep)) {
+            File internalDepResDir = new File("${internalDep.projectDir.absolutePath}/src/main/res")
+            if (includeInternalSubProjectResDep(internalDep) && internalDepResDir.exists()) {
                 printWriter.println("\t\t'/${getPathDiff(mRootProject, internalDep)}:res',")
             }
         }
@@ -508,6 +468,40 @@ class BuckFileGenerator {
         printWriter.println(")")
 
         printWriter.close()
+    }
+
+    private void generateResRule(
+            PrintWriter printWriter, Project project, String resPackage, Set<Project> internalDeps,
+            Set<File> externalDeps
+    ) {
+        printWriter.println("android_resource(")
+        printWriter.println("\tname = 'res',")
+        printWriter.println("\tres = 'src/main/res',")
+        File assets = new File("${project.projectDir.absolutePath}/src/main/assets")
+        if (assets.exists()) {
+            println "sub project ${project.name}'s assets exist include it"
+            printWriter.println("\tassets = 'src/main/assets',")
+        } else {
+            println "sub project ${project.name}'s assets not exist"
+        }
+        printWriter.println("\tpackage = '${resPackage}',")
+        printWriter.println("\tdeps = [")
+        for (Project internalDep : internalDeps) {
+            File internalDepResDir = new File("${internalDep.projectDir.absolutePath}/src/main/res")
+            if (includeInternalSubProjectResDep(internalDep) && internalDepResDir.exists()) {
+                printWriter.println("\t\t'/${getPathDiff(mRootProject, internalDep)}:res',")
+            }
+        }
+        printWriter.println()
+        for (File externalDep : externalDeps) {
+            if (externalDep.name.endsWith(".aar")) {
+                printWriter.println("\t\t'//.okbuck/${project.name}:aar__${externalDep.name}',")
+            }
+        }
+        printWriter.println("\t],")
+        printWriter.println("\tvisibility = ['PUBLIC'],")
+        printWriter.println(")")
+        printWriter.println()
     }
 
     private static List<String> getDefaultConfigBuildConfigField(Project project) {
