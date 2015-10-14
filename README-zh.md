@@ -141,6 +141,8 @@ Android Studio + Gradle已经是大部分安卓开发者的开发环境，为了
 ## Troubleshooting
 如果你在使用OkBuck的过程中遇到了什么问题（bug），请[提一个issue](https://github.com/Piasy/OkBuck/issues/new)，另外如果能把`./gradle okbuck --stacktrace`任务执行时的输出内容也提供上，那就是极好的了。
 
+另外如果在使用的过程中遇到了BUCK或者OkBuck的问题，欢迎加入OkBuck使用问题交流群：170102067。
+
 ## TODO
 +  ~~处理apt，provided等类型的依赖，目前都是统一的compile~~
 +  ~~aar依赖中res的引用问题~~ 在java代码中跨module引用R需要显式指明其包名，在xml中可以正常引用

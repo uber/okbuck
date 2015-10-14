@@ -35,7 +35,9 @@ public class Calc {
     }
 
     public int add(int a, int b) {
-        mCalcMonitor.addCalled();
+        if (BuildConfig.COMMON_CONFIG) {
+            mCalcMonitor.addCalled();
+        }
         return a + b;
     }
 }

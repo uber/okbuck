@@ -24,7 +24,6 @@ okbuck {
     target "android-23"
     keystoreDir ".okbuck/keystore"
     signConfigName "release"
-    overwrite true
     resPackages = [
         dummylibrary: 'com.github.piasy.okbuck.example.dummylibrary',
         app: 'com.github.piasy.okbuck.example',
