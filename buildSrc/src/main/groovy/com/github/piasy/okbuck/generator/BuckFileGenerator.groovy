@@ -253,18 +253,7 @@ class BuckFileGenerator {
             generateResRule(printWriter, project, resPackage, internalDeps, externalDeps)
         }
 
-        printWriter.println("android_build_config(")
-        printWriter.println("\tname = 'build_config',")
-        printWriter.println("\tpackage = '${resPackage}',")
-        printWriter.println("\tvalues = [")
-        List<String> buildConfigFields = getDefaultConfigBuildConfigField(project)
-        for (String field : buildConfigFields) {
-            printWriter.println("\t\t'${field}',")
-        }
-        printWriter.println("\t],")
-        printWriter.println("\tvisibility = ['//${project.name}:src'],")
-        printWriter.println(")")
-        printWriter.println()
+        generateBuildConfigRule(printWriter, resPackage, project)
 
         printWriter.println("android_library(")
         printWriter.println("\tname = 'src',")
@@ -330,6 +319,23 @@ class BuckFileGenerator {
         printWriter.close()
     }
 
+    private void generateBuildConfigRule(
+            PrintWriter printWriter, String resPackage, Project project
+    ) {
+        printWriter.println("android_build_config(")
+        printWriter.println("\tname = 'build_config',")
+        printWriter.println("\tpackage = '${resPackage}',")
+        printWriter.println("\tvalues = [")
+        List<String> buildConfigFields = getDefaultConfigBuildConfigField(project)
+        for (String field : buildConfigFields) {
+            printWriter.println("\t\t'${field}',")
+        }
+        printWriter.println("\t],")
+        printWriter.println("\tvisibility = ['//${project.name}:src'],")
+        printWriter.println(")")
+        printWriter.println()
+    }
+
     private static boolean includeInternalSubProjectResDep(Project internalDep) {
         int type = AndroidProjectHelper.getSubProjectType(internalDep)
         return type == AndroidProjectHelper.ANDROID_LIB_PROJECT
@@ -393,18 +399,7 @@ class BuckFileGenerator {
             generateResRule(printWriter, project, resPackage, internalDeps, externalDeps)
         }
 
-        printWriter.println("android_build_config(")
-        printWriter.println("\tname = 'build_config',")
-        printWriter.println("\tpackage = '${resPackage}',")
-        printWriter.println("\tvalues = [")
-        List<String> buildConfigFields = getDefaultConfigBuildConfigField(project)
-        for (String field : buildConfigFields) {
-            printWriter.println("\t\t'${field}',")
-        }
-        printWriter.println("\t],")
-        printWriter.println("\tvisibility = ['//${project.name}:src'],")
-        printWriter.println(")")
-        printWriter.println()
+        generateBuildConfigRule(printWriter, resPackage, project)
 
         printWriter.println("android_library(")
         printWriter.println("\tname = 'src',")
