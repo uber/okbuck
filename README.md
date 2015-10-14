@@ -5,7 +5,7 @@
 
 OkBuck is a gradle plugin, aiming to help developers utilize the super fast build system: BUCK, based on the existing project with Android Studio + gradle, and keep both build systems work, with less to only **10 lines of configuration**.
 
-[中文版](README-zh.md)
+[Wiki](https://github.com/Piasy/OkBuck/wiki), [中文版](README-zh.md)
 
 ## Why OkBuck?
 Android Studio + Gradle has already been many Android developers' option, and to migrate to buck, there are many works to be done, which are difficult and buggy. OkBuck aims to provide a gradle plugin, which will do these buggy job for you automaticlly after several lines configuration.
