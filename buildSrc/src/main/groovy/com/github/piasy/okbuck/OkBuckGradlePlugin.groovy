@@ -60,21 +60,27 @@ class OkBuckGradlePlugin implements Plugin<Project> {
 
         Task okBuck = project.task('okbuck')
         dependsOnBuild(okBuck, project)
-        okBuck.dependsOn(okBuckClean)
+        if (project.okbuck.overwrite) {
+            okBuck.dependsOn(okBuckClean)
+        }
         okBuck << {
             applyWithBuildVariant(project, "release")
         }
 
         Task okBuckDebug = project.task('okbuckDebug')
         dependsOnBuild(okBuckDebug, project)
-        okBuckDebug.dependsOn(okBuckClean)
+        if (project.okbuck.overwrite) {
+            okBuckDebug.dependsOn(okBuckClean)
+        }
         okBuckDebug << {
             applyWithBuildVariant(project, "debug")
         }
 
         Task okBuckRelease = project.task('okbuckRelease')
         dependsOnBuild(okBuckRelease, project)
-        okBuckRelease.dependsOn(okBuckClean)
+        if (project.okbuck.overwrite) {
+            okBuckRelease.dependsOn(okBuckClean)
+        }
         okBuckRelease << {
             applyWithBuildVariant(project, "release")
         }
