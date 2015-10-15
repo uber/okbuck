@@ -41,16 +41,20 @@ class OkBuckGradlePlugin implements Plugin<Project> {
 
         Task okBuckClean = project.task('okbuckClean')
         okBuckClean << {
-            File keyStoreDir = new File(project.projectDir.absolutePath + File.separator + (String) project.okbuck.keystoreDir)
-            keyStoreDir.deleteDir()
-            File dotOkBuck = new File("${project.projectDir.absolutePath}${File.separator}.okbuck")
-            dotOkBuck.deleteDir()
-            File dotBuckConfig = new File(
-                    "${project.projectDir.absolutePath}${File.separator}.buckconfig")
-            dotBuckConfig.delete()
-            project.subprojects { prj ->
-                File buck = new File("${prj.projectDir.absolutePath}${File.separator}BUCK")
-                buck.delete()
+            if (project.okbuck.overwrite) {
+                File keyStoreDir = new File(project.projectDir.absolutePath + File.separator +
+                        (String) project.okbuck.keystoreDir)
+                keyStoreDir.deleteDir()
+                File dotOkBuck = new File(
+                        "${project.projectDir.absolutePath}${File.separator}.okbuck")
+                dotOkBuck.deleteDir()
+                File dotBuckConfig = new File(
+                        "${project.projectDir.absolutePath}${File.separator}.buckconfig")
+                dotBuckConfig.delete()
+                project.subprojects { prj ->
+                    File buck = new File("${prj.projectDir.absolutePath}${File.separator}BUCK")
+                    buck.delete()
+                }
             }
         }
 
@@ -60,27 +64,21 @@ class OkBuckGradlePlugin implements Plugin<Project> {
 
         Task okBuck = project.task('okbuck')
         dependsOnBuild(okBuck, project)
-        if (project.okbuck.overwrite) {
-            okBuck.dependsOn(okBuckClean)
-        }
+        okBuck.dependsOn(okBuckClean)
         okBuck << {
             applyWithBuildVariant(project, "release")
         }
 
         Task okBuckDebug = project.task('okbuckDebug')
         dependsOnBuild(okBuckDebug, project)
-        if (project.okbuck.overwrite) {
-            okBuckDebug.dependsOn(okBuckClean)
-        }
+        okBuckDebug.dependsOn(okBuckClean)
         okBuckDebug << {
             applyWithBuildVariant(project, "debug")
         }
 
         Task okBuckRelease = project.task('okbuckRelease')
         dependsOnBuild(okBuckRelease, project)
-        if (project.okbuck.overwrite) {
-            okBuckRelease.dependsOn(okBuckClean)
-        }
+        okBuckRelease.dependsOn(okBuckClean)
         okBuckRelease << {
             applyWithBuildVariant(project, "release")
         }
@@ -108,17 +106,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
 
         // step 2: analyse dependencies
         DependencyAnalyzer dependencyAnalyzer = new DependencyAnalyzer(project, variant)
-        dependencyAnalyzer.analyse()
-
-        // step 3: retrieve analyse result
-        Map<String, Set<File>> allSubProjectsExternalDependencies = dependencyAnalyzer.allSubProjectsExternalDependencies
-        Map<String, Set<Project>> allSubProjectsInternalDependencies = dependencyAnalyzer.allSubProjectsInternalDependencies
-        Map<String, Set<File>> allSubProjectsAptDependencies = dependencyAnalyzer.allSubProjectsAptDependencies
-        Map<String, Set<String>> allSubProjectsAnnotationProcessors = dependencyAnalyzer.annotationProcessors
-
-        printDeps(project, allSubProjectsExternalDependencies,
-                allSubProjectsInternalDependencies, allSubProjectsAptDependencies,
-                allSubProjectsAnnotationProcessors)
+        printDeps(project, dependencyAnalyzer)
 
         // step 4: generate BUCK file for each sub project
         File thirdPartyLibsDir = new File(".okbuck")
@@ -126,9 +114,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
             throw new IllegalStateException(
                     "third-party libs dir already exist, set overwrite property to true to overwrite existing file.")
         } else {
-            new BuckFileGenerator(project, allSubProjectsExternalDependencies,
-                    allSubProjectsInternalDependencies, allSubProjectsAptDependencies,
-                    allSubProjectsAnnotationProcessors, thirdPartyLibsDir,
+            new BuckFileGenerator(project, dependencyAnalyzer, thirdPartyLibsDir,
                     (Map<String, String>) project.okbuck.resPackages, overwrite,
                     (String) project.okbuck.keystoreDir,
                     (String) project.okbuck.signConfigName, variant).generate()
@@ -143,27 +129,32 @@ class OkBuckGradlePlugin implements Plugin<Project> {
 
     private static printDeps(
             Project project,
-            Map<String, Set<File>> allSubProjectsExternalDeps,
-            Map<String, Set<Project>> allSubProjectsInternalDeps,
-            Map<String, Set<File>> allSubProjectsAptDeps,
-            Map<String, Set<String>> annotationProcessors
+            DependencyAnalyzer dependencyAnalyzer
     ) {
         project.subprojects { prj ->
             println "${prj.name}'s deps:"
             println "<<< internal"
-            for (Project projectDep : allSubProjectsInternalDeps.get(prj.name)) {
+            for (Project projectDep : dependencyAnalyzer.allSubProjectsInternalDependencies.get(prj.name)) {
+                println "\t${projectDep.name}"
+            }
+            println "<<< internal excluded"
+            for (Project projectDep : dependencyAnalyzer.allSubProjectsInternalDependenciesExcluded.get(prj.name)) {
                 println "\t${projectDep.name}"
             }
             println ">>>\n<<< external"
-            for (File mavenDep : allSubProjectsExternalDeps.get(prj.name)) {
+            for (File mavenDep : dependencyAnalyzer.allSubProjectsExternalDependencies.get(prj.name)) {
+                println "\t${mavenDep.absolutePath}"
+            }
+            println ">>>\n<<< external excluded"
+            for (File mavenDep : dependencyAnalyzer.allSubProjectsExternalDependenciesExcluded.get(prj.name)) {
                 println "\t${mavenDep.absolutePath}"
             }
             println ">>>\n<<< apt"
-            for (File mavenDep : allSubProjectsAptDeps.get(prj.name)) {
+            for (File mavenDep : dependencyAnalyzer.allSubProjectsAptDependencies.get(prj.name)) {
                 println "\t${mavenDep.absolutePath}"
             }
             println ">>>\n<<< annotation processors"
-            for (String processor : annotationProcessors.get(prj.name)) {
+            for (String processor : dependencyAnalyzer.annotationProcessors.get(prj.name)) {
                 println "\t${processor}"
             }
             println ">>>"

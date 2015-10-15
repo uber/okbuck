@@ -73,7 +73,9 @@ android {
 dependencies {
     compile 'com.jakewharton:butterknife:7.0.1'
 
-    compile 'com.android.support:design:23.0.1'
+    compile ('com.android.support:design:23.0.1') {
+        exclude module: 'appcompat-v7'
+    }
     compile 'com.android.support:recyclerview-v7:23.0.1'
 
     apt 'com.google.dagger:dagger-compiler:2.0.1'

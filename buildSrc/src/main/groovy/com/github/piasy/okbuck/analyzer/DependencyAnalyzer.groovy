@@ -34,16 +34,23 @@ class DependencyAnalyzer {
     private final Project mRootProject
     private final String mBuildVariant
     private final Map<String, Set<File>> mAllSubProjectsExternalDependencies = new HashMap<>()
+    private
+    final Map<String, Set<File>> mAllSubProjectsExternalDependenciesExcluded = new HashMap<>()
     private final Map<String, Set<Project>> mAllSubProjectsInternalDependencies = new HashMap<>()
+    private
+    final Map<String, Set<Project>> mAllSubProjectsInternalDependenciesExcluded = new HashMap<>()
     private final Map<String, Set<File>> mAllSubProjectsAptDependencies = new HashMap<>()
     private final Map<String, Set<String>> mAnnotationProcessors = new HashMap<>()
 
     private final Map<String, Set<File>> mAllSubProjectsExternalTestDependencies = new HashMap<>()
-    private final Map<String, Set<Project>> mAllSubProjectsInternalTestDependencies = new HashMap<>()
+    private
+    final Map<String, Set<Project>> mAllSubProjectsInternalTestDependencies = new HashMap<>()
 
     public DependencyAnalyzer(Project rootProject, String variant) {
         mRootProject = rootProject
         mBuildVariant = variant
+
+        analyse()
     }
 
     /**
@@ -51,7 +58,7 @@ class DependencyAnalyzer {
      * `debugCompile`, `releaseCompile`, dependencies including external (maven or local jar) and
      * internal (sub module, i.e. `compile project('prj')`).
      * */
-    public void analyse() {
+    private void analyse() {
         // NOTE!!! below step calls' order matters
 
         // analyse compile dependencies
@@ -64,18 +71,30 @@ class DependencyAnalyzer {
         extractAnnotationProcessors()
 
         // exclude compile dependencies from apt dependencies
-        excludeCompileDependenciesFromApt()
+        // NOTE!!! These dependencies should not be excluded, i.e. if guava is a compile dependency
+        // and guava is depended and used by an annotation processor, if excluded, guava will be
+        // not available...
+        //excludeCompileDependenciesFromApt()
 
         // exclude internal dependencies' external dependencies
         excludeInternalsExternalDependencies()
+        excludeInternalsInternalDependencies()
     }
 
     public Map<String, Set<File>> getAllSubProjectsExternalDependencies() {
         return mAllSubProjectsExternalDependencies
     }
 
+    public Map<String, Set<File>> getAllSubProjectsExternalDependenciesExcluded() {
+        return mAllSubProjectsExternalDependenciesExcluded
+    }
+
     public Map<String, Set<Project>> getAllSubProjectsInternalDependencies() {
         return mAllSubProjectsInternalDependencies
+    }
+
+    public Map<String, Set<Project>> getAllSubProjectsInternalDependenciesExcluded() {
+        return mAllSubProjectsInternalDependenciesExcluded
     }
 
     public Map<String, Set<File>> getAllSubProjectsAptDependencies() {
@@ -84,19 +103,6 @@ class DependencyAnalyzer {
 
     public Map<String, Set<String>> getAnnotationProcessors() {
         return mAnnotationProcessors
-    }
-
-    private excludeCompileDependenciesFromApt() {
-        mRootProject.subprojects { project ->
-            Set<File> excluded = new HashSet<>()
-            for (File dependency : mAllSubProjectsAptDependencies.get(project.name)) {
-                if (mAllSubProjectsExternalDependencies.get(project.name).contains(dependency)) {
-                    println "${project.name}'s apt dependency ${dependency.absolutePath} is contained in compile dependencies, exclude it"
-                    excluded.add(dependency)
-                }
-            }
-            mAllSubProjectsAptDependencies.get(project.name).removeAll(excluded)
-        }
     }
 
     private extractAnnotationProcessors() {
@@ -128,6 +134,8 @@ class DependencyAnalyzer {
     private excludeInternalsExternalDependencies() {
         mRootProject.subprojects { project ->
             // for each sub project
+            mAllSubProjectsExternalDependenciesExcluded.put(project.name,
+                    new HashSet<>(mAllSubProjectsExternalDependencies.get(project.name)))
             for (Project projectDep : mAllSubProjectsInternalDependencies.get(project.name)) {
                 // for each internal dependency of this sub project
                 for (File mavenDep : mAllSubProjectsExternalDependencies.get(projectDep.name)) {
@@ -136,10 +144,38 @@ class DependencyAnalyzer {
                     // if the **internal dependency**'s external dependency is contained in the sub
                     // project's external dependencies, which means this exact external dependency
                     // is contained by the sub project's internal dependency
-                    if (mAllSubProjectsExternalDependencies.get(project.name).contains(mavenDep)) {
+                    if (mAllSubProjectsExternalDependencies.get(project.name).contains(mavenDep) &&
+                            mAllSubProjectsExternalDependenciesExcluded.get(project.name).
+                                    contains(mavenDep)) {
                         // so exclude it
                         println "${project.name}'s compile dependency ${mavenDep.absolutePath} is contained in ${projectDep.name}, exclude it"
-                        mAllSubProjectsExternalDependencies.get(project.name).remove(mavenDep)
+                        mAllSubProjectsExternalDependenciesExcluded.get(project.name).
+                                remove(mavenDep)
+                    }
+                }
+            }
+        }
+    }
+
+    private excludeInternalsInternalDependencies() {
+        mRootProject.subprojects { project ->
+            // for each sub project
+            mAllSubProjectsInternalDependenciesExcluded.put(project.name,
+                    new HashSet<>(mAllSubProjectsInternalDependencies.get(project.name)))
+            for (Project projectDep : mAllSubProjectsInternalDependencies.get(project.name)) {
+                // for each internal dependency of this sub project
+                for (Project dep : mAllSubProjectsInternalDependencies.get(projectDep.name)) {
+                    // iterate over the internal dependencies of this **internal dependency**
+
+                    // if the **internal dependency**'s internal dependency is contained in the sub
+                    // project's internal dependencies, which means this exact internal dependency
+                    // is contained by the sub project's internal dependency
+                    if (mAllSubProjectsInternalDependencies.get(project.name).contains(dep) &&
+                            mAllSubProjectsInternalDependenciesExcluded.get(project.name).
+                                    contains(dep)) {
+                        // so exclude it
+                        println "${project.name}'s project dependency ${dep.name} is contained in ${projectDep.name}, exclude it"
+                        mAllSubProjectsInternalDependenciesExcluded.get(project.name).remove(dep)
                     }
                 }
             }
@@ -153,20 +189,22 @@ class DependencyAnalyzer {
                 project.configurations.getByName("apt").resolve().each { dependency ->
                     mAllSubProjectsAptDependencies.get(project.name).add(dependency)
                 }
-            } catch (UnknownConfigurationException e) {
+            } catch (Exception e) {
                 println "${project.name} doesn't contain apt configuration"
             }
             try {
                 project.configurations.getByName("provided").resolve().each { dependency ->
                     mAllSubProjectsAptDependencies.get(project.name).add(dependency)
                 }
-            } catch (UnknownConfigurationException e) {
+            } catch (Exception e) {
                 println "${project.name} doesn't contain provided configuration"
             }
             try {
-                project.configurations.getByName("${mBuildVariant}Compile").resolve().each { dependency ->
-                    mAllSubProjectsAptDependencies.get(project.name).add(dependency)
-                }
+                project.configurations.getByName("${mBuildVariant}Compile").
+                        resolve().
+                        each { dependency ->
+                            mAllSubProjectsAptDependencies.get(project.name).add(dependency)
+                        }
             } catch (Exception e) {
                 println "${project.name} doesn't have ${mBuildVariant}Compile dependencies (from analyseAptDependencies)"
             }
@@ -207,26 +245,30 @@ class DependencyAnalyzer {
             }
 
             try {
-                project.configurations.getByName("${mBuildVariant}Compile").resolve().each { dependency ->
-                    boolean isProjectDep = false
-                    Project projectDep = null
-                    for (Project subProject : mRootProject.subprojects) {
-                        if (!project.projectDir.equals(
-                                subProject.projectDir) && dependency.absolutePath.
-                                startsWith(subProject.buildDir.absolutePath)) {
-                            isProjectDep = true
-                            projectDep = subProject
-                            break
+                project.configurations.getByName("${mBuildVariant}Compile").
+                        resolve().
+                        each { dependency ->
+                            boolean isProjectDep = false
+                            Project projectDep = null
+                            for (Project subProject : mRootProject.subprojects) {
+                                if (!project.projectDir.equals(
+                                        subProject.projectDir) && dependency.absolutePath.
+                                        startsWith(subProject.buildDir.absolutePath)) {
+                                    isProjectDep = true
+                                    projectDep = subProject
+                                    break
+                                }
+                            }
+                            if (isProjectDep) {
+                                println "${project.name}'s ${mBuildVariant}Compile dependency ${dependency.absolutePath} is an internal dependency, sub project: ${projectDep}"
+                                mAllSubProjectsInternalDependencies.get(project.name).
+                                        add(projectDep)
+                            } else {
+                                println "${project.name}'s ${mBuildVariant}Compile dependency ${dependency.absolutePath} is an external dependency"
+                                mAllSubProjectsExternalDependencies.get(project.name).
+                                        add(dependency)
+                            }
                         }
-                    }
-                    if (isProjectDep) {
-                        println "${project.name}'s ${mBuildVariant}Compile dependency ${dependency.absolutePath} is an internal dependency, sub project: ${projectDep}"
-                        mAllSubProjectsInternalDependencies.get(project.name).add(projectDep)
-                    } else {
-                        println "${project.name}'s ${mBuildVariant}Compile dependency ${dependency.absolutePath} is an external dependency"
-                        mAllSubProjectsExternalDependencies.get(project.name).add(dependency)
-                    }
-                }
             } catch (Exception e) {
                 println "${project.name} doesn't have ${mBuildVariant}Compile dependencies"
             }

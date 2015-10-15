@@ -120,6 +120,11 @@ User | Repo
 If you are using OkBuck in your open source project, [send me a e-mail](mailto:xz4215@gmail.com) with your repo url, I'll add your repo in this list.
 
 ## Change log
++  0.2.7: 
+  +  fix overwrite doesn't work bug
+  +  fix bug when Android library module doesn't have res dir
+  +  .buckconfig will ignore .svn dirs
+  +  fix [#6](https://github.com/Piasy/OkBuck/issues/6) again...
 +  0.2.6: fix [#14](https://github.com/Piasy/OkBuck/issues/14)
 +  0.2.5: fix [#15](https://github.com/Piasy/OkBuck/issues/15)
 +  0.2.4: fix [#12](https://github.com/Piasy/OkBuck/issues/12)

@@ -48,7 +48,6 @@ android {
 dependencies {
     testCompile 'junit:junit:4.12'
 
-    compile 'com.android.support:appcompat-v7:23.0.1'
     provided 'com.google.dagger:dagger-compiler:2.0.1'
     compile project(':libraries:javalibrary')
     compile project(':common')

@@ -22,5 +22,6 @@
             android:text="@string/test_string"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="30dp"
+            android:textColor="@color/button_material_light"
             />
 </LinearLayout>
