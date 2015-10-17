@@ -22,34 +22,27 @@
  * SOFTWARE.
  */
 
-apply plugin: 'com.android.library'
-apply plugin: 'com.neenbedankt.android-apt'
+package com.github.piasy.okbuck.helper
 
-android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.1"
+import com.android.build.gradle.AppPlugin
+import com.android.build.gradle.LibraryPlugin
+import org.gradle.api.Plugin
+import org.gradle.api.Project
+import org.gradle.api.plugins.JavaPlugin
 
-    defaultConfig {
-        minSdkVersion 15
-        targetSdkVersion 23
-        versionCode 1
-        versionName "1.0"
+/**
+ * helper class for android project.
+ * */
+final class StringUtil {
 
-        buildConfigField "boolean", "DUMMY_CONFIG", "true"
+    private StringUtil() {
+        // no instance
     }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
+
+    /**
+     * Check whether the input string is null or empty.
+     * */
+    public static boolean isEmpty(String string) {
+        return string == null || string.empty
     }
-}
-
-dependencies {
-    testCompile 'junit:junit:4.12'
-
-    provided 'com.google.dagger:dagger-compiler:2.0.1'
-    compile project(':libraries:javalibrary')
-    compile project(':libraries:common')
-    compile 'com.pushtorefresh.storio:sqlite:1.3.0'
 }

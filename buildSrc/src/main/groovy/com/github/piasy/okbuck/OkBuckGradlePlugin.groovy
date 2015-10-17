@@ -137,7 +137,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
             for (Project projectDep : dependencyAnalyzer.allSubProjectsInternalDependencies.get(prj.name)) {
                 println "\t${projectDep.name}"
             }
-            println "<<< internal excluded"
+            println ">>>\n<<< internal excluded"
             for (Project projectDep : dependencyAnalyzer.allSubProjectsInternalDependenciesExcluded.get(prj.name)) {
                 println "\t${projectDep.name}"
             }

@@ -33,7 +33,7 @@ import org.gradle.api.plugins.JavaPlugin
 /**
  * helper class for android project.
  * */
-class AndroidProjectHelper {
+final class ProjectHelper {
     /**
      * unknown: 0
      * */
@@ -54,6 +54,10 @@ class AndroidProjectHelper {
      * */
     public static final int JAVA_LIB_PROJECT = 3
 
+    private ProjectHelper() {
+        // no instance
+    }
+
     /**
      * get sub project type
      * */
@@ -71,4 +75,13 @@ class AndroidProjectHelper {
         return UNKNOWN
     }
 
+    /**
+     * get path diff between (sub) project and root project
+     *
+     * @return path diff, with prefix '/' (File.separator)
+     * */
+    public static String getPathDiff(Project rootProject, Project project) {
+        return project.projectDir.absolutePath.substring(
+                rootProject.projectDir.absolutePath.length())
+    }
 }

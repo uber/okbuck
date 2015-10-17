@@ -29,6 +29,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 import com.github.piasy.okbuck.example.common.Calc;
 import com.github.piasy.okbuck.example.common.CalcMonitor;
 
@@ -38,8 +40,21 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mTvTest = (TextView) findViewById(R.id.mTvTest);
+        mTvTest.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mTvTest();
+            }
+        });
+    }
+
+    private TextView mTvTest;
+
+    void mTvTest() {
         Log.d("TEST", "" + android.support.v7.appcompat.R.color.button_material_light);
-        Log.d("test", "1 + 2 = " + new Calc(new CalcMonitor()).add(1, 2));
+        mTvTest.setText("1 + 2 = " + new Calc(new CalcMonitor()).add(1, 2));
     }
 
     @Override

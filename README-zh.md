@@ -170,3 +170,5 @@ User | Repo
 [Piasy](https://github.com/Piasy) | [AndroidTDDBootStrap](https://github.com/Piasy/AndroidTDDBootStrap)，[手把手应用教程](http://blog.piasy.com/AndroidTDDBootStrap-Use-OkBuck/)
 
 如果你也在开源项目中使用了OkBuck，可以把repo的链接[发邮件给我](mailto:xz4215@gmail.com)，我会把你的repo加入到这个列表中。
+
+## [Change log](README.md#change-log)

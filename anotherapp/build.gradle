@@ -23,6 +23,7 @@
  */
 
 apply plugin: 'com.android.application'
+apply plugin: 'android-apt'
 
 android {
     compileSdkVersion 23
@@ -47,10 +48,29 @@ android {
     }
 }
 
+apt {
+    arguments {
+        androidManifestFile variant.outputs[0].processResources.manifestFile
+        // if you have multiple outputs (when using splits), you may want to have other index than 0
+
+        // you should set your package name here if you are using different application IDs
+        // resourcePackageName "your.package.name"
+
+        // You can set optional annotation processing options here, like these commented options:
+        // logLevel 'INFO'
+        // logFile '/var/log/aa.log'
+    }
+}
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
 
+    compile 'com.android.support:appcompat-v7:23.0.1'
+    compile 'com.android.support:support-v4:23.0.1'
     compile project(":libraries:javalibrary")
-    compile project(":emptylibrary")
+    compile project(":libraries:emptylibrary")
+    // incompatible with BUCK
+    //apt "org.androidannotations:androidannotations:3.3.2"
+    //compile "org.androidannotations:androidannotations-api:3.3.2"
 }

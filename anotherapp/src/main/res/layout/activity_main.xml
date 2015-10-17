@@ -29,6 +29,7 @@
     <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:id="@+id/mTvTest"
             android:text="test"
             android:textSize="40sp"
             android:textColor="@color/button_material_light"

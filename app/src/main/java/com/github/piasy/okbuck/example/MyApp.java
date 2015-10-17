@@ -36,6 +36,7 @@ public class MyApp extends Application {
         super.onCreate();
         if (BuildConfig.XLOG_ENABLED) {
             XLogConfig.config(XLogConfig.newConfigBuilder(this).build());
+            System.out
         }
     }
 }

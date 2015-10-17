@@ -22,28 +22,38 @@
  * SOFTWARE.
  */
 
-apply plugin: 'com.android.library'
+package com.github.piasy.okbuck.rules.base
 
-android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.1"
+/**
+ * General presentation for BUCK build rule with deps part.
+ * */
+abstract class BuckRuleWithDeps extends BuckRule {
+    private final List<String> mDeps
 
-    defaultConfig {
-        minSdkVersion 15
-        targetSdkVersion 23
-        versionCode 1
-        versionName "1.0"
+    protected BuckRuleWithDeps(
+            String ruleType, String name, List<String> visibility, List<String> deps
+    ) {
+        super(ruleType, name, visibility)
+        if (deps == null) {
+            throw new IllegalArgumentException("BuckRuleWithDeps deps must be non-null.")
+        }
+        mDeps = deps
     }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
+    @Override
+    protected final void printDetail(PrintStream printer) {
+        printSpecificPart(printer)
+        if (!mDeps.empty) {
+            printer.println("\tdeps = [")
+            for (String dep : mDeps) {
+                printer.println("\t\t'${dep}',")
+            }
+            printer.println("\t],")
         }
     }
-}
 
-dependencies {
-    testCompile 'junit:junit:4.12'
-
-    compile project(":common")
+    /**
+     * print the rule specific part
+     * */
+    protected abstract void printSpecificPart(PrintStream printer)
 }
