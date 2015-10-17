@@ -24,7 +24,7 @@
 
 package com.github.piasy.okbuck.generator
 
-import com.github.piasy.okbuck.helper.AndroidProjectHelper
+import com.github.piasy.okbuck.helper.ProjectHelper
 import org.gradle.api.Project
 
 /**
@@ -66,9 +66,10 @@ class DotBuckConfigGenerator {
             PrintWriter printWriter = new PrintWriter(new FileOutputStream(dotBuckConfig))
             printWriter.println("[alias]")
             mRootProject.subprojects { project ->
-                if (AndroidProjectHelper.getSubProjectType(
-                        project) == AndroidProjectHelper.ANDROID_APP_PROJECT) {
-                    printWriter.println("\t${project.name} = //${project.name}:bin")
+                if (ProjectHelper.getSubProjectType(
+                        project) == ProjectHelper.ANDROID_APP_PROJECT) {
+                    printWriter.println(
+                            "\t${project.name} = /${ProjectHelper.getPathDiff(mRootProject, project)}:bin")
                 } //else
             }
 
