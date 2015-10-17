@@ -134,19 +134,23 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         project.subprojects { prj ->
             println "${prj.name}'s deps:"
             println "<<< internal"
-            for (Project projectDep : dependencyAnalyzer.allSubProjectsInternalDependencies.get(prj.name)) {
+            for (Project projectDep :
+                    dependencyAnalyzer.allSubProjectsInternalDependencies.get(prj.name)) {
                 println "\t${projectDep.name}"
             }
             println ">>>\n<<< internal excluded"
-            for (Project projectDep : dependencyAnalyzer.allSubProjectsInternalDependenciesExcluded.get(prj.name)) {
+            for (Project projectDep :
+                    dependencyAnalyzer.allSubProjectsInternalDependenciesExcluded.get(prj.name)) {
                 println "\t${projectDep.name}"
             }
             println ">>>\n<<< external"
-            for (File mavenDep : dependencyAnalyzer.allSubProjectsExternalDependencies.get(prj.name)) {
+            for (File mavenDep :
+                    dependencyAnalyzer.allSubProjectsExternalDependencies.get(prj.name)) {
                 println "\t${mavenDep.absolutePath}"
             }
             println ">>>\n<<< external excluded"
-            for (File mavenDep : dependencyAnalyzer.allSubProjectsExternalDependenciesExcluded.get(prj.name)) {
+            for (File mavenDep :
+                    dependencyAnalyzer.allSubProjectsExternalDependenciesExcluded.get(prj.name)) {
                 println "\t${mavenDep.absolutePath}"
             }
             println ">>>\n<<< apt"

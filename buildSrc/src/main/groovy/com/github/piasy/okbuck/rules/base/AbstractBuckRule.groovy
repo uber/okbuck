@@ -22,21 +22,14 @@
  * SOFTWARE.
  */
 
-package com.github.piasy.okbuck.helper
+package com.github.piasy.okbuck.rules.base
 
 /**
- * String util class.
+ * General presentation for BUCK build rule.
  * */
-final class StringUtil {
-
-    private StringUtil() {
-        // no instance
-    }
-
+abstract class AbstractBuckRule {
     /**
-     * Check whether the input string is null or empty.
+     * Print this rule into the printer.
      * */
-    public static boolean isEmpty(String string) {
-        return string == null || string.empty
-    }
+    public abstract void print(PrintStream printer)
 }

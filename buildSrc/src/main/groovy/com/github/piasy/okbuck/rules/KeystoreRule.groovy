@@ -22,21 +22,33 @@
  * SOFTWARE.
  */
 
-package com.github.piasy.okbuck.helper
+package com.github.piasy.okbuck.rules
+
+import com.github.piasy.okbuck.rules.base.BuckRule
+
+import static com.github.piasy.okbuck.helper.CheckUtil.checkNotEmpty
+import static com.github.piasy.okbuck.helper.CheckUtil.checkNotNull
 
 /**
- * String util class.
+ * keystore()
  * */
-final class StringUtil {
+final class KeystoreRule extends BuckRule {
+    private final String mStore
+    private final String mProperties
 
-    private StringUtil() {
-        // no instance
+    public KeystoreRule(
+            String name, List<String> visibility, String store, String properties
+    ) {
+        super("keystore", name, visibility)
+        checkNotEmpty(store, "KeystoreRule store can't be empty.")
+        mStore = store
+        checkNotEmpty(properties, "KeystoreRule properties can't be empty.")
+        mProperties = properties
     }
 
-    /**
-     * Check whether the input string is null or empty.
-     * */
-    public static boolean isEmpty(String string) {
-        return string == null || string.empty
+    @Override
+    protected final void printDetail(PrintStream printer) {
+        printer.println("\tstore = '${mStore}',")
+        printer.println("\tproperties = '${mProperties}',")
     }
 }

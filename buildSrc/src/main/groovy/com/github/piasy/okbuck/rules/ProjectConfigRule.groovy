@@ -22,21 +22,40 @@
  * SOFTWARE.
  */
 
-package com.github.piasy.okbuck.helper
+package com.github.piasy.okbuck.rules
+
+import com.github.piasy.okbuck.rules.base.AbstractBuckRule
+
+import static com.github.piasy.okbuck.helper.CheckUtil.checkNotEmpty
 
 /**
- * String util class.
+ * project_config()
+ *
+ * TODO full buck support
  * */
-final class StringUtil {
+final class ProjectConfigRule extends AbstractBuckRule {
+    private final String mSrcTarget
+    private final List<String> mSrcRoots
 
-    private StringUtil() {
-        // no instance
+    public ProjectConfigRule(
+            String srcTarget, List<String> srcRoots
+    ) {
+        checkNotEmpty(srcTarget, "ProjectConfigRule src_target can't be empty.")
+        mSrcTarget = srcTarget
+        checkNotEmpty(srcRoots, "ProjectConfigRule src_roots can't be empty.")
+        mSrcRoots = srcRoots
     }
 
-    /**
-     * Check whether the input string is null or empty.
-     * */
-    public static boolean isEmpty(String string) {
-        return string == null || string.empty
+    @Override
+    public final void print(PrintStream printer) {
+        printer.println("project_config(")
+        printer.println("\tsrc_target = '${mSrcTarget}',")
+        printer.println("\tsrc_roots = [")
+        for (String src : mSrcRoots) {
+            printer.println("\t\t'${src}',")
+        }
+        printer.println("\t],")
+        printer.println(")")
+        printer.println()
     }
 }

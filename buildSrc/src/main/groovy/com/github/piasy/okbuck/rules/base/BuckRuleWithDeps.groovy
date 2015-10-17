@@ -24,6 +24,8 @@
 
 package com.github.piasy.okbuck.rules.base
 
+import static com.github.piasy.okbuck.helper.CheckUtil.checkNotNull
+
 /**
  * General presentation for BUCK build rule with deps part.
  * */
@@ -34,9 +36,7 @@ abstract class BuckRuleWithDeps extends BuckRule {
             String ruleType, String name, List<String> visibility, List<String> deps
     ) {
         super(ruleType, name, visibility)
-        if (deps == null) {
-            throw new IllegalArgumentException("BuckRuleWithDeps deps must be non-null.")
-        }
+        checkNotNull(deps, "BuckRuleWithDeps deps must be non-null.")
         mDeps = deps
     }
 

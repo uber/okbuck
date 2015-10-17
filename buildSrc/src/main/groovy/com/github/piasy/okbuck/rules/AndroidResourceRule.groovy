@@ -27,26 +27,24 @@ package com.github.piasy.okbuck.rules
 import com.github.piasy.okbuck.helper.StringUtil
 import com.github.piasy.okbuck.rules.base.BuckRuleWithDeps
 
+import static com.github.piasy.okbuck.helper.CheckUtil.checkNotEmpty
+
 /**
  * android_resource()
  * */
-class AndroidResourceRule extends BuckRuleWithDeps {
+final class AndroidResourceRule extends BuckRuleWithDeps {
     private final String mRes
     private final String mPackage
     private final String mAssets
 
-    protected AndroidResourceRule(
-            String ruleType, String name, List<String> visibility, List<String> deps,
+    public AndroidResourceRule(
+            String name, List<String> visibility, List<String> deps,
             String res, String packageName, String assets
     ) {
-        super(ruleType, name, visibility, deps)
-        if (StringUtil.isEmpty(res)) {
-            throw new IllegalArgumentException("AndroidResourceRule res can't be empty.")
-        }
+        super("android_resource", name, visibility, deps)
+        checkNotEmpty(res, "AndroidResourceRule res can't be empty.")
         mRes = res
-        if (StringUtil.isEmpty(packageName)) {
-            throw new IllegalArgumentException("AndroidResourceRule package can't be empty.")
-        }
+        checkNotEmpty(packageName, "AndroidResourceRule package can't be empty.")
         mPackage = packageName
         mAssets = assets
     }
