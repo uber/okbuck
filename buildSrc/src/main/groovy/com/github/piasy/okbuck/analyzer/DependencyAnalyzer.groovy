@@ -25,7 +25,6 @@
 package com.github.piasy.okbuck.analyzer
 
 import org.gradle.api.Project
-import org.gradle.api.artifacts.UnknownConfigurationException
 
 import java.util.jar.JarEntry
 import java.util.jar.JarFile

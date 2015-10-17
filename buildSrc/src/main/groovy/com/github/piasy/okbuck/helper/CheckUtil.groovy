@@ -25,18 +25,41 @@
 package com.github.piasy.okbuck.helper
 
 /**
- * String util class.
+ * Check util class, provide a collection of checkNotEmpty/checkNotNull method.
  * */
-final class StringUtil {
+final class CheckUtil {
 
-    private StringUtil() {
+    private CheckUtil() {
         // no instance
     }
 
-    /**
-     * Check whether the input string is null or empty.
-     * */
-    public static boolean isEmpty(String string) {
-        return string == null || string.empty
+    public static void checkNotEmpty(String string, String message) throws RuntimeException {
+        if (StringUtil.isEmpty(string)) {
+            throw new IllegalArgumentException(message)
+        }
+    }
+
+    public static void checkNotEmpty(Set<?> set, String message) throws RuntimeException {
+        if (set == null || set.empty) {
+            throw new IllegalArgumentException(message)
+        }
+    }
+
+    public static void checkNotEmpty(List<?> list, String message) throws RuntimeException {
+        if (list == null || list.empty) {
+            throw new IllegalArgumentException(message)
+        }
+    }
+
+    public static void checkNotNull(List<?> list, String message) throws RuntimeException {
+        if (list == null) {
+            throw new IllegalArgumentException(message)
+        }
+    }
+
+    public static void checkNotNull(Set<?> set, String message) throws RuntimeException {
+        if (set == null) {
+            throw new IllegalArgumentException(message)
+        }
     }
 }

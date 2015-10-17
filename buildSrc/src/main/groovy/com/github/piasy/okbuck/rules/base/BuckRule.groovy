@@ -24,26 +24,30 @@
 
 package com.github.piasy.okbuck.rules.base
 
+import static com.github.piasy.okbuck.helper.CheckUtil.checkNotEmpty
+import static com.github.piasy.okbuck.helper.CheckUtil.checkNotNull
+
 /**
- * General presentation for BUCK build rule.
+ * General presentation for BUCK build rule with name and visibility.
  * */
-abstract class BuckRule {
+abstract class BuckRule extends AbstractBuckRule {
     private final String mRuleType
     private final String mName
     private final List<String> mVisibility
 
     protected BuckRule(String ruleType, String name, List<String> visibility) {
+        checkNotEmpty(ruleType, "BuckRule rule type can't be empty.")
         mRuleType = ruleType
+        checkNotEmpty(name, "BuckRule name can't be empty.")
         mName = name
-        if (visibility == null) {
-            throw new IllegalArgumentException("BuckRule visibility must be non-null.")
-        }
+        checkNotNull(visibility, "BuckRule visibility must be non-null.")
         mVisibility = visibility
     }
 
     /**
      * Print this rule into the printer.
      * */
+    @Override
     public final void print(PrintStream printer) {
         printer.println("${mRuleType}(")
         printer.println("\tname = '${mName}',")
