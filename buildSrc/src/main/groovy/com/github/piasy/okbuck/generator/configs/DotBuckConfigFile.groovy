@@ -22,35 +22,47 @@
  * SOFTWARE.
  */
 
-package com.github.piasy.okbuck.rules
-
-import com.github.piasy.okbuck.rules.base.BuckRuleWithDeps
+package com.github.piasy.okbuck.generator.configs
 
 import static com.github.piasy.okbuck.helper.CheckUtil.checkNotEmpty
+import static com.github.piasy.okbuck.helper.CheckUtil.checkNotNull
 
 /**
- * android_binary()
+ * .buckconfig file.
  *
  * TODO full buck support
  * */
-public final class AndroidBinaryRule extends BuckRuleWithDeps {
-    private final String mManifest
-    private final String mKeystore
+public final class DotBuckConfigFile extends BuckConfigFile {
+    private final Map<String, String> mAlias
+    private final String mTarget
+    private final List<String> mIgnore
 
-    public AndroidBinaryRule(
-            List<String> visibility, List<String> deps, String manifest, String keystore
-    ) {
-        super("android_binary", "bin", visibility, deps)
-
-        checkNotEmpty(manifest, "AndroidBinaryRule manifest must be non-null.")
-        mManifest = manifest
-        checkNotEmpty(keystore, "AndroidBinaryRule keystore must be non-null.")
-        mKeystore = keystore
+    public DotBuckConfigFile(Map<String, String> alias, String target, List<String> ignore) {
+        checkNotNull(alias, "DotBuckConfigFile alias must be non-null.")
+        mAlias = alias
+        checkNotEmpty(target, "DotBuckConfigFile target can't be empty.")
+        mTarget = target
+        checkNotNull(ignore, "DotBuckConfigFile ignore must be non-null.")
+        mIgnore = ignore
     }
 
     @Override
-    protected final void printSpecificPart(PrintStream printer) {
-        printer.println("\tmanifest = '${mManifest}',")
-        printer.println("\tkeystore = '${mKeystore}',")
+    public final void print(PrintStream printer) {
+        printer.println("[alias]")
+        for (String alias : mAlias.keySet()) {
+            printer.println("\t${alias} = ${mAlias.get(alias)}")
+        }
+        printer.println()
+
+        printer.println("[android]")
+        printer.println("\ttarget = ${mTarget}")
+        printer.println()
+
+        printer.println("[project]")
+        printer.print("\tignore =")
+        for (String ignore : mIgnore) {
+            printer.print(" ${ignore},")
+        }
+        printer.println()
     }
 }

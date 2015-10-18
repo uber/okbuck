@@ -26,7 +26,7 @@ package com.github.piasy.okbuck
 /**
  * okbuck dsl.
  * */
-class OkBuckExtension {
+public class OkBuckExtension {
     /**
      * target: equals to compileSdkVersion in build.gradle.
      * */
@@ -40,7 +40,7 @@ class OkBuckExtension {
     /**
      * keystoreDir: directory OkBuck will use to put generated signing config BUCK.
      * */
-    String keystoreDir = ".okbuck/keystore"
+    String keystoreDir = ".okbuck${File.separator}keystore"
 
     /**
      * overwrite: overwrite existing BUCK script or not.

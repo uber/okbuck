@@ -27,7 +27,7 @@ package com.github.piasy.okbuck.rules.base
 /**
  * General presentation for BUCK build rule.
  * */
-abstract class AbstractBuckRule {
+public abstract class AbstractBuckRule {
     /**
      * Print this rule into the printer.
      * */

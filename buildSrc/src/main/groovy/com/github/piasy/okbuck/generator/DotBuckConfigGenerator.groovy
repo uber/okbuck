@@ -24,63 +24,29 @@
 
 package com.github.piasy.okbuck.generator
 
-import com.github.piasy.okbuck.helper.ProjectHelper
+import com.github.piasy.okbuck.generator.configs.DotBuckConfigFile
 import org.gradle.api.Project
 
 /**
  * Created by Piasy{github.com/Piasy} on 15/10/6.
  *
- * used to generate .buckconfig file.
+ * used to generate .buckconfig file content. Designed to support X os family, Linux, Unix, OS X;
+ * and Windows os family (in the future).
  */
-class DotBuckConfigGenerator {
-    private final boolean mOverwrite
-    private final Project mRootProject
-    private final String mTarget
+public abstract class DotBuckConfigGenerator {
+    protected final Project mRootProject
+    protected final String mTarget
 
     /**
      * Create generator.
-     *
-     * @param overwrite overwrite existing buck script or not
-     * @param rootProject applied rootProject
      */
-    public DotBuckConfigGenerator(boolean overwrite, Project rootProject, String target) {
-        mOverwrite = overwrite
+    public DotBuckConfigGenerator(Project rootProject, String target) {
         mRootProject = rootProject
         mTarget = target
     }
 
     /**
-     * generate .buckconfig
-     *
-     * @throws RuntimeException when buck script exist and not overwrite
+     * generate {@code DotBuckConfigFile}
      */
-    public void generate() throws RuntimeException {
-        File dotBuckConfig = new File(
-                "${mRootProject.rootDir.absolutePath}${File.separator}.buckconfig")
-        if (dotBuckConfig.exists() && !mOverwrite) {
-            throw new IllegalStateException(
-                    ".buckconfig file already exist, set overwrite property to true to overwrite existing file.")
-        } else {
-            println "generating .buckconfig"
-
-            PrintWriter printWriter = new PrintWriter(new FileOutputStream(dotBuckConfig))
-            printWriter.println("[alias]")
-            mRootProject.subprojects { project ->
-                if (ProjectHelper.getSubProjectType(
-                        project) == ProjectHelper.ANDROID_APP_PROJECT) {
-                    printWriter.println(
-                            "\t${project.name} = /${ProjectHelper.getPathDiff(mRootProject, project)}:bin")
-                } //else
-            }
-
-            printWriter.println()
-            printWriter.println("[android]")
-            printWriter.println("\ttarget = ${mTarget}")
-
-            printWriter.println()
-            printWriter.println("[project]")
-            printWriter.println("\tignore = .git, **/.svn")
-            printWriter.close()
-        }
-    }
+    public abstract DotBuckConfigFile generate()
 }

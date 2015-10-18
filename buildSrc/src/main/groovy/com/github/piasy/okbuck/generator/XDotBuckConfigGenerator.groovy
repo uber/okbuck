@@ -22,35 +22,32 @@
  * SOFTWARE.
  */
 
-package com.github.piasy.okbuck.rules
+package com.github.piasy.okbuck.generator
 
-import com.github.piasy.okbuck.rules.base.BuckRuleWithDeps
-
-import static com.github.piasy.okbuck.helper.CheckUtil.checkNotEmpty
+import com.github.piasy.okbuck.generator.configs.DotBuckConfigFile
+import com.github.piasy.okbuck.helper.ProjectHelper
+import org.gradle.api.Project
 
 /**
- * android_binary()
+ * Created by Piasy{github.com/Piasy} on 15/10/6.
  *
- * TODO full buck support
- * */
-public final class AndroidBinaryRule extends BuckRuleWithDeps {
-    private final String mManifest
-    private final String mKeystore
+ * X os family generator, Linux, Unix, OS X
+ */
+public final class XDotBuckConfigGenerator extends DotBuckConfigGenerator {
 
-    public AndroidBinaryRule(
-            List<String> visibility, List<String> deps, String manifest, String keystore
-    ) {
-        super("android_binary", "bin", visibility, deps)
-
-        checkNotEmpty(manifest, "AndroidBinaryRule manifest must be non-null.")
-        mManifest = manifest
-        checkNotEmpty(keystore, "AndroidBinaryRule keystore must be non-null.")
-        mKeystore = keystore
+    public XDotBuckConfigGenerator(Project rootProject, String target) {
+        super(rootProject, target)
     }
 
     @Override
-    protected final void printSpecificPart(PrintStream printer) {
-        printer.println("\tmanifest = '${mManifest}',")
-        printer.println("\tkeystore = '${mKeystore}',")
+    public DotBuckConfigFile generate() {
+        Map<String, String> alias = new HashMap<>()
+        for (Project project : mRootProject.subprojects) {
+            if (ProjectHelper.getSubProjectType(
+                    project) == ProjectHelper.ProjectType.AndroidAppProject) {
+                alias.put(project.name, "/${ProjectHelper.getPathDiff(mRootProject, project)}:bin")
+            } //else
+        }
+        return new DotBuckConfigFile(alias, mTarget, Arrays.asList(".git", "**/.svn"))
     }
 }

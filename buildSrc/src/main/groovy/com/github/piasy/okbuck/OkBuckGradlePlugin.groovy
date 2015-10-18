@@ -24,9 +24,12 @@
 
 package com.github.piasy.okbuck
 
-import com.github.piasy.okbuck.analyzer.DependencyAnalyzer
-import com.github.piasy.okbuck.generator.BuckFileGenerator
-import com.github.piasy.okbuck.generator.DotBuckConfigGenerator
+import com.github.piasy.okbuck.dependency.Dependency
+import com.github.piasy.okbuck.dependency.DependencyAnalyzer
+import com.github.piasy.okbuck.generator.XBuckFileGenerator
+import com.github.piasy.okbuck.generator.XDotBuckConfigGenerator
+import com.github.piasy.okbuck.generator.configs.BUCKFile
+import com.github.piasy.okbuck.helper.ProjectHelper
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -94,36 +97,56 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     }
 
     private static applyWithBuildVariant(Project project, String variant) {
+        hashSetAddTraversalTest()
         boolean overwrite = project.okbuck.overwrite
         if (overwrite) {
             println "==========>> overwrite mode is toggle on <<=========="
         }
         printAllSubProjects(project)
 
+
         // step 1: create .buckconfig
-        new DotBuckConfigGenerator(overwrite, project,
-                (String) project.okbuck.target).generate()
+        File dotBuckConfig = new File(
+                project.projectDir.absolutePath + File.separator + ".buckconfig")
+        if (dotBuckConfig.exists() && !overwrite) {
+            throw new IllegalStateException(
+                    ".buckconfig already exist, set overwrite property to true to overwrite existing file.")
+        } else {
+            PrintStream printer = new PrintStream(dotBuckConfig)
+            new XDotBuckConfigGenerator(project, (String) project.okbuck.target).generate().
+                    print(printer)
+            printer.close()
+        }
 
         // step 2: analyse dependencies
-        DependencyAnalyzer dependencyAnalyzer = new DependencyAnalyzer(project, variant)
-        printDeps(project, dependencyAnalyzer)
-
-        // step 4: generate BUCK file for each sub project
-        File thirdPartyLibsDir = new File(".okbuck")
-        if (thirdPartyLibsDir.exists() && !overwrite) {
+        File okBuckDir = new File(project.projectDir.absolutePath + File.separator + ".okbuck")
+        if (okBuckDir.exists() && !overwrite) {
             throw new IllegalStateException(
-                    "third-party libs dir already exist, set overwrite property to true to overwrite existing file.")
+                    ".okbuck dir already exist, set overwrite property to true to overwrite existing file.")
         } else {
-            new BuckFileGenerator(project, dependencyAnalyzer, thirdPartyLibsDir,
-                    (Map<String, String>) project.okbuck.resPackages, overwrite,
-                    (String) project.okbuck.keystoreDir,
-                    (String) project.okbuck.signConfigName, variant).generate()
+            DependencyAnalyzer dependencyAnalyzer = new DependencyAnalyzer(project, variant,
+                    okBuckDir)
+            printDeps(project, dependencyAnalyzer)
+
+            // step 3: generate BUCK file for each sub project
+            Map<Project, BUCKFile> buckFiles = new XBuckFileGenerator(project, dependencyAnalyzer,
+                    okBuckDir, (Map<String, String>) project.okbuck.resPackages,
+                    (String) project.okbuck.keystoreDir, (String) project.okbuck.signConfigName,
+                    variant).generate()
+            for (Project subProject : buckFiles.keySet()) {
+                File buckFile = new File(
+                        project.projectDir.absolutePath + ProjectHelper.getPathDiff(project,
+                                subProject) + File.separator + "BUCK")
+                PrintStream printer = new PrintStream(buckFile)
+                buckFiles.get(subProject).print(printer)
+                printer.close()
+            }
         }
     }
 
     private static printAllSubProjects(Project project) {
         project.subprojects { prj ->
-            println "Sub project: ${prj.name}"
+            println "Sub project '${prj.name}': ${prj.projectDir.absolutePath}"
         }
     }
 
@@ -133,35 +156,61 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     ) {
         project.subprojects { prj ->
             println "${prj.name}'s deps:"
-            println "<<< internal"
-            for (Project projectDep :
-                    dependencyAnalyzer.allSubProjectsInternalDependencies.get(prj.name)) {
-                println "\t${projectDep.name}"
-            }
-            println ">>>\n<<< internal excluded"
-            for (Project projectDep :
-                    dependencyAnalyzer.allSubProjectsInternalDependenciesExcluded.get(prj.name)) {
-                println "\t${projectDep.name}"
-            }
-            println ">>>\n<<< external"
-            for (File mavenDep :
-                    dependencyAnalyzer.allSubProjectsExternalDependencies.get(prj.name)) {
-                println "\t${mavenDep.absolutePath}"
-            }
-            println ">>>\n<<< external excluded"
-            for (File mavenDep :
-                    dependencyAnalyzer.allSubProjectsExternalDependenciesExcluded.get(prj.name)) {
-                println "\t${mavenDep.absolutePath}"
+            println "<<< final"
+            for (Dependency dependency : dependencyAnalyzer.finalDependenciesGraph.get(prj)) {
+                if (dependency.hasResPart()) {
+                    println "${dependency.depFileName}: ${dependency.resCanonicalName}, ${dependency.srcCanonicalName}"
+                } else {
+                    println "${dependency.depFileName}: ${dependency.srcCanonicalName}"
+                }
             }
             println ">>>\n<<< apt"
-            for (File mavenDep : dependencyAnalyzer.allSubProjectsAptDependencies.get(prj.name)) {
+            for (File mavenDep : dependencyAnalyzer.aptDependencies.get(prj)) {
                 println "\t${mavenDep.absolutePath}"
             }
             println ">>>\n<<< annotation processors"
-            for (String processor : dependencyAnalyzer.annotationProcessors.get(prj.name)) {
+            for (String processor : dependencyAnalyzer.annotationProcessors.get(prj)) {
                 println "\t${processor}"
             }
             println ">>>"
         }
+    }
+
+    private static void hashSetAddTraversalTest() {
+        println "<<< hashSetAddTraversalTest"
+        Set<String> s1 = new HashSet<>()
+        Set<String> s2 = new HashSet<>()
+        Set<String> s3 = new HashSet<>()
+        s1.add("1")
+        s1.add("2")
+        s1.add("3")
+
+        s2.add("3")
+        s2.add("2")
+        s2.add("1")
+
+        s3.add("2")
+        s3.add("1")
+        s3.add("3")
+
+        String str1 = ""
+        for (String str : s1) {
+            str1 += str
+        }
+
+        String str2 = ""
+        for (String str : s2) {
+            str2 += str
+        }
+
+        String str3 = ""
+        for (String str : s3) {
+            str3 += str
+        }
+
+        println "1, 2, 3 ==> ${str1}"
+        println "3, 2, 1 ==> ${str2}"
+        println "2, 1, 3 ==> ${str3}"
+        println "hashSetAddTraversalTest >>>"
     }
 }

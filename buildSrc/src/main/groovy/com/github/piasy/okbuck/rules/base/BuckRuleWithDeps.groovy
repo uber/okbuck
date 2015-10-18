@@ -29,7 +29,7 @@ import static com.github.piasy.okbuck.helper.CheckUtil.checkNotNull
 /**
  * General presentation for BUCK build rule with deps part.
  * */
-abstract class BuckRuleWithDeps extends BuckRule {
+public abstract class BuckRuleWithDeps extends BuckRule {
     private final List<String> mDeps
 
     protected BuckRuleWithDeps(

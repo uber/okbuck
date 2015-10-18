@@ -48,7 +48,7 @@ android {
     }
 }
 
-apt {
+/*apt {
     arguments {
         androidManifestFile variant.outputs[0].processResources.manifestFile
         // if you have multiple outputs (when using splits), you may want to have other index than 0
@@ -60,7 +60,7 @@ apt {
         // logLevel 'INFO'
         // logFile '/var/log/aa.log'
     }
-}
+}*/
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
@@ -70,6 +70,7 @@ dependencies {
     compile 'com.android.support:support-v4:23.0.1'
     compile project(":libraries:javalibrary")
     compile project(":libraries:emptylibrary")
+    compile project(":libraries:common")
     // incompatible with BUCK
     //apt "org.androidannotations:androidannotations:3.3.2"
     //compile "org.androidannotations:androidannotations-api:3.3.2"
