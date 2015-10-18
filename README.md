@@ -1,5 +1,5 @@
 # OkBuck
-[ ![Download](https://api.bintray.com/packages/piasy/maven/OkBuck/images/download.svg) ](https://bintray.com/piasy/maven/OkBuck/_latestVersion)
+[ ![Download](https://img.shields.io/bintray/v/piasy/maven/OkBuck.svg) ](https://bintray.com/piasy/maven/OkBuck/_latestVersion)
 [![Master branch build status](https://travis-ci.org/Piasy/OkBuck.svg?branch=master)](https://travis-ci.org/Piasy/OkBuck)
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-OkBuck-green.svg?style=flat)](https://android-arsenal.com/details/1/2593)
 
@@ -93,20 +93,10 @@ The rest modules in this repo is a full example usage of OkBuck.
 ## Troubleshooting
 If you come with bugs of OkBuck, please [open an issue](https://github.com/Piasy/OkBuck/issues/new), and it's really appreciated to post the output of `./gradle okbuck --stacktrace` at the same time.
 
-## TODO
-+  ~~handle apt, provided dependencies~~
-+  ~~res reference on aar dependency~~ cross module reference on `R` should use explicit reference (add package name before R) in java code, no issue in xml usage
-+  make BUCK's output apk support debug
-+  ~~debugCompile/releaseCompile support~~
-+  ~~build config~~ only under defaultConfig dsl will work, see below item
-+  ~~product flavor support~~ it seems buck doesn't support multi-product flavors, [see](http://stackoverflow.com/a/26001029/3077508), or do I miss something?
-+  test/androidTest support
-+  proguard support
-+  better solution for dependency conflict
-+  better solution for local jar dependency
-+  more configuration option
-+  ~~ci~~
-+  ~~code optimization/java doc~~
+## Contribution
+Contributions are welcome! See the [detail todo list](https://github.com/Piasy/OkBuck/wiki/TODO-list).
+
+If you want to help improve OkBuck, please comment on the corresponding issue, with your expected fix due date, I'll pull you in and assign it to you, and push you.
 
 ## Acknowledgement
 +  Thanks for Facebook open source [buck](https://github.com/facebook/buck) build system.
@@ -120,7 +110,11 @@ User | Repo
 If you are using OkBuck in your open source project, [send me a e-mail](mailto:xz4215@gmail.com) with your repo url, I'll add your repo in this list.
 
 ## Change log
-+  0.2.7: 
++  0.3.0:
+  +  fix [#15](https://github.com/Piasy/OkBuck/issues/15) again.
+  +  better dependency process, partly fix [Known caveats: handle dependency conflict](https://github.com/Piasy/OkBuck/wiki/Known-caveats#handle-dependency-conflict)
+  +  **refactor round 2**, ready for your contributions!
++  0.2.7:
   +  fix overwrite doesn't work bug
   +  fix bug when Android library module doesn't have res dir
   +  .buckconfig will ignore .svn dirs
