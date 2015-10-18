@@ -22,35 +22,30 @@
  * SOFTWARE.
  */
 
-package com.github.piasy.okbuck.rules
+package com.github.piasy.okbuck.generator
 
-import com.github.piasy.okbuck.rules.base.BuckRuleWithDeps
-
-import static com.github.piasy.okbuck.helper.CheckUtil.checkNotEmpty
+import com.github.piasy.okbuck.dependency.DependencyAnalyzer
+import com.github.piasy.okbuck.generator.configs.BUCKFile
+import org.gradle.api.Project
 
 /**
- * android_binary()
+ * Created by Piasy{github.com/Piasy} on 15/10/6.
  *
- * TODO full buck support
- * */
-public final class AndroidBinaryRule extends BuckRuleWithDeps {
-    private final String mManifest
-    private final String mKeystore
+ * Windows os family generator.
+ */
+public final class WindowsBuckFileGenerator extends BuckFileGenerator {
 
-    public AndroidBinaryRule(
-            List<String> visibility, List<String> deps, String manifest, String keystore
+    public WindowsBuckFileGenerator(
+            Project rootProject, DependencyAnalyzer dependencyAnalyzer, File okBuckDir,
+            Map<String, String> resPackages, String keystoreDir, String signConfigName,
+            String buildVariant
     ) {
-        super("android_binary", "bin", visibility, deps)
-
-        checkNotEmpty(manifest, "AndroidBinaryRule manifest must be non-null.")
-        mManifest = manifest
-        checkNotEmpty(keystore, "AndroidBinaryRule keystore must be non-null.")
-        mKeystore = keystore
+        super(rootProject, dependencyAnalyzer, okBuckDir, resPackages, keystoreDir, signConfigName,
+                buildVariant)
     }
 
     @Override
-    protected final void printSpecificPart(PrintStream printer) {
-        printer.println("\tmanifest = '${mManifest}',")
-        printer.println("\tkeystore = '${mKeystore}',")
+    public Map<Project, BUCKFile> generate() {
+        throw new UnsupportedOperationException("Windows os family currently not supported!")
     }
 }

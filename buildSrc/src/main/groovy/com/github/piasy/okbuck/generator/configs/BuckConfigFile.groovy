@@ -22,35 +22,15 @@
  * SOFTWARE.
  */
 
-package com.github.piasy.okbuck.rules
-
-import com.github.piasy.okbuck.rules.base.BuckRuleWithDeps
-
-import static com.github.piasy.okbuck.helper.CheckUtil.checkNotEmpty
+package com.github.piasy.okbuck.generator.configs
 
 /**
- * android_binary()
- *
- * TODO full buck support
+ * buck config file presentation.
  * */
-public final class AndroidBinaryRule extends BuckRuleWithDeps {
-    private final String mManifest
-    private final String mKeystore
+public abstract class BuckConfigFile {
 
-    public AndroidBinaryRule(
-            List<String> visibility, List<String> deps, String manifest, String keystore
-    ) {
-        super("android_binary", "bin", visibility, deps)
-
-        checkNotEmpty(manifest, "AndroidBinaryRule manifest must be non-null.")
-        mManifest = manifest
-        checkNotEmpty(keystore, "AndroidBinaryRule keystore must be non-null.")
-        mKeystore = keystore
-    }
-
-    @Override
-    protected final void printSpecificPart(PrintStream printer) {
-        printer.println("\tmanifest = '${mManifest}',")
-        printer.println("\tkeystore = '${mKeystore}',")
-    }
+    /**
+     * Print this file's content into the printer.
+     * */
+    public abstract void print(PrintStream printer)
 }

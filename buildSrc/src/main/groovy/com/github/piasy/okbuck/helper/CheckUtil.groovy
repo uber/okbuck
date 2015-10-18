@@ -27,7 +27,7 @@ package com.github.piasy.okbuck.helper
 /**
  * Check util class, provide a collection of checkNotEmpty/checkNotNull method.
  * */
-final class CheckUtil {
+public final class CheckUtil {
 
     private CheckUtil() {
         // no instance
@@ -59,6 +59,12 @@ final class CheckUtil {
 
     public static void checkNotNull(Set<?> set, String message) throws RuntimeException {
         if (set == null) {
+            throw new IllegalArgumentException(message)
+        }
+    }
+
+    public static void checkNotNull(Map<?, ?> map, String message) throws RuntimeException {
+        if (map == null) {
             throw new IllegalArgumentException(message)
         }
     }

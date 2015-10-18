@@ -33,13 +33,11 @@ import static com.github.piasy.okbuck.helper.CheckUtil.checkNotEmpty
  *
  * TODO full buck support
  * */
-final class ProjectConfigRule extends AbstractBuckRule {
+public final class ProjectConfigRule extends AbstractBuckRule {
     private final String mSrcTarget
     private final List<String> mSrcRoots
 
-    public ProjectConfigRule(
-            String srcTarget, List<String> srcRoots
-    ) {
+    public ProjectConfigRule(String srcTarget, List<String> srcRoots) {
         checkNotEmpty(srcTarget, "ProjectConfigRule src_target can't be empty.")
         mSrcTarget = srcTarget
         checkNotEmpty(srcRoots, "ProjectConfigRule src_roots can't be empty.")

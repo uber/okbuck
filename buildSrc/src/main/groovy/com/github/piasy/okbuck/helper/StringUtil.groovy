@@ -27,7 +27,7 @@ package com.github.piasy.okbuck.helper
 /**
  * String util class.
  * */
-final class StringUtil {
+public final class StringUtil {
 
     private StringUtil() {
         // no instance

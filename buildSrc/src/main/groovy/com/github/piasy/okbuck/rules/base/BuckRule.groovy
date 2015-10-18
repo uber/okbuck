@@ -30,7 +30,7 @@ import static com.github.piasy.okbuck.helper.CheckUtil.checkNotNull
 /**
  * General presentation for BUCK build rule with name and visibility.
  * */
-abstract class BuckRule extends AbstractBuckRule {
+public abstract class BuckRule extends AbstractBuckRule {
     private final String mRuleType
     private final String mName
     private final List<String> mVisibility

@@ -32,15 +32,14 @@ import static com.github.piasy.okbuck.helper.CheckUtil.checkNotNull
 /**
  * android_build_config()
  * */
-final class AndroidBuildConfigRule extends BuckRule {
+public final class AndroidBuildConfigRule extends BuckRule {
     private final String mPackage
     private final List<String> mValues
 
     public AndroidBuildConfigRule(
-            String name, List<String> visibility, String packageName,
-            List<String> values
+            List<String> visibility, String packageName, List<String> values
     ) {
-        super("android_build_config", name, visibility)
+        super("android_build_config", "build_config", visibility)
         checkNotEmpty(packageName, "AndroidBuildConfigRule package can't be empty.")
         mPackage = packageName
         checkNotNull(values, "AndroidBuildConfigRule values must be non-null.")
