@@ -98,6 +98,8 @@ Contributions are welcome! See the [detail todo list](https://github.com/Piasy/O
 
 If you want to help improve OkBuck, please comment on the corresponding issue, with your expected fix due date, I'll pull you in and assign it to you, and push you.
 
+Note that you need create an empty file named `bintray.properties` in `/buildSrc/`, it contains the bintray config, and you don't need it.
+
 ## Acknowledgement
 +  Thanks for Facebook open source [buck](https://github.com/facebook/buck) build system.
 +  Thanks for the discussion and help from [promeG](https://github.com/promeG/) during my development.
