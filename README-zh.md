@@ -148,6 +148,8 @@ Android Studio + Gradle已经是大部分安卓开发者的开发环境，为了
 ## Contribution
 欢迎贡献！具体请见[详细TODO列表](https://github.com/Piasy/OkBuck/wiki/TODO-list)。
 
+Clone后需要在`/buildSrc/`目录下新建一个空的`bintray.properties`文件，这个文件包含bintray的上传配置，你们不需要啦。
+
 ## 致谢
 +  首先感谢Facebook开源的[buck](https://github.com/facebook/buck)构建系统
 +  感谢[promeG](https://github.com/promeG/)在开发过程中的讨论与指导
