@@ -26,8 +26,8 @@ package com.github.piasy.okbuck.rules
 
 import com.github.piasy.okbuck.rules.base.BuckRuleWithDeps
 
-import static com.github.piasy.okbuck.helper.CheckUtil.checkNotEmpty
 import static com.github.piasy.okbuck.helper.CheckUtil.checkNotNull
+import static com.github.piasy.okbuck.helper.CheckUtil.checkSetNotEmpty
 
 /**
  * java_library()
@@ -45,7 +45,7 @@ public final class JavaLibraryRule extends BuckRuleWithDeps {
     ) {
         super("java_library", "src", visibility, deps)
 
-        checkNotEmpty(srcSet, "JavaLibraryRule srcs must be non-null.")
+        checkSetNotEmpty(srcSet, "JavaLibraryRule srcs must be non-null.")
         mSrcSet = srcSet
         checkNotNull(annotationProcessors,
                 "JavaLibraryRule annotation_processors must be non-null.")

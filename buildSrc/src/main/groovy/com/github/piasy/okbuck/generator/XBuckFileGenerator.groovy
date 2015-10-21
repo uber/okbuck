@@ -33,6 +33,8 @@ import com.github.piasy.okbuck.rules.*
 import com.github.piasy.okbuck.rules.base.AbstractBuckRule
 import org.gradle.api.Project
 
+import static com.github.piasy.okbuck.helper.CheckUtil.checkStringNotEmpty
+
 /**
  * Created by Piasy{github.com/Piasy} on 15/10/6.
  *
@@ -118,6 +120,9 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
             Project project, Map<Project, Set<Dependency>> finalDependenciesGraph,
             List<AbstractBuckRule> rules, Map<Project, Set<File>> aptDependencies
     ) {
+        checkStringNotEmpty(mResPackages.get(project.name),
+                "resPackage key-value pair must be set for sub project ${project.name}");
+
         // TODO support different project structure
         File resDir = new File(project.projectDir.absolutePath + "/src/main/res")
         if (resDir.exists()) {

@@ -26,7 +26,7 @@ package com.github.piasy.okbuck.rules
 
 import com.github.piasy.okbuck.rules.base.BuckRule
 
-import static com.github.piasy.okbuck.helper.CheckUtil.checkNotEmpty
+import static com.github.piasy.okbuck.helper.CheckUtil.checkStringNotEmpty
 
 /**
  * keystore()
@@ -37,9 +37,9 @@ public final class KeystoreRule extends BuckRule {
 
     public KeystoreRule(List<String> visibility, String store, String properties) {
         super("keystore", "key_store", visibility)
-        checkNotEmpty(store, "KeystoreRule store can't be empty.")
+        checkStringNotEmpty(store, "KeystoreRule store can't be empty.")
         mStore = store
-        checkNotEmpty(properties, "KeystoreRule properties can't be empty.")
+        checkStringNotEmpty(properties, "KeystoreRule properties can't be empty.")
         mProperties = properties
     }
 

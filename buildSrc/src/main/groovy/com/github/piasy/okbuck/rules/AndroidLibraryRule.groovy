@@ -26,8 +26,8 @@ package com.github.piasy.okbuck.rules
 
 import com.github.piasy.okbuck.rules.base.BuckRuleWithDeps
 
-import static com.github.piasy.okbuck.helper.CheckUtil.checkNotEmpty
 import static com.github.piasy.okbuck.helper.CheckUtil.checkNotNull
+import static com.github.piasy.okbuck.helper.CheckUtil.checkSetNotEmpty
 
 /**
  * android_library()
@@ -45,7 +45,7 @@ public final class AndroidLibraryRule extends BuckRuleWithDeps {
     ) {
         super("android_library", "src", visibility, deps)
 
-        checkNotEmpty(srcSet, "AndroidLibraryRule srcs must be non-null.")
+        checkSetNotEmpty(srcSet, "AndroidLibraryRule srcs must be non-null.")
         mSrcSet = srcSet
         checkNotNull(annotationProcessors,
                 "AndroidLibraryRule annotation_processors must be non-null.")

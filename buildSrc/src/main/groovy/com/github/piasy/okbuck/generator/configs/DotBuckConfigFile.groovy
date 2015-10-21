@@ -24,7 +24,7 @@
 
 package com.github.piasy.okbuck.generator.configs
 
-import static com.github.piasy.okbuck.helper.CheckUtil.checkNotEmpty
+import static com.github.piasy.okbuck.helper.CheckUtil.checkStringNotEmpty
 import static com.github.piasy.okbuck.helper.CheckUtil.checkNotNull
 
 /**
@@ -40,7 +40,7 @@ public final class DotBuckConfigFile extends BuckConfigFile {
     public DotBuckConfigFile(Map<String, String> alias, String target, List<String> ignore) {
         checkNotNull(alias, "DotBuckConfigFile alias must be non-null.")
         mAlias = alias
-        checkNotEmpty(target, "DotBuckConfigFile target can't be empty.")
+        checkStringNotEmpty(target, "DotBuckConfigFile target can't be empty.")
         mTarget = target
         checkNotNull(ignore, "DotBuckConfigFile ignore must be non-null.")
         mIgnore = ignore

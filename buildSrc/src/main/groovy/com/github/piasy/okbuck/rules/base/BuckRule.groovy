@@ -24,7 +24,7 @@
 
 package com.github.piasy.okbuck.rules.base
 
-import static com.github.piasy.okbuck.helper.CheckUtil.checkNotEmpty
+import static com.github.piasy.okbuck.helper.CheckUtil.checkStringNotEmpty
 import static com.github.piasy.okbuck.helper.CheckUtil.checkNotNull
 
 /**
@@ -36,9 +36,9 @@ public abstract class BuckRule extends AbstractBuckRule {
     private final List<String> mVisibility
 
     protected BuckRule(String ruleType, String name, List<String> visibility) {
-        checkNotEmpty(ruleType, "BuckRule rule type can't be empty.")
+        checkStringNotEmpty(ruleType, "BuckRule rule type can't be empty.")
         mRuleType = ruleType
-        checkNotEmpty(name, "BuckRule name can't be empty.")
+        checkStringNotEmpty(name, "BuckRule name can't be empty.")
         mName = name
         checkNotNull(visibility, "BuckRule visibility must be non-null.")
         mVisibility = visibility
