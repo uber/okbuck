@@ -134,10 +134,6 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                     (String) project.okbuck.keystoreDir, (String) project.okbuck.signConfigName,
                     variant).generate()
             for (Project subProject : buckFiles.keySet()) {
-                println "issue #31 root project path: ${project.projectDir.absolutePath}"
-                println "issue #31 sub project path: ${subProject.projectDir.absolutePath}"
-                println "issue #31 project path diff: ${ProjectHelper.getPathDiff(project, subProject)}"
-                println "issue #31 final path: ${project.projectDir.absolutePath + ProjectHelper.getPathDiff(project, subProject) + File.separator + "BUCK"}"
                 File buckFile = new File(subProject.projectDir.absolutePath + File.separator + "BUCK")
                 PrintStream printer = new PrintStream(buckFile)
                 buckFiles.get(subProject).print(printer)
