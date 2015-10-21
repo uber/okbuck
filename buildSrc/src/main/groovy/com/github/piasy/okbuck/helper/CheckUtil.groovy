@@ -33,38 +33,26 @@ public final class CheckUtil {
         // no instance
     }
 
-    public static void checkNotEmpty(String string, String message) throws RuntimeException {
+    public static void checkStringNotEmpty(String string, String message) throws RuntimeException {
         if (StringUtil.isEmpty(string)) {
             throw new IllegalArgumentException(message)
         }
     }
 
-    public static void checkNotEmpty(Set<?> set, String message) throws RuntimeException {
+    public static void checkSetNotEmpty(Set<?> set, String message) throws RuntimeException {
         if (set == null || set.empty) {
             throw new IllegalArgumentException(message)
         }
     }
 
-    public static void checkNotEmpty(List<?> list, String message) throws RuntimeException {
+    public static void checkListNotEmpty(List<?> list, String message) throws RuntimeException {
         if (list == null || list.empty) {
             throw new IllegalArgumentException(message)
         }
     }
 
-    public static void checkNotNull(List<?> list, String message) throws RuntimeException {
-        if (list == null) {
-            throw new IllegalArgumentException(message)
-        }
-    }
-
-    public static void checkNotNull(Set<?> set, String message) throws RuntimeException {
-        if (set == null) {
-            throw new IllegalArgumentException(message)
-        }
-    }
-
-    public static void checkNotNull(Map<?, ?> map, String message) throws RuntimeException {
-        if (map == null) {
+    public static void checkNotNull(Object obj, String message) throws RuntimeException {
+        if (obj == null) {
             throw new IllegalArgumentException(message)
         }
     }

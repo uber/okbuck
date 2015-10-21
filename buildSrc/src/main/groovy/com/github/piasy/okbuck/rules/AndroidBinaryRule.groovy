@@ -26,7 +26,7 @@ package com.github.piasy.okbuck.rules
 
 import com.github.piasy.okbuck.rules.base.BuckRuleWithDeps
 
-import static com.github.piasy.okbuck.helper.CheckUtil.checkNotEmpty
+import static com.github.piasy.okbuck.helper.CheckUtil.checkStringNotEmpty
 
 /**
  * android_binary()
@@ -42,9 +42,9 @@ public final class AndroidBinaryRule extends BuckRuleWithDeps {
     ) {
         super("android_binary", "bin", visibility, deps)
 
-        checkNotEmpty(manifest, "AndroidBinaryRule manifest must be non-null.")
+        checkStringNotEmpty(manifest, "AndroidBinaryRule manifest must be non-null.")
         mManifest = manifest
-        checkNotEmpty(keystore, "AndroidBinaryRule keystore must be non-null.")
+        checkStringNotEmpty(keystore, "AndroidBinaryRule keystore must be non-null.")
         mKeystore = keystore
     }
 

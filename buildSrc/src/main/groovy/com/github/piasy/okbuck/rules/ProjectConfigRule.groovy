@@ -26,7 +26,8 @@ package com.github.piasy.okbuck.rules
 
 import com.github.piasy.okbuck.rules.base.AbstractBuckRule
 
-import static com.github.piasy.okbuck.helper.CheckUtil.checkNotEmpty
+import static com.github.piasy.okbuck.helper.CheckUtil.checkStringNotEmpty
+import static com.github.piasy.okbuck.helper.CheckUtil.checkListNotEmpty
 
 /**
  * project_config()
@@ -38,9 +39,9 @@ public final class ProjectConfigRule extends AbstractBuckRule {
     private final List<String> mSrcRoots
 
     public ProjectConfigRule(String srcTarget, List<String> srcRoots) {
-        checkNotEmpty(srcTarget, "ProjectConfigRule src_target can't be empty.")
+        checkStringNotEmpty(srcTarget, "ProjectConfigRule src_target can't be empty.")
         mSrcTarget = srcTarget
-        checkNotEmpty(srcRoots, "ProjectConfigRule src_roots can't be empty.")
+        checkListNotEmpty(srcRoots, "ProjectConfigRule src_roots can't be empty.")
         mSrcRoots = srcRoots
     }
 

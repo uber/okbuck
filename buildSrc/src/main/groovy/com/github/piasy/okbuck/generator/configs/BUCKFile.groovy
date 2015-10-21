@@ -25,8 +25,7 @@
 package com.github.piasy.okbuck.generator.configs
 
 import com.github.piasy.okbuck.rules.base.AbstractBuckRule
-
-import static com.github.piasy.okbuck.helper.CheckUtil.checkNotEmpty
+import static com.github.piasy.okbuck.helper.CheckUtil.checkListNotEmpty
 
 /**
  * BUCK file.
@@ -35,7 +34,7 @@ public final class BUCKFile extends BuckConfigFile {
     private final List<AbstractBuckRule> mRules
 
     public BUCKFile(List<AbstractBuckRule> rules) {
-        checkNotEmpty(rules, "BUCKFile rules can't be empty.")
+        checkListNotEmpty(rules, "BUCKFile rules can't be empty.")
         mRules = rules
     }
 
