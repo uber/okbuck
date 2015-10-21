@@ -112,6 +112,7 @@ User | Repo
 If you are using OkBuck in your open source project, [send me a e-mail](mailto:xz4215@gmail.com) with your repo url, I'll add your repo in this list.
 
 ## Change log
++  0.3.1: fix [#31](https://github.com/Piasy/OkBuck/issues/31)
 +  0.3.0:
   +  fix [#15](https://github.com/Piasy/OkBuck/issues/15) again.
   +  better dependency process, partly fix [Known caveats: handle dependency conflict](https://github.com/Piasy/OkBuck/wiki/Known-caveats#handle-dependency-conflict)
