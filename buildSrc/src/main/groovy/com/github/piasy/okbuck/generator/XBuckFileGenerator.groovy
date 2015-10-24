@@ -96,9 +96,11 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
             deps.add(dependency.srcCanonicalName)
         }
 
-        // TODO support multiple src set
+        String srcPath = project.sourceSets.main.java.srcDirs[0]
+        String relativePath = ProjectHelper.getRelativePathBy(srcPath, project.projectDir.absolutePath)
+
         Set<String> srcSet = new HashSet<>()
-        srcSet.add("src/main/java/**/*.java")
+        srcSet.add(relativePath + "/**/*.java")
 
         List<String> annotationProcessorDeps = new ArrayList<>()
         annotationProcessorDeps.add("//" +
@@ -110,10 +112,9 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
                 mDependencyAnalyzer.annotationProcessors.get(project).asList(),
                 annotationProcessorDeps))
 
-        // TODO support multiple src set
         rules.add(new ProjectConfigRule(
                 "/${ProjectHelper.getPathDiff(mRootProject, project)}:src",
-                Arrays.asList("src/main/java")))
+                Arrays.asList(relativePath)))
     }
 
     private void createAndroidLibraryRules(
@@ -123,20 +124,31 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
         checkStringNotEmpty(mResPackages.get(project.name),
                 "resPackage key-value pair must be set for sub project ${project.name}");
 
-        // TODO support different project structure
-        File resDir = new File(project.projectDir.absolutePath + "/src/main/res")
-        if (resDir.exists()) {
-            List<String> resDeps = new ArrayList<>()
-            for (Dependency dependency : finalDependenciesGraph.get(project)) {
-                if (dependency.hasResPart()) {
-                    resDeps.add(dependency.resCanonicalName)
-                }
+        List<String> resDeps = new ArrayList<>()
+        for (Dependency dependency : finalDependenciesGraph.get(project)) {
+            if (dependency.hasResPart()) {
+                resDeps.add(dependency.resCanonicalName)
             }
+        }
 
-            File assetsDir = new File(project.projectDir.absolutePath + "/src/main/assets")
+        // TODO support multiple res set
+        String resPath = project.android.sourceSets.main.res.srcDirs[0]
+        println "resPath  = " + resPath
+        File resDir = new File(resPath);
+        if (resDir.exists()) {
+            String relativePath = ProjectHelper.getRelativePathBy(resPath, project.projectDir.absolutePath)
+            println "resRelativePath  = " + relativePath
+            String assetsPath = project.android.sourceSets.main.assets.srcDirs;
+            File assetsDir = new File(assetsPath)
             rules.add(new AndroidResourceRule(Arrays.asList("PUBLIC"), resDeps,
-                    "src/main/res", mResPackages.get(project.name),
-                    assetsDir.exists() ? "src/main/assets" : null))
+                    relativePath, mResPackages.get(project.name),
+                    assetsDir.exists() ? ProjectHelper.getRelativePathBy(assetsPath, project.projectDir.absolutePath) : null))
+        }
+
+        String manifestPath = project.android.sourceSets.main.manifest.srcFile
+        if (new File(manifestPath).exists()) {
+            String relativePath = ProjectHelper.getRelativePathBy(manifestPath, project.projectDir.absolutePath)
+            rules.add(new AndroidManifestRule(Arrays.asList("PUBLIC"), resDeps, relativePath))
         }
 
         rules.add(new AndroidBuildConfigRule(Arrays.asList("PUBLIC"),
@@ -157,8 +169,12 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
         }
 
         // TODO support multiple src set
+        String srcPath = project.android.sourceSets.main.java.srcDirs[0]
+        String relativePath = ProjectHelper.getRelativePathBy(srcPath, project.projectDir.absolutePath)
+        println "srcPath  = " + srcPath
+
         Set<String> srcSet = new HashSet<>()
-        srcSet.add("src/main/java/**/*.java")
+        srcSet.add(relativePath + "/**/*.java")
 
         List<String> annotationProcessorDeps = new ArrayList<>()
         annotationProcessorDeps.add("//" + mOkBuckDir.name +
@@ -174,10 +190,9 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
                 mDependencyAnalyzer.annotationProcessors.get(project).asList(),
                 annotationProcessorDeps))
 
-        // TODO support multiple src set
         rules.add(new ProjectConfigRule(
                 "/${ProjectHelper.getPathDiff(mRootProject, project)}:src",
-                Arrays.asList("src/main/java")))
+                Arrays.asList(relativePath)))
     }
 
     private void createAndroidAppRules(
@@ -187,9 +202,8 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
         createAndroidLibraryRules(project, fullDependenciesGraph, rules,
                 aptDependencies)
 
-        // TODO support multiple src set, multiple manifest
         rules.add(new AndroidBinaryRule(Arrays.asList("PUBLIC"), Arrays.asList(":res", ":src"),
-                "src/main/AndroidManifest.xml",
+                ":manifest",
                 "//${mKeystoreDir}${ProjectHelper.getPathDiff(mRootProject, project)}:key_store"))
     }
 }

@@ -154,4 +154,42 @@ public final class ProjectHelper {
             throw new IllegalStateException("get ${project.name}'s sign config fail!")
         }
     }
+
+    /**
+     * Get the relative path by absolute path and contrast path
+     */
+    public static String getRelativePathBy(String absolutePath, String contrastPath) {
+        if (StringUtil.isEmpty(absolutePath) || StringUtil.isEmpty(contrastPath)) {
+            return absolutePath
+        }
+
+        String [] absolutePaths = absolutePath.split(File.separator)
+        String [] contrastPaths = contrastPath.split(File.separator)
+        StringBuilder relativePath = new StringBuilder()
+        for (int i = 0; i < Math.max(contrastPaths.length, absolutePaths.length); i++) {
+            if (i < absolutePaths.length && i < contrastPaths.length && absolutePaths[i].equals(contrastPaths[i])) {
+                continue;
+            }
+
+            for (int j = i; j < contrastPaths.length; j++) {
+                if (relativePath.length() > 0) {
+                    relativePath.append(File.separator)
+                }
+
+                relativePath.append(".." + File.separator)
+            }
+
+            for (int j = i; j < absolutePaths.length; j++) {
+                if (relativePath.length() > 0) {
+                    relativePath.append(File.separator)
+                }
+
+                relativePath.append(absolutePaths[j])
+            }
+
+            break;
+        }
+
+        return relativePath.toString()
+    }
 }
