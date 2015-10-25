@@ -24,6 +24,7 @@
 
 package com.github.piasy.okbuck.rules
 
+import com.github.piasy.okbuck.helper.StringUtil
 import com.github.piasy.okbuck.rules.base.BuckRuleWithDeps
 
 import static com.github.piasy.okbuck.helper.CheckUtil.checkNotNull
@@ -36,17 +37,19 @@ import static com.github.piasy.okbuck.helper.CheckUtil.checkSetNotEmpty
  * */
 public final class AndroidLibraryRule extends BuckRuleWithDeps {
     private final Set<String> mSrcSet
+    private final String mManifest
     private final List<String> mAnnotationProcessors
     private final List<String> mAnnotationProcessorDeps
 
     public AndroidLibraryRule(
-            List<String> visibility, List<String> deps, Set<String> srcSet,
+            List<String> visibility, List<String> deps, Set<String> srcSet, String manifest,
             List<String> annotationProcessors, List<String> annotationProcessorDeps
     ) {
         super("android_library", "src", visibility, deps)
 
         checkSetNotEmpty(srcSet, "AndroidLibraryRule srcs must be non-null.")
         mSrcSet = srcSet
+        mManifest = manifest
         checkNotNull(annotationProcessors,
                 "AndroidLibraryRule annotation_processors must be non-null.")
         mAnnotationProcessors = annotationProcessors
@@ -62,6 +65,10 @@ public final class AndroidLibraryRule extends BuckRuleWithDeps {
             printer.println("\t\t'${src}',")
         }
         printer.println("\t]),")
+
+        if (!StringUtil.isEmpty(mManifest)) {
+            printer.println("\tmanifest = '${mManifest}',")
+        }
 
         printer.println("\tannotation_processors = [")
         for (String processor : mAnnotationProcessors) {

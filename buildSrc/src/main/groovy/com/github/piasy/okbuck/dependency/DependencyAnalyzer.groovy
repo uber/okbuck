@@ -227,8 +227,8 @@ public class DependencyAnalyzer {
             ProjectHelper.ProjectType type = ProjectHelper.getSubProjectType(internalDep)
             if (type == ProjectHelper.ProjectType.AndroidAppProject ||
                     type == ProjectHelper.ProjectType.AndroidLibProject) {
-                // TODO custom project structure support
-                File resDir = new File("${internalDep.projectDir.absolutePath}/src/main/res")
+                File resDir = new File(internalDep.projectDir.absolutePath + File.separator +
+                        ProjectHelper.getProjectMainResDir(internalDep))
                 if (resDir.exists()) {
                     resName = "/${internalDepPathDiff}:res"
                 }

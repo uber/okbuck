@@ -68,6 +68,10 @@ public class Dependency {
         return internalDependencyProject(rootProject, mDepFile) != null
     }
 
+    public Project internalDependency(Project rootProject) {
+        return internalDependencyProject(rootProject, mDepFile)
+    }
+
     public boolean dstDirExists() {
         return mDstDir.exists()
     }
