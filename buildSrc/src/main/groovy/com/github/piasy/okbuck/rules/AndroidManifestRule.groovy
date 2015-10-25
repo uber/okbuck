@@ -24,25 +24,24 @@
 
 package com.github.piasy.okbuck.rules
 
-import com.github.piasy.okbuck.helper.StringUtil
 import com.github.piasy.okbuck.rules.base.BuckRuleWithDeps
 
 import static com.github.piasy.okbuck.helper.CheckUtil.checkStringNotEmpty
 
 /**
- * android_resource()
+ * android_manifest()
  * */
 public final class AndroidManifestRule extends BuckRuleWithDeps {
-    private final String mManifest
+    private final String mSkeleton
 
-    public AndroidManifestRule(List<String> visibility, List<String> deps, String manifest) {
+    public AndroidManifestRule(List<String> visibility, List<String> deps, String skeleton) {
         super("android_manifest", "manifest", visibility, deps)
-        checkStringNotEmpty(manifest, "AndroidManifestRule manifest can't be empty.")
-        mManifest = manifest
+        checkStringNotEmpty(skeleton, "AndroidManifestRule skeleton can't be empty.")
+        mSkeleton = skeleton
     }
 
     @Override
     protected final void printSpecificPart(PrintStream printer) {
-        printer.println("\tskeleton = '${mManifest}',")
+        printer.println("\tskeleton = '${mSkeleton}',")
     }
 }
