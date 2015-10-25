@@ -22,22 +22,11 @@
  * SOFTWARE.
  */
 
-package com.github.piasy.okbuck.example;
+package com.github.piasy.okbuck.example.dummylibrary;
 
-import android.app.Application;
-import com.github.promeg.xlog_android.lib.XLogConfig;
-import com.squareup.leakcanary.LeakCanary;
+import android.app.Activity;
 
 /**
- * Created by Piasy{github.com/Piasy} on 15/10/6.
+ * Created by Piasy{github.com/Piasy} on 15/10/24.
  */
-public class MyApp extends Application {
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        if (BuildConfig.XLOG_ENABLED) {
-            XLogConfig.config(XLogConfig.newConfigBuilder(this).build());
-        }
-        LeakCanary.install(this);
-    }
-}
+public class DummyActivity extends Activity {}

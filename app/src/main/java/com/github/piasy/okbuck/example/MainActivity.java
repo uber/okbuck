@@ -9,6 +9,7 @@ import android.widget.TextView;
 import butterknife.ButterKnife;
 import com.github.piasy.okbuck.example.common.Calc;
 import com.github.piasy.okbuck.example.common.CalcMonitor;
+import com.github.piasy.okbuck.example.dummylibrary.DummyActivity;
 import com.github.piasy.okbuck.example.dummylibrary.DummyAndroidClass;
 import com.github.piasy.okbuck.example.javalib.DummyJavaClass;
 import com.promegu.xlog.base.XLog;
@@ -46,7 +47,8 @@ public class MainActivity extends AppCompatActivity {
             mTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    startActivity(new Intent(MainActivity.this, CollapsingAppBarActivity.class));
+                    //startActivity(new Intent(MainActivity.this, CollapsingAppBarActivity.class));
+                    startActivity(new Intent(MainActivity.this, DummyActivity.class));
                 }
             });
         }
