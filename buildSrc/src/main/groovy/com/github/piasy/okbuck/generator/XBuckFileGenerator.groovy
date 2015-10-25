@@ -29,6 +29,7 @@ import com.github.piasy.okbuck.dependency.DependencyAnalyzer
 import com.github.piasy.okbuck.dependency.DependencyProcessor
 import com.github.piasy.okbuck.generator.configs.BUCKFile
 import com.github.piasy.okbuck.helper.ProjectHelper
+import com.github.piasy.okbuck.helper.StringUtil
 import com.github.piasy.okbuck.rules.*
 import com.github.piasy.okbuck.rules.base.AbstractBuckRule
 import org.gradle.api.Project
@@ -68,8 +69,7 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
                     createAndroidAppRules(project, finalDependenciesGraph, rules, aptDependencies)
                     break
                 case ProjectHelper.ProjectType.AndroidLibProject:
-                    createAndroidLibraryRules(project, finalDependenciesGraph, rules,
-                            aptDependencies)
+                    createAndroidLibraryRules(project, finalDependenciesGraph, rules, true)
                     break
                 case ProjectHelper.ProjectType.JavaLibProject:
                     createJavaLibraryRules(finalDependenciesGraph, project, aptDependencies, rules)
@@ -96,9 +96,11 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
             deps.add(dependency.srcCanonicalName)
         }
 
-        // TODO support multiple src set
+        Set<String> mainSrcSet = ProjectHelper.getProjectMainSrcSet(project)
         Set<String> srcSet = new HashSet<>()
-        srcSet.add("src/main/java/**/*.java")
+        for (String srcDir : mainSrcSet) {
+            srcSet.add(srcDir + "/**/*.java")
+        }
 
         List<String> annotationProcessorDeps = new ArrayList<>()
         annotationProcessorDeps.add("//" +
@@ -110,42 +112,38 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
                 mDependencyAnalyzer.annotationProcessors.get(project).asList(),
                 annotationProcessorDeps))
 
-        // TODO support multiple src set
-        rules.add(new ProjectConfigRule(
-                "/${ProjectHelper.getPathDiff(mRootProject, project)}:src",
-                Arrays.asList("src/main/java")))
+        rules.add(new ProjectConfigRule("/${ProjectHelper.getPathDiff(mRootProject, project)}:src",
+                mainSrcSet.toList()))
     }
 
     private void createAndroidLibraryRules(
             Project project, Map<Project, Set<Dependency>> finalDependenciesGraph,
-            List<AbstractBuckRule> rules, Map<Project, Set<File>> aptDependencies
+            List<AbstractBuckRule> rules, boolean includeManifest
     ) {
         checkStringNotEmpty(mResPackages.get(project.name),
                 "resPackage key-value pair must be set for sub project ${project.name}");
 
-        // TODO support different project structure
-        File resDir = new File(project.projectDir.absolutePath + "/src/main/res")
-        if (resDir.exists()) {
+        // TODO support multiple res set
+        String resDir = ProjectHelper.getProjectMainResDir(project)
+        if (!StringUtil.isEmpty(resDir)) {
             List<String> resDeps = new ArrayList<>()
             for (Dependency dependency : finalDependenciesGraph.get(project)) {
                 if (dependency.hasResPart()) {
                     resDeps.add(dependency.resCanonicalName)
                 }
             }
-
-            File assetsDir = new File(project.projectDir.absolutePath + "/src/main/assets")
-            rules.add(new AndroidResourceRule(Arrays.asList("PUBLIC"), resDeps,
-                    "src/main/res", mResPackages.get(project.name),
-                    assetsDir.exists() ? "src/main/assets" : null))
+            String assetsDir = ProjectHelper.getProjectMainAssetsDir(project)
+            rules.add(new AndroidResourceRule(Arrays.asList("PUBLIC"), resDeps, resDir,
+                    mResPackages.get(project.name), assetsDir))
         }
 
-        rules.add(new AndroidBuildConfigRule(Arrays.asList("PUBLIC"),
-                mResPackages.get(project.name),
-                ProjectHelper.getDefaultConfigBuildConfigField(project)))
+        rules.add(
+                new AndroidBuildConfigRule(Arrays.asList("PUBLIC"), mResPackages.get(project.name),
+                        ProjectHelper.getDefaultConfigBuildConfigField(project)))
 
         List<String> deps = new ArrayList<>()
         deps.add(":build_config")
-        if (resDir.exists()) {
+        if (!StringUtil.isEmpty(resDir)) {
             deps.add(":res")
         }
         for (Dependency dependency : finalDependenciesGraph.get(project)) {
@@ -156,9 +154,11 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
             }
         }
 
-        // TODO support multiple src set
+        Set<String> mainSrcSet = ProjectHelper.getProjectMainSrcSet(project)
         Set<String> srcSet = new HashSet<>()
-        srcSet.add("src/main/java/**/*.java")
+        for (String srcDir : mainSrcSet) {
+            srcSet.add(srcDir + "/**/*.java")
+        }
 
         List<String> annotationProcessorDeps = new ArrayList<>()
         annotationProcessorDeps.add("//" + mOkBuckDir.name +
@@ -171,25 +171,47 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
                 ":all_aars")
 
         rules.add(new AndroidLibraryRule(Arrays.asList("PUBLIC"), deps, srcSet,
+                includeManifest ? ProjectHelper.getProjectMainManifestFile(project) : null,
                 mDependencyAnalyzer.annotationProcessors.get(project).asList(),
                 annotationProcessorDeps))
 
-        // TODO support multiple src set
-        rules.add(new ProjectConfigRule(
-                "/${ProjectHelper.getPathDiff(mRootProject, project)}:src",
-                Arrays.asList("src/main/java")))
+        rules.add(new ProjectConfigRule("/${ProjectHelper.getPathDiff(mRootProject, project)}:src",
+                mainSrcSet.toList()))
     }
 
     private void createAndroidAppRules(
-            Project project, Map<Project, Set<Dependency>> fullDependenciesGraph,
+            Project project, Map<Project, Set<Dependency>> finalDependenciesGraph,
             List<AbstractBuckRule> rules, Map<Project, Set<File>> aptDependencies
     ) {
-        createAndroidLibraryRules(project, fullDependenciesGraph, rules,
-                aptDependencies)
+        createAndroidLibraryRules(project, finalDependenciesGraph, rules, false)
 
-        // TODO support multiple src set, multiple manifest
+        List<String> manifestDeps = new ArrayList<>()
+        for (Dependency dependency : finalDependenciesGraph.get(project)) {
+            Project internalDep = dependency.internalDependency(mRootProject)
+            if (internalDep != null) {
+                // internal android lib/app module dependency
+                switch (ProjectHelper.getSubProjectType(internalDep)) {
+                    case ProjectHelper.ProjectType.AndroidAppProject:
+                    case ProjectHelper.ProjectType.AndroidLibProject:
+                        manifestDeps.add(dependency.srcCanonicalName)
+                        break
+                    case ProjectHelper.ProjectType.JavaLibProject:
+                    default:
+                        break
+                }
+            } else {
+                if (dependency.hasResPart()) {
+                    // aar dependencies
+                    manifestDeps.add(dependency.srcCanonicalName)
+                }
+            }
+        }
+
+        rules.add(new AndroidManifestRule(Arrays.asList("PUBLIC"), manifestDeps,
+                ProjectHelper.getProjectMainManifestFile(project)))
+
         rules.add(new AndroidBinaryRule(Arrays.asList("PUBLIC"), Arrays.asList(":res", ":src"),
-                "src/main/AndroidManifest.xml",
+                ":manifest",
                 "//${mKeystoreDir}${ProjectHelper.getPathDiff(mRootProject, project)}:key_store"))
     }
 }

@@ -29,7 +29,6 @@ import com.github.piasy.okbuck.dependency.DependencyAnalyzer
 import com.github.piasy.okbuck.generator.XBuckFileGenerator
 import com.github.piasy.okbuck.generator.XDotBuckConfigGenerator
 import com.github.piasy.okbuck.generator.configs.BUCKFile
-import com.github.piasy.okbuck.helper.ProjectHelper
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -97,7 +96,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     }
 
     private static applyWithBuildVariant(Project project, String variant) {
-        hashSetAddTraversalTest()
+        //hashSetAddTraversalTest()
         boolean overwrite = project.okbuck.overwrite
         if (overwrite) {
             println "==========>> overwrite mode is toggle on <<=========="

@@ -113,7 +113,9 @@ public final class ProjectHelper {
         return ret
     }
 
-    public static KeystoreRule createKeystoreRule(Project project, String signConfigName, File dir) {
+    public static KeystoreRule createKeystoreRule(
+            Project project, String signConfigName, File dir
+    ) {
         if (!dir.exists()) {
             dir.mkdirs()
         }
@@ -152,6 +154,95 @@ public final class ProjectHelper {
         } catch (Exception e) {
             e.printStackTrace()
             throw new IllegalStateException("get ${project.name}'s sign config fail!")
+        }
+        throw new IllegalStateException("get ${project.name}'s sign config fail!")
+    }
+
+    public static Set<String> getProjectMainSrcSet(Project project) {
+        Set<String> srcSet = new HashSet<>()
+        switch (getSubProjectType(project)) {
+            case ProjectType.AndroidAppProject:
+            case ProjectType.AndroidLibProject:
+                for (File srcDir : project.android.sourceSets.main.java.srcDirs) {
+                    if (srcDir.exists()) {
+                        srcSet.add(getPathDiff(project.projectDir, srcDir).substring(1))
+                    }
+                }
+                break
+            case ProjectType.JavaLibProject:
+                for (File srcDir : project.sourceSets.main.java.srcDirs) {
+                    if (srcDir.exists()) {
+                        srcSet.add(getPathDiff(project.projectDir, srcDir).substring(1))
+                    }
+                }
+                break
+            default:
+                throw new IllegalArgumentException(
+                        "sub project must be android library/application module")
+        }
+        return srcSet
+    }
+
+    /**
+     * Get the main res dir canonical name, buck's android_resource only accept one dir.
+     * return null if the res dir doesn't exist.
+     * */
+    public static String getProjectMainResDir(Project project) {
+        switch (getSubProjectType(project)) {
+            case ProjectType.AndroidAppProject:
+            case ProjectType.AndroidLibProject:
+                File resDir = (File) project.android.sourceSets.main.res.srcDirs[0]
+                if (resDir.exists()) {
+                    return getPathDiff(project.projectDir, resDir).substring(1)
+                } else {
+                    return null
+                }
+            case ProjectType.JavaLibProject:
+            default:
+                throw new IllegalArgumentException(
+                        "sub project must be android library/application module")
+        }
+    }
+
+    /**
+     * Get the main assets dir canonical name, buck's android_resource only accept one dir.
+     * return null if the res dir doesn't exist.
+     * */
+    public static String getProjectMainAssetsDir(Project project) {
+        switch (getSubProjectType(project)) {
+            case ProjectType.AndroidAppProject:
+            case ProjectType.AndroidLibProject:
+                File assetsDir = (File) project.android.sourceSets.main.assets.srcDirs[0]
+                if (assetsDir.exists()) {
+                    return getPathDiff(project.projectDir, assetsDir).substring(1)
+                } else {
+                    return null
+                }
+            case ProjectType.JavaLibProject:
+            default:
+                throw new IllegalArgumentException(
+                        "sub project must be android library/application module")
+        }
+    }
+
+    /**
+     * Get the main manifest file path.
+     * return null if the res dir doesn't exist.
+     * */
+    public static String getProjectMainManifestFile(Project project) {
+        switch (getSubProjectType(project)) {
+            case ProjectType.AndroidAppProject:
+            case ProjectType.AndroidLibProject:
+                File manifestFile = (File) project.android.sourceSets.main.manifest.srcFile
+                if (manifestFile.exists()) {
+                    return getPathDiff(project.projectDir, manifestFile).substring(1)
+                } else {
+                    return null
+                }
+            case ProjectType.JavaLibProject:
+            default:
+                throw new IllegalArgumentException(
+                        "sub project must be android library/application module")
         }
     }
 }

@@ -22,16 +22,26 @@
  * SOFTWARE.
  */
 
-package com.github.piasy.okbuck.example.dummylibrary;
+package com.github.piasy.okbuck.rules
 
-import android.app.Application;
-import android.test.ApplicationTestCase;
+import com.github.piasy.okbuck.rules.base.BuckRuleWithDeps
+
+import static com.github.piasy.okbuck.helper.CheckUtil.checkStringNotEmpty
 
 /**
- * <a href="http://d.android.com/tools/testing/testing_android.html">Testing Fundamentals</a>
- */
-public class ApplicationTest extends ApplicationTestCase<Application> {
-    public ApplicationTest() {
-        super(Application.class);
+ * android_manifest()
+ * */
+public final class AndroidManifestRule extends BuckRuleWithDeps {
+    private final String mSkeleton
+
+    public AndroidManifestRule(List<String> visibility, List<String> deps, String skeleton) {
+        super("android_manifest", "manifest", visibility, deps)
+        checkStringNotEmpty(skeleton, "AndroidManifestRule skeleton can't be empty.")
+        mSkeleton = skeleton
+    }
+
+    @Override
+    protected final void printSpecificPart(PrintStream printer) {
+        printer.println("\tskeleton = '${mSkeleton}',")
     }
 }
