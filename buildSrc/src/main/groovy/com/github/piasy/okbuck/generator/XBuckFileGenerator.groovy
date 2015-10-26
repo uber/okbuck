@@ -141,10 +141,18 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
                 new AndroidBuildConfigRule(Arrays.asList("PUBLIC"), mResPackages.get(project.name),
                         ProjectHelper.getDefaultConfigBuildConfigField(project)))
 
+        String jniLibsDir = ProjectHelper.getProjectMainJniLibsDir(project)
+        if (!StringUtil.isEmpty(jniLibsDir)) {
+            rules.add(new PrebuiltNativeLibraryRule(Arrays.asList("PUBLIC"), jniLibsDir))
+        }
+
         List<String> deps = new ArrayList<>()
         deps.add(":build_config")
         if (!StringUtil.isEmpty(resDir)) {
             deps.add(":res")
+        }
+        if (!StringUtil.isEmpty(jniLibsDir)) {
+            deps.add(":native_libs")
         }
         for (Dependency dependency : finalDependenciesGraph.get(project)) {
             deps.add(dependency.srcCanonicalName)
