@@ -206,7 +206,7 @@ public final class ProjectHelper {
 
     /**
      * Get the main assets dir canonical name, buck's android_resource only accept one dir.
-     * return null if the res dir doesn't exist.
+     * return null if the assets dir doesn't exist.
      * */
     public static String getProjectMainAssetsDir(Project project) {
         switch (getSubProjectType(project)) {
@@ -227,7 +227,7 @@ public final class ProjectHelper {
 
     /**
      * Get the main manifest file path.
-     * return null if the res dir doesn't exist.
+     * return null if the manifest file doesn't exist.
      * */
     public static String getProjectMainManifestFile(Project project) {
         switch (getSubProjectType(project)) {
@@ -245,4 +245,28 @@ public final class ProjectHelper {
                         "sub project must be android library/application module")
         }
     }
+
+    /**
+     * Get the main jniLibs dir path. Usually you can put your jni libs inside your android app
+     * module, android library module is ok, but doesn't work with java library module.
+     *
+     * return null if the jniLibs dir doesn't exist.
+     * */
+    public static String getProjectMainJniLibsDir(Project project) {
+        switch (getSubProjectType(project)) {
+            case ProjectType.AndroidAppProject:
+            case ProjectType.AndroidLibProject:
+                File jniLibsDir = (File) project.android.sourceSets.main.jniLibs.srcDirs[0]
+                if (jniLibsDir.exists()) {
+                    return getPathDiff(project.projectDir, jniLibsDir).substring(1)
+                } else {
+                    return null
+                }
+            case ProjectType.JavaLibProject:
+            default:
+                throw new IllegalArgumentException(
+                        "sub project must be android library/application module")
+        }
+    }
+
 }

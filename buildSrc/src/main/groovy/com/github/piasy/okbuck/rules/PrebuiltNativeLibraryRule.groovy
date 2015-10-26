@@ -22,17 +22,26 @@
  * SOFTWARE.
  */
 
-package com.github.piasy.okbuck.example.anotherapp;
+package com.github.piasy.okbuck.rules
 
-import android.app.Application;
-import android.test.ApplicationTestCase;
+import com.github.piasy.okbuck.rules.base.BuckRule
+
+import static com.github.piasy.okbuck.helper.CheckUtil.checkStringNotEmpty
 
 /**
- * <a href="http://d.android.com/tools/testing/testing_android.html">Testing Fundamentals</a>
- */
-public class ApplicationTest extends ApplicationTestCase<Application> {
+ * prebuilt_native_library()
+ * */
+public final class PrebuiltNativeLibraryRule extends BuckRule {
+    private final String mNativeLibs
 
-    public ApplicationTest() {
-        super(Application.class);
+    public PrebuiltNativeLibraryRule(List<String> visibility, String nativeLibs) {
+        super("prebuilt_native_library", "native_libs", visibility)
+        checkStringNotEmpty(nativeLibs, "PrebuiltNativeLibraryRule native_libs can't be empty.")
+        mNativeLibs = nativeLibs
+    }
+
+    @Override
+    protected final void printDetail(PrintStream printer) {
+        printer.println("\tnative_libs = '${mNativeLibs}',")
     }
 }

@@ -22,19 +22,25 @@
  * SOFTWARE.
  */
 
-package com.github.piasy.okbuck.example.anotherapp;
-
-import org.junit.Test;
-
-import static org.junit.Assert.*;
+package com.example.hellojni;
 
 /**
- * To work on unit tests, switch the Test Artifact in the Build Variants view.
+ * Created by Piasy{github.com/Piasy} on 15/10/26.
  */
-public class ExampleUnitTest {
+public class HelloJni {
 
-    @Test
-    public void addition_isCorrect() throws Exception {
-        assertEquals(4, 2 + 2);
+    /* A native method that is implemented by the
+     * 'hello-jni' native library, which is packaged
+     * with this application.
+     */
+    public static native String  stringFromJNI();
+
+    /* this is used to load the 'hello-jni' library on application
+     * startup. The library has already been unpacked into
+     * /data/data/com.example.hellojni/lib/libhello-jni.so at
+     * installation time by the package manager.
+     */
+    static {
+        System.loadLibrary("hello-jni");
     }
 }
