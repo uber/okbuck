@@ -22,17 +22,25 @@
  * SOFTWARE.
  */
 
-package com.github.piasy.okbuck.example.anotherapp;
-
-import android.app.Application;
-import android.test.ApplicationTestCase;
+package com.example.hellojni;
 
 /**
- * <a href="http://d.android.com/tools/testing/testing_android.html">Testing Fundamentals</a>
+ * Created by Piasy{github.com/Piasy} on 15/10/26.
  */
-public class ApplicationTest extends ApplicationTestCase<Application> {
+public class HelloJni {
 
-    public ApplicationTest() {
-        super(Application.class);
+    /* A native method that is implemented by the
+     * 'hello-jni' native library, which is packaged
+     * with this application.
+     */
+    public static native String  stringFromJNI();
+
+    /* this is used to load the 'hello-jni' library on application
+     * startup. The library has already been unpacked into
+     * /data/data/com.example.hellojni/lib/libhello-jni.so at
+     * installation time by the package manager.
+     */
+    static {
+        System.loadLibrary("hello-jni");
     }
 }

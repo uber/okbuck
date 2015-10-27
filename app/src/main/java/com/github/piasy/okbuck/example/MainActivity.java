@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import butterknife.ButterKnife;
+import com.example.hellojni.HelloJni;
 import com.github.piasy.okbuck.example.common.Calc;
 import com.github.piasy.okbuck.example.common.CalcMonitor;
 import com.github.piasy.okbuck.example.dummylibrary.DummyActivity;
@@ -20,12 +21,14 @@ import javax.inject.Inject;
  */
 @XLog
 public class MainActivity extends AppCompatActivity {
-    TextView mTextView;
+    private TextView mTextView;
+    private TextView mTextView2;
 
     @Inject
     DummyJavaClass mDummyJavaClass;
     @Inject
     DummyAndroidClass mDummyAndroidClass;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +42,8 @@ public class MainActivity extends AppCompatActivity {
         mTextView.setText(String.format("%s %s, --from %s.", getString(
                 com.github.piasy.okbuck.example.dummylibrary.R.string.dummy_library_android_str),
                 mDummyAndroidClass.getAndroidWord(this), mDummyJavaClass.getJavaWord()));
+
+        mTextView2.setText(mTextView2.getText() + " ==> " + HelloJni.stringFromJNI());
 
         // using explicit reference to cross module R reference:
         int id = android.support.design.R.string.appbar_scrolling_view_behavior;
@@ -58,5 +63,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void bind() {
         mTextView = ButterKnife.findById(this, R.id.mTextView);
+        mTextView2 = ButterKnife.findById(this, R.id.mTextView2);
     }
 }

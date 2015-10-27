@@ -31,6 +31,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import com.example.hellojni.HelloJni;
 import com.github.piasy.okbuck.example.common.Calc;
 import com.github.piasy.okbuck.example.common.CalcMonitor;
 
@@ -54,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
 
     void mTvTest() {
         Log.d("TEST", "" + android.support.v7.appcompat.R.color.button_material_light);
-        mTvTest.setText("1 + 2 = " + new Calc(new CalcMonitor()).add(1, 2));
+        mTvTest.setText("1 + 2 = " + new Calc(new CalcMonitor()).add(1, 2) + " ==> " + HelloJni.stringFromJNI());
     }
 
     @Override
