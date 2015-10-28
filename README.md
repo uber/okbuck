@@ -112,6 +112,7 @@ User | Repo
 If you are using OkBuck in your open source project, [send me a e-mail](mailto:xz4215@gmail.com) with your repo url, I'll add your repo in this list.
 
 ## Change log
++  0.3.5: fix [#39](https://github.com/Piasy/OkBuck/issues/39)
 +  0.3.4: fix [#22](https://github.com/Piasy/OkBuck/issues/22) prebuilt native library support
 +  0.3.3:
   +  fix [#25](https://github.com/Piasy/OkBuck/issues/25), [#27](https://github.com/Piasy/OkBuck/issues/27)

@@ -78,8 +78,15 @@ public final class ProjectHelper {
      * @return path diff, with prefix {@code File.separator}
      * */
     public static String getPathDiff(Project rootProject, Project project) {
-        return project.projectDir.absolutePath.substring(
-                rootProject.projectDir.absolutePath.length())
+        String path = project.projectDir.absolutePath
+        String rootPath = rootProject.projectDir.absolutePath
+        if (path.indexOf(rootPath) == 0) {
+            return project.projectDir.absolutePath.substring(
+                    rootProject.projectDir.absolutePath.length())
+        } else {
+            throw new IllegalArgumentException(
+                    "sub project ${project.name} must locate inside root project ${rootProject.name}'s project dir")
+        }
     }
 
     /**
@@ -88,7 +95,14 @@ public final class ProjectHelper {
      * @return path diff, with prefix {@code File.separator}
      * */
     public static String getPathDiff(File rootDir, File dir) {
-        return dir.absolutePath.substring(rootDir.absolutePath.length())
+        String path = dir.absolutePath
+        String rootPath = rootDir.absolutePath
+        if (path.indexOf(rootPath) == 0) {
+            return dir.absolutePath.substring(rootDir.absolutePath.length())
+        } else {
+            throw new IllegalArgumentException(
+                    "sub dir ${dir.name} must locate inside root dir ${rootDir.name}")
+        }
     }
 
     public static List<String> getDefaultConfigBuildConfigField(Project project) {
@@ -268,5 +282,4 @@ public final class ProjectHelper {
                         "sub project must be android library/application module")
         }
     }
-
 }
