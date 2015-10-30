@@ -24,6 +24,7 @@ Further more, you can still use OkBuck to maintain your BUCK build system when y
     ```groovy
     classpath "com.github.piasy:okbuck-gradle-plugin:${latest version}"
     ```
+  +  ${latest version} should be substituted with the real specific version, the latest version could be see from the bintray badge on the top of this document.
 
 2. Add this line into root rootProject build.gradle: 
 

@@ -19,6 +19,7 @@ Android Studio + Gradle已经是大部分安卓开发者的开发环境，为了
 
 ## 如何使用OkBuck
 1. 工程根目录build.gradle的buildscript dependencies部分加入：`classpath "com.github.piasy:okbuck-gradle-plugin:${latest version}"`
+  +  ${latest version}需要替换为最新的版本号，可通过文档顶部的bintray badge查看最新版本
     
 2. 工程根目录build.gradle最外层加入apply语句：`apply plugin: 'com.github.piasy.okbuck-gradle-plugin'`
 
