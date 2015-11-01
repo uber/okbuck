@@ -28,6 +28,7 @@ import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.LibraryPlugin
 import com.android.build.gradle.internal.dsl.ProductFlavor
 import com.android.build.gradle.internal.dsl.SigningConfig
+import com.android.builder.model.BuildType
 import com.android.builder.model.ClassField
 import com.github.piasy.okbuck.rules.KeystoreRule
 import org.apache.commons.io.IOUtils
@@ -45,6 +46,7 @@ public final class ProjectHelper {
      * sub project type enum.
      * */
     public static enum ProjectType {
+
         Unknown,
         AndroidAppProject,
         AndroidLibProject,
@@ -73,11 +75,98 @@ public final class ProjectHelper {
     }
 
     /**
+     * check whether the project has product flavors and exported non-default configurations.
+     * */
+    public static boolean exportFlavor(Project project) {
+        switch (getSubProjectType(project)) {
+            case ProjectType.AndroidAppProject:
+                return hasFlavor(project)
+            case ProjectType.AndroidLibProject:
+                return publishNonDefault(project) && hasFlavor(project)
+            default:
+                return false
+        }
+    }
+
+    private static boolean publishNonDefault(Project project) {
+        try {
+            boolean export = false
+            for (PropertyValue prop : project.extensions.getByName("android").metaPropertyValues) {
+                if ("publishNonDefault".equals(prop.name)) {
+                    export = prop.value
+                    break
+                }
+            }
+            return export
+        } catch (Exception e) {
+            return false
+        }
+    }
+
+    private static boolean hasFlavor(Project project) {
+        try {
+            for (PropertyValue prop :
+                    project.extensions.getByName("android").metaPropertyValues) {
+                if ("productFlavors".equals(prop.name)) {
+                    NamedDomainObjectContainer<ProductFlavor> flavors = (NamedDomainObjectContainer<ProductFlavor>) prop.value
+                    return !flavors.getAsMap().isEmpty()
+                }
+            }
+        } catch (Exception e) {
+            return false
+        }
+
+        return false
+    }
+
+    /**
+     * get product flavors of sub project.
+     * */
+    public static Map<String, ProductFlavor> getProductFlavors(Project project) {
+        if (exportFlavor(project)) {
+            try {
+                for (PropertyValue prop :
+                        project.extensions.getByName("android").metaPropertyValues) {
+                    if ("productFlavors".equals(prop.name)) {
+                        NamedDomainObjectContainer<ProductFlavor> flavors = (NamedDomainObjectContainer<ProductFlavor>) prop.value
+                        return flavors.getAsMap()
+                    }
+                }
+            } catch (Exception e) {
+                println "get ${project.name}'s productFlavors fail!"
+            }
+        } else {
+            throw new IllegalArgumentException("Sub project ${project.name} doesn't have flavors")
+        }
+
+        return new HashMap<String, ProductFlavor>()
+    }
+
+    /**
+     * if the dependency is an internal one, return the internal dependency project, null otherwise.
+     * */
+    public static Project getInternalDependencyProject(Project rootProject, File dependency) {
+        for (Project project : rootProject.subprojects) {
+            if (dependency.absolutePath.startsWith(project.buildDir.absolutePath)) {
+                return project
+            }
+        }
+        return null
+    }
+
+    /**
+     * check whether the dependency locate inside the libs dir of the project.
+     * */
+    public static boolean isLocalExternalDependency(Project project, File dependency) {
+        return dependency.absolutePath.startsWith(project.projectDir.absolutePath + "/libs/")
+    }
+
+    /**
      * get path diff between (sub) project and root project
      *
      * @return path diff, with prefix {@code File.separator}
      * */
-    public static String getPathDiff(Project rootProject, Project project) {
+    public static String getProjectPathDiff(Project rootProject, Project project) {
         String path = project.projectDir.absolutePath
         String rootPath = rootProject.projectDir.absolutePath
         if (path.indexOf(rootPath) == 0) {
@@ -94,7 +183,7 @@ public final class ProjectHelper {
      *
      * @return path diff, with prefix {@code File.separator}
      * */
-    public static String getPathDiff(File rootDir, File dir) {
+    public static String getDirPathDiff(File rootDir, File dir) {
         String path = dir.absolutePath
         String rootPath = rootDir.absolutePath
         if (path.indexOf(rootPath) == 0) {
@@ -105,18 +194,51 @@ public final class ProjectHelper {
         }
     }
 
-    public static List<String> getDefaultConfigBuildConfigField(Project project) {
-        println "get ${project.name}'s buildConfigField:"
-        List<String> ret = new ArrayList<>()
+    /**
+     * contract:
+     * android library/app module with flavor: default + flavor + variant, latter overwrite former.
+     *                         without flavor: default + release
+     * */
+    public static List<String> getBuildConfigField(Project project, String flavor, String variant) {
+        println "get ${project.name}'s buildConfigField of ${flavor}_${variant}:"
+        Map<String, String> buildConfigs = new HashMap<>()
         ProjectType type = getSubProjectType(project)
         if (type == ProjectType.AndroidAppProject || type == ProjectType.AndroidLibProject) {
             try {
                 project.extensions.getByName("android").metaPropertyValues.each { prop ->
                     if ("defaultConfig".equals(prop.name) && ProductFlavor.class.isAssignableFrom(
                             prop.type)) {
-                        ProductFlavor flavor = (ProductFlavor) prop.value
-                        for (ClassField classField : flavor.buildConfigFields.values()) {
-                            ret.add("${classField.type} ${classField.name} = ${classField.value}")
+                        ProductFlavor defaultConfigs = (ProductFlavor) prop.value
+                        for (ClassField classField : defaultConfigs.buildConfigFields.values()) {
+                            buildConfigs.put(classField.name,
+                                    "${classField.type} ${classField.name} = ${classField.value}")
+                        }
+                    }
+                    if ("productFlavors".equals(prop.name)) {
+                        if (!"default".equals(flavor)) {
+                            for (ProductFlavor productFlavor :
+                                    ((NamedDomainObjectContainer<ProductFlavor>) prop.value).
+                                            asList()) {
+                                if (productFlavor.name.equals(flavor)) {
+                                    for (ClassField classField :
+                                            productFlavor.buildConfigFields.values()) {
+                                        buildConfigs.put(classField.name,
+                                                "${classField.type} ${classField.name} = ${classField.value}")
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if ("buildTypes".equals(prop.name)) {
+                        for (BuildType buildType :
+                                ((NamedDomainObjectContainer<BuildType>) prop.value).asList()) {
+                            if (buildType.name.equals(variant)) {
+                                for (ClassField classField :
+                                        buildType.buildConfigFields.values()) {
+                                    buildConfigs.put(classField.name,
+                                            "${classField.type} ${classField.name} = ${classField.value}")
+                                }
+                            }
                         }
                     }
                 }
@@ -124,7 +246,7 @@ public final class ProjectHelper {
                 println "get ${project.name}'s buildConfigField fail!"
             }
         }
-        return ret
+        return buildConfigs.values().asList()
     }
 
     public static KeystoreRule createKeystoreRule(
@@ -172,21 +294,22 @@ public final class ProjectHelper {
         throw new IllegalStateException("get ${project.name}'s sign config fail!")
     }
 
-    public static Set<String> getProjectMainSrcSet(Project project) {
+    public static Set<String> getProjectSrcSet(Project project, String flavorVariant) {
         Set<String> srcSet = new HashSet<>()
         switch (getSubProjectType(project)) {
             case ProjectType.AndroidAppProject:
             case ProjectType.AndroidLibProject:
-                for (File srcDir : project.android.sourceSets.main.java.srcDirs) {
+                for (File srcDir :
+                        project.android.sourceSets.getByName(flavorVariant).java.srcDirs) {
                     if (srcDir.exists()) {
-                        srcSet.add(getPathDiff(project.projectDir, srcDir).substring(1))
+                        srcSet.add(getDirPathDiff(project.projectDir, srcDir).substring(1))
                     }
                 }
                 break
             case ProjectType.JavaLibProject:
                 for (File srcDir : project.sourceSets.main.java.srcDirs) {
                     if (srcDir.exists()) {
-                        srcSet.add(getPathDiff(project.projectDir, srcDir).substring(1))
+                        srcSet.add(getDirPathDiff(project.projectDir, srcDir).substring(1))
                     }
                 }
                 break
@@ -201,13 +324,14 @@ public final class ProjectHelper {
      * Get the main res dir canonical name, buck's android_resource only accept one dir.
      * return null if the res dir doesn't exist.
      * */
-    public static String getProjectMainResDir(Project project) {
+    public static String getProjectResDir(Project project, String flavorVariant) {
         switch (getSubProjectType(project)) {
             case ProjectType.AndroidAppProject:
             case ProjectType.AndroidLibProject:
-                File resDir = (File) project.android.sourceSets.main.res.srcDirs[0]
+                File resDir = (File) project.android.sourceSets.getByName(flavorVariant).res.srcDirs[0]
+                [0]
                 if (resDir.exists()) {
-                    return getPathDiff(project.projectDir, resDir).substring(1)
+                    return getDirPathDiff(project.projectDir, resDir).substring(1)
                 } else {
                     return null
                 }
@@ -222,13 +346,14 @@ public final class ProjectHelper {
      * Get the main assets dir canonical name, buck's android_resource only accept one dir.
      * return null if the assets dir doesn't exist.
      * */
-    public static String getProjectMainAssetsDir(Project project) {
+    public static String getProjectAssetsDir(Project project, String flavorVariant) {
         switch (getSubProjectType(project)) {
             case ProjectType.AndroidAppProject:
             case ProjectType.AndroidLibProject:
-                File assetsDir = (File) project.android.sourceSets.main.assets.srcDirs[0]
+                File assetsDir = (File) project.android.sourceSets.
+                        getByName(flavorVariant).assets.srcDirs[0]
                 if (assetsDir.exists()) {
-                    return getPathDiff(project.projectDir, assetsDir).substring(1)
+                    return getDirPathDiff(project.projectDir, assetsDir).substring(1)
                 } else {
                     return null
                 }
@@ -243,13 +368,14 @@ public final class ProjectHelper {
      * Get the main manifest file path.
      * return null if the manifest file doesn't exist.
      * */
-    public static String getProjectMainManifestFile(Project project) {
+    public static String getProjectManifestFile(Project project, String flavorVariant) {
         switch (getSubProjectType(project)) {
             case ProjectType.AndroidAppProject:
             case ProjectType.AndroidLibProject:
-                File manifestFile = (File) project.android.sourceSets.main.manifest.srcFile
+                File manifestFile = (File) project.android.sourceSets.
+                        getByName(flavorVariant).manifest.srcFile
                 if (manifestFile.exists()) {
-                    return getPathDiff(project.projectDir, manifestFile).substring(1)
+                    return getDirPathDiff(project.projectDir, manifestFile).substring(1)
                 } else {
                     return null
                 }
@@ -266,13 +392,14 @@ public final class ProjectHelper {
      *
      * return null if the jniLibs dir doesn't exist.
      * */
-    public static String getProjectMainJniLibsDir(Project project) {
+    public static String getProjectJniLibsDir(Project project, String flavorVariant) {
         switch (getSubProjectType(project)) {
             case ProjectType.AndroidAppProject:
             case ProjectType.AndroidLibProject:
-                File jniLibsDir = (File) project.android.sourceSets.main.jniLibs.srcDirs[0]
+                File jniLibsDir = (File) project.android.sourceSets.
+                        getByName(flavorVariant).jniLibs.srcDirs[0]
                 if (jniLibsDir.exists()) {
-                    return getPathDiff(project.projectDir, jniLibsDir).substring(1)
+                    return getDirPathDiff(project.projectDir, jniLibsDir).substring(1)
                 } else {
                     return null
                 }

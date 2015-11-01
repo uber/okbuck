@@ -22,15 +22,24 @@
  * SOFTWARE.
  */
 
-package com.github.piasy.okbuck.generator.configs
+package com.github.piasy.okbuck.example.common;
+
+import android.content.Context;
+import android.widget.Toast;
 
 /**
- * buck config file presentation.
- * */
-public abstract class BuckConfigFile {
+ * Created by Piasy{github.com/Piasy} on 15/10/6.
+ */
+public class CalcMonitor {
 
-    /**
-     * Print this file's content into the printer.
-     * */
-    public abstract void print(PrintStream printer)
+    private final Context mContext;
+
+    public CalcMonitor(Context context) {
+        mContext = context;
+    }
+
+    public void addCalled(String config) {
+        Toast.makeText(mContext, "addCalled from paidRelease: " + config + ", " + mContext
+                .getString(R.string.common_string), Toast.LENGTH_SHORT).show();
+    }
 }

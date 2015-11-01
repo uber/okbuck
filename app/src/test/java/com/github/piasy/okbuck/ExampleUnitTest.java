@@ -2,9 +2,11 @@ package com.github.piasy.okbuck;
 
 import com.github.piasy.okbuck.example.common.Calc;
 import com.github.piasy.okbuck.example.common.CalcMonitor;
+
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.verify;
@@ -19,7 +21,7 @@ public class ExampleUnitTest {
         Calc calc = new Calc(monitor);
 
         int ret = calc.add(1, 2);
-        verify(monitor, only()).addCalled();
+        verify(monitor, only()).addCalled(anyString());
         assertEquals(3, ret);
     }
 }

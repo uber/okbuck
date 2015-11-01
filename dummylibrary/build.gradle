@@ -35,7 +35,7 @@ android {
         versionCode 1
         versionName "1.0"
 
-        buildConfigField "boolean", "DUMMY_CONFIG", "true"
+        buildConfigField "String", "DUMMY_CONFIG", "\"default\""
     }
     buildTypes {
         release {
@@ -54,6 +54,22 @@ android {
 
         test.setRoot('test')
     }
+
+    buildTypes {
+        debug {
+        }
+        release {
+        }
+    }
+    publishNonDefault true
+    productFlavors {
+        free {
+            buildConfigField "String", "DUMMY_CONFIG", "\"free\""
+        }
+        paid {
+            buildConfigField "String", "DUMMY_CONFIG", "\"paid\""
+        }
+    }
 }
 
 dependencies {
@@ -61,6 +77,7 @@ dependencies {
 
     provided 'com.google.dagger:dagger-compiler:2.0.1'
     compile project(':libraries:javalibrary')
-    compile project(':libraries:common')
+    freeCompile project(path: ':libraries:common', configuration: 'freeRelease')
+    paidCompile project(path: ':libraries:common', configuration: 'paidRelease')
     compile 'com.pushtorefresh.storio:sqlite:1.3.0'
 }

@@ -25,7 +25,7 @@
 package com.github.piasy.okbuck.generator
 
 import com.github.piasy.okbuck.dependency.DependencyAnalyzer
-import com.github.piasy.okbuck.generator.configs.BUCKFile
+import com.github.piasy.okbuck.configs.BUCKFile
 import org.gradle.api.Project
 
 /**
@@ -41,12 +41,10 @@ public abstract class BuckFileGenerator {
     protected final Map<String, String> mResPackages
     protected final String mKeystoreDir
     protected final String mSignConfigName
-    protected final String mBuildVariant
 
     public BuckFileGenerator(
             Project rootProject, DependencyAnalyzer dependencyAnalyzer, File okBuckDir,
-            Map<String, String> resPackages, String keystoreDir, String signConfigName,
-            String buildVariant
+            Map<String, String> resPackages, String keystoreDir, String signConfigName
     ) {
         mRootProject = rootProject
         mDependencyAnalyzer = dependencyAnalyzer
@@ -54,7 +52,6 @@ public abstract class BuckFileGenerator {
         mResPackages = resPackages
         mKeystoreDir = keystoreDir
         mSignConfigName = signConfigName
-        mBuildVariant = buildVariant
     }
 
     /**

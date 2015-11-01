@@ -42,10 +42,10 @@ public final class AndroidLibraryRule extends BuckRuleWithDeps {
     private final List<String> mAnnotationProcessorDeps
 
     public AndroidLibraryRule(
-            List<String> visibility, List<String> deps, Set<String> srcSet, String manifest,
-            List<String> annotationProcessors, List<String> annotationProcessorDeps
+            String name, List<String> visibility, List<String> deps, Set<String> srcSet,
+            String manifest, List<String> annotationProcessors, List<String> annotationProcessorDeps
     ) {
-        super("android_library", "src", visibility, deps)
+        super("android_library", name, visibility, deps)
 
         checkSetNotEmpty(srcSet, "AndroidLibraryRule srcs must be non-null.")
         mSrcSet = srcSet
