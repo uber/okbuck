@@ -33,15 +33,16 @@ import static com.github.piasy.okbuck.helper.CheckUtil.checkStringNotEmpty
  * android_resource()
  * */
 public final class AndroidResourceRule extends BuckRuleWithDeps {
+
     private final String mRes
+
     private final String mPackage
+
     private final String mAssets
 
-    public AndroidResourceRule(
-            List<String> visibility, List<String> deps, String res, String packageName,
-            String assets
-    ) {
-        super("android_resource", "res", visibility, deps)
+    public AndroidResourceRule(String name, List<String> visibility, List<String> deps, String res,
+            String packageName, String assets) {
+        super("android_resource", name, visibility, deps)
         checkStringNotEmpty(res, "AndroidResourceRule res can't be empty.")
         mRes = res
         checkStringNotEmpty(packageName, "AndroidResourceRule package can't be empty.")

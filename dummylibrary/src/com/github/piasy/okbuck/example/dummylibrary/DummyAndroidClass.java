@@ -25,6 +25,8 @@
 package com.github.piasy.okbuck.example.dummylibrary;
 
 import android.content.Context;
+import android.widget.Toast;
+
 import com.google.gson.GsonBuilder;
 
 /**
@@ -32,9 +34,7 @@ import com.google.gson.GsonBuilder;
  */
 public class DummyAndroidClass {
     public String getAndroidWord(Context context) {
-        if (!BuildConfig.DUMMY_CONFIG) {
-            throw new IllegalStateException("BuildConfig.DUMMY_CONFIG should be true");
-        }
+        Toast.makeText(context, "getAndroidWord: " + BuildConfig.DUMMY_CONFIG, Toast.LENGTH_SHORT).show();
         String mock = "{\"lang\":\"" + context.getString(R.string.dummy_library_android_str) + "\"}";
         return new GsonBuilder().create().fromJson(mock, DummyObject.class).lang;
     }

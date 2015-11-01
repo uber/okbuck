@@ -24,13 +24,13 @@
 
 package com.github.piasy.okbuck.dependency
 
-import com.github.piasy.okbuck.generator.configs.ThirdPartyDependencyBUCKFile
+import com.github.piasy.okbuck.configs.ThirdPartyDependencyBUCKFile
 import com.github.piasy.okbuck.helper.ProjectHelper
 import com.github.piasy.okbuck.rules.KeystoreRule
 import org.apache.commons.io.IOUtils
 import org.gradle.api.Project
 
-public class DependencyProcessor {
+public final class DependencyProcessor {
     private final Project mRootProject
     private final DependencyAnalyzer mDependencyAnalyzer
     private final File mOkBuckDir
@@ -64,7 +64,7 @@ public class DependencyProcessor {
             if (ProjectHelper.getSubProjectType(
                     project) == ProjectHelper.ProjectType.AndroidAppProject) {
                 File keystoreDir = new File(
-                        "${mRootProject.projectDir.absolutePath}/${mKeystoreDir}${ProjectHelper.getPathDiff(mRootProject, project)}")
+                        "${mRootProject.projectDir.absolutePath}/${mKeystoreDir}${ProjectHelper.getProjectPathDiff(mRootProject, project)}")
                 KeystoreRule keystoreRule = ProjectHelper.createKeystoreRule(project,
                         mSignConfigName, keystoreDir)
 
@@ -80,7 +80,7 @@ public class DependencyProcessor {
         for (Project project : aptDependencies.keySet()) {
             File dir = new File(mOkBuckDir.absolutePath + File.separator +
                     "annotation_processor_deps" +
-                    ProjectHelper.getPathDiff(mRootProject, project))
+                    ProjectHelper.getProjectPathDiff(mRootProject, project))
             if (!dir.exists()) {
                 dir.mkdirs()
                 PrintStream printer = new PrintStream(
@@ -97,18 +97,20 @@ public class DependencyProcessor {
     }
 
     private void processCompileDependencies() {
-        Map<Project, Set<Dependency>> finalDependenciesGraph = mDependencyAnalyzer.finalDependenciesGraph
+        Map<Project, Map<String, Set<Dependency>>> finalDependenciesGraph = mDependencyAnalyzer.finalDependenciesGraph
         for (Project project : finalDependenciesGraph.keySet()) {
-            for (Dependency dependency : finalDependenciesGraph.get(project)) {
-                if (!dependency.isInternalDependency(mRootProject)) {
-                    if (!dependency.dstDirExists()) {
-                        dependency.dstDir.mkdirs()
-                        PrintStream printer = new PrintStream(
-                                new File(dependency.dstDir.absolutePath + File.separator + "BUCK"))
-                        new ThirdPartyDependencyBUCKFile(false).print(printer)
-                        printer.close()
+            for (String flavor : finalDependenciesGraph.get(project).keySet()) {
+                for (Dependency dependency : finalDependenciesGraph.get(project).get(flavor)) {
+                    if (dependency.shouldCopy()) {
+                        if (!dependency.dstDirExists()) {
+                            dependency.createDstDir()
+                            PrintStream printer = new PrintStream(
+                                    new File(dependency.dstDirAbsolutePath() + File.separator + "BUCK"))
+                            new ThirdPartyDependencyBUCKFile(false).print(printer)
+                            printer.close()
+                        }
+                        dependency.copyTo()
                     }
-                    dependency.copyTo(mRootProject)
                 }
             }
         }

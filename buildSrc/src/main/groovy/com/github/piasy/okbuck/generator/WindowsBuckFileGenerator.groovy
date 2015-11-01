@@ -25,7 +25,7 @@
 package com.github.piasy.okbuck.generator
 
 import com.github.piasy.okbuck.dependency.DependencyAnalyzer
-import com.github.piasy.okbuck.generator.configs.BUCKFile
+import com.github.piasy.okbuck.configs.BUCKFile
 import org.gradle.api.Project
 
 /**
@@ -37,11 +37,9 @@ public final class WindowsBuckFileGenerator extends BuckFileGenerator {
 
     public WindowsBuckFileGenerator(
             Project rootProject, DependencyAnalyzer dependencyAnalyzer, File okBuckDir,
-            Map<String, String> resPackages, String keystoreDir, String signConfigName,
-            String buildVariant
+            Map<String, String> resPackages, String keystoreDir, String signConfigName
     ) {
-        super(rootProject, dependencyAnalyzer, okBuckDir, resPackages, keystoreDir, signConfigName,
-                buildVariant)
+        super(rootProject, dependencyAnalyzer, okBuckDir, resPackages, keystoreDir, signConfigName)
     }
 
     @Override

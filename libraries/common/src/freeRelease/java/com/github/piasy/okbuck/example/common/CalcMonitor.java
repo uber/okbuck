@@ -22,26 +22,23 @@
  * SOFTWARE.
  */
 
-package com.github.piasy.okbuck.generator.configs
+package com.github.piasy.okbuck.example.common;
 
-import com.github.piasy.okbuck.rules.base.AbstractBuckRule
-import static com.github.piasy.okbuck.helper.CheckUtil.checkListNotEmpty
+import android.content.Context;
+import android.widget.Toast;
 
 /**
- * BUCK file.
- * */
-public final class BUCKFile extends BuckConfigFile {
-    private final List<AbstractBuckRule> mRules
+ * Created by Piasy{github.com/Piasy} on 15/10/6.
+ */
+public class CalcMonitor {
+    private final Context mContext;
 
-    public BUCKFile(List<AbstractBuckRule> rules) {
-        checkListNotEmpty(rules, "BUCKFile rules can't be empty.")
-        mRules = rules
+    public CalcMonitor(Context context) {
+        mContext = context;
     }
 
-    @Override
-    public final void print(PrintStream printer) {
-        for (AbstractBuckRule rule : mRules) {
-            rule.print(printer)
-        }
+    public void addCalled(String config) {
+        Toast.makeText(mContext, "addCalled from freeRelease: " + config + ", " + mContext
+                .getString(R.string.common_string), Toast.LENGTH_SHORT).show();
     }
 }

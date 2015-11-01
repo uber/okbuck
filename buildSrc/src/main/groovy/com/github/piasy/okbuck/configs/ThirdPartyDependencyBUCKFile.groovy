@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package com.github.piasy.okbuck.generator.configs
+package com.github.piasy.okbuck.configs
 
 /**
  * BUCK file for third party dependencies.

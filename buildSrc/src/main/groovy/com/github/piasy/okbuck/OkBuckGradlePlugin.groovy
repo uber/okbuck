@@ -24,11 +24,11 @@
 
 package com.github.piasy.okbuck
 
+import com.github.piasy.okbuck.configs.BUCKFile
 import com.github.piasy.okbuck.dependency.Dependency
 import com.github.piasy.okbuck.dependency.DependencyAnalyzer
 import com.github.piasy.okbuck.generator.XBuckFileGenerator
 import com.github.piasy.okbuck.generator.XDotBuckConfigGenerator
-import com.github.piasy.okbuck.generator.configs.BUCKFile
 import com.github.piasy.okbuck.helper.ProjectHelper
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -69,21 +69,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         dependsOnBuild(okBuck, project)
         okBuck.dependsOn(okBuckClean)
         okBuck << {
-            applyWithBuildVariant(project, "release")
-        }
-
-        Task okBuckDebug = project.task('okbuckDebug')
-        dependsOnBuild(okBuckDebug, project)
-        okBuckDebug.dependsOn(okBuckClean)
-        okBuckDebug << {
-            applyWithBuildVariant(project, "debug")
-        }
-
-        Task okBuckRelease = project.task('okbuckRelease')
-        dependsOnBuild(okBuckRelease, project)
-        okBuckRelease.dependsOn(okBuckClean)
-        okBuckRelease << {
-            applyWithBuildVariant(project, "release")
+            applyWithoutBuildVariant(project)
         }
     }
 
@@ -96,14 +82,15 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         }
     }
 
-    private static applyWithBuildVariant(Project project, String variant) {
+    private static applyWithoutBuildVariant(Project project) {
         //hashSetAddTraversalTest()
+        //nestedMapTest(project)
+
         boolean overwrite = project.okbuck.overwrite
         if (overwrite) {
             println "==========>> overwrite mode is toggle on <<=========="
         }
         printAllSubProjects(project)
-
 
         // step 1: create .buckconfig
         File dotBuckConfig = new File(
@@ -124,17 +111,17 @@ class OkBuckGradlePlugin implements Plugin<Project> {
             throw new IllegalStateException(
                     ".okbuck dir already exist, set overwrite property to true to overwrite existing file.")
         } else {
-            DependencyAnalyzer dependencyAnalyzer = new DependencyAnalyzer(project, variant,
-                    okBuckDir)
+            DependencyAnalyzer dependencyAnalyzer = new DependencyAnalyzer(project, okBuckDir)
             printDeps(project, dependencyAnalyzer)
 
             // step 3: generate BUCK file for each sub project
             Map<Project, BUCKFile> buckFiles = new XBuckFileGenerator(project, dependencyAnalyzer,
                     okBuckDir, (Map<String, String>) project.okbuck.resPackages,
-                    (String) project.okbuck.keystoreDir, (String) project.okbuck.signConfigName,
-                    variant).generate()
+                    (String) project.okbuck.keystoreDir, (String) project.okbuck.signConfigName).
+                    generate()
             for (Project subProject : buckFiles.keySet()) {
-                File buckFile = new File(subProject.projectDir.absolutePath + File.separator + "BUCK")
+                File buckFile = new File(
+                        subProject.projectDir.absolutePath + File.separator + "BUCK")
                 PrintStream printer = new PrintStream(buckFile)
                 buckFiles.get(subProject).print(printer)
                 printer.close()
@@ -152,15 +139,29 @@ class OkBuckGradlePlugin implements Plugin<Project> {
             Project project,
             DependencyAnalyzer dependencyAnalyzer
     ) {
-        project.subprojects { prj ->
+        for (Project prj : project.subprojects) {
+            if (ProjectHelper.getSubProjectType(prj) == ProjectHelper.ProjectType.Unknown) {
+                continue
+            }
             println "${prj.name}'s deps:"
             println "<<< final"
-            for (Dependency dependency : dependencyAnalyzer.finalDependenciesGraph.get(prj)) {
-                if (dependency.hasResPart()) {
-                    println "${dependency.depFileName}: ${dependency.resCanonicalName}, ${dependency.srcCanonicalName}"
-                } else {
-                    println "${dependency.depFileName}: ${dependency.srcCanonicalName}"
+            for (String flavor : dependencyAnalyzer.finalDependenciesGraph.get(prj).keySet()) {
+                println "\t<< ${flavor}"
+                for (Dependency dependency :
+                        dependencyAnalyzer.finalDependenciesGraph.get(prj).get(flavor)) {
+                    if (dependency.hasResPart()) {
+                        println "\t\t${dependency.srcCanonicalName()}, ${dependency.resCanonicalName()}"
+                    } else if (dependency.hasMultipleResPart()) {
+                        print "\t\t${dependency.srcCanonicalName()}, "
+                        for (String res : dependency.multipleResCanonicalNames()) {
+                            print "${res}, "
+                        }
+                        print "\n"
+                    } else {
+                        println "\t\t${dependency.srcCanonicalName()}"
+                    }
                 }
+                println "\t>>"
             }
             println ">>>\n<<< apt"
             for (File mavenDep : dependencyAnalyzer.aptDependencies.get(prj)) {
@@ -172,6 +173,40 @@ class OkBuckGradlePlugin implements Plugin<Project> {
             }
             println ">>>"
         }
+    }
+
+    private static void nestedMapTest(Project project) {
+        Map<Project, Map<String, Set<Dependency>>> map = new HashMap<>()
+        map.put(project, new HashMap<String, Set<Dependency>>())
+        map.get(project).put("${project.name}_key_2_1", new HashSet<Dependency>())
+        nestedMapTestFunc1(map, project, "${project.name}_key_2_1")
+
+        String flavor = "${project.name}_key_2_2"
+        map.get(project).put(flavor, new HashSet<Dependency>())
+        nestedMapTestFunc2(map, project, flavor)
+    }
+
+    /**
+     * print `[]`, `null`, `false`, `true`.
+     *
+     * `"${project.name}_key_2_1"` is instance of GString
+     * */
+    private static void nestedMapTestFunc1(Map<Project, Map<String, Set<Dependency>>> map,
+            Project project,
+            String flavor) {
+        println map.get(project).get("${project.name}_key_2_1")
+        println map.get(project).get(flavor)
+        println flavor.equals("${project.name}_key_2_1")
+        println flavor == "${project.name}_key_2_1"
+    }
+
+    /**
+     * print `[]`
+     * */
+    private static void nestedMapTestFunc2(Map<Project, Map<String, Set<Dependency>>> map,
+            Project project,
+            String flavor) {
+        println map.get(project).get(flavor)
     }
 
     private static void hashSetAddTraversalTest() {

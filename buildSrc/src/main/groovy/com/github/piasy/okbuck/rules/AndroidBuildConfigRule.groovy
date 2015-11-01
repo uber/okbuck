@@ -26,20 +26,23 @@ package com.github.piasy.okbuck.rules
 
 import com.github.piasy.okbuck.rules.base.BuckRule
 
-import static com.github.piasy.okbuck.helper.CheckUtil.checkStringNotEmpty
 import static com.github.piasy.okbuck.helper.CheckUtil.checkNotNull
+import static com.github.piasy.okbuck.helper.CheckUtil.checkStringNotEmpty
 
 /**
  * android_build_config()
  * */
 public final class AndroidBuildConfigRule extends BuckRule {
+
     private final String mPackage
+
     private final List<String> mValues
 
     public AndroidBuildConfigRule(
-            List<String> visibility, String packageName, List<String> values
+            String name, List<String> visibility, String packageName,
+            List<String> values
     ) {
-        super("android_build_config", "build_config", visibility)
+        super("android_build_config", name, visibility)
         checkStringNotEmpty(packageName, "AndroidBuildConfigRule package can't be empty.")
         mPackage = packageName
         checkNotNull(values, "AndroidBuildConfigRule values must be non-null.")

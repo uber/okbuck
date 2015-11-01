@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package com.github.piasy.okbuck.generator.configs
+package com.github.piasy.okbuck.configs
 
 import static com.github.piasy.okbuck.helper.CheckUtil.checkStringNotEmpty
 import static com.github.piasy.okbuck.helper.CheckUtil.checkNotNull

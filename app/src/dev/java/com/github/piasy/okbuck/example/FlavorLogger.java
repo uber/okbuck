@@ -22,13 +22,16 @@
  * SOFTWARE.
  */
 
-package com.github.piasy.okbuck.example.common;
+package com.github.piasy.okbuck.example;
+
+import android.content.Context;
 
 /**
- * Created by Piasy{github.com/Piasy} on 15/10/6.
+ * Created by Piasy{github.com/Piasy} on 15/10/4.
  */
-public class CalcMonitor {
-    public void addCalled() {
-        // dummy do nothing
+public class FlavorLogger {
+
+    public static String log(Context context) {
+        return "FlavorLogger, dev, " + context.getString(R.string.flavor_string);
     }
 }
