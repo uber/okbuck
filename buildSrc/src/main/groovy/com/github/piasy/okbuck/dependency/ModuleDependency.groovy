@@ -25,6 +25,7 @@
 package com.github.piasy.okbuck.dependency
 
 import com.github.piasy.okbuck.helper.ProjectHelper
+import com.github.piasy.okbuck.helper.StringUtil
 import org.gradle.api.Project
 
 /**
@@ -36,18 +37,23 @@ public final class ModuleDependency extends Dependency {
 
     private final Project mModule
 
+    private final String mResCanonicalName
+
     private final List<String> mMultipleResCanonicalNames
 
     private final boolean mHasFlavor
 
     private final ProjectHelper.ProjectType mProjectType
 
-    public ModuleDependency(File depFile, Project module, String srcCanonicalName,
-            List<String> multipleResCanonicalNames) {
+    public ModuleDependency(
+            File depFile, Project module, String srcCanonicalName, String resCanonicalName,
+            List<String> multipleResCanonicalNames
+    ) {
         super(srcCanonicalName, depFile)
         mModule = module
         mHasFlavor = ProjectHelper.exportFlavor(mModule)
         mProjectType = ProjectHelper.getSubProjectType(mModule)
+        mResCanonicalName = resCanonicalName
         mMultipleResCanonicalNames = multipleResCanonicalNames
     }
 
@@ -68,30 +74,32 @@ public final class ModuleDependency extends Dependency {
     }
 
     @Override
-    boolean hasFlavor() {
-        return mHasFlavor
-    }
-
-    @Override
     boolean hasResPart() {
-        return false
+        return !StringUtil.isEmpty(mResCanonicalName) && mMultipleResCanonicalNames == null
     }
 
     @Override
     String resCanonicalName() {
-        throw new IllegalStateException(
-                "ModuleDependency ${mModule.projectDir.absolutePath} has no res part")
+        if (hasResPart()) {
+            return mResCanonicalName
+        } else {
+            throw new IllegalStateException(
+                    "ModuleDependency ${mModule.projectDir.absolutePath} has no res part")
+        }
     }
 
     @Override
     boolean hasMultipleResPart() {
-        return (mProjectType == ProjectHelper.ProjectType.AndroidLibProject || mProjectType ==
-                ProjectHelper.ProjectType.AndroidAppProject) && mMultipleResCanonicalNames != null
+        return (mProjectType == ProjectHelper.ProjectType.AndroidLibProject ||
+                mProjectType ==
+                ProjectHelper.ProjectType.AndroidAppProject) && mMultipleResCanonicalNames !=
+                null &&
+                StringUtil.isEmpty(mResCanonicalName)
     }
 
     @Override
     List<String> multipleResCanonicalNames() {
-        if (hasMultipleResPart() && mMultipleResCanonicalNames != null) {
+        if (hasMultipleResPart()) {
             mMultipleResCanonicalNames
         } else {
             throw new IllegalStateException(
