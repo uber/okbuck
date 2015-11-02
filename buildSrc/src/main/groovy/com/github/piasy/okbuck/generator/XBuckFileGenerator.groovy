@@ -58,7 +58,6 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
         dependencyProcessor.process()
 
         Map<Project, Map<String, Set<Dependency>>> finalDependenciesGraph = mDependencyAnalyzer.finalDependenciesGraph
-        Map<Project, Set<File>> aptDependencies = mDependencyAnalyzer.aptDependencies
 
         for (Project project : mRootProject.subprojects) {
             List<AbstractBuckRule> rules = new ArrayList<>()
@@ -125,9 +124,9 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
 
         // TODO support multiple res set
         if (ProjectHelper.exportFlavor(project)) {
+            addAndroidResRule(project, finalDependenciesGraph, rules, "main",
+                    "main", "res_main")
             for (String flavor : ProjectHelper.getProductFlavors(project).keySet()) {
-                addAndroidResRule(project, finalDependenciesGraph, rules, "main",
-                        "${flavor}_release", "res_main")
                 addAndroidResRule(project, finalDependenciesGraph, rules, flavor,
                         "${flavor}_release", "res_${flavor}")
                 addAndroidResRule(project, finalDependenciesGraph, rules, "debug",
@@ -168,7 +167,7 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
                         mResPackages.get(project.name),
                         ProjectHelper.getBuildConfigField(project, "default", "release")))
             } else {
-                // for anroid application module
+                // for android application module
                 addAndroidResRule(project, finalDependenciesGraph, rules, "main", "release",
                         "res_main")
                 addAndroidResRule(project, finalDependenciesGraph, rules, "debug", "debug",
@@ -188,15 +187,15 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
 
             // src rule
             if (includeManifest) {
+                // lib
                 addAndroidLibraryRule(project, finalDependenciesGraph, rules, null, null, "release",
-                        "src", true, true)
+                        "src", true, includeManifest)
             } else {
-                addAndroidLibraryRule(project, finalDependenciesGraph, rules, null, "debug",
-                        "debug",
-                        "src_debug", false, false)
-                addAndroidLibraryRule(project, finalDependenciesGraph, rules, null, "release",
-                        "release",
-                        "src_release", false, false)
+                // app
+                addAndroidLibraryRule(project, finalDependenciesGraph, rules, "main", "debug",
+                        "debug", "src_debug", false, includeManifest)
+                addAndroidLibraryRule(project, finalDependenciesGraph, rules, "main", "release",
+                        "release", "src_release", false, includeManifest)
             }
         }
 
@@ -229,7 +228,7 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
                 deps.add(":res_release")
             }
 
-            if (includeManifest) {
+            if (!includeManifest) {
                 deps.add(":build_config_${depsOfFlavor}")
             } else {
                 deps.add(":build_config")
@@ -260,40 +259,55 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
             if (!StringUtil.isEmpty(resDir)) {
                 deps.add(":res_${selfVariant}")
             }
-            resDir = ProjectHelper.getProjectResDir(project, selfFlavor)
-            if (!StringUtil.isEmpty(resDir)) {
-                deps.add(":res_${selfFlavor}")
-            }
-            resDir = ProjectHelper.getProjectResDir(project, selfFlavor + selfVariant.capitalize())
-            if (!StringUtil.isEmpty(resDir)) {
-                deps.add(":res_${selfFlavor}_${selfVariant}")
-            }
-
-            deps.add(":build_config_${depsOfFlavor}")
-
-            for (Dependency dependency :
-                    finalDependenciesGraph.get(project).get("${selfFlavor}_${selfVariant}")) {
-                deps.add(dependency.srcCanonicalName())
-                if (dependency.hasResPart() && !dependency.srcCanonicalName().equals(
-                        dependency.resCanonicalName())) {
-                    deps.add(dependency.resCanonicalName())
-                } else if (dependency.hasMultipleResPart()) {
-                    deps.addAll(dependency.multipleResCanonicalNames())
-                }
-            }
-
             for (String srcDir : ProjectHelper.getProjectSrcSet(project, "main")) {
-                srcSet.add(srcDir + "/**/*.java")
-            }
-            for (String srcDir : ProjectHelper.getProjectSrcSet(project, selfFlavor)) {
                 srcSet.add(srcDir + "/**/*.java")
             }
             for (String srcDir : ProjectHelper.getProjectSrcSet(project, selfVariant)) {
                 srcSet.add(srcDir + "/**/*.java")
             }
-            for (String srcDir : ProjectHelper.getProjectSrcSet(project,
-                    selfFlavor + selfVariant.capitalize())) {
-                srcSet.add(srcDir + "/**/*.java")
+            if (!"main".equals(selfFlavor)) {
+                resDir = ProjectHelper.getProjectResDir(project, selfFlavor)
+                if (!StringUtil.isEmpty(resDir)) {
+                    deps.add(":res_${selfFlavor}")
+                }
+                resDir = ProjectHelper.getProjectResDir(project,
+                        selfFlavor + selfVariant.capitalize())
+                if (!StringUtil.isEmpty(resDir)) {
+                    deps.add(":res_${selfFlavor}_${selfVariant}")
+                }
+                for (String srcDir : ProjectHelper.getProjectSrcSet(project, selfFlavor)) {
+                    srcSet.add(srcDir + "/**/*.java")
+                }
+                for (String srcDir : ProjectHelper.getProjectSrcSet(project,
+                        selfFlavor + selfVariant.capitalize())) {
+                    srcSet.add(srcDir + "/**/*.java")
+                }
+            }
+
+            deps.add(":build_config_${depsOfFlavor}")
+
+            if ("main".equals(selfFlavor)) {
+                for (Dependency dependency :
+                        finalDependenciesGraph.get(project).get(selfVariant)) {
+                    deps.add(dependency.srcCanonicalName())
+                    if (dependency.hasResPart() && !dependency.srcCanonicalName().equals(
+                            dependency.resCanonicalName())) {
+                        deps.add(dependency.resCanonicalName())
+                    } else if (dependency.hasMultipleResPart()) {
+                        deps.addAll(dependency.multipleResCanonicalNames())
+                    }
+                }
+            } else {
+                for (Dependency dependency :
+                        finalDependenciesGraph.get(project).get(depsOfFlavor)) {
+                    deps.add(dependency.srcCanonicalName())
+                    if (dependency.hasResPart() && !dependency.srcCanonicalName().equals(
+                            dependency.resCanonicalName())) {
+                        deps.add(dependency.resCanonicalName())
+                    } else if (dependency.hasMultipleResPart()) {
+                        deps.addAll(dependency.multipleResCanonicalNames())
+                    }
+                }
             }
         }
 
@@ -345,32 +359,70 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
     ) {
         createAndroidLibraryRules(project, finalDependenciesGraph, rules, false)
         if (ProjectHelper.exportFlavor(project)) {
-            for (String flavor : ProjectHelper.getProductFlavors(project)) {
-                addManifestRule(finalDependenciesGraph, project, rules, "main", "${flavor}_debug")
-                rules.add(new AndroidBinaryRule("bin_debug", Arrays.asList("PUBLIC"),
-                        Arrays.asList(":res_main", "res_debug", (String) "res_${flavor}",
-                                (String) "res_${flavor}_debug", (String) ":src_${flavor}_debug"),
-                        ":manifest",
+            addManifestRule(finalDependenciesGraph, project, rules, "main", "main")
+            for (String flavor : ProjectHelper.getProductFlavors(project).keySet()) {
+                List<String> binDeps = new ArrayList<>()
+                binDeps.add(":src_${flavor}_debug")
+                if (!StringUtil.isEmpty(ProjectHelper.getProjectResDir(project, "main"))) {
+                    binDeps.add(":res_main")
+                }
+                if (!StringUtil.isEmpty(ProjectHelper.getProjectResDir(project, "debug"))) {
+                    binDeps.add(":res_debug")
+                }
+                if (!StringUtil.isEmpty(ProjectHelper.getProjectResDir(project, flavor))) {
+                    binDeps.add(":res_${flavor}")
+                }
+                if (!StringUtil.isEmpty(
+                        ProjectHelper.getProjectResDir(project, "${flavor}Debug"))) {
+                    binDeps.add(":res_${flavor}_debug")
+                }
+                rules.add(new AndroidBinaryRule("bin_${flavor}_debug", Arrays.asList("PUBLIC"),
+                        binDeps, ":manifest",
                         "//${mKeystoreDir}${ProjectHelper.getProjectPathDiff(mRootProject, project)}:key_store"))
 
-                addManifestRule(finalDependenciesGraph, project, rules, "main", "${flavor}_release")
-                rules.add(new AndroidBinaryRule("bin_release", Arrays.asList("PUBLIC"),
-                        Arrays.asList(":res_main", "res_release", (String) "res_${flavor}",
-                                (String) "res_${flavor}_release", (String) ":src_${flavor}_release"),
-                        ":manifest",
+                binDeps = new ArrayList<>()
+                binDeps.add(":src_${flavor}_release")
+                if (!StringUtil.isEmpty(ProjectHelper.getProjectResDir(project, "main"))) {
+                    binDeps.add(":res_main")
+                }
+                if (!StringUtil.isEmpty(ProjectHelper.getProjectResDir(project, "release"))) {
+                    binDeps.add(":res_release")
+                }
+                if (!StringUtil.isEmpty(ProjectHelper.getProjectResDir(project, flavor))) {
+                    binDeps.add(":res_${flavor}")
+                }
+                if (!StringUtil.isEmpty(
+                        ProjectHelper.getProjectResDir(project, "${flavor}Release"))) {
+                    binDeps.add(":res_${flavor}_release")
+                }
+                rules.add(new AndroidBinaryRule("bin_${flavor}_release", Arrays.asList("PUBLIC"),
+                        binDeps, ":manifest",
                         "//${mKeystoreDir}${ProjectHelper.getProjectPathDiff(mRootProject, project)}:key_store"))
             }
         } else {
-            addManifestRule(finalDependenciesGraph, project, rules, "main", "debug")
+            addManifestRule(finalDependenciesGraph, project, rules, "main", "main")
+            List<String> binDeps = new ArrayList<>()
+            binDeps.add(":src_debug")
+            if (!StringUtil.isEmpty(ProjectHelper.getProjectResDir(project, "main"))) {
+                binDeps.add(":res_main")
+            }
+            if (!StringUtil.isEmpty(ProjectHelper.getProjectResDir(project, "debug"))) {
+                binDeps.add(":res_debug")
+            }
             rules.add(new AndroidBinaryRule("bin_debug", Arrays.asList("PUBLIC"),
-                    Arrays.asList(":res_main", "res_debug", ":src"),
-                    ":manifest",
+                    binDeps, ":manifest",
                     "//${mKeystoreDir}${ProjectHelper.getProjectPathDiff(mRootProject, project)}:key_store"))
 
-            addManifestRule(finalDependenciesGraph, project, rules, "main", "release")
+            binDeps = new ArrayList<>()
+            binDeps.add(":src_release")
+            if (!StringUtil.isEmpty(ProjectHelper.getProjectResDir(project, "main"))) {
+                binDeps.add(":res_main")
+            }
+            if (!StringUtil.isEmpty(ProjectHelper.getProjectResDir(project, "debug"))) {
+                binDeps.add(":res_release")
+            }
             rules.add(new AndroidBinaryRule("bin_release", Arrays.asList("PUBLIC"),
-                    Arrays.asList(":res_main", "res_release", ":src"),
-                    ":manifest",
+                    binDeps, ":manifest",
                     "//${mKeystoreDir}${ProjectHelper.getProjectPathDiff(mRootProject, project)}:key_store"))
         }
     }

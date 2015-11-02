@@ -41,8 +41,6 @@ public abstract class Dependency {
         mDepFile = depFile
     }
 
-    public abstract boolean hasFlavor()
-
     public String srcCanonicalName() {
         return mSrcCanonicalName
     }

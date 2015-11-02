@@ -55,11 +55,6 @@ public final class LocalDependency extends Dependency {
     }
 
     @Override
-    boolean hasFlavor() {
-        return false
-    }
-
-    @Override
     boolean hasResPart() {
         return false
     }

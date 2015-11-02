@@ -59,11 +59,6 @@ public final class RemoteDependency extends Dependency {
     }
 
     @Override
-    boolean hasFlavor() {
-        return false
-    }
-
-    @Override
     boolean hasResPart() {
         return mDepFile.name.endsWith(".aar")
     }
