@@ -104,6 +104,7 @@ Note that you need create an empty file named `bintray.properties` in `/buildSrc
 ## Acknowledgement
 +  Thanks for Facebook open source [buck](https://github.com/facebook/buck) build system.
 +  Thanks for the discussion and help from [promeG](https://github.com/promeG/) during my development.
++  Thanks for [ヤ①個亼簡單](#) of the manifest merge contribution, and the idea of multi-product flavor support.
 
 ## Who is using OkBuck?
 User | Repo
@@ -113,6 +114,12 @@ User | Repo
 If you are using OkBuck in your open source project, [send me a e-mail](mailto:xz4215@gmail.com) with your repo url, I'll add your repo in this list.
 
 ## Change log
++  0.4.0:
+  +  multi-product flavor support! although need improve it.
+  +  fix [#7](https://github.com/Piasy/OkBuck/issues/7)
+  +  fix [#8](https://github.com/Piasy/OkBuck/issues/8)
+  +  fix [#29](https://github.com/Piasy/OkBuck/issues/29)
+  +  fix [#30](https://github.com/Piasy/OkBuck/issues/30)
 +  0.3.5: fix [#39](https://github.com/Piasy/OkBuck/issues/39)
 +  0.3.4: fix [#22](https://github.com/Piasy/OkBuck/issues/22) prebuilt native library support
 +  0.3.3:
