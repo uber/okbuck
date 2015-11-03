@@ -24,86 +24,46 @@
 
 package com.github.piasy.okbuck.dependency
 
-import com.github.piasy.okbuck.helper.StringUtil
-import org.apache.commons.io.IOUtils
-import org.gradle.api.Project
+import static com.github.piasy.okbuck.helper.CheckUtil.checkStringNotEmpty
 
 /**
  * Dependency presentation.
  * */
-public class Dependency {
-    private final File mDepFile
-    private final File mDstDir
-    private final String mSrcCanonicalName
-    private final String mResCanonicalName
+public abstract class Dependency {
 
-    public Dependency(File depFile, File dstDir, String srcCanonicalName, String resCanonicalName) {
-        mDepFile = depFile
-        mDstDir = dstDir
+    protected final String mSrcCanonicalName
+
+    protected final File mDepFile
+
+    public Dependency(String srcCanonicalName, File depFile) {
+        checkStringNotEmpty(srcCanonicalName, "srcCanonicalName can not be empty")
         mSrcCanonicalName = srcCanonicalName
-        mResCanonicalName = resCanonicalName
+        mDepFile = depFile
     }
 
-    public String getDepFileName() {
-        return mDepFile.name
-    }
-
-    public String getSrcCanonicalName() {
+    public String srcCanonicalName() {
         return mSrcCanonicalName
     }
 
-    public boolean hasResPart() {
-        return !StringUtil.isEmpty(mResCanonicalName)
+    public File getDepFile() {
+        return mDepFile
     }
 
-    public String getResCanonicalName() throws IllegalStateException {
-        if (StringUtil.isEmpty(mResCanonicalName)) {
-            throw new IllegalStateException(
-                    "dependency ${mDepFile.absolutePath} doesn't have res part")
-        }
-        return mResCanonicalName
-    }
+    public abstract boolean hasResPart()
 
-    public boolean isInternalDependency(Project rootProject) {
-        return internalDependencyProject(rootProject, mDepFile) != null
-    }
+    public abstract String resCanonicalName()
 
-    public Project internalDependency(Project rootProject) {
-        return internalDependencyProject(rootProject, mDepFile)
-    }
+    public abstract boolean hasMultipleResPart()
 
-    public boolean dstDirExists() {
-        return mDstDir.exists()
-    }
+    public abstract List<String> multipleResCanonicalNames()
 
-    public File getDstDir() {
-        return mDstDir
-    }
+    public abstract boolean shouldCopy()
 
-    public void copyTo(Project rootProject) throws IllegalStateException {
-        if (internalDependencyProject(rootProject, mDepFile) != null) {
-            throw new IllegalStateException(
-                    "${mDepFile.absolutePath} is an internal dependency, can't be copied")
-        }
-        if (!dstDirExists()) {
-            mDstDir.mkdirs()
-        }
-        println "copying ${mDepFile.absolutePath} into ${mDstDir.absolutePath}"
-        IOUtils.copy(new FileInputStream(mDepFile), new FileOutputStream(
-                new File(mDstDir.absolutePath + File.separator + mDepFile.name)))
-    }
+    public abstract boolean dstDirExists()
 
-    /**
-     * if the {@code depFile} is an internal dependency, return the project of this internal
-     * dependency, if not, return null.
-     * */
-    public static Project internalDependencyProject(Project rootProject, File depFile) {
-        for (Project project : rootProject.subprojects) {
-            if (depFile.absolutePath.startsWith(project.buildDir.absolutePath)) {
-                return project
-            }
-        }
+    public abstract void createDstDir()
 
-        return null
-    }
+    public abstract String dstDirAbsolutePath()
+
+    public abstract void copyTo()
 }

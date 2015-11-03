@@ -24,7 +24,8 @@
 
 package com.github.piasy.okbuck.generator
 
-import com.github.piasy.okbuck.generator.configs.DotBuckConfigFile
+import com.android.build.gradle.internal.dsl.ProductFlavor
+import com.github.piasy.okbuck.configs.DotBuckConfigFile
 import com.github.piasy.okbuck.helper.ProjectHelper
 import org.gradle.api.Project
 
@@ -45,8 +46,21 @@ public final class XDotBuckConfigGenerator extends DotBuckConfigGenerator {
         for (Project project : mRootProject.subprojects) {
             if (ProjectHelper.getSubProjectType(
                     project) == ProjectHelper.ProjectType.AndroidAppProject) {
-                alias.put(project.name, "/${ProjectHelper.getPathDiff(mRootProject, project)}:bin")
-            } //else
+                if (ProjectHelper.exportFlavor(project)) {
+                    Map<String, ProductFlavor> flavorMap = ProjectHelper.getProductFlavors(project)
+                    for (String flavor : flavorMap.keySet()) {
+                        alias.put(project.name + flavor.capitalize() + "Debug",
+                                "/${ProjectHelper.getProjectPathDiff(mRootProject, project)}:bin_${flavor}_debug")
+                        alias.put(project.name + flavor.capitalize() + "Release",
+                                "/${ProjectHelper.getProjectPathDiff(mRootProject, project)}:bin_${flavor}_release")
+                    }
+                } else {
+                    alias.put(project.name + "Debug",
+                            "/${ProjectHelper.getProjectPathDiff(mRootProject, project)}:bin_debug")
+                    alias.put(project.name + "Release",
+                            "/${ProjectHelper.getProjectPathDiff(mRootProject, project)}:bin_release")
+                }
+            } //else TODO
         }
         return new DotBuckConfigFile(alias, mTarget, Arrays.asList(".git", "**/.svn"))
     }

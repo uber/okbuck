@@ -38,9 +38,9 @@ public final class AndroidBinaryRule extends BuckRuleWithDeps {
     private final String mKeystore
 
     public AndroidBinaryRule(
-            List<String> visibility, List<String> deps, String manifest, String keystore
+            String name, List<String> visibility, List<String> deps, String manifest, String keystore
     ) {
-        super("android_binary", "bin", visibility, deps)
+        super("android_binary", name, visibility, deps)
 
         checkStringNotEmpty(manifest, "AndroidBinaryRule manifest must be non-null.")
         mManifest = manifest

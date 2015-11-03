@@ -1,12 +1,5 @@
 package com.github.piasy.okbuck.example;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.view.View;
-import android.widget.TextView;
-import butterknife.ButterKnife;
 import com.example.hellojni.HelloJni;
 import com.github.piasy.okbuck.example.common.Calc;
 import com.github.piasy.okbuck.example.common.CalcMonitor;
@@ -14,7 +7,17 @@ import com.github.piasy.okbuck.example.dummylibrary.DummyActivity;
 import com.github.piasy.okbuck.example.dummylibrary.DummyAndroidClass;
 import com.github.piasy.okbuck.example.javalib.DummyJavaClass;
 import com.promegu.xlog.base.XLog;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
+
 import javax.inject.Inject;
+
+import butterknife.ButterKnife;
 
 /**
  * Created by Piasy{github.com/Piasy} on 15/10/3.
@@ -40,10 +43,10 @@ public class MainActivity extends AppCompatActivity {
         component.inject(this);
 
         mTextView.setText(String.format("%s %s, --from %s.", getString(
-                com.github.piasy.okbuck.example.dummylibrary.R.string.dummy_library_android_str),
+                        com.github.piasy.okbuck.example.dummylibrary.R.string.dummy_library_android_str),
                 mDummyAndroidClass.getAndroidWord(this), mDummyJavaClass.getJavaWord()));
 
-        mTextView2.setText(mTextView2.getText() + " ==> " + HelloJni.stringFromJNI());
+        mTextView2.setText(mTextView2.getText() + "\n\n" + HelloJni.stringFromJNI() + "\n\n" + FlavorLogger.log(this));
 
         // using explicit reference to cross module R reference:
         int id = android.support.design.R.string.appbar_scrolling_view_behavior;
@@ -58,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
             });
         }
 
-        Log.d("test", "1 + 2 = " + new Calc(new CalcMonitor()).add(1, 2));
+        Log.d("test", "1 + 2 = " + new Calc(new CalcMonitor(this)).add(1, 2));
     }
 
     private void bind() {

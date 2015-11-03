@@ -24,7 +24,7 @@
 
 package com.github.piasy.okbuck.generator
 
-import com.github.piasy.okbuck.generator.configs.DotBuckConfigFile
+import com.github.piasy.okbuck.configs.DotBuckConfigFile
 import org.gradle.api.Project
 
 /**

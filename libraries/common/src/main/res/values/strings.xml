@@ -24,4 +24,5 @@
 
 <resources>
     <string name="app_name">Common</string>
+  <string name="common_string">CommonMain</string>
 </resources>
