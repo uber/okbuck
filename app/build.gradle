@@ -95,10 +95,11 @@ dependencies {
     prodCompile project(path: ':dummylibrary', configuration: 'paidRelease')
     compile project(':libraries:emptylibrary')
 
-    debugCompile 'com.github.promeg:xlog-android:2.1.1'
-    debugCompile 'com.github.promeg:xlog-compiler:2.1.1'
+    compile 'com.github.promeg:xlog-android-idle:2.1.1'
+    //debugCompile 'com.github.promeg:xlog-android:2.1.1'
+    //debugCompile 'com.github.promeg:xlog-compiler:2.1.1'
 
-    releaseCompile 'com.github.promeg:xlog-android-idle:2.1.1'
+    //releaseCompile 'com.github.promeg:xlog-android-idle:2.1.1'
 
     testCompile project(path: ':dummylibrary', configuration: 'freeDebug')
     testCompile 'junit:junit:4.12'
