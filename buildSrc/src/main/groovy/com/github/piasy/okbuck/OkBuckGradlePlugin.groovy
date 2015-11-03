@@ -247,15 +247,12 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         }
 
         println "1, 2, 3 ==> ${str1}"
-        if (!str1.equals("123")) {
-            throw new IllegalStateException("hashSetAddTraversalTest fail!")
-        }
         println "3, 2, 1 ==> ${str2}"
-        if (!str2.equals("123")) {
+        println "2, 1, 3 ==> ${str3}"
+        if (!str1.equals(str2)) {
             throw new IllegalStateException("hashSetAddTraversalTest fail!")
         }
-        println "2, 1, 3 ==> ${str3}"
-        if (!str3.equals("123")) {
+        if (!str2.equals(str3)) {
             throw new IllegalStateException("hashSetAddTraversalTest fail!")
         }
         println "hashSetAddTraversalTest >>>"
