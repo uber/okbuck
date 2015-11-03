@@ -267,6 +267,7 @@ public final class DependencyAnalyzer {
     private void checkDependencyDiffersByVersion(
             Project project, Set<File> existsDeps, File newDep
     ) {
+        // TODO this is a naive impl
         if (ProjectHelper.getInternalDependencyProject(mRootProject, newDep) != null ||
                 !newDep.name.contains("-")) {
             return
@@ -278,12 +279,17 @@ public final class DependencyAnalyzer {
                 continue
             }
             if (existsDep.name.endsWith(".jar")) {
-                String existsVersion = existsDep.name.substring(existsDep.name.lastIndexOf("-"),
+                String existsVersion = existsDep.name.substring(existsDep.name.lastIndexOf("-") + 1,
                         existsDep.name.indexOf(".jar"))
                 String existsName = existsDep.name.substring(0, existsDep.name.lastIndexOf("-"))
-                String newVersion = newDep.name.substring(newDep.name.lastIndexOf("-"),
+                String newVersion = newDep.name.substring(newDep.name.lastIndexOf("-") + 1,
                         newDep.name.indexOf(newDepNameSuffix))
                 String newName = newDep.name.substring(0, newDep.name.lastIndexOf("-"))
+                if (existsVersion.equals("debug") || existsVersion.equals("release") ||
+                        newVersion.equals("debug") ||
+                        newVersion.equals("release")) {
+                    continue
+                }
                 if (existsName.equals(newName) && !existsVersion.equals(newVersion)) {
                     String message = "there are the same dependency with different versions: ${existsDep.name} in ["
                     for (Project existsDepender : mDependerGraph.get(existsDep)) {
@@ -293,12 +299,17 @@ public final class DependencyAnalyzer {
                     throw new IllegalStateException(message)
                 }
             } else if (existsDep.name.endsWith(".aar")) {
-                String existsVersion = existsDep.name.substring(existsDep.name.lastIndexOf("-"),
+                String existsVersion = existsDep.name.substring(existsDep.name.lastIndexOf("-") + 1,
                         existsDep.name.indexOf(".aar"))
                 String existsName = existsDep.name.substring(0, existsDep.name.lastIndexOf("-"))
-                String newVersion = newDep.name.substring(newDep.name.lastIndexOf("-"),
+                String newVersion = newDep.name.substring(newDep.name.lastIndexOf("-") + 1,
                         newDep.name.indexOf(newDepNameSuffix))
                 String newName = newDep.name.substring(0, newDep.name.lastIndexOf("-"))
+                if (existsVersion.equals("debug") || existsVersion.equals("release") ||
+                        newVersion.equals("debug") ||
+                        newVersion.equals("release")) {
+                    continue
+                }
                 if (existsName.equals(newName) && !existsVersion.equals(newVersion)) {
                     String message = "there are the same dependency with different versions: ${existsDep.name} in ["
                     for (Project existsDepender : mDependerGraph.get(existsDep)) {
@@ -435,7 +446,6 @@ public final class DependencyAnalyzer {
                 return getDepsCommonPathDiff(mDependerGraph.get(dep))
             }
         }
-
     }
 
     private void addFinalDependencies4Flavor(
