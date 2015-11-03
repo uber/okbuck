@@ -83,7 +83,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     }
 
     private static applyWithoutBuildVariant(Project project) {
-        //hashSetAddTraversalTest()
+        hashSetAddTraversalTest()
         //nestedMapTest(project)
 
         boolean overwrite = project.okbuck.overwrite
@@ -111,7 +111,8 @@ class OkBuckGradlePlugin implements Plugin<Project> {
             throw new IllegalStateException(
                     ".okbuck dir already exist, set overwrite property to true to overwrite existing file.")
         } else {
-            DependencyAnalyzer dependencyAnalyzer = new DependencyAnalyzer(project, okBuckDir)
+            DependencyAnalyzer dependencyAnalyzer = new DependencyAnalyzer(project, okBuckDir,
+                    (boolean) project.okbuck.checkDepConflict)
             printDeps(project, dependencyAnalyzer)
 
             // step 3: generate BUCK file for each sub project
@@ -191,9 +192,11 @@ class OkBuckGradlePlugin implements Plugin<Project> {
      *
      * `"${project.name}_key_2_1"` is instance of GString
      * */
-    private static void nestedMapTestFunc1(Map<Project, Map<String, Set<Dependency>>> map,
+    private static void nestedMapTestFunc1(
+            Map<Project, Map<String, Set<Dependency>>> map,
             Project project,
-            String flavor) {
+            String flavor
+    ) {
         println map.get(project).get("${project.name}_key_2_1")
         println map.get(project).get(flavor)
         println flavor.equals("${project.name}_key_2_1")
@@ -203,9 +206,11 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     /**
      * print `[]`
      * */
-    private static void nestedMapTestFunc2(Map<Project, Map<String, Set<Dependency>>> map,
+    private static void nestedMapTestFunc2(
+            Map<Project, Map<String, Set<Dependency>>> map,
             Project project,
-            String flavor) {
+            String flavor
+    ) {
         println map.get(project).get(flavor)
     }
 
@@ -242,8 +247,17 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         }
 
         println "1, 2, 3 ==> ${str1}"
+        if (!str1.equals("123")) {
+            throw new IllegalStateException("hashSetAddTraversalTest fail!")
+        }
         println "3, 2, 1 ==> ${str2}"
+        if (!str2.equals("123")) {
+            throw new IllegalStateException("hashSetAddTraversalTest fail!")
+        }
         println "2, 1, 3 ==> ${str3}"
+        if (!str3.equals("123")) {
+            throw new IllegalStateException("hashSetAddTraversalTest fail!")
+        }
         println "hashSetAddTraversalTest >>>"
     }
 }

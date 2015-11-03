@@ -48,6 +48,11 @@ public class OkBuckExtension {
     boolean overwrite = false
 
     /**
+     * whether check dependencies conflict.
+     * */
+    boolean checkDepConflict = false
+
+    /**
      * resPackages: set the resources package name for Android library module or application module,
      * including string resources, color resources, etc, and BuildConfig.java.
      * */

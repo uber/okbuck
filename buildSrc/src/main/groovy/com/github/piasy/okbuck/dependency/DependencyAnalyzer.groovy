@@ -38,6 +38,8 @@ public final class DependencyAnalyzer {
 
     private final File mOkBuckDir
 
+    private final boolean mCheckDepConflict
+
     private final Map<Project, Map<String, Set<File>>> mDependenciesGraph = new HashMap<>()
 
     private final Map<File, Set<Project>> mDependerGraph = new HashMap<>()
@@ -55,9 +57,10 @@ public final class DependencyAnalyzer {
 
     private final Map<String, Set<Project>> mInternalTestDependencies = new HashMap<>()
 
-    public DependencyAnalyzer(Project rootProject, File okBuckDir) {
+    public DependencyAnalyzer(Project rootProject, File okBuckDir, boolean checkDepConflict) {
         mRootProject = rootProject
         mOkBuckDir = okBuckDir
+        mCheckDepConflict = checkDepConflict
 
         analyse()
     }
@@ -253,8 +256,10 @@ public final class DependencyAnalyzer {
                     if (mDependerGraph.containsKey(dependency)) {
                         mDependerGraph.get(dependency).add(project)
                     } else {
-                        checkDependencyDiffersByVersion(project, mDependerGraph.keySet(),
-                                dependency)
+                        if (mCheckDepConflict) {
+                            checkDependencyDiffersByVersion(project, mDependerGraph.keySet(),
+                                    dependency)
+                        }
                         Set<Project> dependerSet = new HashSet<>()
                         dependerSet.add(project)
                         mDependerGraph.put(dependency, dependerSet)
