@@ -67,7 +67,7 @@ Android Studio + Gradle已经是大部分安卓开发者的开发环境，为了
 4. 执行`./gradlew okbuck`命令，命令执行完毕后，将在工程目录下生成.buckconfig文件，.okbuck目录，以及每个module根目录下生成一个BUCK文件，此时在工程根目录执行`buck install app`即可开始使用buck构建安装了（假设你的application module叫app），开始体验buck构建的畅快淋漓吧 :)
     +  加入`apply plugin: 'com.github.piasy.okbuck-gradle-plugin'`后，OkBuck将为你的工程生成三个gradle task：`okbuck`，`okbuckDebug` `okbuckRelease` 和 `okbuckClean`
     +  执行`okbuckClean` 将**删除所有**OkBuck生成的文件
-    +  `okbuckDebug`和`okbuckRelease`将使你在build.gradle中声明的`debugCompile`和`releaseCompile`依赖可以在buck的构建中正确引用，包括annotation processor哟！
+    +  执行`okbuck`后，将为每种flavor + variant组合产生相应的BUCK配置，并且为每种组合生成一个alias，例如：`appDevDebug`, `appProdRelease`, `anotherappDebug`等
     
 5. 关于10行：第一步一行，第二步只有一行，第三步有八行，所以真的只有10行！
 
