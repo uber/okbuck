@@ -114,6 +114,7 @@ User | Repo
 If you are using OkBuck in your open source project, [send me a e-mail](mailto:xz4215@gmail.com) with your repo url, I'll add your repo in this list.
 
 ## Change log
++  0.4.4: fix [#42](https://github.com/Piasy/OkBuck/issues/42)
 +  0.4.2: different libraries may have the same name, so turn `checkDependencyDiffersByVersion` to be optional temporarily
 +  0.4.1: naive way to fix problems in `checkDependencyDiffersByVersion`
 +  0.4.0:
