@@ -209,6 +209,18 @@ public final class ProjectHelper {
                     if ("defaultConfig".equals(prop.name) && ProductFlavor.class.isAssignableFrom(
                             prop.type)) {
                         ProductFlavor defaultConfigs = (ProductFlavor) prop.value
+                        if (defaultConfigs.applicationId != null) {
+                            buildConfigs.put("APPLICATION_ID", "String APPLICATION_ID = \"${defaultConfigs.applicationId}\"")
+                        }
+                        buildConfigs.put("BUILD_TYPE", "String BUILD_TYPE = \"${variant}\"")
+                        buildConfigs.put("FLAVOR", "String FLAVOR = \"${flavor}\"")
+                        if (defaultConfigs.versionCode != null) {
+                            buildConfigs.put("VERSION_CODE", "int VERSION_CODE = ${defaultConfigs.versionCode}")
+                        }
+                        if (defaultConfigs.versionName != null) {
+                            buildConfigs.put("VERSION_NAME", "String VERSION_NAME = \"${defaultConfigs.versionName}\"")
+                        }
+
                         for (ClassField classField : defaultConfigs.buildConfigFields.values()) {
                             buildConfigs.put(classField.name,
                                     "${classField.type} ${classField.name} = ${classField.value}")
