@@ -74,7 +74,7 @@ Android Studio + Gradle已经是大部分安卓开发者的开发环境，为了
 ## 更多工作
 当然上面所说的10行只是配置，如果你的代码和buck不兼容，另外如果之前的依赖声明比较混乱，则可能需要更多的工作 :)
 
-+  versionCode, versionName, targetSdkVersion, minSdkVersion的定义，需要放到AndroidManifest.xml文件中，而不是放在build.gradle文件里面，示例：
++  versionCode, versionName, targetSdkVersion, minSdkVersion的定义，需要同时在AndroidManifest.xml文件中也进行定义，而不仅仅是放在build.gradle文件里面，示例：
 
     ```xml
     <manifest xmlns:android="http://schemas.android.com/apk/res/android"

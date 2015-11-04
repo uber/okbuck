@@ -29,6 +29,14 @@ android {
     compileSdkVersion 23
     buildToolsVersion "23.0.1"
 
+    defaultConfig {
+        applicationId "com.github.piasy.okbuck.example.anotherapp"
+        minSdkVersion 15
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+    }
+
     signingConfigs {
         release {
             // or just set values directly
