@@ -44,6 +44,32 @@ Further more, you can still use OkBuck to maintain your BUCK build system when y
         ]
     }
     ```
+  +  Note that `okbuck-gradle-plugin` hosts on jcenter, so you need to add jcenter to your buildscript repositories and allprojects repositories list, like below, also note that the declare order matters.
+  
+    ```gradle
+      buildscript {
+          repositories {
+              jcenter()
+          }
+          dependencies {
+              classpath 'com.android.tools.build:gradle:1.3.0'
+              classpath "com.github.piasy:okbuck-gradle-plugin:0.3.3"
+          }
+      }
+      
+      allprojects {
+          repositories {
+              jcenter()
+          }
+      }
+      
+      apply plugin: 'com.github.piasy.okbuck-gradle-plugin'
+      
+      okbuck {
+          ...
+      }
+    ```
+    
 4. Run `./gradlew okbuck` and then run `buck install app`, enjoy your life with BUCK.
 
 ## Explanations
