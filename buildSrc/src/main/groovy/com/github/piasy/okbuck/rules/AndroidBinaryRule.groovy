@@ -36,9 +36,11 @@ import static com.github.piasy.okbuck.helper.CheckUtil.checkStringNotEmpty
 public final class AndroidBinaryRule extends BuckRuleWithDeps {
     private final String mManifest
     private final String mKeystore
+    private final boolean mEnableMultiDex
 
     public AndroidBinaryRule(
-            String name, List<String> visibility, List<String> deps, String manifest, String keystore
+            String name, List<String> visibility, List<String> deps, String manifest,
+            String keystore, boolean enableMultiDex
     ) {
         super("android_binary", name, visibility, deps)
 
@@ -46,11 +48,15 @@ public final class AndroidBinaryRule extends BuckRuleWithDeps {
         mManifest = manifest
         checkStringNotEmpty(keystore, "AndroidBinaryRule keystore must be non-null.")
         mKeystore = keystore
+        mEnableMultiDex = enableMultiDex
     }
 
     @Override
     protected final void printSpecificPart(PrintStream printer) {
         printer.println("\tmanifest = '${mManifest}',")
         printer.println("\tkeystore = '${mKeystore}',")
+        if (mEnableMultiDex) {
+            printer.println("\tuse_split_dex = True,")
+        }
     }
 }

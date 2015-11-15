@@ -378,7 +378,8 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
                 }
                 rules.add(new AndroidBinaryRule("bin_${flavor}_debug", Arrays.asList("PUBLIC"),
                         binDeps, ":manifest",
-                        "//${mKeystoreDir}${ProjectHelper.getProjectPathDiff(mRootProject, project)}:key_store"))
+                        "//${mKeystoreDir}${ProjectHelper.getProjectPathDiff(mRootProject, project)}:key_store",
+                        ProjectHelper.getMultiDexEnabled(project)))
 
                 binDeps = new ArrayList<>()
                 binDeps.add(":src_${flavor}_release")
@@ -397,7 +398,8 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
                 }
                 rules.add(new AndroidBinaryRule("bin_${flavor}_release", Arrays.asList("PUBLIC"),
                         binDeps, ":manifest",
-                        "//${mKeystoreDir}${ProjectHelper.getProjectPathDiff(mRootProject, project)}:key_store"))
+                        "//${mKeystoreDir}${ProjectHelper.getProjectPathDiff(mRootProject, project)}:key_store",
+                        ProjectHelper.getMultiDexEnabled(project)))
             }
         } else {
             addManifestRule(finalDependenciesGraph, project, rules, "main", "main")
@@ -411,7 +413,8 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
             }
             rules.add(new AndroidBinaryRule("bin_debug", Arrays.asList("PUBLIC"),
                     binDeps, ":manifest",
-                    "//${mKeystoreDir}${ProjectHelper.getProjectPathDiff(mRootProject, project)}:key_store"))
+                    "//${mKeystoreDir}${ProjectHelper.getProjectPathDiff(mRootProject, project)}:key_store",
+                    ProjectHelper.getMultiDexEnabled(project)))
 
             binDeps = new ArrayList<>()
             binDeps.add(":src_release")
@@ -423,7 +426,8 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
             }
             rules.add(new AndroidBinaryRule("bin_release", Arrays.asList("PUBLIC"),
                     binDeps, ":manifest",
-                    "//${mKeystoreDir}${ProjectHelper.getProjectPathDiff(mRootProject, project)}:key_store"))
+                    "//${mKeystoreDir}${ProjectHelper.getProjectPathDiff(mRootProject, project)}:key_store",
+                    ProjectHelper.getMultiDexEnabled(project)))
         }
     }
 
