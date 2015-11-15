@@ -24,14 +24,14 @@
 
 package com.github.piasy.okbuck.example;
 
-import android.app.Application;
+import android.support.multidex.MultiDexApplication;
 import com.github.promeg.xlog_android.lib.XLogConfig;
 import com.squareup.leakcanary.LeakCanary;
 
 /**
  * Created by Piasy{github.com/Piasy} on 15/10/6.
  */
-public class MyApp extends Application {
+public class MyApp extends MultiDexApplication {
     @Override
     public void onCreate() {
         super.onCreate();

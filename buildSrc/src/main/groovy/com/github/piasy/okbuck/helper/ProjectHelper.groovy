@@ -421,4 +421,19 @@ public final class ProjectHelper {
                         "sub project must be android library/application module")
         }
     }
+
+    public static boolean getMultiDexEnabled(Project project) {
+        try {
+            for (PropertyValue prop : project.extensions.getByName("android").metaPropertyValues) {
+                if ("defaultConfig".equals(prop.name) && ProductFlavor.class.isAssignableFrom(
+                        prop.type)) {
+                    ProductFlavor defaultConfigs = (ProductFlavor) prop.value
+                    return defaultConfigs.multiDexEnabled != null && defaultConfigs.multiDexEnabled
+                }
+            }
+        } catch (Exception e) {
+            println "get ${project.name}'s MultiDexEnabled fail!"
+        }
+        return false
+    }
 }

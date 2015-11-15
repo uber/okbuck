@@ -25,6 +25,7 @@ android {
         applicationId "com.github.piasy.okbuck.example"
         minSdkVersion 15
         targetSdkVersion 23
+        multiDexEnabled true
         versionCode 1
         versionName "1.0"
         buildConfigField "boolean", "CAN_JUMP", "true"
@@ -85,6 +86,7 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
+    compile 'com.android.support:multidex:1.0.1'
     compile 'com.jakewharton:butterknife:7.0.1'
 
     compile ('com.android.support:design:23.1.0') {
