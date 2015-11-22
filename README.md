@@ -130,6 +130,7 @@ Note that you need create an empty file named `bintray.properties` in `/buildSrc
 +  Thanks for Facebook open source [buck](https://github.com/facebook/buck) build system.
 +  Thanks for the discussion and help from [promeG](https://github.com/promeG/) during my development.
 +  Thanks for [ヤ①個亼簡單](#) of the manifest merge contribution, and the idea of multi-product flavor support.
++  Thanks for [hujin1860@gmail.com](mailto:hujin1860@gmail.com) of the manifest genrule advice.
 
 ## Who is using OkBuck?
 User | Repo
