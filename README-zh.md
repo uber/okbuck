@@ -100,22 +100,7 @@ Android Studio + Gradle已经是大部分安卓开发者的开发环境，为了
 ## 更多工作
 当然上面所说的10行只是配置，如果你的代码和buck不兼容，另外如果之前的依赖声明比较混乱，则可能需要更多的工作 :)
 
-+  versionCode, versionName, targetSdkVersion, minSdkVersion的定义，需要同时在AndroidManifest.xml文件中也进行定义，而不仅仅是放在build.gradle文件里面，示例：
-
-    ```xml
-    <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.github.piasy.okbuck.example"
-          android:versionCode="1"
-          android:versionName="1.0"
-        >
-    
-        <uses-sdk
-                android:targetSdkVersion="23"
-                android:minSdkVersion="15"
-                />
-                ...
-    </manifest>
-    ```
++  ~~versionCode, versionName, targetSdkVersion, minSdkVersion的定义，需要同时在`AndroidManifest.xml`文件中也进行定义，而不仅仅是放在build.gradle文件里面；~~ 从0.4.5开始，无需在`AndroidManifest.xml`中定义上述变量了，在`build.gradle`中定义即可。
 
 +  `R`的引用问题
 
