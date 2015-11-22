@@ -12,5 +12,6 @@ buck-out/
 .buckd/
 
 .okbuck
+okbuck-scripts
 .buckconfig
 **/BUCK

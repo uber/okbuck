@@ -25,6 +25,8 @@
 package com.github.piasy.okbuck
 
 import com.github.piasy.okbuck.configs.BUCKFile
+import com.github.piasy.okbuck.configs.GenManifestPyFile
+import com.github.piasy.okbuck.configs.ScriptBUCKFile
 import com.github.piasy.okbuck.dependency.Dependency
 import com.github.piasy.okbuck.dependency.DependencyAnalyzer
 import com.github.piasy.okbuck.generator.XBuckFileGenerator
@@ -105,7 +107,21 @@ class OkBuckGradlePlugin implements Plugin<Project> {
             printer.close()
         }
 
-        // step 2: analyse dependencies
+        // step 2: generate script files
+        File scriptsDir = new File(project.projectDir.absolutePath + File.separator + "okbuck-scripts")
+        if (!scriptsDir.exists()) {
+            scriptsDir.mkdirs()
+        }
+        File manifestPyFile = new File(scriptsDir.absolutePath + File.separator + "manifest.py")
+        PrintStream printer = new PrintStream(manifestPyFile)
+        new GenManifestPyFile().print(printer)
+        printer.close()
+        File scriptBUCKFile = new File(scriptsDir.absolutePath + File.separator + "BUCK")
+        printer = new PrintStream(scriptBUCKFile)
+        new ScriptBUCKFile().print(printer)
+        printer.close()
+
+        // step 3: analyse dependencies
         File okBuckDir = new File(project.projectDir.absolutePath + File.separator + ".okbuck")
         if (okBuckDir.exists() && !overwrite) {
             throw new IllegalStateException(
@@ -115,7 +131,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                     (boolean) project.okbuck.checkDepConflict)
             printDeps(project, dependencyAnalyzer)
 
-            // step 3: generate BUCK file for each sub project
+            // step 4: generate BUCK file for each sub project
             Map<Project, BUCKFile> buckFiles = new XBuckFileGenerator(project, dependencyAnalyzer,
                     okBuckDir, (Map<String, String>) project.okbuck.resPackages,
                     (String) project.okbuck.keystoreDir, (String) project.okbuck.signConfigName).
@@ -123,7 +139,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
             for (Project subProject : buckFiles.keySet()) {
                 File buckFile = new File(
                         subProject.projectDir.absolutePath + File.separator + "BUCK")
-                PrintStream printer = new PrintStream(buckFile)
+                printer = new PrintStream(buckFile)
                 buckFiles.get(subProject).print(printer)
                 printer.close()
             }
