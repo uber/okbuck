@@ -25,14 +25,7 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.github.piasy.okbuck.example.anotherapp"
-          android:versionCode="1"
-          android:versionName="1.0"
         >
-
-    <uses-sdk
-            android:targetSdkVersion="23"
-            android:minSdkVersion="15"
-            />
 
     <application
         android:allowBackup="true"

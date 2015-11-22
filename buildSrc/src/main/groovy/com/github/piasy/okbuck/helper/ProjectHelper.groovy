@@ -261,6 +261,149 @@ public final class ProjectHelper {
         return buildConfigs.values().asList()
     }
 
+    public static String getVersionName(Project project, String flavor) {
+        println "get ${project.name}'s VersionName build config field:"
+        ProjectType type = getSubProjectType(project)
+        String versionName = ""
+        if (type == ProjectType.AndroidAppProject || type == ProjectType.AndroidLibProject) {
+            try {
+                project.extensions.getByName("android").metaPropertyValues.each { prop ->
+                    if ("defaultConfig".equals(prop.name) && ProductFlavor.class.isAssignableFrom(
+                            prop.type)) {
+                        ProductFlavor defaultConfigs = (ProductFlavor) prop.value
+                        if (defaultConfigs.versionName != null) {
+                            versionName = defaultConfigs.versionName
+                        }
+                    }
+                    if ("productFlavors".equals(prop.name)) {
+                        if (!"default".equals(flavor)) {
+                            for (ProductFlavor productFlavor :
+                                    ((NamedDomainObjectContainer<ProductFlavor>) prop.value).
+                                            asList()) {
+                                if (productFlavor.name.equals(flavor)) {
+                                    if (productFlavor.versionName != null) {
+                                        versionName = productFlavor.versionName
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                println "get ${project.name}'s VersionName build config field: fail!"
+            }
+        }
+        if (StringUtil.isEmpty(versionName)) {
+            throw new IllegalStateException("You must specify versionName in your build.gradle")
+        }
+        return versionName
+    }
+
+    public static int getVersionCode(Project project, String flavor) {
+        println "get ${project.name}'s VersionCode build config field:"
+        ProjectType type = getSubProjectType(project)
+        int versionCode = 0
+        if (type == ProjectType.AndroidAppProject || type == ProjectType.AndroidLibProject) {
+            try {
+                project.extensions.getByName("android").metaPropertyValues.each { prop ->
+                    if ("defaultConfig".equals(prop.name) && ProductFlavor.class.isAssignableFrom(
+                            prop.type)) {
+                        ProductFlavor defaultConfigs = (ProductFlavor) prop.value
+                        if (defaultConfigs.versionCode != null) {
+                            versionCode = defaultConfigs.versionCode
+                        }
+                    }
+                    if ("productFlavors".equals(prop.name)) {
+                        if (!"default".equals(flavor)) {
+                            for (ProductFlavor productFlavor :
+                                    ((NamedDomainObjectContainer<ProductFlavor>) prop.value).
+                                            asList()) {
+                                if (productFlavor.name.equals(flavor)) {
+                                    if (productFlavor.versionCode != null) {
+                                        versionCode = productFlavor.versionCode
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                println "get ${project.name}'s VersionCode build config field: fail!"
+            }
+        }
+        return versionCode
+    }
+
+    public static int getMinSdkVersion(Project project, String flavor) {
+        println "get ${project.name}'s MinSdkVersion build config field:"
+        ProjectType type = getSubProjectType(project)
+        int minSdkVersion = 0
+        if (type == ProjectType.AndroidAppProject || type == ProjectType.AndroidLibProject) {
+            try {
+                project.extensions.getByName("android").metaPropertyValues.each { prop ->
+                    if ("defaultConfig".equals(prop.name) && ProductFlavor.class.isAssignableFrom(
+                            prop.type)) {
+                        ProductFlavor defaultConfigs = (ProductFlavor) prop.value
+                        if (defaultConfigs.minSdkVersion != null) {
+                            minSdkVersion = defaultConfigs.minSdkVersion.apiLevel
+                        }
+                    }
+                    if ("productFlavors".equals(prop.name)) {
+                        if (!"default".equals(flavor)) {
+                            for (ProductFlavor productFlavor :
+                                    ((NamedDomainObjectContainer<ProductFlavor>) prop.value).
+                                            asList()) {
+                                if (productFlavor.name.equals(flavor)) {
+                                    if (productFlavor.minSdkVersion != null) {
+                                        minSdkVersion = productFlavor.minSdkVersion.apiLevel
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                println "get ${project.name}'s MinSdkVersion build config field: fail!"
+            }
+        }
+        return minSdkVersion
+    }
+
+    public static int getTargetSdkVersion(Project project, String flavor) {
+        println "get ${project.name}'s TargetSdkVersion build config field:"
+        ProjectType type = getSubProjectType(project)
+        int targetSdkVersion = 0
+        if (type == ProjectType.AndroidAppProject || type == ProjectType.AndroidLibProject) {
+            try {
+                project.extensions.getByName("android").metaPropertyValues.each { prop ->
+                    if ("defaultConfig".equals(prop.name) && ProductFlavor.class.isAssignableFrom(
+                            prop.type)) {
+                        ProductFlavor defaultConfigs = (ProductFlavor) prop.value
+                        if (defaultConfigs.targetSdkVersion != null) {
+                            targetSdkVersion = defaultConfigs.targetSdkVersion.apiLevel
+                        }
+                    }
+                    if ("productFlavors".equals(prop.name)) {
+                        if (!"default".equals(flavor)) {
+                            for (ProductFlavor productFlavor :
+                                    ((NamedDomainObjectContainer<ProductFlavor>) prop.value).
+                                            asList()) {
+                                if (productFlavor.name.equals(flavor)) {
+                                    if (productFlavor.targetSdkVersion != null) {
+                                        targetSdkVersion = productFlavor.targetSdkVersion.apiLevel
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                println "get ${project.name}'s TargetSdkVersion build config field: fail!"
+            }
+        }
+        return targetSdkVersion
+    }
+
     public static KeystoreRule createKeystoreRule(
             Project project, String signConfigName, File dir
     ) {

@@ -453,7 +453,14 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
                 }
             }
         }
-        rules.add(new AndroidManifestRule(Arrays.asList("PUBLIC"), manifestDeps,
-                ProjectHelper.getProjectManifestFile(project, selfFlavor)))
+
+        rules.add(new BuckGenManifestRule("generate_manifest_main",
+                ProjectHelper.getProjectManifestFile(project, selfFlavor), "AndroidManifest.xml",
+                ProjectHelper.getVersionName(project, "default"),
+                ProjectHelper.getVersionCode(project, "default"),
+                ProjectHelper.getMinSdkVersion(project, "default"),
+                ProjectHelper.getTargetSdkVersion(project, "default"), true))
+
+        rules.add(new AndroidManifestRule(Arrays.asList("PUBLIC"), manifestDeps, ":generate_manifest_main"))
     }
 }
