@@ -15,7 +15,7 @@ Android Studio + Gradle已经是大部分安卓开发者的开发环境，为了
 此外，如果日后你的gradle脚本发生了变化（修改了依赖，加入了新的module），你同样可以通过OkBuck来更新你的buck配置，通过OkBuck，你甚至不用编写一行magic的buck脚本！
 
 ## OkBuck做了什么？
-通过对已有基于gradle构建的安卓工程添加几行配置，OkBuck将自动为你编写BUCK配置文件，引入工程的第三方依赖。如果你已经安装了buck，那么配置完成之后直接`buck install app`就可以构建成功了。当然，前提是你得代码与buck兼容，关于兼容性问题后面将详细说明。
+通过对已有基于gradle构建的安卓工程添加几行配置，OkBuck将自动为你编写BUCK配置文件，引入工程的第三方依赖。如果你已经安装了buck，那么配置完成之后直接`buck install appFlavorVariant`就可以构建成功了，`appFlavorVariant`这个需要根据实际的flavor和variant情况进行替换，例如：有一个flavor叫dev，那就是`appDevDebug`, `appDevRelease`, 如果没有flavor，那就只有`appDebug`, `appRelease`。当然，前提是你得代码与buck兼容，关于兼容性问题后面将详细说明。
 
 ## 如何使用OkBuck
 1. 工程根目录build.gradle的buildscript dependencies部分加入：`classpath "com.github.piasy:okbuck-gradle-plugin:${latest version}"`
@@ -90,8 +90,8 @@ Android Studio + Gradle已经是大部分安卓开发者的开发环境，为了
         ```
     
     
-4. 执行`./gradlew okbuck`命令，命令执行完毕后，将在工程目录下生成.buckconfig文件，.okbuck目录，以及每个module根目录下生成一个BUCK文件，此时在工程根目录执行`buck install app`即可开始使用buck构建安装了（假设你的application module叫app），开始体验buck构建的畅快淋漓吧 :)
-    +  加入`apply plugin: 'com.github.piasy.okbuck-gradle-plugin'`后，OkBuck将为你的工程生成三个gradle task：`okbuck`，`okbuckDebug` `okbuckRelease` 和 `okbuckClean`
+4. 执行`./gradlew okbuck`命令，命令执行完毕后，将在工程目录下生成.buckconfig文件，.okbuck目录，以及每个module根目录下生成一个BUCK文件，此时在工程根目录执行`buck install appFlavorVariant`即可开始使用buck构建安装了（假设你的application module叫app），开始体验buck构建的畅快淋漓吧 :)
+    +  加入`apply plugin: 'com.github.piasy.okbuck-gradle-plugin'`后，OkBuck将为你的工程生成两个gradle task：`okbuck`，和 `okbuckClean`
     +  执行`okbuckClean` 将**删除所有**OkBuck生成的文件
     +  执行`okbuck`后，将为每种flavor + variant组合产生相应的BUCK配置，并且为每种组合生成一个alias，例如：`appDevDebug`, `appProdRelease`, `anotherappDebug`等
     

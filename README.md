@@ -16,7 +16,7 @@ Further more, you can still use OkBuck to maintain your BUCK build system when y
 +  Generate `.buckconfig`.
 +  Copy third-party libraries' jar/aar files to your rootProject directory.
 +  Generate `BUCK` file for third-party libraries and each sub modules.
-+  After you run `./gradlew okbuck` in your rootProject root directory, you can run `buck install app` (suppose your application module names `app` and you have already installed BUCK).
++  After you run `./gradlew okbuck` in your rootProject root directory, you can run `buck install appFlavorVariant` (suppose your application module names `app` and you have already installed BUCK, the `Flavor` and `Variant` part is just like Gradle task names, if you have a flavor `dev`, then you can run `buck install` with `appDevDebug`, `appDevRelease`, if no flavor, only `appDebug` and `appRelease` available).
 
 ## How to use OkBuck?
 1. Add this lines into buildscript dependencies part of root rootProject build.gradle (the latest version is displayed on the download badge above): 
@@ -70,7 +70,7 @@ Further more, you can still use OkBuck to maintain your BUCK build system when y
       }
     ```
     
-4. Run `./gradlew okbuck` and then run `buck install app`, enjoy your life with BUCK.
+4. Run `./gradlew okbuck` and then run `buck install appFlavorVariant`, enjoy your life with BUCK.
 
 ## Explanations
 +  `android-23` works equally with `compileSdkVersion 23`.
