@@ -28,8 +28,6 @@ Android Studio + Gradle已经是大部分安卓开发者的开发环境，为了
     ```gradle
     okbuck {
         target "android-23"
-        keystore "debug.keystore"
-        keystoreProperties "debug.keystore.properties"
         overwrite true
         resPackages = [
             'dummylibrary': 'com.github.piasy.okbuck.example.dummylibrary',
@@ -39,28 +37,6 @@ Android Studio + Gradle已经是大部分安卓开发者的开发环境，为了
     ```
 
     +  其中`android-23`相当于gradle指定`compileSdkVersion 23`；
-    +  ~~`debug.keystore`和`debug.keystore.properties`分别代表的是签名文件和签名配置文件，需要放到application module的根目录下，用于指定签名文件；~~
-    +  再也不用在OkBuck里指定签名配置了：
-      +  只要你已经在build.gradle中设置了**刚好一个**签名配置
-      +  但是你需要配置git，ignore你的签名秘钥和配置，把这一行加入到**工程根目录的.gitignore文件中**：`.okbuck/keystore`
-      +  但是如果你在build.gradle中配置了多个签名配置，或者想要把OkBuck生成的签名配置放到另一个目录（**但必须是工程根目录的子目录**），你可以像下面这样配置，其中`keystoreDir`指定OkBuck生成的签名配置的路径（相对于工程根目录，不要前导的`/`哟），`signConfigName`指定多个签名配置中的一个。
-        
-        ```gradle
-            okbuck {
-                target "android-23"
-                keystoreDir ".okbuck/keystore"
-                signConfigName "release"
-                overwrite true
-                resPackages = [
-                    'dummylibrary': 'com.github.piasy.okbuck.example.dummylibrary',
-                    'app': 'com.github.piasy.okbuck.example',
-                    'common': 'com.github.piasy.okbuck.example.common',
-                ]
-            }
-        ```
-        
-        +  同样记得配置git，ignore签名配置
-        +  完整的例子可以参考本repo的app module，[工程根目录build.gradle](build.gradle), [app module的build.gradle](app/build.gradle)
     +  `overwrite`指定是否覆盖已有的buck配置文件；
     +  `resPackages`用于指定每个Android library module和Android application module的R文件的包名，你需要在resPackages里面为每个module指定包名，将dummylibrary/app替换为你的module的名字，冒号前面是module的名字，注意，如果是多级目录，只需要最后一级目录名，例如`settings.gradle`里面是`include 'lib:common'`，冒号前面应该是`'common'`而不是`':lib:common'`，冒号后面的内容通常都是对应module的AndroidManifest.xml中的包名。
     +  有朋友反映会遇到找不到okbuck-gradle-plugin的问题，是因为需要把jcenter加入到buildscript的repositories列表以及allprojects的repositories列表中，就像下面这样，并且下面的声明顺序很重要：
@@ -134,6 +110,7 @@ Clone后需要在`/buildSrc/`目录下新建一个空的`bintray.properties`文�
 +  首先感谢Facebook开源的[buck](https://github.com/facebook/buck)构建系统
 +  感谢[promeG](https://github.com/promeG/)在开发过程中的讨论与指导
 +  感谢[ヤ①個亼簡單](#)对manifest合并的贡献，以及多flavor支持的idea
++  感谢[hujin1860@gmail.com](mailto:hujin1860@gmail.com)对于`genrule`合并`AndroidManifest.xml`的支持
 
 ## 谁用了OkBuck？
 User | Repo
