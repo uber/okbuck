@@ -53,16 +53,25 @@ public final class GenManifestPyFile extends BuckConfigFile {
         printer.println("if '{0}versionCode'.format(package) not in root.attrib:")
         printer.println("\troot.attrib['{0}versionCode'.format(package)] = versionCode")
 
-        printer.println("if len(root.findall(\"./uses-sdk\")) == 0:")
+        printer.println("if len(root.findall('./uses-sdk')) == 0:")
         printer.println("\tET.SubElement(root, 'uses-sdk', {")
         printer.println("\t\t'{0}targetSdkVersion'.format(package): targetSdk,")
         printer.println("\t\t'{0}minSdkVersion'.format(package): minSdk,")
         printer.println("\t})")
 
-        printer.println("application = root.find(\"./application\")")
+        printer.println("application = root.find('./application')")
         printer.println("if '{0}debuggable'.format(package) not in application.attrib:")
         printer.println("\tapplication.attrib['{0}debuggable'.format(package)] = debuggable")
 
         printer.println("manifest.write(sys.argv[2])")
+
+        printer.println("f = open(sys.argv[2], 'r')")
+        printer.println("content = f.read()")
+        printer.println("f.close()")
+        printer.println("content = content.replace('ns0:', 'android:')")
+        printer.println("content = content.replace('xmlns:ns0=', 'xmlns:android=')")
+        printer.println("f = open(sys.argv[2], 'w')")
+        printer.println("f.write(content)")
+        printer.println("f.close()")
     }
 }

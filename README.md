@@ -140,6 +140,15 @@ User | Repo
 If you are using OkBuck in your open source project, [send me a e-mail](mailto:xz4215@gmail.com) with your repo url, I'll add your repo in this list.
 
 ## Change log
++  0.4.6: solve problems when generate `AndroidManifest.xml` like below:
+  
+  ```bash
+  [AndroidManifest.xml:7, AndroidManifest.xml:3] Trying to merge incompatible /manifest/uses-permission[@name=android.permission.ACCESS_WIFI_STATE] element:
+    <uses-permission android:name=android.permission.ACCESS_WIFI_STATE>
+  --    @android:name = android.permission.ACCESS_WIFI_STATE
+  ++    @ns0:name = android.permission.ACCESS_WIFI_STATE
+  ```
+
 +  0.4.5: use `genrule` to generate `AndroidManifest.xml`
 +  0.4.4: fix [#42](https://github.com/Piasy/OkBuck/issues/42)
 +  0.4.2: different libraries may have the same name, so turn `checkDependencyDiffersByVersion` to be optional temporarily
