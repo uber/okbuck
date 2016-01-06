@@ -41,10 +41,13 @@ public abstract class BuckFileGenerator {
     protected final Map<String, String> mResPackages
     protected final String mKeystoreDir
     protected final String mSignConfigName
+    protected final int mLinearAllocHardLimit
+    protected final List<String> mPrimaryDexPatterns
 
     public BuckFileGenerator(
             Project rootProject, DependencyAnalyzer dependencyAnalyzer, File okBuckDir,
-            Map<String, String> resPackages, String keystoreDir, String signConfigName
+            Map<String, String> resPackages, String keystoreDir, String signConfigName,
+            int linearAllocHardLimit, List<String> primaryDexPatterns
     ) {
         mRootProject = rootProject
         mDependencyAnalyzer = dependencyAnalyzer
@@ -52,6 +55,8 @@ public abstract class BuckFileGenerator {
         mResPackages = resPackages
         mKeystoreDir = keystoreDir
         mSignConfigName = signConfigName
+        mLinearAllocHardLimit = linearAllocHardLimit
+        mPrimaryDexPatterns = primaryDexPatterns
     }
 
     /**
