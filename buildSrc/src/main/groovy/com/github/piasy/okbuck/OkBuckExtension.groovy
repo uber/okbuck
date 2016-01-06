@@ -67,4 +67,20 @@ public class OkBuckExtension {
      * primary dex class patterns.
      * */
     List<String> primaryDexPatterns = new ArrayList<>()
+
+    /**
+     * whether enable exopackage.
+     * */
+    boolean exopackage = false
+
+    /**
+     * exopackage app class source.
+     * */
+    String appClassSource = ""
+
+    /**
+     * exopackage app lib dependencies.
+     * */
+    List<String> appLibDependencies = new ArrayList<>()
+
 }

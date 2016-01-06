@@ -33,11 +33,18 @@ okbuck {
     ]
     linearAllocHardLimit 7194304
     primaryDexPatterns = [
-            '^com/github/piasy/okbuck/example/MyApp^',
-            '^android/support/multidex/',
+            '^com/github/piasy/okbuck/example/AppShell^',
             '^com/github/piasy/okbuck/example/BuildConfig^',
+            '^android/support/multidex/',
+            '^com/facebook/buck/android/support/exopackage/',
             '^com/github/promeg/xlog_android/lib/XLogConfig^',
             '^com/squareup/leakcanary/LeakCanary^',
+    ]
+    exopackage true
+    appClassSource 'src/main/java/com/github/piasy/okbuck/example/AppShell.java'
+    appLibDependencies = [
+            'buck-android-support',
+            'multidex',
     ]
 }
 

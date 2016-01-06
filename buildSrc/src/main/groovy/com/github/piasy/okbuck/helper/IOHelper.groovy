@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Piasy
+ * Copyright (c) 2016 Piasy
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,30 +22,17 @@
  * SOFTWARE.
  */
 
-package com.github.piasy.okbuck.example;
+package com.github.piasy.okbuck.helper
 
-import android.app.Application;
-import com.facebook.buck.android.support.exopackage.DefaultApplicationLike;
-import com.github.promeg.xlog_android.lib.XLogConfig;
-import com.squareup.leakcanary.LeakCanary;
+import org.apache.commons.io.IOUtils
 
 /**
- * Created by Piasy{github.com/Piasy} on 15/10/6.
+ * Created by Piasy{github.com/Piasy} on 16/1/6.
  */
-public class MyApp extends DefaultApplicationLike {
-
-    private final Application mApplication;
-
-    public MyApp(Application application) {
-        mApplication = application;
-    }
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        if (BuildConfig.XLOG_ENABLED) {
-            XLogConfig.config(XLogConfig.newConfigBuilder(mApplication).build());
-        }
-        LeakCanary.install(mApplication);
+public final class IOHelper {
+    public static void copy(InputStream inputStream, OutputStream outputStream) {
+        IOUtils.copy(inputStream, outputStream)
+        IOUtils.closeQuietly(inputStream)
+        IOUtils.closeQuietly(outputStream)
     }
 }

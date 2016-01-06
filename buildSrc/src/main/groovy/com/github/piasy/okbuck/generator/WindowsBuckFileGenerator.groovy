@@ -38,10 +38,12 @@ public final class WindowsBuckFileGenerator extends BuckFileGenerator {
     public WindowsBuckFileGenerator(
             Project rootProject, DependencyAnalyzer dependencyAnalyzer, File okBuckDir,
             Map<String, String> resPackages, String keystoreDir, String signConfigName,
-            int linearAllocHardLimit, List<String> primaryDexPatterns
+            int linearAllocHardLimit, List<String> primaryDexPatterns, boolean exopackage,
+            String appClassSource, List<String> appLibDependencies
     ) {
         super(rootProject, dependencyAnalyzer, okBuckDir, resPackages, keystoreDir, signConfigName,
-                linearAllocHardLimit, primaryDexPatterns)
+                linearAllocHardLimit, primaryDexPatterns, exopackage, appClassSource,
+                appLibDependencies)
     }
 
     @Override
