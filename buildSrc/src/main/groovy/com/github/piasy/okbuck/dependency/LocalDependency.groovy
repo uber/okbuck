@@ -24,7 +24,7 @@
 
 package com.github.piasy.okbuck.dependency
 
-import org.apache.commons.io.IOUtils
+import com.github.piasy.okbuck.helper.IOHelper
 
 /**
  * local dependency: jar file.
@@ -101,7 +101,7 @@ public final class LocalDependency extends Dependency {
             mDstDir.mkdirs()
         }
         println "copying ${mDepFile.absolutePath} into ${mDstDir.absolutePath}"
-        IOUtils.copy(new FileInputStream(mDepFile), new FileOutputStream(
+        IOHelper.copy(new FileInputStream(mDepFile), new FileOutputStream(
                 new File(mDstDir.absolutePath + File.separator + mDepFile.name)))
     }
 }

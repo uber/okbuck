@@ -136,7 +136,9 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                     okBuckDir, (Map<String, String>) project.okbuck.resPackages,
                     (String) project.okbuck.keystoreDir, (String) project.okbuck.signConfigName,
                     (int) project.okbuck.linearAllocHardLimit,
-                    (List<String>) project.okbuck.primaryDexPatterns).
+                    (List<String>) project.okbuck.primaryDexPatterns,
+                    (boolean) project.okbuck.exopackage, (String) project.okbuck.appClassSource,
+                    (List<String>) project.okbuck.appLibDependencies).
                     generate()
             for (Project subProject : buckFiles.keySet()) {
                 File buckFile = new File(

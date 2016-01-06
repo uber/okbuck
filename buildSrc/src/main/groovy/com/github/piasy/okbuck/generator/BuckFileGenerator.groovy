@@ -43,11 +43,15 @@ public abstract class BuckFileGenerator {
     protected final String mSignConfigName
     protected final int mLinearAllocHardLimit
     protected final List<String> mPrimaryDexPatterns
+    protected final boolean mExopackage
+    protected final String mAppClassSource
+    protected final List<String> mAppLibDependencies
 
     public BuckFileGenerator(
             Project rootProject, DependencyAnalyzer dependencyAnalyzer, File okBuckDir,
             Map<String, String> resPackages, String keystoreDir, String signConfigName,
-            int linearAllocHardLimit, List<String> primaryDexPatterns
+            int linearAllocHardLimit, List<String> primaryDexPatterns, boolean exopackage,
+            String appClassSource, List<String> appLibDependencies
     ) {
         mRootProject = rootProject
         mDependencyAnalyzer = dependencyAnalyzer
@@ -57,6 +61,9 @@ public abstract class BuckFileGenerator {
         mSignConfigName = signConfigName
         mLinearAllocHardLimit = linearAllocHardLimit
         mPrimaryDexPatterns = primaryDexPatterns
+        mExopackage = exopackage
+        mAppClassSource = appClassSource
+        mAppLibDependencies = appLibDependencies
     }
 
     /**

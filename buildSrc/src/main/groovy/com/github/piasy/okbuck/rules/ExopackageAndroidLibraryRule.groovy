@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Piasy
+ * Copyright (c) 2016 Piasy
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,30 +22,21 @@
  * SOFTWARE.
  */
 
-package com.github.piasy.okbuck.example;
+package com.github.piasy.okbuck.rules
 
-import android.app.Application;
-import com.facebook.buck.android.support.exopackage.DefaultApplicationLike;
-import com.github.promeg.xlog_android.lib.XLogConfig;
-import com.squareup.leakcanary.LeakCanary;
+import com.github.piasy.okbuck.rules.base.BuckRuleWithDeps
 
 /**
- * Created by Piasy{github.com/Piasy} on 15/10/6.
- */
-public class MyApp extends DefaultApplicationLike {
+ * android_library() used for exopackage
+ * */
+public final class ExopackageAndroidLibraryRule extends BuckRuleWithDeps {
 
-    private final Application mApplication;
-
-    public MyApp(Application application) {
-        mApplication = application;
+    public ExopackageAndroidLibraryRule(String name, List<String> visibility, List<String> deps) {
+        super("android_library", name, visibility, deps)
     }
 
     @Override
-    public void onCreate() {
-        super.onCreate();
-        if (BuildConfig.XLOG_ENABLED) {
-            XLogConfig.config(XLogConfig.newConfigBuilder(mApplication).build());
-        }
-        LeakCanary.install(mApplication);
+    protected final void printSpecificPart(PrintStream printer) {
+        printer.println("\tsrcs = [APP_CLASS_SOURCE],")
     }
 }

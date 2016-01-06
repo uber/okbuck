@@ -1,5 +1,12 @@
 package com.github.piasy.okbuck.example;
 
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
+import butterknife.ButterKnife;
 import com.example.hellojni.HelloJni;
 import com.github.piasy.okbuck.example.common.Calc;
 import com.github.piasy.okbuck.example.common.CalcMonitor;
@@ -7,17 +14,7 @@ import com.github.piasy.okbuck.example.dummylibrary.DummyActivity;
 import com.github.piasy.okbuck.example.dummylibrary.DummyAndroidClass;
 import com.github.piasy.okbuck.example.javalib.DummyJavaClass;
 import com.promegu.xlog.base.XLog;
-
-import android.content.Intent;
-import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.view.View;
-import android.widget.TextView;
-
 import javax.inject.Inject;
-
-import butterknife.ButterKnife;
 
 /**
  * Created by Piasy{github.com/Piasy} on 15/10/3.
