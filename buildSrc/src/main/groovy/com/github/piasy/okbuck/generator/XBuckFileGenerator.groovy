@@ -460,11 +460,11 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
                     rules.add(new AndroidBinaryRule("bin_${flavor}_debug", Arrays.asList("PUBLIC"),
                             binDeps, ":manifest",
                             "//${mKeystoreDir}${ProjectHelper.getProjectPathDiff(mRootProject, project)}:key_store",
-                            mLinearAllocHardLimit, mPrimaryDexPatterns))
+                            mLinearAllocHardLimit, mPrimaryDexPatterns, exopackage))
                 } else {
                     rules.add(new AndroidBinaryRule("bin_${flavor}_debug", Arrays.asList("PUBLIC"),
                             binDeps, ":manifest",
-                            "//${mKeystoreDir}${ProjectHelper.getProjectPathDiff(mRootProject, project)}:key_store"))
+                            "//${mKeystoreDir}${ProjectHelper.getProjectPathDiff(mRootProject, project)}:key_store", exopackage))
                 }
 
                 binDeps = new ArrayList<>()
@@ -490,12 +490,12 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
                             new AndroidBinaryRule("bin_${flavor}_release", Arrays.asList("PUBLIC"),
                                     binDeps, ":manifest",
                                     "//${mKeystoreDir}${ProjectHelper.getProjectPathDiff(mRootProject, project)}:key_store",
-                                    mLinearAllocHardLimit, mPrimaryDexPatterns))
+                                    mLinearAllocHardLimit, mPrimaryDexPatterns, exopackage))
                 } else {
                     rules.add(
                             new AndroidBinaryRule("bin_${flavor}_release", Arrays.asList("PUBLIC"),
                                     binDeps, ":manifest",
-                                    "//${mKeystoreDir}${ProjectHelper.getProjectPathDiff(mRootProject, project)}:key_store"))
+                                    "//${mKeystoreDir}${ProjectHelper.getProjectPathDiff(mRootProject, project)}:key_store", exopackage))
                 }
             }
         } else {
@@ -515,11 +515,11 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
                 rules.add(new AndroidBinaryRule("bin_debug", Arrays.asList("PUBLIC"),
                         binDeps, ":manifest",
                         "//${mKeystoreDir}${ProjectHelper.getProjectPathDiff(mRootProject, project)}:key_store",
-                        mLinearAllocHardLimit, mPrimaryDexPatterns))
+                        mLinearAllocHardLimit, mPrimaryDexPatterns, exopackage))
             } else {
                 rules.add(new AndroidBinaryRule("bin_debug", Arrays.asList("PUBLIC"),
                         binDeps, ":manifest",
-                        "//${mKeystoreDir}${ProjectHelper.getProjectPathDiff(mRootProject, project)}:key_store"))
+                        "//${mKeystoreDir}${ProjectHelper.getProjectPathDiff(mRootProject, project)}:key_store", exopackage))
             }
 
             binDeps = new ArrayList<>()
@@ -537,11 +537,11 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
                 rules.add(new AndroidBinaryRule("bin_release", Arrays.asList("PUBLIC"),
                         binDeps, ":manifest",
                         "//${mKeystoreDir}${ProjectHelper.getProjectPathDiff(mRootProject, project)}:key_store",
-                        mLinearAllocHardLimit, mPrimaryDexPatterns))
+                        mLinearAllocHardLimit, mPrimaryDexPatterns, exopackage))
             } else {
                 rules.add(new AndroidBinaryRule("bin_release", Arrays.asList("PUBLIC"),
                         binDeps, ":manifest",
-                        "//${mKeystoreDir}${ProjectHelper.getProjectPathDiff(mRootProject, project)}:key_store"))
+                        "//${mKeystoreDir}${ProjectHelper.getProjectPathDiff(mRootProject, project)}:key_store", exopackage))
             }
         }
     }

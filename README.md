@@ -140,6 +140,8 @@ User | Repo
 If you are using OkBuck in your open source project, [send me a e-mail](mailto:xz4215@gmail.com) with your repo url, I'll add your repo in this list.
 
 ## Change log
++  0.4.9: fix bug in exopackage
++  0.4.8: minimal support for exopackage
 +  0.4.7: add multidex support, see more at [wiki page Multidex support](https://github.com/Piasy/OkBuck/wiki/Multidex-support)
 +  0.4.6: solve problems when generate `AndroidManifest.xml` like below:
   
