@@ -45,9 +45,11 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
 
     public XBuckFileGenerator(
             Project rootProject, DependencyAnalyzer dependencyAnalyzer, File okBuckDir,
-            Map<String, String> resPackages, String keystoreDir, String signConfigName
+            Map<String, String> resPackages, String keystoreDir, String signConfigName,
+            int linearAllocHardLimit, List<String> primaryDexPatterns
     ) {
-        super(rootProject, dependencyAnalyzer, okBuckDir, resPackages, keystoreDir, signConfigName)
+        super(rootProject, dependencyAnalyzer, okBuckDir, resPackages, keystoreDir, signConfigName,
+                linearAllocHardLimit, primaryDexPatterns)
     }
 
     @Override
@@ -376,10 +378,16 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
                         ProjectHelper.getProjectResDir(project, "${flavor}Debug"))) {
                     binDeps.add(":res_${flavor}_debug")
                 }
-                rules.add(new AndroidBinaryRule("bin_${flavor}_debug", Arrays.asList("PUBLIC"),
-                        binDeps, ":manifest",
-                        "//${mKeystoreDir}${ProjectHelper.getProjectPathDiff(mRootProject, project)}:key_store",
-                        ProjectHelper.getMultiDexEnabled(project)))
+                if (ProjectHelper.getMultiDexEnabled(project)) {
+                    rules.add(new AndroidBinaryRule("bin_${flavor}_debug", Arrays.asList("PUBLIC"),
+                            binDeps, ":manifest",
+                            "//${mKeystoreDir}${ProjectHelper.getProjectPathDiff(mRootProject, project)}:key_store",
+                            mLinearAllocHardLimit, mPrimaryDexPatterns))
+                } else {
+                    rules.add(new AndroidBinaryRule("bin_${flavor}_debug", Arrays.asList("PUBLIC"),
+                            binDeps, ":manifest",
+                            "//${mKeystoreDir}${ProjectHelper.getProjectPathDiff(mRootProject, project)}:key_store"))
+                }
 
                 binDeps = new ArrayList<>()
                 binDeps.add(":src_${flavor}_release")
@@ -396,10 +404,18 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
                         ProjectHelper.getProjectResDir(project, "${flavor}Release"))) {
                     binDeps.add(":res_${flavor}_release")
                 }
-                rules.add(new AndroidBinaryRule("bin_${flavor}_release", Arrays.asList("PUBLIC"),
-                        binDeps, ":manifest",
-                        "//${mKeystoreDir}${ProjectHelper.getProjectPathDiff(mRootProject, project)}:key_store",
-                        ProjectHelper.getMultiDexEnabled(project)))
+                if (ProjectHelper.getMultiDexEnabled(project)) {
+                    rules.add(
+                            new AndroidBinaryRule("bin_${flavor}_release", Arrays.asList("PUBLIC"),
+                                    binDeps, ":manifest",
+                                    "//${mKeystoreDir}${ProjectHelper.getProjectPathDiff(mRootProject, project)}:key_store",
+                                    mLinearAllocHardLimit, mPrimaryDexPatterns))
+                } else {
+                    rules.add(
+                            new AndroidBinaryRule("bin_${flavor}_release", Arrays.asList("PUBLIC"),
+                                    binDeps, ":manifest",
+                                    "//${mKeystoreDir}${ProjectHelper.getProjectPathDiff(mRootProject, project)}:key_store"))
+                }
             }
         } else {
             addManifestRule(finalDependenciesGraph, project, rules, "main", "main")
@@ -411,10 +427,16 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
             if (!StringUtil.isEmpty(ProjectHelper.getProjectResDir(project, "debug"))) {
                 binDeps.add(":res_debug")
             }
-            rules.add(new AndroidBinaryRule("bin_debug", Arrays.asList("PUBLIC"),
-                    binDeps, ":manifest",
-                    "//${mKeystoreDir}${ProjectHelper.getProjectPathDiff(mRootProject, project)}:key_store",
-                    ProjectHelper.getMultiDexEnabled(project)))
+            if (ProjectHelper.getMultiDexEnabled(project)) {
+                rules.add(new AndroidBinaryRule("bin_debug", Arrays.asList("PUBLIC"),
+                        binDeps, ":manifest",
+                        "//${mKeystoreDir}${ProjectHelper.getProjectPathDiff(mRootProject, project)}:key_store",
+                        mLinearAllocHardLimit, mPrimaryDexPatterns))
+            } else {
+                rules.add(new AndroidBinaryRule("bin_debug", Arrays.asList("PUBLIC"),
+                        binDeps, ":manifest",
+                        "//${mKeystoreDir}${ProjectHelper.getProjectPathDiff(mRootProject, project)}:key_store"))
+            }
 
             binDeps = new ArrayList<>()
             binDeps.add(":src_release")
@@ -424,10 +446,16 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
             if (!StringUtil.isEmpty(ProjectHelper.getProjectResDir(project, "debug"))) {
                 binDeps.add(":res_release")
             }
-            rules.add(new AndroidBinaryRule("bin_release", Arrays.asList("PUBLIC"),
-                    binDeps, ":manifest",
-                    "//${mKeystoreDir}${ProjectHelper.getProjectPathDiff(mRootProject, project)}:key_store",
-                    ProjectHelper.getMultiDexEnabled(project)))
+            if (ProjectHelper.getMultiDexEnabled(project)) {
+                rules.add(new AndroidBinaryRule("bin_release", Arrays.asList("PUBLIC"),
+                        binDeps, ":manifest",
+                        "//${mKeystoreDir}${ProjectHelper.getProjectPathDiff(mRootProject, project)}:key_store",
+                        mLinearAllocHardLimit, mPrimaryDexPatterns))
+            } else {
+                rules.add(new AndroidBinaryRule("bin_release", Arrays.asList("PUBLIC"),
+                        binDeps, ":manifest",
+                        "//${mKeystoreDir}${ProjectHelper.getProjectPathDiff(mRootProject, project)}:key_store"))
+            }
         }
     }
 

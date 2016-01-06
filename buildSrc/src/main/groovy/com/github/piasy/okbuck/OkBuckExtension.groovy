@@ -57,4 +57,14 @@ public class OkBuckExtension {
      * including string resources, color resources, etc, and BuildConfig.java.
      * */
     Map<String, String> resPackages
+
+    /**
+     * linearAllocHardLimit used for multi-dex support.
+     * */
+    int linearAllocHardLimit = 65535
+
+    /**
+     * primary dex class patterns.
+     * */
+    List<String> primaryDexPatterns = new ArrayList<>()
 }
