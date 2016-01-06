@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Piasy
+ * Copyright (c) 2016 Piasy
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,30 +22,24 @@
  * SOFTWARE.
  */
 
-package com.github.piasy.okbuck.example;
+package com.github.piasy.okbuck.rules
+import com.github.piasy.okbuck.rules.base.AbstractBuckRule
 
-import android.app.Application;
-import com.facebook.buck.android.support.exopackage.DefaultApplicationLike;
-import com.github.promeg.xlog_android.lib.XLogConfig;
-import com.squareup.leakcanary.LeakCanary;
+import static com.github.piasy.okbuck.helper.CheckUtil.checkStringNotEmpty
 
 /**
- * Created by Piasy{github.com/Piasy} on 15/10/6.
- */
-public class MyApp extends DefaultApplicationLike {
+ * APP_CLASS_SOURCE for exopackage
+ * */
+public final class AppClassSourceRule extends AbstractBuckRule {
+    private final String mAppClassSource
 
-    private final Application mApplication;
-
-    public MyApp(Application application) {
-        mApplication = application;
+    public AppClassSourceRule(String appClassSource) {
+        checkStringNotEmpty(appClassSource, "AppClassSourceRule appClassSource can't be empty.")
+        mAppClassSource = appClassSource
     }
 
     @Override
-    public void onCreate() {
-        super.onCreate();
-        if (BuildConfig.XLOG_ENABLED) {
-            XLogConfig.config(XLogConfig.newConfigBuilder(mApplication).build());
-        }
-        LeakCanary.install(mApplication);
+    public final void print(PrintStream printer) {
+        printer.println("APP_CLASS_SOURCE = '${mAppClassSource}'")
     }
 }

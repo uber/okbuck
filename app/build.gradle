@@ -30,6 +30,7 @@ android {
         versionName "1.0"
         buildConfigField "boolean", "CAN_JUMP", "true"
         buildConfigField "boolean", "XLOG_ENABLED", "true"
+        buildConfigField "int", "EXOPACKAGE_FLAGS", "0"
     }
 
     signingConfigs {

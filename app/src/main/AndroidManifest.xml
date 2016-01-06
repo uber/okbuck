@@ -11,7 +11,7 @@
 
     <application
             android:allowBackup="true"
-            android:name=".MyApp"
+            android:name=".AppShell"
             android:label="@string/app_name"
             android:icon="@mipmap/ic_launcher"
             android:supportsRtl="true"

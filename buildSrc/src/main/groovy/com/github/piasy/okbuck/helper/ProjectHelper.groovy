@@ -31,7 +31,6 @@ import com.android.build.gradle.internal.dsl.SigningConfig
 import com.android.builder.model.BuildType
 import com.android.builder.model.ClassField
 import com.github.piasy.okbuck.rules.KeystoreRule
-import org.apache.commons.io.IOUtils
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -210,15 +209,18 @@ public final class ProjectHelper {
                             prop.type)) {
                         ProductFlavor defaultConfigs = (ProductFlavor) prop.value
                         if (defaultConfigs.applicationId != null) {
-                            buildConfigs.put("APPLICATION_ID", "String APPLICATION_ID = \"${defaultConfigs.applicationId}\"")
+                            buildConfigs.put("APPLICATION_ID",
+                                    "String APPLICATION_ID = \"${defaultConfigs.applicationId}\"")
                         }
                         buildConfigs.put("BUILD_TYPE", "String BUILD_TYPE = \"${variant}\"")
                         buildConfigs.put("FLAVOR", "String FLAVOR = \"${flavor}\"")
                         if (defaultConfigs.versionCode != null) {
-                            buildConfigs.put("VERSION_CODE", "int VERSION_CODE = ${defaultConfigs.versionCode}")
+                            buildConfigs.put("VERSION_CODE",
+                                    "int VERSION_CODE = ${defaultConfigs.versionCode}")
                         }
                         if (defaultConfigs.versionName != null) {
-                            buildConfigs.put("VERSION_NAME", "String VERSION_NAME = \"${defaultConfigs.versionName}\"")
+                            buildConfigs.put("VERSION_NAME",
+                                    "String VERSION_NAME = \"${defaultConfigs.versionName}\"")
                         }
 
                         for (ClassField classField : defaultConfigs.buildConfigFields.values()) {
@@ -278,7 +280,7 @@ public final class ProjectHelper {
                     } else {
                         config = signConfig.getByName(signConfigName)
                     }
-                    IOUtils.copy(new FileInputStream(config.getStoreFile()),
+                    IOHelper.copy(new FileInputStream(config.getStoreFile()),
                             new FileOutputStream(new File(
                                     dir.absolutePath + File.separator +
                                             project.name +
@@ -340,8 +342,8 @@ public final class ProjectHelper {
         switch (getSubProjectType(project)) {
             case ProjectType.AndroidAppProject:
             case ProjectType.AndroidLibProject:
-                File resDir = (File) project.android.sourceSets.getByName(flavorVariant).res.srcDirs[0]
-                [0]
+                File resDir = (File) project.android.sourceSets
+                        .getByName(flavorVariant).res.srcDirs[0]
                 if (resDir.exists()) {
                     return getDirPathDiff(project.projectDir, resDir).substring(1)
                 } else {

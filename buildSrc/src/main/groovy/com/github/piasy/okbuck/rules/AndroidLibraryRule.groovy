@@ -40,10 +40,12 @@ public final class AndroidLibraryRule extends BuckRuleWithDeps {
     private final String mManifest
     private final List<String> mAnnotationProcessors
     private final List<String> mAnnotationProcessorDeps
+    private final boolean mExcludeAppClass;
 
     public AndroidLibraryRule(
             String name, List<String> visibility, List<String> deps, Set<String> srcSet,
-            String manifest, List<String> annotationProcessors, List<String> annotationProcessorDeps
+            String manifest, List<String> annotationProcessors,
+            List<String> annotationProcessorDeps, boolean excludeAppClass
     ) {
         super("android_library", name, visibility, deps)
 
@@ -56,6 +58,7 @@ public final class AndroidLibraryRule extends BuckRuleWithDeps {
         checkNotNull(annotationProcessorDeps,
                 "AndroidLibraryRule annotation_processor_deps must be non-null.")
         mAnnotationProcessorDeps = annotationProcessorDeps
+        mExcludeAppClass = excludeAppClass
     }
 
     @Override
@@ -64,7 +67,11 @@ public final class AndroidLibraryRule extends BuckRuleWithDeps {
         for (String src : mSrcSet) {
             printer.println("\t\t'${src}',")
         }
-        printer.println("\t]),")
+        if (mExcludeAppClass) {
+            printer.println("\t], excludes = [APP_CLASS_SOURCE]),")
+        } else {
+            printer.println("\t]),")
+        }
 
         if (!StringUtil.isEmpty(mManifest)) {
             printer.println("\tmanifest = '${mManifest}',")

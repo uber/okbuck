@@ -25,9 +25,9 @@
 package com.github.piasy.okbuck.dependency
 
 import com.github.piasy.okbuck.configs.ThirdPartyDependencyBUCKFile
+import com.github.piasy.okbuck.helper.IOHelper
 import com.github.piasy.okbuck.helper.ProjectHelper
 import com.github.piasy.okbuck.rules.KeystoreRule
-import org.apache.commons.io.IOUtils
 import org.gradle.api.Project
 
 public final class DependencyProcessor {
@@ -90,7 +90,7 @@ public final class DependencyProcessor {
             }
             for (File dependency : aptDependencies.get(project)) {
                 println "copying ${dependency.absolutePath} into ${dir.absolutePath}"
-                IOUtils.copy(new FileInputStream(dependency), new FileOutputStream(
+                IOHelper.copy(new FileInputStream(dependency), new FileOutputStream(
                         new File(dir.absolutePath + File.separator + dependency.name)))
             }
         }
@@ -105,7 +105,8 @@ public final class DependencyProcessor {
                         if (!dependency.dstDirExists()) {
                             dependency.createDstDir()
                             PrintStream printer = new PrintStream(
-                                    new File(dependency.dstDirAbsolutePath() + File.separator + "BUCK"))
+                                    new File(dependency.dstDirAbsolutePath() + File.separator +
+                                            "BUCK"))
                             new ThirdPartyDependencyBUCKFile(false).print(printer)
                             printer.close()
                         }

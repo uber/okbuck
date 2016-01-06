@@ -46,10 +46,12 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
     public XBuckFileGenerator(
             Project rootProject, DependencyAnalyzer dependencyAnalyzer, File okBuckDir,
             Map<String, String> resPackages, String keystoreDir, String signConfigName,
-            int linearAllocHardLimit, List<String> primaryDexPatterns
+            int linearAllocHardLimit, List<String> primaryDexPatterns, boolean exopackage,
+            String appClassSource, List<String> appLibDependencies
     ) {
         super(rootProject, dependencyAnalyzer, okBuckDir, resPackages, keystoreDir, signConfigName,
-                linearAllocHardLimit, primaryDexPatterns)
+                linearAllocHardLimit, primaryDexPatterns, exopackage, appClassSource,
+                appLibDependencies)
     }
 
     @Override
@@ -65,10 +67,12 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
             List<AbstractBuckRule> rules = new ArrayList<>()
             switch (ProjectHelper.getSubProjectType(project)) {
                 case ProjectHelper.ProjectType.AndroidAppProject:
-                    createAndroidAppRules(project, finalDependenciesGraph, rules)
+                    createAndroidAppRules(project, finalDependenciesGraph, mAppClassSource,
+                            matchAppLibDependencies(mAppLibDependencies, finalDependenciesGraph),
+                            mExopackage, rules)
                     break
                 case ProjectHelper.ProjectType.AndroidLibProject:
-                    createAndroidLibraryRules(project, finalDependenciesGraph, rules, true)
+                    createAndroidLibraryRules(project, finalDependenciesGraph, rules, true, false)
                     break
                 case ProjectHelper.ProjectType.JavaLibProject:
                     createJavaLibraryRules(finalDependenciesGraph.get(project).get("main"), project,
@@ -85,6 +89,36 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
         }
 
         return buckFileMap
+    }
+
+    private static List<Dependency> matchAppLibDependencies(
+            List<String> deps, Map<Project, Map<String, Set<Dependency>>> finalDependenciesGraph
+    ) {
+        List<Dependency> dependencies = new ArrayList<>()
+        for (String dep : deps) {
+            boolean found = false
+            for (Project prj : finalDependenciesGraph.keySet()) {
+                if (found) {
+                    break
+                }
+                for (String flavor : finalDependenciesGraph.get(prj).keySet()) {
+                    if (found) {
+                        break
+                    }
+                    for (Dependency dependency : finalDependenciesGraph.get(prj).get(flavor)) {
+                        if (dependency.depFile.name.contains(dep)) {
+                            dependencies.add(dependency)
+                            found = true
+                            break
+                        }
+                    }
+                }
+            }
+            if (!found) {
+                throw new IllegalStateException("App lib's dependency '${dep}' could not be found")
+            }
+        }
+        return dependencies
     }
 
     private void createJavaLibraryRules(
@@ -117,9 +151,43 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
                 mainSrcSet.toList()))
     }
 
+    private static void createExopackageRules(
+            Project project, String appClassSource, List<Dependency> dependencies,
+            List<AbstractBuckRule> rules
+    ) {
+        rules.add(new AppClassSourceRule(appClassSource))
+        List<String> deps = new ArrayList<>()
+        for (Dependency dependency : dependencies) {
+            deps.add(dependency.srcCanonicalName())
+        }
+        if (ProjectHelper.exportFlavor(project)) {
+            for (String flavor : ProjectHelper.getProductFlavors(project).keySet()) {
+                List<String> debugDeps = new ArrayList<>(deps)
+                debugDeps.add(":build_config_${flavor}_debug")
+                rules.add(new ExopackageAndroidLibraryRule("app_lib_${flavor}_debug",
+                        Arrays.asList("PUBLIC"), debugDeps))
+
+                List<String> releaseDeps = new ArrayList<>(deps)
+                releaseDeps.add(":build_config_${flavor}_release")
+                rules.add(new ExopackageAndroidLibraryRule("app_lib_${flavor}_release",
+                        Arrays.asList("PUBLIC"), releaseDeps))
+            }
+        } else {
+            List<String> debugDeps = new ArrayList<>(deps)
+            debugDeps.add(":build_config_debug")
+            rules.add(new ExopackageAndroidLibraryRule("app_lib_debug", Arrays.asList("PUBLIC"),
+                    debugDeps))
+
+            List<String> releaseDeps = new ArrayList<>(deps)
+            releaseDeps.add(":build_config_release")
+            rules.add(new ExopackageAndroidLibraryRule("app_lib_release", Arrays.asList("PUBLIC"),
+                    releaseDeps))
+        }
+    }
+
     private void createAndroidLibraryRules(
             Project project, Map<Project, Map<String, Set<Dependency>>> finalDependenciesGraph,
-            List<AbstractBuckRule> rules, boolean includeManifest
+            List<AbstractBuckRule> rules, boolean includeManifest, boolean excludeAppClass
     ) {
         checkStringNotEmpty(mResPackages.get(project.name),
                 "resPackage key-value pair must be set for sub project ${project.name}");
@@ -152,9 +220,11 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
             // src rule
             for (String flavor : ProjectHelper.getProductFlavors(project).keySet()) {
                 addAndroidLibraryRule(project, finalDependenciesGraph, rules, flavor, "debug",
-                        "${flavor}_debug", "src_${flavor}_debug", false, includeManifest)
+                        "${flavor}_debug", "src_${flavor}_debug", false, includeManifest,
+                        excludeAppClass)
                 addAndroidLibraryRule(project, finalDependenciesGraph, rules, flavor, "release",
-                        "${flavor}_release", "src_${flavor}_release", false, includeManifest)
+                        "${flavor}_release", "src_${flavor}_release", false, includeManifest,
+                        excludeAppClass)
             }
         } else {
             if (includeManifest) {
@@ -191,13 +261,13 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
             if (includeManifest) {
                 // lib
                 addAndroidLibraryRule(project, finalDependenciesGraph, rules, null, null, "release",
-                        "src", true, includeManifest)
+                        "src", true, includeManifest, excludeAppClass)
             } else {
                 // app
                 addAndroidLibraryRule(project, finalDependenciesGraph, rules, "main", "debug",
-                        "debug", "src_debug", false, includeManifest)
+                        "debug", "src_debug", false, includeManifest, excludeAppClass)
                 addAndroidLibraryRule(project, finalDependenciesGraph, rules, "main", "release",
-                        "release", "src_release", false, includeManifest)
+                        "release", "src_release", false, includeManifest, excludeAppClass)
             }
         }
 
@@ -216,7 +286,8 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
     private void addAndroidLibraryRule(
             Project project, Map<Project, Map<String, Set<Dependency>>> finalDependenciesGraph,
             List<AbstractBuckRule> rules, String selfFlavor, String selfVariant,
-            String depsOfFlavor, String ruleName, boolean defaultFlavor, boolean includeManifest
+            String depsOfFlavor, String ruleName, boolean defaultFlavor, boolean includeManifest,
+            boolean excludeAppClass
     ) {
         List<String> deps = new ArrayList<>()
         Set<String> srcSet = new HashSet<>()
@@ -332,7 +403,7 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
         rules.add(new AndroidLibraryRule(ruleName, Arrays.asList("PUBLIC"), deps, srcSet,
                 includeManifest ? ProjectHelper.getProjectManifestFile(project, "main") : null,
                 mDependencyAnalyzer.annotationProcessors.get(project).asList(),
-                annotationProcessorDeps))
+                annotationProcessorDeps, excludeAppClass))
     }
 
     private void addAndroidResRule(
@@ -357,9 +428,13 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
 
     private void createAndroidAppRules(
             Project project, Map<Project, Map<String, Set<Dependency>>> finalDependenciesGraph,
+            String appClassSource, List<Dependency> exopackageRuleDependencies, boolean exopackage,
             List<AbstractBuckRule> rules
     ) {
-        createAndroidLibraryRules(project, finalDependenciesGraph, rules, false)
+        if (exopackage) {
+            createExopackageRules(project, appClassSource, exopackageRuleDependencies, rules)
+        }
+        createAndroidLibraryRules(project, finalDependenciesGraph, rules, false, exopackage)
         if (ProjectHelper.exportFlavor(project)) {
             addManifestRule(finalDependenciesGraph, project, rules, "main", "main")
             for (String flavor : ProjectHelper.getProductFlavors(project).keySet()) {
@@ -377,6 +452,9 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
                 if (!StringUtil.isEmpty(
                         ProjectHelper.getProjectResDir(project, "${flavor}Debug"))) {
                     binDeps.add(":res_${flavor}_debug")
+                }
+                if (exopackage) {
+                    binDeps.add(":app_lib_${flavor}_debug")
                 }
                 if (ProjectHelper.getMultiDexEnabled(project)) {
                     rules.add(new AndroidBinaryRule("bin_${flavor}_debug", Arrays.asList("PUBLIC"),
@@ -404,6 +482,9 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
                         ProjectHelper.getProjectResDir(project, "${flavor}Release"))) {
                     binDeps.add(":res_${flavor}_release")
                 }
+                if (exopackage) {
+                    binDeps.add(":app_lib_${flavor}_release")
+                }
                 if (ProjectHelper.getMultiDexEnabled(project)) {
                     rules.add(
                             new AndroidBinaryRule("bin_${flavor}_release", Arrays.asList("PUBLIC"),
@@ -427,6 +508,9 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
             if (!StringUtil.isEmpty(ProjectHelper.getProjectResDir(project, "debug"))) {
                 binDeps.add(":res_debug")
             }
+            if (exopackage) {
+                binDeps.add(":app_lib_debug")
+            }
             if (ProjectHelper.getMultiDexEnabled(project)) {
                 rules.add(new AndroidBinaryRule("bin_debug", Arrays.asList("PUBLIC"),
                         binDeps, ":manifest",
@@ -445,6 +529,9 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
             }
             if (!StringUtil.isEmpty(ProjectHelper.getProjectResDir(project, "debug"))) {
                 binDeps.add(":res_release")
+            }
+            if (exopackage) {
+                binDeps.add(":app_lib_release")
             }
             if (ProjectHelper.getMultiDexEnabled(project)) {
                 rules.add(new AndroidBinaryRule("bin_release", Arrays.asList("PUBLIC"),

@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Piasy
+ * Copyright (c) 2016 Piasy
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,28 +24,28 @@
 
 package com.github.piasy.okbuck.example;
 
-import android.app.Application;
-import com.facebook.buck.android.support.exopackage.DefaultApplicationLike;
-import com.github.promeg.xlog_android.lib.XLogConfig;
-import com.squareup.leakcanary.LeakCanary;
+import android.support.multidex.MultiDex;
+import com.facebook.buck.android.support.exopackage.ExopackageApplication;
 
 /**
- * Created by Piasy{github.com/Piasy} on 15/10/6.
+ * Created by Piasy{github.com/Piasy} on 16/1/6.
  */
-public class MyApp extends DefaultApplicationLike {
 
-    private final Application mApplication;
+public class AppShell extends ExopackageApplication {
 
-    public MyApp(Application application) {
-        mApplication = application;
+    private final boolean mIsExopackageMode;
+
+    private static final String APP_NAME = "com.github.piasy.okbuck.example.MyApp";
+
+    public AppShell() {
+        super(APP_NAME, BuildConfig.EXOPACKAGE_FLAGS != 0);
+        mIsExopackageMode = BuildConfig.EXOPACKAGE_FLAGS != 0;
     }
 
     @Override
-    public void onCreate() {
-        super.onCreate();
-        if (BuildConfig.XLOG_ENABLED) {
-            XLogConfig.config(XLogConfig.newConfigBuilder(mApplication).build());
+    protected void onBaseContextAttached() {
+        if (!mIsExopackageMode) {
+            MultiDex.install(this);
         }
-        LeakCanary.install(mApplication);
     }
 }
