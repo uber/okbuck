@@ -134,7 +134,9 @@ class OkBuckGradlePlugin implements Plugin<Project> {
             // step 4: generate BUCK file for each sub project
             Map<Project, BUCKFile> buckFiles = new XBuckFileGenerator(project, dependencyAnalyzer,
                     okBuckDir, (Map<String, String>) project.okbuck.resPackages,
-                    (String) project.okbuck.keystoreDir, (String) project.okbuck.signConfigName).
+                    (String) project.okbuck.keystoreDir, (String) project.okbuck.signConfigName,
+                    (int) project.okbuck.linearAllocHardLimit,
+                    (List<String>) project.okbuck.primaryDexPatterns).
                     generate()
             for (Project subProject : buckFiles.keySet()) {
                 File buckFile = new File(

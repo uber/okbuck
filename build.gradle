@@ -23,14 +23,21 @@ apply plugin: 'com.github.piasy.okbuck-gradle-plugin'
 okbuck {
     target "android-23"
     overwrite true
-    keystoreDir ".okbuck/keystore"
     signConfigName "release"
     resPackages = [
-        dummylibrary: 'com.github.piasy.okbuck.example.dummylibrary',
-        app: 'com.github.piasy.okbuck.example',
-        anotherapp: 'com.github.piasy.okbuck.example.anotherapp',
-        common: 'com.github.piasy.okbuck.example.common',
-        emptylibrary: 'com.github.piasy.okbuck.example.empty',
+            dummylibrary: 'com.github.piasy.okbuck.example.dummylibrary',
+            app         : 'com.github.piasy.okbuck.example',
+            anotherapp  : 'com.github.piasy.okbuck.example.anotherapp',
+            common      : 'com.github.piasy.okbuck.example.common',
+            emptylibrary: 'com.github.piasy.okbuck.example.empty',
+    ]
+    linearAllocHardLimit 7194304
+    primaryDexPatterns = [
+            '^com/github/piasy/okbuck/example/MyApp^',
+            '^android/support/multidex/',
+            '^com/github/piasy/okbuck/example/BuildConfig^',
+            '^com/github/promeg/xlog_android/lib/XLogConfig^',
+            '^com/squareup/leakcanary/LeakCanary^',
     ]
 }
 

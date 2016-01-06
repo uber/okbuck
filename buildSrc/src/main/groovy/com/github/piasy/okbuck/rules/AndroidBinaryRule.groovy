@@ -26,6 +26,7 @@ package com.github.piasy.okbuck.rules
 
 import com.github.piasy.okbuck.rules.base.BuckRuleWithDeps
 
+import static com.github.piasy.okbuck.helper.CheckUtil.checkNotNull
 import static com.github.piasy.okbuck.helper.CheckUtil.checkStringNotEmpty
 
 /**
@@ -36,9 +37,13 @@ import static com.github.piasy.okbuck.helper.CheckUtil.checkStringNotEmpty
 public final class AndroidBinaryRule extends BuckRuleWithDeps {
     private final String mManifest
     private final String mKeystore
+    private final boolean mEnableMultiDex
+    private final int mLinearAllocHardLimit
+    private final List<String> mPrimaryDexPatterns
 
     public AndroidBinaryRule(
-            String name, List<String> visibility, List<String> deps, String manifest, String keystore
+            String name, List<String> visibility, List<String> deps, String manifest,
+            String keystore
     ) {
         super("android_binary", name, visibility, deps)
 
@@ -46,11 +51,39 @@ public final class AndroidBinaryRule extends BuckRuleWithDeps {
         mManifest = manifest
         checkStringNotEmpty(keystore, "AndroidBinaryRule keystore must be non-null.")
         mKeystore = keystore
+        mEnableMultiDex = false
+    }
+
+    public AndroidBinaryRule(
+            String name, List<String> visibility, List<String> deps, String manifest,
+            String keystore, int linearAllocHardLimit, List<String> primaryDexPatterns
+    ) {
+        super("android_binary", name, visibility, deps)
+
+        checkStringNotEmpty(manifest, "AndroidBinaryRule manifest must be non-null.")
+        mManifest = manifest
+        checkStringNotEmpty(keystore, "AndroidBinaryRule keystore must be non-null.")
+        mKeystore = keystore
+        mEnableMultiDex = true
+        mLinearAllocHardLimit = linearAllocHardLimit
+        checkNotNull(primaryDexPatterns, "AndroidBinaryRule primaryDexPatterns must be non-null.")
+        mPrimaryDexPatterns = primaryDexPatterns
     }
 
     @Override
     protected final void printSpecificPart(PrintStream printer) {
         printer.println("\tmanifest = '${mManifest}',")
         printer.println("\tkeystore = '${mKeystore}',")
+        if (mEnableMultiDex && mPrimaryDexPatterns != null) {
+            printer.println("\tuse_split_dex = True,")
+            printer.println("\tlinear_alloc_hard_limit = ${mLinearAllocHardLimit},")
+            if (!mPrimaryDexPatterns.empty) {
+                printer.println("\tprimary_dex_patterns = [")
+                for (String pattern : mPrimaryDexPatterns) {
+                    printer.println("\t\t'${pattern}',")
+                }
+                printer.println("\t],")
+            }
+        }
     }
 }
