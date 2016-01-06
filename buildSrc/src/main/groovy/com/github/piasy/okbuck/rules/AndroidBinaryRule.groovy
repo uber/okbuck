@@ -40,10 +40,11 @@ public final class AndroidBinaryRule extends BuckRuleWithDeps {
     private final boolean mEnableMultiDex
     private final int mLinearAllocHardLimit
     private final List<String> mPrimaryDexPatterns
+    private final boolean mExopackage
 
     public AndroidBinaryRule(
             String name, List<String> visibility, List<String> deps, String manifest,
-            String keystore
+            String keystore, boolean exopackage
     ) {
         super("android_binary", name, visibility, deps)
 
@@ -52,11 +53,15 @@ public final class AndroidBinaryRule extends BuckRuleWithDeps {
         checkStringNotEmpty(keystore, "AndroidBinaryRule keystore must be non-null.")
         mKeystore = keystore
         mEnableMultiDex = false
+        mLinearAllocHardLimit = 0
+        mPrimaryDexPatterns = null
+        mExopackage = exopackage
     }
 
     public AndroidBinaryRule(
             String name, List<String> visibility, List<String> deps, String manifest,
-            String keystore, int linearAllocHardLimit, List<String> primaryDexPatterns
+            String keystore, int linearAllocHardLimit, List<String> primaryDexPatterns,
+            boolean exopackage
     ) {
         super("android_binary", name, visibility, deps)
 
@@ -68,12 +73,16 @@ public final class AndroidBinaryRule extends BuckRuleWithDeps {
         mLinearAllocHardLimit = linearAllocHardLimit
         checkNotNull(primaryDexPatterns, "AndroidBinaryRule primaryDexPatterns must be non-null.")
         mPrimaryDexPatterns = primaryDexPatterns
+        mExopackage = exopackage
     }
 
     @Override
     protected final void printSpecificPart(PrintStream printer) {
         printer.println("\tmanifest = '${mManifest}',")
         printer.println("\tkeystore = '${mKeystore}',")
+        if (mExopackage) {
+            printer.println("\texopackage_modes = ['secondary_dex'],")
+        }
         if (mEnableMultiDex && mPrimaryDexPatterns != null) {
             printer.println("\tuse_split_dex = True,")
             printer.println("\tlinear_alloc_hard_limit = ${mLinearAllocHardLimit},")
