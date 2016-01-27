@@ -414,8 +414,7 @@ public final class ProjectHelper {
         }
         try {
             for (PropertyValue prop : project.extensions.getByName("android").metaPropertyValues) {
-                if ("signingConfigs".equals(prop.name) && NamedDomainObjectContainer.class.
-                        isAssignableFrom(prop.type)) {
+                if ("signingConfigs".equals(prop.name)) {
                     NamedDomainObjectContainer<SigningConfig> signConfig = (NamedDomainObjectContainer<SigningConfig>) prop.value
                     SigningConfig config
                     if (signConfig.size() == 1) {
