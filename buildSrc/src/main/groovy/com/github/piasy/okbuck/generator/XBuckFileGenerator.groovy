@@ -552,7 +552,7 @@ public final class XBuckFileGenerator extends BuckFileGenerator {
     ) {
         List<String> manifestDeps = new ArrayList<>()
         for (Dependency dependency : finalDependenciesGraph.get(project).get(depsOfFlavor)) {
-            Project internalDep = ProjectHelper.getInternalDependencyProject(mRootProject,
+            Project internalDep = ProjectHelper.getModuleDependencyProject(mRootProject,
                     dependency.depFile)
             if (internalDep != null) {
                 // internal android lib/app module dependency

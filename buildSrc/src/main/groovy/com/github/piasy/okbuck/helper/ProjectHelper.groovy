@@ -142,9 +142,9 @@ public final class ProjectHelper {
     }
 
     /**
-     * if the dependency is an internal one, return the internal dependency project, null otherwise.
+     * if the dependency is an module dependency, return the module dependency project, null otherwise.
      * */
-    public static Project getInternalDependencyProject(Project rootProject, File dependency) {
+    public static Project getModuleDependencyProject(Project rootProject, File dependency) {
         for (Project project : rootProject.subprojects) {
             if (dependency.absolutePath.startsWith(project.buildDir.absolutePath)) {
                 return project
@@ -158,39 +158,6 @@ public final class ProjectHelper {
      * */
     public static boolean isLocalExternalDependency(Project project, File dependency) {
         return dependency.absolutePath.startsWith(project.projectDir.absolutePath + "/libs/")
-    }
-
-    /**
-     * get path diff between (sub) project and root project
-     *
-     * @return path diff, with prefix {@code File.separator}
-     * */
-    public static String getProjectPathDiff(Project rootProject, Project project) {
-        String path = project.projectDir.absolutePath
-        String rootPath = rootProject.projectDir.absolutePath
-        if (path.indexOf(rootPath) == 0) {
-            return project.projectDir.absolutePath.substring(
-                    rootProject.projectDir.absolutePath.length())
-        } else {
-            throw new IllegalArgumentException(
-                    "sub project ${project.name} must locate inside root project ${rootProject.name}'s project dir")
-        }
-    }
-
-    /**
-     * get path diff between (sub) dir and root dir
-     *
-     * @return path diff, with prefix {@code File.separator}
-     * */
-    public static String getDirPathDiff(File rootDir, File dir) {
-        String path = dir.absolutePath
-        String rootPath = rootDir.absolutePath
-        if (path.indexOf(rootPath) == 0) {
-            return dir.absolutePath.substring(rootDir.absolutePath.length())
-        } else {
-            throw new IllegalArgumentException(
-                    "sub dir ${dir.name} must locate inside root dir ${rootDir.name}")
-        }
     }
 
     /**
@@ -458,14 +425,14 @@ public final class ProjectHelper {
                 for (File srcDir :
                         project.android.sourceSets.getByName(flavorVariant).java.srcDirs) {
                     if (srcDir.exists()) {
-                        srcSet.add(getDirPathDiff(project.projectDir, srcDir).substring(1))
+                        srcSet.add(FileUtil.getDirPathDiff(project.projectDir, srcDir).substring(1))
                     }
                 }
                 break
             case ProjectType.JavaLibProject:
                 for (File srcDir : project.sourceSets.main.java.srcDirs) {
                     if (srcDir.exists()) {
-                        srcSet.add(getDirPathDiff(project.projectDir, srcDir).substring(1))
+                        srcSet.add(FileUtil.getDirPathDiff(project.projectDir, srcDir).substring(1))
                     }
                 }
                 break
@@ -484,10 +451,9 @@ public final class ProjectHelper {
         switch (getSubProjectType(project)) {
             case ProjectType.AndroidAppProject:
             case ProjectType.AndroidLibProject:
-                File resDir = (File) project.android.sourceSets
-                        .getByName(flavorVariant).res.srcDirs[0]
+                File resDir = (File) project.android.sourceSets.getByName(flavorVariant).res.srcDirs[0]
                 if (resDir.exists()) {
-                    return getDirPathDiff(project.projectDir, resDir).substring(1)
+                    return FileUtil.getDirPathDiff(project.projectDir, resDir).substring(1)
                 } else {
                     return null
                 }
@@ -509,7 +475,7 @@ public final class ProjectHelper {
                 File assetsDir = (File) project.android.sourceSets.
                         getByName(flavorVariant).assets.srcDirs[0]
                 if (assetsDir.exists()) {
-                    return getDirPathDiff(project.projectDir, assetsDir).substring(1)
+                    return FileUtil.getDirPathDiff(project.projectDir, assetsDir).substring(1)
                 } else {
                     return null
                 }
@@ -531,7 +497,7 @@ public final class ProjectHelper {
                 File manifestFile = (File) project.android.sourceSets.
                         getByName(flavorVariant).manifest.srcFile
                 if (manifestFile.exists()) {
-                    return getDirPathDiff(project.projectDir, manifestFile).substring(1)
+                    return FileUtil.getDirPathDiff(project.projectDir, manifestFile).substring(1)
                 } else {
                     return null
                 }
@@ -555,7 +521,7 @@ public final class ProjectHelper {
                 File jniLibsDir = (File) project.android.sourceSets.
                         getByName(flavorVariant).jniLibs.srcDirs[0]
                 if (jniLibsDir.exists()) {
-                    return getDirPathDiff(project.projectDir, jniLibsDir).substring(1)
+                    return FileUtil.getDirPathDiff(project.projectDir, jniLibsDir).substring(1)
                 } else {
                     return null
                 }
@@ -579,5 +545,41 @@ public final class ProjectHelper {
             println "get ${project.name}'s MultiDexEnabled fail!"
         }
         return false
+    }
+
+    public static List<String> getPresentResCanonicalNames(
+            Project module, String flavor, String variant
+    ) {
+        List<String> resNames = new ArrayList<>()
+        if (isProjectResDirPresent(module, "main")) {
+            resNames.add("res_main")
+        }
+        if (!StringUtil.isEmpty(flavor)) {
+            if (isProjectResDirPresent(module, flavor)) {
+                resNames.add("res_${flavor}")
+            }
+
+            if (!StringUtil.isEmpty(variant) &&
+                    isProjectResDirPresent(module, flavor + variant.capitalize())) {
+                resNames.add("res_${flavor}_${variant}")
+            }
+        } else if (!StringUtil.isEmpty(variant)) {
+            if (isProjectResDirPresent(module, variant)) {
+                resNames.add("res_${variant}")
+            }
+        }
+        return resNames
+    }
+
+    public static boolean isProjectResDirPresent(Project project, String flavorVariant) {
+        switch (getSubProjectType(project)) {
+            case ProjectType.AndroidAppProject:
+            case ProjectType.AndroidLibProject:
+                File resDir = (File) project.android.sourceSets.getByName(flavorVariant).res.srcDirs[0]
+                return resDir.exists()
+            case ProjectType.JavaLibProject:
+            default:
+                return false
+        }
     }
 }
