@@ -24,9 +24,13 @@
 
 package com.github.piasy.okbuck.dependency
 
+import com.github.piasy.okbuck.helper.CheckUtil
+import com.github.piasy.okbuck.helper.FileUtil
 import com.github.piasy.okbuck.helper.ProjectHelper
 import com.github.piasy.okbuck.helper.StringUtil
 import org.gradle.api.Project
+
+import javax.naming.OperationNotSupportedException
 
 /**
  * module dependency: java/android library module.
@@ -36,75 +40,42 @@ import org.gradle.api.Project
 public final class ModuleDependency extends Dependency {
 
     private final Project mModule
+    private final String mFlavor
+    private final String mVariant
 
-    private final String mResCanonicalName
-
-    private final List<String> mMultipleResCanonicalNames
-
-    private final boolean mHasFlavor
-
-    private final ProjectHelper.ProjectType mProjectType
-
-    public ModuleDependency(
-            File depFile, Project module, String srcCanonicalName, String resCanonicalName,
-            List<String> multipleResCanonicalNames
+    public static ModuleDependency forJar(
+            File localFile, File projectRootDir, Project module
     ) {
-        super(srcCanonicalName, depFile)
+        return new ModuleDependency(DependencyType.ModuleJarDependency, localFile, projectRootDir,
+                module, null, null)
+    }
+
+    public static ModuleDependency forAarWithoutFlavor(
+            File localFile, File projectRootDir, Project module, String variant
+    ) {
+        CheckUtil.checkStringNotEmpty(variant, "ModuleDependency's variant can't be empty")
+        return new ModuleDependency(DependencyType.ModuleJarDependency, localFile, projectRootDir,
+                module, null, variant)
+    }
+
+    public static ModuleDependency forAarWithFlavor(
+            File localFile, File projectRootDir, Project module, String flavor, String variant
+    ) {
+        CheckUtil.checkStringNotEmpty(flavor, "ModuleDependency's flavor can't be empty")
+        CheckUtil.checkStringNotEmpty(variant, "ModuleDependency's variant can't be empty")
+        return new ModuleDependency(DependencyType.ModuleAarDependency, localFile, projectRootDir,
+                module, flavor, variant)
+    }
+
+    private ModuleDependency(
+            DependencyType dependencyType, File localFile, File projectRootDir, Project module,
+            String flavor, String variant
+    ) {
+        super(dependencyType, localFile, projectRootDir)
+        CheckUtil.checkNotNull(module, "module can't be null")
         mModule = module
-        mHasFlavor = ProjectHelper.exportFlavor(mModule)
-        mProjectType = ProjectHelper.getSubProjectType(mModule)
-        mResCanonicalName = resCanonicalName
-        mMultipleResCanonicalNames = multipleResCanonicalNames
-    }
-
-    @Override
-    public String toString() {
-        return mModule.projectDir.absolutePath
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        return o != null && o instanceof ModuleDependency &&
-                ((ModuleDependency) o).mSrcCanonicalName.equals(mSrcCanonicalName)
-    }
-
-    @Override
-    public int hashCode() {
-        return mSrcCanonicalName.hashCode()
-    }
-
-    @Override
-    boolean hasResPart() {
-        return !StringUtil.isEmpty(mResCanonicalName) && mMultipleResCanonicalNames == null
-    }
-
-    @Override
-    String resCanonicalName() {
-        if (hasResPart()) {
-            return mResCanonicalName
-        } else {
-            throw new IllegalStateException(
-                    "ModuleDependency ${mModule.projectDir.absolutePath} has no res part")
-        }
-    }
-
-    @Override
-    boolean hasMultipleResPart() {
-        return (mProjectType == ProjectHelper.ProjectType.AndroidLibProject ||
-                mProjectType ==
-                ProjectHelper.ProjectType.AndroidAppProject) && mMultipleResCanonicalNames !=
-                null &&
-                StringUtil.isEmpty(mResCanonicalName)
-    }
-
-    @Override
-    List<String> multipleResCanonicalNames() {
-        if (hasMultipleResPart()) {
-            mMultipleResCanonicalNames
-        } else {
-            throw new IllegalStateException(
-                    "ModuleDependency ${mModule.projectDir.absolutePath} has no MultipleResPart")
-        }
+        mFlavor = flavor
+        mVariant = variant
     }
 
     @Override
@@ -113,25 +84,63 @@ public final class ModuleDependency extends Dependency {
     }
 
     @Override
-    boolean dstDirExists() {
-        return false
+    void setDstDir(File dstDir) {
+        throw new OperationNotSupportedException("ModuleDependency should not set dstDir")
     }
 
     @Override
-    void createDstDir() {
-        throw new IllegalStateException(
-                "ModuleDependency ${mModule.projectDir.absolutePath} don't need copy")
-    }
-
-    @Override
-    String dstDirAbsolutePath() {
-        throw new IllegalStateException(
-                "ModuleDependency ${mModule.projectDir.absolutePath} don't need copy")
+    File getDstDir() {
+        throw new OperationNotSupportedException("ModuleDependency has no dstDir")
     }
 
     @Override
     void copyTo() {
-        throw new IllegalStateException(
-                "ModuleDependency ${mModule.projectDir.absolutePath} don't need copy")
+        throw new OperationNotSupportedException("ModuleDependency should not copied")
+    }
+
+    @Override
+    String getSrcCanonicalName() {
+        switch (type) {
+            case DependencyType.ModuleJarDependency:
+            case DependencyType.ModuleAarDependency:
+                return getSrcCanonicalNameWithFlavorVariant()
+            default:
+                throw new IllegalArgumentException("bad type of ${mLocalFile.name}")
+        }
+    }
+
+    private String getSrcCanonicalNameWithFlavorVariant() {
+        return File.separator + FileUtil.getDirPathDiff(mRootProjectDir, mModule.projectDir) +
+                ":src" + (StringUtil.isEmpty(mFlavor) ? "" : "_${mFlavor}") +
+                (StringUtil.isEmpty(mVariant) ? "" : "_${mVariant}")
+    }
+
+    @Override
+    List<String> getResCanonicalNames() {
+        List<String> presentResNames = ProjectHelper.getPresentResCanonicalNames(mModule, mFlavor, mVariant)
+        List<String> ret = new ArrayList<>()
+        for (String name : presentResNames) {
+            ret.add(File.separator + FileUtil.getDirPathDiff(mRootProjectDir, mModule.rootDir) + ":" + name)
+        }
+        return ret
+    }
+
+    @Override
+    boolean isDuplicate(Dependency dependency) {
+        switch (getType()) {
+            case DependencyType.ModuleJarDependency:
+            case DependencyType.ModuleAarDependency:
+                ModuleDependency that = (ModuleDependency) dependency
+                return this.mModule.projectDir.equals(that.mModule.projectDir) &&
+                        StringUtil.areEquals(this.mFlavor, that.mFlavor) &&
+                        StringUtil.areEquals(this.mVariant, that.mVariant)
+            default:
+                return false
+        }
+    }
+
+    @Override
+    Dependency defensiveCopy() {
+        return this
     }
 }

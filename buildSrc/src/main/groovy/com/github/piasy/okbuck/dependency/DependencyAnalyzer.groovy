@@ -26,13 +26,13 @@ package com.github.piasy.okbuck.dependency
 
 import com.android.build.gradle.internal.dsl.ProductFlavor
 import com.github.piasy.okbuck.helper.ProjectHelper
-import com.github.piasy.okbuck.helper.StringUtil
 import org.gradle.api.Project
-
-import java.util.jar.JarEntry
-import java.util.jar.JarFile
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
 
 public final class DependencyAnalyzer {
+
+    private static Logger logger = Logging.getLogger(DependencyAnalyzer)
 
     private final Project mRootProject
 
@@ -40,588 +40,231 @@ public final class DependencyAnalyzer {
 
     private final boolean mCheckDepConflict
 
-    private final Map<Project, Map<String, Set<File>>> mDependenciesGraph = new HashMap<>()
+    private final DependencyExtractor mDependencyExtractor
 
-    private final Map<File, Set<Project>> mDependerGraph = new HashMap<>()
+    /**
+     * this will be used for android_library, manifest rules
+     * */
+    private final Map<Project, Map<String, Set<Dependency>>> mFinalDependencies
 
-    private final Map<Project, Map<String, Set<Project>>> mInternalDependencies = new HashMap<>()
-
-    private
-    final Map<Project, Map<String, Set<Dependency>>> mFinalDependenciesGraph = new HashMap<>()
-
-    private final Map<Project, Set<File>> mAptDependencies = new HashMap<>()
-
-    private final Map<Project, Set<String>> mAnnotationProcessors = new HashMap<>()
-
-    private final Map<String, Set<File>> mExternalTestDependencies = new HashMap<>()
-
-    private final Map<String, Set<Project>> mInternalTestDependencies = new HashMap<>()
-
-    public DependencyAnalyzer(Project rootProject, File okBuckDir, boolean checkDepConflict) {
+    public DependencyAnalyzer(
+            Project rootProject, File okBuckDir, boolean checkDepConflict,
+            DependencyExtractor dependencyExtractor
+    ) {
         mRootProject = rootProject
         mOkBuckDir = okBuckDir
         mCheckDepConflict = checkDepConflict
 
-        analyse()
+        mDependencyExtractor = dependencyExtractor
+        mFinalDependencies = new HashMap<>()
     }
 
-    /**
-     * analyse project dependencies, including `compile`, `apt`, `provided`, `testCompile`,
-     * `debugCompile`, `releaseCompile`, dependencies including external (maven or local jar) and
-     * internal (sub module, i.e. `compile project('prj')`).
-     * */
-    private void analyse() {
-        // NOTE!!! below step calls' order matters
-
-        // analyse apt dependencies
-        analyseAptDependencies()
-
-        // extract annotation processors
-        extractAnnotationProcessors()
-
-        // analyse compile dependencies
-        analyseCompileDependencies()
-        printDependenciesGraph()
-
-        // unique sub project's dependency, only the dependencies that
-        // **only depended by the sub project** should be contained in the unique dependencies
-        analyseDepender()
-
-        finalizeDependencies()
+    public Map<Project, Map<String, Set<Dependency>>> getFinalDependencies() {
+        return mFinalDependencies
     }
 
-    public Map<Project, Map<String, Set<Dependency>>> getFinalDependenciesGraph() {
-        return mFinalDependenciesGraph
+    public Map<Project, Map<String, Set<Dependency>>> getFullDependencies() {
+        return mDependencyExtractor.fullDependencies
     }
 
-    public Map<Project, Set<File>> getAptDependencies() {
-        return mAptDependencies
+    public Map<Project, Set<Dependency>> getAptDependencies() {
+        return mDependencyExtractor.aptDependencies
     }
 
     public Map<Project, Set<String>> getAnnotationProcessors() {
-        return mAnnotationProcessors
+        return mDependencyExtractor.annotationProcessors
     }
 
-    private analyseAptDependencies() {
+    public void analyse() {
+        mDependencyExtractor.extract()
+
+        combineFlavorVariant()
+
+        if (mCheckDepConflict) {
+            checkDependencyDiffersByVersion()
+        }
+
+        allocateDstDir()
+        printDependenciesGraph()
+    }
+
+    private void combineFlavorVariant() {
         for (Project project : mRootProject.subprojects) {
-            if (ProjectHelper.getSubProjectType(project) == ProjectHelper.ProjectType.Unknown) {
-                continue
-            }
-            mAptDependencies.put(project, new HashSet<File>())
-            try {
-                for (File dependency : project.configurations.getByName("apt").resolve()) {
-                    mAptDependencies.get(project).add(dependency)
-                }
-            } catch (Exception e) {
-                println "${project.name} doesn't contain apt configuration"
-            }
-            try {
-                for (File dependency : project.configurations.getByName("provided").resolve()) {
-                    mAptDependencies.get(project).add(dependency)
-                }
-            } catch (Exception e) {
-                println "${project.name} doesn't contain provided configuration"
+            switch (ProjectHelper.getSubProjectType(project)) {
+                case ProjectHelper.ProjectType.JavaLibProject:
+                    mFinalDependencies.put(project, new HashMap<String, Set<Dependency>>())
+                    Set<Dependency> mainDeps = new HashSet<>()
+                    for (Dependency mainDep : fullDependencies.get(project).get("main")) {
+                        mainDeps.add(mainDep.defensiveCopy())
+                    }
+                    mFinalDependencies.get(project).put("main", mainDeps)
+                    break
+                case ProjectHelper.ProjectType.AndroidLibProject:
+                    mFinalDependencies.put(project, new HashMap<String, Set<Dependency>>())
+                    if (ProjectHelper.exportFlavor(project)) {
+                        Map<String, ProductFlavor> flavorMap = ProjectHelper.getProductFlavors(
+                                project)
+                        for (String flavor : flavorMap.keySet()) {
+                            mFinalDependencies.get(project).put((String) "${flavor}_debug",
+                                    combineFlavorVariant(fullDependencies.get(project),
+                                            flavor, "debug"))
+                            mFinalDependencies.get(project).put((String) "${flavor}_release",
+                                    combineFlavorVariant(fullDependencies.get(project),
+                                            flavor, "release"))
+                        }
+                    } else {
+                        mFinalDependencies.get(project).put("main_release",
+                                combineVariant(fullDependencies.get(project), "release"))
+                    }
+                    break
+                case ProjectHelper.ProjectType.AndroidAppProject:
+                    mFinalDependencies.put(project, new HashMap<String, Set<Dependency>>())
+                    if (ProjectHelper.exportFlavor(project)) {
+                        Map<String, ProductFlavor> flavorMap = ProjectHelper.getProductFlavors(
+                                project)
+                        for (String flavor : flavorMap.keySet()) {
+                            mFinalDependencies.get(project).put((String) "${flavor}_debug",
+                                    combineFlavorVariant(fullDependencies.get(project),
+                                            flavor, "debug"))
+                            mFinalDependencies.get(project).put((String) "${flavor}_release",
+                                    combineFlavorVariant(fullDependencies.get(project),
+                                            flavor, "release"))
+                        }
+                    } else {
+                        mFinalDependencies.get(project).put("main_debug",
+                                combineVariant(fullDependencies.get(project), "debug"))
+                        mFinalDependencies.get(project).put("main_release",
+                                combineVariant(fullDependencies.get(project), "release"))
+                    }
+                    break
+                default:
+                    break
             }
         }
     }
 
-    private extractAnnotationProcessors() {
-        for (Project project : mRootProject.subprojects) {
-            if (ProjectHelper.getSubProjectType(project) == ProjectHelper.ProjectType.Unknown) {
-                continue
+    private static Set<Dependency> combineVariant(
+            Map<String, Set<Dependency>> origin, String variant
+    ) {
+        Set<Dependency> combined = new HashSet<>()
+        Set<Dependency> mainDeps = origin.get("main")
+        Set<Dependency> variantDeps = origin.get(variant)
+        combined.addAll(mainDeps)
+        for (Dependency variantDep : variantDeps) {
+            if (!combined.contains(variantDep)) {
+                combined.add(variantDep)
             }
-            mAnnotationProcessors.put(project, new HashSet<String>())
-            for (File file : mAptDependencies.get(project)) {
-                try {
-                    JarFile jar = new JarFile(file)
-                    for (JarEntry entry : jar.entries()) {
-                        if (entry.name.equals(
-                                "META-INF/services/javax.annotation.processing.Processor")) {
-                            BufferedReader reader = new BufferedReader(
-                                    new InputStreamReader(jar.getInputStream(entry)))
-                            String processor;
-                            while ((processor = reader.readLine()) != null) {
-                                mAnnotationProcessors.get(project).add(processor)
-                            }
-                            reader.close()
+        }
+
+        return combined
+    }
+
+    private static Set<Dependency> combineFlavorVariant(
+            Map<String, Set<Dependency>> origin, String flavor, String variant
+    ) {
+        Set<Dependency> combined = new HashSet<>()
+        Set<Dependency> mainDeps = origin.get("main")
+        Set<Dependency> flavorDeps = origin.get(flavor)
+        Set<Dependency> variantDeps = origin.get(variant)
+        for (Dependency mainDep : mainDeps) {
+            combined.add(mainDep.defensiveCopy())
+        }
+        for (Dependency variantDep : variantDeps) {
+            if (!combined.contains(variantDep)) {
+                combined.add(variantDep.defensiveCopy())
+            }
+        }
+        for (Dependency flavorDep : flavorDeps) {
+            if (!combined.contains(flavorDep)) {
+                combined.add(flavorDep.defensiveCopy())
+            }
+        }
+
+        return combined
+    }
+
+    private void checkDependencyDiffersByVersion() {
+        for (Project project : mFinalDependencies.keySet()) {
+            for (String flavorVariant : mFinalDependencies.get(project).keySet()) {
+                for (Dependency each : mFinalDependencies.get(project).get(flavorVariant)) {
+                    for (Dependency other : mFinalDependencies.get(project).get(flavorVariant)) {
+                        if (!each.equals(other) && each.isDuplicate(other)) {
+                            logger.warn "${each.getDepFile().absolutePath} is duplicated with " +
+                                    "${other.getDepFile().absolutePath}"
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void allocateDstDir() {
+        for (Project project : mFinalDependencies.keySet()) {
+            for (String flavorVariant : mFinalDependencies.get(project).keySet()) {
+                for (Dependency each : mFinalDependencies.get(project).get(flavorVariant)) {
+                    switch (each.type) {
+                        case Dependency.DependencyType.LocalJarDependency:
+                        case Dependency.DependencyType.LocalAarDependency:
+                        case Dependency.DependencyType.MavenJarDependency:
+                        case Dependency.DependencyType.MavenAarDependency:
+                            each.setDstDir(new File(mOkBuckDir.absolutePath + File.separator +
+                                    project.name + "_${flavorVariant}"))
                             break
-                        }
+                        default:
+                            break
                     }
-                } catch (Exception e) {
-                    println "extract processor from ${file.absolutePath} failed!"
                 }
             }
         }
-    }
 
-    private analyseCompileDependencies() {
-        for (Project project : mRootProject.subprojects) {
-            ProjectHelper.ProjectType type = ProjectHelper.getSubProjectType(project)
-            if (type == ProjectHelper.ProjectType.Unknown) {
-                continue
-            }
-            // for each sub project
-            mDependenciesGraph.put(project, new HashMap<String, Set<File>>())
-            mInternalDependencies.put(project, new HashMap<String, Set<Project>>())
-            try {
-                mDependenciesGraph.get(project).put("main", new HashSet<File>())
-                mInternalDependencies.get(project).put("main", new HashSet<Project>())
-                for (File dependency : project.configurations.getByName("compile").resolve()) {
-                    mDependenciesGraph.get(project).get("main").add(dependency)
-                    Project internalDep = ProjectHelper.
-                            getInternalDependencyProject(mRootProject, dependency)
-                    if (internalDep != null) {
-                        mInternalDependencies.get(project).get("main").add(internalDep)
+        for (Project project : fullDependencies.keySet()) {
+            for (String flavor : fullDependencies.get(project).keySet()) {
+                for (Dependency each : fullDependencies.get(project).get(flavor)) {
+                    switch (each.type) {
+                        case Dependency.DependencyType.LocalJarDependency:
+                        case Dependency.DependencyType.LocalAarDependency:
+                        case Dependency.DependencyType.MavenJarDependency:
+                        case Dependency.DependencyType.MavenAarDependency:
+                            each.setDstDir(new File(mOkBuckDir.absolutePath + File.separator +
+                                    project.name + "_${flavor}"))
+                            break
+                        default:
+                            break
                     }
                 }
-            } catch (Exception e) {
-                println "${project.name} doesn't have compile dependencies"
             }
+        }
 
-            if (type == ProjectHelper.ProjectType.JavaLibProject) {
-                continue
-            }
-            try {
-                mDependenciesGraph.get(project).put("debug", new HashSet<File>())
-                mInternalDependencies.get(project).put("debug", new HashSet<Project>())
-                for (File dependency : project.configurations.getByName("debugCompile").resolve()) {
-                    mDependenciesGraph.get(project).get("debug").add(dependency)
-                    Project internalDep = ProjectHelper.
-                            getInternalDependencyProject(mRootProject, dependency)
-                    if (internalDep != null) {
-                        mInternalDependencies.get(project).get("debug").add(internalDep)
-                    }
-                }
-            } catch (Exception e) {
-                println "${project.name} doesn't have debugCompile dependencies"
-            }
-
-            try {
-                mDependenciesGraph.get(project).put("release", new HashSet<File>())
-                mInternalDependencies.get(project).put("release", new HashSet<Project>())
-                for (File dependency :
-                        project.configurations.getByName("releaseCompile").resolve()) {
-                    mDependenciesGraph.get(project).get("release").add(dependency)
-                    Project internalDep = ProjectHelper.
-                            getInternalDependencyProject(mRootProject, dependency)
-                    if (internalDep != null) {
-                        mInternalDependencies.get(project).get("release").add(internalDep)
-                    }
-                }
-            } catch (Exception e) {
-                println "${project.name} doesn't have releaseCompile dependencies"
-            }
-
-            if (ProjectHelper.exportFlavor(project)) {
-                Map<String, ProductFlavor> flavorMap = ProjectHelper.getProductFlavors(project)
-                for (String flavor : flavorMap.keySet()) {
-                    try {
-                        mDependenciesGraph.get(project).put(flavor, new HashSet<File>())
-                        mInternalDependencies.get(project).put(flavor, new HashSet<Project>())
-                        for (File dependency :
-                                project.configurations.getByName("${flavor}Compile").resolve()) {
-                            mDependenciesGraph.get(project).get(flavor).add(dependency)
-                            Project internalDep = ProjectHelper.
-                                    getInternalDependencyProject(mRootProject, dependency)
-                            if (internalDep != null) {
-                                mInternalDependencies.get(project).get(flavor).add(internalDep)
-                            }
-                        }
-                    } catch (Exception e) {
-                        println "${project.name} doesn't have ${flavor}Compile dependencies"
-                    }
+        for (Project project : aptDependencies.keySet()) {
+            for (Dependency each : aptDependencies.get(project)) {
+                switch (each.type) {
+                    case Dependency.DependencyType.LocalJarDependency:
+                    case Dependency.DependencyType.LocalAarDependency:
+                    case Dependency.DependencyType.MavenJarDependency:
+                    case Dependency.DependencyType.MavenAarDependency:
+                        each.setDstDir(new File(mOkBuckDir.absolutePath + File.separator +
+                                project.name + "_apt_deps"))
+                        break
+                    default:
+                        break
                 }
             }
         }
     }
 
     private void printDependenciesGraph() {
-        for (Project project : mDependenciesGraph.keySet()) {
-            println "<<<<< ${project.name}"
-            for (String flavor : mDependenciesGraph.get(project).keySet()) {
-                println "\t<<< ${flavor}"
-                for (File dependency : mDependenciesGraph.get(project).get(flavor)) {
-                    println "\t\t${dependency.absolutePath}"
+        logger.debug "############################ mFinalDependencies start ############################"
+        for (Project project : mFinalDependencies.keySet()) {
+            logger.debug "<<<<< ${project.name}"
+            for (String flavor : mFinalDependencies.get(project).keySet()) {
+                logger.debug "\t<<< ${flavor}"
+                for (Dependency dependency : mFinalDependencies.get(project).get(flavor)) {
+                    logger.debug "\t\t${dependency.toString()} @@ ${dependency.srcCanonicalName}"
                 }
-                println "\t>>>"
+                logger.debug "\t>>>"
             }
-            println ">>>>>"
+            logger.debug ">>>>>"
         }
-    }
-
-    private analyseDepender() {
-        for (Project project : mDependenciesGraph.keySet()) {
-            for (String flavor : mDependenciesGraph.get(project).keySet()) {
-                for (File dependency : mDependenciesGraph.get(project).get(flavor)) {
-                    if (mDependerGraph.containsKey(dependency)) {
-                        mDependerGraph.get(dependency).add(project)
-                    } else {
-                        if (mCheckDepConflict) {
-                            checkDependencyDiffersByVersion(project, mDependerGraph.keySet(),
-                                    dependency)
-                        }
-                        Set<Project> dependerSet = new HashSet<>()
-                        dependerSet.add(project)
-                        mDependerGraph.put(dependency, dependerSet)
-                    }
-                }
-            }
-        }
-    }
-
-    private void checkDependencyDiffersByVersion(
-            Project project, Set<File> existsDeps, File newDep
-    ) {
-        // TODO this is a naive impl
-        if (ProjectHelper.getInternalDependencyProject(mRootProject, newDep) != null ||
-                !newDep.name.contains("-")) {
-            return
-        }
-        // TODO maybe tolerate it by overwrite with newer version?
-        String newDepNameSuffix = newDep.name.substring(newDep.name.lastIndexOf("."))
-        for (File existsDep : existsDeps) {
-            if (!existsDep.name.contains("-")) {
-                continue
-            }
-            if (existsDep.name.endsWith(".jar")) {
-                String existsVersion = existsDep.name.substring(existsDep.name.lastIndexOf("-") + 1,
-                        existsDep.name.indexOf(".jar"))
-                String existsName = existsDep.name.substring(0, existsDep.name.lastIndexOf("-"))
-                String newVersion = newDep.name.substring(newDep.name.lastIndexOf("-") + 1,
-                        newDep.name.indexOf(newDepNameSuffix))
-                String newName = newDep.name.substring(0, newDep.name.lastIndexOf("-"))
-                if (existsVersion.equals("debug") || existsVersion.equals("release") ||
-                        newVersion.equals("debug") ||
-                        newVersion.equals("release")) {
-                    continue
-                }
-                if (existsName.equals(newName) && !existsVersion.equals(newVersion)) {
-                    String message = "there are the same dependency with different versions: ${existsDep.name} in ["
-                    for (Project existsDepender : mDependerGraph.get(existsDep)) {
-                        message += "${existsDepender.name}, "
-                    }
-                    message += "] and ${newDep.name} in ${project.name}"
-                    throw new IllegalStateException(message)
-                }
-            } else if (existsDep.name.endsWith(".aar")) {
-                String existsVersion = existsDep.name.substring(existsDep.name.lastIndexOf("-") + 1,
-                        existsDep.name.indexOf(".aar"))
-                String existsName = existsDep.name.substring(0, existsDep.name.lastIndexOf("-"))
-                String newVersion = newDep.name.substring(newDep.name.lastIndexOf("-") + 1,
-                        newDep.name.indexOf(newDepNameSuffix))
-                String newName = newDep.name.substring(0, newDep.name.lastIndexOf("-"))
-                if (existsVersion.equals("debug") || existsVersion.equals("release") ||
-                        newVersion.equals("debug") ||
-                        newVersion.equals("release")) {
-                    continue
-                }
-                if (existsName.equals(newName) && !existsVersion.equals(newVersion)) {
-                    String message = "there are the same dependency with different versions: ${existsDep.name} in ["
-                    for (Project existsDepender : mDependerGraph.get(existsDep)) {
-                        message += "${existsDepender.name}, "
-                    }
-                    message += "] and ${newDep.name} in ${project.name}"
-                    throw new IllegalStateException(message)
-                }
-            }
-        }
-    }
-
-    private void finalizeDependencies() {
-        for (Project project : mDependenciesGraph.keySet()) {
-            mFinalDependenciesGraph.put(project, new HashMap<String, Set<Dependency>>())
-            String exportedFlavor
-            switch (ProjectHelper.getSubProjectType(project)) {
-                case ProjectHelper.ProjectType.AndroidAppProject:
-                    mFinalDependenciesGraph.get(project).put("main", new HashSet<Dependency>())
-                    addFinalDependencies4MainFlavor(project, "main")
-                    addFinalDependencies4MainFlavor(project, "debug")
-                    addFinalDependencies4MainFlavor(project, "release")
-                    if (ProjectHelper.exportFlavor(project)) {
-                        for (String flavor : ProjectHelper.getProductFlavors(project).keySet()) {
-                            addFinalDependencies4MainFlavor(project, flavor)
-
-                            exportedFlavor = "${flavor}_debug"
-                            mFinalDependenciesGraph.get(project).
-                                    put(exportedFlavor, new HashSet<Dependency>())
-                            addFinalDependencies4Flavor(project, exportedFlavor, "main")
-                            addFinalDependencies4Flavor(project, exportedFlavor, flavor)
-                            addFinalDependencies4Flavor(project, exportedFlavor, "debug")
-
-                            exportedFlavor = "${flavor}_release"
-                            mFinalDependenciesGraph.get(project).
-                                    put(exportedFlavor, new HashSet<Dependency>())
-                            addFinalDependencies4Flavor(project, exportedFlavor, "main")
-                            addFinalDependencies4Flavor(project, exportedFlavor, flavor)
-                            addFinalDependencies4Flavor(project, exportedFlavor, "release")
-                        }
-                    } else {
-                        mFinalDependenciesGraph.get(project).put("debug", new HashSet<Dependency>())
-                        addFinalDependencies4Flavor(project, "debug", "main")
-                        addFinalDependencies4Flavor(project, "debug", "debug")
-
-                        mFinalDependenciesGraph.get(project).
-                                put("release", new HashSet<Dependency>())
-                        addFinalDependencies4Flavor(project, "release", "main")
-                        addFinalDependencies4Flavor(project, "release", "release")
-                    }
-                    break
-                case ProjectHelper.ProjectType.AndroidLibProject:
-                    mFinalDependenciesGraph.get(project).put("main", new HashSet<Dependency>())
-                    addFinalDependencies4MainFlavor(project, "main")
-                    addFinalDependencies4MainFlavor(project, "release")
-                    if (ProjectHelper.exportFlavor(project)) {
-                        addFinalDependencies4MainFlavor(project, "debug")
-                        for (String flavor : ProjectHelper.getProductFlavors(project).keySet()) {
-                            addFinalDependencies4MainFlavor(project, flavor)
-
-                            exportedFlavor = "${flavor}_debug"
-                            mFinalDependenciesGraph.get(project).
-                                    put(exportedFlavor, new HashSet<Dependency>())
-                            addFinalDependencies4Flavor(project, exportedFlavor, "main")
-                            addFinalDependencies4Flavor(project, exportedFlavor, flavor)
-                            addFinalDependencies4Flavor(project, exportedFlavor, "debug")
-
-                            exportedFlavor = "${flavor}_release"
-                            mFinalDependenciesGraph.get(project).
-                                    put(exportedFlavor, new HashSet<Dependency>())
-                            addFinalDependencies4Flavor(project, exportedFlavor, "main")
-                            addFinalDependencies4Flavor(project, exportedFlavor, flavor)
-                            addFinalDependencies4Flavor(project, exportedFlavor, "release")
-                        }
-                    } else {
-                        mFinalDependenciesGraph.get(project).
-                                put("release", new HashSet<Dependency>())
-                        addFinalDependencies4Flavor(project, "release", "main")
-                        addFinalDependencies4Flavor(project, "release", "release")
-                    }
-                    break
-                case ProjectHelper.ProjectType.JavaLibProject:
-                    mFinalDependenciesGraph.get(project).put("main", new HashSet<Dependency>())
-                    addFinalDependencies4Flavor(project, "main", "main")
-                    break
-            }
-        }
-    }
-
-    private void addFinalDependencies4MainFlavor(Project project, String depsOfFlavor) {
-        for (File dependency : mDependenciesGraph.get(project).get(depsOfFlavor)) {
-            if (dependency.name.endsWith(".aar")) {
-                // android library
-                Project internalDep = ProjectHelper.getInternalDependencyProject(mRootProject,
-                        dependency)
-                if (internalDep != null) {
-                    if (internalDepHasResPart(internalDep, "main")) {
-                        String internalDepPathDiff = ProjectHelper.getProjectPathDiff(mRootProject,
-                                internalDep)
-                        // TODO multi flavor manifest support
-                        String depSrcName = "/${internalDepPathDiff}:src"
-                        if (ProjectHelper.exportFlavor(internalDep)) {
-                            for (String flavor :
-                                    ProjectHelper.getProductFlavors(internalDep).keySet()) {
-                                depSrcName = "/${internalDepPathDiff}:src_${flavor}_release"
-                            }
-                        }
-                        mFinalDependenciesGraph.get(project).
-                                get("main").
-                                add(new ModuleDependency(dependency, internalDep, depSrcName,
-                                        "/${internalDepPathDiff}:res_main", null))
-                    }
-                } else {
-                    String srcName = "//${mOkBuckDir.name}${getFileDepPathDiff(project, dependency)}:aar__${dependency.name}"
-                    // TODO better impl
-                    mFinalDependenciesGraph.get(project).
-                            get("main").
-                            add(new ModuleDependency(dependency, project, srcName, srcName, null))
-                }
-            }
-        }
-    }
-
-    private String getFileDepPathDiff(Project project, File dep) {
-        if (mDependerGraph.get(dep).size() == 1) {
-            // only one depender, this project is its root depender
-            return ProjectHelper.getProjectPathDiff(mRootProject, project)
-        } else {
-            // many depender, find the root one, or deps_common
-            Project rootDepender = rootDepender(mDependerGraph.get(dep))
-            if (rootDepender != null) {
-                return ProjectHelper.getProjectPathDiff(mRootProject, rootDepender)
-            } else {
-                return getDepsCommonPathDiff(mDependerGraph.get(dep))
-            }
-        }
-    }
-
-    private void addFinalDependencies4Flavor(
-            Project project, String exportedFlavor,
-            String depsOfFlavor
-    ) {
-        for (File dependency : mDependenciesGraph.get(project).get(depsOfFlavor)) {
-            Dependency finalDependency
-            if (mDependerGraph.get(dependency).size() == 1) {
-                // only one depender, this project is its root depender
-                finalDependency =
-                        createFinalDependency(
-                                ProjectHelper.getProjectPathDiff(mRootProject, project),
-                                dependency, project)
-            } else {
-                // many depender, find the root one, or deps_common
-                finalDependency =
-                        createFinalDependency(mDependerGraph.get(dependency), dependency,
-                                project)
-            }
-            mFinalDependenciesGraph.get(project).get(exportedFlavor).add(finalDependency)
-        }
-    }
-
-    private Dependency createFinalDependency(
-            String dependerPathDiff, File dependency,
-            Project project
-    ) {
-        File dstDir = new File(mOkBuckDir.absolutePath + dependerPathDiff)
-
-        Project internalDep = ProjectHelper.
-                getInternalDependencyProject(mRootProject, dependency)
-
-        if (internalDep == null) {
-            // this dependency is an external one
-            // TODO multiple os family support
-            if (ProjectHelper.isLocalExternalDependency(project, dependency)) {
-                // local libs
-                return new LocalDependency(dependency, dstDir,
-                        "//${mOkBuckDir.name}${dependerPathDiff}:jar__${dependency.name}")
-            } else {
-                // remote dependency
-                if (dependency.name.endsWith(".aar")) {
-                    String srcName = "//${mOkBuckDir.name}${dependerPathDiff}:aar__${dependency.name}"
-                    return new RemoteDependency(dependency, dstDir, srcName, srcName)
-                } else {
-                    return new RemoteDependency(dependency, dstDir,
-                            "//${mOkBuckDir.name}${dependerPathDiff}:jar__${dependency.name}", null)
-                }
-            }
-        } else {
-            // this dependency is an internal one
-            String internalDepPathDiff = ProjectHelper.getProjectPathDiff(mRootProject, internalDep)
-            if (dependency.name.endsWith(".aar")) {
-                // android library
-                String[] names = dependency.name.substring(0, dependency.name.indexOf(".aar")).
-                        split("-")
-                if (names.length == 2) {
-                    // no flavor, main + release, `src`, `res_main`, `res_release`
-                    boolean mainResExists = internalDepHasResPart(internalDep, "main")
-                    boolean releaseResExists = internalDepHasResPart(internalDep, "release")
-                    List<String> multipleResCanonicalNames = null
-                    if (mainResExists || releaseResExists) {
-                        multipleResCanonicalNames = new ArrayList<>()
-                        if (mainResExists) {
-                            multipleResCanonicalNames.add("/${internalDepPathDiff}:res_main")
-                        }
-                        if (releaseResExists) {
-                            multipleResCanonicalNames.add("/${internalDepPathDiff}:res_release")
-                        }
-                    }
-                    return new ModuleDependency(dependency, internalDep,
-                            "/${internalDepPathDiff}:src", null, multipleResCanonicalNames)
-                } else if (names.length == 3) {
-                    // has flavor, `src_flavor_variant`, `res_main`, `res_flavor`, `res_variant`, `res_flavor_variant`
-                    boolean mainResExists = internalDepHasResPart(internalDep, "main")
-                    boolean flavorResExists = internalDepHasResPart(internalDep, names[1])
-                    boolean variantResExists = internalDepHasResPart(internalDep, names[2])
-                    boolean flavorVariantResExists =
-                            internalDepHasResPart(internalDep, names[1] + names[2].capitalize())
-                    List<String> multipleResCanonicalNames = null
-                    if (mainResExists || flavorResExists || variantResExists ||
-                            flavorVariantResExists) {
-                        multipleResCanonicalNames = new ArrayList<>()
-                        if (mainResExists) {
-                            multipleResCanonicalNames.add("/${internalDepPathDiff}:res_main")
-                        }
-                        if (flavorResExists) {
-                            multipleResCanonicalNames.add("/${internalDepPathDiff}:res_${names[1]}")
-                        }
-                        if (variantResExists) {
-                            multipleResCanonicalNames.add("/${internalDepPathDiff}:res_${names[2]}")
-                        }
-                        if (flavorVariantResExists) {
-                            multipleResCanonicalNames.
-                                    add("/${internalDepPathDiff}:res_${names[1]}_${names[2]}")
-                        }
-                    }
-                    return new ModuleDependency(dependency, internalDep,
-                            "/${internalDepPathDiff}:src_${names[1]}_${names[2]}", null,
-                            multipleResCanonicalNames)
-                } else {
-                    throw new IllegalStateException(
-                            "Android library has no flavor or variant decorate")
-                }
-            } else {
-                // java library
-                return new ModuleDependency(dependency, internalDep, "/${internalDepPathDiff}:src",
-                        null, null)
-            }
-        }
-    }
-
-    private static boolean internalDepHasResPart(Project internalDep, String flavorVariant) {
-        return !StringUtil.isEmpty(ProjectHelper.getProjectResDir(internalDep, flavorVariant))
-    }
-
-    private Dependency createFinalDependency(
-            Set<Project> depender, File dependency,
-            Project project
-    ) {
-        Dependency finalDependency
-        Project rootDepender = rootDepender(depender)
-        if (rootDepender != null) {
-            finalDependency = createFinalDependency(
-                    ProjectHelper.getProjectPathDiff(mRootProject, rootDepender), dependency,
-                    project)
-        } else {
-            finalDependency =
-                    createFinalDependency(getDepsCommonPathDiff(depender), dependency, project)
-        }
-        return finalDependency
-    }
-
-    /**
-     * the add order doesn't matter the traversal order, proved by
-     * {@code OkBuckGradlePlugin.hashSetAddTraversalTest}
-     * */
-    private String getDepsCommonPathDiff(Set<Project> depender) {
-        String pathDiff = "/common_deps/"
-        for (Project project : depender) {
-            pathDiff +=
-                    ProjectHelper.getProjectPathDiff(mRootProject, project).
-                            replace(File.separator, "_") +
-                            "_"
-        }
-        return pathDiff
-    }
-
-    /**
-     * get root depender, if no root, return null, O(n ^ 2)
-     * */
-    private Project rootDepender(Set<Project> depender) {
-        for (Project project : depender) {
-            boolean isRoot = true
-            for (Project anotherProject : depender) {
-                if (project != anotherProject) {
-                    for (String flavor : mInternalDependencies.get(anotherProject).keySet()) {
-                        if (!mInternalDependencies.get(anotherProject).get(flavor).
-                                contains(project)) {
-                            isRoot = false
-                            break
-                        }
-                    }
-                }
-            }
-            if (isRoot) {
-                return project
-            }
-        }
-
-        return null
+        logger.debug "############################ mFinalDependencies start ############################"
     }
 }

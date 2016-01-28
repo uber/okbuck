@@ -25,27 +25,13 @@
 package com.github.piasy.okbuck.dependency
 
 import com.github.piasy.okbuck.configs.ThirdPartyDependencyBUCKFile
-import com.github.piasy.okbuck.helper.IOHelper
-import com.github.piasy.okbuck.helper.ProjectHelper
-import com.github.piasy.okbuck.rules.KeystoreRule
 import org.gradle.api.Project
 
 public final class DependencyProcessor {
-    private final Project mRootProject
     private final DependencyAnalyzer mDependencyAnalyzer
-    private final File mOkBuckDir
-    private final String mKeystoreDir
-    private final String mSignConfigName
 
-    public DependencyProcessor(
-            Project rootProject, DependencyAnalyzer analyzer, File okBuckDir, String keystoreDir,
-            String signConfigName
-    ) {
-        mRootProject = rootProject
+    public DependencyProcessor(DependencyAnalyzer analyzer) {
         mDependencyAnalyzer = analyzer
-        mOkBuckDir = okBuckDir
-        mKeystoreDir = keystoreDir
-        mSignConfigName = signConfigName
     }
 
     /**
@@ -55,65 +41,53 @@ public final class DependencyProcessor {
         processCompileDependencies()
 
         processAptDependencies()
-
-        processKeystore()
-    }
-
-    private void processKeystore() {
-        for (Project project : mRootProject.subprojects) {
-            if (ProjectHelper.getSubProjectType(
-                    project) == ProjectHelper.ProjectType.AndroidAppProject) {
-                File keystoreDir = new File(
-                        "${mRootProject.projectDir.absolutePath}/${mKeystoreDir}${ProjectHelper.getProjectPathDiff(mRootProject, project)}")
-                KeystoreRule keystoreRule = ProjectHelper.createKeystoreRule(project,
-                        mSignConfigName, keystoreDir)
-
-                PrintStream printer = new PrintStream("${keystoreDir.absolutePath}/BUCK")
-                keystoreRule.print(printer)
-                printer.close()
-            }
-        }
     }
 
     private void processAptDependencies() {
-        Map<Project, Set<File>> aptDependencies = mDependencyAnalyzer.aptDependencies
-        for (Project project : aptDependencies.keySet()) {
-            File dir = new File(mOkBuckDir.absolutePath + File.separator +
-                    "annotation_processor_deps" +
-                    ProjectHelper.getProjectPathDiff(mRootProject, project))
-            if (!dir.exists()) {
-                dir.mkdirs()
-                PrintStream printer = new PrintStream(
-                        new File(dir.absolutePath + File.separator + "BUCK"))
-                new ThirdPartyDependencyBUCKFile(true).print(printer)
-                printer.close()
-            }
-            for (File dependency : aptDependencies.get(project)) {
-                println "copying ${dependency.absolutePath} into ${dir.absolutePath}"
-                IOHelper.copy(new FileInputStream(dependency), new FileOutputStream(
-                        new File(dir.absolutePath + File.separator + dependency.name)))
+        for (Project project : mDependencyAnalyzer.aptDependencies.keySet()) {
+            for (Dependency dependency : mDependencyAnalyzer.aptDependencies.get(project)) {
+                createBuckFileIfNeed(dependency, true)
+                copyDependencyIfNeed(dependency)
             }
         }
     }
 
     private void processCompileDependencies() {
-        Map<Project, Map<String, Set<Dependency>>> finalDependenciesGraph = mDependencyAnalyzer.finalDependenciesGraph
-        for (Project project : finalDependenciesGraph.keySet()) {
-            for (String flavor : finalDependenciesGraph.get(project).keySet()) {
-                for (Dependency dependency : finalDependenciesGraph.get(project).get(flavor)) {
-                    if (dependency.shouldCopy()) {
-                        if (!dependency.dstDirExists()) {
-                            dependency.createDstDir()
-                            PrintStream printer = new PrintStream(
-                                    new File(dependency.dstDirAbsolutePath() + File.separator +
-                                            "BUCK"))
-                            new ThirdPartyDependencyBUCKFile(false).print(printer)
-                            printer.close()
-                        }
-                        dependency.copyTo()
-                    }
+        for (Project project : mDependencyAnalyzer.finalDependencies.keySet()) {
+            for (String flavor : mDependencyAnalyzer.finalDependencies.get(project).keySet()) {
+                for (Dependency dependency :
+                        mDependencyAnalyzer.finalDependencies.get(project).get(flavor)) {
+                    createBuckFileIfNeed(dependency, false)
+                    copyDependencyIfNeed(dependency)
                 }
             }
+        }
+        for (Project project : mDependencyAnalyzer.fullDependencies.keySet()) {
+            for (String flavor : mDependencyAnalyzer.fullDependencies.get(project).keySet()) {
+                for (Dependency dependency :
+                        mDependencyAnalyzer.fullDependencies.get(project).get(flavor)) {
+                    createBuckFileIfNeed(dependency, false)
+                    copyDependencyIfNeed(dependency)
+                }
+            }
+        }
+    }
+
+    private static void createBuckFileIfNeed(Dependency dependency, boolean includeShortCut) {
+        if (dependency.shouldCopy()) {
+            if (!dependency.dstDir.exists()) {
+                dependency.dstDir.mkdirs()
+                PrintStream printer = new PrintStream(
+                        new File(dependency.dstDir.absolutePath + File.separator + "BUCK"))
+                new ThirdPartyDependencyBUCKFile(includeShortCut).print(printer)
+                printer.close()
+            }
+        }
+    }
+
+    private static void copyDependencyIfNeed(Dependency dependency) {
+        if (dependency.shouldCopy()) {
+            dependency.copyTo()
         }
     }
 }

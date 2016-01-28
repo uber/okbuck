@@ -39,4 +39,14 @@ public final class StringUtil {
     public static boolean isEmpty(String string) {
         return string == null || string.empty
     }
+
+    /**
+     * Check whether the input strings are equals.
+     * */
+    public static boolean areEquals(String str1, String str2) {
+        if (isEmpty(str1)) {
+            return isEmpty(str2)
+        }
+        return str1.equals(str2)
+    }
 }

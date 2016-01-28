@@ -25,23 +25,41 @@
 package com.github.piasy.okbuck.dependency
 
 import com.github.piasy.okbuck.helper.FileUtil
+import com.github.piasy.okbuck.helper.StringUtil
+import org.gradle.api.artifacts.ResolvedDependency
 
 /**
- * local dependency: jar/aar file in libs dir.
+ * maven dependency: jar/aar file.
  * */
-public final class LocalDependency extends FileDependency {
+public final class MavenDependency extends FileDependency {
 
-    public LocalDependency(DependencyType dependencyType, File localFile, File projectRootDir) {
+    private final ResolvedDependency mResolvedDependency
+
+    public MavenDependency(
+            DependencyType dependencyType, File localFile, File projectRootDir,
+            ResolvedDependency resolvedDependency
+    ) {
         super(dependencyType, localFile, projectRootDir)
+        mResolvedDependency = resolvedDependency
     }
 
     @Override
     boolean isDuplicate(Dependency dependency) {
-        return FileUtil.areDepFilesDuplicated(this.getDepFile(), dependency.getDepFile())
+        switch (getType()) {
+            case DependencyType.MavenJarDependency:
+            case DependencyType.MavenAarDependency:
+                MavenDependency that = (MavenDependency) dependency
+                return StringUtil.areEquals(this.mResolvedDependency.moduleGroup,
+                        that.mResolvedDependency.moduleGroup) &&
+                        StringUtil.areEquals(this.mResolvedDependency.moduleName,
+                                that.mResolvedDependency.moduleName)
+            default:
+                return FileUtil.areDepFilesDuplicated(this.getDepFile(), dependency.getDepFile())
+        }
     }
 
     @Override
     Dependency defensiveCopy() {
-        return fromLocalFile(mRootProjectDir, mLocalFile)
+        return fromMavenDependency(mRootProjectDir, mLocalFile, mResolvedDependency)
     }
 }
