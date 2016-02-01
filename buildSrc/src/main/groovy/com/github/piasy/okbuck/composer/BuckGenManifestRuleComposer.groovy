@@ -22,30 +22,24 @@
  * SOFTWARE.
  */
 
-package com.github.piasy.okbuck.rules
+package com.github.piasy.okbuck.composer
 
-import com.github.piasy.okbuck.rules.base.BuckRule
+import com.github.piasy.okbuck.helper.ProjectHelper
+import com.github.piasy.okbuck.rules.BuckGenManifestRule
+import org.gradle.api.Project
 
-import static com.github.piasy.okbuck.helper.CheckUtil.checkStringNotEmpty
+public final class BuckGenManifestRuleComposer {
 
-/**
- * keystore()
- * */
-public final class KeystoreRule extends BuckRule {
-    private final String mStore
-    private final String mProperties
-
-    public KeystoreRule(String name, List<String> visibility, String store, String properties) {
-        super("keystore", name, visibility)
-        checkStringNotEmpty(store, "KeystoreRule store can't be empty.")
-        mStore = store
-        checkStringNotEmpty(properties, "KeystoreRule properties can't be empty.")
-        mProperties = properties
+    private BuckGenManifestRuleComposer() {
+        // no instance
     }
 
-    @Override
-    protected final void printDetail(PrintStream printer) {
-        printer.println("\tstore = '${mStore}',")
-        printer.println("\tproperties = '${mProperties}',")
+    public static BuckGenManifestRule compose(Project project) {
+        return new BuckGenManifestRule("generate_manifest_main",
+                ProjectHelper.getProjectManifestFile(project, "main"), "AndroidManifest.xml",
+                ProjectHelper.getVersionName(project, "default"),
+                ProjectHelper.getVersionCode(project, "default"),
+                ProjectHelper.getMinSdkVersion(project, "default"),
+                ProjectHelper.getTargetSdkVersion(project, "default"), true)
     }
 }

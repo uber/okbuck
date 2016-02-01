@@ -27,20 +27,18 @@ package com.github.piasy.okbuck.helper
 import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.LibraryPlugin
 import com.android.build.gradle.internal.dsl.ProductFlavor
-import com.android.build.gradle.internal.dsl.SigningConfig
-import com.android.builder.model.BuildType
-import com.android.builder.model.ClassField
-import com.github.piasy.okbuck.rules.KeystoreRule
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.UnknownDomainObjectException
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
 import org.gradle.api.plugins.JavaPlugin
 
 /**
  * helper class for android project.
  * */
 public final class ProjectHelper {
+    private static Logger logger = Logging.getLogger(ProjectHelper)
     /**
      * sub project type enum.
      * */
@@ -127,12 +125,13 @@ public final class ProjectHelper {
                 for (PropertyValue prop :
                         project.extensions.getByName("android").metaPropertyValues) {
                     if ("productFlavors".equals(prop.name)) {
-                        NamedDomainObjectContainer<ProductFlavor> flavors = (NamedDomainObjectContainer<ProductFlavor>) prop.value
+                        NamedDomainObjectContainer<ProductFlavor> flavors =
+                                (NamedDomainObjectContainer<ProductFlavor>) prop.value
                         return flavors.getAsMap()
                     }
                 }
             } catch (Exception e) {
-                println "get ${project.name}'s productFlavors fail!"
+                logger.info "${project.name} has no productFlavors"
             }
         } else {
             throw new IllegalArgumentException("Sub project ${project.name} doesn't have flavors")
@@ -153,85 +152,7 @@ public final class ProjectHelper {
         return null
     }
 
-    /**
-     * check whether the dependency locate inside the libs dir of the project.
-     * */
-    public static boolean isLocalExternalDependency(Project project, File dependency) {
-        return dependency.absolutePath.startsWith(project.projectDir.absolutePath + "/libs/")
-    }
-
-    /**
-     * contract:
-     * android library/app module with flavor: default + flavor + variant, latter overwrite former.
-     *                         without flavor: default + release
-     * */
-    public static List<String> getBuildConfigField(Project project, String flavor, String variant) {
-        println "get ${project.name}'s buildConfigField of ${flavor}_${variant}:"
-        Map<String, String> buildConfigs = new HashMap<>()
-        ProjectType type = getSubProjectType(project)
-        if (type == ProjectType.AndroidAppProject || type == ProjectType.AndroidLibProject) {
-            try {
-                project.extensions.getByName("android").metaPropertyValues.each { prop ->
-                    if ("defaultConfig".equals(prop.name) && ProductFlavor.class.isAssignableFrom(
-                            prop.type)) {
-                        ProductFlavor defaultConfigs = (ProductFlavor) prop.value
-                        if (defaultConfigs.applicationId != null) {
-                            buildConfigs.put("APPLICATION_ID",
-                                    "String APPLICATION_ID = \"${defaultConfigs.applicationId}\"")
-                        }
-                        buildConfigs.put("BUILD_TYPE", "String BUILD_TYPE = \"${variant}\"")
-                        buildConfigs.put("FLAVOR", "String FLAVOR = \"${flavor}\"")
-                        if (defaultConfigs.versionCode != null) {
-                            buildConfigs.put("VERSION_CODE",
-                                    "int VERSION_CODE = ${defaultConfigs.versionCode}")
-                        }
-                        if (defaultConfigs.versionName != null) {
-                            buildConfigs.put("VERSION_NAME",
-                                    "String VERSION_NAME = \"${defaultConfigs.versionName}\"")
-                        }
-
-                        for (ClassField classField : defaultConfigs.buildConfigFields.values()) {
-                            buildConfigs.put(classField.name,
-                                    "${classField.type} ${classField.name} = ${classField.value}")
-                        }
-                    }
-                    if ("productFlavors".equals(prop.name)) {
-                        if (!"default".equals(flavor)) {
-                            for (ProductFlavor productFlavor :
-                                    ((NamedDomainObjectContainer<ProductFlavor>) prop.value).
-                                            asList()) {
-                                if (productFlavor.name.equals(flavor)) {
-                                    for (ClassField classField :
-                                            productFlavor.buildConfigFields.values()) {
-                                        buildConfigs.put(classField.name,
-                                                "${classField.type} ${classField.name} = ${classField.value}")
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if ("buildTypes".equals(prop.name)) {
-                        for (BuildType buildType :
-                                ((NamedDomainObjectContainer<BuildType>) prop.value).asList()) {
-                            if (buildType.name.equals(variant)) {
-                                for (ClassField classField :
-                                        buildType.buildConfigFields.values()) {
-                                    buildConfigs.put(classField.name,
-                                            "${classField.type} ${classField.name} = ${classField.value}")
-                                }
-                            }
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                println "get ${project.name}'s buildConfigField fail!"
-            }
-        }
-        return buildConfigs.values().asList()
-    }
-
     public static String getVersionName(Project project, String flavor) {
-        println "get ${project.name}'s VersionName build config field:"
         ProjectType type = getSubProjectType(project)
         String versionName = ""
         if (type == ProjectType.AndroidAppProject || type == ProjectType.AndroidLibProject) {
@@ -259,7 +180,7 @@ public final class ProjectHelper {
                     }
                 }
             } catch (Exception e) {
-                println "get ${project.name}'s VersionName build config field: fail!"
+                logger.info "${project.name} has no VersionName build config field"
             }
         }
         if (StringUtil.isEmpty(versionName)) {
@@ -269,7 +190,6 @@ public final class ProjectHelper {
     }
 
     public static int getVersionCode(Project project, String flavor) {
-        println "get ${project.name}'s VersionCode build config field:"
         ProjectType type = getSubProjectType(project)
         int versionCode = 0
         if (type == ProjectType.AndroidAppProject || type == ProjectType.AndroidLibProject) {
@@ -297,14 +217,13 @@ public final class ProjectHelper {
                     }
                 }
             } catch (Exception e) {
-                println "get ${project.name}'s VersionCode build config field: fail!"
+                logger.info "${project.name} has no VersionCode build config field"
             }
         }
         return versionCode
     }
 
     public static int getMinSdkVersion(Project project, String flavor) {
-        println "get ${project.name}'s MinSdkVersion build config field:"
         ProjectType type = getSubProjectType(project)
         int minSdkVersion = 0
         if (type == ProjectType.AndroidAppProject || type == ProjectType.AndroidLibProject) {
@@ -332,14 +251,13 @@ public final class ProjectHelper {
                     }
                 }
             } catch (Exception e) {
-                println "get ${project.name}'s MinSdkVersion build config field: fail!"
+                logger.info "get 's MinSdkVersion build config field: fail!"
             }
         }
         return minSdkVersion
     }
 
     public static int getTargetSdkVersion(Project project, String flavor) {
-        println "get ${project.name}'s TargetSdkVersion build config field:"
         ProjectType type = getSubProjectType(project)
         int targetSdkVersion = 0
         if (type == ProjectType.AndroidAppProject || type == ProjectType.AndroidLibProject) {
@@ -367,54 +285,10 @@ public final class ProjectHelper {
                     }
                 }
             } catch (Exception e) {
-                println "get ${project.name}'s TargetSdkVersion build config field: fail!"
+                logger.info "${project.name} has no TargetSdkVersion build config field"
             }
         }
         return targetSdkVersion
-    }
-
-    public static KeystoreRule createKeystoreRule(
-            Project project, String signConfigName, File dir
-    ) {
-        if (!dir.exists()) {
-            dir.mkdirs()
-        }
-        try {
-            for (PropertyValue prop : project.extensions.getByName("android").metaPropertyValues) {
-                if ("signingConfigs".equals(prop.name)) {
-                    NamedDomainObjectContainer<SigningConfig> signConfig = (NamedDomainObjectContainer<SigningConfig>) prop.value
-                    SigningConfig config
-                    if (signConfig.size() == 1) {
-                        config = signConfig.getAt(0)
-                    } else {
-                        config = signConfig.getByName(signConfigName)
-                    }
-                    IOHelper.copy(new FileInputStream(config.getStoreFile()),
-                            new FileOutputStream(new File(
-                                    dir.absolutePath + File.separator +
-                                            project.name +
-                                            ".keystore")))
-
-                    PrintWriter writer = new PrintWriter(new FileOutputStream(new File(
-                            "${dir.absolutePath}${File.separator}${project.name}.keystore.properties")))
-                    writer.println("key.store=${project.name}.keystore")
-                    writer.println("key.alias=${config.getKeyAlias()}")
-                    writer.println("key.store.password=${config.getStorePassword()}")
-                    writer.println("key.alias.password=${config.getKeyPassword()}")
-                    writer.close()
-
-                    return new KeystoreRule(Arrays.asList("PUBLIC"), "${project.name}.keystore",
-                            "${project.name}.keystore.properties")
-                }
-            }
-        } catch (UnknownDomainObjectException e) {
-            throw new IllegalStateException(
-                    "Can not figure out sign config, please make sure you have only one sign config in your build.gradle, or set signConfigName in okbuck dsl.")
-        } catch (Exception e) {
-            e.printStackTrace()
-            throw new IllegalStateException("get ${project.name}'s sign config fail!")
-        }
-        throw new IllegalStateException("get ${project.name}'s sign config fail!")
     }
 
     public static Set<String> getProjectSrcSet(Project project, String flavorVariant) {
@@ -451,7 +325,8 @@ public final class ProjectHelper {
         switch (getSubProjectType(project)) {
             case ProjectType.AndroidAppProject:
             case ProjectType.AndroidLibProject:
-                File resDir = (File) project.android.sourceSets.getByName(flavorVariant).res.srcDirs[0]
+                File resDir =
+                        (File) project.android.sourceSets.getByName(flavorVariant).res.srcDirs[0]
                 if (resDir.exists()) {
                     return FileUtil.getDirPathDiff(project.projectDir, resDir).substring(1)
                 } else {
@@ -518,8 +393,8 @@ public final class ProjectHelper {
         switch (getSubProjectType(project)) {
             case ProjectType.AndroidAppProject:
             case ProjectType.AndroidLibProject:
-                File jniLibsDir = (File) project.android.sourceSets.
-                        getByName(flavorVariant).jniLibs.srcDirs[0]
+                File jniLibsDir = (File) project.android.sourceSets
+                        .getByName(flavorVariant).jniLibs.srcDirs[0]
                 if (jniLibsDir.exists()) {
                     return FileUtil.getDirPathDiff(project.projectDir, jniLibsDir).substring(1)
                 } else {
@@ -542,7 +417,7 @@ public final class ProjectHelper {
                 }
             }
         } catch (Exception e) {
-            println "get ${project.name}'s MultiDexEnabled fail!"
+            logger.info "could not get ${project.name}'s multidex config"
         }
         return false
     }
@@ -575,7 +450,8 @@ public final class ProjectHelper {
         switch (getSubProjectType(project)) {
             case ProjectType.AndroidAppProject:
             case ProjectType.AndroidLibProject:
-                File resDir = (File) project.android.sourceSets.getByName(flavorVariant).res.srcDirs[0]
+                File resDir =
+                        (File) project.android.sourceSets.getByName(flavorVariant).res.srcDirs[0]
                 return resDir.exists()
             case ProjectType.JavaLibProject:
             default:

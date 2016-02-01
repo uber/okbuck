@@ -25,4 +25,6 @@
 
 <resources>
     <string name="empty_release_string">empty_release_string</string>
+
+    <color name="apppp">@color/bright_foreground_disabled_material_dark</color>
 </resources>

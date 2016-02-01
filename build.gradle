@@ -5,7 +5,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.0.0-alpha7'
+        classpath 'com.android.tools.build:gradle:2.0.0-alpha8'
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.6'
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -23,7 +23,7 @@ apply plugin: 'com.github.piasy.okbuck-gradle-plugin'
 okbuck {
     target "android-23"
     overwrite true
-    signConfigName "release"
+    checkDepConflict true
     resPackages = [
             dummylibrary: 'com.github.piasy.okbuck.example.dummylibrary',
             app         : 'com.github.piasy.okbuck.example',
@@ -31,20 +31,37 @@ okbuck {
             common      : 'com.github.piasy.okbuck.example.common',
             emptylibrary: 'com.github.piasy.okbuck.example.empty',
     ]
-    linearAllocHardLimit 7194304
-    primaryDexPatterns = [
-            '^com/github/piasy/okbuck/example/AppShell^',
-            '^com/github/piasy/okbuck/example/BuildConfig^',
-            '^android/support/multidex/',
-            '^com/facebook/buck/android/support/exopackage/',
-            '^com/github/promeg/xlog_android/lib/XLogConfig^',
-            '^com/squareup/leakcanary/LeakCanary^',
+    linearAllocHardLimit = [
+            app: 7194304
     ]
-    exopackage true
-    appClassSource 'src/main/java/com/github/piasy/okbuck/example/AppShell.java'
+    primaryDexPatterns = [
+            app: [
+                    '^com/github/piasy/okbuck/example/AppShell^',
+                    '^com/github/piasy/okbuck/example/BuildConfig^',
+                    '^android/support/multidex/',
+                    '^com/facebook/buck/android/support/exopackage/',
+                    '^com/github/promeg/xlog_android/lib/XLogConfig^',
+                    '^com/squareup/leakcanary/LeakCanary^',
+            ]
+    ]
+    exopackage = [
+            app: true
+    ]
+    appClassSource = [
+            app: 'src/main/java/com/github/piasy/okbuck/example/AppShell.java'
+    ]
     appLibDependencies = [
-            'buck-android-support',
-            'multidex',
+            app: [
+                    'buck-android-support',
+                    'multidex',
+                    'javalibrary',
+            ]
+    ]
+    flavorFilter = [
+            app: [
+                    'dev',
+                    'prod',
+            ]
     ]
 }
 

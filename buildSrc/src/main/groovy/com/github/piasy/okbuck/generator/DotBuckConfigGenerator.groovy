@@ -24,29 +24,74 @@
 
 package com.github.piasy.okbuck.generator
 
+import com.android.build.gradle.internal.dsl.ProductFlavor
 import com.github.piasy.okbuck.configs.DotBuckConfigFile
+import com.github.piasy.okbuck.helper.FileUtil
+import com.github.piasy.okbuck.helper.ProjectHelper
 import org.gradle.api.Project
 
 /**
  * Created by Piasy{github.com/Piasy} on 15/10/6.
  *
- * used to generate .buckconfig file content. Designed to support X os family, Linux, Unix, OS X;
- * and Windows os family (in the future).
+ * used to generate .buckconfig file content.
  */
-public abstract class DotBuckConfigGenerator {
-    protected final Project mRootProject
-    protected final String mTarget
+public final class DotBuckConfigGenerator {
+    private final Project mRootProject
+    private final String mTarget
+    private final Map<String, List<String>> mFlavorFilter
 
     /**
      * Create generator.
      */
-    public DotBuckConfigGenerator(Project rootProject, String target) {
+    public DotBuckConfigGenerator(Project rootProject, String target, Map<String, List<String>> flavorFilter) {
         mRootProject = rootProject
         mTarget = target
+        mFlavorFilter = flavorFilter
     }
 
     /**
      * generate {@code DotBuckConfigFile}
      */
-    public abstract DotBuckConfigFile generate()
+    public DotBuckConfigFile generate() {
+        Map<String, String> alias = new HashMap<>()
+        for (Project project : mRootProject.subprojects) {
+            if (ProjectHelper.getSubProjectType(
+                    project) == ProjectHelper.ProjectType.AndroidAppProject) {
+                if (ProjectHelper.exportFlavor(project)) {
+                    Map<String, ProductFlavor> flavorMap = getFilteredFlavors(project)
+                    for (String flavor : flavorMap.keySet()) {
+                        alias.put(project.name + flavor.capitalize() + "Debug",
+                                "/${FileUtil.getProjectPathDiff(mRootProject, project)}:bin_${flavor}_debug")
+                        alias.put(project.name + flavor.capitalize() + "Release",
+                                "/${FileUtil.getProjectPathDiff(mRootProject, project)}:bin_${flavor}_release")
+                    }
+                } else {
+                    alias.put(project.name + "Debug",
+                            "/${FileUtil.getProjectPathDiff(mRootProject, project)}:bin_debug")
+                    alias.put(project.name + "Release",
+                            "/${FileUtil.getProjectPathDiff(mRootProject, project)}:bin_release")
+                }
+            }
+        }
+        return new DotBuckConfigFile(alias, mTarget, Arrays.asList(".git", "**/.svn"))
+    }
+
+    private Map<String, ProductFlavor> getFilteredFlavors(Project project) {
+        Map<String, ProductFlavor> flavorMap = ProjectHelper.getProductFlavors(project)
+        List<String> filter = mFlavorFilter.get(project.name)
+        if (filter == null || filter.empty) {
+            return flavorMap
+        } else {
+            Map<String, ProductFlavor> filtered = new HashMap<>()
+            for (String flavor : filter) {
+                if (flavorMap.containsKey(flavor)) {
+                    filtered.put(flavor, flavorMap.get(flavor))
+                } else {
+                    throw new IllegalArgumentException("`${project.name}` doesn't have flavor " +
+                            "named `${flavor}`, please correct your root project build.gradle file")
+                }
+            }
+            return filtered
+        }
+    }
 }

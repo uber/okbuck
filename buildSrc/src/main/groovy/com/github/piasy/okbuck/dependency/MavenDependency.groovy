@@ -45,7 +45,7 @@ public final class MavenDependency extends FileDependency {
 
     @Override
     boolean isDuplicate(Dependency dependency) {
-        switch (getType()) {
+        switch (dependency.type) {
             case DependencyType.MavenJarDependency:
             case DependencyType.MavenAarDependency:
                 MavenDependency that = (MavenDependency) dependency

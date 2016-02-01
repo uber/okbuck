@@ -37,7 +37,7 @@ public final class LocalDependency extends FileDependency {
 
     @Override
     boolean isDuplicate(Dependency dependency) {
-        return FileUtil.areDepFilesDuplicated(this.getDepFile(), dependency.getDepFile())
+        return FileUtil.areDepFilesDuplicated(this.depFile, dependency.depFile)
     }
 
     @Override

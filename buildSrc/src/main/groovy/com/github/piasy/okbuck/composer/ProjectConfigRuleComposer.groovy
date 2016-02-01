@@ -22,30 +22,23 @@
  * SOFTWARE.
  */
 
-package com.github.piasy.okbuck.rules
+package com.github.piasy.okbuck.composer
 
-import com.github.piasy.okbuck.rules.base.BuckRule
+import com.github.piasy.okbuck.helper.FileUtil
+import com.github.piasy.okbuck.helper.ProjectHelper
+import com.github.piasy.okbuck.rules.ProjectConfigRule
+import org.gradle.api.Project
 
-import static com.github.piasy.okbuck.helper.CheckUtil.checkStringNotEmpty
+public final class ProjectConfigRuleComposer {
 
-/**
- * keystore()
- * */
-public final class KeystoreRule extends BuckRule {
-    private final String mStore
-    private final String mProperties
-
-    public KeystoreRule(String name, List<String> visibility, String store, String properties) {
-        super("keystore", name, visibility)
-        checkStringNotEmpty(store, "KeystoreRule store can't be empty.")
-        mStore = store
-        checkStringNotEmpty(properties, "KeystoreRule properties can't be empty.")
-        mProperties = properties
+    private ProjectConfigRuleComposer() {
+        // no instance
     }
 
-    @Override
-    protected final void printDetail(PrintStream printer) {
-        printer.println("\tstore = '${mStore}',")
-        printer.println("\tproperties = '${mProperties}',")
+    public static ProjectConfigRule compose(Project project) {
+        Set<String> mainSrcSet = ProjectHelper.getProjectSrcSet(project, "main")
+        return new ProjectConfigRule(
+                "/${FileUtil.getProjectPathDiff(project.rootProject, project)}:src",
+                mainSrcSet.toList())
     }
 }
