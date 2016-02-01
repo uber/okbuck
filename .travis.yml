@@ -16,14 +16,10 @@ android:
 
 # Emulator Management: Create, Start and Wait
 before_script:
-  - echo no | android create avd --force -n test -t android-21 --abi armeabi-v7a
-  - emulator -avd test -no-skin -no-audio -no-window &
-  - android-wait-for-emulator
-  - adb shell input keyevent 82 &
   - touch buildSrc/bintray.properties
 
 script:
-  - bash ./gradlew okbuck && ./buck/bin/buck install --run appDevDebug && ./buck/bin/buck install --run appDevRelease && ./buck/bin/buck install --run appProdDebug && ./buck/bin/buck install --run appProdRelease && ./buck/bin/buck install --run anotherappDebug && ./buck/bin/buck install --run anotherappRelease
+  - bash ./gradlew okbuck && ./buck/bin/buck build appDevDebug && ./buck/bin/buck build appDevRelease && ./buck/bin/buck build appProdDebug && ./buck/bin/buck build appProdRelease && ./buck/bin/buck build anotherappDebug && ./buck/bin/buck build anotherappRelease
 
 notifications:
   email: false
