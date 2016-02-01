@@ -33,16 +33,6 @@ public class OkBuckExtension {
     String target = "android-23"
 
     /**
-     * signConfigName: pick one of multiple signing config defined in build.gradle by name.
-     * */
-    String signConfigName = ""
-
-    /**
-     * keystoreDir: directory OkBuck will use to put generated signing config BUCK.
-     * */
-    String keystoreDir = ".okbuck${File.separator}keystore"
-
-    /**
      * overwrite: overwrite existing BUCK script or not.
      * */
     boolean overwrite = false
@@ -50,7 +40,7 @@ public class OkBuckExtension {
     /**
      * whether check dependencies conflict.
      * */
-    boolean checkDepConflict = false
+    boolean checkDepConflict = true
 
     /**
      * resPackages: set the resources package name for Android library module or application module,
@@ -61,26 +51,31 @@ public class OkBuckExtension {
     /**
      * linearAllocHardLimit used for multi-dex support.
      * */
-    int linearAllocHardLimit = 65535
+    Map<String, Integer> linearAllocHardLimit = new HashMap<>()
 
     /**
      * primary dex class patterns.
      * */
-    List<String> primaryDexPatterns = new ArrayList<>()
+    Map<String, List<String>> primaryDexPatterns = new HashMap<>()
 
     /**
      * whether enable exopackage.
      * */
-    boolean exopackage = false
+    Map<String, Boolean> exopackage = new HashMap<>()
 
     /**
      * exopackage app class source.
      * */
-    String appClassSource = ""
+    Map<String, String> appClassSource = new HashMap<>()
 
     /**
      * exopackage app lib dependencies.
      * */
-    List<String> appLibDependencies = new ArrayList<>()
+    Map<String, List<String>> appLibDependencies = new HashMap<>()
+
+    /**
+     * flavor filter, if not empty, only create buck config for listed flavors.
+     * */
+    Map<String, List<String>> flavorFilter = new HashMap<>()
 
 }

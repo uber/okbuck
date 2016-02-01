@@ -22,32 +22,24 @@
  * SOFTWARE.
  */
 
-package com.github.piasy.okbuck.generator
+package com.github.piasy.okbuck.composer
 
-import com.github.piasy.okbuck.dependency.DependencyAnalyzer
-import com.github.piasy.okbuck.configs.BUCKFile
+import com.github.piasy.okbuck.helper.ProjectHelper
+import com.github.piasy.okbuck.helper.StringUtil
+import com.github.piasy.okbuck.rules.PrebuiltNativeLibraryRule
 import org.gradle.api.Project
 
-/**
- * Created by Piasy{github.com/Piasy} on 15/10/6.
- *
- * Windows os family generator.
- */
-public final class WindowsBuckFileGenerator extends BuckFileGenerator {
+public final class PreBuiltNativeLibraryRuleComposer {
 
-    public WindowsBuckFileGenerator(
-            Project rootProject, DependencyAnalyzer dependencyAnalyzer, File okBuckDir,
-            Map<String, String> resPackages, String keystoreDir, String signConfigName,
-            int linearAllocHardLimit, List<String> primaryDexPatterns, boolean exopackage,
-            String appClassSource, List<String> appLibDependencies
-    ) {
-        super(rootProject, dependencyAnalyzer, okBuckDir, resPackages, keystoreDir, signConfigName,
-                linearAllocHardLimit, primaryDexPatterns, exopackage, appClassSource,
-                appLibDependencies)
+    private PreBuiltNativeLibraryRuleComposer() {
+        // no instance
     }
 
-    @Override
-    public Map<Project, BUCKFile> generate() {
-        throw new UnsupportedOperationException("Windows os family currently not supported!")
+    public static PrebuiltNativeLibraryRule compose(Project project, String flavor) {
+        String jniLibsDir = ProjectHelper.getProjectJniLibsDir(project, flavor)
+        if (!StringUtil.isEmpty(jniLibsDir)) {
+            return new PrebuiltNativeLibraryRule(Arrays.asList("PUBLIC"), jniLibsDir)
+        }
+        return null
     }
 }

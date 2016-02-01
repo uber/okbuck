@@ -54,7 +54,7 @@ public final class ModuleDependency extends Dependency {
             File localFile, File projectRootDir, Project module, String variant
     ) {
         CheckUtil.checkStringNotEmpty(variant, "ModuleDependency's variant can't be empty")
-        return new ModuleDependency(DependencyType.ModuleJarDependency, localFile, projectRootDir,
+        return new ModuleDependency(DependencyType.ModuleAarDependency, localFile, projectRootDir,
                 module, null, variant)
     }
 
@@ -110,9 +110,9 @@ public final class ModuleDependency extends Dependency {
     }
 
     private String getSrcCanonicalNameWithFlavorVariant() {
-        return File.separator + FileUtil.getDirPathDiff(mRootProjectDir, mModule.projectDir) +
-                ":src" + (StringUtil.isEmpty(mFlavor) ? "" : "_${mFlavor}") +
-                (StringUtil.isEmpty(mVariant) ? "" : "_${mVariant}")
+        return "/${FileUtil.getDirPathDiff(mRootProjectDir, mModule.projectDir)}:src" +
+                (StringUtil.isEmpty(mFlavor) ? "" : "_${mFlavor}") +
+                ((StringUtil.isEmpty(mFlavor) || StringUtil.isEmpty(mVariant)) ? "" : "_${mVariant}")
     }
 
     @Override
@@ -120,20 +120,18 @@ public final class ModuleDependency extends Dependency {
         List<String> presentResNames = ProjectHelper.getPresentResCanonicalNames(mModule, mFlavor, mVariant)
         List<String> ret = new ArrayList<>()
         for (String name : presentResNames) {
-            ret.add(File.separator + FileUtil.getDirPathDiff(mRootProjectDir, mModule.rootDir) + ":" + name)
+            ret.add("/${FileUtil.getDirPathDiff(mRootProjectDir, mModule.projectDir)}:${name}")
         }
         return ret
     }
 
     @Override
     boolean isDuplicate(Dependency dependency) {
-        switch (getType()) {
+        switch (dependency.type) {
             case DependencyType.ModuleJarDependency:
             case DependencyType.ModuleAarDependency:
                 ModuleDependency that = (ModuleDependency) dependency
-                return this.mModule.projectDir.equals(that.mModule.projectDir) &&
-                        StringUtil.areEquals(this.mFlavor, that.mFlavor) &&
-                        StringUtil.areEquals(this.mVariant, that.mVariant)
+                return this.mModule.projectDir.equals(that.mModule.projectDir)
             default:
                 return false
         }

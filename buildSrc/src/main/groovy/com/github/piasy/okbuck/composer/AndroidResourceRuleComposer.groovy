@@ -22,24 +22,35 @@
  * SOFTWARE.
  */
 
-package com.github.piasy.okbuck.generator
+package com.github.piasy.okbuck.composer
 
-import com.github.piasy.okbuck.configs.DotBuckConfigFile
+import com.github.piasy.okbuck.dependency.Dependency
+import com.github.piasy.okbuck.helper.ProjectHelper
+import com.github.piasy.okbuck.helper.StringUtil
+import com.github.piasy.okbuck.rules.AndroidResourceRule
 import org.gradle.api.Project
 
-/**
- * Created by Piasy{github.com/Piasy} on 15/10/6.
- *
- * Windows os family generator.
- */
-public final class WindowsDotBuckConfigGenerator extends DotBuckConfigGenerator {
+public final class AndroidResourceRuleComposer {
 
-    public WindowsDotBuckConfigGenerator(Project rootProject, String target) {
-        super(rootProject, target)
+    private AndroidResourceRuleComposer() {
+        // no instance
     }
 
-    @Override
-    public DotBuckConfigFile generate() {
-        throw new UnsupportedOperationException("Windows os family currently not supported!")
+    public static AndroidResourceRule compose(
+            String ruleName, Project project, String resRootDirName, Set<Dependency> finalDependencies,
+            String resPackage
+    ) {
+        String resDir = ProjectHelper.getProjectResDir(project, resRootDirName)
+        if (!StringUtil.isEmpty(resDir)) {
+            List<String> resDeps = new ArrayList<>()
+            for (Dependency dependency : finalDependencies) {
+                resDeps.addAll(dependency.resCanonicalNames)
+            }
+            String assetsDir = ProjectHelper.getProjectAssetsDir(project, resRootDirName)
+            return new AndroidResourceRule(ruleName, Arrays.asList("PUBLIC"), resDeps,
+                    resDir, resPackage, assetsDir)
+        } else {
+            return null
+        }
     }
 }

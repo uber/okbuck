@@ -60,7 +60,7 @@ public abstract class FileDependency extends Dependency {
         if (mDstDir == null) {
             throw new NullPointerException("mDstDir should be set before this call")
         }
-        return File.separator + FileUtil.getDirPathDiff(mRootProjectDir, mDstDir) + getBuckDepName()
+        return "/${FileUtil.getDirPathDiff(mRootProjectDir, mDstDir) + getBuckDepName()}"
     }
 
     private String getBuckDepName() {
@@ -84,7 +84,9 @@ public abstract class FileDependency extends Dependency {
                 return Collections.emptyList()
             case DependencyType.LocalAarDependency:
             case DependencyType.MavenAarDependency:
-                return Collections.singletonList(":aar__${mLocalFile.name}")
+                return Collections.singletonList(
+                        "/${FileUtil.getDirPathDiff(mRootProjectDir, mDstDir)}" +
+                                ":aar__${mLocalFile.name}")
             default:
                 throw new IllegalArgumentException("bad type of ${mLocalFile.name}")
         }
@@ -97,6 +99,6 @@ public abstract class FileDependency extends Dependency {
         }
         logger.debug "copying ${mLocalFile.absolutePath} into ${mDstDir.absolutePath}"
         IOHelper.copy(new FileInputStream(mLocalFile), new FileOutputStream(
-                new File(mDstDir.absolutePath + File.separator + mLocalFile.name)))
+                new File("${mDstDir.absolutePath}/${mLocalFile.name}")))
     }
 }

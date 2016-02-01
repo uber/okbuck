@@ -24,7 +24,13 @@
 
 package com.github.piasy.okbuck.dependency
 
+import com.android.builder.model.BuildType
+import com.android.builder.model.SigningConfig
 import com.github.piasy.okbuck.configs.ThirdPartyDependencyBUCKFile
+import com.github.piasy.okbuck.helper.IOHelper
+import com.github.piasy.okbuck.helper.ProjectHelper
+import com.github.piasy.okbuck.rules.KeystoreRule
+import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 
 public final class DependencyProcessor {
@@ -54,18 +60,20 @@ public final class DependencyProcessor {
 
     private void processCompileDependencies() {
         for (Project project : mDependencyAnalyzer.finalDependencies.keySet()) {
+            if (ProjectHelper.getSubProjectType(
+                    project) == ProjectHelper.ProjectType.AndroidAppProject) {
+                File keystoreDir = new File("${project.rootProject.projectDir.absolutePath}/" +
+                        ".okbuck/${project.name}_keystore")
+                KeystoreRule debugKeystoreRule = createKeystoreRule(project, keystoreDir, "debug")
+                KeystoreRule releaseKeystoreRule = createKeystoreRule(project, keystoreDir, "release")
+                PrintStream printer = new PrintStream("${keystoreDir.absolutePath}/BUCK")
+                debugKeystoreRule.print(printer)
+                releaseKeystoreRule.print(printer)
+                printer.close()
+            }
             for (String flavor : mDependencyAnalyzer.finalDependencies.get(project).keySet()) {
                 for (Dependency dependency :
                         mDependencyAnalyzer.finalDependencies.get(project).get(flavor)) {
-                    createBuckFileIfNeed(dependency, false)
-                    copyDependencyIfNeed(dependency)
-                }
-            }
-        }
-        for (Project project : mDependencyAnalyzer.fullDependencies.keySet()) {
-            for (String flavor : mDependencyAnalyzer.fullDependencies.get(project).keySet()) {
-                for (Dependency dependency :
-                        mDependencyAnalyzer.fullDependencies.get(project).get(flavor)) {
                     createBuckFileIfNeed(dependency, false)
                     copyDependencyIfNeed(dependency)
                 }
@@ -78,7 +86,7 @@ public final class DependencyProcessor {
             if (!dependency.dstDir.exists()) {
                 dependency.dstDir.mkdirs()
                 PrintStream printer = new PrintStream(
-                        new File(dependency.dstDir.absolutePath + File.separator + "BUCK"))
+                        new File("${dependency.dstDir.absolutePath}/BUCK"))
                 new ThirdPartyDependencyBUCKFile(includeShortCut).print(printer)
                 printer.close()
             }
@@ -89,5 +97,49 @@ public final class DependencyProcessor {
         if (dependency.shouldCopy()) {
             dependency.copyTo()
         }
+    }
+
+    private static KeystoreRule createKeystoreRule(Project project, File dir, String variant) {
+        SigningConfig config = getSigningConfig(project, variant)
+        if (config == null) {
+            throw new IllegalArgumentException(
+                    "You must specify signing config for ${project.name} ${variant} build type")
+        }
+        if (!dir.exists()) {
+            dir.mkdirs()
+        }
+        IOHelper.copy(new FileInputStream(config.getStoreFile()),
+                new FileOutputStream(new File("${dir.absolutePath}/" +
+                        "${project.name}_${variant}.keystore")))
+
+        PrintWriter writer = new PrintWriter(new FileOutputStream(new File(
+                "${dir.absolutePath}${File.separator}${project.name}_${variant}.keystore.properties")))
+        writer.println("key.store=${project.name}_${variant}.keystore")
+        writer.println("key.alias=${config.getKeyAlias()}")
+        writer.println("key.store.password=${config.getStorePassword()}")
+        writer.println("key.alias.password=${config.getKeyPassword()}")
+        writer.close()
+
+        return new KeystoreRule("key_store_${variant}", Arrays.asList("PUBLIC"),
+                "${project.name}_${variant}.keystore",
+                "${project.name}_${variant}.keystore.properties")
+    }
+
+    private static SigningConfig getSigningConfig(Project project, String variant) {
+        try {
+            for (PropertyValue prop : project.extensions.getByName("android").metaPropertyValues) {
+                if ("buildTypes".equals(prop.name)) {
+                    for (BuildType buildType :
+                            ((NamedDomainObjectContainer<BuildType>) prop.value).asList()) {
+                        if (buildType.name.equals(variant)) {
+                            return buildType.signingConfig
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            //
+        }
+        return null
     }
 }

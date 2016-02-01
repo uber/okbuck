@@ -59,6 +59,9 @@ android {
         prod {
             buildConfigField "boolean", "CAN_JUMP", "false"
         }
+        demo {
+            buildConfigField "boolean", "CAN_JUMP", "false"
+        }
     }
 
     buildTypes {

@@ -24,9 +24,14 @@
 
 package com.github.piasy.okbuck
 
+import com.github.piasy.okbuck.configs.BUCKFile
+import com.github.piasy.okbuck.configs.GenManifestPyFile
+import com.github.piasy.okbuck.configs.ScriptBUCKFile
 import com.github.piasy.okbuck.dependency.DependencyAnalyzer
 import com.github.piasy.okbuck.dependency.DependencyExtractor
 import com.github.piasy.okbuck.dependency.DependencyProcessor
+import com.github.piasy.okbuck.generator.BuckFileGenerator
+import com.github.piasy.okbuck.generator.DotBuckConfigGenerator
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -42,17 +47,18 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         Task okBuckClean = project.task('okbuckClean')
         okBuckClean << {
             if (project.okbuck.overwrite) {
-                File okbuckDir = new File(project.projectDir.absolutePath +
-                        File.separator + ".okbuck")
-                okbuckDir.deleteDir()
-                File dotOkBuck = new File(
-                        "${project.projectDir.absolutePath}${File.separator}.okbuck")
-                dotOkBuck.deleteDir()
-                File dotBuckConfig = new File(
-                        "${project.projectDir.absolutePath}${File.separator}.buckconfig")
+                File okBuckDir = new File("${project.projectDir.absolutePath}/.okbuck")
+                okBuckDir.deleteDir()
+                File dotBuckdDir = new File("${project.projectDir.absolutePath}/.buckd")
+                dotBuckdDir.deleteDir()
+                File buckOutDir = new File("${project.projectDir.absolutePath}/buck-out")
+                buckOutDir.deleteDir()
+                File okBuckScriptsDir = new File("${project.projectDir.absolutePath}/okbuck-scripts")
+                okBuckScriptsDir.deleteDir()
+                File dotBuckConfig = new File("${project.projectDir.absolutePath}/.buckconfig")
                 dotBuckConfig.delete()
                 project.subprojects { prj ->
-                    File buck = new File("${prj.projectDir.absolutePath}${File.separator}BUCK")
+                    File buck = new File("${prj.projectDir.absolutePath}/BUCK")
                     buck.delete()
                 }
             }
@@ -85,67 +91,61 @@ class OkBuckGradlePlugin implements Plugin<Project> {
             println "==========>> overwrite mode is toggle on <<=========="
         }
 
-        DependencyAnalyzer analyzer = new DependencyAnalyzer(project,
-                new File(project.projectDir.absolutePath + File.separator + ".okbuck"),
-                (boolean) project.okbuck.checkDepConflict,
-                new DependencyExtractor(project))
-
-        analyzer.analyse()
-        new DependencyProcessor(analyzer).process()
-
-        /*// step 1: create .buckconfig
-        File dotBuckConfig = new File(
-                project.projectDir.absolutePath + File.separator + ".buckconfig")
+        // step 1: create .buckconfig
+        File dotBuckConfig = new File("${project.projectDir.absolutePath}/.buckconfig")
         if (dotBuckConfig.exists() && !overwrite) {
             throw new IllegalStateException(
                     ".buckconfig already exist, set overwrite property to true to overwrite existing file.")
         } else {
             PrintStream printer = new PrintStream(dotBuckConfig)
-            new XDotBuckConfigGenerator(project, (String) project.okbuck.target).generate().
-                    print(printer)
+            new DotBuckConfigGenerator(project, (String) project.okbuck.target,
+                    (Map<String, List<String>>) project.okbuck.flavorFilter)
+                    .generate()
+                    .print(printer)
             printer.close()
         }
 
         // step 2: generate script files
-        File scriptsDir = new File(project.projectDir.absolutePath + File.separator + "okbuck-scripts")
+        File scriptsDir = new File("${project.projectDir.absolutePath}/okbuck-scripts")
         if (!scriptsDir.exists()) {
             scriptsDir.mkdirs()
         }
-        File manifestPyFile = new File(scriptsDir.absolutePath + File.separator + "manifest.py")
+        File manifestPyFile = new File("${scriptsDir.absolutePath}/manifest.py")
         PrintStream printer = new PrintStream(manifestPyFile)
         new GenManifestPyFile().print(printer)
         printer.close()
-        File scriptBUCKFile = new File(scriptsDir.absolutePath + File.separator + "BUCK")
+        File scriptBUCKFile = new File("${scriptsDir.absolutePath}/BUCK")
         printer = new PrintStream(scriptBUCKFile)
         new ScriptBUCKFile().print(printer)
         printer.close()
 
         // step 3: analyse dependencies
-        File okBuckDir = new File(project.projectDir.absolutePath + File.separator + ".okbuck")
+        File okBuckDir = new File("${project.projectDir.absolutePath}/.okbuck")
         if (okBuckDir.exists() && !overwrite) {
             throw new IllegalStateException(
                     ".okbuck dir already exist, set overwrite property to true to overwrite existing file.")
         } else {
             DependencyAnalyzer dependencyAnalyzer = new DependencyAnalyzer(project, okBuckDir,
-                    (boolean) project.okbuck.checkDepConflict)
-            printDeps(project, dependencyAnalyzer)
+                    (boolean) project.okbuck.checkDepConflict, new DependencyExtractor(project))
+            dependencyAnalyzer.analyse()
+            new DependencyProcessor(dependencyAnalyzer).process()
 
             // step 4: generate BUCK file for each sub project
-            Map<Project, BUCKFile> buckFiles = new XBuckFileGenerator(project, dependencyAnalyzer,
+            Map<Project, BUCKFile> buckFiles = new BuckFileGenerator(project, dependencyAnalyzer,
                     okBuckDir, (Map<String, String>) project.okbuck.resPackages,
-                    (String) project.okbuck.keystoreDir, (String) project.okbuck.signConfigName,
-                    (int) project.okbuck.linearAllocHardLimit,
-                    (List<String>) project.okbuck.primaryDexPatterns,
-                    (boolean) project.okbuck.exopackage, (String) project.okbuck.appClassSource,
-                    (List<String>) project.okbuck.appLibDependencies).
-                    generate()
+                    (Map<String, Integer>) project.okbuck.linearAllocHardLimit,
+                    (Map<String, List<String>>) project.okbuck.primaryDexPatterns,
+                    (Map<String, Boolean>) project.okbuck.exopackage,
+                    (Map<String, String>) project.okbuck.appClassSource,
+                    (Map<String, List<String>>) project.okbuck.appLibDependencies,
+                    (Map<String, List<String>>) project.okbuck.flavorFilter)
+                    .generate()
             for (Project subProject : buckFiles.keySet()) {
-                File buckFile = new File(
-                        subProject.projectDir.absolutePath + File.separator + "BUCK")
+                File buckFile = new File("${subProject.projectDir.absolutePath}/BUCK")
                 printer = new PrintStream(buckFile)
                 buckFiles.get(subProject).print(printer)
                 printer.close()
             }
-        }*/
+        }
     }
 }
