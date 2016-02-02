@@ -70,13 +70,13 @@ dependencies {
     compile localGroovy()
 
     compile 'commons-io:commons-io:2.4'
-    compile 'com.android.tools.build:gradle:2.0.0-alpha9'
+    compile 'com.android.tools.build:gradle:1.5.0'
 }
 
 def siteUrl = 'https://github.com/Piasy/OkBuck'
 def gitUrl = 'https://github.com/Piasy/OkBuck.git'
 def publishGroup = 'com.github.piasy'
-def publishVersion = '1.0.0'
+def publishVersion = '1.0.0-beta3'
 
 group = publishGroup
 version = publishVersion

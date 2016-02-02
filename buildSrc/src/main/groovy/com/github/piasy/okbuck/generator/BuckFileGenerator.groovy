@@ -160,7 +160,8 @@ public final class BuckFileGenerator {
                     if (dependency.depFile.name.startsWith(dep)) {
                         dependencies.add(dependency)
                         found = true
-                        break
+                        // not break, because name inside deps are not unique, so maybe
+                        // other deps match its name.
                     }
                 }
             }

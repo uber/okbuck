@@ -305,17 +305,25 @@ public final class DependencyAnalyzer {
     }
 
     private String getHashOfDependerSet(Set<Project> dependerSet) {
-        List<Project> sorted = dependerSet.toSorted(new Comparator<Project>() {
+        String concatName = ""
+        for (Project project : toSortedList(dependerSet)) {
+            concatName += project.name + "_"
+        }
+        return bytesToHex(mMD5.digest(concatName.bytes))
+    }
+
+    private static List<Project> toSortedList(Set<Project> dependerSet) {
+        List<Project> sorted = new ArrayList<>()
+        for (Project project : dependerSet) {
+            sorted.add(project)
+        }
+        Collections.sort(sorted, new Comparator<Project>() {
             @Override
             int compare(Project p1, Project p2) {
                 return p1.name.compareTo(p2.name)
             }
         })
-        String concatName = ""
-        for (Project project : sorted) {
-            concatName += project.name + "_"
-        }
-        return bytesToHex(mMD5.digest(concatName.bytes))
+        return sorted
     }
 
     public static String bytesToHex(byte[] bytes) {

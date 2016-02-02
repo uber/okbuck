@@ -9,7 +9,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.github.piasy:okbuck-gradle-plugin:1.0.0'
+        classpath 'com.github.piasy:okbuck-gradle-plugin:1.0.0-beta3'
     }
 }
 
