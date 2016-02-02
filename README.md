@@ -12,6 +12,14 @@ Android Studio + Gradle has already been many Android developers' option, and to
 
 Further more, you can still use OkBuck to maintain your BUCK build system when your gradle configurations changes, OkBuck let you even needn't write one line of the magic BUCK script! 
 
+## Who is using OkBuck?
+Logo | User | Repo
+--- | --- | ---
+![YOLO logo](https://frontend-yoloyolo-tv.alikunlun.com/official/v3/img/pc/logo.png) | [YOLO](https://www.yoloyolo.tv/) | -
+![Piasy avatar](https://avatars2.githubusercontent.com/u/3098704?v=3&s=64) | [Piasy](https://github.com/Piasy) | [AndroidTDDBootStrap](https://github.com/Piasy/AndroidTDDBootStrap)
+
+If you are using OkBuck in your project, [send me a e-mail](mailto:xz4215@gmail.com), I'll add your repo in this list.
+
 ## Full example
 Configurations in root project `build.gradle` file:
 
@@ -21,7 +29,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.github.piasy:okbuck-gradle-plugin:1.0.0'
+        classpath 'com.github.piasy:okbuck-gradle-plugin:1.0.0-beta3'
     }
 }
 
@@ -107,13 +115,12 @@ Maybe there are more caveats waiting for you, but for the super fast build broug
 
 The rest modules in this repo is a full example usage of OkBuck and BUCK.
 
-## Who is using OkBuck?
-Logo | User | Repo
---- | --- | ---
-![YOLO logo](https://frontend-yoloyolo-tv.alikunlun.com/official/v3/img/pc/logo.png) | [YOLO](https://www.yoloyolo.tv/) | -
-![Piasy avatar](https://avatars2.githubusercontent.com/u/3098704?v=3&s=64) | [Piasy](https://github.com/Piasy) | [AndroidTDDBootStrap](https://github.com/Piasy/AndroidTDDBootStrap)
+## Compatibility
+OkBuck is tested under `gradle` 2.2.1 ~ 2.10, and `com.android.tools.build:gradle` 1.5.0. Other versions will not considered compatible, if you have compatibility problem, please fire an issue.
 
-If you are using OkBuck in your project, [send me a e-mail](mailto:xz4215@gmail.com), I'll add your repo in this list.
+Exceptions:
+
++  gradle 2.4 need force jdk version to 1.7, [ref1](http://stackoverflow.com/a/21212790/3077508) and [ref2](http://stackoverflow.com/a/18144853/3077508)
 
 ## Contribution
 Any form of contributions are welcome! See the [detail todo list](https://github.com/Piasy/OkBuck/wiki/TODO-list).
