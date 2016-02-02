@@ -37,14 +37,17 @@ import org.gradle.api.Project
  */
 public final class DotBuckConfigGenerator {
     private final Project mRootProject
+    private final String mBuildToolVersion
     private final String mTarget
     private final Map<String, List<String>> mFlavorFilter
 
     /**
      * Create generator.
      */
-    public DotBuckConfigGenerator(Project rootProject, String target, Map<String, List<String>> flavorFilter) {
+    public DotBuckConfigGenerator(Project rootProject, String buildToolVersion, String target,
+            Map<String, List<String>> flavorFilter) {
         mRootProject = rootProject
+        mBuildToolVersion = buildToolVersion
         mTarget = target
         mFlavorFilter = flavorFilter
     }
@@ -73,7 +76,7 @@ public final class DotBuckConfigGenerator {
                 }
             }
         }
-        return new DotBuckConfigFile(alias, mTarget, Arrays.asList(".git", "**/.svn"))
+        return new DotBuckConfigFile(alias, mBuildToolVersion, mTarget, Arrays.asList(".git", "**/.svn"))
     }
 
     private Map<String, ProductFlavor> getFilteredFlavors(Project project) {

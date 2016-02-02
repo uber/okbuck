@@ -34,12 +34,16 @@ import static com.github.piasy.okbuck.helper.CheckUtil.checkNotNull
  * */
 public final class DotBuckConfigFile extends BuckConfigFile {
     private final Map<String, String> mAlias
+    private final String mBuildToolVersion
     private final String mTarget
     private final List<String> mIgnore
 
-    public DotBuckConfigFile(Map<String, String> alias, String target, List<String> ignore) {
+    public DotBuckConfigFile(Map<String, String> alias, String buildToolVersion, String target,
+            List<String> ignore) {
         checkNotNull(alias, "DotBuckConfigFile alias must be non-null.")
         mAlias = alias
+        checkStringNotEmpty(buildToolVersion, "DotBuckConfigFile buildToolVersion can't be empty.")
+        mBuildToolVersion = buildToolVersion
         checkStringNotEmpty(target, "DotBuckConfigFile target can't be empty.")
         mTarget = target
         checkNotNull(ignore, "DotBuckConfigFile ignore must be non-null.")
@@ -55,6 +59,7 @@ public final class DotBuckConfigFile extends BuckConfigFile {
         printer.println()
 
         printer.println("[android]")
+        printer.println("\tbuild_tools_version = ${mBuildToolVersion}")
         printer.println("\ttarget = ${mTarget}")
         printer.println()
 

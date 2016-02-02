@@ -27,8 +27,14 @@ package com.github.piasy.okbuck
  * okbuck dsl.
  * */
 public class OkBuckExtension {
+
     /**
-     * target: equals to compileSdkVersion in build.gradle.
+     * build_tools_version
+     * */
+    String buildToolVersion = "23.0.1"
+
+    /**
+     * Android target sdk version
      * */
     String target = "android-23"
 
