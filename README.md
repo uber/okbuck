@@ -108,9 +108,10 @@ Maybe there are more caveats waiting for you, but for the super fast build broug
 The rest modules in this repo is a full example usage of OkBuck and BUCK.
 
 ## Who is using OkBuck?
-User | Repo
---- | ---
-[Piasy](https://github.com/Piasy) | [AndroidTDDBootStrap](https://github.com/Piasy/AndroidTDDBootStrap)
+Logo | User | Repo
+--- | --- | ---
+![YOLO logo](https://frontend-yoloyolo-tv.alikunlun.com/official/v3/img/pc/logo.png) | [YOLO](https://www.yoloyolo.tv/) | -
+![Piasy avatar](https://avatars2.githubusercontent.com/u/3098704?v=3&s=64) | [Piasy](https://github.com/Piasy) | [AndroidTDDBootStrap](https://github.com/Piasy/AndroidTDDBootStrap)
 
 If you are using OkBuck in your project, [send me a e-mail](mailto:xz4215@gmail.com), I'll add your repo in this list.
 
