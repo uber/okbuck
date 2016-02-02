@@ -98,7 +98,8 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                     ".buckconfig already exist, set overwrite property to true to overwrite existing file.")
         } else {
             PrintStream printer = new PrintStream(dotBuckConfig)
-            new DotBuckConfigGenerator(project, (String) project.okbuck.target,
+            new DotBuckConfigGenerator(project, (String) project.okbuck.buildToolVersion,
+                    (String) project.okbuck.target,
                     (Map<String, List<String>>) project.okbuck.flavorFilter)
                     .generate()
                     .print(printer)

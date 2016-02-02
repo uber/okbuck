@@ -21,6 +21,7 @@ allprojects {
 apply plugin: 'com.github.piasy.okbuck-gradle-plugin'
 
 okbuck {
+    buildToolVersion "23.0.1"
     target "android-23"
     overwrite true
     checkDepConflict true
