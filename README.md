@@ -13,7 +13,7 @@ Android Studio + Gradle has already been many Android developers' option, and to
 Further more, you can still use OkBuck to maintain your BUCK build system when your gradle configurations changes, OkBuck let you even needn't write one line of the magic BUCK script! 
 
 ## Who is using OkBuck?
- |  | 
+ LOGO | User/Org | Repo 
 --- | --- | ---
 ![YOLO logo](https://frontend-yoloyolo-tv.alikunlun.com/official/v3/img/pc/logo.png) | [YOLO](https://www.yoloyolo.tv/) | -
 ![Piasy avatar](https://avatars2.githubusercontent.com/u/3098704?v=3&s=48) | [Piasy](https://github.com/Piasy) | [AndroidTDDBootStrap](https://github.com/Piasy/AndroidTDDBootStrap)
