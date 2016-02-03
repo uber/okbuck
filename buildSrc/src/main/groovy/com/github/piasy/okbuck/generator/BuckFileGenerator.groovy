@@ -33,6 +33,7 @@ import com.github.piasy.okbuck.helper.ProjectHelper
 import com.github.piasy.okbuck.helper.StringUtil
 import com.github.piasy.okbuck.rules.AndroidResourceRule
 import com.github.piasy.okbuck.rules.AppClassSourceRule
+import com.github.piasy.okbuck.rules.GenAidlRule
 import com.github.piasy.okbuck.rules.PrebuiltNativeLibraryRule
 import com.github.piasy.okbuck.rules.base.AbstractBuckRule
 import org.gradle.api.Project
@@ -211,6 +212,13 @@ public final class BuckFileGenerator {
         checkStringNotEmpty(mResPackages.get(project.name), "resPackage key-value pair must be " +
                 "set for sub project ${project.name} in your root project build.gradle file");
 
+        GenAidlRule genAidlRule = GenAidlRuleComposer.compose(project)
+        String aidlRuleName = null
+        if (genAidlRule != null) {
+            rules.add(genAidlRule)
+            aidlRuleName = genAidlRule.ruleName
+        }
+
         if (ProjectHelper.exportFlavor(project)) {
             addAndroidResRuleIfNeed("res_main", project, "main", finalDependencies.get("main"),
                     rules)
@@ -235,12 +243,12 @@ public final class BuckFileGenerator {
                         "src_${flavor}_debug", project, mOkBuckDir,
                         finalDependencies.get((String) "${flavor}_debug"),
                         mDependencyAnalyzer.annotationProcessors.get(project), flavor, "debug",
-                        isForLibraryModule, excludeAppClass))
+                        isForLibraryModule, excludeAppClass, aidlRuleName))
                 rules.add(AndroidLibraryRuleComposer.composeWithFlavor(
                         "src_${flavor}_release", project, mOkBuckDir,
                         finalDependencies.get((String) "${flavor}_release"),
                         mDependencyAnalyzer.annotationProcessors.get(project), flavor, "release",
-                        isForLibraryModule, excludeAppClass))
+                        isForLibraryModule, excludeAppClass, aidlRuleName))
             }
         } else {
             if (isForLibraryModule) {
@@ -255,7 +263,7 @@ public final class BuckFileGenerator {
                 rules.add(AndroidLibraryRuleComposer.compose4LibraryWithoutFlavor(
                         "src", project, mOkBuckDir, finalDependencies.get("release"),
                         mDependencyAnalyzer.annotationProcessors.get(project), isForLibraryModule,
-                        excludeAppClass))
+                        excludeAppClass, aidlRuleName))
             } else {
                 addAndroidResRuleIfNeed("res_main", project, "main",
                         finalDependencies.get("main"), rules)
@@ -272,11 +280,11 @@ public final class BuckFileGenerator {
                 rules.add(AndroidLibraryRuleComposer.compose4AppWithoutFlavor(
                         "src_debug", project, mOkBuckDir, finalDependencies.get("debug"),
                         mDependencyAnalyzer.annotationProcessors.get(project), "debug",
-                        isForLibraryModule, excludeAppClass))
+                        isForLibraryModule, excludeAppClass, aidlRuleName))
                 rules.add(AndroidLibraryRuleComposer.compose4AppWithoutFlavor(
                         "src_release", project, mOkBuckDir, finalDependencies.get("release"),
                         mDependencyAnalyzer.annotationProcessors.get(project), "release",
-                        isForLibraryModule, excludeAppClass))
+                        isForLibraryModule, excludeAppClass, aidlRuleName))
             }
         }
 

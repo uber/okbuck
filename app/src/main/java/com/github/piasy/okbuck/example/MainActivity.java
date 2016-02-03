@@ -1,7 +1,10 @@
 package com.github.piasy.okbuck.example;
 
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -10,6 +13,7 @@ import butterknife.ButterKnife;
 import com.example.hellojni.HelloJni;
 import com.github.piasy.okbuck.example.common.Calc;
 import com.github.piasy.okbuck.example.common.CalcMonitor;
+import com.github.piasy.okbuck.example.common.IMyAidlInterface;
 import com.github.piasy.okbuck.example.dummylibrary.DummyActivity;
 import com.github.piasy.okbuck.example.dummylibrary.DummyAndroidClass;
 import com.github.piasy.okbuck.example.javalib.DummyJavaClass;
@@ -60,6 +64,20 @@ public class MainActivity extends AppCompatActivity {
 
         Log.d("test", "1 + 2 = " + new Calc(new CalcMonitor(this)).add(1, 2));
     }
+
+    IMyAidlInterface mIMyAidlInterface;
+
+    private ServiceConnection mServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            mIMyAidlInterface = IMyAidlInterface.Stub.asInterface(service);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mIMyAidlInterface = null;
+        }
+    };
 
     private void bind() {
         mTextView = ButterKnife.findById(this, R.id.mTextView);
