@@ -5,7 +5,7 @@
 
 OkBuck is a gradle plugin, aiming to help developers utilize the super fast build system: BUCK, based on the existing project with Android Studio + gradle, and keep both build systems work, with few lines configuration.
 
-[Wiki](https://github.com/Piasy/OkBuck/wiki), [中文版](README-zh.md)
+[Wiki](https://github.com/Piasy/OkBuck/wiki), [中文版](https://github.com/Piasy/OkBuck/blob/master/README-zh.md)
 
 ## Why OkBuck?
 Android Studio + Gradle has already been many Android developers' option, and to migrate to BUCK, there are many works to be done, which are difficult and buggy. OkBuck aims to provide a gradle plugin, which will do these buggy job for you automaticlly after few lines configuration.
@@ -133,7 +133,7 @@ Note that you need create an empty file named `bintray.properties` in `/buildSrc
 +  Thanks for [ヤ①個亼簡單](#) of the manifest merge contribution, and the idea of multi-product flavor support.
 +  Thanks for [hujin1860@gmail.com](mailto:hujin1860@gmail.com) of the manifest genrule advice.
 
-## [Full Change log](CHANGELOG.md)
+## [Full Change log](https://github.com/Piasy/OkBuck/blob/master/CHANGELOG.md)
 
 ## Liscense
 ```
