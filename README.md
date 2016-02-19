@@ -27,7 +27,7 @@ of the magic BUCK script!
  LOGO | User/Org | Repo 
 --- | --- | ---
 ![YOLO LOGO](https://frontend-yoloyolo-tv.alikunlun.com/official/v3/img/pc/logo.png) | [YOLO](https://www.yoloyolo.tv/) | -
-![木瓜金融 LOGO](http://www.mugua99.com/html/asset/images/logo.png) | [木瓜金融](http://www.mugua99.com/) | -
+![木瓜金融 LOGO](http://img.wdjimg.com/mms/icon/v1/3/cb/b8dea684d8e7112013db5da3abd47cb3_48_48.png) | [木瓜金融](http://www.mugua99.com/) | -
 ![Piasy avatar](https://avatars2.githubusercontent.com/u/3098704?v=3&s=48) | [Piasy](https://github.com/Piasy) | [AndroidTDDBootStrap](https://github.com/Piasy/AndroidTDDBootStrap)
 
 If you are using OkBuck in your project, [send me a e-mail](mailto:xz4215@gmail.com), 
