@@ -25,7 +25,6 @@
 package com.github.piasy.okbuck.composer
 
 import com.github.piasy.okbuck.helper.FileUtil
-import com.github.piasy.okbuck.helper.ProjectHelper
 import com.github.piasy.okbuck.rules.GenAidlRule
 import org.gradle.api.Project
 
@@ -40,8 +39,8 @@ public final class GenAidlRuleComposer {
         if (aidlDir.exists()) {
             return new GenAidlRule("${project.name}_aidls",
                     FileUtil.getDirPathDiff(project.projectDir, aidlDir),
-                    FileUtil.getProjectPathDiff(project.rootProject, project).substring(1) + "/" +
-                            ProjectHelper.getProjectSrcSet(project, "main")[0])
+                    FileUtil.getProjectPathDiff(project.rootProject, project).substring(1) +
+                            FileUtil.getDirPathDiff(project.projectDir, aidlDir))
         } else {
             return null
         }

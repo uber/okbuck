@@ -10,8 +10,8 @@ OkBuck is a gradle plugin, aiming to help developers utilize the super fast buil
 system: BUCK, based on the existing project with Android Studio + gradle, and keep 
 both build systems work, with few lines configuration.
 
-[Wiki](https://github.com/Piasy/OkBuck/wiki), [中文版](https://github.com/Piasy/
-OkBuck/blob/master/README-zh.md)
+[Wiki](https://github.com/Piasy/OkBuck/wiki), 
+[中文版](https://github.com/Piasy/OkBuck/blob/master/README-zh.md)
 
 ## Why OkBuck?
 Android Studio + Gradle has already been many Android developers' option, and 
@@ -42,7 +42,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.github.piasy:okbuck-gradle-plugin:1.0.0-beta4'
+        classpath 'com.github.piasy:okbuck-gradle-plugin:1.0.0-beta5'
     }
 }
 
@@ -75,23 +75,6 @@ in corresponding `AndroidManifest.xml` file
 
 ## Full example
 ```gradle
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.github.piasy:okbuck-gradle-plugin:1.0.0-beta4'
-    }
-}
-
-allprojects {
-    repositories {
-        jcenter()
-    }
-}
-
-apply plugin: 'com.github.piasy.okbuck-gradle-plugin'
-
 okbuck {
     buildToolVersion "23.0.1"
     target "android-23"
@@ -147,14 +130,14 @@ okbuck {
 +  `checkDepConflict` is used to control whether check dependency conflict, default `true`
 +  `linearAllocHardLimit` and `primaryDexPatterns` are maps, used for specifing 
 linearAllocHardLimit and primaryDexPatterns used by BUCK multidex, more details 
-about multidex configuration, please read [multidex wiki page](https://github.com/
-Piasy/OkBuck/wiki/Multidex-Configuration-Guide), if you don't need multidex (not 
+about multidex configuration, please read 
+[multidex wiki page](https://github.com/Piasy/OkBuck/wiki/Multidex-Configuration-Guide), 
+if you don't need multidex (not 
 enable it in `build.gradle`), you can ignore these two parameters
 +  `exopackage`, `appClassSource` and `appLibDependencies` are maps, used for 
 configuring BUCK exopackage mode, more details about exopackage configuration, 
-please read [exopackage wiki page](https://github.com/Piasy/OkBuck/wiki/
-Exopackage-Configuration-Guide), if you don't need exopackage, you can ignore 
-these three parameters
+please read [exopackage wiki page](https://github.com/Piasy/OkBuck/wiki/Exopackage-Configuration-Guide), 
+if you don't need exopackage, you can ignore these three parameters
 +  `flavorFilter` is a map, used for controlling OkBuck only generate BUCK files for flavors 
 you need, default is empty, which will generate all flavors BUCK file
 +  After apply OkBuck plugin (sync project after modify root project `build.gradle` file), 
@@ -167,8 +150,8 @@ root dir, inside it, there are lots of BUCK alias, e.g. `appDevDebug`, `appProdR
 `anotherappDebug` etc, which you could use to run BUCK build, e.g. `buck build appDevDebug` etc
 
 ## Troubleshooting
-If you come with bugs of OkBuck, please [open an issue](https://github.com/Piasy/OkBuck/
-issues/new), and it's really appreciated to post the output of `./gradle okbuck --stacktrace --debug` 
+If you come with bugs of OkBuck, please [open an issue](https://github.com/Piasy/OkBuck/issues/new), 
+and it's really appreciated to post the output of `./gradle okbuck --stacktrace --debug` 
 at the same time, or you can join our BUCK QQ group: `170102067`.
 
 ## After apply OkBuck successfully
