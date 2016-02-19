@@ -9,7 +9,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.github.piasy:okbuck-gradle-plugin:1.0.0-beta4'
+        classpath 'com.github.piasy:okbuck-gradle-plugin:1.0.0-beta5'
     }
 }
 
@@ -38,25 +38,8 @@ okbuck {
 +  `resPackages`是一个map，用来指定每个module生成的的资源文件的包名，key是module的名字，
 value是指定的包名，通常和该module的`AndroidManifest.xml`中的`package`配置保持一致
 
-## 完整示例
+## 完整配置
 ```gradle
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.github.piasy:okbuck-gradle-plugin:1.0.0-beta4'
-    }
-}
-
-allprojects {
-    repositories {
-        jcenter()
-    }
-}
-
-apply plugin: 'com.github.piasy.okbuck-gradle-plugin'
-
 okbuck {
     buildToolVersion "23.0.1"
     target "android-23"
@@ -115,8 +98,8 @@ linearAllocHardLimit和primaryDexPatterns部分，更多详细关于multidex配�
 [multidex wiki](https://github.com/Piasy/OkBuck/wiki/Multidex-Configuration-Guide)，
 如果未使用multidex（未在`build.gradle`文件中开启），可以忽略这两个参数
 +  `exopackage`，`appClassSource`和`appLibDependencies`都是map，用来配置BUCK exopackage，
-更多详细关于exopackage配置的说明，请参阅[exopackage wiki](https://github.com/Piasy/OkBuck/
-wiki/Exopackage-Configuration-Guide)，如果未使用exopackage，可以忽略这三个参数
+更多详细关于exopackage配置的说明，请参阅[exopackage wiki](https://github.com/Piasy/OkBuck/wiki/Exopackage-Configuration-Guide)，
+如果未使用exopackage，可以忽略这三个参数
 +  `flavorFilter`是一个map，用来控制只生成自己想要的flavor的BUCK配置，默认为空，表示生成所有flavor的BUCK配置
 +  应用OkBuck插件之后，工程内将会产生两个gradle task，`okbuck`和`okbuckClean`
   +  `okbuck`将会生成BUCK配置文件，包括指定的所有flavor的配置
