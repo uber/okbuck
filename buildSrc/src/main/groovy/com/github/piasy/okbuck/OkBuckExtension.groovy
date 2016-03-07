@@ -84,4 +84,8 @@ public class OkBuckExtension {
      * */
     Map<String, List<String>> flavorFilter = new HashMap<>()
 
+    /**
+     * cpu filters
+     * */
+    Map<String, List<String>> cpuFilters = new HashMap<>()
 }

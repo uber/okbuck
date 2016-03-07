@@ -119,6 +119,11 @@ okbuck {
                     'prod',
             ]
     ]
+    cpuFilters = [
+            app: [
+                    'armeabi',
+            ]
+    ]
 }
 ```
 
@@ -140,6 +145,9 @@ please read [exopackage wiki page](https://github.com/Piasy/OkBuck/wiki/Exopacka
 if you don't need exopackage, you can ignore these three parameters
 +  `flavorFilter` is a map, used for controlling OkBuck only generate BUCK files for flavors 
 you need, default is empty, which will generate all flavors BUCK file
++  `cpuFilters` is a map, used for controlling BUCK only create the specific cpu architecture
+native library folder in your apk file, the same as `ndk.abiFilter` of gradle, support values
+are: `armeabi`, `armeabi-v7a`, `x86`, `x86_64`, `mips`
 +  After apply OkBuck plugin (sync project after modify root project `build.gradle` file), 
 two tasks are added into your gradle project , `okbuck`, and `okbuckClean`
   +  `okbuck` will generate all flavor (you specified) and variant BUCK configs, and each 
