@@ -450,9 +450,14 @@ public final class ProjectHelper {
         switch (getSubProjectType(project)) {
             case ProjectType.AndroidAppProject:
             case ProjectType.AndroidLibProject:
-                File resDir =
-                        (File) project.android.sourceSets.getByName(flavorVariant).res.srcDirs[0]
-                return resDir.exists()
+                try {
+                    File resDir =
+                            (File) project.android.sourceSets.getByName(flavorVariant).res.srcDirs[0]
+                    return resDir.exists()
+                } catch (Exception e) {
+                    logger.warn e.message
+                }
+                return false
             case ProjectType.JavaLibProject:
             default:
                 return false
