@@ -37,7 +37,7 @@ public final class AndroidBinaryRuleComposer {
 
     public static AndroidBinaryRule compose(
             Project project, String flavor, String variant, boolean exopackage,
-            int linearAllocHardLimit, List<String> primaryDexPatterns
+            int linearAllocHardLimit, List<String> primaryDexPatterns, List<String> cpuFilters
     ) {
         List<String> binDeps = new ArrayList<>()
         binDeps.add(":src_${flavor}_${variant}")
@@ -60,17 +60,17 @@ public final class AndroidBinaryRuleComposer {
         if (ProjectHelper.getMultiDexEnabled(project)) {
             return new AndroidBinaryRule("bin_${flavor}_${variant}", Arrays.asList("PUBLIC"),
                     binDeps, ":manifest", "//.okbuck/${project.name}_keystore:key_store_${variant}",
-                    linearAllocHardLimit, primaryDexPatterns, exopackage)
+                    linearAllocHardLimit, primaryDexPatterns, exopackage, cpuFilters)
         } else {
             return new AndroidBinaryRule("bin_${flavor}_${variant}", Arrays.asList("PUBLIC"),
                     binDeps, ":manifest", "//.okbuck/${project.name}_keystore:key_store_${variant}",
-                    exopackage)
+                    exopackage, cpuFilters)
         }
     }
 
     public static AndroidBinaryRule composeWithoutFlavor(
             Project project, String variant, boolean exopackage,
-            int linearAllocHardLimit, List<String> primaryDexPatterns
+            int linearAllocHardLimit, List<String> primaryDexPatterns, List<String> cpuFilters
     ) {
         List<String> binDeps = new ArrayList<>()
         binDeps.add(":src_${variant}")
@@ -86,11 +86,11 @@ public final class AndroidBinaryRuleComposer {
         if (ProjectHelper.getMultiDexEnabled(project)) {
             return new AndroidBinaryRule("bin_${variant}", Arrays.asList("PUBLIC"),
                     binDeps, ":manifest", "//.okbuck/${project.name}_keystore:key_store_${variant}",
-                    linearAllocHardLimit, primaryDexPatterns, exopackage)
+                    linearAllocHardLimit, primaryDexPatterns, exopackage, cpuFilters)
         } else {
             return new AndroidBinaryRule("bin_${variant}", Arrays.asList("PUBLIC"),
                     binDeps, ":manifest", "//.okbuck/${project.name}_keystore:key_store_${variant}",
-                    exopackage)
+                    exopackage, cpuFilters)
         }
     }
 }

@@ -41,10 +41,12 @@ public final class AndroidBinaryRule extends BuckRuleWithDeps {
     private final int mLinearAllocHardLimit
     private final List<String> mPrimaryDexPatterns
     private final boolean mExopackage
+    private final List<String> mCpuFilters
+    private final Map<String, String> mCupFiltersMap
 
     public AndroidBinaryRule(
             String name, List<String> visibility, List<String> deps, String manifest,
-            String keystore, boolean exopackage
+            String keystore, boolean exopackage, List<String> cpuFilters
     ) {
         super("android_binary", name, visibility, deps)
 
@@ -56,12 +58,19 @@ public final class AndroidBinaryRule extends BuckRuleWithDeps {
         mLinearAllocHardLimit = 0
         mPrimaryDexPatterns = null
         mExopackage = exopackage
+        mCpuFilters = cpuFilters
+        mCupFiltersMap = new HashMap<>()
+        mCupFiltersMap.put("armeabi", "ARM")
+        mCupFiltersMap.put("armeabi-v7a", "ARMV7")
+        mCupFiltersMap.put("x86", "X86")
+        mCupFiltersMap.put("x86_64", "X86_64")
+        mCupFiltersMap.put("mips", "MIPS")
     }
 
     public AndroidBinaryRule(
             String name, List<String> visibility, List<String> deps, String manifest,
             String keystore, int linearAllocHardLimit, List<String> primaryDexPatterns,
-            boolean exopackage
+            boolean exopackage, List<String> cpuFilters
     ) {
         super("android_binary", name, visibility, deps)
 
@@ -74,6 +83,13 @@ public final class AndroidBinaryRule extends BuckRuleWithDeps {
         checkNotNull(primaryDexPatterns, "AndroidBinaryRule primaryDexPatterns must be non-null.")
         mPrimaryDexPatterns = primaryDexPatterns
         mExopackage = exopackage
+        mCpuFilters = cpuFilters
+        mCupFiltersMap = new HashMap<>()
+        mCupFiltersMap.put("armeabi", "ARM")
+        mCupFiltersMap.put("armeabi-v7a", "ARMV7")
+        mCupFiltersMap.put("x86", "X86")
+        mCupFiltersMap.put("x86_64", "X86_64")
+        mCupFiltersMap.put("mips", "MIPS")
     }
 
     @Override
@@ -93,6 +109,15 @@ public final class AndroidBinaryRule extends BuckRuleWithDeps {
                 }
                 printer.println("\t],")
             }
+        }
+        if (mCpuFilters != null && !mCpuFilters.empty) {
+            printer.println("\tcpu_filters = [")
+            for (String filter : mCpuFilters) {
+                if (mCupFiltersMap.containsKey(filter)) {
+                    printer.println("\t\t'${mCupFiltersMap.get(filter)}',")
+                }
+            }
+            printer.println("\t],")
         }
     }
 }

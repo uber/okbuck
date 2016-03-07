@@ -139,7 +139,8 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                     (Map<String, Boolean>) project.okbuck.exopackage,
                     (Map<String, String>) project.okbuck.appClassSource,
                     (Map<String, List<String>>) project.okbuck.appLibDependencies,
-                    (Map<String, List<String>>) project.okbuck.flavorFilter)
+                    (Map<String, List<String>>) project.okbuck.flavorFilter,
+                    (Map<String, List<String>>) project.okbuck.cpuFilters)
                     .generate()
             for (Project subProject : buckFiles.keySet()) {
                 File buckFile = new File("${subProject.projectDir.absolutePath}/BUCK")

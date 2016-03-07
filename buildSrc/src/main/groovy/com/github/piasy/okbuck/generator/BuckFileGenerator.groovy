@@ -56,13 +56,14 @@ public final class BuckFileGenerator {
     private final Map<String, String> mAppClassSource
     private final Map<String, List<String>> mAppLibDependencies
     private final Map<String, List<String>> mFlavorFilter
+    private final Map<String, List<String>> mCpuFilters
 
     public BuckFileGenerator(
             Project rootProject, DependencyAnalyzer dependencyAnalyzer, File okBuckDir,
             Map<String, String> resPackages, Map<String, Integer> linearAllocHardLimit,
             Map<String, List<String>> primaryDexPatterns, Map<String, Boolean> exopackage,
             Map<String, String> appClassSource, Map<String, List<String>> appLibDependencies,
-            Map<String, List<String>> flavorFilter
+            Map<String, List<String>> flavorFilter, Map<String, List<String>> cpuFilters
     ) {
         mRootProject = rootProject
         mDependencyAnalyzer = dependencyAnalyzer
@@ -74,6 +75,7 @@ public final class BuckFileGenerator {
         mAppClassSource = appClassSource
         mAppLibDependencies = appLibDependencies
         mFlavorFilter = flavorFilter
+        mCpuFilters = cpuFilters
     }
 
     /**
@@ -92,6 +94,7 @@ public final class BuckFileGenerator {
                     List<String> primaryDexPatterns = mPrimaryDexPatterns.get(project.name)
                     String appClassSource = mAppClassSource.get(project.name)
                     List<String> appLibDependencies = mAppLibDependencies.get(project.name)
+                    List<String> cpuFilters = mCpuFilters.get(project.name)
                     if (exopackage && (primaryDexPatterns == null ||
                             StringUtil.isEmpty(appClassSource) || appLibDependencies == null)) {
                         throw new IllegalArgumentException("Please set primaryDexPatterns, " +
@@ -105,7 +108,7 @@ public final class BuckFileGenerator {
                             mDependencyAnalyzer.finalDependencies.get(project)
                     createAndroidAppRules(rules, project, finalDependencies, appClassSource,
                             matchAppLibDependencies(appLibDependencies, finalDependencies),
-                            exopackage, linearAllocHardLimit, primaryDexPatterns)
+                            exopackage, linearAllocHardLimit, primaryDexPatterns, cpuFilters)
                     break
                 case ProjectHelper.ProjectType.AndroidLibProject:
                     createAndroidLibraryRules(rules, project,
@@ -310,7 +313,7 @@ public final class BuckFileGenerator {
             List<AbstractBuckRule> rules, Project project,
             Map<String, Set<Dependency>> finalDependencies, String appClassSource,
             List<Dependency> exopackageRuleDependencies, boolean exopackage,
-            int linearAllocHardLimit, List<String> primaryDexPatterns
+            int linearAllocHardLimit, List<String> primaryDexPatterns, List<String> cpuFilters
     ) {
         if (exopackage) {
             createExopackageRules(rules, project, appClassSource, exopackageRuleDependencies)
@@ -322,15 +325,15 @@ public final class BuckFileGenerator {
         if (ProjectHelper.exportFlavor(project)) {
             for (String flavor : getFilteredFlavors(project).keySet()) {
                 rules.add(AndroidBinaryRuleComposer.compose(project, flavor, "debug", exopackage,
-                        linearAllocHardLimit, primaryDexPatterns))
+                        linearAllocHardLimit, primaryDexPatterns, cpuFilters))
                 rules.add(AndroidBinaryRuleComposer.compose(project, flavor, "release", exopackage,
-                        linearAllocHardLimit, primaryDexPatterns))
+                        linearAllocHardLimit, primaryDexPatterns, cpuFilters))
             }
         } else {
             rules.add(AndroidBinaryRuleComposer.composeWithoutFlavor(project, "debug", exopackage,
-                    linearAllocHardLimit, primaryDexPatterns))
+                    linearAllocHardLimit, primaryDexPatterns, cpuFilters))
             rules.add(AndroidBinaryRuleComposer.composeWithoutFlavor(project, "release", exopackage,
-                    linearAllocHardLimit, primaryDexPatterns))
+                    linearAllocHardLimit, primaryDexPatterns, cpuFilters))
         }
     }
 }

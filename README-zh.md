@@ -84,6 +84,11 @@ okbuck {
                     'prod',
             ]
     ]
+    cpuFilters = [
+            app: [
+                    'armeabi',
+            ]
+    ]
 }
 ```
 
@@ -101,6 +106,8 @@ linearAllocHardLimit和primaryDexPatterns部分，更多详细关于multidex配�
 更多详细关于exopackage配置的说明，请参阅[exopackage wiki](https://github.com/Piasy/OkBuck/wiki/Exopackage-Configuration-Guide)，
 如果未使用exopackage，可以忽略这三个参数
 +  `flavorFilter`是一个map，用来控制只生成自己想要的flavor的BUCK配置，默认为空，表示生成所有flavor的BUCK配置
++  `cpuFilters`是一个map，用来控制BUCK只打包指定CPU架构的so库，和gradle的`ndk.abiFilter`参数一样，支持参数为：`armeabi`,
+`armeabi-v7a`, `x86`, `x86_64`, `mips`
 +  应用OkBuck插件之后，工程内将会产生两个gradle task，`okbuck`和`okbuckClean`
   +  `okbuck`将会生成BUCK配置文件，包括指定的所有flavor的配置
   +  `okbuckClean`将会删除所有的OkBuck临时文件，BUCK配置文件，以及BUCK临时文件
