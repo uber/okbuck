@@ -65,8 +65,12 @@ public final class DotBuckConfigFile extends BuckConfigFile {
 
         printer.println("[project]")
         printer.print("\tignore =")
-        for (String ignore : mIgnore) {
-            printer.print(" ${ignore},")
+        for (int i = 0; i < mIgnore.size(); i++) {
+            if (i != mIgnore.size() - 1) {
+                printer.print(" ${mIgnore.get(i)},")
+            } else {
+                printer.print(" ${mIgnore.get(i)}")
+            }
         }
         printer.println()
     }
