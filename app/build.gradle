@@ -18,13 +18,13 @@ if (new File(keyConfigPath).exists()) {
 }
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    compileSdkVersion rootProject.ext.androidCompileSdkVersion
+    buildToolsVersion rootProject.ext.androidBuildToolsVersion
 
     defaultConfig {
         applicationId "com.github.piasy.okbuck.example"
-        minSdkVersion 15
-        targetSdkVersion 23
+        minSdkVersion rootProject.ext.androidMinSdkVersion
+        targetSdkVersion rootProject.ext.androidTargetSdkVersion
         multiDexEnabled true
         versionCode 1
         versionName "1.0"

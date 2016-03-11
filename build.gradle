@@ -18,11 +18,19 @@ allprojects {
     }
 }
 
+ext {
+    androidCompileSdkVersion = 23
+    androidBuildToolsVersion = '23.0.2'
+    androidMinSdkVersion = 15
+    androidTargetSdkVersion = 23
+    androidSupportSdkVersion = '23.1.1'
+}
+
 apply plugin: 'com.github.piasy.okbuck-gradle-plugin'
 
 okbuck {
-    buildToolVersion "23.0.1"
-    target "android-23"
+    buildToolVersion rootProject.ext.androidBuildToolsVersion
+    target "android-${rootProject.ext.androidCompileSdkVersion}"
     overwrite true
     checkDepConflict true
     resPackages = [
