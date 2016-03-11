@@ -72,11 +72,6 @@ okbuck {
                     'prod',
             ]
     ]
-    cpuFilters = [
-            app: [
-                    'armeabi',
-            ]
-    ]
 }
 
 task clean(type: Delete) {
