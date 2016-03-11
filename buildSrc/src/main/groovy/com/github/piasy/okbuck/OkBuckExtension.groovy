@@ -31,7 +31,7 @@ public class OkBuckExtension {
     /**
      * build_tools_version
      * */
-    String buildToolVersion = "23.0.2"
+    String buildToolVersion = "23.0.1"
 
     /**
      * Android target sdk version
