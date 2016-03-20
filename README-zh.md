@@ -37,6 +37,12 @@ okbuck {
 `repositories`列表中，而且必须在`apply plugin`部分之前
 +  `resPackages`是一个map，用来指定每个module生成的的资源文件的包名，key是module的名字，
 value是指定的包名，通常和该module的`AndroidManifest.xml`中的`package`配置保持一致
++  应用OkBuck插件之后，工程内将会产生两个gradle task，`okbuck`和`okbuckClean`
+  +  `okbuck`将会生成BUCK配置文件，包括指定的所有flavor的配置
+  +  `okbuckClean`将会删除所有的OkBuck临时文件，BUCK配置文件，以及BUCK临时文件
++  成功执行`./gradlew okbuck`后，工程根目录将生成一个`.buckconfig`文件，其中定义了多个BUCK alias，
+例如`appDevDebug`，`appProdRelease`，`anotherappDebug`等，根据它们可以确定BUCK build的命令，
+例如`buck build appDevDebug`等
 
 ## 完整配置
 ```gradle
@@ -108,12 +114,6 @@ linearAllocHardLimit和primaryDexPatterns部分，更多详细关于multidex配�
 +  `flavorFilter`是一个map，用来控制只生成自己想要的flavor的BUCK配置，默认为空，表示生成所有flavor的BUCK配置
 +  `cpuFilters`是一个map，用来控制BUCK只打包指定CPU架构的so库，和gradle的`ndk.abiFilter`参数一样，支持参数为：`armeabi`,
 `armeabi-v7a`, `x86`, `x86_64`, `mips`
-+  应用OkBuck插件之后，工程内将会产生两个gradle task，`okbuck`和`okbuckClean`
-  +  `okbuck`将会生成BUCK配置文件，包括指定的所有flavor的配置
-  +  `okbuckClean`将会删除所有的OkBuck临时文件，BUCK配置文件，以及BUCK临时文件
-+  成功执行`./gradlew okbuck`后，工程根目录将生成一个`.buckconfig`文件，其中定义了多个BUCK alias，
-例如`appDevDebug`，`appProdRelease`，`anotherappDebug`等，根据它们可以确定BUCK build的命令，
-例如`buck build appDevDebug`等
 
 ## Troubleshooting
 如果遇到任何问题，请[提一个issue](https://github.com/Piasy/OkBuck/issues/new)，如果能提供
