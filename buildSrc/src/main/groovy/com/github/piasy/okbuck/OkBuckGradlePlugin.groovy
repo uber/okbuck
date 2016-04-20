@@ -42,7 +42,7 @@ import org.gradle.api.Task
 class OkBuckGradlePlugin implements Plugin<Project> {
 
     void apply(Project project) {
-        project.extensions.create("okbuck", OkBuckExtension)
+        project.extensions.create("okbuck", OkBuckExtension, project)
 
         Task okBuckClean = project.task('okbuckClean')
         okBuckClean << {
@@ -57,7 +57,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                 okBuckScriptsDir.deleteDir()
                 File dotBuckConfig = new File("${project.projectDir.absolutePath}/.buckconfig")
                 dotBuckConfig.delete()
-                project.subprojects { prj ->
+                project.okbuck.toBuck.each { prj ->
                     File buck = new File("${prj.projectDir.absolutePath}/BUCK")
                     buck.delete()
                 }
