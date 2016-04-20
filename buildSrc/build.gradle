@@ -76,7 +76,7 @@ dependencies {
 def siteUrl = 'https://github.com/Piasy/OkBuck'
 def gitUrl = 'https://github.com/Piasy/OkBuck.git'
 def publishGroup = 'com.github.piasy'
-def publishVersion = '1.0.0-beta9'
+def publishVersion = '1.0.0-beta8'
 
 group = publishGroup
 version = publishVersion
