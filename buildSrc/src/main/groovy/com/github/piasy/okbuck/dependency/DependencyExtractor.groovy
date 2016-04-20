@@ -86,7 +86,7 @@ public final class DependencyExtractor {
     }
 
     private extractAptDependencies() {
-        for (Project project : mRootProject.subprojects) {
+        for (Project project : mRootProject.okbuck.toBuck) {
             if (ProjectHelper.getSubProjectType(project) == ProjectHelper.ProjectType.Unknown) {
                 continue
             }
@@ -111,7 +111,7 @@ public final class DependencyExtractor {
     }
 
     private extractAnnotationProcessors() {
-        for (Project project : mRootProject.subprojects) {
+        for (Project project : mRootProject.okbuck.toBuck) {
             if (ProjectHelper.getSubProjectType(project) == ProjectHelper.ProjectType.Unknown) {
                 continue
             }
@@ -140,7 +140,7 @@ public final class DependencyExtractor {
     }
 
     private extractCompileDependencies() {
-        for (Project project : mRootProject.subprojects) {
+        for (Project project : mRootProject.okbuck.toBuck) {
             ProjectHelper.ProjectType type = ProjectHelper.getSubProjectType(project)
             if (type == ProjectHelper.ProjectType.Unknown) {
                 continue

@@ -23,6 +23,8 @@
  */
 package com.github.piasy.okbuck
 
+import org.gradle.api.Project
+
 /**
  * okbuck dsl.
  * */
@@ -88,4 +90,10 @@ public class OkBuckExtension {
      * cpu filters
      * */
     Map<String, List<String>> cpuFilters = new HashMap<>()
+
+    Collection<Project> toBuck
+
+    OkBuckExtension(Project project) {
+        toBuck = project.subprojects
+    }
 }
