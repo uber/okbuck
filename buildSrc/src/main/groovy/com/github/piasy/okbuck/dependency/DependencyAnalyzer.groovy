@@ -92,7 +92,7 @@ public final class DependencyAnalyzer {
     }
 
     private void combineFlavorVariant() {
-        for (Project project : mRootProject.okbuck.toBuck) {
+        for (Project project : mRootProject.okbuck.buckProjects) {
             switch (ProjectHelper.getSubProjectType(project)) {
                 case ProjectHelper.ProjectType.JavaLibProject:
                     mFinalDependencies.put(project, new HashMap<String, Set<Dependency>>())
