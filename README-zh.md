@@ -23,11 +23,11 @@ apply plugin: 'com.github.piasy.okbuck-gradle-plugin'
 
 okbuck {
     resPackages = [
-            dummylibrary: 'com.github.piasy.okbuck.example.dummylibrary',
-            app         : 'com.github.piasy.okbuck.example',
-            anotherapp  : 'com.github.piasy.okbuck.example.anotherapp',
-            common      : 'com.github.piasy.okbuck.example.common',
-            emptylibrary: 'com.github.piasy.okbuck.example.empty',
+            dummylibrary : 'com.github.piasy.okbuck.example.dummylibrary',
+            app          : 'com.github.piasy.okbuck.example',
+            "another-app": 'com.github.piasy.okbuck.example.anotherapp',
+            common       : 'com.github.piasy.okbuck.example.common',
+            emptylibrary : 'com.github.piasy.okbuck.example.empty',
     ]
 }
 ```
@@ -41,7 +41,7 @@ value是指定的包名，通常和该module的`AndroidManifest.xml`中的`packa
   +  `okbuck`将会生成BUCK配置文件，包括指定的所有flavor的配置
   +  `okbuckClean`将会删除所有的OkBuck临时文件，BUCK配置文件，以及BUCK临时文件
 +  成功执行`./gradlew okbuck`后，工程根目录将生成一个`.buckconfig`文件，其中定义了多个BUCK alias，
-例如`appDevDebug`，`appProdRelease`，`anotherappDebug`等，根据它们可以确定BUCK build的命令，
+例如`appDevDebug`，`appProdRelease`，`another-appDebug`等，根据它们可以确定BUCK build的命令，
 例如`buck build appDevDebug`等
 
 ## 完整配置
@@ -52,11 +52,11 @@ okbuck {
     overwrite true
     checkDepConflict true
     resPackages = [
-            dummylibrary: 'com.github.piasy.okbuck.example.dummylibrary',
-            app         : 'com.github.piasy.okbuck.example',
-            anotherapp  : 'com.github.piasy.okbuck.example.anotherapp',
-            common      : 'com.github.piasy.okbuck.example.common',
-            emptylibrary: 'com.github.piasy.okbuck.example.empty',
+            dummylibrary : 'com.github.piasy.okbuck.example.dummylibrary',
+            app          : 'com.github.piasy.okbuck.example',
+            "another-app": 'com.github.piasy.okbuck.example.anotherapp',
+            common       : 'com.github.piasy.okbuck.example.common',
+            emptylibrary : 'com.github.piasy.okbuck.example.empty',
     ]
     linearAllocHardLimit = [
             app: 7194304

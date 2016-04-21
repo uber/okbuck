@@ -34,11 +34,11 @@ okbuck {
     overwrite true
     checkDepConflict true
     resPackages = [
-            dummylibrary: 'com.github.piasy.okbuck.example.dummylibrary',
-            app         : 'com.github.piasy.okbuck.example',
-            anotherapp  : 'com.github.piasy.okbuck.example.anotherapp',
-            common      : 'com.github.piasy.okbuck.example.common',
-            emptylibrary: 'com.github.piasy.okbuck.example.empty',
+            dummylibrary : 'com.github.piasy.okbuck.example.dummylibrary',
+            app          : 'com.github.piasy.okbuck.example',
+            "another-app": 'com.github.piasy.okbuck.example.anotherapp',
+            common       : 'com.github.piasy.okbuck.example.common',
+            emptylibrary : 'com.github.piasy.okbuck.example.empty',
     ]
     linearAllocHardLimit = [
             app: 7194304

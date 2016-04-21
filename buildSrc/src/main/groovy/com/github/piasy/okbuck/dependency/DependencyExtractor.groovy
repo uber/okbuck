@@ -24,8 +24,9 @@
 
 package com.github.piasy.okbuck.dependency
 
+import com.android.build.gradle.api.BaseVariant
+import com.android.build.gradle.api.BaseVariantOutput
 import com.android.build.gradle.internal.dsl.ProductFlavor
-import com.github.piasy.okbuck.helper.FileUtil
 import com.github.piasy.okbuck.helper.ProjectHelper
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ResolvedDependency
@@ -217,11 +218,35 @@ public final class DependencyExtractor {
         for (ResolvedDependency dep : resolvedDeps.keySet()) {
             File depFile = resolvedDeps.get(dep)
             Project moduleDep = ProjectHelper.getModuleDependencyProject(rootProject, depFile)
+            def variant = ""
+            def flavor = ""
+
             if (moduleDep != null) {
+                def moduleProjectType = ProjectHelper.getSubProjectType(moduleDep)
+
+                if (moduleProjectType == ProjectHelper.ProjectType.AndroidAppProject ||
+                        moduleProjectType == ProjectHelper.ProjectType.AndroidLibProject) {
+
+                    def baseVariants
+                    if (moduleProjectType == ProjectHelper.ProjectType.AndroidAppProject) {
+                        baseVariants = moduleDep.android.applicationVariants
+                    } else {
+                        baseVariants = moduleDep.android.libraryVariants
+                    }
+
+                    baseVariants.all { BaseVariant baseVariant ->
+                        def target = baseVariant.outputs.find { BaseVariantOutput output ->
+                            output.outputFile.equals(depFile)
+                        }
+                        if (target != null) {
+                            variant = baseVariant.buildType.name
+                            flavor = baseVariant.flavorName
+                        }
+                    }
+                }
+
                 dependencies.add(Dependency.fromModule(
-                        mRootProject.projectDir, depFile, moduleDep,
-                        FileUtil.getFlavorOfModuleFromLocalDepFile(resolvedDeps.get(dep)),
-                        FileUtil.getVariantOfModuleFromLocalDepFile(resolvedDeps.get(dep))))
+                        mRootProject.projectDir, depFile, moduleDep, flavor, variant))
             } else {
                 dependencies.add(Dependency.fromMavenDependency(
                         mRootProject.projectDir, depFile, dep))
