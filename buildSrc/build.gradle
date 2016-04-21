@@ -84,7 +84,9 @@ version = publishVersion
 Properties properties = new Properties()
 // for wrapper project structure
 File propertyFile = project.rootProject.file('bintray.properties')
-properties.load(propertyFile.newDataInputStream())
+if (propertyFile.exists()) {
+    properties.load(propertyFile.newDataInputStream())
+}
 
 publishing {
     publications {

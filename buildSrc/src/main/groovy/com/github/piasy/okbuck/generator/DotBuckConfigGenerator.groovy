@@ -57,7 +57,7 @@ public final class DotBuckConfigGenerator {
      */
     public DotBuckConfigFile generate() {
         Map<String, String> alias = new HashMap<>()
-        for (Project project : mRootProject.subprojects) {
+        for (Project project : mRootProject.okbuck.buckProjects) {
             if (ProjectHelper.getSubProjectType(
                     project) == ProjectHelper.ProjectType.AndroidAppProject) {
                 if (ProjectHelper.exportFlavor(project)) {

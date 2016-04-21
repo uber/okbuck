@@ -144,7 +144,7 @@ public final class ProjectHelper {
      * if the dependency is an module dependency, return the module dependency project, null otherwise.
      * */
     public static Project getModuleDependencyProject(Project rootProject, File dependency) {
-        for (Project project : rootProject.subprojects) {
+        for (Project project : rootProject.okbuck.buckProjects) {
             if (dependency.absolutePath.startsWith(project.buildDir.absolutePath)) {
                 return project
             }
