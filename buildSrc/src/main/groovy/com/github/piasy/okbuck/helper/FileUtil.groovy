@@ -95,31 +95,4 @@ public final class FileUtil {
         }
         return false
     }
-
-    /**
-     * what if `common-android-release.aar` and `model-grey-release-debug.aar` ?
-     * this way definitely has flaw, on the one hand, OkBuck should catch the exception,
-     * on the other hand, we should stop use minus sign in module naming, substitute it
-     * with underline sign.
-     * */
-    public static String getFlavorOfModuleFromLocalDepFile(File localDepFile) {
-        String stripExtension = localDepFile.name.substring(0, localDepFile.name.lastIndexOf("."))
-        if (stripExtension.lastIndexOf("-") == -1) {
-            return null
-        }
-        String stripVariant = stripExtension.substring(0, stripExtension.lastIndexOf("-"))
-        if (stripVariant.lastIndexOf("-") != -1) {
-            return stripVariant.substring(stripVariant.lastIndexOf("-") + 1)
-        } else {
-            return null
-        }
-    }
-
-    public static String getVariantOfModuleFromLocalDepFile(File localDepFile) {
-        String stripExtension = localDepFile.name.substring(0, localDepFile.name.lastIndexOf("."))
-        if (stripExtension.lastIndexOf("-") == -1) {
-            return null
-        }
-        return stripExtension.substring(stripExtension.lastIndexOf("-") + 1)
-    }
 }

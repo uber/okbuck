@@ -19,7 +19,7 @@ before_script:
   - touch buildSrc/bintray.properties
 
 script:
-  - bash ./gradlew okbuck && ./buck/bin/buck build appDevDebug && ./buck/bin/buck build appDevRelease && ./buck/bin/buck build appProdDebug && ./buck/bin/buck build appProdRelease && ./buck/bin/buck build anotherappDebug && ./buck/bin/buck build anotherappRelease
+  - bash ./gradlew okbuck && ./buck/bin/buck build appDevDebug && ./buck/bin/buck build appDevRelease && ./buck/bin/buck build appProdDebug && ./buck/bin/buck build appProdRelease && ./buck/bin/buck build another-appDebug && ./buck/bin/buck build another-appRelease
 
 notifications:
   email: false
