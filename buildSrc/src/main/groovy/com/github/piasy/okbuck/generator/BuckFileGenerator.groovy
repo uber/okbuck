@@ -85,7 +85,7 @@ public final class BuckFileGenerator {
     public Map<Project, BUCKFile> generate() {
         Map<Project, BUCKFile> buckFileMap = new HashMap<>()
 
-        for (Project project : mRootProject.okbuck.toBuck) {
+        for (Project project : mRootProject.okbuck.buckProjects) {
             List<AbstractBuckRule> rules = new ArrayList<>()
             switch (ProjectHelper.getSubProjectType(project)) {
                 case ProjectHelper.ProjectType.AndroidAppProject:

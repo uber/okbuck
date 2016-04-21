@@ -130,6 +130,7 @@ okbuck {
                     'armeabi',
             ]
     ]
+    buckProjects = project.subprojects
 }
 ```
 
@@ -154,6 +155,8 @@ you need, default is empty, which will generate all flavors BUCK file
 +  `cpuFilters` is a map, used for controlling BUCK only create the specific cpu architecture
 native library folder in your apk file, the same as `ndk.abiFilter` of gradle, support values
 are: `armeabi`, `armeabi-v7a`, `x86`, `x86_64`, `mips`
++  `buckProjects` is a set of projects to generate buck configs for.
+Default is all sub projects of root project.
 
 ## Troubleshooting
 If you come with bugs of OkBuck, please [open an issue](https://github.com/Piasy/OkBuck/issues/new), 
@@ -183,9 +186,6 @@ and [ref2](http://stackoverflow.com/a/18144853/3077508)
 ## Contribution
 Any form of contributions are welcome! See the [detail todo list](https://github.com/Piasy/
 OkBuck/wiki/TODO-list).
-
-Note that you need create an empty file named `bintray.properties` in `/buildSrc/`, which is 
-used for publishing to bintray.
 
 ## Acknowledgement
 +  Thanks for Facebook open source [buck](https://github.com/facebook/buck) build system.

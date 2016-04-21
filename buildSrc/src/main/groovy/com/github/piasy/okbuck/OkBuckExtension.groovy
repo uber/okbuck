@@ -91,9 +91,12 @@ public class OkBuckExtension {
      * */
     Map<String, List<String>> cpuFilters = new HashMap<>()
 
-    Collection<Project> toBuck
+    /**
+     * Set of projects to generate buck configs for. Default is all subprojects of root project.
+     */
+    Set<Project> buckProjects
 
     OkBuckExtension(Project project) {
-        toBuck = project.subprojects
+        buckProjects = project.subprojects
     }
 }

@@ -57,7 +57,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                 okBuckScriptsDir.deleteDir()
                 File dotBuckConfig = new File("${project.projectDir.absolutePath}/.buckconfig")
                 dotBuckConfig.delete()
-                project.okbuck.toBuck.each { prj ->
+                project.okbuck.buckProjects.each { prj ->
                     File buck = new File("${prj.projectDir.absolutePath}/BUCK")
                     buck.delete()
                 }
