@@ -27,6 +27,7 @@ package com.github.piasy.okbuck.dependency
 import com.android.build.gradle.api.BaseVariant
 import com.android.build.gradle.api.BaseVariantOutput
 import com.android.build.gradle.internal.dsl.ProductFlavor
+import com.github.piasy.okbuck.OkBuckExtension
 import com.github.piasy.okbuck.helper.ProjectHelper
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ResolvedDependency
@@ -50,12 +51,14 @@ public final class DependencyExtractor {
     private final Map<Project, Set<String>> mAnnotationProcessors
 
     private final Project mRootProject
+    private final OkBuckExtension mOkbuck
 
     public DependencyExtractor(Project rootProject) {
         mRootProject = rootProject
         mFullDependencies = new HashMap<>()
         mAptDependencies = new HashMap<>()
         mAnnotationProcessors = new HashMap<>()
+        mOkbuck = mRootProject.okbuck
     }
 
     /**
@@ -87,7 +90,7 @@ public final class DependencyExtractor {
     }
 
     private extractAptDependencies() {
-        for (Project project : mRootProject.okbuck.buckProjects) {
+        for (Project project : mOkbuck.buckProjects) {
             if (ProjectHelper.getSubProjectType(project) == ProjectHelper.ProjectType.Unknown) {
                 continue
             }
@@ -112,7 +115,7 @@ public final class DependencyExtractor {
     }
 
     private extractAnnotationProcessors() {
-        for (Project project : mRootProject.okbuck.buckProjects) {
+        for (Project project : mOkbuck.buckProjects) {
             if (ProjectHelper.getSubProjectType(project) == ProjectHelper.ProjectType.Unknown) {
                 continue
             }
@@ -141,7 +144,7 @@ public final class DependencyExtractor {
     }
 
     private extractCompileDependencies() {
-        for (Project project : mRootProject.okbuck.buckProjects) {
+        for (Project project : mOkbuck.buckProjects) {
             ProjectHelper.ProjectType type = ProjectHelper.getSubProjectType(project)
             if (type == ProjectHelper.ProjectType.Unknown) {
                 continue

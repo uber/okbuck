@@ -25,6 +25,7 @@
 package com.github.piasy.okbuck.dependency
 
 import com.android.build.gradle.internal.dsl.ProductFlavor
+import com.github.piasy.okbuck.OkBuckExtension
 import com.github.piasy.okbuck.helper.ProjectHelper
 import com.github.piasy.okbuck.helper.StringUtil
 import org.gradle.api.Project
@@ -92,7 +93,8 @@ public final class DependencyAnalyzer {
     }
 
     private void combineFlavorVariant() {
-        for (Project project : mRootProject.okbuck.buckProjects) {
+        OkBuckExtension okbuck = mRootProject.okbuck
+        for (Project project : okbuck.buckProjects) {
             switch (ProjectHelper.getSubProjectType(project)) {
                 case ProjectHelper.ProjectType.JavaLibProject:
                     mFinalDependencies.put(project, new HashMap<String, Set<Dependency>>())

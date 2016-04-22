@@ -25,6 +25,7 @@
 package com.github.piasy.okbuck.generator
 
 import com.android.build.gradle.internal.dsl.ProductFlavor
+import com.github.piasy.okbuck.OkBuckExtension
 import com.github.piasy.okbuck.configs.DotBuckConfigFile
 import com.github.piasy.okbuck.helper.FileUtil
 import com.github.piasy.okbuck.helper.ProjectHelper
@@ -57,7 +58,9 @@ public final class DotBuckConfigGenerator {
      */
     public DotBuckConfigFile generate() {
         Map<String, String> alias = new HashMap<>()
-        for (Project project : mRootProject.okbuck.buckProjects) {
+        OkBuckExtension okbuck = mRootProject.okbuck
+
+        for (Project project : okbuck.buckProjects) {
             if (ProjectHelper.getSubProjectType(
                     project) == ProjectHelper.ProjectType.AndroidAppProject) {
                 if (ProjectHelper.exportFlavor(project)) {

@@ -27,6 +27,7 @@ package com.github.piasy.okbuck.helper
 import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.LibraryPlugin
 import com.android.build.gradle.internal.dsl.ProductFlavor
+import com.github.piasy.okbuck.OkBuckExtension
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -144,7 +145,8 @@ public final class ProjectHelper {
      * if the dependency is an module dependency, return the module dependency project, null otherwise.
      * */
     public static Project getModuleDependencyProject(Project rootProject, File dependency) {
-        for (Project project : rootProject.okbuck.buckProjects) {
+        OkBuckExtension okbuck = rootProject.okbuck
+        for (Project project : okbuck.buckProjects) {
             if (dependency.absolutePath.startsWith(project.buildDir.absolutePath)) {
                 return project
             }
