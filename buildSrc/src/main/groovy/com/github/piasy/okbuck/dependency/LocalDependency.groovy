@@ -31,7 +31,7 @@ import com.github.piasy.okbuck.helper.FileUtil
  * */
 public final class LocalDependency extends FileDependency {
 
-    public LocalDependency(DependencyType dependencyType, File localFile, File projectRootDir) {
+    public LocalDependency(Dependency.DependencyType dependencyType, File localFile, File projectRootDir) {
         super(dependencyType, localFile, projectRootDir)
     }
 
