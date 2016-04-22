@@ -2,7 +2,7 @@
 sudo: false
 
 before_install:
-    - bash git clone https://github.com/facebook/buck.git && cd buck && ant
+    - sh ./install_buck.sh
 
 language: android
 jdk: oraclejdk8
