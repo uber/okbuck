@@ -42,11 +42,11 @@ import org.gradle.api.Task
 class OkBuckGradlePlugin implements Plugin<Project> {
 
     void apply(Project project) {
-        project.extensions.create("okbuck", OkBuckExtension, project)
+        OkBuckExtension okbuck = project.extensions.create("okbuck", OkBuckExtension, project)
 
         Task okBuckClean = project.task('okbuckClean')
         okBuckClean << {
-            if (project.okbuck.overwrite) {
+            if (okbuck.overwrite) {
                 File okBuckDir = new File("${project.projectDir.absolutePath}/.okbuck")
                 okBuckDir.deleteDir()
                 File dotBuckdDir = new File("${project.projectDir.absolutePath}/.buckd")
@@ -57,7 +57,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                 okBuckScriptsDir.deleteDir()
                 File dotBuckConfig = new File("${project.projectDir.absolutePath}/.buckconfig")
                 dotBuckConfig.delete()
-                project.okbuck.buckProjects.each { prj ->
+                okbuck.buckProjects.each { prj ->
                     File buck = new File("${prj.projectDir.absolutePath}/BUCK")
                     buck.delete()
                 }
@@ -86,21 +86,22 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     }
 
     private static applyWithoutBuildVariant(Project project) {
-        boolean overwrite = project.okbuck.overwrite
-        if (overwrite) {
+        OkBuckExtension okbuck = project.okbuck
+
+        if (okbuck.overwrite) {
             println "==========>> overwrite mode is toggle on <<=========="
         }
 
         // step 1: create .buckconfig
         File dotBuckConfig = new File("${project.projectDir.absolutePath}/.buckconfig")
-        if (dotBuckConfig.exists() && !overwrite) {
+        if (dotBuckConfig.exists() && !okbuck.overwrite) {
             throw new IllegalStateException(
                     ".buckconfig already exist, set overwrite property to true to overwrite existing file.")
         } else {
             PrintStream printer = new PrintStream(dotBuckConfig)
-            new DotBuckConfigGenerator(project, (String) project.okbuck.buildToolVersion,
-                    (String) project.okbuck.target,
-                    (Map<String, List<String>>) project.okbuck.flavorFilter)
+            new DotBuckConfigGenerator(project, okbuck.buildToolVersion,
+                    okbuck.target,
+                    okbuck.flavorFilter)
                     .generate()
                     .print(printer)
             printer.close()
@@ -122,26 +123,26 @@ class OkBuckGradlePlugin implements Plugin<Project> {
 
         // step 3: analyse dependencies
         File okBuckDir = new File("${project.projectDir.absolutePath}/.okbuck")
-        if (okBuckDir.exists() && !overwrite) {
+        if (okBuckDir.exists() && !okbuck.overwrite) {
             throw new IllegalStateException(
                     ".okbuck dir already exist, set overwrite property to true to overwrite existing file.")
         } else {
             DependencyAnalyzer dependencyAnalyzer = new DependencyAnalyzer(project, okBuckDir,
-                    (boolean) project.okbuck.checkDepConflict, new DependencyExtractor(project))
+                    okbuck.checkDepConflict, new DependencyExtractor(project))
             dependencyAnalyzer.analyse()
             new DependencyProcessor(dependencyAnalyzer).process()
 
             // step 4: generate BUCK file for each sub project
             Map<Project, BUCKFile> buckFiles = new BuckFileGenerator(project, dependencyAnalyzer,
-                    okBuckDir, (Map<String, String>) project.okbuck.resPackages,
-                    (Map<String, Integer>) project.okbuck.linearAllocHardLimit,
-                    (Map<String, List<String>>) project.okbuck.primaryDexPatterns,
-                    (Map<String, Boolean>) project.okbuck.exopackage,
-                    (Map<String, String>) project.okbuck.appClassSource,
-                    (Map<String, List<String>>) project.okbuck.appLibDependencies,
-                    (Map<String, List<String>>) project.okbuck.flavorFilter,
-                    (Map<String, List<String>>) project.okbuck.cpuFilters)
-                    .generate()
+                    okBuckDir,
+                    okbuck.resPackages,
+                    okbuck.linearAllocHardLimit,
+                    okbuck.primaryDexPatterns,
+                    okbuck.exopackage,
+                    okbuck.appClassSource,
+                    okbuck.appLibDependencies,
+                    okbuck.flavorFilter,
+                    okbuck.cpuFilters).generate()
             for (Project subProject : buckFiles.keySet()) {
                 File buckFile = new File("${subProject.projectDir.absolutePath}/BUCK")
                 printer = new PrintStream(buckFile)
