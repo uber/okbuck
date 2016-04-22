@@ -27,9 +27,9 @@ package com.github.piasy.okbuck.dependency
 import com.android.builder.model.BuildType
 import com.android.builder.model.SigningConfig
 import com.github.piasy.okbuck.configs.ThirdPartyDependencyBUCKFile
-import com.github.piasy.okbuck.helper.IOHelper
 import com.github.piasy.okbuck.helper.ProjectHelper
 import com.github.piasy.okbuck.rules.KeystoreRule
+import org.apache.commons.io.FileUtils
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 
@@ -108,9 +108,9 @@ public final class DependencyProcessor {
         if (!dir.exists()) {
             dir.mkdirs()
         }
-        IOHelper.copy(new FileInputStream(config.getStoreFile()),
-                new FileOutputStream(new File("${dir.absolutePath}/" +
-                        "${project.name}_${variant}.keystore")))
+
+        def projectKeystore = new File("${dir.absolutePath}/${project.name}_${variant}.keystore")
+        FileUtils.copyFile(config.getStoreFile(), projectKeystore)
 
         PrintWriter writer = new PrintWriter(new FileOutputStream(new File(
                 "${dir.absolutePath}${File.separator}${project.name}_${variant}.keystore.properties")))
