@@ -174,9 +174,8 @@ Maybe there are more caveats waiting for you, but for the super fast build broug
 The rest modules in this repo is a full example usage of OkBuck and BUCK.
 
 ## Compatibility
-OkBuck is tested under `gradle` 2.2.1 ~ 2.10, and `com.android.tools.build:gradle` 1.5.0. 
-Other versions will not considered compatible, if you have compatibility problem, please 
-fire an issue.
+OkBuck is tested under `gradle` 2.12, and `com.android.tools.build:gradle` 2.0.0.
+If other versions have compatibility problems, please file an issue.
 
 Exceptions:
 
