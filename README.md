@@ -82,7 +82,7 @@ root dir, inside it, there are lots of BUCK alias, e.g. `appDevDebug`, `appProdR
 ## Full example
 ```gradle
 okbuck {
-    buildToolVersion "23.0.1"
+    buildToolVersion "23.0.3"
     target "android-23"
     overwrite true
     checkDepConflict true
@@ -135,7 +135,7 @@ okbuck {
 ```
 
 ## Full explanations
-+  `buildToolVersion` specifies the version of the Android SDK Build-tools, default `23.0.1`
++  `buildToolVersion` specifies the version of the Android SDK Build-tools, default `23.0.3`
 +  `target` specifies the Android target sdk version, which could be abtained by 
 `<sdk home>/tools/android list targets --compact`, default `android-23`
 +  `overwrite` is used to control whether overwrite existing BUCK files, default `false`
