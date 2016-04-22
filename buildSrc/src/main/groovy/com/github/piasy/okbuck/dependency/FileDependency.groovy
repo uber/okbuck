@@ -26,8 +26,7 @@ package com.github.piasy.okbuck.dependency
 
 import com.github.piasy.okbuck.helper.CheckUtil
 import com.github.piasy.okbuck.helper.FileUtil
-import com.github.piasy.okbuck.helper.IOHelper
-
+import org.apache.commons.io.FileUtils
 /**
  * Dependency presentation.
  * */
@@ -94,11 +93,7 @@ public abstract class FileDependency extends Dependency {
 
     @Override
     void copyTo() {
-        if (!mDstDir.exists()) {
-            mDstDir.mkdirs()
-        }
         logger.debug "copying ${mLocalFile.absolutePath} into ${mDstDir.absolutePath}"
-        IOHelper.copy(new FileInputStream(mLocalFile), new FileOutputStream(
-                new File("${mDstDir.absolutePath}/${mLocalFile.name}")))
+        FileUtils.copyFile(mLocalFile, new File(mDstDir, mLocalFile.name))
     }
 }
