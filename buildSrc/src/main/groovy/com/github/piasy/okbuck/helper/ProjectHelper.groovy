@@ -27,15 +27,13 @@ package com.github.piasy.okbuck.helper
 import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.LibraryPlugin
 import com.android.build.gradle.internal.dsl.ProductFlavor
-import org.gradle.api.NamedDomainObjectContainer
-import org.gradle.api.Plugin
+import com.github.piasy.okbuck.OkBuckExtension
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.gradle.api.plugins.JavaPlugin
-
 /**
- * helper class for android project.
+ * helper class for sub projects.
  * */
 public final class ProjectHelper {
     private static Logger logger = Logging.getLogger(ProjectHelper)
@@ -58,17 +56,15 @@ public final class ProjectHelper {
      * get sub project type
      * */
     public static ProjectType getSubProjectType(Project project) {
-        for (Plugin plugin : project.plugins) {
-            if (plugin instanceof AppPlugin) {
-                return ProjectType.AndroidAppProject
-            } else if (plugin instanceof LibraryPlugin) {
-                return ProjectType.AndroidLibProject
-            } else if (plugin instanceof JavaPlugin) {
-                return ProjectType.JavaLibProject
-            }
+        if (project.plugins.hasPlugin(AppPlugin)) {
+            return ProjectType.AndroidAppProject
+        } else if (project.plugins.hasPlugin(LibraryPlugin)) {
+            return ProjectType.AndroidLibProject
+        } else if (project.plugins.hasPlugin(JavaPlugin)) {
+            return ProjectType.JavaLibProject
+        } else {
+            return ProjectType.Unknown
         }
-
-        return ProjectType.Unknown
     }
 
     /**
@@ -77,181 +73,93 @@ public final class ProjectHelper {
     public static boolean exportFlavor(Project project) {
         switch (getSubProjectType(project)) {
             case ProjectType.AndroidAppProject:
-                return hasFlavor(project)
+                return hasFlavors(project)
             case ProjectType.AndroidLibProject:
-                return publishNonDefault(project) && hasFlavor(project)
+                return publishNonDefault(project) && hasFlavors(project)
             default:
                 return false
         }
     }
 
     private static boolean publishNonDefault(Project project) {
-        try {
-            boolean export = false
-            for (PropertyValue prop : project.extensions.getByName("android").metaPropertyValues) {
-                if ("publishNonDefault".equals(prop.name)) {
-                    export = prop.value
-                    break
-                }
-            }
-            return export
-        } catch (Exception e) {
-            return false
-        }
+        return project.android.publishNonDefault
     }
 
-    private static boolean hasFlavor(Project project) {
-        try {
-            for (PropertyValue prop :
-                    project.extensions.getByName("android").metaPropertyValues) {
-                if ("productFlavors".equals(prop.name)) {
-                    NamedDomainObjectContainer<ProductFlavor> flavors = (NamedDomainObjectContainer<ProductFlavor>) prop.value
-                    return !flavors.getAsMap().isEmpty()
-                }
-            }
-        } catch (Exception e) {
-            return false
-        }
-
-        return false
+    private static boolean hasFlavors(Project project) {
+        return !project.android.productFlavors.empty
     }
 
     /**
      * get product flavors of sub project.
      * */
     public static Map<String, ProductFlavor> getProductFlavors(Project project) {
-        if (exportFlavor(project)) {
-            try {
-                for (PropertyValue prop :
-                        project.extensions.getByName("android").metaPropertyValues) {
-                    if ("productFlavors".equals(prop.name)) {
-                        NamedDomainObjectContainer<ProductFlavor> flavors =
-                                (NamedDomainObjectContainer<ProductFlavor>) prop.value
-                        return flavors.getAsMap()
-                    }
-                }
-            } catch (Exception e) {
-                logger.info "${project.name} has no productFlavors"
-            }
-        } else {
-            throw new IllegalArgumentException("Sub project ${project.name} doesn't have flavors")
+        return project.android.productFlavors.collectEntries {
+            [it.name, it]
         }
-
-        return new HashMap<String, ProductFlavor>()
     }
 
     /**
      * if the dependency is an module dependency, return the module dependency project, null otherwise.
      * */
     public static Project getModuleDependencyProject(Project rootProject, File dependency) {
-        for (Project project : rootProject.okbuck.buckProjects) {
-            if (dependency.absolutePath.startsWith(project.buildDir.absolutePath)) {
-                return project
-            }
+        OkBuckExtension okbuck = rootProject.okbuck
+        return okbuck.buckProjects.find { Project project ->
+            dependency.absolutePath.startsWith(project.buildDir.absolutePath)
         }
-        return null
     }
 
     public static String getVersionName(Project project, String flavor) {
         ProjectType type = getSubProjectType(project)
         String versionName = ""
         if (type == ProjectType.AndroidAppProject || type == ProjectType.AndroidLibProject) {
-            try {
-                project.extensions.getByName("android").metaPropertyValues.each { prop ->
-                    if ("defaultConfig".equals(prop.name) && ProductFlavor.class.isAssignableFrom(
-                            prop.type)) {
-                        ProductFlavor defaultConfigs = (ProductFlavor) prop.value
-                        if (defaultConfigs.versionName != null) {
-                            versionName = defaultConfigs.versionName
-                        }
-                    }
-                    if ("productFlavors".equals(prop.name)) {
-                        if (!"default".equals(flavor)) {
-                            for (ProductFlavor productFlavor :
-                                    ((NamedDomainObjectContainer<ProductFlavor>) prop.value).
-                                            asList()) {
-                                if (productFlavor.name.equals(flavor)) {
-                                    if (productFlavor.versionName != null) {
-                                        versionName = productFlavor.versionName
-                                    }
-                                }
-                            }
-                        }
-                    }
+            if (hasFlavors(project)) {
+                ProductFlavor productFlavor = getProductFlavors(project).get(flavor)
+                if (productFlavor != null) {
+                    versionName = productFlavor.versionName
                 }
-            } catch (Exception e) {
-                logger.info "${project.name} has no VersionName build config field"
+            }
+            if (StringUtil.isEmpty(versionName)) {
+                versionName = project.android.defaultConfig.versionName
             }
         }
         if (StringUtil.isEmpty(versionName)) {
-            throw new IllegalStateException("You must specify versionName in your build.gradle")
+            throw new IllegalStateException("You must specify versionName for ${project.name}")
         }
         return versionName
     }
 
     public static int getVersionCode(Project project, String flavor) {
         ProjectType type = getSubProjectType(project)
-        int versionCode = 0
+        int versionCode = -1
         if (type == ProjectType.AndroidAppProject || type == ProjectType.AndroidLibProject) {
-            try {
-                project.extensions.getByName("android").metaPropertyValues.each { prop ->
-                    if ("defaultConfig".equals(prop.name) && ProductFlavor.class.isAssignableFrom(
-                            prop.type)) {
-                        ProductFlavor defaultConfigs = (ProductFlavor) prop.value
-                        if (defaultConfigs.versionCode != null) {
-                            versionCode = defaultConfigs.versionCode
-                        }
-                    }
-                    if ("productFlavors".equals(prop.name)) {
-                        if (!"default".equals(flavor)) {
-                            for (ProductFlavor productFlavor :
-                                    ((NamedDomainObjectContainer<ProductFlavor>) prop.value).
-                                            asList()) {
-                                if (productFlavor.name.equals(flavor)) {
-                                    if (productFlavor.versionCode != null) {
-                                        versionCode = productFlavor.versionCode
-                                    }
-                                }
-                            }
-                        }
-                    }
+            if (hasFlavors(project)) {
+                ProductFlavor productFlavor = getProductFlavors(project).get(flavor)
+                if (productFlavor != null) {
+                    versionCode = productFlavor.versionCode
                 }
-            } catch (Exception e) {
-                logger.info "${project.name} has no VersionCode build config field"
             }
+            if (versionCode < 0) {
+                versionCode = project.android.defaultConfig.versionCode
+            }
+        }
+        if (versionCode < 0) {
+            throw new IllegalStateException("You must specify versionCode for ${project.name}")
         }
         return versionCode
     }
 
     public static int getMinSdkVersion(Project project, String flavor) {
         ProjectType type = getSubProjectType(project)
-        int minSdkVersion = 0
+        int minSdkVersion = -1
         if (type == ProjectType.AndroidAppProject || type == ProjectType.AndroidLibProject) {
-            try {
-                project.extensions.getByName("android").metaPropertyValues.each { prop ->
-                    if ("defaultConfig".equals(prop.name) && ProductFlavor.class.isAssignableFrom(
-                            prop.type)) {
-                        ProductFlavor defaultConfigs = (ProductFlavor) prop.value
-                        if (defaultConfigs.minSdkVersion != null) {
-                            minSdkVersion = defaultConfigs.minSdkVersion.apiLevel
-                        }
-                    }
-                    if ("productFlavors".equals(prop.name)) {
-                        if (!"default".equals(flavor)) {
-                            for (ProductFlavor productFlavor :
-                                    ((NamedDomainObjectContainer<ProductFlavor>) prop.value).
-                                            asList()) {
-                                if (productFlavor.name.equals(flavor)) {
-                                    if (productFlavor.minSdkVersion != null) {
-                                        minSdkVersion = productFlavor.minSdkVersion.apiLevel
-                                    }
-                                }
-                            }
-                        }
-                    }
+            if (hasFlavors(project)) {
+                ProductFlavor productFlavor = getProductFlavors(project).get(flavor)
+                if (productFlavor != null) {
+                    minSdkVersion = productFlavor.minSdkVersion.apiLevel
                 }
-            } catch (Exception e) {
-                logger.info "get 's MinSdkVersion build config field: fail!"
+            }
+            if (minSdkVersion < 0) {
+                minSdkVersion = project.android.defaultConfig.minSdkVersion.apiLevel
             }
         }
         return minSdkVersion
@@ -259,33 +167,16 @@ public final class ProjectHelper {
 
     public static int getTargetSdkVersion(Project project, String flavor) {
         ProjectType type = getSubProjectType(project)
-        int targetSdkVersion = 0
+        int targetSdkVersion = -1
         if (type == ProjectType.AndroidAppProject || type == ProjectType.AndroidLibProject) {
-            try {
-                project.extensions.getByName("android").metaPropertyValues.each { prop ->
-                    if ("defaultConfig".equals(prop.name) && ProductFlavor.class.isAssignableFrom(
-                            prop.type)) {
-                        ProductFlavor defaultConfigs = (ProductFlavor) prop.value
-                        if (defaultConfigs.targetSdkVersion != null) {
-                            targetSdkVersion = defaultConfigs.targetSdkVersion.apiLevel
-                        }
-                    }
-                    if ("productFlavors".equals(prop.name)) {
-                        if (!"default".equals(flavor)) {
-                            for (ProductFlavor productFlavor :
-                                    ((NamedDomainObjectContainer<ProductFlavor>) prop.value).
-                                            asList()) {
-                                if (productFlavor.name.equals(flavor)) {
-                                    if (productFlavor.targetSdkVersion != null) {
-                                        targetSdkVersion = productFlavor.targetSdkVersion.apiLevel
-                                    }
-                                }
-                            }
-                        }
-                    }
+            if (hasFlavors(project)) {
+                ProductFlavor productFlavor = getProductFlavors(project).get(flavor)
+                if (productFlavor != null) {
+                    targetSdkVersion = productFlavor.targetSdkVersion.apiLevel
                 }
-            } catch (Exception e) {
-                logger.info "${project.name} has no TargetSdkVersion build config field"
+            }
+            if (targetSdkVersion < 0) {
+                targetSdkVersion = project.android.defaultConfig.targetSdkVersion.apiLevel
             }
         }
         return targetSdkVersion
@@ -408,18 +299,7 @@ public final class ProjectHelper {
     }
 
     public static boolean getMultiDexEnabled(Project project) {
-        try {
-            for (PropertyValue prop : project.extensions.getByName("android").metaPropertyValues) {
-                if ("defaultConfig".equals(prop.name) && ProductFlavor.class.isAssignableFrom(
-                        prop.type)) {
-                    ProductFlavor defaultConfigs = (ProductFlavor) prop.value
-                    return defaultConfigs.multiDexEnabled != null && defaultConfigs.multiDexEnabled
-                }
-            }
-        } catch (Exception e) {
-            logger.info "could not get ${project.name}'s multidex config"
-        }
-        return false
+        return project.android.defaultConfig.multiDexEnabled
     }
 
     public static List<String> getPresentResCanonicalNames(

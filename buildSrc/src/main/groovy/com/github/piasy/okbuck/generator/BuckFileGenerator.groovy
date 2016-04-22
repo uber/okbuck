@@ -25,6 +25,7 @@
 package com.github.piasy.okbuck.generator
 
 import com.android.build.gradle.internal.dsl.ProductFlavor
+import com.github.piasy.okbuck.OkBuckExtension
 import com.github.piasy.okbuck.composer.*
 import com.github.piasy.okbuck.configs.BUCKFile
 import com.github.piasy.okbuck.dependency.Dependency
@@ -84,8 +85,9 @@ public final class BuckFileGenerator {
 
     public Map<Project, BUCKFile> generate() {
         Map<Project, BUCKFile> buckFileMap = new HashMap<>()
+        OkBuckExtension okbuck = mRootProject.okbuck
 
-        for (Project project : mRootProject.okbuck.buckProjects) {
+        for (Project project : okbuck.buckProjects) {
             List<AbstractBuckRule> rules = new ArrayList<>()
             switch (ProjectHelper.getSubProjectType(project)) {
                 case ProjectHelper.ProjectType.AndroidAppProject:

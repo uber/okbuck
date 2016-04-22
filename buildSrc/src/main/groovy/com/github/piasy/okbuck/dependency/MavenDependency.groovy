@@ -36,7 +36,7 @@ public final class MavenDependency extends FileDependency {
     private final ResolvedDependency mResolvedDependency
 
     public MavenDependency(
-            DependencyType dependencyType, File localFile, File projectRootDir,
+            Dependency.DependencyType dependencyType, File localFile, File projectRootDir,
             ResolvedDependency resolvedDependency
     ) {
         super(dependencyType, localFile, projectRootDir)

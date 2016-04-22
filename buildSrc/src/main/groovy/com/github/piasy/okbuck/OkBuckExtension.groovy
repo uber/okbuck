@@ -33,7 +33,7 @@ public class OkBuckExtension {
     /**
      * build_tools_version
      * */
-    String buildToolVersion = "23.0.1"
+    String buildToolVersion = "23.0.3"
 
     /**
      * Android target sdk version
@@ -54,42 +54,42 @@ public class OkBuckExtension {
      * resPackages: set the resources package name for Android library module or application module,
      * including string resources, color resources, etc, and BuildConfig.java.
      * */
-    Map<String, String> resPackages
+    Map<String, String> resPackages = [:]
 
     /**
      * linearAllocHardLimit used for multi-dex support.
      * */
-    Map<String, Integer> linearAllocHardLimit = new HashMap<>()
+    Map<String, Integer> linearAllocHardLimit = [:]
 
     /**
      * primary dex class patterns.
      * */
-    Map<String, List<String>> primaryDexPatterns = new HashMap<>()
+    Map<String, List<String>> primaryDexPatterns = [:]
 
     /**
      * whether enable exopackage.
      * */
-    Map<String, Boolean> exopackage = new HashMap<>()
+    Map<String, Boolean> exopackage = [:]
 
     /**
      * exopackage app class source.
      * */
-    Map<String, String> appClassSource = new HashMap<>()
+    Map<String, String> appClassSource = [:]
 
     /**
      * exopackage app lib dependencies.
      * */
-    Map<String, List<String>> appLibDependencies = new HashMap<>()
+    Map<String, List<String>> appLibDependencies = [:]
 
     /**
      * flavor filter, if not empty, only create buck config for listed flavors.
      * */
-    Map<String, List<String>> flavorFilter = new HashMap<>()
+    Map<String, List<String>> flavorFilter = [:]
 
     /**
      * cpu filters
      * */
-    Map<String, List<String>> cpuFilters = new HashMap<>()
+    Map<String, List<String>> cpuFilters = [:]
 
     /**
      * Set of projects to generate buck configs for. Default is all subprojects of root project.
