@@ -2,10 +2,10 @@
 sudo: false
 
 before_install:
-    - sh ./install_buck.sh
+    - sh git clone https://github.com/facebook/buck.git && cd buck && ant
 
 language: android
-jdk: oraclejdk7
+jdk: oraclejdk8
 
 android:
   components:
@@ -15,9 +15,6 @@ android:
     - extra-android-support
 
 # Emulator Management: Create, Start and Wait
-before_script:
-  - touch buildSrc/bintray.properties
-
 script:
   - bash ./gradlew okbuck && ./buck/bin/buck build appDevDebug && ./buck/bin/buck build appDevRelease && ./buck/bin/buck build appProdDebug && ./buck/bin/buck build appProdRelease && ./buck/bin/buck build another-appDebug && ./buck/bin/buck build another-appRelease
 
