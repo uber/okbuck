@@ -2,7 +2,7 @@
 sudo: false
 
 before_install:
-    - sh git clone https://github.com/facebook/buck.git && cd buck && ant
+    - bash git clone https://github.com/facebook/buck.git && cd buck && ant
 
 language: android
 jdk: oraclejdk8
@@ -16,7 +16,7 @@ android:
 
 # Emulator Management: Create, Start and Wait
 script:
-  - bash ./gradlew okbuck && ./buck/bin/buck build appDevDebug && ./buck/bin/buck build appDevRelease && ./buck/bin/buck build appProdDebug && ./buck/bin/buck build appProdRelease && ./buck/bin/buck build another-appDebug && ./buck/bin/buck build another-appRelease
+  - bash ./gradlew okbuck && ./buck/bin/buck build appDevDebug appDevRelease appProdDebug appProdRelease another-appDebug another-appRelease
 
 notifications:
   email: false
