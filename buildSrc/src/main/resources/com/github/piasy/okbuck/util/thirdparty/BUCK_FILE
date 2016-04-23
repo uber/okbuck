@@ -1,0 +1,21 @@
+import re
+
+jar_deps = []
+for jarfile in glob(['*.jar']):
+	name = re.sub(r'^.*/([^/]+)\.jar$', r'\1', jarfile)
+	jar_deps.append(':' + name)
+	prebuilt_jar(
+		name = name,
+		binary_jar = jarfile,
+		visibility = ['PUBLIC'],
+	)
+
+aar_deps = []
+for aarfile in glob(['*.aar']):
+	name = re.sub(r'^.*/([^/]+)\.aar$', r'\1', aarfile)
+	aar_deps.append(':' + name)
+	android_prebuilt_aar(
+		name = name,
+		aar = aarfile,
+		visibility = ['PUBLIC'],
+	)

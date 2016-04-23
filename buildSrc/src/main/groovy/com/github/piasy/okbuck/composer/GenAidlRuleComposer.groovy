@@ -24,25 +24,17 @@
 
 package com.github.piasy.okbuck.composer
 
-import com.github.piasy.okbuck.helper.FileUtil
-import com.github.piasy.okbuck.rules.GenAidlRule
-import org.gradle.api.Project
+import com.github.piasy.okbuck.model.AndroidTarget
+import com.github.piasy.okbuck.rule.GenAidlRule
 
-public final class GenAidlRuleComposer {
+final class GenAidlRuleComposer {
 
     private GenAidlRuleComposer() {
         // no instance
     }
 
-    public static GenAidlRule compose(Project project) {
-        File aidlDir = (File) project.android.sourceSets.getByName("main").aidl.srcDirs[0]
-        if (aidlDir.exists()) {
-            return new GenAidlRule("${project.name}_aidls",
-                    FileUtil.getDirPathDiff(project.projectDir, aidlDir),
-                    FileUtil.getProjectPathDiff(project.rootProject, project).substring(1) +
-                            FileUtil.getDirPathDiff(project.projectDir, aidlDir))
-        } else {
-            return null
-        }
+    static GenAidlRule compose(AndroidTarget target, String aidlDir) {
+        return new GenAidlRule("${target.name}_aidls", aidlDir,
+                "${target.path}/${aidlDir}")
     }
 }

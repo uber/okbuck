@@ -22,34 +22,25 @@
  * SOFTWARE.
  */
 
-package com.github.piasy.okbuck.composer
+package com.github.piasy.okbuck.config
 
-import com.github.piasy.okbuck.model.AndroidAppTarget
-import com.github.piasy.okbuck.model.AndroidLibTarget
-import com.github.piasy.okbuck.model.Target
-import com.github.piasy.okbuck.rule.AndroidManifestRule
+import com.github.piasy.okbuck.rule.BuckRule
 
-final class AndroidManifestRuleComposer {
+/**
+ * BUCK file.
+ * */
+final class BUCKFile extends BuckConfigFile {
 
-    private AndroidManifestRuleComposer() {
-        // no instance
+    private final List<BuckRule> mRules
+
+    BUCKFile(List<BuckRule> rules) {
+        mRules = rules
     }
 
-    static AndroidManifestRule compose(AndroidAppTarget target) {
-        List<String> deps = []
-
-        deps.addAll(target.compileDeps.findAll { String dep ->
-            dep.endsWith("aar")
-        }.collect { String dep ->
-            "//${dep.reverse().replaceFirst("/", ":").reverse()}"
-        })
-
-        deps.addAll(target.targetCompileDeps.findAll { Target targetDep ->
-            targetDep instanceof AndroidLibTarget
-        }.collect { Target targetDep ->
-            "//${targetDep.path}:src_${targetDep.name}"
-        })
-
-        return new AndroidManifestRule("manifest_${target.name}", ["PUBLIC"], deps, target.manifest)
+    @Override
+    final void print(PrintStream printer) {
+        mRules.each { rule ->
+            rule.print(printer)
+        }
     }
 }

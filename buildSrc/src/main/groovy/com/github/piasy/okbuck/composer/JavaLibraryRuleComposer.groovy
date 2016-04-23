@@ -24,37 +24,37 @@
 
 package com.github.piasy.okbuck.composer
 
-import com.github.piasy.okbuck.dependency.Dependency
-import com.github.piasy.okbuck.helper.ProjectHelper
-import com.github.piasy.okbuck.rules.JavaLibraryRule
-import org.gradle.api.Project
+import com.github.piasy.okbuck.model.JavaLibTarget
+import com.github.piasy.okbuck.model.Target
+import com.github.piasy.okbuck.rule.JavaLibraryRule
 
-public final class JavaLibraryRuleComposer {
+final class JavaLibraryRuleComposer {
 
     private JavaLibraryRuleComposer() {
         // no instance
     }
 
-    public static JavaLibraryRule compose(
-            Project project, File okbuckDir, Set<Dependency> finalDependencies,
-            Set<String> annotationProcessors
-    ) {
-        List<String> deps = new ArrayList<>()
-        for (Dependency dependency : finalDependencies) {
-            deps.add(dependency.srcCanonicalName)
-        }
+    static JavaLibraryRule compose(JavaLibTarget target) {
+        List<String> deps = []
 
-        Set<String> mainSrcSet = ProjectHelper.getProjectSrcSet(project, "main")
-        Set<String> srcSet = new HashSet<>()
-        for (String srcDir : mainSrcSet) {
-            srcSet.add(srcDir + "/**/*.java")
-        }
+        deps.addAll(target.compileDeps.collect { String dep ->
+            "//${dep.reverse().replaceFirst("/", ":").reverse()}"
+        })
 
-        List<String> annotationProcessorDeps = new ArrayList<>()
-        annotationProcessorDeps.add("//${okbuckDir.name}/${project.name}_apt_deps:all_jars")
+        deps.addAll(target.targetCompileDeps.collect { Target targetDep ->
+            "//${targetDep.path}:src_${targetDep.name}"
+        })
 
-        return new JavaLibraryRule(Arrays.asList("PUBLIC"), deps, srcSet,
-                annotationProcessors.asList(),
-                annotationProcessors.empty ? Collections.emptyList() : annotationProcessorDeps)
+        Set<String> aptDeps = [] as Set
+        aptDeps.addAll(target.aptDeps.collect { String dep ->
+            "//${dep.reverse().replaceFirst("/", ":").reverse()}"
+        })
+
+        aptDeps.addAll(target.targetAptDeps.collect { Target targetDep ->
+            "//${targetDep.path}:src_${targetDep.name}"
+        })
+
+        new JavaLibraryRule("src_${target.name}", ["PUBLIC"], deps, target.sources,
+                target.annotationProcessors, aptDeps)
     }
 }

@@ -24,131 +24,73 @@
 
 package com.github.piasy.okbuck
 
-import com.github.piasy.okbuck.configs.BUCKFile
-import com.github.piasy.okbuck.configs.GenManifestPyFile
-import com.github.piasy.okbuck.configs.ScriptBUCKFile
-import com.github.piasy.okbuck.dependency.DependencyAnalyzer
-import com.github.piasy.okbuck.dependency.DependencyExtractor
-import com.github.piasy.okbuck.dependency.DependencyProcessor
+import com.github.piasy.okbuck.config.BUCKFile
+import com.github.piasy.okbuck.dependency.DependencyCache
 import com.github.piasy.okbuck.generator.BuckFileGenerator
 import com.github.piasy.okbuck.generator.DotBuckConfigGenerator
+import org.apache.commons.io.FileUtils
+import org.apache.commons.io.IOUtils
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 
-/**
- * task added: okbuck, okbuckDebug, okbuckRelease, and okbuck is the shortcut for okbuckRelease
- * */
 class OkBuckGradlePlugin implements Plugin<Project> {
 
-    void apply(Project project) {
-        OkBuckExtension okbuck = project.extensions.create("okbuck", OkBuckExtension, project)
+    static final String OKBUCK = "okbuck"
+    static final String OKBUCK_CLEAN = 'okbuckClean'
+    static final String BUCK = "BUCK"
 
-        Task okBuckClean = project.task('okbuckClean')
+    DependencyCache dependencyCache
+
+    void apply(Project project) {
+        OkBuckExtension okbuck = project.extensions.create(OKBUCK, OkBuckExtension, project)
+
+        dependencyCache = new DependencyCache(project)
+
+        Task okBuckClean = project.task(OKBUCK_CLEAN)
         okBuckClean << {
             if (okbuck.overwrite) {
-                File okBuckDir = new File("${project.projectDir.absolutePath}/.okbuck")
-                okBuckDir.deleteDir()
-                File dotBuckdDir = new File("${project.projectDir.absolutePath}/.buckd")
-                dotBuckdDir.deleteDir()
-                File buckOutDir = new File("${project.projectDir.absolutePath}/buck-out")
-                buckOutDir.deleteDir()
-                File okBuckScriptsDir = new File("${project.projectDir.absolutePath}/okbuck-scripts")
-                okBuckScriptsDir.deleteDir()
-                File dotBuckConfig = new File("${project.projectDir.absolutePath}/.buckconfig")
-                dotBuckConfig.delete()
-                okbuck.buckProjects.each { prj ->
-                    File buck = new File("${prj.projectDir.absolutePath}/BUCK")
-                    buck.delete()
+                [".okbuck", ".buckd", "buck-out", ".buckconfig"].each { String file ->
+                    FileUtils.deleteQuietly(project.file(file))
+                }
+                okbuck.buckProjects.each { Project buckProject ->
+                    FileUtils.deleteQuietly(buckProject.file(BUCK))
                 }
             }
         }
 
-        project.getTasksByName("clean", true).each { task ->
-            task.dependsOn(okBuckClean)
-        }
-
-        Task okBuck = project.task('okbuck')
-        dependsOnBuild(okBuck, project)
+        Task okBuck = project.task(OKBUCK)
+        okBuck.outputs.upToDateWhen { false }
         okBuck.dependsOn(okBuckClean)
         okBuck << {
-            applyWithoutBuildVariant(project)
+            generate(project)
         }
     }
 
-    private static dependsOnBuild(Task task, Project project) {
-        project.getTasksByName("bundleRelease", true).each { bundleRelease ->
-            task.dependsOn(bundleRelease)
-        }
-        project.getTasksByName("jar", true).each { jar ->
-            task.dependsOn(jar)
-        }
-    }
-
-    private static applyWithoutBuildVariant(Project project) {
+    private static generate(Project project) {
         OkBuckExtension okbuck = project.okbuck
 
         if (okbuck.overwrite) {
-            println "==========>> overwrite mode is toggle on <<=========="
+            println "==========>> okbuck overwrite mode is on <<=========="
         }
 
-        // step 1: create .buckconfig
-        File dotBuckConfig = new File("${project.projectDir.absolutePath}/.buckconfig")
+        // generate .buckconfig
+        File dotBuckConfig = project.file(".buckconfig")
         if (dotBuckConfig.exists() && !okbuck.overwrite) {
-            throw new IllegalStateException(
-                    ".buckconfig already exist, set overwrite property to true to overwrite existing file.")
+            throw new IllegalStateException(".buckconfig already exists, set `overwrite=true` to regenerate.")
         } else {
             PrintStream printer = new PrintStream(dotBuckConfig)
-            new DotBuckConfigGenerator(project, okbuck.buildToolVersion,
-                    okbuck.target,
-                    okbuck.flavorFilter)
-                    .generate()
-                    .print(printer)
-            printer.close()
+            DotBuckConfigGenerator.generate(okbuck).print(printer)
+            IOUtils.closeQuietly(printer)
         }
 
-        // step 2: generate script files
-        File scriptsDir = new File("${project.projectDir.absolutePath}/okbuck-scripts")
-        if (!scriptsDir.exists()) {
-            scriptsDir.mkdirs()
-        }
-        File manifestPyFile = new File("${scriptsDir.absolutePath}/manifest.py")
-        PrintStream printer = new PrintStream(manifestPyFile)
-        new GenManifestPyFile().print(printer)
-        printer.close()
-        File scriptBUCKFile = new File("${scriptsDir.absolutePath}/BUCK")
-        printer = new PrintStream(scriptBUCKFile)
-        new ScriptBUCKFile().print(printer)
-        printer.close()
+        // generate BUCK file for each project
+        Map<Project, BUCKFile> buckFiles = new BuckFileGenerator(project).generate()
 
-        // step 3: analyse dependencies
-        File okBuckDir = new File("${project.projectDir.absolutePath}/.okbuck")
-        if (okBuckDir.exists() && !okbuck.overwrite) {
-            throw new IllegalStateException(
-                    ".okbuck dir already exist, set overwrite property to true to overwrite existing file.")
-        } else {
-            DependencyAnalyzer dependencyAnalyzer = new DependencyAnalyzer(project, okBuckDir,
-                    okbuck.checkDepConflict, new DependencyExtractor(project))
-            dependencyAnalyzer.analyse()
-            new DependencyProcessor(dependencyAnalyzer).process()
-
-            // step 4: generate BUCK file for each sub project
-            Map<Project, BUCKFile> buckFiles = new BuckFileGenerator(project, dependencyAnalyzer,
-                    okBuckDir,
-                    okbuck.resPackages,
-                    okbuck.linearAllocHardLimit,
-                    okbuck.primaryDexPatterns,
-                    okbuck.exopackage,
-                    okbuck.appClassSource,
-                    okbuck.appLibDependencies,
-                    okbuck.flavorFilter,
-                    okbuck.cpuFilters).generate()
-            for (Project subProject : buckFiles.keySet()) {
-                File buckFile = new File("${subProject.projectDir.absolutePath}/BUCK")
-                printer = new PrintStream(buckFile)
-                buckFiles.get(subProject).print(printer)
-                printer.close()
-            }
+        buckFiles.each { Project subProject, BUCKFile buckFile ->
+            def printer = new PrintStream(subProject.file(BUCK))
+            buckFile.print(printer)
+            IOUtils.closeQuietly(printer)
         }
     }
 }

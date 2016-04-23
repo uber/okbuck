@@ -22,34 +22,39 @@
  * SOFTWARE.
  */
 
-package com.github.piasy.okbuck.composer
+package com.github.piasy.okbuck.rule
 
-import com.github.piasy.okbuck.model.AndroidAppTarget
-import com.github.piasy.okbuck.model.AndroidLibTarget
-import com.github.piasy.okbuck.model.Target
-import com.github.piasy.okbuck.rule.AndroidManifestRule
+import static com.github.piasy.okbuck.util.CheckUtil.checkNotNull
+import static com.github.piasy.okbuck.util.CheckUtil.checkStringNotEmpty
+/**
+ * android_build_config()
+ * */
+final class AndroidBuildConfigRule extends BuckRule {
 
-final class AndroidManifestRuleComposer {
+    private final String mPackage
 
-    private AndroidManifestRuleComposer() {
-        // no instance
+    private final List<String> mValues
+
+    AndroidBuildConfigRule(
+            String name, List<String> visibility, String packageName,
+            List<String> values
+    ) {
+        super("android_build_config", name, visibility)
+        checkStringNotEmpty(packageName, "AndroidBuildConfigRule package can't be empty.")
+        mPackage = packageName
+        checkNotNull(values, "AndroidBuildConfigRule values must be non-null.")
+        mValues = values
     }
 
-    static AndroidManifestRule compose(AndroidAppTarget target) {
-        List<String> deps = []
-
-        deps.addAll(target.compileDeps.findAll { String dep ->
-            dep.endsWith("aar")
-        }.collect { String dep ->
-            "//${dep.reverse().replaceFirst("/", ":").reverse()}"
-        })
-
-        deps.addAll(target.targetCompileDeps.findAll { Target targetDep ->
-            targetDep instanceof AndroidLibTarget
-        }.collect { Target targetDep ->
-            "//${targetDep.path}:src_${targetDep.name}"
-        })
-
-        return new AndroidManifestRule("manifest_${target.name}", ["PUBLIC"], deps, target.manifest)
+    @Override
+    protected final void printContent(PrintStream printer) {
+        printer.println("\tpackage = '${mPackage}',")
+        if (!mValues.empty) {
+            printer.println("\tvalues = [")
+            for (String value : mValues) {
+                printer.println("\t\t'${value}',")
+            }
+            printer.println("\t],")
+        }
     }
 }

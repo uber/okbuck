@@ -24,33 +24,34 @@
 
 package com.github.piasy.okbuck.composer
 
-import com.github.piasy.okbuck.dependency.Dependency
-import com.github.piasy.okbuck.helper.ProjectHelper
-import com.github.piasy.okbuck.helper.StringUtil
-import com.github.piasy.okbuck.rules.AndroidResourceRule
-import org.gradle.api.Project
+import com.github.piasy.okbuck.model.AndroidTarget
+import com.github.piasy.okbuck.model.Target
+import com.github.piasy.okbuck.rule.AndroidResourceRule
 
-public final class AndroidResourceRuleComposer {
+final class AndroidResourceRuleComposer {
 
     private AndroidResourceRuleComposer() {
         // no instance
     }
 
-    public static AndroidResourceRule compose(
-            String ruleName, Project project, String resRootDirName, Set<Dependency> finalDependencies,
-            String resPackage
-    ) {
-        String resDir = ProjectHelper.getProjectResDir(project, resRootDirName)
-        if (!StringUtil.isEmpty(resDir)) {
-            List<String> resDeps = new ArrayList<>()
-            for (Dependency dependency : finalDependencies) {
-                resDeps.addAll(dependency.resCanonicalNames)
+    static AndroidResourceRule compose(AndroidTarget target, AndroidTarget.ResBundle resBundle) {
+        List<String> resDeps = new ArrayList<>()
+
+        resDeps.addAll(target.compileDeps.findAll { String dep ->
+            dep.endsWith(".aar")
+        }.collect { String dep ->
+            "//${dep.reverse().replaceFirst("/", ":").reverse()}"
+        })
+
+        target.targetCompileDeps.each { Target targetDep ->
+            if (targetDep instanceof AndroidTarget) {
+                targetDep.resources.each { AndroidTarget.ResBundle bundle ->
+                    resDeps.add("//${targetDep.path}:res_${targetDep.name}_${bundle.id}")
+                }
             }
-            String assetsDir = ProjectHelper.getProjectAssetsDir(project, resRootDirName)
-            return new AndroidResourceRule(ruleName, Arrays.asList("PUBLIC"), resDeps,
-                    resDir, resPackage, assetsDir)
-        } else {
-            return null
         }
+
+        return new AndroidResourceRule("res_${target.name}_${resBundle.id}", ["PUBLIC"], resDeps,
+                target.applicationId, resBundle.resDir, resBundle.assetsDir)
     }
 }

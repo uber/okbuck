@@ -104,6 +104,7 @@ dependencies {
     apt 'com.google.dagger:dagger-compiler:2.0.1'
     devCompile project(path: ':dummylibrary', configuration: 'freeRelease')
     prodCompile project(path: ':dummylibrary', configuration: 'paidRelease')
+    demoCompile project(path: ':dummylibrary', configuration: 'paidRelease')
     compile project(':libraries:emptylibrary')
 
     compile 'com.github.promeg:xlog-android-idle:2.1.1'
