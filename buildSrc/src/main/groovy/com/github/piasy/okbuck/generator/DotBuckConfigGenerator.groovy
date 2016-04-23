@@ -24,11 +24,11 @@
 
 package com.github.piasy.okbuck.generator
 
-import com.android.build.gradle.internal.dsl.ProductFlavor
 import com.github.piasy.okbuck.OkBuckExtension
-import com.github.piasy.okbuck.configs.DotBuckConfigFile
-import com.github.piasy.okbuck.helper.FileUtil
-import com.github.piasy.okbuck.helper.ProjectHelper
+import com.github.piasy.okbuck.config.DotBuckConfigFile
+import com.github.piasy.okbuck.model.ProjectType
+import com.github.piasy.okbuck.model.Target
+import com.github.piasy.okbuck.util.ProjectUtil
 import org.gradle.api.Project
 
 /**
@@ -36,68 +36,23 @@ import org.gradle.api.Project
  *
  * used to generate .buckconfig file content.
  */
-public final class DotBuckConfigGenerator {
-    private final Project mRootProject
-    private final String mBuildToolVersion
-    private final String mTarget
-    private final Map<String, List<String>> mFlavorFilter
+final class DotBuckConfigGenerator {
+
+    private DotBuckConfigGenerator() {}
 
     /**
-     * Create generator.
+     * generate {@link DotBuckConfigFile}
      */
-    public DotBuckConfigGenerator(Project rootProject, String buildToolVersion, String target,
-            Map<String, List<String>> flavorFilter) {
-        mRootProject = rootProject
-        mBuildToolVersion = buildToolVersion
-        mTarget = target
-        mFlavorFilter = flavorFilter
-    }
-
-    /**
-     * generate {@code DotBuckConfigFile}
-     */
-    public DotBuckConfigFile generate() {
-        Map<String, String> alias = new HashMap<>()
-        OkBuckExtension okbuck = mRootProject.okbuck
-
-        for (Project project : okbuck.buckProjects) {
-            if (ProjectHelper.getSubProjectType(
-                    project) == ProjectHelper.ProjectType.AndroidAppProject) {
-                if (ProjectHelper.exportFlavor(project)) {
-                    Map<String, ProductFlavor> flavorMap = getFilteredFlavors(project)
-                    for (String flavor : flavorMap.keySet()) {
-                        alias.put(project.name + flavor.capitalize() + "Debug",
-                                "/${FileUtil.getProjectPathDiff(mRootProject, project)}:bin_${flavor}_debug")
-                        alias.put(project.name + flavor.capitalize() + "Release",
-                                "/${FileUtil.getProjectPathDiff(mRootProject, project)}:bin_${flavor}_release")
-                    }
-                } else {
-                    alias.put(project.name + "Debug",
-                            "/${FileUtil.getProjectPathDiff(mRootProject, project)}:bin_debug")
-                    alias.put(project.name + "Release",
-                            "/${FileUtil.getProjectPathDiff(mRootProject, project)}:bin_release")
-                }
+    static DotBuckConfigFile generate(OkBuckExtension okbuck) {
+        Map<String, String> aliases = [:]
+        okbuck.buckProjects.findAll { Project project ->
+            ProjectUtil.getType(project) == ProjectType.ANDROID_APP
+        }.each { Project project ->
+            ProjectUtil.getTargets(project).each { String name, Target target ->
+                aliases.put("${target.identifier}${name.capitalize()}", "//${target.path}:bin_${name}")
             }
         }
-        return new DotBuckConfigFile(alias, mBuildToolVersion, mTarget, Arrays.asList(".git", "**/.svn"))
-    }
 
-    private Map<String, ProductFlavor> getFilteredFlavors(Project project) {
-        Map<String, ProductFlavor> flavorMap = ProjectHelper.getProductFlavors(project)
-        List<String> filter = mFlavorFilter.get(project.name)
-        if (filter == null || filter.empty) {
-            return flavorMap
-        } else {
-            Map<String, ProductFlavor> filtered = new HashMap<>()
-            for (String flavor : filter) {
-                if (flavorMap.containsKey(flavor)) {
-                    filtered.put(flavor, flavorMap.get(flavor))
-                } else {
-                    throw new IllegalArgumentException("`${project.name}` doesn't have flavor " +
-                            "named `${flavor}`, please correct your root project build.gradle file")
-                }
-            }
-            return filtered
-        }
+        return new DotBuckConfigFile(aliases, okbuck.buildToolVersion, okbuck.target, [".git", "**/.svn"])
     }
 }

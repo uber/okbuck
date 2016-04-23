@@ -3,7 +3,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.0.0'
+        classpath 'com.android.tools.build:gradle:2.1.0'
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
     }
 }
@@ -28,19 +28,9 @@ okbuck {
     buildToolVersion rootProject.ext.androidBuildToolsVersion
     target "android-${rootProject.ext.androidCompileSdkVersion}"
     overwrite true
-    checkDepConflict true
-    resPackages = [
-            dummylibrary : 'com.github.piasy.okbuck.example.dummylibrary',
-            app          : 'com.github.piasy.okbuck.example',
-            "another-app": 'com.github.piasy.okbuck.example.anotherapp',
-            common       : 'com.github.piasy.okbuck.example.common',
-            emptylibrary : 'com.github.piasy.okbuck.example.empty',
-    ]
-    linearAllocHardLimit = [
-            app: 7194304
-    ]
+
     primaryDexPatterns = [
-            app: [
+            'app': [
                     '^com/github/piasy/okbuck/example/AppShell^',
                     '^com/github/piasy/okbuck/example/BuildConfig^',
                     '^android/support/multidex/',
@@ -50,22 +40,13 @@ okbuck {
             ]
     ]
     exopackage = [
-            app: true
-    ]
-    appClassSource = [
-            app: 'src/main/java/com/github/piasy/okbuck/example/AppShell.java'
+            'app': true
     ]
     appLibDependencies = [
-            app: [
+            'app': [
                     'buck-android-support',
                     'multidex',
-                    'javalibrary',
-            ]
-    ]
-    flavorFilter = [
-            app: [
-                    'dev',
-                    'prod',
+                    'libraries:javalibrary',
             ]
     ]
     buckProjects = project.subprojects.findAll { it.name != "plugin" }

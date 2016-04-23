@@ -22,34 +22,37 @@
  * SOFTWARE.
  */
 
-package com.github.piasy.okbuck.composer
+package com.github.piasy.okbuck.rule
 
-import com.github.piasy.okbuck.model.AndroidAppTarget
-import com.github.piasy.okbuck.model.AndroidLibTarget
-import com.github.piasy.okbuck.model.Target
-import com.github.piasy.okbuck.rule.AndroidManifestRule
+import org.apache.commons.lang.StringUtils
 
-final class AndroidManifestRuleComposer {
+import static com.github.piasy.okbuck.util.CheckUtil.checkStringNotEmpty
+/**
+ * android_resource()
+ * */
+final class AndroidResourceRule extends BuckRule {
 
-    private AndroidManifestRuleComposer() {
-        // no instance
+    private final String mRes
+    private final String mPackage
+    private final String mAssets
+
+    AndroidResourceRule(String name, List<String> visibility, List<String> deps, String packageName,
+                        String res, String assets) {
+        super("android_resource", name, visibility, deps)
+        mRes = res
+        checkStringNotEmpty(packageName, "AndroidResourceRule package can't be empty.")
+        mPackage = packageName
+        mAssets = assets
     }
 
-    static AndroidManifestRule compose(AndroidAppTarget target) {
-        List<String> deps = []
-
-        deps.addAll(target.compileDeps.findAll { String dep ->
-            dep.endsWith("aar")
-        }.collect { String dep ->
-            "//${dep.reverse().replaceFirst("/", ":").reverse()}"
-        })
-
-        deps.addAll(target.targetCompileDeps.findAll { Target targetDep ->
-            targetDep instanceof AndroidLibTarget
-        }.collect { Target targetDep ->
-            "//${targetDep.path}:src_${targetDep.name}"
-        })
-
-        return new AndroidManifestRule("manifest_${target.name}", ["PUBLIC"], deps, target.manifest)
+    @Override
+    protected final void printContent(PrintStream printer) {
+        if (!StringUtils.isEmpty(mRes)) {
+            printer.println("\tres = '${mRes}',")
+        }
+        printer.println("\tpackage = '${mPackage}',")
+        if (!StringUtils.isEmpty(mAssets)) {
+            printer.println("\tassets = '${mAssets}',")
+        }
     }
 }

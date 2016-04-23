@@ -22,34 +22,28 @@
  * SOFTWARE.
  */
 
-package com.github.piasy.okbuck.composer
+package com.github.piasy.okbuck.util
 
-import com.github.piasy.okbuck.model.AndroidAppTarget
-import com.github.piasy.okbuck.model.AndroidLibTarget
-import com.github.piasy.okbuck.model.Target
-import com.github.piasy.okbuck.rule.AndroidManifestRule
+import org.apache.commons.lang.StringUtils
 
-final class AndroidManifestRuleComposer {
+/**
+ * Check util class, provide a collection of checkNotEmpty/checkNotNull method.
+ * */
+final class CheckUtil {
 
-    private AndroidManifestRuleComposer() {
+    private CheckUtil() {
         // no instance
     }
 
-    static AndroidManifestRule compose(AndroidAppTarget target) {
-        List<String> deps = []
+    static void checkStringNotEmpty(String string, String message) throws RuntimeException {
+        if (StringUtils.isEmpty(string)) {
+            throw new IllegalArgumentException(message)
+        }
+    }
 
-        deps.addAll(target.compileDeps.findAll { String dep ->
-            dep.endsWith("aar")
-        }.collect { String dep ->
-            "//${dep.reverse().replaceFirst("/", ":").reverse()}"
-        })
-
-        deps.addAll(target.targetCompileDeps.findAll { Target targetDep ->
-            targetDep instanceof AndroidLibTarget
-        }.collect { Target targetDep ->
-            "//${targetDep.path}:src_${targetDep.name}"
-        })
-
-        return new AndroidManifestRule("manifest_${target.name}", ["PUBLIC"], deps, target.manifest)
+    static void checkNotNull(Object obj, String message) throws RuntimeException {
+        if (obj == null) {
+            throw new IllegalArgumentException(message)
+        }
     }
 }

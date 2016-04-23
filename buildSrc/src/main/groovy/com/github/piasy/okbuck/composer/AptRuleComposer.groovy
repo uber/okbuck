@@ -24,32 +24,20 @@
 
 package com.github.piasy.okbuck.composer
 
-import com.github.piasy.okbuck.model.AndroidAppTarget
-import com.github.piasy.okbuck.model.AndroidLibTarget
 import com.github.piasy.okbuck.model.Target
-import com.github.piasy.okbuck.rule.AndroidManifestRule
+import com.github.piasy.okbuck.rule.AptRule
 
-final class AndroidManifestRuleComposer {
+final class AptRuleComposer {
 
-    private AndroidManifestRuleComposer() {
+    private AptRuleComposer() {
         // no instance
     }
 
-    static AndroidManifestRule compose(AndroidAppTarget target) {
-        List<String> deps = []
+    static AptRule compose(Target target) {
+        List<String> aptDeps = target.aptDeps.collect { String aptDep ->
+            "//${aptDep.reverse().replaceFirst("/", ":").reverse()}"
+        }
 
-        deps.addAll(target.compileDeps.findAll { String dep ->
-            dep.endsWith("aar")
-        }.collect { String dep ->
-            "//${dep.reverse().replaceFirst("/", ":").reverse()}"
-        })
-
-        deps.addAll(target.targetCompileDeps.findAll { Target targetDep ->
-            targetDep instanceof AndroidLibTarget
-        }.collect { Target targetDep ->
-            "//${targetDep.path}:src_${targetDep.name}"
-        })
-
-        return new AndroidManifestRule("manifest_${target.name}", ["PUBLIC"], deps, target.manifest)
+        return new AptRule("apt_jar_${target.name}", aptDeps)
     }
 }

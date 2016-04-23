@@ -46,10 +46,6 @@ allprojects {
     }
 }
 
-compileGroovy {
-    targetCompatibility = 1.7
-}
-
 tasks.withType(JavaCompile) {
     sourceCompatibility = '1.7'
     targetCompatibility = '1.7'
@@ -70,13 +66,15 @@ dependencies {
     compile localGroovy()
 
     compile 'commons-io:commons-io:2.4'
-    compile 'com.android.tools.build:gradle:2.0.0'
+    compile 'commons-lang:commons-lang:2.6'
+    compile 'org.apache.maven:maven-artifact:3.3.9'
+    compile 'com.android.tools.build:gradle:2.1.0'
 }
 
 def siteUrl = 'https://github.com/Piasy/OkBuck'
 def gitUrl = 'https://github.com/Piasy/OkBuck.git'
 def publishGroup = 'com.github.piasy'
-def publishVersion = '1.0.0-beta8'
+def publishVersion = '1.0.0-beta9'
 
 group = publishGroup
 version = publishVersion

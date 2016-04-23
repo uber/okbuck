@@ -22,34 +22,16 @@
  * SOFTWARE.
  */
 
-package com.github.piasy.okbuck.composer
+package com.github.piasy.okbuck.rule
+/**
+ * java_library() for apt jars
+ * */
+final class AptRule extends BuckRule {
 
-import com.github.piasy.okbuck.model.AndroidAppTarget
-import com.github.piasy.okbuck.model.AndroidLibTarget
-import com.github.piasy.okbuck.model.Target
-import com.github.piasy.okbuck.rule.AndroidManifestRule
-
-final class AndroidManifestRuleComposer {
-
-    private AndroidManifestRuleComposer() {
-        // no instance
+    AptRule(String name, List<String> annotationProcessorDeps) {
+        super("java_library", name, [], annotationProcessorDeps)
     }
 
-    static AndroidManifestRule compose(AndroidAppTarget target) {
-        List<String> deps = []
-
-        deps.addAll(target.compileDeps.findAll { String dep ->
-            dep.endsWith("aar")
-        }.collect { String dep ->
-            "//${dep.reverse().replaceFirst("/", ":").reverse()}"
-        })
-
-        deps.addAll(target.targetCompileDeps.findAll { Target targetDep ->
-            targetDep instanceof AndroidLibTarget
-        }.collect { Target targetDep ->
-            "//${targetDep.path}:src_${targetDep.name}"
-        })
-
-        return new AndroidManifestRule("manifest_${target.name}", ["PUBLIC"], deps, target.manifest)
-    }
+    @Override
+    protected void printContent(PrintStream printStream) {}
 }

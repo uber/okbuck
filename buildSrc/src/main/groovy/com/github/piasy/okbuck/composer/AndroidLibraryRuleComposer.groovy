@@ -24,128 +24,36 @@
 
 package com.github.piasy.okbuck.composer
 
-import com.github.piasy.okbuck.dependency.Dependency
-import com.github.piasy.okbuck.helper.ProjectHelper
-import com.github.piasy.okbuck.helper.StringUtil
-import com.github.piasy.okbuck.rules.AndroidLibraryRule
-import org.gradle.api.Project
+import com.github.piasy.okbuck.model.AndroidLibTarget
+import com.github.piasy.okbuck.model.AndroidTarget
+import com.github.piasy.okbuck.model.Target
+import com.github.piasy.okbuck.rule.AndroidLibraryRule
 
-public final class AndroidLibraryRuleComposer {
+final class AndroidLibraryRuleComposer {
 
     private AndroidLibraryRuleComposer() {
         // no instance
     }
 
-    /**
-     *release
-     * */
-    public static AndroidLibraryRule compose4LibraryWithoutFlavor(
-            String ruleName, Project project, File okbuckDir, Set<Dependency> finalDependencies,
-            Set<String> annotationProcessors, boolean isForLibraryModule, boolean excludeAppClass,
-            String aidlRuleName
-    ) {
-        return compose(ruleName, project, okbuckDir, finalDependencies, annotationProcessors,
-                null, "release", ":build_config", isForLibraryModule, excludeAppClass, aidlRuleName)
-    }
+    static AndroidLibraryRule compose(AndroidLibTarget target, List<String> deps, List<String> aptDeps,
+                                      List<String> aidlRuleNames, String appClass) {
+        deps.addAll(target.compileDeps.collect { String dep ->
+            "//${dep.reverse().replaceFirst("/", ":").reverse()}"
+        })
 
-    /**
-     * variant
-     * */
-    public static AndroidLibraryRule compose4AppWithoutFlavor(
-            String ruleName, Project project, File okbuckDir, Set<Dependency> finalDependencies,
-            Set<String> annotationProcessors, String variant, boolean isForLibraryModule,
-            boolean excludeAppClass, String aidlRuleName
-    ) {
-        return compose(ruleName, project, okbuckDir, finalDependencies, annotationProcessors,
-                null, variant, ":build_config_${variant}", isForLibraryModule, excludeAppClass,
-                aidlRuleName)
-    }
+        deps.addAll(target.targetCompileDeps.collect { Target targetDep ->
+            "//${targetDep.path}:src_${targetDep.name}"
+        })
 
-    /**
-     * flavor_variant
-     * */
-    public static AndroidLibraryRule composeWithFlavor(
-            String ruleName, Project project, File okbuckDir, Set<Dependency> finalDependencies,
-            Set<String> annotationProcessors, String flavor, String variant,
-            boolean isForLibraryModule, boolean excludeAppClass, String aidlRuleName
-    ) {
-        return compose(ruleName, project, okbuckDir, finalDependencies, annotationProcessors,
-                flavor, variant, ":build_config_${flavor}_${variant}", isForLibraryModule,
-                excludeAppClass, aidlRuleName)
-    }
-
-    private static AndroidLibraryRule compose(
-            String ruleName, Project project, File okbuckDir, Set<Dependency> finalDependencies,
-            Set<String> annotationProcessors, String flavor, String variant,
-            String buildConfigRuleName, boolean isForLibraryModule, boolean excludeAppClass,
-            String aidlRuleName
-    ) {
-        Set<String> srcSet = new HashSet<>()
-        for (String srcDir : ProjectHelper.getProjectSrcSet(project, "main")) {
-            srcSet.add(srcDir + "/**/*.java")
-        }
-        for (String srcDir : ProjectHelper.getProjectSrcSet(project, variant)) {
-            srcSet.add(srcDir + "/**/*.java")
-        }
-        if (!StringUtil.isEmpty(flavor)) {
-            for (String srcDir : ProjectHelper.getProjectSrcSet(project, flavor)) {
-                srcSet.add(srcDir + "/**/*.java")
-            }
-            for (String srcDir :
-                    ProjectHelper.getProjectSrcSet(project, flavor + variant.capitalize())) {
-                srcSet.add(srcDir + "/**/*.java")
-            }
-        }
-
-        List<String> deps = new ArrayList<>()
-        String resDir = ProjectHelper.getProjectResDir(project, "main")
-        if (!StringUtil.isEmpty(resDir)) {
-            deps.add(":res_main")
-        }
-        resDir = ProjectHelper.getProjectResDir(project, variant)
-        if (!StringUtil.isEmpty(resDir)) {
-            deps.add(":res_${variant}")
-        }
-        if (!StringUtil.isEmpty(flavor)) {
-            resDir = ProjectHelper.getProjectResDir(project, flavor)
-            if (!StringUtil.isEmpty(resDir)) {
-                deps.add(":res_${flavor}")
-            }
-            resDir = ProjectHelper.getProjectResDir(project, flavor + variant.capitalize())
-            if (!StringUtil.isEmpty(resDir)) {
-                deps.add(":res_${flavor}_${variant}")
-            }
-        }
-
-        for (Dependency dependency : finalDependencies) {
-            deps.add(dependency.srcCanonicalName)
-            for (String resName : dependency.resCanonicalNames) {
-                if (!dependency.srcCanonicalName.equals(resName)) {
-                    deps.add(resName)
+        target.targetCompileDeps.each { Target targetDep ->
+            if (targetDep instanceof AndroidTarget) {
+                targetDep.resources.each { AndroidTarget.ResBundle bundle ->
+                    deps.add("//${targetDep.path}:res_${targetDep.name}_${bundle.id}")
                 }
             }
         }
 
-        deps.add(buildConfigRuleName)
-        String jniLibsDir = ProjectHelper.getProjectJniLibsDir(project, "main")
-        if (!StringUtil.isEmpty(jniLibsDir)) {
-            deps.add(":native_libs")
-        }
-
-        String manifest = isForLibraryModule ?
-                ProjectHelper.getProjectManifestFile(project, "main") : null
-
-        List<String> annotationProcessorDeps
-        if (annotationProcessors.empty) {
-            annotationProcessorDeps = Collections.emptyList()
-        } else {
-            annotationProcessorDeps = new ArrayList<>()
-            annotationProcessorDeps.add("//${okbuckDir.name}/${project.name}_apt_deps:all_jars")
-            annotationProcessorDeps.add("//${okbuckDir.name}/${project.name}_apt_deps:all_aars")
-        }
-
-        return new AndroidLibraryRule(ruleName, Arrays.asList("PUBLIC"), deps, srcSet,
-                manifest, annotationProcessors.asList(), annotationProcessorDeps, excludeAppClass,
-                aidlRuleName)
+        return new AndroidLibraryRule("src_${target.name}", ["PUBLIC"], deps, target.sources,
+                target.manifest, target.annotationProcessors as List, aptDeps, aidlRuleNames, appClass)
     }
 }

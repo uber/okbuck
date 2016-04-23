@@ -22,34 +22,42 @@
  * SOFTWARE.
  */
 
-package com.github.piasy.okbuck.composer
+package com.github.piasy.okbuck.config
 
-import com.github.piasy.okbuck.model.AndroidAppTarget
-import com.github.piasy.okbuck.model.AndroidLibTarget
-import com.github.piasy.okbuck.model.Target
-import com.github.piasy.okbuck.rule.AndroidManifestRule
+/**
+ * .buckconfig file.
+ *
+ * TODO full buck support
+ * */
+final class DotBuckConfigFile extends BuckConfigFile {
 
-final class AndroidManifestRuleComposer {
+    private final Map<String, String> mAliases
+    private final String mBuildToolVersion
+    private final String mTarget
+    private final List<String> mIgnore
 
-    private AndroidManifestRuleComposer() {
-        // no instance
+    DotBuckConfigFile(Map<String, String> aliases, String buildToolVersion, String target, List<String> ignore) {
+        mAliases = aliases
+        mBuildToolVersion = buildToolVersion
+        mTarget = target
+        mIgnore = ignore
     }
 
-    static AndroidManifestRule compose(AndroidAppTarget target) {
-        List<String> deps = []
+    @Override
+    final void print(PrintStream printer) {
+        printer.println("[alias]")
+        mAliases.each { alias, target ->
+            printer.println("\t${alias} = ${target}")
+        }
+        printer.println()
 
-        deps.addAll(target.compileDeps.findAll { String dep ->
-            dep.endsWith("aar")
-        }.collect { String dep ->
-            "//${dep.reverse().replaceFirst("/", ":").reverse()}"
-        })
+        printer.println("[android]")
+        printer.println("\tbuild_tools_version = ${mBuildToolVersion}")
+        printer.println("\ttarget = ${mTarget}")
+        printer.println()
 
-        deps.addAll(target.targetCompileDeps.findAll { Target targetDep ->
-            targetDep instanceof AndroidLibTarget
-        }.collect { Target targetDep ->
-            "//${targetDep.path}:src_${targetDep.name}"
-        })
-
-        return new AndroidManifestRule("manifest_${target.name}", ["PUBLIC"], deps, target.manifest)
+        printer.println("[project]")
+        printer.print("\tignore = ${mIgnore.join(', ')}")
+        printer.println()
     }
 }

@@ -22,34 +22,15 @@
  * SOFTWARE.
  */
 
-package com.github.piasy.okbuck.composer
+package com.github.piasy.okbuck.config
 
-import com.github.piasy.okbuck.model.AndroidAppTarget
-import com.github.piasy.okbuck.model.AndroidLibTarget
-import com.github.piasy.okbuck.model.Target
-import com.github.piasy.okbuck.rule.AndroidManifestRule
+/**
+ * buck config file presentation.
+ */
+abstract class BuckConfigFile {
 
-final class AndroidManifestRuleComposer {
-
-    private AndroidManifestRuleComposer() {
-        // no instance
-    }
-
-    static AndroidManifestRule compose(AndroidAppTarget target) {
-        List<String> deps = []
-
-        deps.addAll(target.compileDeps.findAll { String dep ->
-            dep.endsWith("aar")
-        }.collect { String dep ->
-            "//${dep.reverse().replaceFirst("/", ":").reverse()}"
-        })
-
-        deps.addAll(target.targetCompileDeps.findAll { Target targetDep ->
-            targetDep instanceof AndroidLibTarget
-        }.collect { Target targetDep ->
-            "//${targetDep.path}:src_${targetDep.name}"
-        })
-
-        return new AndroidManifestRule("manifest_${target.name}", ["PUBLIC"], deps, target.manifest)
-    }
+    /**
+     * Print this file's content into the printer.
+     */
+    abstract void print(PrintStream printer)
 }

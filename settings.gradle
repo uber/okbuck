@@ -1,2 +1,2 @@
-include ':app', ':dummylibrary', ':libraries:javalibrary', ':libraries:emptylibrary', ':libraries:common', ':another-app', ':plugin'
-
+include ':app', ':dummylibrary', ':libraries:javalibrary', ':libraries:emptylibrary', ':libraries:common', ':another-app'
+include ':plugin'

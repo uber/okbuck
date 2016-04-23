@@ -24,73 +24,31 @@
 
 package com.github.piasy.okbuck.composer
 
-import com.github.piasy.okbuck.helper.ProjectHelper
-import com.github.piasy.okbuck.helper.StringUtil
-import com.github.piasy.okbuck.rules.AndroidBinaryRule
-import org.gradle.api.Project
+import com.github.piasy.okbuck.model.AndroidAppTarget
+import com.github.piasy.okbuck.rule.AndroidBinaryRule
 
-public final class AndroidBinaryRuleComposer {
+final class AndroidBinaryRuleComposer {
+
+    private static Map<String, String> CPU_FILTER_MAP = [
+            "armeabi"    : "ARM",
+            "armeabi-v7a": "ARMV7",
+            "x86"        : "X86",
+            "x86_64"     : "X86_64",
+            "mips"       : "MIPS",
+    ]
 
     private AndroidBinaryRuleComposer() {
         // no instance
     }
 
-    public static AndroidBinaryRule compose(
-            Project project, String flavor, String variant, boolean exopackage,
-            int linearAllocHardLimit, List<String> primaryDexPatterns, List<String> cpuFilters
-    ) {
-        List<String> binDeps = new ArrayList<>()
-        binDeps.add(":src_${flavor}_${variant}")
-        if (!StringUtil.isEmpty(ProjectHelper.getProjectResDir(project, "main"))) {
-            binDeps.add(":res_main")
-        }
-        if (!StringUtil.isEmpty(ProjectHelper.getProjectResDir(project, variant))) {
-            binDeps.add(":res_${variant}")
-        }
-        if (!StringUtil.isEmpty(ProjectHelper.getProjectResDir(project, flavor))) {
-            binDeps.add(":res_${flavor}")
-        }
-        if (!StringUtil.isEmpty(
-                ProjectHelper.getProjectResDir(project, flavor + variant.capitalize()))) {
-            binDeps.add(":res_${flavor}_${variant}")
-        }
-        if (exopackage) {
-            binDeps.add(":app_lib_${flavor}_${variant}")
-        }
-        if (ProjectHelper.getMultiDexEnabled(project)) {
-            return new AndroidBinaryRule("bin_${flavor}_${variant}", Arrays.asList("PUBLIC"),
-                    binDeps, ":manifest", "//.okbuck/${project.name}_keystore:key_store_${variant}",
-                    linearAllocHardLimit, primaryDexPatterns, exopackage, cpuFilters)
-        } else {
-            return new AndroidBinaryRule("bin_${flavor}_${variant}", Arrays.asList("PUBLIC"),
-                    binDeps, ":manifest", "//.okbuck/${project.name}_keystore:key_store_${variant}",
-                    exopackage, cpuFilters)
-        }
-    }
+    static AndroidBinaryRule compose(AndroidAppTarget target, List<String> deps, String manifestRuleName,
+                                     String keystoreRuleName) {
+        Set<String> mappedCpuFilters = target.cpuFilters.collect { String cpuFilter ->
+            CPU_FILTER_MAP.get(cpuFilter)
+        }.findAll { String cpuFilter -> cpuFilter != null }
 
-    public static AndroidBinaryRule composeWithoutFlavor(
-            Project project, String variant, boolean exopackage,
-            int linearAllocHardLimit, List<String> primaryDexPatterns, List<String> cpuFilters
-    ) {
-        List<String> binDeps = new ArrayList<>()
-        binDeps.add(":src_${variant}")
-        if (!StringUtil.isEmpty(ProjectHelper.getProjectResDir(project, "main"))) {
-            binDeps.add(":res_main")
-        }
-        if (!StringUtil.isEmpty(ProjectHelper.getProjectResDir(project, variant))) {
-            binDeps.add(":res_${variant}")
-        }
-        if (exopackage) {
-            binDeps.add(":app_lib_${variant}")
-        }
-        if (ProjectHelper.getMultiDexEnabled(project)) {
-            return new AndroidBinaryRule("bin_${variant}", Arrays.asList("PUBLIC"),
-                    binDeps, ":manifest", "//.okbuck/${project.name}_keystore:key_store_${variant}",
-                    linearAllocHardLimit, primaryDexPatterns, exopackage, cpuFilters)
-        } else {
-            return new AndroidBinaryRule("bin_${variant}", Arrays.asList("PUBLIC"),
-                    binDeps, ":manifest", "//.okbuck/${project.name}_keystore:key_store_${variant}",
-                    exopackage, cpuFilters)
-        }
+        return new AndroidBinaryRule("bin_${target.name}", ["PUBLIC"], deps, manifestRuleName, keystoreRuleName,
+                target.multidexEnabled, target.linearAllocHardLimit, target.primaryDexPatterns, target.exopackage,
+                mappedCpuFilters)
     }
 }

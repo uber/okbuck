@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Piasy
+ * Copyright (c) 2016 Piasy
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,34 +22,31 @@
  * SOFTWARE.
  */
 
-package com.github.piasy.okbuck.composer
+package com.github.piasy.okbuck.util
 
-import com.github.piasy.okbuck.model.AndroidAppTarget
-import com.github.piasy.okbuck.model.AndroidLibTarget
-import com.github.piasy.okbuck.model.Target
-import com.github.piasy.okbuck.rule.AndroidManifestRule
+final class FileUtil {
 
-final class AndroidManifestRuleComposer {
-
-    private AndroidManifestRuleComposer() {
+    private FileUtil() {
         // no instance
     }
 
-    static AndroidManifestRule compose(AndroidAppTarget target) {
-        List<String> deps = []
+    static String getRelativePath(File rootDir, File dir) {
+        String rootPath = rootDir.absolutePath
+        String path = dir.absolutePath
+        if (path.indexOf(rootPath) == 0) {
+            return path.substring(rootPath.length() + 1)
+        } else {
+            throw new IllegalArgumentException("sub dir ${dir.name} must " +
+                    "locate inside root dir ${rootDir.name}")
+        }
+    }
 
-        deps.addAll(target.compileDeps.findAll { String dep ->
-            dep.endsWith("aar")
-        }.collect { String dep ->
-            "//${dep.reverse().replaceFirst("/", ":").reverse()}"
-        })
-
-        deps.addAll(target.targetCompileDeps.findAll { Target targetDep ->
-            targetDep instanceof AndroidLibTarget
-        }.collect { Target targetDep ->
-            "//${targetDep.path}:src_${targetDep.name}"
-        })
-
-        return new AndroidManifestRule("manifest_${target.name}", ["PUBLIC"], deps, target.manifest)
+    static void copyResourceToProject(String resource, File destination) {
+        try {
+            InputStream inputStream = FileUtil.getResourceAsStream(resource)
+            OutputStream outputStream = new FileOutputStream(destination)
+            outputStream.write(inputStream.bytes)
+            outputStream.close()
+        } catch (Exception ignored) { }
     }
 }

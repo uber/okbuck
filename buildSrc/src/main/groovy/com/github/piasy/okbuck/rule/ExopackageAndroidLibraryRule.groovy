@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Piasy
+ * Copyright (c) 2016 Piasy
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,34 +22,20 @@
  * SOFTWARE.
  */
 
-package com.github.piasy.okbuck.composer
+package com.github.piasy.okbuck.rule
+/**
+ * android_library() used for exopackage
+ * */
+final class ExopackageAndroidLibraryRule extends BuckRule {
+    private final String appClass
 
-import com.github.piasy.okbuck.model.AndroidAppTarget
-import com.github.piasy.okbuck.model.AndroidLibTarget
-import com.github.piasy.okbuck.model.Target
-import com.github.piasy.okbuck.rule.AndroidManifestRule
-
-final class AndroidManifestRuleComposer {
-
-    private AndroidManifestRuleComposer() {
-        // no instance
+    ExopackageAndroidLibraryRule(String name, String appClass, List<String> visibility, List<String> deps) {
+        super("android_library", name, visibility, deps)
+        this.appClass = appClass
     }
 
-    static AndroidManifestRule compose(AndroidAppTarget target) {
-        List<String> deps = []
-
-        deps.addAll(target.compileDeps.findAll { String dep ->
-            dep.endsWith("aar")
-        }.collect { String dep ->
-            "//${dep.reverse().replaceFirst("/", ":").reverse()}"
-        })
-
-        deps.addAll(target.targetCompileDeps.findAll { Target targetDep ->
-            targetDep instanceof AndroidLibTarget
-        }.collect { Target targetDep ->
-            "//${targetDep.path}:src_${targetDep.name}"
-        })
-
-        return new AndroidManifestRule("manifest_${target.name}", ["PUBLIC"], deps, target.manifest)
+    @Override
+    protected final void printContent(PrintStream printer) {
+        printer.println("\tsrcs = ['${appClass}'],")
     }
 }
