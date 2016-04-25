@@ -113,7 +113,7 @@ linearAllocHardLimit和primaryDexPatterns部分，更多详细关于multidex配�
 如果未使用exopackage，可以忽略这三个参数
 +  `flavorFilter`是一个map，用来控制只生成自己想要的flavor的BUCK配置，默认为空，表示生成所有flavor的BUCK配置
 +  `cpuFilters`是一个map，用来控制BUCK只打包指定CPU架构的so库，和gradle的`ndk.abiFilter`参数一样，支持参数为：`armeabi`,
-`armeabi-v7a`, `x86`, `x86_64`, `mips`
+`armeabi-v7a`, `x86`, `x86_64`, `mips`。**注意**：如果设置了此参数，请确保存在 `ANDROID_NDK` 环境变量，并且指向了本地 ndk 的目录，否则 BUCK 编译时会报错。
 
 ## Troubleshooting
 如果遇到任何问题，请[提一个issue](https://github.com/Piasy/OkBuck/issues/new)，如果能提供

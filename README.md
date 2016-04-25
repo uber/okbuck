@@ -154,7 +154,7 @@ if you don't need exopackage, you can ignore these three parameters
 you need, default is empty, which will generate all flavors BUCK file
 +  `cpuFilters` is a map, used for controlling BUCK only create the specific cpu architecture
 native library folder in your apk file, the same as `ndk.abiFilter` of gradle, support values
-are: `armeabi`, `armeabi-v7a`, `x86`, `x86_64`, `mips`
+are: `armeabi`, `armeabi-v7a`, `x86`, `x86_64`, `mips`. **Note**: If you set this parameter, you must set a environment variable named `ANDROID_NDK` pointing to your local android ndk root dir, otherwise BUCK build will fail.
 +  `buckProjects` is a set of projects to generate buck configs for.
 Default is all sub projects of root project.
 
