@@ -31,12 +31,21 @@ import com.github.piasy.okbuck.rules.base.BuckRuleWithDeps
  * */
 public final class ExopackageAndroidLibraryRule extends BuckRuleWithDeps {
 
-    public ExopackageAndroidLibraryRule(String name, List<String> visibility, List<String> deps) {
+    private final boolean mEnableRetroLambda
+
+    public ExopackageAndroidLibraryRule(String name, List<String> visibility, List<String> deps,
+            boolean enableRetroLambda) {
         super("android_library", name, visibility, deps)
+        mEnableRetroLambda = enableRetroLambda
     }
 
     @Override
     protected final void printSpecificPart(PrintStream printer) {
         printer.println("\tsrcs = [APP_CLASS_SOURCE],")
+        if (mEnableRetroLambda) {
+            printer.println("\tsource = '8',")
+            printer.println("\ttarget = '8',")
+            printer.println("\tpostprocess_classes_commands = ['./okbuck-scripts/RetroLambda.sh'],")
+        }
     }
 }

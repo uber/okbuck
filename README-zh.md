@@ -51,6 +51,7 @@ okbuck {
     target "android-23"
     overwrite true
     checkDepConflict true
+    enableRetroLambda true
     resPackages = [
             dummylibrary : 'com.github.piasy.okbuck.example.dummylibrary',
             app          : 'com.github.piasy.okbuck.example',
@@ -104,6 +105,7 @@ okbuck {
 获得，默认为`android-23`
 +  `overwrite`配置是否覆盖已有的BUCK配置文件，默认为`false`
 +  `checkDepConflict`指定是否检查并警告依赖冲突，默认为`true`
++  `enableRetroLambda`指定是否启用 RetroLambda，默认为`false`, 启用前, 你需要先设置好 [RetroLambda](https://github.com/evant/gradle-retrolambda/)
 +  `linearAllocHardLimit`和`primaryDexPatterns`都是map，用来配置BUCK multidex的
 linearAllocHardLimit和primaryDexPatterns部分，更多详细关于multidex配置的说明，请参阅
 [multidex wiki](https://github.com/Piasy/OkBuck/wiki/Multidex-Configuration-Guide)，

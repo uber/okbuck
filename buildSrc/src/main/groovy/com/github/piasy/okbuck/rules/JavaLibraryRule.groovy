@@ -38,10 +38,12 @@ public final class JavaLibraryRule extends BuckRuleWithDeps {
     private final Set<String> mSrcSet
     private final List<String> mAnnotationProcessors
     private final List<String> mAnnotationProcessorDeps
+    private final boolean mEnableRetroLambda
 
     public JavaLibraryRule(
             List<String> visibility, List<String> deps, Set<String> srcSet,
-            List<String> annotationProcessors, List<String> annotationProcessorDeps
+            List<String> annotationProcessors, List<String> annotationProcessorDeps,
+            boolean enableRetroLambda
     ) {
         super("java_library", "src", visibility, deps)
 
@@ -53,6 +55,7 @@ public final class JavaLibraryRule extends BuckRuleWithDeps {
         checkNotNull(annotationProcessorDeps,
                 "JavaLibraryRule annotation_processor_deps must be non-null.")
         mAnnotationProcessorDeps = annotationProcessorDeps
+        mEnableRetroLambda = enableRetroLambda
     }
 
     @Override
@@ -74,5 +77,10 @@ public final class JavaLibraryRule extends BuckRuleWithDeps {
             printer.println("\t\t'${dep}',")
         }
         printer.println("\t],")
+        if (mEnableRetroLambda) {
+            printer.println("\tsource = '8',")
+            printer.println("\ttarget = '8',")
+            printer.println("\tpostprocess_classes_commands = ['./okbuck-scripts/RetroLambda.sh'],")
+        }
     }
 }

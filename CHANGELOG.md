@@ -4,6 +4,7 @@
   +  fix bug about too long filename, [#60](https://github.com/Piasy/OkBuck/issues/60)
   +  add flavorFilter
   +  add aidl support, [#40](https://github.com/Piasy/OkBuck/issues/40)
+  +  add RetroLambda support! [#32](https://github.com/Piasy/OkBuck/issues/32), currently you need build [my fork](https://github.com/Piasy/buck) of BUCK
 +  0.4.11: fix bug about aar dependency inside local libs dir
 +  0.4.10: fix bug about sign config, [#56](https://github.com/Piasy/OkBuck/issues/56)
 +  0.4.9: fix bug in exopackage
