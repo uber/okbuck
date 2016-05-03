@@ -70,20 +70,20 @@ dependencies {
     compile localGroovy()
 
     compile 'commons-io:commons-io:2.4'
-    compile 'com.android.tools.build:gradle:2.0.0'
+    compile 'com.android.tools.build:gradle:2.1.0'
 }
 
 def siteUrl = 'https://github.com/Piasy/OkBuck'
 def gitUrl = 'https://github.com/Piasy/OkBuck.git'
 def publishGroup = 'com.github.piasy'
-def publishVersion = '1.0.0-beta8'
+def publishVersion = '1.0.0-beta9'
 
 group = publishGroup
 version = publishVersion
 
 Properties properties = new Properties()
 // for wrapper project structure
-File propertyFile = project.rootProject.file('bintray.properties')
+File propertyFile = project.rootProject.file('buildSrc/bintray.properties')
 if (propertyFile.exists()) {
     properties.load(propertyFile.newDataInputStream())
 }

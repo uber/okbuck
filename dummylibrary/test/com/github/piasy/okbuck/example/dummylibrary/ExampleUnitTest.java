@@ -35,5 +35,6 @@ public class ExampleUnitTest {
     @Test
     public void addition_isCorrect() throws Exception {
         assertEquals(4, 2 + 2);
+        System.out.println(Paths.get(System.getProperty("java.home")).resolve("lib").resolve("rt.jar"));
     }
 }
