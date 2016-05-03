@@ -70,11 +70,6 @@ okbuck {
                     'prod',
             ]
     ]
-    cpuFilters = [
-            app: [
-                    'armeabi'
-            ]
-    ]
     buckProjects = project.subprojects.findAll { it.name != "plugin" }
 }
 
