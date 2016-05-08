@@ -37,7 +37,7 @@ public final class JavaLibraryRuleComposer {
 
     public static JavaLibraryRule compose(
             Project project, File okbuckDir, Set<Dependency> finalDependencies,
-            Set<String> annotationProcessors, boolean enableRetroLambda
+            Set<String> annotationProcessors
     ) {
         List<String> deps = new ArrayList<>()
         for (Dependency dependency : finalDependencies) {
@@ -55,7 +55,6 @@ public final class JavaLibraryRuleComposer {
 
         return new JavaLibraryRule(Arrays.asList("PUBLIC"), deps, srcSet,
                 annotationProcessors.asList(),
-                annotationProcessors.empty ? Collections.emptyList() : annotationProcessorDeps,
-                enableRetroLambda)
+                annotationProcessors.empty ? Collections.emptyList() : annotationProcessorDeps)
     }
 }

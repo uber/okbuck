@@ -51,11 +51,6 @@ public class OkBuckExtension {
     boolean checkDepConflict = true
 
     /**
-     * whether enable RetroLambda.
-     * */
-    boolean enableRetroLambda = false
-
-    /**
      * resPackages: set the resources package name for Android library module or application module,
      * including string resources, color resources, etc, and BuildConfig.java.
      * */

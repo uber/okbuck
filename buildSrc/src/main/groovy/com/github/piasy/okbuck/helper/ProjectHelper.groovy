@@ -343,23 +343,4 @@ public final class ProjectHelper {
                 return false
         }
     }
-
-    /**
-     * get the latest RetroLambda version used by this project
-     * */
-    public static File getRetroLambdaJar(Project rootProject) {
-        File jarFile = null
-        rootProject.subprojects.each {
-            try {
-                for (File file : it.configurations.getByName("retrolambdaConfig").resolve()) {
-                    if (jarFile == null || file.name.compareTo(jarFile.name) > 0) {
-                        jarFile = file
-                    }
-                }
-            } catch (Exception e) {
-                logger.info "${it.name} doesn't have retrolambdaConfig dependencies"
-            }
-        }
-        return jarFile
-    }
 }

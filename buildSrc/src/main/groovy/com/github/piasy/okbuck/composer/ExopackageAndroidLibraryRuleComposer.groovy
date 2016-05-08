@@ -34,8 +34,7 @@ public final class ExopackageAndroidLibraryRuleComposer {
     }
 
     public static ExopackageAndroidLibraryRule compose(
-            List<Dependency> exopackageRuleDependencies, String flavor, String variant,
-            boolean enableRetroLambda
+            List<Dependency> exopackageRuleDependencies, String flavor, String variant
     ) {
         List<String> deps = new ArrayList<>()
         for (Dependency dependency : exopackageRuleDependencies) {
@@ -43,11 +42,11 @@ public final class ExopackageAndroidLibraryRuleComposer {
         }
         deps.add(":build_config_${flavor}_${variant}")
         return new ExopackageAndroidLibraryRule("app_lib_${flavor}_${variant}",
-                Arrays.asList("PUBLIC"), deps, enableRetroLambda)
+                Arrays.asList("PUBLIC"), deps)
     }
 
     public static ExopackageAndroidLibraryRule composeWithoutFlavor(
-            List<Dependency> exopackageRuleDependencies, String variant, boolean enableRetroLambda
+            List<Dependency> exopackageRuleDependencies, String variant
     ) {
         List<String> deps = new ArrayList<>()
         for (Dependency dependency : exopackageRuleDependencies) {
@@ -55,6 +54,6 @@ public final class ExopackageAndroidLibraryRuleComposer {
         }
         deps.add(":build_config_${variant}")
         return new ExopackageAndroidLibraryRule("app_lib_${variant}",
-                Arrays.asList("PUBLIC"), deps, enableRetroLambda)
+                Arrays.asList("PUBLIC"), deps)
     }
 }

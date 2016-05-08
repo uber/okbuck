@@ -330,92 +330,12 @@ public final class DependencyAnalyzer {
 
     public static String bytesToHex(byte[] bytes) {
         char[] hexChars = new char[bytes.length * 2];
-        for (int j = 0; j < bytes.length; j++) {
+        for ( int j = 0; j < bytes.length; j++ ) {
             int v = bytes[j] & 0xFF;
             hexChars[j * 2] = hexArray[v >>> 4];
             hexChars[j * 2 + 1] = hexArray[v & 0x0F];
         }
         return new String(hexChars);
-    }
-
-    /**
-     * Magic part... almost by reverse engineering :(
-     *
-     * add all dependencies (their jar file) into RetroLambda compile classpath, it doesn't matter
-     * if some of those files doesn't exist. translate pattern is find out by analysing buck-out
-     * dir's content.
-     * */
-    public String dependencyClasspath() {
-        String classpath = ""
-        Set<String> addedDep = new HashSet<>()
-        for (Project project : mFinalDependencies.keySet()) {
-            for (String flavor : mFinalDependencies.get(project).keySet()) {
-                for (Dependency dependency : mFinalDependencies.get(project).get(flavor)) {
-                    String depPath = "";
-                    switch (dependency.type) {
-                        case Dependency.DependencyType.LocalJarDependency:
-                        case Dependency.DependencyType.MavenJarDependency:
-                            depPath = "./buck-out/gen/" + dependency.srcCanonicalName.
-                                    substring(2).replace(':', '/') + ".jar"
-                            break
-                        case Dependency.DependencyType.LocalAarDependency:
-                        case Dependency.DependencyType.MavenAarDependency:
-                            depPath = "./buck-out/gen/" + dependency.srcCanonicalName.
-                                    substring(2).replace(':', '/') + "#aar_prebuilt_jar.jar"
-                            break
-                        case Dependency.DependencyType.ModuleJarDependency:
-                            String jarSrcName = dependency.srcCanonicalName
-                            // truncate prefix `//`
-                            jarSrcName = jarSrcName.substring(2)
-                            // truncate suffix `:src`
-                            jarSrcName = jarSrcName.substring(0, jarSrcName.indexOf(":"))
-                            depPath = "./buck-out/gen/" + jarSrcName + "/lib__src__output/src.jar"
-                            break
-                        case Dependency.DependencyType.ModuleAarDependency:
-                            // `//dummylibrary:src_paid_release` =>
-                            // jar: `./buck-out/gen/dummylibrary/lib__src_free_release__output/src_free_release.jar`
-                            // r: `./buck-out/gen/dummylibrary/__src_free_release#dummy_r_dot_java_dummyrdotjava_output__/src_free_release#dummy_r_dot_java.jar`
-                            // build config: `./buck-out/gen/dummylibrary/lib__build_config_free_release__output/build_config_free_release.jar`
-                            String aarSrcName = dependency.srcCanonicalName
-                            // truncate prefix `//`
-                            aarSrcName = aarSrcName.substring(2)
-                            // split between `:src`
-                            String[] parts = aarSrcName.split(":src")
-                            String modulePath, flavorPath
-                            if (parts.length == 1) {
-                                // without flavor
-                                modulePath = parts[0]
-                                flavorPath = ""
-                            } else {
-                                // with flavor
-                                modulePath = parts[0]
-                                flavorPath = parts[1]
-                            }
-                            String jarPath = "./buck-out/gen/" + modulePath + "/lib__src" +
-                                    flavorPath + "__output/src" + flavorPath + ".jar"
-                            String rPath = "./buck-out/gen/" + modulePath + "/__src" +
-                                    flavorPath + "#dummy_r_dot_java_dummyrdotjava_output__/src" +
-                                    flavorPath + "#dummy_r_dot_java.jar"
-                            String buildConfigPath = "./buck-out/gen/" + modulePath +
-                                    "/lib__build_config" + flavorPath + "__output/build_config" +
-                                    flavorPath + ".jar"
-                            depPath = jarPath + ":" + rPath + ":" + buildConfigPath
-                            break
-                        default:
-                            break
-                    }
-                    if (!StringUtil.isEmpty(depPath) && !addedDep.contains(depPath)) {
-                        if (StringUtil.isEmpty(classpath)) {
-                            classpath += depPath
-                        } else {
-                            classpath += ":" + depPath
-                        }
-                        addedDep.add(depPath)
-                    }
-                }
-            }
-        }
-        return classpath
     }
 
     private void printDependenciesGraph() {

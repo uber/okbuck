@@ -86,7 +86,6 @@ okbuck {
     target "android-23"
     overwrite true
     checkDepConflict true
-    enableRetroLambda true
     resPackages = [
             dummylibrary : 'com.github.piasy.okbuck.example.dummylibrary',
             app          : 'com.github.piasy.okbuck.example',
@@ -141,7 +140,6 @@ okbuck {
 `<sdk home>/tools/android list targets --compact`, default `android-23`
 +  `overwrite` is used to control whether overwrite existing BUCK files, default `false`
 +  `checkDepConflict` is used to control whether check dependency conflict, default `true`
-+  `enableRetroLambda` is used to control whether enable RetroLambda, default `false`, you need setup [RetroLambda](https://github.com/evant/gradle-retrolambda/) at first
 +  `linearAllocHardLimit` and `primaryDexPatterns` are maps, used for specifing 
 linearAllocHardLimit and primaryDexPatterns used by BUCK multidex, more details 
 about multidex configuration, please read 
