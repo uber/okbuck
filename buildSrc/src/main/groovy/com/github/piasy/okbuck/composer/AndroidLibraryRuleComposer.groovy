@@ -37,16 +37,15 @@ public final class AndroidLibraryRuleComposer {
     }
 
     /**
-     * release
+     *release
      * */
     public static AndroidLibraryRule compose4LibraryWithoutFlavor(
             String ruleName, Project project, File okbuckDir, Set<Dependency> finalDependencies,
             Set<String> annotationProcessors, boolean isForLibraryModule, boolean excludeAppClass,
-            String aidlRuleName, boolean enableRetroLambda
+            String aidlRuleName
     ) {
         return compose(ruleName, project, okbuckDir, finalDependencies, annotationProcessors,
-                null, "release", ":build_config", isForLibraryModule, excludeAppClass, aidlRuleName,
-                enableRetroLambda)
+                null, "release", ":build_config", isForLibraryModule, excludeAppClass, aidlRuleName)
     }
 
     /**
@@ -55,12 +54,11 @@ public final class AndroidLibraryRuleComposer {
     public static AndroidLibraryRule compose4AppWithoutFlavor(
             String ruleName, Project project, File okbuckDir, Set<Dependency> finalDependencies,
             Set<String> annotationProcessors, String variant, boolean isForLibraryModule,
-            boolean excludeAppClass, String aidlRuleName,
-            boolean enableRetroLambda
+            boolean excludeAppClass, String aidlRuleName
     ) {
         return compose(ruleName, project, okbuckDir, finalDependencies, annotationProcessors,
                 null, variant, ":build_config_${variant}", isForLibraryModule, excludeAppClass,
-                aidlRuleName, enableRetroLambda)
+                aidlRuleName)
     }
 
     /**
@@ -69,19 +67,18 @@ public final class AndroidLibraryRuleComposer {
     public static AndroidLibraryRule composeWithFlavor(
             String ruleName, Project project, File okbuckDir, Set<Dependency> finalDependencies,
             Set<String> annotationProcessors, String flavor, String variant,
-            boolean isForLibraryModule, boolean excludeAppClass, String aidlRuleName,
-            boolean enableRetroLambda
+            boolean isForLibraryModule, boolean excludeAppClass, String aidlRuleName
     ) {
         return compose(ruleName, project, okbuckDir, finalDependencies, annotationProcessors,
                 flavor, variant, ":build_config_${flavor}_${variant}", isForLibraryModule,
-                excludeAppClass, aidlRuleName, enableRetroLambda)
+                excludeAppClass, aidlRuleName)
     }
 
     private static AndroidLibraryRule compose(
             String ruleName, Project project, File okbuckDir, Set<Dependency> finalDependencies,
             Set<String> annotationProcessors, String flavor, String variant,
             String buildConfigRuleName, boolean isForLibraryModule, boolean excludeAppClass,
-            String aidlRuleName, boolean enableRetroLambda
+            String aidlRuleName
     ) {
         Set<String> srcSet = new HashSet<>()
         for (String srcDir : ProjectHelper.getProjectSrcSet(project, "main")) {
@@ -149,6 +146,6 @@ public final class AndroidLibraryRuleComposer {
 
         return new AndroidLibraryRule(ruleName, Arrays.asList("PUBLIC"), deps, srcSet,
                 manifest, annotationProcessors.asList(), annotationProcessorDeps, excludeAppClass,
-                aidlRuleName, enableRetroLambda)
+                aidlRuleName)
     }
 }

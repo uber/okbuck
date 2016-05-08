@@ -42,13 +42,11 @@ public final class AndroidLibraryRule extends BuckRuleWithDeps {
     private final List<String> mAnnotationProcessorDeps
     private final boolean mExcludeAppClass
     private final String mAidlRuleName
-    private final boolean mEnableRetroLambda
 
     public AndroidLibraryRule(
             String name, List<String> visibility, List<String> deps, Set<String> srcSet,
             String manifest, List<String> annotationProcessors,
-            List<String> annotationProcessorDeps, boolean excludeAppClass, String aidlRuleName,
-            boolean enableRetroLambda
+            List<String> annotationProcessorDeps, boolean excludeAppClass, String aidlRuleName
     ) {
         super("android_library", name, visibility, deps)
 
@@ -63,7 +61,6 @@ public final class AndroidLibraryRule extends BuckRuleWithDeps {
         mAnnotationProcessorDeps = annotationProcessorDeps
         mExcludeAppClass = excludeAppClass
         mAidlRuleName = aidlRuleName
-        mEnableRetroLambda = enableRetroLambda
 
         if (!StringUtil.isEmpty(mAidlRuleName)) {
             deps.add(":" + mAidlRuleName)
@@ -102,11 +99,6 @@ public final class AndroidLibraryRule extends BuckRuleWithDeps {
             printer.println("\texported_deps = [")
             printer.println("\t\t':${mAidlRuleName}',")
             printer.println("\t],")
-        }
-        if (mEnableRetroLambda) {
-            printer.println("\tsource = '8',")
-            printer.println("\ttarget = '8',")
-            printer.println("\tpostprocess_classes_commands = ['./okbuck-scripts/RetroLambda.sh'],")
         }
     }
 }

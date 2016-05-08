@@ -58,15 +58,13 @@ public final class BuckFileGenerator {
     private final Map<String, List<String>> mAppLibDependencies
     private final Map<String, List<String>> mFlavorFilter
     private final Map<String, List<String>> mCpuFilters
-    private final boolean mEnableRetroLambda
 
     public BuckFileGenerator(
             Project rootProject, DependencyAnalyzer dependencyAnalyzer, File okBuckDir,
             Map<String, String> resPackages, Map<String, Integer> linearAllocHardLimit,
             Map<String, List<String>> primaryDexPatterns, Map<String, Boolean> exopackage,
             Map<String, String> appClassSource, Map<String, List<String>> appLibDependencies,
-            Map<String, List<String>> flavorFilter, Map<String, List<String>> cpuFilters,
-            boolean enableRetroLambda
+            Map<String, List<String>> flavorFilter, Map<String, List<String>> cpuFilters
     ) {
         mRootProject = rootProject
         mDependencyAnalyzer = dependencyAnalyzer
@@ -79,7 +77,6 @@ public final class BuckFileGenerator {
         mAppLibDependencies = appLibDependencies
         mFlavorFilter = flavorFilter
         mCpuFilters = cpuFilters
-        mEnableRetroLambda = enableRetroLambda
     }
 
     /**
@@ -187,7 +184,7 @@ public final class BuckFileGenerator {
     ) {
         rules.add(JavaLibraryRuleComposer.compose(project, mOkBuckDir,
                 finalDependencies.get("main"),
-                mDependencyAnalyzer.annotationProcessors.get(project), mEnableRetroLambda))
+                mDependencyAnalyzer.annotationProcessors.get(project)))
 
         rules.add(ProjectConfigRuleComposer.compose(project))
     }
@@ -200,15 +197,15 @@ public final class BuckFileGenerator {
         if (ProjectHelper.exportFlavor(project)) {
             for (String flavor : getFilteredFlavors(project).keySet()) {
                 rules.add(ExopackageAndroidLibraryRuleComposer.compose(exopackageRuleDependencies,
-                        flavor, "debug", mEnableRetroLambda))
+                        flavor, "debug"))
                 rules.add(ExopackageAndroidLibraryRuleComposer.compose(exopackageRuleDependencies,
-                        flavor, "release", mEnableRetroLambda))
+                        flavor, "release"))
             }
         } else {
             rules.add(ExopackageAndroidLibraryRuleComposer.composeWithoutFlavor(
-                    exopackageRuleDependencies, "debug", mEnableRetroLambda))
+                    exopackageRuleDependencies, "debug"))
             rules.add(ExopackageAndroidLibraryRuleComposer.composeWithoutFlavor(
-                    exopackageRuleDependencies, "release", mEnableRetroLambda))
+                    exopackageRuleDependencies, "release"))
         }
     }
 
@@ -251,12 +248,12 @@ public final class BuckFileGenerator {
                         "src_${flavor}_debug", project, mOkBuckDir,
                         finalDependencies.get((String) "${flavor}_debug"),
                         mDependencyAnalyzer.annotationProcessors.get(project), flavor, "debug",
-                        isForLibraryModule, excludeAppClass, aidlRuleName, mEnableRetroLambda))
+                        isForLibraryModule, excludeAppClass, aidlRuleName))
                 rules.add(AndroidLibraryRuleComposer.composeWithFlavor(
                         "src_${flavor}_release", project, mOkBuckDir,
                         finalDependencies.get((String) "${flavor}_release"),
                         mDependencyAnalyzer.annotationProcessors.get(project), flavor, "release",
-                        isForLibraryModule, excludeAppClass, aidlRuleName, mEnableRetroLambda))
+                        isForLibraryModule, excludeAppClass, aidlRuleName))
             }
         } else {
             if (isForLibraryModule) {
@@ -271,7 +268,7 @@ public final class BuckFileGenerator {
                 rules.add(AndroidLibraryRuleComposer.compose4LibraryWithoutFlavor(
                         "src", project, mOkBuckDir, finalDependencies.get("release"),
                         mDependencyAnalyzer.annotationProcessors.get(project), isForLibraryModule,
-                        excludeAppClass, aidlRuleName, mEnableRetroLambda))
+                        excludeAppClass, aidlRuleName))
             } else {
                 addAndroidResRuleIfNeed("res_main", project, "main",
                         finalDependencies.get("main"), rules)
@@ -288,11 +285,11 @@ public final class BuckFileGenerator {
                 rules.add(AndroidLibraryRuleComposer.compose4AppWithoutFlavor(
                         "src_debug", project, mOkBuckDir, finalDependencies.get("debug"),
                         mDependencyAnalyzer.annotationProcessors.get(project), "debug",
-                        isForLibraryModule, excludeAppClass, aidlRuleName, mEnableRetroLambda))
+                        isForLibraryModule, excludeAppClass, aidlRuleName))
                 rules.add(AndroidLibraryRuleComposer.compose4AppWithoutFlavor(
                         "src_release", project, mOkBuckDir, finalDependencies.get("release"),
                         mDependencyAnalyzer.annotationProcessors.get(project), "release",
-                        isForLibraryModule, excludeAppClass, aidlRuleName, mEnableRetroLambda))
+                        isForLibraryModule, excludeAppClass, aidlRuleName))
             }
         }
 

@@ -26,15 +26,12 @@ package com.github.piasy.okbuck
 
 import com.github.piasy.okbuck.configs.BUCKFile
 import com.github.piasy.okbuck.configs.GenManifestPyFile
-import com.github.piasy.okbuck.configs.RetroLambdaShFile
 import com.github.piasy.okbuck.configs.ScriptBUCKFile
 import com.github.piasy.okbuck.dependency.DependencyAnalyzer
 import com.github.piasy.okbuck.dependency.DependencyExtractor
 import com.github.piasy.okbuck.dependency.DependencyProcessor
 import com.github.piasy.okbuck.generator.BuckFileGenerator
 import com.github.piasy.okbuck.generator.DotBuckConfigGenerator
-import com.github.piasy.okbuck.helper.ProjectHelper
-import org.apache.commons.io.FileUtils
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -56,8 +53,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                 dotBuckdDir.deleteDir()
                 File buckOutDir = new File("${project.projectDir.absolutePath}/buck-out")
                 buckOutDir.deleteDir()
-                File okBuckScriptsDir = new File(
-                        "${project.projectDir.absolutePath}/okbuck-scripts")
+                File okBuckScriptsDir = new File("${project.projectDir.absolutePath}/okbuck-scripts")
                 okBuckScriptsDir.deleteDir()
                 File dotBuckConfig = new File("${project.projectDir.absolutePath}/.buckconfig")
                 dotBuckConfig.delete()
@@ -97,7 +93,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         }
 
         // step 1: create .buckconfig
-        File dotBuckConfig = new File(project.projectDir, ".buckconfig")
+        File dotBuckConfig = new File("${project.projectDir.absolutePath}/.buckconfig")
         if (dotBuckConfig.exists() && !okbuck.overwrite) {
             throw new IllegalStateException(
                     ".buckconfig already exist, set overwrite property to true to overwrite existing file.")
@@ -112,21 +108,21 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         }
 
         // step 2: generate script files
-        File scriptsDir = new File(project.projectDir, "okbuck-scripts")
+        File scriptsDir = new File("${project.projectDir.absolutePath}/okbuck-scripts")
         if (!scriptsDir.exists()) {
             scriptsDir.mkdirs()
         }
-        File manifestPyFile = new File(scriptsDir, "manifest.py")
+        File manifestPyFile = new File("${scriptsDir.absolutePath}/manifest.py")
         PrintStream printer = new PrintStream(manifestPyFile)
         new GenManifestPyFile().print(printer)
         printer.close()
-        File scriptBUCKFile = new File(scriptsDir, "BUCK")
+        File scriptBUCKFile = new File("${scriptsDir.absolutePath}/BUCK")
         printer = new PrintStream(scriptBUCKFile)
         new ScriptBUCKFile().print(printer)
         printer.close()
 
         // step 3: analyse dependencies
-        File okBuckDir = new File(project.projectDir, ".okbuck")
+        File okBuckDir = new File("${project.projectDir.absolutePath}/.okbuck")
         if (okBuckDir.exists() && !okbuck.overwrite) {
             throw new IllegalStateException(
                     ".okbuck dir already exist, set overwrite property to true to overwrite existing file.")
@@ -135,19 +131,6 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                     okbuck.checkDepConflict, new DependencyExtractor(project))
             dependencyAnalyzer.analyse()
             new DependencyProcessor(dependencyAnalyzer).process()
-
-            // step 4: create RetroLambda script
-            if (okbuck.enableRetroLambda) {
-                File retroLambdaJarFile = ProjectHelper.getRetroLambdaJar(project)
-                FileUtils.copyFile(retroLambdaJarFile, new File(scriptsDir,
-                        retroLambdaJarFile.name))
-                File retroLambdaShFile = new File(scriptsDir, "RetroLambda.sh")
-                printer = new PrintStream(retroLambdaShFile)
-                new RetroLambdaShFile(dependencyAnalyzer.dependencyClasspath(),
-                        okbuck.target, retroLambdaJarFile.name).print(printer)
-                printer.close()
-                retroLambdaShFile.setExecutable(true)
-            }
 
             // step 4: generate BUCK file for each sub project
             Map<Project, BUCKFile> buckFiles = new BuckFileGenerator(project, dependencyAnalyzer,
@@ -159,8 +142,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                     okbuck.appClassSource,
                     okbuck.appLibDependencies,
                     okbuck.flavorFilter,
-                    okbuck.cpuFilters,
-                    okbuck.enableRetroLambda).generate()
+                    okbuck.cpuFilters).generate()
             for (Project subProject : buckFiles.keySet()) {
                 File buckFile = new File("${subProject.projectDir.absolutePath}/BUCK")
                 printer = new PrintStream(buckFile)
