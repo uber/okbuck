@@ -130,7 +130,6 @@ final class BuckFileGenerator {
 
         // Apt
         List<String> aptDeps = []
-        String aptRuleName = null
         if (!target.aptDeps.empty) {
             AptRule aptRule = AptRuleComposer.compose(target)
             rules.add(aptRule)

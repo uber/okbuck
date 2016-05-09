@@ -86,26 +86,19 @@ abstract class Target {
     protected abstract Set<String> compileConfigurations()
 
     Set<String> getAnnotationProcessors() {
-        Set<String> annotationProcessors = [] as Set
-        aptDeps.each { String aptDep ->
-            JarFile jar = new JarFile(new File(aptDep))
-            List aptEntries = jar.entries().findAll { JarEntry entry ->
-                entry.name.equals(PROCESSOR_ENTRY)
-            }
-            if (!aptEntries.empty) {
-                aptEntries.each { JarEntry aptEntry ->
-                    annotationProcessors.add(IOUtils.toString(jar.getInputStream(aptEntry)).trim())
-                }
-            }
-        }
-
         OkBuckExtension okbuck = rootProject.okbuck
-        annotationProcessors.addAll(targetAptDeps.collect { Target target ->
+        return aptDeps.collect { String aptDep ->
+            JarFile jar = new JarFile(new File(aptDep))
+            jar.entries().findAll { JarEntry entry ->
+                entry.name.equals(PROCESSOR_ENTRY)
+            }.collect { JarEntry aptEntry ->
+                IOUtils.toString(jar.getInputStream(aptEntry)).trim().split("\\n")
+            }
+        }.plus(targetAptDeps.collect { Target target ->
             (List<String>) target.getProp(okbuck.annotationProcessors, null)
         }.findAll { List<String> processors ->
             processors != null
-        }.flatten() as Set<String>)
-        return annotationProcessors
+        }).flatten() as List<String>
     }
 
     Set<String> getCompileDeps() {
