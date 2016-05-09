@@ -46,10 +46,6 @@ allprojects {
     }
 }
 
-compileGroovy {
-    targetCompatibility = 1.7
-}
-
 tasks.withType(JavaCompile) {
     sourceCompatibility = '1.7'
     targetCompatibility = '1.7'
@@ -70,6 +66,8 @@ dependencies {
     compile localGroovy()
 
     compile 'commons-io:commons-io:2.4'
+    compile 'commons-lang:commons-lang:2.6'
+    compile 'org.apache.maven:maven-artifact:3.3.9'
     compile 'com.android.tools.build:gradle:2.1.0'
 }
 
@@ -83,7 +81,7 @@ version = publishVersion
 
 Properties properties = new Properties()
 // for wrapper project structure
-File propertyFile = project.rootProject.file('buildSrc/bintray.properties')
+File propertyFile = project.rootProject.file('bintray.properties')
 if (propertyFile.exists()) {
     properties.load(propertyFile.newDataInputStream())
 }

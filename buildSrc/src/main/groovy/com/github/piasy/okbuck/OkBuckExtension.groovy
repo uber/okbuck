@@ -28,7 +28,7 @@ import org.gradle.api.Project
 /**
  * okbuck dsl.
  * */
-public class OkBuckExtension {
+class OkBuckExtension {
 
     /**
      * build_tools_version
@@ -46,20 +46,9 @@ public class OkBuckExtension {
     boolean overwrite = false
 
     /**
-     * whether check dependencies conflict.
-     * */
-    boolean checkDepConflict = true
-
-    /**
-     * whether enable RetroLambda.
-     * */
-    boolean enableRetroLambda = false
-
-    /**
-     * resPackages: set the resources package name for Android library module or application module,
-     * including string resources, color resources, etc, and BuildConfig.java.
-     * */
-    Map<String, String> resPackages = [:]
+     * Annotation processor classes of project dependencies
+     */
+    Map<String, String> annotationProcessors = [:]
 
     /**
      * linearAllocHardLimit used for multi-dex support.
@@ -72,29 +61,14 @@ public class OkBuckExtension {
     Map<String, List<String>> primaryDexPatterns = [:]
 
     /**
-     * whether enable exopackage.
+     * whether to enable exopackage.
      * */
     Map<String, Boolean> exopackage = [:]
 
     /**
-     * exopackage app class source.
-     * */
-    Map<String, String> appClassSource = [:]
-
-    /**
-     * exopackage app lib dependencies.
+     * exopackage lib dependencies.
      * */
     Map<String, List<String>> appLibDependencies = [:]
-
-    /**
-     * flavor filter, if not empty, only create buck config for listed flavors.
-     * */
-    Map<String, List<String>> flavorFilter = [:]
-
-    /**
-     * cpu filters
-     * */
-    Map<String, List<String>> cpuFilters = [:]
 
     /**
      * Set of projects to generate buck configs for. Default is all subprojects of root project.

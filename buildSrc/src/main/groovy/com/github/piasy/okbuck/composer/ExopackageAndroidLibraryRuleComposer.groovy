@@ -24,37 +24,32 @@
 
 package com.github.piasy.okbuck.composer
 
-import com.github.piasy.okbuck.dependency.Dependency
-import com.github.piasy.okbuck.rules.ExopackageAndroidLibraryRule
+import com.github.piasy.okbuck.model.AndroidAppTarget
+import com.github.piasy.okbuck.model.Target
+import com.github.piasy.okbuck.rule.ExopackageAndroidLibraryRule
+import org.apache.commons.lang3.tuple.Pair
 
-public final class ExopackageAndroidLibraryRuleComposer {
+final class ExopackageAndroidLibraryRuleComposer {
 
     private ExopackageAndroidLibraryRuleComposer() {
         // no instance
     }
 
-    public static ExopackageAndroidLibraryRule compose(
-            List<Dependency> exopackageRuleDependencies, String flavor, String variant,
-            boolean enableRetroLambda
-    ) {
-        List<String> deps = new ArrayList<>()
-        for (Dependency dependency : exopackageRuleDependencies) {
-            deps.add(dependency.srcCanonicalName)
-        }
-        deps.add(":build_config_${flavor}_${variant}")
-        return new ExopackageAndroidLibraryRule("app_lib_${flavor}_${variant}",
-                Arrays.asList("PUBLIC"), deps, enableRetroLambda)
-    }
+    static ExopackageAndroidLibraryRule compose(AndroidAppTarget target) {
 
-    public static ExopackageAndroidLibraryRule composeWithoutFlavor(
-            List<Dependency> exopackageRuleDependencies, String variant, boolean enableRetroLambda
-    ) {
-        List<String> deps = new ArrayList<>()
-        for (Dependency dependency : exopackageRuleDependencies) {
-            deps.add(dependency.srcCanonicalName)
-        }
-        deps.add(":build_config_${variant}")
-        return new ExopackageAndroidLibraryRule("app_lib_${variant}",
-                Arrays.asList("PUBLIC"), deps, enableRetroLambda)
+        List<String> deps = []
+        Pair<Set<String>, Set<Target>> appLibDependencies = target.appLibDependencies
+
+        deps.addAll(appLibDependencies.left.collect { String dep ->
+            "//${dep.reverse().replaceFirst("/", ":").reverse()}"
+        })
+
+        deps.addAll(appLibDependencies.right.collect { Target depTarget ->
+            "//${depTarget.path}:src_${depTarget.name}"
+        })
+
+        deps.add(":build_config_${target.name}")
+
+        return new ExopackageAndroidLibraryRule("app_lib_${target.name}", target.appClass, ["PUBLIC"], deps)
     }
 }

@@ -24,321 +24,165 @@
 
 package com.github.piasy.okbuck.generator
 
-import com.android.build.gradle.internal.dsl.ProductFlavor
 import com.github.piasy.okbuck.OkBuckExtension
-import com.github.piasy.okbuck.composer.*
-import com.github.piasy.okbuck.configs.BUCKFile
-import com.github.piasy.okbuck.dependency.Dependency
-import com.github.piasy.okbuck.dependency.DependencyAnalyzer
-import com.github.piasy.okbuck.helper.ProjectHelper
-import com.github.piasy.okbuck.helper.StringUtil
-import com.github.piasy.okbuck.rules.AndroidResourceRule
-import com.github.piasy.okbuck.rules.AppClassSourceRule
-import com.github.piasy.okbuck.rules.GenAidlRule
-import com.github.piasy.okbuck.rules.PrebuiltNativeLibraryRule
-import com.github.piasy.okbuck.rules.base.AbstractBuckRule
+import com.github.piasy.okbuck.composer.AndroidBinaryRuleComposer
+import com.github.piasy.okbuck.composer.AndroidBuildConfigRuleComposer
+import com.github.piasy.okbuck.composer.AndroidLibraryRuleComposer
+import com.github.piasy.okbuck.composer.AndroidManifestRuleComposer
+import com.github.piasy.okbuck.composer.AndroidResourceRuleComposer
+import com.github.piasy.okbuck.composer.AptRuleComposer
+import com.github.piasy.okbuck.composer.ExopackageAndroidLibraryRuleComposer
+import com.github.piasy.okbuck.composer.GenAidlRuleComposer
+import com.github.piasy.okbuck.composer.JavaLibraryRuleComposer
+import com.github.piasy.okbuck.composer.KeystoreRuleComposer
+import com.github.piasy.okbuck.composer.PreBuiltNativeLibraryRuleComposer
+import com.github.piasy.okbuck.config.BUCKFile
+import com.github.piasy.okbuck.model.AndroidAppTarget
+import com.github.piasy.okbuck.model.AndroidLibTarget
+import com.github.piasy.okbuck.model.AndroidTarget
+import com.github.piasy.okbuck.model.JavaLibTarget
+import com.github.piasy.okbuck.model.ProjectType
+import com.github.piasy.okbuck.model.Target
+import com.github.piasy.okbuck.rule.AndroidManifestRule
+import com.github.piasy.okbuck.rule.AndroidResourceRule
+import com.github.piasy.okbuck.rule.AptRule
+import com.github.piasy.okbuck.rule.BuckRule
+import com.github.piasy.okbuck.rule.ExopackageAndroidLibraryRule
+import com.github.piasy.okbuck.rule.GenAidlRule
+import com.github.piasy.okbuck.util.ProjectUtil
 import org.gradle.api.Project
-
-import static com.github.piasy.okbuck.helper.CheckUtil.checkStringNotEmpty
 
 /**
  * Created by Piasy{github.com/Piasy} on 15/10/6.
  *
  * used to generate BUCK file content.
  */
-public final class BuckFileGenerator {
-    private final Project mRootProject
-    private final DependencyAnalyzer mDependencyAnalyzer
-    private final File mOkBuckDir
-    private final Map<String, String> mResPackages
-    private final Map<String, Integer> mLinearAllocHardLimit
-    private final Map<String, List<String>> mPrimaryDexPatterns
-    private final Map<String, Boolean> mExopackage
-    private final Map<String, String> mAppClassSource
-    private final Map<String, List<String>> mAppLibDependencies
-    private final Map<String, List<String>> mFlavorFilter
-    private final Map<String, List<String>> mCpuFilters
-    private final boolean mEnableRetroLambda
+final class BuckFileGenerator {
 
-    public BuckFileGenerator(
-            Project rootProject, DependencyAnalyzer dependencyAnalyzer, File okBuckDir,
-            Map<String, String> resPackages, Map<String, Integer> linearAllocHardLimit,
-            Map<String, List<String>> primaryDexPatterns, Map<String, Boolean> exopackage,
-            Map<String, String> appClassSource, Map<String, List<String>> appLibDependencies,
-            Map<String, List<String>> flavorFilter, Map<String, List<String>> cpuFilters,
-            boolean enableRetroLambda
-    ) {
+    private final Project mRootProject
+    private final OkBuckExtension mOkbuck
+
+    BuckFileGenerator(Project rootProject) {
         mRootProject = rootProject
-        mDependencyAnalyzer = dependencyAnalyzer
-        mOkBuckDir = okBuckDir
-        mResPackages = resPackages
-        mLinearAllocHardLimit = linearAllocHardLimit
-        mPrimaryDexPatterns = primaryDexPatterns
-        mExopackage = exopackage
-        mAppClassSource = appClassSource
-        mAppLibDependencies = appLibDependencies
-        mFlavorFilter = flavorFilter
-        mCpuFilters = cpuFilters
-        mEnableRetroLambda = enableRetroLambda
+        mOkbuck = mRootProject.okbuck
     }
 
     /**
      * generate {@code BUCKFile}
      */
+    Map<Project, BUCKFile> generate() {
+        Map<Project, List<BuckRule>> projectRules = mOkbuck.buckProjects.collectEntries { Project project ->
+            [project, createRules(project)]
+        }
 
-    public Map<Project, BUCKFile> generate() {
-        Map<Project, BUCKFile> buckFileMap = new HashMap<>()
-        OkBuckExtension okbuck = mRootProject.okbuck
+        return projectRules.findAll { Project project, List<BuckRule> rules ->
+            !rules.empty
+        }.collectEntries { Project project, List<BuckRule> rules ->
+            [project, new BUCKFile(rules)]
+        } as Map<Project, BUCKFile>
+    }
 
-        for (Project project : okbuck.buckProjects) {
-            List<AbstractBuckRule> rules = new ArrayList<>()
-            switch (ProjectHelper.getSubProjectType(project)) {
-                case ProjectHelper.ProjectType.AndroidAppProject:
-                    boolean exopackage = !mExopackage.containsKey(project.name) ? false :
-                            mExopackage.get(project.name)
-                    List<String> primaryDexPatterns = mPrimaryDexPatterns.get(project.name)
-                    String appClassSource = mAppClassSource.get(project.name)
-                    List<String> appLibDependencies = mAppLibDependencies.get(project.name)
-                    List<String> cpuFilters = mCpuFilters.get(project.name)
-                    if (exopackage && (primaryDexPatterns == null ||
-                            StringUtil.isEmpty(appClassSource) || appLibDependencies == null)) {
-                        throw new IllegalArgumentException("Please set primaryDexPatterns, " +
-                                "appClassSource and appLibDependencies in your root build.gradle file")
-                    }
-                    Integer linearAllocHardLimit = mLinearAllocHardLimit.get(project.name)
-                    if (linearAllocHardLimit == null) {
-                        linearAllocHardLimit = 65535
-                    }
-                    Map<String, Set<Dependency>> finalDependencies =
-                            mDependencyAnalyzer.finalDependencies.get(project)
-                    createAndroidAppRules(rules, project, finalDependencies, appClassSource,
-                            matchAppLibDependencies(appLibDependencies, finalDependencies),
-                            exopackage, linearAllocHardLimit, primaryDexPatterns, cpuFilters)
+    private static List<BuckRule> createRules(Project project) {
+        List<BuckRule> rules = []
+        ProjectType projectType = ProjectUtil.getType(project)
+        ProjectUtil.getTargets(project).each { String name, Target target ->
+            switch (projectType) {
+                case ProjectType.JAVA_LIB:
+                    rules.addAll(createRules((JavaLibTarget) target))
                     break
-                case ProjectHelper.ProjectType.AndroidLibProject:
-                    createAndroidLibraryRules(rules, project,
-                            mDependencyAnalyzer.finalDependencies.get(project), true, false)
+                case ProjectType.ANDROID_LIB:
+                    rules.addAll(createRules((AndroidLibTarget) target))
                     break
-                case ProjectHelper.ProjectType.JavaLibProject:
-                    createJavaLibraryRules(rules, project,
-                            mDependencyAnalyzer.finalDependencies.get(project))
+                case ProjectType.ANDROID_APP:
+                    rules.addAll(createRules((AndroidAppTarget) target))
                     break
-                case ProjectHelper.ProjectType.Unknown:
                 default:
                     break
             }
-
-            if (!rules.empty) {
-                buckFileMap.put(project, new BUCKFile(rules))
-            } // else, `:libraries:common` will create a sub project `:libraries`, skip it
         }
-
-        return buckFileMap
+        return rules
     }
 
-    private Map<String, ProductFlavor> getFilteredFlavors(Project project) {
-        Map<String, ProductFlavor> flavorMap = ProjectHelper.getProductFlavors(project)
-        List<String> filter = mFlavorFilter.get(project.name)
-        if (filter == null || filter.empty) {
-            return flavorMap
-        } else {
-            Map<String, ProductFlavor> filtered = new HashMap<>()
-            for (String flavor : filter) {
-                if (flavorMap.containsKey(flavor)) {
-                    filtered.put(flavor, flavorMap.get(flavor))
-                } else {
-                    throw new IllegalArgumentException("`${project.name}` doesn't have flavor " +
-                            "named `${flavor}`, please correct your root project build.gradle file")
-                }
-            }
-            return filtered
-        }
+    private static List<BuckRule> createRules(JavaLibTarget target) {
+        return [JavaLibraryRuleComposer.compose(target)]
     }
 
-    private static List<Dependency> matchAppLibDependencies(
-            List<String> deps, Map<String, Set<Dependency>> finalDependencies
-    ) {
-        List<Dependency> dependencies = new ArrayList<>()
-        for (String dep : deps) {
-            boolean found = false
-            for (String flavor : finalDependencies.keySet()) {
-                if (found) {
-                    break
-                }
-                for (Dependency dependency : finalDependencies.get(flavor)) {
-                    if (dependency.depFile.name.startsWith(dep)) {
-                        dependencies.add(dependency)
-                        found = true
-                        // not break, because name inside deps are not unique, so maybe
-                        // other deps match its name.
-                    }
-                }
-            }
-            if (!found) {
-                throw new IllegalStateException("App lib's dependency '${dep}' could not be found")
-            }
+    private static List<BuckRule> createRules(AndroidLibTarget target, String appClass = null) {
+        List<BuckRule> rules = []
+        List<BuckRule> androidLibRules = []
+
+        // Aidl
+        List<BuckRule> aidlRules = target.aidl.collect { String aidlDir ->
+            GenAidlRuleComposer.compose(target, aidlDir)
         }
-        return dependencies
-    }
-
-    private void createJavaLibraryRules(
-            List<AbstractBuckRule> rules, Project project,
-            Map<String, Set<Dependency>> finalDependencies
-    ) {
-        rules.add(JavaLibraryRuleComposer.compose(project, mOkBuckDir,
-                finalDependencies.get("main"),
-                mDependencyAnalyzer.annotationProcessors.get(project), mEnableRetroLambda))
-
-        rules.add(ProjectConfigRuleComposer.compose(project))
-    }
-
-    private void createExopackageRules(
-            List<AbstractBuckRule> rules, Project project, String appClassSource,
-            List<Dependency> exopackageRuleDependencies
-    ) {
-        rules.add(new AppClassSourceRule(appClassSource))
-        if (ProjectHelper.exportFlavor(project)) {
-            for (String flavor : getFilteredFlavors(project).keySet()) {
-                rules.add(ExopackageAndroidLibraryRuleComposer.compose(exopackageRuleDependencies,
-                        flavor, "debug", mEnableRetroLambda))
-                rules.add(ExopackageAndroidLibraryRuleComposer.compose(exopackageRuleDependencies,
-                        flavor, "release", mEnableRetroLambda))
-            }
-        } else {
-            rules.add(ExopackageAndroidLibraryRuleComposer.composeWithoutFlavor(
-                    exopackageRuleDependencies, "debug", mEnableRetroLambda))
-            rules.add(ExopackageAndroidLibraryRuleComposer.composeWithoutFlavor(
-                    exopackageRuleDependencies, "release", mEnableRetroLambda))
+        List<String> aidlRuleNames = aidlRules.collect { GenAidlRule rule ->
+            ":${rule.name}"
         }
-    }
+        androidLibRules.addAll(aidlRules)
 
-    private void createAndroidLibraryRules(
-            List<AbstractBuckRule> rules, Project project,
-            Map<String, Set<Dependency>> finalDependencies, boolean isForLibraryModule,
-            boolean excludeAppClass
-    ) {
-        checkStringNotEmpty(mResPackages.get(project.name), "resPackage key-value pair must be " +
-                "set for sub project ${project.name} in your root project build.gradle file");
+        // Res
+        androidLibRules.addAll(target.resources.collect { AndroidTarget.ResBundle resBundle ->
+            AndroidResourceRuleComposer.compose(target, resBundle)
+        })
 
-        GenAidlRule genAidlRule = GenAidlRuleComposer.compose(project)
-        String aidlRuleName = null
-        if (genAidlRule != null) {
-            rules.add(genAidlRule)
-            aidlRuleName = genAidlRule.ruleName
+        // BuildConfig
+        androidLibRules.add(AndroidBuildConfigRuleComposer.compose(target))
+
+        // Apt
+        List<String> aptDeps = []
+        if (!target.aptDeps.empty) {
+            AptRule aptRule = AptRuleComposer.compose(target)
+            rules.add(aptRule)
+            aptDeps.add(":${aptRule.name}")
+        }
+        aptDeps.addAll(target.targetAptDeps.collect { Target targetDep ->
+            "//${targetDep.path}:src_${targetDep.name}"
+        })
+
+        // Jni
+        androidLibRules.addAll(target.jniLibs.collect { String jniLib ->
+            PreBuiltNativeLibraryRuleComposer.compose(target, jniLib)
+        })
+
+        List<String> deps = androidLibRules.collect { BuckRule rule ->
+            ":${rule.name}"
         }
 
-        if (ProjectHelper.exportFlavor(project)) {
-            addAndroidResRuleIfNeed("res_main", project, "main", finalDependencies.get("main"),
-                    rules)
-            for (String flavor : getFilteredFlavors(project).keySet()) {
-                addAndroidResRuleIfNeed("res_${flavor}", project, flavor,
-                        finalDependencies.get(flavor), rules)
-                addAndroidResRuleIfNeed("res_debug", project, "debug",
-                        finalDependencies.get("debug"), rules)
-                addAndroidResRuleIfNeed("res_release", project, "release",
-                        finalDependencies.get("release"), rules)
-                addAndroidResRuleIfNeed("res_${flavor}_debug", project, "${flavor}Debug",
-                        finalDependencies.get((String) "${flavor}_debug"), rules)
-                addAndroidResRuleIfNeed("res_${flavor}_release", project, "${flavor}Release",
-                        finalDependencies.get((String) "${flavor}_release"), rules)
+        // Lib
+        androidLibRules.add(AndroidLibraryRuleComposer.compose(target, deps, aptDeps, aidlRuleNames, appClass))
 
-                rules.add(AndroidBuildConfigRuleComposer.compose("build_config_${flavor}_debug",
-                        project, flavor, "debug", mResPackages.get(project.name)))
-                rules.add(AndroidBuildConfigRuleComposer.compose("build_config_${flavor}_release",
-                        project, flavor, "release", mResPackages.get(project.name)))
+        rules.addAll(androidLibRules)
+        return rules
 
-                rules.add(AndroidLibraryRuleComposer.composeWithFlavor(
-                        "src_${flavor}_debug", project, mOkBuckDir,
-                        finalDependencies.get((String) "${flavor}_debug"),
-                        mDependencyAnalyzer.annotationProcessors.get(project), flavor, "debug",
-                        isForLibraryModule, excludeAppClass, aidlRuleName, mEnableRetroLambda))
-                rules.add(AndroidLibraryRuleComposer.composeWithFlavor(
-                        "src_${flavor}_release", project, mOkBuckDir,
-                        finalDependencies.get((String) "${flavor}_release"),
-                        mDependencyAnalyzer.annotationProcessors.get(project), flavor, "release",
-                        isForLibraryModule, excludeAppClass, aidlRuleName, mEnableRetroLambda))
-            }
-        } else {
-            if (isForLibraryModule) {
-                addAndroidResRuleIfNeed("res_main", project, "main",
-                        finalDependencies.get("main"), rules)
-                addAndroidResRuleIfNeed("res_release", project, "release",
-                        finalDependencies.get("release"), rules)
+    }
 
-                rules.add(AndroidBuildConfigRuleComposer.compose("build_config",
-                        project, "default", "release", mResPackages.get(project.name)))
+    private static List<BuckRule> createRules(AndroidAppTarget target) {
+        List<BuckRule> rules = []
+        List<String> deps = [":src_${target.name}"]
 
-                rules.add(AndroidLibraryRuleComposer.compose4LibraryWithoutFlavor(
-                        "src", project, mOkBuckDir, finalDependencies.get("release"),
-                        mDependencyAnalyzer.annotationProcessors.get(project), isForLibraryModule,
-                        excludeAppClass, aidlRuleName, mEnableRetroLambda))
-            } else {
-                addAndroidResRuleIfNeed("res_main", project, "main",
-                        finalDependencies.get("main"), rules)
-                addAndroidResRuleIfNeed("res_debug", project, "debug",
-                        finalDependencies.get("debug"), rules)
-                addAndroidResRuleIfNeed("res_release", project, "release",
-                        finalDependencies.get("release"), rules)
+        Set<BuckRule> libRules = createRules((AndroidLibTarget) target, target.appClass)
+        rules.addAll(libRules)
 
-                rules.add(AndroidBuildConfigRuleComposer.compose("build_config_debug",
-                        project, "default", "debug", mResPackages.get(project.name)))
-                rules.add(AndroidBuildConfigRuleComposer.compose("build_config_release",
-                        project, "default", "release", mResPackages.get(project.name)))
-
-                rules.add(AndroidLibraryRuleComposer.compose4AppWithoutFlavor(
-                        "src_debug", project, mOkBuckDir, finalDependencies.get("debug"),
-                        mDependencyAnalyzer.annotationProcessors.get(project), "debug",
-                        isForLibraryModule, excludeAppClass, aidlRuleName, mEnableRetroLambda))
-                rules.add(AndroidLibraryRuleComposer.compose4AppWithoutFlavor(
-                        "src_release", project, mOkBuckDir, finalDependencies.get("release"),
-                        mDependencyAnalyzer.annotationProcessors.get(project), "release",
-                        isForLibraryModule, excludeAppClass, aidlRuleName, mEnableRetroLambda))
+        libRules.each { BuckRule rule ->
+            if (rule instanceof AndroidResourceRule && rule.name != null) {
+                deps.add(":${rule.name}")
             }
         }
 
-        PrebuiltNativeLibraryRule rule = PreBuiltNativeLibraryRuleComposer.compose(project, "main")
-        if (rule != null) {
-            rules.add(rule)
-        }
-        rules.add(ProjectConfigRuleComposer.compose(project))
-    }
+        AndroidManifestRule manifestRule = AndroidManifestRuleComposer.compose(target)
+        rules.add(manifestRule)
 
-    private void addAndroidResRuleIfNeed(
-            String ruleName, Project project, String resRootDirName, Set<Dependency> dependencies,
-            List<AbstractBuckRule> rules
-    ) {
-        AndroidResourceRule rule = AndroidResourceRuleComposer.compose(ruleName, project,
-                resRootDirName, dependencies, mResPackages.get(project.name))
-        if (rule != null) {
-            rules.add(rule)
-        }
-    }
+        String keystoreRuleName = KeystoreRuleComposer.compose(target)
 
-    private void createAndroidAppRules(
-            List<AbstractBuckRule> rules, Project project,
-            Map<String, Set<Dependency>> finalDependencies, String appClassSource,
-            List<Dependency> exopackageRuleDependencies, boolean exopackage,
-            int linearAllocHardLimit, List<String> primaryDexPatterns, List<String> cpuFilters
-    ) {
-        if (exopackage) {
-            createExopackageRules(rules, project, appClassSource, exopackageRuleDependencies)
+        if (target.exopackage) {
+            ExopackageAndroidLibraryRule exoPackageRule =
+                    ExopackageAndroidLibraryRuleComposer.compose(target)
+            rules.add(exoPackageRule)
+            deps.add(":${exoPackageRule.name}")
         }
-        createAndroidLibraryRules(rules, project, finalDependencies, false, exopackage)
-        rules.add(BuckGenManifestRuleComposer.compose(project))
-        rules.add(AndroidManifestRuleComposer.compose(project, finalDependencies.get("main")))
 
-        if (ProjectHelper.exportFlavor(project)) {
-            for (String flavor : getFilteredFlavors(project).keySet()) {
-                rules.add(AndroidBinaryRuleComposer.compose(project, flavor, "debug", exopackage,
-                        linearAllocHardLimit, primaryDexPatterns, cpuFilters))
-                rules.add(AndroidBinaryRuleComposer.compose(project, flavor, "release", exopackage,
-                        linearAllocHardLimit, primaryDexPatterns, cpuFilters))
-            }
-        } else {
-            rules.add(AndroidBinaryRuleComposer.composeWithoutFlavor(project, "debug", exopackage,
-                    linearAllocHardLimit, primaryDexPatterns, cpuFilters))
-            rules.add(AndroidBinaryRuleComposer.composeWithoutFlavor(project, "release", exopackage,
-                    linearAllocHardLimit, primaryDexPatterns, cpuFilters))
-        }
+        rules.add(AndroidBinaryRuleComposer.compose(target, deps, ":${manifestRule.name}",
+                keystoreRuleName))
+        return rules
     }
 }

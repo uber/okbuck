@@ -24,45 +24,32 @@
 
 package com.github.piasy.okbuck.composer
 
-import com.github.piasy.okbuck.dependency.Dependency
-import com.github.piasy.okbuck.helper.ProjectHelper
-import com.github.piasy.okbuck.rules.AndroidManifestRule
-import org.gradle.api.Project
+import com.github.piasy.okbuck.model.AndroidAppTarget
+import com.github.piasy.okbuck.model.AndroidLibTarget
+import com.github.piasy.okbuck.model.Target
+import com.github.piasy.okbuck.rule.AndroidManifestRule
 
-public final class AndroidManifestRuleComposer {
+final class AndroidManifestRuleComposer {
 
     private AndroidManifestRuleComposer() {
         // no instance
     }
 
-    public static AndroidManifestRule compose(Project project, Set<Dependency> finalDependencies) {
-        List<String> manifestDeps = new ArrayList<>()
-        for (Dependency dependency : finalDependencies) {
-            Project internalDep = ProjectHelper.getModuleDependencyProject(project.rootProject,
-                    dependency.depFile)
-            if (internalDep != null) {
-                switch (ProjectHelper.getSubProjectType(internalDep)) {
-                    case ProjectHelper.ProjectType.AndroidAppProject:
-                    case ProjectHelper.ProjectType.AndroidLibProject:
-                        manifestDeps.add(dependency.srcCanonicalName)
-                        break
-                    default:
-                        break
-                }
-            } else {
-                switch (dependency.type) {
-                    case Dependency.DependencyType.LocalAarDependency:
-                    case Dependency.DependencyType.MavenAarDependency:
-                    case Dependency.DependencyType.ModuleAarDependency:
-                        manifestDeps.add(dependency.srcCanonicalName)
-                        break
-                    default:
-                        break
-                }
-            }
-        }
+    static AndroidManifestRule compose(AndroidAppTarget target) {
+        List<String> deps = []
 
-        return new AndroidManifestRule(Arrays.asList("PUBLIC"), manifestDeps,
-                ":generate_manifest_main")
+        deps.addAll(target.compileDeps.findAll { String dep ->
+            dep.endsWith("aar")
+        }.collect { String dep ->
+            "//${dep.reverse().replaceFirst("/", ":").reverse()}"
+        })
+
+        deps.addAll(target.targetCompileDeps.findAll { Target targetDep ->
+            targetDep instanceof AndroidLibTarget
+        }.collect { Target targetDep ->
+            "//${targetDep.path}:src_${targetDep.name}"
+        })
+
+        return new AndroidManifestRule("manifest_${target.name}", ["PUBLIC"], deps, target.manifest)
     }
 }

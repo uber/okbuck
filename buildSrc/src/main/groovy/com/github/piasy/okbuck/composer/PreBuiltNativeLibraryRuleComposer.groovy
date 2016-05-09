@@ -24,22 +24,17 @@
 
 package com.github.piasy.okbuck.composer
 
-import com.github.piasy.okbuck.helper.ProjectHelper
-import com.github.piasy.okbuck.helper.StringUtil
-import com.github.piasy.okbuck.rules.PrebuiltNativeLibraryRule
-import org.gradle.api.Project
+import com.github.piasy.okbuck.model.AndroidTarget
+import com.github.piasy.okbuck.rule.PrebuiltNativeLibraryRule
 
-public final class PreBuiltNativeLibraryRuleComposer {
+final class PreBuiltNativeLibraryRuleComposer {
 
     private PreBuiltNativeLibraryRuleComposer() {
         // no instance
     }
 
-    public static PrebuiltNativeLibraryRule compose(Project project, String flavor) {
-        String jniLibsDir = ProjectHelper.getProjectJniLibsDir(project, flavor)
-        if (!StringUtil.isEmpty(jniLibsDir)) {
-            return new PrebuiltNativeLibraryRule(Arrays.asList("PUBLIC"), jniLibsDir)
-        }
-        return null
+    static PrebuiltNativeLibraryRule compose(AndroidTarget target, String jniLibDir) {
+        String ruleName = "prebuilt_native_library_${target.name}_${jniLibDir.replaceAll("/", "_")}"
+        return new PrebuiltNativeLibraryRule(ruleName, Arrays.asList("PUBLIC"), jniLibDir)
     }
 }
