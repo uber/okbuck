@@ -1,6 +1,8 @@
 // IMyAidlInterface.aidl
 package com.github.piasy.okbuck.example.common;
 
+import com.github.piasy.okbuck.example.common.Person;
+
 // Declare any non-default types here with import statements
 
 interface IMyAidlInterface {
@@ -10,4 +12,6 @@ interface IMyAidlInterface {
      */
     void basicTypes(int anInt, long aLong, boolean aBoolean, float aFloat,
             double aDouble, String aString);
+
+    void sayHello(in Person person);
 }
