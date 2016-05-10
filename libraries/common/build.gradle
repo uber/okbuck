@@ -58,6 +58,9 @@ android {
             buildConfigField "String", "COMMON_CONFIG", "\"paid\""
         }
     }
+    sourceSets {
+        main.java.srcDirs += 'src/main/parcelable'
+    }
 }
 
 dependencies {
