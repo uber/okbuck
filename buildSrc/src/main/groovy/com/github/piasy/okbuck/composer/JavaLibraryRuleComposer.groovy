@@ -55,6 +55,6 @@ final class JavaLibraryRuleComposer {
         })
 
         new JavaLibraryRule("src_${target.name}", ["PUBLIC"], deps, target.sources,
-                target.annotationProcessors, aptDeps)
+                target.annotationProcessors, aptDeps, target.retroLambdaEnabled)
     }
 }
