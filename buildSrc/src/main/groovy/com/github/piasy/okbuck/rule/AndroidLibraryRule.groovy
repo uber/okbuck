@@ -37,11 +37,12 @@ final class AndroidLibraryRule extends BuckRule {
     private final List<String> mAptDeps
     private final List<String> mAidlRuleNames
     private final String mAppClass
+    private final boolean mRetroLambdaEnabled
 
     AndroidLibraryRule(
             String name, List<String> visibility, List<String> deps, Set<String> srcSet,
             String manifest, List<String> annotationProcessors, List<String> aptDeps,
-            List<String> aidlRuleNames, String appClass
+            List<String> aidlRuleNames, String appClass, boolean retroLambdaEnabled
     ) {
         super("android_library", name, visibility, deps)
 
@@ -51,6 +52,7 @@ final class AndroidLibraryRule extends BuckRule {
         mAptDeps = aptDeps
         mAidlRuleNames = aidlRuleNames
         mAppClass = appClass
+        mRetroLambdaEnabled = retroLambdaEnabled
     }
 
     @Override
@@ -92,6 +94,12 @@ final class AndroidLibraryRule extends BuckRule {
                 printer.println("\t\t'${aidlRuleName}',")
             }
             printer.println("\t],")
+        }
+
+        if (mRetroLambdaEnabled) {
+            printer.println("\tsource = '8',")
+            printer.println("\ttarget = '8',")
+            printer.println("\tpostprocess_classes_commands = ['./.okbuck/RetroLambda/RetroLambda.sh'],")
         }
     }
 }

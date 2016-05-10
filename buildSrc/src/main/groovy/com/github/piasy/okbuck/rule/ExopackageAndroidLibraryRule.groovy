@@ -23,19 +23,29 @@
  */
 
 package com.github.piasy.okbuck.rule
+
 /**
  * android_library() used for exopackage
  * */
 final class ExopackageAndroidLibraryRule extends BuckRule {
     private final String appClass
+    private final boolean mRetroLambdaEnabled
 
-    ExopackageAndroidLibraryRule(String name, String appClass, List<String> visibility, List<String> deps) {
+    ExopackageAndroidLibraryRule(String name, String appClass, List<String> visibility,
+            List<String> deps, boolean retroLambdaEnabled) {
         super("android_library", name, visibility, deps)
         this.appClass = appClass
+        mRetroLambdaEnabled = retroLambdaEnabled
     }
 
     @Override
     protected final void printContent(PrintStream printer) {
         printer.println("\tsrcs = ['${appClass}'],")
+
+        if (mRetroLambdaEnabled) {
+            printer.println("\tsource = '8',")
+            printer.println("\ttarget = '8',")
+            printer.println("\tpostprocess_classes_commands = ['./.okbuck/RetroLambda/RetroLambda.sh'],")
+        }
     }
 }

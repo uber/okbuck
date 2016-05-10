@@ -32,16 +32,18 @@ final class JavaLibraryRule extends BuckRule {
     private final Set<String> mSrcSet
     private final Set<String> mAnnotationProcessors
     private final Set<String> mAnnotationProcessorDeps
+    private final boolean mRetroLambdaEnabled
 
     JavaLibraryRule(String name, List<String> visibility, List<String> deps,
                     Set<String> srcSet, Set<String> annotationProcessors,
-                    Set<String> annotationProcessorDeps
+                    Set<String> annotationProcessorDeps, boolean retroLambdaEnabled
     ) {
         super("java_library", name, visibility, deps)
 
         mSrcSet = srcSet
         mAnnotationProcessors = annotationProcessors
         mAnnotationProcessorDeps = annotationProcessorDeps
+        mRetroLambdaEnabled = retroLambdaEnabled
     }
 
     @Override
@@ -66,6 +68,12 @@ final class JavaLibraryRule extends BuckRule {
                 printer.println("\t\t'${dep}',")
             }
             printer.println("\t],")
+        }
+
+        if (mRetroLambdaEnabled) {
+            printer.println("\tsource = '8',")
+            printer.println("\ttarget = '8',")
+            printer.println("\tpostprocess_classes_commands = ['./.okbuck/RetroLambda/RetroLambda.sh'],")
         }
     }
 }
