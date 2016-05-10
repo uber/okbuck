@@ -22,46 +22,32 @@
  * SOFTWARE.
  */
 
-apply plugin: 'com.android.library'
-apply plugin: 'me.tatarka.retrolambda'
+package com.github.piasy.okbuck.config
+/**
+ * BUCK file for third party dependencies.
+ * */
+public final class RetroLambdaShFile extends BuckConfigFile {
 
-android {
-    compileSdkVersion rootProject.ext.androidCompileSdkVersion
-    buildToolsVersion rootProject.ext.androidBuildToolsVersion
+    private final String mClasspath
 
-    defaultConfig {
-        minSdkVersion rootProject.ext.androidMinSdkVersion
-        targetSdkVersion rootProject.ext.androidTargetSdkVersion
-        versionCode 1
-        versionName "1.0"
+    private final String mBuildTarget
 
-        buildConfigField "String", "COMMON_CONFIG", "\"default\""
-    }
-    buildTypes {
-        debug {
-        }
-        release {
-        }
+    private final String mRetroLambdaJarFileName
+
+    public RetroLambdaShFile(String classpath, String buildTarget, String retroLambdaJarFileName) {
+        mClasspath = classpath
+        mBuildTarget = buildTarget
+        mRetroLambdaJarFileName = retroLambdaJarFileName
     }
 
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+    @Override
+    public final void print(PrintStream printer) {
+        printer.println("#!/bin/bash")
+        String androidJarPath = System.getenv("ANDROID_HOME") + File.separator + "platforms" +
+                File.separator + mBuildTarget + File.separator + "android.jar"
+        printer.print("java -Dretrolambda.inputDir=\$1 ")
+        printer.print("-Dretrolambda.classpath=\$1:${androidJarPath}:${mClasspath} ")
+        printer.print("-jar ./.okbuck/RetroLambda/")
+        printer.println(mRetroLambdaJarFileName)
     }
-
-    publishNonDefault true
-    productFlavors {
-        free {
-            buildConfigField "String", "COMMON_CONFIG", "\"free\""
-        }
-        paid {
-            buildConfigField "String", "COMMON_CONFIG", "\"paid\""
-        }
-    }
-}
-
-dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    testCompile 'junit:junit:4.12'
-    compile "com.android.support:appcompat-v7:${rootProject.ext.androidSupportSdkVersion}"
 }
