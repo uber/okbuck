@@ -50,6 +50,7 @@ final class ExopackageAndroidLibraryRuleComposer {
 
         deps.add(":build_config_${target.name}")
 
-        return new ExopackageAndroidLibraryRule("app_lib_${target.name}", target.appClass, ["PUBLIC"], deps)
+        return new ExopackageAndroidLibraryRule("app_lib_${target.name}", target.appClass,
+                ["PUBLIC"], deps, target.retroLambdaEnabled)
     }
 }
