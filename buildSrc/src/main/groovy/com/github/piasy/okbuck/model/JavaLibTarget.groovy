@@ -14,13 +14,17 @@ class JavaLibTarget extends Target {
     final boolean retrolambda
 
     private final Set<ExternalDependency> retroLambdaDeps = [] as Set
+    protected final List<String> extraJvmArgs = []
 
     JavaLibTarget(Project project, String name) {
         super(project, name)
 
         // Retrolambda
         retrolambda = project.plugins.hasPlugin('me.tatarka.retrolambda')
-        extractConfigurations([RETRO_LAMBDA_CONFIG] as Set, retroLambdaDeps, [] as Set)
+        if (retrolambda) {
+            extractConfigurations([RETRO_LAMBDA_CONFIG] as Set, retroLambdaDeps, [] as Set)
+            extraJvmArgs.addAll(["-bootclasspath", bootClasspath])
+        }
     }
 
     @Override
@@ -43,6 +47,26 @@ class JavaLibTarget extends Target {
 
     String getRetroLambdaJar() {
         dependencyCache.get(retroLambdaDeps[0])
+    }
+
+    List<String> getJvmArgs() {
+        return project.compileJava.options.compilerArgs + extraJvmArgs
+    }
+
+    String getBootClasspath() {
+        String bootCp = initialBootCp
+        if (retrolambda) {
+            bootCp += ":${rtJar}"
+        }
+        return bootCp
+    }
+
+    protected String getInitialBootCp() {
+        return project.compileJava.options.bootClasspath
+    }
+
+    protected static String getRtJar() {
+        return "${System.properties.'java.home'}/lib/rt.jar"
     }
 
     protected static String javaVersion(JavaVersion version) {

@@ -62,6 +62,6 @@ final class AndroidLibraryRuleComposer {
         return new AndroidLibraryRule("src_${target.name}", ["PUBLIC"], deps, target.sources,
                 target.manifest, target.annotationProcessors as List, aptDeps, aidlRuleNames,
                 appClass, target.sourceCompatibility, target.targetCompatibility,
-                postprocessClassesCommands)
+                postprocessClassesCommands, target.jvmArgs)
     }
 }

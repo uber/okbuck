@@ -24,7 +24,6 @@
 
 package com.github.piasy.okbuck.generator
 
-import com.github.piasy.okbuck.model.AndroidTarget
 import com.github.piasy.okbuck.model.JavaLibTarget
 import com.github.piasy.okbuck.util.FileUtil
 
@@ -42,20 +41,11 @@ final class RetroLambdaGenerator {
         output.createNewFile()
 
         FileUtil.copyResourceToProject("retrolambda/RetroLambda.sh", output)
-        File androidJar = null
-        if (target instanceof AndroidTarget) {
-            androidJar = new File(target.androidSdkDir, "platforms/android-${target.targetSdk}/android.jar")
-        }
 
         String outputText = output.text
         outputText = outputText.replaceAll('gen-dir', target.rootProject.file("buck-out/gen").absolutePath)
                 .replaceAll('retrolambda-jar', target.retroLambdaJar)
-
-        if (androidJar != null) {
-            outputText = outputText.replaceAll('android-jar', androidJar.absolutePath)
-        } else {
-            outputText = outputText.replaceAll(':android-jar:', ':')
-        }
+            outputText = outputText.replaceAll('android-jar', target.bootClasspath)
 
         output.text = outputText
 
