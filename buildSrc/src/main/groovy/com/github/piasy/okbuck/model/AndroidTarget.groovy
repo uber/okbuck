@@ -11,11 +11,10 @@ import groovy.util.slurpersupport.GPathResult
 import groovy.xml.StreamingMarkupBuilder
 import org.gradle.api.Project
 import org.gradle.api.UnknownTaskException
-
 /**
  * An Android target
  */
-abstract class AndroidTarget extends Target {
+abstract class AndroidTarget extends JavaLibTarget {
 
     final String applicationId
     final String versionName
@@ -47,6 +46,20 @@ abstract class AndroidTarget extends Target {
     @Override
     protected Set<String> compileConfigurations() {
         return ["compile", "${buildType}Compile", "${flavor}Compile", "${name}Compile"]
+    }
+
+    @Override
+    String getSourceCompatibility() {
+        return javaVersion(project.android.compileOptions.sourceCompatibility)
+    }
+
+    @Override
+    String getTargetCompatibility() {
+        return javaVersion(project.android.compileOptions.targetCompatibility)
+    }
+
+    File getAndroidSdkDir() {
+        return project.android.sdkDirectory
     }
 
     List<String> getBuildConfigFields() {

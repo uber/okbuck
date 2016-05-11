@@ -32,18 +32,22 @@ final class JavaLibraryRule extends BuckRule {
     private final Set<String> mSrcSet
     private final Set<String> mAnnotationProcessors
     private final Set<String> mAnnotationProcessorDeps
-    private final boolean mRetroLambdaEnabled
+    private final String mSourceCompatibility
+    private final String mTargetCompatibility
+    private final List<String> mPostprocessClassesCommands
 
     JavaLibraryRule(String name, List<String> visibility, List<String> deps,
                     Set<String> srcSet, Set<String> annotationProcessors,
-                    Set<String> annotationProcessorDeps, boolean retroLambdaEnabled
-    ) {
+                    Set<String> annotationProcessorDeps, String sourceCompatibility,
+                    String targetCompatibility, List<String> postprocessClassesCommands) {
         super("java_library", name, visibility, deps)
 
         mSrcSet = srcSet
         mAnnotationProcessors = annotationProcessors
         mAnnotationProcessorDeps = annotationProcessorDeps
-        mRetroLambdaEnabled = retroLambdaEnabled
+        mSourceCompatibility = sourceCompatibility
+        mTargetCompatibility = targetCompatibility
+        mPostprocessClassesCommands = postprocessClassesCommands
     }
 
     @Override
@@ -70,10 +74,14 @@ final class JavaLibraryRule extends BuckRule {
             printer.println("\t],")
         }
 
-        if (mRetroLambdaEnabled) {
-            printer.println("\tsource = '8',")
-            printer.println("\ttarget = '8',")
-            printer.println("\tpostprocess_classes_commands = ['./.okbuck/RetroLambda/RetroLambda.sh'],")
+        printer.println("\tsource = '${mSourceCompatibility}',")
+        printer.println("\ttarget = '${mTargetCompatibility}',")
+        if (!mPostprocessClassesCommands.empty) {
+            printer.println("\tpostprocess_classes_commands = [")
+            mPostprocessClassesCommands.each { String command ->
+                printer.println("\t\t'${command}',")
+            }
+            printer.println("\t],")
         }
     }
 }

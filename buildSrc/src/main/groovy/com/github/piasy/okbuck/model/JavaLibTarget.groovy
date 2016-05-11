@@ -1,5 +1,7 @@
 package com.github.piasy.okbuck.model
 
+import com.github.piasy.okbuck.dependency.ExternalDependency
+import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 
 /**
@@ -7,10 +9,18 @@ import org.gradle.api.Project
  */
 class JavaLibTarget extends Target {
 
+    private static final String RETRO_LAMBDA_CONFIG = "retrolambdaConfig"
     static final String MAIN = "main"
+    final boolean retrolambda
+
+    private final Set<ExternalDependency> retroLambdaDeps = [] as Set
 
     JavaLibTarget(Project project, String name) {
         super(project, name)
+
+        // Retrolambda
+        retrolambda = project.plugins.hasPlugin('me.tatarka.retrolambda')
+        extractConfigurations([RETRO_LAMBDA_CONFIG] as Set, retroLambdaDeps, [] as Set)
     }
 
     @Override
@@ -21,5 +31,32 @@ class JavaLibTarget extends Target {
     @Override
     protected Set<String> compileConfigurations() {
         return ["compile"]
+    }
+
+    String getSourceCompatibility() {
+        return javaVersion(project.sourceCompatibility)
+    }
+
+    String getTargetCompatibility() {
+        return javaVersion(project.sourceCompatibility)
+    }
+
+    String getRetroLambdaJar() {
+        dependencyCache.get(retroLambdaDeps[0])
+    }
+
+    protected static String javaVersion(JavaVersion version) {
+        switch (version) {
+            case JavaVersion.VERSION_1_6:
+                return '6'
+            case JavaVersion.VERSION_1_7:
+                return '7'
+            case JavaVersion.VERSION_1_8:
+                return '8'
+            case JavaVersion.VERSION_1_9:
+                return '9'
+            default:
+                return '7'
+        }
     }
 }
