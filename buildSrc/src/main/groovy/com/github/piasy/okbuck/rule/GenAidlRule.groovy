@@ -56,9 +56,20 @@ final class GenAidlRule extends BuckRule {
         printer.println("\t)")
         printer.println()
 
+        // Aidl, little bit complicated,
+        // see: https://github.com/facebook/buck/issues/271#issuecomment-208394030
+        printer.println("android_library(")
+        printer.println("\tname = 'parcelable_${name}',")
+        printer.println("\tsrcs = glob([")
+        printer.println("\t\t'${mAidlFilePath.replace("aidl", "parcelable")}/**/*.java',")
+        printer.println("\t]),")
+        printer.println(")")
+        printer.println()
+
         printer.println("android_library(")
         printer.println("\tname = '${name}',")
         printer.println("\tsrcs = gen_${name},")
+        printer.println("\tdeps = [':parcelable_${name}'],")
         printer.println(")")
         printer.println()
     }
