@@ -11,6 +11,7 @@ import groovy.util.slurpersupport.GPathResult
 import groovy.xml.StreamingMarkupBuilder
 import org.gradle.api.Project
 import org.gradle.api.UnknownTaskException
+
 /**
  * An Android target
  */
@@ -58,8 +59,14 @@ abstract class AndroidTarget extends JavaLibTarget {
         return javaVersion(project.android.compileOptions.targetCompatibility)
     }
 
-    File getAndroidSdkDir() {
-        return project.android.sdkDirectory
+    @Override
+    List<String> getJvmArgs() {
+        return extraJvmArgs
+    }
+
+    @Override
+    String getInitialBootCp() {
+        return baseVariant.javaCompile.options.bootClasspath
     }
 
     List<String> getBuildConfigFields() {
