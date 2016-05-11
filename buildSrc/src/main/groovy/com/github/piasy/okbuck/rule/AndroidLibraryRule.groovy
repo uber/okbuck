@@ -25,6 +25,7 @@
 package com.github.piasy.okbuck.rule
 
 import org.apache.commons.lang.StringUtils
+
 /**
  * android_library()
  *
@@ -37,12 +38,15 @@ final class AndroidLibraryRule extends BuckRule {
     private final List<String> mAptDeps
     private final List<String> mAidlRuleNames
     private final String mAppClass
+    private final String mSourceCompatibility
+    private final String mTargetCompatibility
+    private final List<String> mPostprocessClassesCommands
 
     AndroidLibraryRule(
             String name, List<String> visibility, List<String> deps, Set<String> srcSet,
             String manifest, List<String> annotationProcessors, List<String> aptDeps,
-            List<String> aidlRuleNames, String appClass
-    ) {
+            List<String> aidlRuleNames, String appClass, String sourceCompatibility,
+            String targetCompatibility, List<String> postprocessClassesCommands) {
         super("android_library", name, visibility, deps)
 
         mSrcSet = srcSet
@@ -51,6 +55,9 @@ final class AndroidLibraryRule extends BuckRule {
         mAptDeps = aptDeps
         mAidlRuleNames = aidlRuleNames
         mAppClass = appClass
+        mSourceCompatibility = sourceCompatibility
+        mTargetCompatibility = targetCompatibility
+        mPostprocessClassesCommands = postprocessClassesCommands
     }
 
     @Override
@@ -88,8 +95,18 @@ final class AndroidLibraryRule extends BuckRule {
 
         if (!mAidlRuleNames.empty) {
             printer.println("\texported_deps = [")
-            for (String aidlRuleName : mAidlRuleNames) {
+            mAidlRuleNames.each { String aidlRuleName ->
                 printer.println("\t\t'${aidlRuleName}',")
+            }
+            printer.println("\t],")
+        }
+
+        printer.println("\tsource = '${mSourceCompatibility}',")
+        printer.println("\ttarget = '${mTargetCompatibility}',")
+        if (!mPostprocessClassesCommands.empty) {
+            printer.println("\tpostprocess_classes_commands = [")
+            mPostprocessClassesCommands.each { String command ->
+                printer.println("\t\t'${command}',")
             }
             printer.println("\t],")
         }
