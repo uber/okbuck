@@ -24,6 +24,7 @@
 
 package com.github.piasy.okbuck.composer
 
+import com.github.piasy.okbuck.generator.RetroLambdaGenerator
 import com.github.piasy.okbuck.model.AndroidAppTarget
 import com.github.piasy.okbuck.model.Target
 import com.github.piasy.okbuck.rule.ExopackageAndroidLibraryRule
@@ -50,6 +51,13 @@ final class ExopackageAndroidLibraryRuleComposer {
 
         deps.add(":build_config_${target.name}")
 
-        return new ExopackageAndroidLibraryRule("app_lib_${target.name}", target.appClass, ["PUBLIC"], deps)
+        List<String> postprocessClassesCommands = []
+        if (target.retrolambda) {
+            postprocessClassesCommands.add(RetroLambdaGenerator.generate(target))
+        }
+
+        return new ExopackageAndroidLibraryRule("app_lib_${target.name}", target.appClass,
+                ["PUBLIC"], deps, target.sourceCompatibility, target.targetCompatibility,
+                postprocessClassesCommands)
     }
 }

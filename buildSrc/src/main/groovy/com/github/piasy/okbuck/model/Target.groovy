@@ -17,7 +17,6 @@ import org.gradle.api.artifacts.UnknownConfigurationException
 
 import java.util.jar.JarEntry
 import java.util.jar.JarFile
-
 /**
  * A target is roughly equivalent to what can be built with gradle via the various assemble tasks.
  *
@@ -38,6 +37,7 @@ abstract class Target {
             "META-INF/services/javax.annotation.processing.Processor"
 
     final Project project
+    final Project rootProject
     final String name
     final String identifier
     final String path
@@ -45,7 +45,6 @@ abstract class Target {
     final Set<Target> targetAptDeps = [] as Set
     final Set<Target> targetCompileDeps = [] as Set
 
-    protected final Project rootProject
     protected final Set<ExternalDependency> externalAptDeps = [] as Set
     protected final Set<ExternalDependency> externalCompileDeps = [] as Set
 
@@ -126,7 +125,7 @@ abstract class Target {
                 .getPlugin(OkBuckGradlePlugin)).dependencyCache
     }
 
-    private void extractConfigurations(Set<String> configurations, Set<ExternalDependency> externalConfigurationDeps,
+    protected void extractConfigurations(Set<String> configurations, Set<ExternalDependency> externalConfigurationDeps,
                                        Set<Target> targetConfigurationDeps) {
         configurations.each { String configName ->
             try {

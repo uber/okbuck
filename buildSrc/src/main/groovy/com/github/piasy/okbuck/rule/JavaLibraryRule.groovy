@@ -32,16 +32,22 @@ final class JavaLibraryRule extends BuckRule {
     private final Set<String> mSrcSet
     private final Set<String> mAnnotationProcessors
     private final Set<String> mAnnotationProcessorDeps
+    private final String mSourceCompatibility
+    private final String mTargetCompatibility
+    private final List<String> mPostprocessClassesCommands
 
     JavaLibraryRule(String name, List<String> visibility, List<String> deps,
                     Set<String> srcSet, Set<String> annotationProcessors,
-                    Set<String> annotationProcessorDeps
-    ) {
+                    Set<String> annotationProcessorDeps, String sourceCompatibility,
+                    String targetCompatibility, List<String> postprocessClassesCommands) {
         super("java_library", name, visibility, deps)
 
         mSrcSet = srcSet
         mAnnotationProcessors = annotationProcessors
         mAnnotationProcessorDeps = annotationProcessorDeps
+        mSourceCompatibility = sourceCompatibility
+        mTargetCompatibility = targetCompatibility
+        mPostprocessClassesCommands = postprocessClassesCommands
     }
 
     @Override
@@ -64,6 +70,16 @@ final class JavaLibraryRule extends BuckRule {
             printer.println("\tannotation_processor_deps = [")
             for (String dep : mAnnotationProcessorDeps) {
                 printer.println("\t\t'${dep}',")
+            }
+            printer.println("\t],")
+        }
+
+        printer.println("\tsource = '${mSourceCompatibility}',")
+        printer.println("\ttarget = '${mTargetCompatibility}',")
+        if (!mPostprocessClassesCommands.empty) {
+            printer.println("\tpostprocess_classes_commands = [")
+            mPostprocessClassesCommands.each { String command ->
+                printer.println("\t\t'${command}',")
             }
             printer.println("\t],")
         }

@@ -24,6 +24,7 @@
 
 package com.github.piasy.okbuck.composer
 
+import com.github.piasy.okbuck.generator.RetroLambdaGenerator
 import com.github.piasy.okbuck.model.JavaLibTarget
 import com.github.piasy.okbuck.model.Target
 import com.github.piasy.okbuck.rule.JavaLibraryRule
@@ -54,7 +55,13 @@ final class JavaLibraryRuleComposer {
             "//${targetDep.path}:src_${targetDep.name}"
         })
 
+        List<String> postprocessClassesCommands = []
+        if (target.retrolambda) {
+            postprocessClassesCommands.add(RetroLambdaGenerator.generate(target))
+        }
+
         new JavaLibraryRule("src_${target.name}", ["PUBLIC"], deps, target.sources,
-                target.annotationProcessors, aptDeps)
+                target.annotationProcessors, aptDeps, target.sourceCompatibility,
+                target.targetCompatibility, postprocessClassesCommands)
     }
 }

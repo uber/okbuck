@@ -23,19 +23,38 @@
  */
 
 package com.github.piasy.okbuck.rule
+
 /**
  * android_library() used for exopackage
  * */
 final class ExopackageAndroidLibraryRule extends BuckRule {
-    private final String appClass
+    private final String mAppClass
+    private final String mSourceCompatibility
+    private final String mTargetCompatibility
+    private final List<String> mPostprocessClassesCommands
 
-    ExopackageAndroidLibraryRule(String name, String appClass, List<String> visibility, List<String> deps) {
+    ExopackageAndroidLibraryRule(String name, String appClass, List<String> visibility,
+                                 List<String> deps, String sourceCompatibility,
+                                 String targetCompatibility,
+                                 List<String> postprocessClassesCommands) {
         super("android_library", name, visibility, deps)
-        this.appClass = appClass
+        mAppClass = appClass
+        mSourceCompatibility = sourceCompatibility
+        mTargetCompatibility = targetCompatibility
+        mPostprocessClassesCommands = postprocessClassesCommands
     }
 
     @Override
     protected final void printContent(PrintStream printer) {
-        printer.println("\tsrcs = ['${appClass}'],")
+        printer.println("\tsrcs = ['${mAppClass}'],")
+        printer.println("\tsource = '${mSourceCompatibility}',")
+        printer.println("\ttarget = '${mTargetCompatibility}',")
+        if (!mPostprocessClassesCommands.empty) {
+            printer.println("\tpostprocess_classes_commands = [")
+            mPostprocessClassesCommands.each { String command ->
+                printer.println("\t\t'${command}',")
+            }
+            printer.println("\t],")
+        }
     }
 }
