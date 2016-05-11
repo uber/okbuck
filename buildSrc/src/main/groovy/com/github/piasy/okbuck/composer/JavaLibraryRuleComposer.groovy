@@ -62,6 +62,6 @@ final class JavaLibraryRuleComposer {
 
         new JavaLibraryRule("src_${target.name}", ["PUBLIC"], deps, target.sources,
                 target.annotationProcessors, aptDeps, target.sourceCompatibility,
-                target.targetCompatibility, postprocessClassesCommands)
+                target.targetCompatibility, postprocessClassesCommands, target.jvmArgs)
     }
 }

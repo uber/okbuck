@@ -41,12 +41,14 @@ final class AndroidLibraryRule extends BuckRule {
     private final String mSourceCompatibility
     private final String mTargetCompatibility
     private final List<String> mPostprocessClassesCommands
+    private final List<String> mOptions
 
     AndroidLibraryRule(
             String name, List<String> visibility, List<String> deps, Set<String> srcSet,
             String manifest, List<String> annotationProcessors, List<String> aptDeps,
             List<String> aidlRuleNames, String appClass, String sourceCompatibility,
-            String targetCompatibility, List<String> postprocessClassesCommands) {
+            String targetCompatibility, List<String> postprocessClassesCommands,
+            List<String> options) {
         super("android_library", name, visibility, deps)
 
         mSrcSet = srcSet
@@ -58,6 +60,7 @@ final class AndroidLibraryRule extends BuckRule {
         mSourceCompatibility = sourceCompatibility
         mTargetCompatibility = targetCompatibility
         mPostprocessClassesCommands = postprocessClassesCommands
+        mOptions = options
     }
 
     @Override
@@ -107,6 +110,14 @@ final class AndroidLibraryRule extends BuckRule {
             printer.println("\tpostprocess_classes_commands = [")
             mPostprocessClassesCommands.each { String command ->
                 printer.println("\t\t'${command}',")
+            }
+            printer.println("\t],")
+        }
+
+        if (!mOptions.empty) {
+            printer.println("\textra_arguments = [")
+            mOptions.each { String option ->
+                printer.println("\t\t'${option}',")
             }
             printer.println("\t],")
         }

@@ -35,11 +35,13 @@ final class JavaLibraryRule extends BuckRule {
     private final String mSourceCompatibility
     private final String mTargetCompatibility
     private final List<String> mPostprocessClassesCommands
+    private final List<String> mOptions
 
     JavaLibraryRule(String name, List<String> visibility, List<String> deps,
                     Set<String> srcSet, Set<String> annotationProcessors,
                     Set<String> annotationProcessorDeps, String sourceCompatibility,
-                    String targetCompatibility, List<String> postprocessClassesCommands) {
+                    String targetCompatibility, List<String> postprocessClassesCommands,
+                    List<String> options) {
         super("java_library", name, visibility, deps)
 
         mSrcSet = srcSet
@@ -48,6 +50,7 @@ final class JavaLibraryRule extends BuckRule {
         mSourceCompatibility = sourceCompatibility
         mTargetCompatibility = targetCompatibility
         mPostprocessClassesCommands = postprocessClassesCommands
+        mOptions = options
     }
 
     @Override
@@ -80,6 +83,14 @@ final class JavaLibraryRule extends BuckRule {
             printer.println("\tpostprocess_classes_commands = [")
             mPostprocessClassesCommands.each { String command ->
                 printer.println("\t\t'${command}',")
+            }
+            printer.println("\t],")
+        }
+
+        if (!mOptions.empty) {
+            printer.println("\textra_arguments = [")
+            mOptions.each { String option ->
+                printer.println("\t\t'${option}',")
             }
             printer.println("\t],")
         }

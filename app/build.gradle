@@ -73,7 +73,7 @@ dependencies {
     compile 'com.android.support:multidex:1.0.1'
     compile 'com.jakewharton:butterknife:7.0.1'
 
-    compile ("com.android.support:design:${rootProject.ext.androidSupportSdkVersion}") {
+    compile("com.android.support:design:${rootProject.ext.androidSupportSdkVersion}") {
         exclude module: 'appcompat-v7'
     }
     compile "com.android.support:recyclerview-v7:${rootProject.ext.androidSupportSdkVersion}"

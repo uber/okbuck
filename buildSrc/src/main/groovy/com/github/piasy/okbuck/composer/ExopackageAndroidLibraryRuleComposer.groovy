@@ -58,6 +58,6 @@ final class ExopackageAndroidLibraryRuleComposer {
 
         return new ExopackageAndroidLibraryRule("app_lib_${target.name}", target.appClass,
                 ["PUBLIC"], deps, target.sourceCompatibility, target.targetCompatibility,
-                postprocessClassesCommands)
+                postprocessClassesCommands, target.jvmArgs)
     }
 }
