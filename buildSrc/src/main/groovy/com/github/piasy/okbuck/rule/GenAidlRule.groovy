@@ -33,13 +33,15 @@ final class GenAidlRule extends BuckRule {
 
     private final String mAidlFilePath
     private final String mImportPath
+    private final Set<String> mAidlDeps
 
-    GenAidlRule(String name, String aidlFilePath, String importPath) {
+    GenAidlRule(String name, String aidlFilePath, String importPath, Set<String> deps) {
         super("gen", name)
         checkStringNotEmpty(aidlFilePath, "GenAidlRule aidlFilePath can't be empty.")
         mAidlFilePath = aidlFilePath
         checkStringNotEmpty(importPath, "GenAidlRule importPath can't be empty.")
         mImportPath = importPath
+        mAidlDeps = deps
     }
 
     @Override
@@ -59,6 +61,11 @@ final class GenAidlRule extends BuckRule {
         printer.println("android_library(")
         printer.println("\tname = '${name}',")
         printer.println("\tsrcs = gen_${name},")
+        printer.println("\tdeps = [")
+        mAidlDeps.each { String aidlDep ->
+            printer.println("\t\t'${aidlDep}',")
+        }
+        printer.println("\t],")
         printer.println(")")
         printer.println()
     }

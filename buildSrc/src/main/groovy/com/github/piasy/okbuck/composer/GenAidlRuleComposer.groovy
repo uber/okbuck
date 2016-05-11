@@ -25,6 +25,7 @@
 package com.github.piasy.okbuck.composer
 
 import com.github.piasy.okbuck.model.AndroidTarget
+import com.github.piasy.okbuck.model.Target
 import com.github.piasy.okbuck.rule.GenAidlRule
 
 final class GenAidlRuleComposer {
@@ -35,6 +36,9 @@ final class GenAidlRuleComposer {
 
     static GenAidlRule compose(AndroidTarget target, String aidlDir) {
         return new GenAidlRule("${target.name}_aidls", aidlDir,
-                "${target.path}/${aidlDir}")
+                "${target.path}/${aidlDir}",
+                target.targetCompileDeps.collect { Target targetDep ->
+                    "//${targetDep.path}:src_${targetDep.name}"
+                } as Set)
     }
 }
