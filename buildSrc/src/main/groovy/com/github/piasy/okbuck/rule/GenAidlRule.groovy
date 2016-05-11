@@ -33,15 +33,15 @@ final class GenAidlRule extends BuckRule {
 
     private final String mAidlFilePath
     private final String mImportPath
-    private final List<String> mParcelableDeps
+    private final Set<String> mAidlDeps
 
-    GenAidlRule(String name, String aidlFilePath, String importPath, List<String> deps) {
+    GenAidlRule(String name, String aidlFilePath, String importPath, Set<String> deps) {
         super("gen", name)
         checkStringNotEmpty(aidlFilePath, "GenAidlRule aidlFilePath can't be empty.")
         mAidlFilePath = aidlFilePath
         checkStringNotEmpty(importPath, "GenAidlRule importPath can't be empty.")
         mImportPath = importPath
-        mParcelableDeps = deps
+        mAidlDeps = deps
     }
 
     @Override
@@ -62,8 +62,8 @@ final class GenAidlRule extends BuckRule {
         printer.println("\tname = '${name}',")
         printer.println("\tsrcs = gen_${name},")
         printer.println("\tdeps = [")
-        mParcelableDeps.each { String parcelable ->
-            printer.println("\t\t'${parcelable}',")
+        mAidlDeps.each { String aidlDep ->
+            printer.println("\t\t'${aidlDep}',")
         }
         printer.println("\t],")
         printer.println(")")

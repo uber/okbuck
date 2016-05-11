@@ -39,6 +39,6 @@ final class GenAidlRuleComposer {
                 "${target.path}/${aidlDir}",
                 target.targetCompileDeps.collect { Target targetDep ->
                     "//${targetDep.path}:src_${targetDep.name}"
-                } as List)
+                } as Set)
     }
 }
