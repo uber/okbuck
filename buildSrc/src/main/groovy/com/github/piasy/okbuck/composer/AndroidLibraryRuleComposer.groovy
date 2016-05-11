@@ -24,6 +24,7 @@
 
 package com.github.piasy.okbuck.composer
 
+import com.github.piasy.okbuck.generator.RetroLambdaGenerator
 import com.github.piasy.okbuck.model.AndroidLibTarget
 import com.github.piasy.okbuck.model.AndroidTarget
 import com.github.piasy.okbuck.model.Target
@@ -53,8 +54,14 @@ final class AndroidLibraryRuleComposer {
             }
         }
 
+        List<String> postprocessClassesCommands = []
+        if (target.retrolambda) {
+            postprocessClassesCommands.add(RetroLambdaGenerator.generate(target))
+        }
+
         return new AndroidLibraryRule("src_${target.name}", ["PUBLIC"], deps, target.sources,
                 target.manifest, target.annotationProcessors as List, aptDeps, aidlRuleNames,
-                appClass, target.retroLambdaEnabled)
+                appClass, target.sourceCompatibility, target.targetCompatibility,
+                postprocessClassesCommands)
     }
 }

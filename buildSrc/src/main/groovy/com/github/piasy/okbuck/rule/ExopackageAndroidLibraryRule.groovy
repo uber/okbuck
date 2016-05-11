@@ -28,24 +28,33 @@ package com.github.piasy.okbuck.rule
  * android_library() used for exopackage
  * */
 final class ExopackageAndroidLibraryRule extends BuckRule {
-    private final String appClass
-    private final boolean mRetroLambdaEnabled
+    private final String mAppClass
+    private final String mSourceCompatibility
+    private final String mTargetCompatibility
+    private final List<String> mPostprocessClassesCommands
 
     ExopackageAndroidLibraryRule(String name, String appClass, List<String> visibility,
-            List<String> deps, boolean retroLambdaEnabled) {
+                                 List<String> deps, String sourceCompatibility,
+                                 String targetCompatibility,
+                                 List<String> postprocessClassesCommands) {
         super("android_library", name, visibility, deps)
-        this.appClass = appClass
-        mRetroLambdaEnabled = retroLambdaEnabled
+        mAppClass = appClass
+        mSourceCompatibility = sourceCompatibility
+        mTargetCompatibility = targetCompatibility
+        mPostprocessClassesCommands = postprocessClassesCommands
     }
 
     @Override
     protected final void printContent(PrintStream printer) {
-        printer.println("\tsrcs = ['${appClass}'],")
-
-        if (mRetroLambdaEnabled) {
-            printer.println("\tsource = '8',")
-            printer.println("\ttarget = '8',")
-            printer.println("\tpostprocess_classes_commands = ['./.okbuck/RetroLambda/RetroLambda.sh'],")
+        printer.println("\tsrcs = ['${mAppClass}'],")
+        printer.println("\tsource = '${mSourceCompatibility}',")
+        printer.println("\ttarget = '${mTargetCompatibility}',")
+        if (!mPostprocessClassesCommands.empty) {
+            printer.println("\tpostprocess_classes_commands = [")
+            mPostprocessClassesCommands.each { String command ->
+                printer.println("\t\t'${command}',")
+            }
+            printer.println("\t],")
         }
     }
 }

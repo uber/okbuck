@@ -25,22 +25,14 @@
 package com.github.piasy.okbuck
 
 import com.github.piasy.okbuck.config.BUCKFile
-import com.github.piasy.okbuck.config.RetroLambdaShFile
 import com.github.piasy.okbuck.dependency.DependencyCache
-import com.github.piasy.okbuck.dependency.ExternalDependency
 import com.github.piasy.okbuck.generator.BuckFileGenerator
 import com.github.piasy.okbuck.generator.DotBuckConfigGenerator
-import com.github.piasy.okbuck.model.AndroidTarget
-import com.github.piasy.okbuck.model.Target
-import com.github.piasy.okbuck.util.ProjectUtil
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.IOUtils
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.api.artifacts.Configuration
-import org.gradle.api.artifacts.ResolvedArtifact
-import org.gradle.api.artifacts.UnknownConfigurationException
 
 class OkBuckGradlePlugin implements Plugin<Project> {
 
@@ -90,48 +82,6 @@ class OkBuckGradlePlugin implements Plugin<Project> {
             PrintStream printer = new PrintStream(dotBuckConfig)
             DotBuckConfigGenerator.generate(okbuck).print(printer)
             IOUtils.closeQuietly(printer)
-        }
-
-        ExternalDependency latestRetroLambda = null
-        project.subprojects.each {
-            try {
-                Configuration configuration = it.configurations.getByName(
-                        Target.RETRO_LAMBDA_CONFIG)
-                configuration.resolvedConfiguration.resolvedArtifacts.each {
-                    ResolvedArtifact artifact ->
-                        String identifier = artifact.id.componentIdentifier.displayName
-                        File dep = artifact.file
-                        ExternalDependency retroLambda = new ExternalDependency(identifier, dep)
-                        if (latestRetroLambda == null ||
-                                latestRetroLambda.version.compareTo(retroLambda.version) < 0) {
-                            latestRetroLambda = retroLambda
-                        }
-                }
-            } catch (UnknownConfigurationException ignored) {
-            }
-        }
-
-        if (latestRetroLambda != null) {
-            File retroLambdaDir = new File(project.projectDir, ".okbuck/RetroLambda")
-            retroLambdaDir.mkdirs()
-            FileUtils.copyFile(latestRetroLambda.depFile,
-                    new File(retroLambdaDir, latestRetroLambda.depFile.name))
-            String classpath = ""
-            int targetSdk = 0
-            project.subprojects.each {
-                ProjectUtil.getTargets(it).each { String name, Target target ->
-                    classpath += target.dependencyClasspath
-                    if (target instanceof AndroidTarget && ((AndroidTarget) target).targetSdk > targetSdk) {
-                        targetSdk = ((AndroidTarget) target).targetSdk
-                    }
-                }
-            }
-            File retroLambdaShFile = new File(retroLambdaDir, "RetroLambda.sh")
-            def printer = new PrintStream(retroLambdaShFile)
-            new RetroLambdaShFile(classpath, "android-${targetSdk}",
-                    latestRetroLambda.depFile.name).print(printer)
-            IOUtils.closeQuietly(printer)
-            retroLambdaShFile.setExecutable(true)
         }
 
         // generate BUCK file for each project
