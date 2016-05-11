@@ -59,10 +59,7 @@ final class AndroidLibraryRuleComposer {
             postprocessClassesCommands.add(RetroLambdaGenerator.generate(target))
         }
 
-        return new AndroidLibraryRule("src_${target.name}", ["PUBLIC"], deps,
-                target.sources.findAll { String sourceSet ->
-                    !sourceSet.contains("parcelable")
-                },
+        return new AndroidLibraryRule("src_${target.name}", ["PUBLIC"], deps, target.sources,
                 target.manifest, target.annotationProcessors as List, aptDeps, aidlRuleNames,
                 appClass, target.sourceCompatibility, target.targetCompatibility,
                 postprocessClassesCommands, target.jvmArgs)

@@ -58,14 +58,11 @@ android {
             buildConfigField "String", "COMMON_CONFIG", "\"paid\""
         }
     }
-    sourceSets {
-        main.java.srcDirs += 'src/main/parcelable'
-    }
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-
     testCompile 'junit:junit:4.12'
     compile "com.android.support:appcompat-v7:${rootProject.ext.androidSupportSdkVersion}"
+
+    compile project(':libraries:parcelable')
 }
