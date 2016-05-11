@@ -1,19 +1,18 @@
 .gradle
 /local.properties
-/.idea/workspace.xml
-/.idea/libraries
 .DS_Store
-/build
+**build
 /captures
 
-*.iml
+**.iml
 .idea/
 buck-out/
 .buckd/
 
 .okbuck
-okbuck-scripts
 .buckconfig
 **/BUCK
 
 gradle.properties
+buildSrc/bintray.properties
+buildSrc/local.properties
