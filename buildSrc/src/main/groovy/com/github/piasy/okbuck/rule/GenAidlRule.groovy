@@ -33,13 +33,15 @@ final class GenAidlRule extends BuckRule {
 
     private final String mAidlFilePath
     private final String mImportPath
+    private final List<String> mParcelableDeps
 
-    GenAidlRule(String name, String aidlFilePath, String importPath) {
+    GenAidlRule(String name, String aidlFilePath, String importPath, List<String> deps) {
         super("gen", name)
         checkStringNotEmpty(aidlFilePath, "GenAidlRule aidlFilePath can't be empty.")
         mAidlFilePath = aidlFilePath
         checkStringNotEmpty(importPath, "GenAidlRule importPath can't be empty.")
         mImportPath = importPath
+        mParcelableDeps = deps
     }
 
     @Override
@@ -56,20 +58,14 @@ final class GenAidlRule extends BuckRule {
         printer.println("\t)")
         printer.println()
 
-        // Aidl, little bit complicated,
-        // see: https://github.com/facebook/buck/issues/271#issuecomment-208394030
-        printer.println("android_library(")
-        printer.println("\tname = 'parcelable_${name}',")
-        printer.println("\tsrcs = glob([")
-        printer.println("\t\t'${mAidlFilePath.replace("aidl", "parcelable")}/**/*.java',")
-        printer.println("\t]),")
-        printer.println(")")
-        printer.println()
-
         printer.println("android_library(")
         printer.println("\tname = '${name}',")
         printer.println("\tsrcs = gen_${name},")
-        printer.println("\tdeps = [':parcelable_${name}'],")
+        printer.println("\tdeps = [")
+        mParcelableDeps.each { String parcelable ->
+            printer.println("\t\t'${parcelable}',")
+        }
+        printer.println("\t],")
         printer.println(")")
         printer.println()
     }
