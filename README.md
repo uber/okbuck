@@ -1,8 +1,7 @@
 # OkBuck
 [ ![Download](https://api.bintray.com/packages/piasy/maven/OkBuck/images/download.svg) ](https://bintray.com/piasy/maven/OkBuck/_latestVersion)
-[![Master branch build status](https://travis-ci.org/Piasy/OkBuck.svg?branch=master)](https://travis-ci.org/Piasy/OkBuck)
-[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-OkBuck-
-green.svg?style=flat)](https://android-arsenal.com/details/1/2593)
+[![Master branch build status](https://travis-ci.org/OkBuilds/OkBuck.svg?branch=master)](https://travis-ci.org/Piasy/OkBuck)
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-OkBuck-green.svg?style=flat)](https://android-arsenal.com/details/1/2593)
 
 OkBuck is a gradle plugin, aiming to help developers utilize the super fast build 
 system: BUCK, based on the existing project with Android Studio + gradle, and keep 
