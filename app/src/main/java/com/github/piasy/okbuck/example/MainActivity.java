@@ -43,8 +43,7 @@ public class MainActivity extends AppCompatActivity {
         DummyComponent component = DaggerDummyComponent.builder().build();
         component.inject(this);
 
-        mTextView.setText(String.format("%s %s, --from %s.", getString(
-                        com.github.piasy.okbuck.example.dummylibrary.R.string.dummy_library_android_str),
+        mTextView.setText(String.format("%s %s, --from %s.", getString(R.string.dummy_library_android_str),
                 mDummyAndroidClass.getAndroidWord(this), mDummyJavaClass.getJavaWord()));
 
         mTextView2.setText(mTextView2.getText() + "\n\n" + HelloJni.stringFromJNI() + "\n\n" + FlavorLogger.log(this));
