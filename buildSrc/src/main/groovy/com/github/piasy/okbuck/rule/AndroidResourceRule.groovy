@@ -27,6 +27,7 @@ package com.github.piasy.okbuck.rule
 import org.apache.commons.lang.StringUtils
 
 import static com.github.piasy.okbuck.util.CheckUtil.checkStringNotEmpty
+
 /**
  * android_resource()
  * */
@@ -54,5 +55,6 @@ final class AndroidResourceRule extends BuckRule {
         if (!StringUtils.isEmpty(mAssets)) {
             printer.println("\tassets = '${mAssets}',")
         }
+        printer.println("\tresource_union = True,")
     }
 }
