@@ -6,6 +6,7 @@ import com.android.builder.model.ClassField
 import com.android.builder.model.SourceProvider
 import com.github.piasy.okbuck.dependency.DependencyCache
 import com.github.piasy.okbuck.util.FileUtil
+import com.github.piasy.okbuck.util.ProjectUtil
 import groovy.transform.ToString
 import groovy.util.slurpersupport.GPathResult
 import groovy.xml.StreamingMarkupBuilder
@@ -161,16 +162,20 @@ abstract class AndroidTarget extends JavaLibTarget {
         XmlSlurper slurper = new XmlSlurper()
         GPathResult manifestXml = slurper.parse(mergedManifest)
 
-        try {
-            manifestXml.@':versionCode' = versionCode.toString()
-            manifestXml.@':versionName' = versionName
-        } catch (Exception ignored) {
-        }
+        if (ProjectUtil.getType(project) == ProjectType.ANDROID_APP) {
+            manifestXml.@'android:versionCode' = versionCode.toString()
+            manifestXml.@'android:versionName' = versionName
 
-        manifestXml.appendNode({
-            'uses-sdk'(':minSdkVersion': new Integer(minSdk).toString(),
-                    ':targetSdkVersion': new Integer(targetSdk).toString()) {}
-        })
+            if (manifestXml.'uses-sdk'.size() == 0) {
+                manifestXml.appendNode({
+                    'uses-sdk'('android:minSdkVersion': new Integer(minSdk).toString(),
+                            'android:targetSdkVersion': new Integer(targetSdk).toString()) {}
+                })
+            } else {
+                manifestXml.'uses-sdk'.@'android:minSdkVersion' = new Integer(minSdk).toString()
+                manifestXml.'uses-sdk'.@'android:targetSdkVersion' = new Integer(targetSdk).toString()
+            }
+        }
 
         def builder = new StreamingMarkupBuilder()
         builder.setUseDoubleQuotes(true)
@@ -179,10 +184,9 @@ abstract class AndroidTarget extends JavaLibTarget {
         } as String
 
         mergedManifest.text = mergedManifest.text
-                .replaceAll(":minSdkVersion", "android:minSdkVersion")
-                .replaceAll(":targetSdkVersion", "android:targetSdkVersion")
-                .replaceAll(":versionCode", "android:versionCode")
-                .replaceAll(":versionName", "android:versionName")
+                .replaceAll("\\{http://schemas.android.com/apk/res/android\\}versionCode", "android:versionCode")
+                .replaceAll("\\{http://schemas.android.com/apk/res/android\\}versionName", "android:versionName")
+                .replaceAll('xmlns:android="http://schemas.android.com/apk/res/android"', "")
                 .replaceAll("<manifest ", '<manifest xmlns:android="http://schemas.android.com/apk/res/android" ')
 
         return FileUtil.getRelativePath(project.projectDir, mergedManifest)
