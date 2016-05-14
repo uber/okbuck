@@ -25,8 +25,10 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.github.piasy.okbuck.example.anotherapp"
+        android:versionCode="0"
+        android:versionName="1.0"
         >
-
+    <uses-sdk android:minSdkVersion="15" android:targetSdkVersion="21"></uses-sdk>
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
