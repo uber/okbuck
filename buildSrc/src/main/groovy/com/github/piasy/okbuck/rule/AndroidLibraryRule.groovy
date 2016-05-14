@@ -43,6 +43,9 @@ final class AndroidLibraryRule extends BuckRule {
     private final List<String> mPostprocessClassesCommands
     private final List<String> mOptions
 
+    /**
+     * @param appClass, if exopackage is enabled, pass the detected app class, otherwise, pass null
+     * */
     AndroidLibraryRule(
             String name, List<String> visibility, List<String> deps, Set<String> srcSet,
             String manifest, List<String> annotationProcessors, List<String> aptDeps,
@@ -70,7 +73,7 @@ final class AndroidLibraryRule extends BuckRule {
             printer.println("\t\t'${src}/**/*.java',")
         }
 
-        if (mAppClass != null) {
+        if (!StringUtils.isEmpty(mAppClass)) {
             printer.println("\t], excludes = ['${mAppClass}']),")
         } else {
             printer.println("\t]),")
