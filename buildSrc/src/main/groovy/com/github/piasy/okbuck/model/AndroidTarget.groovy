@@ -177,9 +177,7 @@ abstract class AndroidTarget extends JavaLibTarget {
         return FileUtil.getRelativePath(project.projectDir, mergedManifest)
     }
 
-    protected void manipulateManifest(GPathResult manifest) {
-        // do further manipulation in subclass
-    }
+    protected abstract void manipulateManifest(GPathResult manifest)
 
     @ToString(includeNames = true)
     static class ResBundle {
