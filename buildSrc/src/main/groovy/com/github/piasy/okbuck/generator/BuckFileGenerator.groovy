@@ -160,7 +160,8 @@ final class BuckFileGenerator {
         List<BuckRule> rules = []
         List<String> deps = [":src_${target.name}"]
 
-        Set<BuckRule> libRules = createRules((AndroidLibTarget) target, target.appClass)
+        Set<BuckRule> libRules = createRules((AndroidLibTarget) target,
+                target.exopackage ? target.appClass : null)
         rules.addAll(libRules)
 
         libRules.each { BuckRule rule ->
