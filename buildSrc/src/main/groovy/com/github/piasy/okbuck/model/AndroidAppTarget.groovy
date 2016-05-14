@@ -68,6 +68,22 @@ class AndroidAppTarget extends AndroidLibTarget {
         return (BaseVariant) project.android.applicationVariants.find { it.name == name }
     }
 
+    @Override
+    protected void manipulateManifest(GPathResult manifest) {
+        manifest.@'android:versionCode' = versionCode.toString()
+        manifest.@'android:versionName' = versionName
+
+        if (manifest.'uses-sdk'.size() == 0) {
+            manifest.appendNode({
+                'uses-sdk'('android:minSdkVersion': new Integer(minSdk).toString(),
+                        'android:targetSdkVersion': new Integer(targetSdk).toString()) {}
+            })
+        } else {
+            manifest.'uses-sdk'.@'android:minSdkVersion' = new Integer(minSdk).toString()
+            manifest.'uses-sdk'.@'android:targetSdkVersion' = new Integer(targetSdk).toString()
+        }
+    }
+
     Pair<Set<String>, Set<Target>> getAppLibDependencies() {
         Set<String> externalDeps = [] as Set
         Set<Target> projectDeps = [] as Set
