@@ -163,12 +163,18 @@ abstract class AndroidTarget extends JavaLibTarget {
         GPathResult manifestXml = slurper.parse(mergedManifest)
 
         if (ProjectUtil.getType(project) == ProjectType.ANDROID_APP) {
-            manifestXml.@versionCode = versionCode.toString()
-            manifestXml.@versionName = versionName
-            manifestXml.appendNode({
-                'uses-sdk'(':minSdkVersion': new Integer(minSdk).toString(),
-                        ':targetSdkVersion': new Integer(targetSdk).toString()) {}
-            })
+            manifestXml.@'android:versionCode' = versionCode.toString()
+            manifestXml.@'android:versionName' = versionName
+
+            if (manifestXml.'uses-sdk'.size() == 0) {
+                manifestXml.appendNode({
+                    'uses-sdk'('android:minSdkVersion': new Integer(minSdk).toString(),
+                            'android:targetSdkVersion': new Integer(targetSdk).toString()) {}
+                })
+            } else {
+                manifestXml.'uses-sdk'.@'android:minSdkVersion' = new Integer(minSdk).toString()
+                manifestXml.'uses-sdk'.@'android:targetSdkVersion' = new Integer(targetSdk).toString()
+            }
         }
 
         def builder = new StreamingMarkupBuilder()
@@ -178,10 +184,8 @@ abstract class AndroidTarget extends JavaLibTarget {
         } as String
 
         mergedManifest.text = mergedManifest.text
-                .replaceAll(":minSdkVersion", "android:minSdkVersion")
-                .replaceAll(":targetSdkVersion", "android:targetSdkVersion")
-                .replaceAll("versionCode", "android:versionCode")
-                .replaceAll("versionName", "android:versionName")
+                .replaceAll("\\{http://schemas.android.com/apk/res/android\\}versionCode", "android:versionCode")
+                .replaceAll("\\{http://schemas.android.com/apk/res/android\\}versionName", "android:versionName")
                 .replaceAll('xmlns:android="http://schemas.android.com/apk/res/android"', "")
                 .replaceAll("<manifest ", '<manifest xmlns:android="http://schemas.android.com/apk/res/android" ')
 
