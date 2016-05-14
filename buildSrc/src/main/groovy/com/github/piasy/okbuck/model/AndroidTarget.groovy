@@ -6,13 +6,11 @@ import com.android.builder.model.ClassField
 import com.android.builder.model.SourceProvider
 import com.github.piasy.okbuck.dependency.DependencyCache
 import com.github.piasy.okbuck.util.FileUtil
-import com.github.piasy.okbuck.util.ProjectUtil
 import groovy.transform.ToString
 import groovy.util.slurpersupport.GPathResult
 import groovy.xml.StreamingMarkupBuilder
 import org.gradle.api.Project
 import org.gradle.api.UnknownTaskException
-
 /**
  * An Android target
  */
@@ -162,20 +160,7 @@ abstract class AndroidTarget extends JavaLibTarget {
         XmlSlurper slurper = new XmlSlurper()
         GPathResult manifestXml = slurper.parse(mergedManifest)
 
-        if (ProjectUtil.getType(project) == ProjectType.ANDROID_APP) {
-            manifestXml.@'android:versionCode' = versionCode.toString()
-            manifestXml.@'android:versionName' = versionName
-
-            if (manifestXml.'uses-sdk'.size() == 0) {
-                manifestXml.appendNode({
-                    'uses-sdk'('android:minSdkVersion': new Integer(minSdk).toString(),
-                            'android:targetSdkVersion': new Integer(targetSdk).toString()) {}
-                })
-            } else {
-                manifestXml.'uses-sdk'.@'android:minSdkVersion' = new Integer(minSdk).toString()
-                manifestXml.'uses-sdk'.@'android:targetSdkVersion' = new Integer(targetSdk).toString()
-            }
-        }
+        manipulateManifest(manifestXml)
 
         def builder = new StreamingMarkupBuilder()
         builder.setUseDoubleQuotes(true)
@@ -190,6 +175,10 @@ abstract class AndroidTarget extends JavaLibTarget {
                 .replaceAll("<manifest ", '<manifest xmlns:android="http://schemas.android.com/apk/res/android" ')
 
         return FileUtil.getRelativePath(project.projectDir, mergedManifest)
+    }
+
+    protected void manipulateManifest(GPathResult manifest) {
+        // do further manipulation in subclass
     }
 
     @ToString(includeNames = true)
