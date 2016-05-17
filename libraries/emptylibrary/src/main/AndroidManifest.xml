@@ -23,7 +23,7 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.github.piasy.okbuck.example.empty">
+          package="com.github.okbuilds.okbuck.example.empty">
 
     <application android:allowBackup="true"
                  android:supportsRtl="true">

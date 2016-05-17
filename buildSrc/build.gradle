@@ -71,10 +71,10 @@ dependencies {
     compile 'com.android.tools.build:gradle:2.1.0'
 }
 
-def siteUrl = 'https://github.com/Piasy/OkBuck'
-def gitUrl = 'https://github.com/Piasy/OkBuck.git'
-def publishGroup = 'com.github.piasy'
-def publishVersion = '1.0.0-beta9'
+def siteUrl = 'https://github.com/OkBuilds/OkBuck'
+def gitUrl = 'https://github.com/OkBuilds/OkBuck.git'
+def publishGroup = 'com.github.okbuilds'
+def publishVersion = '2.0.0-alpha1'
 
 group = publishGroup
 version = publishVersion
@@ -94,7 +94,7 @@ publishing {
             artifact sourcesJar
             artifact javadocJar
 
-            artifactId 'okbuck-gradle-plugin'
+            artifactId 'okbuild-gradle-plugin'
         }
     }
 }
@@ -107,13 +107,13 @@ bintray {
     publish = true //If version should be auto published after an upload
     pkg {
         repo = 'maven'
-        name = 'OkBuck'
-        desc = 'Twelve line config to migrate from Android Studio + gradle to facebook BUCK.'
+        name = 'OkBuild'
+        desc = 'Gradle plugin to convert build to buck'
         websiteUrl = siteUrl
         issueTrackerUrl = siteUrl + '/issues'
         vcsUrl = gitUrl
         licenses = ['MIT']
-        labels =  ['buck', 'okbuck']
+        labels =  ['buck', 'okbuck', 'okbuild']
         publicDownloadNumbers = true
         //Optional version descriptor
         version {

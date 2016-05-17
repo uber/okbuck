@@ -24,7 +24,7 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.github.piasy.okbuck.example.anotherapp"
+    package="com.github.okbuilds.okbuck.example.anotherapp"
         android:versionCode="0"
         android:versionName="1.0"
         >
@@ -36,7 +36,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".MainActivity"
+            android:name="com.github.okbuilds.okbuck.example.anotherapp.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar" >
             <intent-filter>
