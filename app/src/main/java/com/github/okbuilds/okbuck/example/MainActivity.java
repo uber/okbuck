@@ -20,9 +20,6 @@ import com.github.okbuilds.okbuck.example.javalib.DummyJavaClass;
 import com.promegu.xlog.base.XLog;
 import javax.inject.Inject;
 
-/**
- * Created by Piasy{github.com/Piasy} on 15/10/3.
- */
 @XLog
 public class MainActivity extends AppCompatActivity {
     private TextView mTextView;

@@ -37,12 +37,6 @@ android {
 
         buildConfigField "String", "COMMON_CONFIG", "\"default\""
     }
-    buildTypes {
-        debug {
-        }
-        release {
-        }
-    }
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8

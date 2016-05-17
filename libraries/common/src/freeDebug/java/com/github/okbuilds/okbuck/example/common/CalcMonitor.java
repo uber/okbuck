@@ -27,9 +27,6 @@ package com.github.okbuilds.okbuck.example.common;
 import android.content.Context;
 import android.widget.Toast;
 
-/**
- * Created by Piasy{github.com/Piasy} on 15/10/6.
- */
 public class CalcMonitor {
     private final Context mContext;
 

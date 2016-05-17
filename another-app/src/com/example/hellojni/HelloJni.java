@@ -24,9 +24,6 @@
 
 package com.example.hellojni;
 
-/**
- * Created by Piasy{github.com/Piasy} on 15/10/26.
- */
 public class HelloJni {
 
     /* A native method that is implemented by the

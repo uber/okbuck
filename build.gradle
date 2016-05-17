@@ -1,17 +1,19 @@
 buildscript {
     repositories {
+        mavenLocal()
         jcenter()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.1.0'
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
-
         classpath 'me.tatarka:gradle-retrolambda:3.2.5'
+        classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:3.0.3'
     }
 }
 
 allprojects {
     repositories {
+        mavenLocal()
         jcenter()
     }
 }
@@ -21,7 +23,7 @@ ext {
     androidBuildToolsVersion = '23.0.1'
     androidMinSdkVersion = 15
     androidTargetSdkVersion = 23
-    androidSupportSdkVersion = '23.3.0'
+    androidSupportSdkVersion = '23.4.0'
 }
 
 apply plugin: 'com.github.okbuilds.okbuck-gradle-plugin'

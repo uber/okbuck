@@ -26,9 +26,6 @@ package com.github.okbuilds.okbuck.example;
 
 import android.content.Context;
 
-/**
- * Created by Piasy{github.com/Piasy} on 15/10/4.
- */
 public class FlavorLogger {
 
     public static String log(Context context) {

@@ -28,9 +28,6 @@ import android.app.Activity;
 import android.os.Bundle;
 import com.github.okbuilds.okbuck.example.javalib.DummyJavaClass;
 
-/**
- * Created by Piasy{github.com/Piasy} on 15/10/24.
- */
 public class DummyActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
