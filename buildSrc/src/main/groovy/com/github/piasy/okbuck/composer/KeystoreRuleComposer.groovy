@@ -40,7 +40,9 @@ final class KeystoreRuleComposer {
             File storeDir = new File(".okbuck/keystore/${target.identifier.replaceAll(':', '_')}")
             storeDir.mkdirs()
 
-            FileUtil.copyResourceToProject("keystore/BUCK_FILE", new File(storeDir, "BUCK"))
+            File tmp = File.createTempFile("okbuck", "keystore")
+            FileUtil.copyResourceToProject("keystore/BUCK_FILE", tmp)
+            new File(storeDir, "BUCK").text = tmp.text
 
             String storeFileName = "${target.name}.keystore"
             String storeFilePropsName = "${target.name}.keystore.properties"
