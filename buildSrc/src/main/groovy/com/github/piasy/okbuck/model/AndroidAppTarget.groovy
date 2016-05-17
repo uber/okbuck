@@ -7,9 +7,13 @@ import com.github.piasy.okbuck.dependency.ExternalDependency
 import com.github.piasy.okbuck.util.FileUtil
 import groovy.transform.ToString
 import groovy.util.slurpersupport.GPathResult
+import org.apache.commons.io.FilenameUtils
 import org.apache.commons.lang3.tuple.Pair
 import org.gradle.api.Project
 import org.gradle.api.file.FileTree
+
+import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
 
 /**
  * An Android app target
@@ -29,6 +33,8 @@ class AndroidAppTarget extends AndroidLibTarget {
     final Set<String> exoPackageDependencies
     final String appClass
 
+    final boolean minifyEnabled
+
     AndroidAppTarget(Project project, String name) {
         super(project, name)
 
@@ -47,6 +53,8 @@ class AndroidAppTarget extends AndroidLibTarget {
         exoPackageDependencies = getProp(okbuck.appLibDependencies, []) as Set
         linearAllocHardLimit = getProp(okbuck.linearAllocHardLimit, DEFAULT_LINEARALLOC_LIMIT) as Integer
         appClass = extractAppClass()
+
+        minifyEnabled = baseVariant.buildType.minifyEnabled
     }
 
     @Override
@@ -128,6 +136,56 @@ class AndroidAppTarget extends AndroidLibTarget {
             }
         }
         return Pair.of(externalDeps, projectDeps)
+    }
+
+    String getProguardConfig() {
+        File mergedProguardConfig = project.file("${project.buildDir}/okbuck/${name}/proguard.pro")
+        mergedProguardConfig.parentFile.mkdirs()
+        Set<File> configs = [] as Set
+
+        // project proguard files
+        configs.addAll(baseVariant.mergedFlavor.proguardFiles)
+        configs.addAll(baseVariant.buildType.proguardFiles)
+
+        // Consumer proguard files of target dependencies
+        configs.addAll((targetCompileDeps.findAll { Target target ->
+            target instanceof AndroidLibTarget
+        } as List<AndroidLibTarget>).collect { AndroidLibTarget target ->
+            target.baseVariant.mergedFlavor.consumerProguardFiles +
+                    target.baseVariant.buildType.consumerProguardFiles
+        }.flatten() as Set<File>)
+
+        String mergedConfig = ""
+        configs.each { File config ->
+            mergedConfig += "\n##---- ${config} ----##\n"
+            mergedConfig += config.text
+        }
+
+        // Consumer proguard files of compiled aar dependencies
+        compileDeps.findAll { String dep ->
+            dep.endsWith(".aar")
+        }.each { String dep ->
+            String config = getPackedProguardConfig(rootProject.file(dep))
+            if (!config.empty) {
+                mergedConfig += "\n##---- ${FilenameUtils.getBaseName(dep)} ----##\n"
+                mergedConfig += config
+            }
+        }
+
+        mergedProguardConfig.text = mergedConfig
+        return FileUtil.getRelativePath(project.projectDir, mergedProguardConfig)
+    }
+
+    private static String getPackedProguardConfig(File file) {
+        ZipFile zipFile = new ZipFile(file)
+        ZipEntry proguardEntry = zipFile.entries().find {
+            !it.directory && it.name == "proguard.txt"
+        } as ZipEntry
+        if (proguardEntry != null) {
+            return zipFile.getInputStream(proguardEntry).text
+        } else {
+            return ''
+        }
     }
 
     private Keystore extractKeystore() {
