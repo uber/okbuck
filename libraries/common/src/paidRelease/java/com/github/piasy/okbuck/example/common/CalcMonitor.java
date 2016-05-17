@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package com.github.piasy.okbuck.example.common;
+package com.github.okbuilds.okbuck.example.common;
 
 import android.content.Context;
 import android.widget.Toast;

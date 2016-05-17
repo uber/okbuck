@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package com.github.piasy.okbuck.example;
+package com.github.okbuilds.okbuck.example;
 
 import android.content.Context;
 

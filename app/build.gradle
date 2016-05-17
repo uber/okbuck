@@ -7,7 +7,7 @@ android {
     buildToolsVersion rootProject.ext.androidBuildToolsVersion
 
     defaultConfig {
-        applicationId "com.github.piasy.okbuck.example"
+        applicationId "com.github.okbuilds.okbuck.example"
         minSdkVersion rootProject.ext.androidMinSdkVersion
         targetSdkVersion rootProject.ext.androidTargetSdkVersion
         multiDexEnabled true
@@ -54,7 +54,7 @@ android {
             buildConfigField "boolean", "DEBUG_CONFIG", "false"
             minifyEnabled false
             signingConfig signingConfigs.release
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android.txt')
         }
     }
 
