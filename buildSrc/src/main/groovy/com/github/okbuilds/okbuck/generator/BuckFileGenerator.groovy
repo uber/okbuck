@@ -52,11 +52,6 @@ import com.github.okbuilds.okbuck.rule.GenAidlRule
 import com.github.okbuilds.core.util.ProjectUtil
 import org.gradle.api.Project
 
-/**
- * Created by Piasy{github.com/Piasy} on 15/10/6.
- *
- * used to generate BUCK file content.
- */
 final class BuckFileGenerator {
 
     private final Project mRootProject

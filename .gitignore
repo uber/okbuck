@@ -1,18 +1,16 @@
 .gradle
-/local.properties
+local.properties
 .DS_Store
 **build
-/captures
+captures
 
 **.iml
-.idea/
-buck-out/
-.buckd/
+.idea
+buck-out
+.buckd
 
 .okbuck
 .buckconfig
 **/BUCK
 
-gradle.properties
 buildSrc/bintray.properties
-buildSrc/local.properties

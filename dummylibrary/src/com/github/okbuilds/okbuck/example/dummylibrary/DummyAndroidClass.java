@@ -29,9 +29,6 @@ import android.widget.Toast;
 
 import com.google.gson.GsonBuilder;
 
-/**
- * Created by Piasy{github.com/Piasy} on 15/10/4.
- */
 public class DummyAndroidClass {
     public String getAndroidWord(Context context) {
         Toast.makeText(context, "getAndroidWord: " + BuildConfig.DUMMY_CONFIG, Toast.LENGTH_SHORT).show();

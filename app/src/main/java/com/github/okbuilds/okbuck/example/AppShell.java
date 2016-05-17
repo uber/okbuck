@@ -27,10 +27,6 @@ package com.github.okbuilds.okbuck.example;
 import android.support.multidex.MultiDex;
 import com.facebook.buck.android.support.exopackage.ExopackageApplication;
 
-/**
- * Created by Piasy{github.com/Piasy} on 16/1/6.
- */
-
 public class AppShell extends ExopackageApplication {
 
     private final boolean mIsExopackageMode;

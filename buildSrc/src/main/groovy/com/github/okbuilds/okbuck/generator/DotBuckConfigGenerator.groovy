@@ -31,11 +31,6 @@ import com.github.okbuilds.core.model.Target
 import com.github.okbuilds.core.util.ProjectUtil
 import org.gradle.api.Project
 
-/**
- * Created by Piasy{github.com/Piasy} on 15/10/6.
- *
- * used to generate .buckconfig file content.
- */
 final class DotBuckConfigGenerator {
 
     private DotBuckConfigGenerator() {}
