@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package com.github.piasy.okbuck.example.dummylibrary;
+package com.github.okbuilds.okbuck.example.dummylibrary;
 
 import org.junit.Test;
 

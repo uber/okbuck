@@ -24,7 +24,7 @@ ext {
     androidSupportSdkVersion = '23.3.0'
 }
 
-apply plugin: 'com.github.piasy.okbuck-gradle-plugin'
+apply plugin: 'com.github.okbuilds.okbuck-gradle-plugin'
 
 okbuck {
     buildToolVersion rootProject.ext.androidBuildToolsVersion
@@ -33,8 +33,8 @@ okbuck {
 
     primaryDexPatterns = [
             'app': [
-                    '^com/github/piasy/okbuck/example/AppShell^',
-                    '^com/github/piasy/okbuck/example/BuildConfig^',
+                    '^com/github/okbuilds/okbuck/example/AppShell^',
+                    '^com/github/okbuilds/okbuck/example/BuildConfig^',
                     '^android/support/multidex/',
                     '^com/facebook/buck/android/support/exopackage/',
                     '^com/github/promeg/xlog_android/lib/XLogConfig^',
