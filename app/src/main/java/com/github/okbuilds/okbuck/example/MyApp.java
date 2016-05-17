@@ -29,9 +29,6 @@ import com.facebook.buck.android.support.exopackage.DefaultApplicationLike;
 import com.github.promeg.xlog_android.lib.XLogConfig;
 import com.squareup.leakcanary.LeakCanary;
 
-/**
- * Created by Piasy{github.com/Piasy} on 15/10/6.
- */
 public class MyApp extends DefaultApplicationLike {
 
     private final Application mApplication;

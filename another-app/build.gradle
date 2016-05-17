@@ -38,9 +38,8 @@ android {
     }
 
     signingConfigs {
-        release {
-            // or just set values directly
-            storeFile file('../debug.keystore')
+        debug {
+            storeFile file('config/keystore/debug.keystore')
             storePassword 'android'
             keyAlias 'androiddebugkey'
             keyPassword 'android'
@@ -50,12 +49,12 @@ android {
     buildTypes {
         debug {
             minifyEnabled false
-            signingConfig signingConfigs.release
+            signingConfig signingConfigs.debug
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         release {
             minifyEnabled true
-            signingConfig signingConfigs.release
+            signingConfig signingConfigs.debug
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -74,16 +73,10 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    testCompile 'junit:junit:4.12'
-
     compile "com.android.support:appcompat-v7:${rootProject.ext.androidSupportSdkVersion}"
     compile "com.android.support:support-v4:${rootProject.ext.androidSupportSdkVersion}"
     compile project(":libraries:javalibrary")
     compile project(":libraries:emptylibrary")
     releaseCompile project(path: ':libraries:common', configuration: 'paidRelease')
     debugCompile project(path: ':libraries:common', configuration: 'freeDebug')
-    // incompatible with BUCK
-    //apt "org.androidannotations:androidannotations:3.3.2"
-    //compile "org.androidannotations:androidannotations-api:3.3.2"
 }

@@ -3,9 +3,6 @@ package com.github.okbuilds.okbuck.example.common;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-/**
- * Created by Piasy{github.com/Piasy} on 16/2/18.
- */
 public class Person implements Parcelable {
     private final String mName;
     private final int mAge;
@@ -24,7 +21,9 @@ public class Person implements Parcelable {
     }
 
     @Override
-    public int describeContents() { return 0; }
+    public int describeContents() {
+        return 0;
+    }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
@@ -38,8 +37,12 @@ public class Person implements Parcelable {
     }
 
     public static final Parcelable.Creator<Person> CREATOR = new Parcelable.Creator<Person>() {
-        public Person createFromParcel(Parcel source) {return new Person(source);}
+        public Person createFromParcel(Parcel source) {
+            return new Person(source);
+        }
 
-        public Person[] newArray(int size) {return new Person[size];}
+        public Person[] newArray(int size) {
+            return new Person[size];
+        }
     };
 }

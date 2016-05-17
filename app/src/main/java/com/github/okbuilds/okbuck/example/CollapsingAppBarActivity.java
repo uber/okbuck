@@ -39,9 +39,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 import butterknife.ButterKnife;
 
-/**
- * Created by Piasy{github.com/Piasy} on 15/10/2.
- */
 public class CollapsingAppBarActivity extends AppCompatActivity {
     RecyclerView mRecyclerView;
     AppBarLayout mAppBarLayout;

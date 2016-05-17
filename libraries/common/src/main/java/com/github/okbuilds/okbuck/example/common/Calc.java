@@ -24,9 +24,6 @@
 
 package com.github.okbuilds.okbuck.example.common;
 
-/**
- * Created by Piasy{github.com/Piasy} on 15/10/6.
- */
 public class Calc {
     private final CalcMonitor mCalcMonitor;
 

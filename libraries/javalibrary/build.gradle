@@ -23,25 +23,15 @@
  */
 
 apply plugin: 'java'
+apply plugin: 'nebula.provided-base'
 apply plugin: 'me.tatarka.retrolambda'
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
-configurations {
-    provided
-}
-
-sourceSets {
-    main {
-        compileClasspath += configurations.provided
-    }
-}
-
 dependencies {
-    compile 'com.google.code.gson:gson:2.4'
+    compile 'com.google.code.gson:gson:2.6.2'
     compile 'com.google.dagger:dagger:2.0.1'
-    compile 'org.glassfish:javax.annotation:10.0-b28'
+    provided 'org.glassfish:javax.annotation:10.0-b28'
     provided 'com.google.dagger:dagger-compiler:2.0.1'
-    retrolambdaConfig 'net.orfjackal.retrolambda:retrolambda:2.3.0'
 }

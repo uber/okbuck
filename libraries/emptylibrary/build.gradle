@@ -35,12 +35,6 @@ android {
         versionCode 1
         versionName "1.0"
     }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -48,7 +42,5 @@ android {
 }
 
 dependencies {
-    testCompile 'junit:junit:4.12'
-
     compile "com.android.support:appcompat-v7:${rootProject.ext.androidSupportSdkVersion}"
 }

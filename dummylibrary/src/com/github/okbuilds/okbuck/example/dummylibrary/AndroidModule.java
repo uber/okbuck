@@ -27,9 +27,6 @@ package com.github.okbuilds.okbuck.example.dummylibrary;
 import dagger.Module;
 import dagger.Provides;
 
-/**
- * Created by Piasy{github.com/Piasy} on 15/10/4.
- */
 @Module
 public class AndroidModule {
     @Provides

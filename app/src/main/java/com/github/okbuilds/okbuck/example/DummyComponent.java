@@ -28,9 +28,6 @@ import com.github.okbuilds.okbuck.example.dummylibrary.AndroidModule;
 import com.github.okbuilds.okbuck.example.javalib.JavaModule;
 import dagger.Component;
 
-/**
- * Created by Piasy{github.com/Piasy} on 15/10/4.
- */
 @Component(modules = { JavaModule.class, AndroidModule.class })
 public interface DummyComponent {
     void inject(MainActivity activity);
