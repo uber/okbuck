@@ -9,62 +9,39 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.github.piasy:okbuck-gradle-plugin:1.0.0-beta8'
+        classpath 'com.github.okbuilds:okbuild-gradle-plugin:2.0.0-alpha1'
     }
 }
 
-allprojects {
-    repositories {
-        jcenter()
-    }
-}
-
-apply plugin: 'com.github.piasy.okbuck-gradle-plugin'
-
-okbuck {
-    resPackages = [
-            dummylibrary : 'com.github.piasy.okbuck.example.dummylibrary',
-            app          : 'com.github.piasy.okbuck.example',
-            "another-app": 'com.github.piasy.okbuck.example.anotherapp',
-            common       : 'com.github.piasy.okbuck.example.common',
-            emptylibrary : 'com.github.piasy.okbuck.example.empty',
-    ]
-}
+apply plugin: 'com.github.okbuilds.okbuck-gradle-plugin'
 ```
 
-## 解释
-+  OkBuck托管在jcenter，所以`jcenter()`必须加入到`buildscript`和`allprojects`的
-`repositories`列表中，而且必须在`apply plugin`部分之前
-+  `resPackages`是一个map，用来指定每个module生成的的资源文件的包名，key是module的名字，
-value是指定的包名，通常和该module的`AndroidManifest.xml`中的`package`配置保持一致
-+  应用OkBuck插件之后，工程内将会产生两个gradle task，`okbuck`和`okbuckClean`
-  +  `okbuck`将会生成BUCK配置文件，包括指定的所有flavor的配置
-  +  `okbuckClean`将会删除所有的OkBuck临时文件，BUCK配置文件，以及BUCK临时文件
-+  成功执行`./gradlew okbuck`后，工程根目录将生成一个`.buckconfig`文件，其中定义了多个BUCK alias，
-例如`appDevDebug`，`appProdRelease`，`another-appDebug`等，根据它们可以确定BUCK build的命令，
-例如`buck build appDevDebug`等
+大部分情况下, 上述配置就完成了。OkBuck托管在jcenter，所以 `jcenter()` 
+必须加入到 `buildscript` 和 `allprojects` 的 `repositories` 列表中，
+而且必须在 `apply plugin` 部分之前。
 
-## 完整配置
+应用 OkBuck 插件之后，工程内将会产生两个 gradle task，`okbuck` 和 `okbuckClean`
+
++  `okbuck` 将会生成 BUCK 配置文件
++  `okbuckClean` 将会删除所有的 OkBuck 临时文件，BUCK 配置文件，以及 BUCK 临时文件
+
+可以执行 `buck targets` 命令查看所有可以 build 的目标, 而生成的 `.buckconfig` 
+文件中会指定多个 alias, 例如 `appDevDebug`，`appProdRelease`，`another-appDebug`
+等，根据它们可以确定 BUCK build 的命令，例如 `buck build appDevDebug` 等。
+
+## 自定义配置
 ```gradle
 okbuck {
     buildToolVersion "23.0.3"
     target "android-23"
     overwrite true
-    checkDepConflict true
-    resPackages = [
-            dummylibrary : 'com.github.piasy.okbuck.example.dummylibrary',
-            app          : 'com.github.piasy.okbuck.example',
-            "another-app": 'com.github.piasy.okbuck.example.anotherapp',
-            common       : 'com.github.piasy.okbuck.example.common',
-            emptylibrary : 'com.github.piasy.okbuck.example.empty',
-    ]
     linearAllocHardLimit = [
             app: 7194304
     ]
     primaryDexPatterns = [
             app: [
-                    '^com/github/piasy/okbuck/example/AppShell^',
-                    '^com/github/piasy/okbuck/example/BuildConfig^',
+                    '^com/github/okbuilds/okbuck/example/AppShell^',
+                    '^com/github/okbuilds/okbuck/example/BuildConfig^',
                     '^android/support/multidex/',
                     '^com/facebook/buck/android/support/exopackage/',
                     '^com/github/promeg/xlog_android/lib/XLogConfig^',
@@ -74,9 +51,6 @@ okbuck {
     exopackage = [
             app: true
     ]
-    appClassSource = [
-            app: 'src/main/java/com/github/piasy/okbuck/example/AppShell.java'
-    ]
     appLibDependencies = [
             app: [
                     'buck-android-support',
@@ -84,17 +58,7 @@ okbuck {
                     'javalibrary',
             ]
     ]
-    flavorFilter = [
-            app: [
-                    'dev',
-                    'prod',
-            ]
-    ]
-    cpuFilters = [
-            app: [
-                    'armeabi',
-            ]
-    ]
+    buckProjects = project.subprojects
 }
 ```
 
@@ -103,17 +67,14 @@ okbuck {
 +  `target`指定Android target sdk版本，可以运行`<sdk home>/tools/android list targets --compact`
 获得，默认为`android-23`
 +  `overwrite`配置是否覆盖已有的BUCK配置文件，默认为`false`
-+  `checkDepConflict`指定是否检查并警告依赖冲突，默认为`true`
 +  `linearAllocHardLimit`和`primaryDexPatterns`都是map，用来配置BUCK multidex的
 linearAllocHardLimit和primaryDexPatterns部分，更多详细关于multidex配置的说明，请参阅
 [multidex wiki](https://github.com/Piasy/OkBuck/wiki/Multidex-Configuration-Guide)，
 如果未使用multidex（未在`build.gradle`文件中开启），可以忽略这两个参数
-+  `exopackage`，`appClassSource`和`appLibDependencies`都是map，用来配置BUCK exopackage，
++  `exopackage`和`appLibDependencies`都是map，用来配置BUCK exopackage，
 更多详细关于exopackage配置的说明，请参阅[exopackage wiki](https://github.com/Piasy/OkBuck/wiki/Exopackage-Configuration-Guide)，
 如果未使用exopackage，可以忽略这三个参数
-+  `flavorFilter`是一个map，用来控制只生成自己想要的flavor的BUCK配置，默认为空，表示生成所有flavor的BUCK配置
-+  `cpuFilters`是一个map，用来控制BUCK只打包指定CPU架构的so库，和gradle的`ndk.abiFilter`参数一样，支持参数为：`armeabi`,
-`armeabi-v7a`, `x86`, `x86_64`, `mips`。**注意**：如果设置了此参数，请确保存在 `ANDROID_NDK` 环境变量，并且指向了本地 ndk 的目录，否则 BUCK 编译时会报错。
++  `buckProjects` 用于控制哪些 module 将使用 BUCK 进行构建, 默认是项目中的所有 module
 
 ## Troubleshooting
 如果遇到任何问题，请[提一个issue](https://github.com/Piasy/OkBuck/issues/new)，如果能提供
