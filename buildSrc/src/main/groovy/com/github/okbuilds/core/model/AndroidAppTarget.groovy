@@ -100,8 +100,8 @@ class AndroidAppTarget extends AndroidLibTarget {
             String last // can denote either module or configuration name
             boolean fullyQualified = false
 
-            if (exoPackageDep.contains(";")) {
-                List<String> parts = exoPackageDep.split(";")
+            if (exoPackageDep.contains(":")) {
+                List<String> parts = exoPackageDep.split(":")
                 first = parts[0]
                 last = parts[1]
                 fullyQualified = true
