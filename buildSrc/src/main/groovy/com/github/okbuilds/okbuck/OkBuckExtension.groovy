@@ -25,25 +25,22 @@ package com.github.okbuilds.okbuck
 
 import org.gradle.api.Project
 
-/**
- * okbuck dsl.
- * */
 class OkBuckExtension {
 
     /**
      * build_tools_version
-     * */
+     */
     String buildToolVersion = "23.0.3"
 
     /**
      * Android target sdk version
-     * */
+     */
     String target = "android-23"
 
     /**
-     * overwrite: overwrite existing BUCK script or not.
-     * */
-    boolean overwrite = false
+     * Whether to overwrite existing generated buck files or not.
+     */
+    boolean overwrite = true
 
     /**
      * Annotation processor classes of project dependencies
@@ -51,29 +48,35 @@ class OkBuckExtension {
     Map<String, String> annotationProcessors = [:]
 
     /**
-     * linearAllocHardLimit used for multi-dex support.
-     * */
+     * LinearAllocHardLimit used for multi-dex support.
+     */
     Map<String, Integer> linearAllocHardLimit = [:]
 
     /**
-     * primary dex class patterns.
-     * */
+     * Primary dex class patterns.
+     */
     Map<String, List<String>> primaryDexPatterns = [:]
 
     /**
-     * whether to enable exopackage.
-     * */
+     * Whether to enable exopackage.
+     */
     Map<String, Boolean> exopackage = [:]
 
     /**
-     * exopackage lib dependencies.
-     * */
+     * Exopackage lib dependencies.
+     */
     Map<String, List<String>> appLibDependencies = [:]
 
     /**
      * Set of projects to generate buck configs for. Default is all subprojects of root project.
      */
     Set<Project> buckProjects
+
+    /**
+     * List of files to leave untouched when generating configuration.
+     * The override flag takes precedence over this list.
+     */
+    List<String> keep = []
 
     OkBuckExtension(Project project) {
         buckProjects = project.subprojects
