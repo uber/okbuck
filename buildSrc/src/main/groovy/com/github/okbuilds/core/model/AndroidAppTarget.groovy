@@ -109,7 +109,6 @@ class AndroidAppTarget extends AndroidLibTarget {
             } else {
                 first = last = exoPackageDep
             }
-            println "\t" + exoPackageDep + ", " + first + ", " + last + ", " + fullyQualified
 
             ExternalDependency external = externalCompileDeps.find { ExternalDependency externalDependency ->
                 boolean match = true
