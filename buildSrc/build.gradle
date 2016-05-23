@@ -74,7 +74,7 @@ dependencies {
 def siteUrl = 'https://github.com/OkBuilds/OkBuck'
 def gitUrl = 'https://github.com/OkBuilds/OkBuck.git'
 def publishGroup = 'com.github.okbuilds'
-def publishVersion = '0.1.0-alpha1'
+def publishVersion = '0.1.0'
 
 group = publishGroup
 version = publishVersion
@@ -108,6 +108,7 @@ bintray {
     pkg {
         repo = 'maven'
         name = 'OkBuild'
+        userOrg = 'okbuild'
         desc = 'Gradle plugin to convert build to buck'
         websiteUrl = siteUrl
         issueTrackerUrl = siteUrl + '/issues'
