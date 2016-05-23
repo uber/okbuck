@@ -11,6 +11,7 @@ import groovy.util.slurpersupport.GPathResult
 import groovy.xml.StreamingMarkupBuilder
 import org.gradle.api.Project
 import org.gradle.api.UnknownTaskException
+
 /**
  * An Android target
  */
@@ -195,7 +196,9 @@ abstract class AndroidTarget extends JavaLibTarget {
 
     @Override
     def getProp(Map map, defaultValue) {
-        return map.get("${identifier}${name}", map.get("${identifier}${flavor}",
-                map.get("${identifier}${buildType}", map.get(identifier, defaultValue))))
+        return map.get("${identifier}${name.capitalize()}" as String,
+                map.get("${identifier}${flavor.capitalize()}" as String,
+                        map.get("${identifier}${buildType.capitalize()}" as String,
+                                map.get(identifier, defaultValue))))
     }
 }
