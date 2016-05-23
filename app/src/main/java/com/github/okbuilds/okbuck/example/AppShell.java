@@ -25,7 +25,10 @@
 package com.github.okbuilds.okbuck.example;
 
 import android.support.multidex.MultiDex;
+import android.widget.Toast;
 import com.facebook.buck.android.support.exopackage.ExopackageApplication;
+import com.github.okbuilds.okbuck.example.common.Calc;
+import com.github.okbuilds.okbuck.example.common.CalcMonitor;
 
 public class AppShell extends ExopackageApplication {
 
@@ -43,5 +46,7 @@ public class AppShell extends ExopackageApplication {
         if (!mIsExopackageMode) {
             MultiDex.install(this);
         }
+        Calc calc = new Calc(new CalcMonitor(this));
+        Toast.makeText(this, "calc: " + calc.add(1, 2), Toast.LENGTH_SHORT).show();
     }
 }
