@@ -23,7 +23,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.github.okbuilds:okbuild-gradle-plugin:2.0.0-alpha1'
+        classpath 'com.github.okbuilds:okbuild-gradle-plugin:0.1.0-alpha1'
     }
 }
 
@@ -56,16 +56,33 @@ okbuck {
             ]
     ]
     exopackage = [
-            app: true
+            appDebug: true
+    ]
+    annotationProcessors = [
+            "local-apt-dependency": ['com.okuilds.apt.ExampleProcessor']
     ]
     appLibDependencies = [
-            app: [
+            'appProd': [
                     'buck-android-support',
-                    'multidex',
-                    'javalibrary',
+                    'com.android.support:multidex',
+                    'libraries/javalibrary:main',
+                    'libraries/common:paidRelease',
+            ],
+            'appDev': [
+                    'buck-android-support',
+                    'com.android.support:multidex',
+                    'libraries/javalibrary:main',
+                    'libraries/common:freeDebug',
+            ],
+            'appDemo': [
+                    'buck-android-support',
+                    'com.android.support:multidex',
+                    'libraries/javalibrary:main',
+                    'libraries/common:paidRelease',
             ]
     ]
     buckProjects = project.subprojects
+    keep = []
 }
 ```
 
@@ -78,7 +95,14 @@ if you don't need multidex, you can ignore these parameters
 +  `exopackage`, `appClassSource` and `appLibDependencies` are used for 
 configuring buck's exopackage mode. For more details about exopackage configuration, 
 please read the [Exopackage wiki page](https://github.com/OkBuilds/OkBuck/wiki/Exopackage-Configuration-Guide), if you don't need exopackage, you can ignore these parameters
++ `annotationProcessors` is used to depend on annotation processors declared locally as another gradle module in the same root project.
 +  `buckProjects` is a set of projects to generate buck configs for. Default is all sub projects of the root project.
++ `keep` is a list of files to not clean up by the plugin when running `okbuckclean`. This may be useful to keep the `buck-out` folder around for faster incremental builds even when buck files are regenerated. Also useful if you want made manual modifications to some buck configuration and would like to keep it intact while regenerating the configuration for other projects.
++ The keys used to configure various options can be either for 
+ - All buildTypes and flavors i.e `app`
+ - All buildTypes of a particular flavor i.e 'appDemo'
+ - All flavors of a particular buildType i.e 'appDebug'
+ - A particular variant (buildType + flavor combination) i,e 'appDemoRelease'
 
 ## Common Issues
 + If you use ndk filters in your build.grade, you must set the `ANDROID_NDK` environment variable pointing to your local android ndk root dir, otherwise BUCK build will fail.
