@@ -195,7 +195,7 @@ class AndroidAppTarget extends AndroidLibTarget {
         }
 
         if (config != null) {
-            return new Keystore(config.storeFile, config.keyAlias, config.keyPassword, config.storePassword)
+            return new Keystore(config.storeFile, config.keyAlias, config.storePassword, config.keyPassword)
         } else {
             return null
         }
