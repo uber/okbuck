@@ -41,16 +41,31 @@ okbuck {
                     '^com/facebook/buck/android/support/exopackage/',
                     '^com/github/promeg/xlog_android/lib/XLogConfig^',
                     '^com/squareup/leakcanary/LeakCanary^',
+                    '^com/github/okbuilds/okbuck/example/common/Calc^',
+                    '^com/github/okbuilds/okbuck/example/common/BuildConfig^',
             ]
     ]
     exopackage = [
             'app': true
     ]
     appLibDependencies = [
-            'app': [
+            'appProd': [
                     'buck-android-support',
-                    'multidex',
-                    'libraries:javalibrary',
+                    'com.android.support:multidex',
+                    'libraries/javalibrary:main',
+                    'libraries/common:paidRelease',
+            ],
+            'appDev': [
+                    'buck-android-support',
+                    'com.android.support:multidex',
+                    'libraries/javalibrary:main',
+                    'libraries/common:freeDebug',
+            ],
+            'appDemo': [
+                    'buck-android-support',
+                    'com.android.support:multidex',
+                    'libraries/javalibrary:main',
+                    'libraries/common:paidRelease',
             ]
     ]
     buckProjects = project.subprojects.findAll { it.name != "plugin" }
