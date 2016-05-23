@@ -32,7 +32,7 @@ import java.util.jar.JarFile
 @EqualsAndHashCode(includes = ["project", "name"])
 abstract class Target {
 
-    static final Set<String> APT_CONFIGURATIONS = ["apt", "provided"] as Set
+    static final Set<String> APT_CONFIGURATIONS = ["apt", "provided", 'compileOnly'] as Set
     static final String PROCESSOR_ENTRY =
             "META-INF/services/javax.annotation.processing.Processor"
 
