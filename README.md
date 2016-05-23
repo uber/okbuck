@@ -1,5 +1,5 @@
 # OkBuck
-[ ![Download](https://api.bintray.com/packages/okbuilds/maven/OkBuild/images/download.svg) ](https://bintray.com/okbuilds/maven/OkBuild/_latestVersion)
+[ ![Download](https://api.bintray.com/packages/okbuild/maven/OkBuild/images/download.svg) ](https://bintray.com/okbuild/maven/OkBuild/_latestVersion)
 [![Master branch build status](https://travis-ci.org/OkBuilds/OkBuck.svg?branch=master)](https://travis-ci.org/OkBuilds/OkBuck)
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-OkBuck-green.svg?style=flat)](https://android-arsenal.com/details/1/2593)
 
