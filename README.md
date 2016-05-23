@@ -62,10 +62,23 @@ okbuck {
             "local-apt-dependency": ['com.okuilds.apt.ExampleProcessor']
     ]
     appLibDependencies = [
-            appDemoRelease: [
+            'appProd': [
                     'buck-android-support',
-                    'multidex',
-                    'javalibrary',
+                    'com.android.support:multidex',
+                    'libraries/javalibrary:main',
+                    'libraries/common:paidRelease',
+            ],
+            'appDev': [
+                    'buck-android-support',
+                    'com.android.support:multidex',
+                    'libraries/javalibrary:main',
+                    'libraries/common:freeDebug',
+            ],
+            'appDemo': [
+                    'buck-android-support',
+                    'com.android.support:multidex',
+                    'libraries/javalibrary:main',
+                    'libraries/common:paidRelease',
             ]
     ]
     buckProjects = project.subprojects
