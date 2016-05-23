@@ -35,6 +35,6 @@ final class AndroidBuildConfigRuleComposer {
 
     static AndroidBuildConfigRule compose(AndroidTarget target) {
         return new AndroidBuildConfigRule("build_config_${target.name}", ["PUBLIC"],
-                target.applicationId, target.buildConfigFields)
+                target.applicationIdWithSuffix, target.buildConfigFields)
     }
 }
