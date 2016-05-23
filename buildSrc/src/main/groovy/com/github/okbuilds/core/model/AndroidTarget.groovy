@@ -11,12 +11,14 @@ import groovy.util.slurpersupport.GPathResult
 import groovy.xml.StreamingMarkupBuilder
 import org.gradle.api.Project
 import org.gradle.api.UnknownTaskException
+
 /**
  * An Android target
  */
 abstract class AndroidTarget extends JavaLibTarget {
 
     final String applicationId
+    final String applicationIdWithSuffix
     final String versionName
     final Integer versionCode
     final int minSdk
@@ -27,6 +29,11 @@ abstract class AndroidTarget extends JavaLibTarget {
         super(project, name)
 
         applicationId = baseVariant.applicationId
+        String suffix = ""
+        if (baseVariant.mergedFlavor.applicationIdSuffix != null) {
+            suffix += baseVariant.mergedFlavor.applicationIdSuffix
+        }
+        applicationIdWithSuffix = applicationId + suffix
         versionName = baseVariant.mergedFlavor.versionName
         versionCode = baseVariant.mergedFlavor.versionCode
         minSdk = baseVariant.mergedFlavor.minSdkVersion.apiLevel

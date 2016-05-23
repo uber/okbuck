@@ -24,8 +24,8 @@
 
 package com.github.okbuilds.okbuck
 
-import com.github.okbuilds.okbuck.config.BUCKFile
 import com.github.okbuilds.core.dependency.DependencyCache
+import com.github.okbuilds.okbuck.config.BUCKFile
 import com.github.okbuilds.okbuck.generator.BuckFileGenerator
 import com.github.okbuilds.okbuck.generator.DotBuckConfigGenerator
 import org.apache.commons.io.FileUtils
@@ -50,11 +50,10 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         Task okBuckClean = project.task(OKBUCK_CLEAN)
         okBuckClean << {
             if (okbuck.overwrite) {
-                [".okbuck", ".buckd", "buck-out", ".buckconfig"].each { String file ->
+                [".okbuck", ".buckd", "buck-out", ".buckconfig"]
+                        .plus(okbuck.buckProjects.collect { it.file(BUCK).absolutePath })
+                        .minus(okbuck.keep).each { String file ->
                     FileUtils.deleteQuietly(project.file(file))
-                }
-                okbuck.buckProjects.each { Project buckProject ->
-                    FileUtils.deleteQuietly(buckProject.file(BUCK))
                 }
             }
         }
@@ -70,8 +69,8 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     private static generate(Project project) {
         OkBuckExtension okbuck = project.okbuck
 
-        if (okbuck.overwrite) {
-            println "==========>> okbuck overwrite mode is on <<=========="
+        if (!okbuck.overwrite) {
+            println "==========>> okbuck overwrite mode is off <<=========="
         }
 
         // generate .buckconfig

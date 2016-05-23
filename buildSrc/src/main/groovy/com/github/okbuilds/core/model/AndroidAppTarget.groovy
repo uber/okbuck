@@ -78,6 +78,7 @@ class AndroidAppTarget extends AndroidLibTarget {
 
     @Override
     protected void manipulateManifest(GPathResult manifest) {
+        manifest.@package = applicationIdWithSuffix
         manifest.@'android:versionCode' = versionCode.toString()
         manifest.@'android:versionName' = versionName
 
