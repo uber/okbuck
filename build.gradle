@@ -49,11 +49,23 @@ okbuck {
             'app': true
     ]
     appLibDependencies = [
-            'app': [
+            'appprod': [
                     'buck-android-support',
                     'com.android.support:multidex',
                     'libraries/javalibrary:main',
-                    'libraries/common',
+                    'libraries/common:paidRelease',
+            ],
+            'appdev': [
+                    'buck-android-support',
+                    'com.android.support:multidex',
+                    'libraries/javalibrary:main',
+                    'libraries/common:freeDebug',
+            ],
+            'appdemo': [
+                    'buck-android-support',
+                    'com.android.support:multidex',
+                    'libraries/javalibrary:main',
+                    'libraries/common:paidRelease',
             ]
     ]
     buckProjects = project.subprojects.findAll { it.name != "plugin" }
