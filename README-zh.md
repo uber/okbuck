@@ -49,16 +49,33 @@ okbuck {
             ]
     ]
     exopackage = [
-            app: true
+            appDebug: true
+    ]
+    annotationProcessors = [
+            "local-apt-dependency": ['com.okuilds.apt.ExampleProcessor']
     ]
     appLibDependencies = [
-            app: [
+            'appProd': [
                     'buck-android-support',
-                    'multidex',
-                    'javalibrary',
+                    'com.android.support:multidex',
+                    'libraries/javalibrary:main',
+                    'libraries/common:paidRelease',
+            ],
+            'appDev': [
+                    'buck-android-support',
+                    'com.android.support:multidex',
+                    'libraries/javalibrary:main',
+                    'libraries/common:freeDebug',
+            ],
+            'appDemo': [
+                    'buck-android-support',
+                    'com.android.support:multidex',
+                    'libraries/javalibrary:main',
+                    'libraries/common:paidRelease',
             ]
     ]
     buckProjects = project.subprojects
+    keep = []
 }
 ```
 
@@ -74,7 +91,13 @@ linearAllocHardLimit和primaryDexPatterns部分，更多详细关于multidex配�
 +  `exopackage`和`appLibDependencies`都是map，用来配置BUCK exopackage，
 更多详细关于exopackage配置的说明，请参阅[exopackage wiki](https://github.com/Piasy/OkBuck/wiki/Exopackage-Configuration-Guide)，
 如果未使用exopackage，可以忽略这三个参数
++ `annotationProcessors` 用来声明项目中的注解处理器, key 为 module 路径, value 为注解处理器类的全名。
 +  `buckProjects` 用于控制哪些 module 将使用 BUCK 进行构建, 默认是项目中的所有 module
++ 上述配置 map 的 key, 可以按照以下规则设置:  
+ - 指定 module 名字, 就能为所有的 flavor 以及 build type 设置, 例如: `app`
+ - 指定 module 名字以及 flavor 名字, 就能为指定 flavor 的所有 build type 设置, 例如: 'appDemo'
+ - 指定 module 名字以及 build type 的名字, 就能为指定 build type 的所有 flavor 设置, 例如: 'appDebug'
+ - 指定 module 名字, flavor 名字以及 build type 的名字, 例如: 'appDemoRelease'
 
 ## Troubleshooting
 如果遇到任何问题，请[提一个issue](https://github.com/Piasy/OkBuck/issues/new)，如果能提供
