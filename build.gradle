@@ -49,19 +49,19 @@ okbuck {
             'app': true
     ]
     appLibDependencies = [
-            'appprod': [
+            'appProd': [
                     'buck-android-support',
                     'com.android.support:multidex',
                     'libraries/javalibrary:main',
                     'libraries/common:paidRelease',
             ],
-            'appdev': [
+            'appDev': [
                     'buck-android-support',
                     'com.android.support:multidex',
                     'libraries/javalibrary:main',
                     'libraries/common:freeDebug',
             ],
-            'appdemo': [
+            'appDemo': [
                     'buck-android-support',
                     'com.android.support:multidex',
                     'libraries/javalibrary:main',

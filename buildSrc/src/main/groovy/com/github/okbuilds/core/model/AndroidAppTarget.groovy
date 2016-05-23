@@ -51,8 +51,6 @@ class AndroidAppTarget extends AndroidLibTarget {
         exopackage = getProp(okbuck.exopackage, false)
         primaryDexPatterns = getProp(okbuck.primaryDexPatterns, []) as Set
         exoPackageDependencies = getProp(okbuck.appLibDependencies, []) as Set
-        println "" + okbuck.appLibDependencies
-        println "\t" + exoPackageDependencies
         linearAllocHardLimit = getProp(okbuck.linearAllocHardLimit, DEFAULT_LINEARALLOC_LIMIT) as Integer
         appClass = extractAppClass()
 
@@ -98,7 +96,6 @@ class AndroidAppTarget extends AndroidLibTarget {
     Pair<Set<String>, Set<Target>> getAppLibDependencies() {
         Set<String> externalDeps = [] as Set
         Set<Target> projectDeps = [] as Set
-        println ">>>>>>> " + identifier + ", " + name  + ", " + flavor + ", " + buildType
         exoPackageDependencies.each { String exoPackageDep ->
             String first // can denote either group or project name
             String last // can denote either module or configuration name
