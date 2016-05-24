@@ -38,11 +38,6 @@ class OkBuckExtension {
     String target = "android-23"
 
     /**
-     * Whether to overwrite existing generated buck files or not.
-     */
-    boolean overwrite = true
-
-    /**
      * Annotation processor classes of project dependencies
      */
     Map<String, String> annotationProcessors = [:]
@@ -74,7 +69,6 @@ class OkBuckExtension {
 
     /**
      * List of files to leave untouched when generating configuration.
-     * The override flag takes precedence over this list.
      */
     List<String> keep = []
 

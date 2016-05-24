@@ -11,6 +11,7 @@ buck-out
 
 .okbuck
 .buckconfig
+.buckconfig.local
 **/BUCK
 
 buildSrc/bintray.properties

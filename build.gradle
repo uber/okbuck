@@ -31,7 +31,6 @@ apply plugin: 'com.github.okbuilds.okbuck-gradle-plugin'
 okbuck {
     buildToolVersion rootProject.ext.androidBuildToolsVersion
     target "android-${rootProject.ext.androidCompileSdkVersion}"
-    overwrite true
 
     primaryDexPatterns = [
             'app': [
