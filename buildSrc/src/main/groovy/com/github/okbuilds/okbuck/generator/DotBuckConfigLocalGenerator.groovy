@@ -22,42 +22,32 @@
  * SOFTWARE.
  */
 
-package com.github.okbuilds.okbuck.config
+package com.github.okbuilds.okbuck.generator
 
-/**
- * .buckconfig file.
- *
- * TODO full buck support
- * */
-final class DotBuckConfigFile extends BuckConfigFile {
+import com.github.okbuilds.okbuck.OkBuckExtension
+import com.github.okbuilds.okbuck.config.DotBuckConfigLocalFile
+import com.github.okbuilds.core.model.ProjectType
+import com.github.okbuilds.core.model.Target
+import com.github.okbuilds.core.util.ProjectUtil
+import org.gradle.api.Project
 
-    private final Map<String, String> mAliases
-    private final String mBuildToolVersion
-    private final String mTarget
-    private final List<String> mIgnore
+final class DotBuckConfigLocalGenerator {
 
-    DotBuckConfigFile(Map<String, String> aliases, String buildToolVersion, String target, List<String> ignore) {
-        mAliases = aliases
-        mBuildToolVersion = buildToolVersion
-        mTarget = target
-        mIgnore = ignore
-    }
+    private DotBuckConfigLocalGenerator() {}
 
-    @Override
-    final void print(PrintStream printer) {
-        printer.println("[alias]")
-        mAliases.each { alias, target ->
-            printer.println("\t${alias} = ${target}")
+    /**
+     * generate {@link DotBuckConfigLocalFile}
+     */
+    static DotBuckConfigLocalFile generate(OkBuckExtension okbuck) {
+        Map<String, String> aliases = [:]
+        okbuck.buckProjects.findAll { Project project ->
+            ProjectUtil.getType(project) == ProjectType.ANDROID_APP
+        }.each { Project project ->
+            ProjectUtil.getTargets(project).each { String name, Target target ->
+                aliases.put("${target.identifier}${name.capitalize()}", "//${target.path}:bin_${name}")
+            }
         }
-        printer.println()
 
-        printer.println("[android]")
-        printer.println("\tbuild_tools_version = ${mBuildToolVersion}")
-        printer.println("\ttarget = ${mTarget}")
-        printer.println()
-
-        printer.println("[project]")
-        printer.print("\tignore = ${mIgnore.join(', ')}")
-        printer.println()
+        return new DotBuckConfigLocalFile(aliases, okbuck.buildToolVersion, okbuck.target, [".git", "**/.svn"])
     }
 }

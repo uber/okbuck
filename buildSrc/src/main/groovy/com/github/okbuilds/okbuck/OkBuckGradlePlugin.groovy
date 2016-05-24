@@ -27,7 +27,7 @@ package com.github.okbuilds.okbuck
 import com.github.okbuilds.core.dependency.DependencyCache
 import com.github.okbuilds.okbuck.config.BUCKFile
 import com.github.okbuilds.okbuck.generator.BuckFileGenerator
-import com.github.okbuilds.okbuck.generator.DotBuckConfigGenerator
+import com.github.okbuilds.okbuck.generator.DotBuckConfigLocalGenerator
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.IOUtils
 import org.gradle.api.Plugin
@@ -49,12 +49,10 @@ class OkBuckGradlePlugin implements Plugin<Project> {
 
         Task okBuckClean = project.task(OKBUCK_CLEAN)
         okBuckClean << {
-            if (okbuck.overwrite) {
-                [".okbuck", ".buckd", "buck-out", ".buckconfig"]
-                        .plus(okbuck.buckProjects.collect { it.file(BUCK).absolutePath })
-                        .minus(okbuck.keep).each { String file ->
-                    FileUtils.deleteQuietly(project.file(file))
-                }
+            [".okbuck", ".buckd", "buck-out", ".buckconfig.local"]
+                    .plus(okbuck.buckProjects.collect { it.file(BUCK).absolutePath })
+                    .minus(okbuck.keep).each { String file ->
+                FileUtils.deleteQuietly(project.file(file))
             }
         }
 
@@ -69,27 +67,25 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     private static generate(Project project) {
         OkBuckExtension okbuck = project.okbuck
 
-        if (!okbuck.overwrite) {
-            println "==========>> okbuck overwrite mode is off <<=========="
+        // generate empty .buckconfig if it does not exist
+        File dotBuckConfig = project.file(".buckconfig")
+        if (!dotBuckConfig.exists()) {
+            dotBuckConfig.createNewFile()
         }
 
-        // generate .buckconfig
-        File dotBuckConfig = project.file(".buckconfig")
-        if (dotBuckConfig.exists() && !okbuck.overwrite) {
-            throw new IllegalStateException(".buckconfig already exists, set `overwrite=true` to regenerate.")
-        } else {
-            PrintStream printer = new PrintStream(dotBuckConfig)
-            DotBuckConfigGenerator.generate(okbuck).print(printer)
-            IOUtils.closeQuietly(printer)
-        }
+        // generate .buckconfig.local
+        File dotBuckConfigLocal = project.file(".buckconfig.local")
+        PrintStream configPrinter = new PrintStream(dotBuckConfigLocal)
+        DotBuckConfigLocalGenerator.generate(okbuck).print(configPrinter)
+        IOUtils.closeQuietly(configPrinter)
 
         // generate BUCK file for each project
         Map<Project, BUCKFile> buckFiles = new BuckFileGenerator(project).generate()
 
         buckFiles.each { Project subProject, BUCKFile buckFile ->
-            def printer = new PrintStream(subProject.file(BUCK))
-            buckFile.print(printer)
-            IOUtils.closeQuietly(printer)
+            PrintStream buckPrinter = new PrintStream(subProject.file(BUCK))
+            buckFile.print(buckPrinter)
+            IOUtils.closeQuietly(buckPrinter)
         }
     }
 }

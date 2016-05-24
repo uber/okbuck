@@ -22,32 +22,42 @@
  * SOFTWARE.
  */
 
-package com.github.okbuilds.okbuck.generator
+package com.github.okbuilds.okbuck.config
 
-import com.github.okbuilds.okbuck.OkBuckExtension
-import com.github.okbuilds.okbuck.config.DotBuckConfigFile
-import com.github.okbuilds.core.model.ProjectType
-import com.github.okbuilds.core.model.Target
-import com.github.okbuilds.core.util.ProjectUtil
-import org.gradle.api.Project
+/**
+ * .buckconfig file.
+ *
+ * TODO full buck support
+ * */
+final class DotBuckConfigLocalFile extends BuckConfigFile {
 
-final class DotBuckConfigGenerator {
+    private final Map<String, String> mAliases
+    private final String mBuildToolVersion
+    private final String mTarget
+    private final List<String> mIgnore
 
-    private DotBuckConfigGenerator() {}
+    DotBuckConfigLocalFile(Map<String, String> aliases, String buildToolVersion, String target, List<String> ignore) {
+        mAliases = aliases
+        mBuildToolVersion = buildToolVersion
+        mTarget = target
+        mIgnore = ignore
+    }
 
-    /**
-     * generate {@link DotBuckConfigFile}
-     */
-    static DotBuckConfigFile generate(OkBuckExtension okbuck) {
-        Map<String, String> aliases = [:]
-        okbuck.buckProjects.findAll { Project project ->
-            ProjectUtil.getType(project) == ProjectType.ANDROID_APP
-        }.each { Project project ->
-            ProjectUtil.getTargets(project).each { String name, Target target ->
-                aliases.put("${target.identifier}${name.capitalize()}", "//${target.path}:bin_${name}")
-            }
+    @Override
+    final void print(PrintStream printer) {
+        printer.println("[alias]")
+        mAliases.each { alias, target ->
+            printer.println("\t${alias} = ${target}")
         }
+        printer.println()
 
-        return new DotBuckConfigFile(aliases, okbuck.buildToolVersion, okbuck.target, [".git", "**/.svn"])
+        printer.println("[android]")
+        printer.println("\tbuild_tools_version = ${mBuildToolVersion}")
+        printer.println("\ttarget = ${mTarget}")
+        printer.println()
+
+        printer.println("[project]")
+        printer.print("\tignore = ${mIgnore.join(', ')}")
+        printer.println()
     }
 }
