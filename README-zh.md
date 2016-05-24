@@ -34,7 +34,6 @@ apply plugin: 'com.github.okbuilds.okbuck-gradle-plugin'
 okbuck {
     buildToolVersion "23.0.3"
     target "android-23"
-    overwrite true
     linearAllocHardLimit = [
             app: 7194304
     ]
@@ -83,7 +82,6 @@ okbuck {
 +  `buildToolVersion`指定Android SDK Build-tools版本，默认为`23.0.3`
 +  `target`指定Android target sdk版本，可以运行`<sdk home>/tools/android list targets --compact`
 获得，默认为`android-23`
-+  `overwrite`配置是否覆盖已有的BUCK配置文件，默认为`false`
 +  `linearAllocHardLimit`和`primaryDexPatterns`都是map，用来配置BUCK multidex的
 linearAllocHardLimit和primaryDexPatterns部分，更多详细关于multidex配置的说明，请参阅
 [multidex wiki](https://github.com/Piasy/OkBuck/wiki/Multidex-Configuration-Guide)，
