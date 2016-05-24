@@ -41,7 +41,6 @@ You can type `buck targets` to get a list of targets that can be build. The gene
 okbuck {
     buildToolVersion "23.0.3"
     target "android-23"
-    overwrite true
     linearAllocHardLimit = [
             app: 7194304
     ]
@@ -88,7 +87,6 @@ okbuck {
 
 +  `buildToolVersion` specifies the version of the Android SDK Build-tools, defaults to `23.0.3`
 +  `target` specifies the Android compile sdk version, default is `android-23`
-+  `overwrite` is used to control whether to overwrite existing BUCK files when running the `okbuck` task, default is `false`
 +  `linearAllocHardLimit` and `primaryDexPatterns` are maps, configuration used by buck for multidex. For more details about multidex configuration, please read the
 [Multidex wiki page](https://github.com/OkBuilds/OkBuck/wiki/Multidex-Configuration-Guide), 
 if you don't need multidex, you can ignore these parameters
