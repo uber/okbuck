@@ -31,7 +31,7 @@ class AndroidAppTarget extends AndroidLibTarget {
     final int linearAllocHardLimit
     final Set<String> primaryDexPatterns
     final Set<String> exoPackageDependencies
-    final String appClass
+    String appClass
 
     final boolean minifyEnabled
 
@@ -52,7 +52,6 @@ class AndroidAppTarget extends AndroidLibTarget {
         primaryDexPatterns = getProp(okbuck.primaryDexPatterns, []) as Set
         exoPackageDependencies = getProp(okbuck.appLibDependencies, []) as Set
         linearAllocHardLimit = getProp(okbuck.linearAllocHardLimit, DEFAULT_LINEARALLOC_LIMIT) as Integer
-        appClass = extractAppClass()
 
         minifyEnabled = baseVariant.buildType.minifyEnabled
     }
@@ -77,19 +76,27 @@ class AndroidAppTarget extends AndroidLibTarget {
     }
 
     @Override
+    public AndroidAppTarget extractMergedManifest() {
+        super.extractMergedManifest()
+        appClass = extractAppClass()
+        return this
+    }
+
+    @Override
     protected void manipulateManifest(GPathResult manifest) {
         manifest.@package = applicationIdWithSuffix
-        manifest.@'android:versionCode' = versionCode.toString()
+        manifest.@'android:versionCode' = String.valueOf(versionCode)
         manifest.@'android:versionName' = versionName
+        manifest.application.@"android:debuggable" = String.valueOf(debuggable)
 
         if (manifest.'uses-sdk'.size() == 0) {
             manifest.appendNode({
-                'uses-sdk'('android:minSdkVersion': new Integer(minSdk).toString(),
-                        'android:targetSdkVersion': new Integer(targetSdk).toString()) {}
+                'uses-sdk'('android:minSdkVersion': String.valueOf(minSdk),
+                        'android:targetSdkVersion': String.valueOf(targetSdk)) {}
             })
         } else {
-            manifest.'uses-sdk'.@'android:minSdkVersion' = new Integer(minSdk).toString()
-            manifest.'uses-sdk'.@'android:targetSdkVersion' = new Integer(targetSdk).toString()
+            manifest.'uses-sdk'.@'android:minSdkVersion' = String.valueOf(minSdk)
+            manifest.'uses-sdk'.@'android:targetSdkVersion' = String.valueOf(targetSdk)
         }
     }
 
