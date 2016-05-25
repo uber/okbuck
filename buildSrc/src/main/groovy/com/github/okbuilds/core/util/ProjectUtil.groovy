@@ -67,12 +67,12 @@ final class ProjectUtil {
         switch (type) {
             case ProjectType.ANDROID_APP:
                 project.android.applicationVariants.collectEntries { BaseVariant variant ->
-                    [variant.name, new AndroidAppTarget(project, variant.name)]
+                    [variant.name, new AndroidAppTarget(project, variant.name).extractMergedManifest()]
                 }
                 break
             case ProjectType.ANDROID_LIB:
                 project.android.libraryVariants.collectEntries { BaseVariant variant ->
-                    [variant.name, new AndroidLibTarget(project, variant.name)]
+                    [variant.name, new AndroidLibTarget(project, variant.name).extractMergedManifest()]
                 }
                 break
             case ProjectType.JAVA_LIB:
@@ -102,7 +102,7 @@ final class ProjectUtil {
                             out.outputFile.equals(output)
                         }
                         if (variant != null) {
-                            result = new AndroidLibTarget(project, variant.name)
+                            result = new AndroidLibTarget(project, variant.name).extractMergedManifest()
                         }
                     }
                     break

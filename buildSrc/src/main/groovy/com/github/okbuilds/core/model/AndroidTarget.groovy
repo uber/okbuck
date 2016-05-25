@@ -23,7 +23,7 @@ abstract class AndroidTarget extends JavaLibTarget {
     final Integer versionCode
     final int minSdk
     final int targetSdk
-    final String manifest
+    String manifest
 
     AndroidTarget(Project project, String name) {
         super(project, name)
@@ -38,7 +38,6 @@ abstract class AndroidTarget extends JavaLibTarget {
         versionCode = baseVariant.mergedFlavor.versionCode
         minSdk = baseVariant.mergedFlavor.minSdkVersion.apiLevel
         targetSdk = baseVariant.mergedFlavor.targetSdkVersion.apiLevel
-        manifest = extractMergedManifest()
     }
 
     protected abstract BaseVariant getBaseVariant()
@@ -125,7 +124,7 @@ abstract class AndroidTarget extends JavaLibTarget {
         }.flatten() as Set<String>
     }
 
-    protected String extractMergedManifest() {
+    public AndroidTarget extractMergedManifest() {
         Set<String> manifests = [] as Set
 
         baseVariant.sourceSets.each { SourceProvider provider ->
@@ -178,10 +177,12 @@ abstract class AndroidTarget extends JavaLibTarget {
         mergedManifest.text = mergedManifest.text
                 .replaceAll("\\{http://schemas.android.com/apk/res/android\\}versionCode", "android:versionCode")
                 .replaceAll("\\{http://schemas.android.com/apk/res/android\\}versionName", "android:versionName")
+                .replaceAll("\\{http://schemas.android.com/apk/res/android\\}debuggable", "android:debuggable")
                 .replaceAll('xmlns:android="http://schemas.android.com/apk/res/android"', "")
                 .replaceAll("<manifest ", '<manifest xmlns:android="http://schemas.android.com/apk/res/android" ')
 
-        return FileUtil.getRelativePath(project.projectDir, mergedManifest)
+        manifest = FileUtil.getRelativePath(project.projectDir, mergedManifest)
+        return this
     }
 
     protected abstract void manipulateManifest(GPathResult manifest)
