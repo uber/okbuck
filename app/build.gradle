@@ -35,12 +35,15 @@ android {
     productFlavors {
         dev {
             buildConfigField "boolean", "CAN_JUMP", "true"
+            applicationIdSuffix = ".dev"
         }
         prod {
             buildConfigField "boolean", "CAN_JUMP", "false"
+            applicationIdSuffix = ".prod"
         }
         demo {
             buildConfigField "boolean", "CAN_JUMP", "false"
+            applicationIdSuffix = ".demo"
         }
     }
 
@@ -48,6 +51,7 @@ android {
         debug {
             buildConfigField "boolean", "DEBUG_CONFIG", "true"
             signingConfig signingConfigs.release
+            applicationIdSuffix = ".debug"
         }
         release {
             buildConfigField "boolean", "CAN_JUMP", "true"
