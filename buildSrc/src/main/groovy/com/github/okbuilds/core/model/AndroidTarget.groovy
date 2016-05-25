@@ -8,6 +8,7 @@ import com.android.manifmerger.MergingReport
 import com.android.utils.ILogger
 import com.github.okbuilds.core.dependency.DependencyCache
 import com.github.okbuilds.core.util.FileUtil
+import groovy.transform.Memoized
 import groovy.transform.ToString
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger
@@ -23,7 +24,6 @@ abstract class AndroidTarget extends JavaLibTarget {
     final Integer versionCode
     final int minSdk
     final int targetSdk
-    final String manifest
 
     AndroidTarget(Project project, String name) {
         super(project, name)
@@ -41,12 +41,13 @@ abstract class AndroidTarget extends JavaLibTarget {
         versionCode = baseVariant.mergedFlavor.versionCode
         minSdk = baseVariant.mergedFlavor.minSdkVersion.apiLevel
         targetSdk = baseVariant.mergedFlavor.targetSdkVersion.apiLevel
-        manifest = extractMergedManifest()
     }
 
     protected abstract BaseVariant getBaseVariant()
 
     protected abstract ManifestMerger2.MergeType getMergeType()
+
+
 
     @Override
     protected Set<File> sourceDirs() {
@@ -130,7 +131,8 @@ abstract class AndroidTarget extends JavaLibTarget {
         }.flatten() as Set<String>
     }
 
-    protected String extractMergedManifest() {
+    @Memoized
+    String getManifest() {
         Set<String> manifests = [] as Set
 
         baseVariant.sourceSets.each { SourceProvider provider ->

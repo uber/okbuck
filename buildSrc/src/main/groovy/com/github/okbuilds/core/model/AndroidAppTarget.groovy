@@ -84,8 +84,8 @@ class AndroidAppTarget extends AndroidLibTarget {
     }
 
     @Override
-    protected String extractMergedManifest() {
-        String mergedManifest = super.extractMergedManifest()
+    String getManifest() {
+        String mergedManifest = super.getManifest()
 
         XmlSlurper slurper = new XmlSlurper()
         GPathResult manifestXml = slurper.parse(project.file(mergedManifest))
