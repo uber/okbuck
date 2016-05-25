@@ -79,17 +79,18 @@ class AndroidAppTarget extends AndroidLibTarget {
     @Override
     protected void manipulateManifest(GPathResult manifest) {
         manifest.@package = applicationIdWithSuffix
-        manifest.@'android:versionCode' = versionCode.toString()
+        manifest.@'android:versionCode' = String.valueOf(versionCode)
         manifest.@'android:versionName' = versionName
+        manifest.@'android:debuggable' = String.valueOf(debuggable)
 
         if (manifest.'uses-sdk'.size() == 0) {
             manifest.appendNode({
-                'uses-sdk'('android:minSdkVersion': new Integer(minSdk).toString(),
-                        'android:targetSdkVersion': new Integer(targetSdk).toString()) {}
+                'uses-sdk'('android:minSdkVersion': String.valueOf(minSdk),
+                        'android:targetSdkVersion': String.valueOf(targetSdk)) {}
             })
         } else {
-            manifest.'uses-sdk'.@'android:minSdkVersion' = new Integer(minSdk).toString()
-            manifest.'uses-sdk'.@'android:targetSdkVersion' = new Integer(targetSdk).toString()
+            manifest.'uses-sdk'.@'android:minSdkVersion' = String.valueOf(minSdk)
+            manifest.'uses-sdk'.@'android:targetSdkVersion' = String.valueOf(targetSdk)
         }
     }
 
