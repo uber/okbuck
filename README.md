@@ -20,7 +20,9 @@ In root project `build.gradle` file:
 ```gradle
 buildscript {
     repositories {
-        jcenter()
+        maven {
+            url  "http://dl.bintray.com/okbuild/maven"
+        }
     }
     dependencies {
         classpath 'com.github.okbuilds:okbuild-gradle-plugin:0.1.1'
