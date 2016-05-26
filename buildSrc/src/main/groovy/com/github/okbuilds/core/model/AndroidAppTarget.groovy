@@ -93,7 +93,7 @@ class AndroidAppTarget extends AndroidLibTarget {
         manifestXml.@package = applicationId + applicationIdSuffix
         manifestXml.@'android:versionCode' = String.valueOf(versionCode)
         manifestXml.@'android:versionName' = versionName
-        manifestXml.@'android:debuggable' = String.valueOf(debuggable)
+        manifestXml.application.@'android:debuggable' = String.valueOf(debuggable)
         if (manifestXml.'uses-sdk'.size() == 0) {
             manifestXml.appendNode({
                 'uses-sdk'('android:minSdkVersion': String.valueOf(minSdk),
