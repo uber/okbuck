@@ -39,11 +39,13 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     static final String OKBUCK = "okbuck"
     static final String OKBUCK_CLEAN = 'okbuckClean'
     static final String BUCK = "BUCK"
+    static final String EXPERIMENTAL = "experimental"
 
     DependencyCache dependencyCache
 
     void apply(Project project) {
         OkBuckExtension okbuck = project.extensions.create(OKBUCK, OkBuckExtension, project)
+        ExperimentalExtension experimental = okbuck.extensions.create(EXPERIMENTAL, ExperimentalExtension)
 
         dependencyCache = new DependencyCache(project)
 

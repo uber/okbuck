@@ -42,11 +42,12 @@ final class AndroidBinaryRule extends BuckRule {
     private final Set<String> mCpuFilters
     private final boolean mMinifyEnabled
     private final String mProguardConfig
+    private final Map<String, Object> mPlaceholders
 
     AndroidBinaryRule(String name, List<String> visibility, List<String> deps, String manifest, String keystore,
                       boolean multidexEnabled, int linearAllocHardLimit, Set<String> primaryDexPatterns,
                       boolean exopackage, Set<String> cpuFilters, boolean minifyEnabled,
-                      String proguardConfig) {
+                      String proguardConfig, Map<String, Object> placeholders) {
         super("android_binary", name, visibility, deps)
 
         checkStringNotEmpty(manifest, "AndroidBinaryRule manifest must be set.")
@@ -61,6 +62,7 @@ final class AndroidBinaryRule extends BuckRule {
         mCpuFilters = cpuFilters
         mMinifyEnabled = minifyEnabled
         mProguardConfig = proguardConfig
+        mPlaceholders = placeholders
     }
 
     @Override
@@ -92,6 +94,16 @@ final class AndroidBinaryRule extends BuckRule {
             printer.println("\tpackage_type = 'release',")
             printer.println("\tandroid_sdk_proguard_config = 'none',")
             printer.println("\tproguard_config = '${mProguardConfig}',")
+        }
+
+        if (!mPlaceholders.isEmpty()) {
+            printer.println("\tmanifest_entries = {")
+            printer.println("\t\t'placeholders': {")
+            mPlaceholders.each { key, value ->
+                printer.println("\t\t\t'${key}': '${value}',")
+            }
+            printer.println("\t\t},")
+            printer.println("\t},")
         }
     }
 }

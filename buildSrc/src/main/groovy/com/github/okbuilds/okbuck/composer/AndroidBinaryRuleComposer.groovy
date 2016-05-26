@@ -49,6 +49,6 @@ final class AndroidBinaryRuleComposer {
 
         return new AndroidBinaryRule("bin_${target.name}", ["PUBLIC"], deps, manifestRuleName, keystoreRuleName,
                 target.multidexEnabled, target.linearAllocHardLimit, target.primaryDexPatterns, target.exopackage,
-                mappedCpuFilters, target.minifyEnabled, target.proguardConfig)
+                mappedCpuFilters, target.minifyEnabled, target.proguardConfig, target.placeholders)
     }
 }
