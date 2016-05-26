@@ -1,4 +1,6 @@
 # Change log
++  [v0.1.2](https://github.com/OkBuilds/OkBuck/releases/tag/v0.1.2)
+ - build debuggable apk according to gradle configuration
 +  [v0.1.1](https://github.com/OkBuilds/OkBuck/releases/tag/v0.1.1)
  - fix RetroLambda classpath error
  - generate `.buckconfig.local`, users can customize their config in `.buckconfig`
