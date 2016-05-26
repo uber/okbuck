@@ -28,7 +28,11 @@
         android:versionCode="0"
         android:versionName="1.0"
         >
-    <uses-sdk android:minSdkVersion="15" android:targetSdkVersion="21"></uses-sdk>
+    <uses-sdk android:minSdkVersion="15" android:targetSdkVersion="21"/>
+
+    <permission android:name="${applicationId}.permission"
+        android:label="${label}"/>
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
