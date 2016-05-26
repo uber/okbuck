@@ -6,12 +6,10 @@
 ```gradle
 buildscript {
     repositories {
-        maven {
-            url  "http://dl.bintray.com/okbuild/maven"
-        }
+        jcenter()
     }
     dependencies {
-        classpath 'com.github.okbuilds:okbuild-gradle-plugin:0.1.1'
+        classpath 'com.github.okbuilds:okbuild-gradle-plugin:0.1.2'
     }
 }
 
