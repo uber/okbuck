@@ -48,7 +48,6 @@ abstract class AndroidTarget extends JavaLibTarget {
     protected abstract ManifestMerger2.MergeType getMergeType()
 
 
-
     @Override
     protected Set<File> sourceDirs() {
         return baseVariant.sourceSets.collect { SourceProvider provider ->
@@ -155,12 +154,18 @@ abstract class AndroidTarget extends JavaLibTarget {
         mergedManifest.parentFile.mkdirs()
         mergedManifest.createNewFile()
 
-        mergedManifest.text = ManifestMerger2
-                .newMerger(mainManifest, new GradleLogger(project.logger), mergeType)
+        MergingReport report = ManifestMerger2.newMerger(mainManifest, new GradleLogger(project.logger), mergeType)
                 .addFlavorAndBuildTypeManifests(secondaryManifests as File[])
                 .withFeatures(ManifestMerger2.Invoker.Feature.NO_PLACEHOLDER_REPLACEMENT) // needs to be handled by buck
                 .merge()
-                .getMergedDocument(MergingReport.MergedManifestKind.MERGED)
+
+        if (report.result.success) {
+            mergedManifest.text = report.getMergedDocument(MergingReport.MergedManifestKind.MERGED)
+        } else if (report.result.error) {
+            throw new IllegalStateException(report.loggingRecords.collect {
+                "${it.severity}: ${it.message} at ${it.sourceLocation}"
+            }.join('\n'))
+        }
 
         return FileUtil.getRelativePath(project.projectDir, mergedManifest)
     }

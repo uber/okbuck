@@ -68,6 +68,10 @@ okbuck {
             ]
     ]
     buckProjects = project.subprojects.findAll { it.name != "plugin" }
+
+    experimental {
+        placeholderSupport true
+    }
 }
 
 task clean(type: Delete) {

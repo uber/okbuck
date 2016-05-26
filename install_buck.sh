@@ -1,2 +1,3 @@
 #!/bin/sh
-git clone --depth 1 https://github.com/facebook/buck.git && cd buck && ant
+
+git clone -b okbuck --single-branch --depth 1 https://github.com/OkBuilds/buck.git && cd buck && ant
