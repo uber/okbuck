@@ -3,8 +3,10 @@ package com.github.okbuilds.core.model
 import com.android.build.gradle.api.BaseVariant
 import com.android.builder.model.SigningConfig
 import com.android.manifmerger.ManifestMerger2
+import com.github.okbuilds.core.annotation.Experimental
 import com.github.okbuilds.core.dependency.ExternalDependency
 import com.github.okbuilds.core.util.FileUtil
+import com.github.okbuilds.okbuck.ExperimentalExtension
 import com.github.okbuilds.okbuck.OkBuckExtension
 import groovy.transform.ToString
 import groovy.util.slurpersupport.GPathResult
@@ -37,6 +39,9 @@ class AndroidAppTarget extends AndroidLibTarget {
 
     final boolean minifyEnabled
 
+    @Experimental
+    final Map<String, Object> placeholders = [:]
+
     AndroidAppTarget(Project project, String name) {
         super(project, name)
 
@@ -57,6 +62,13 @@ class AndroidAppTarget extends AndroidLibTarget {
         appClass = extractAppClass()
 
         minifyEnabled = baseVariant.buildType.minifyEnabled
+
+        ExperimentalExtension experimental = okbuck.experimental
+        if (experimental.placeholderSupport) {
+            placeholders.put('applicationId', applicationId + applicationIdSuffix)
+            placeholders.putAll(baseVariant.buildType.manifestPlaceholders)
+            placeholders.putAll(baseVariant.mergedFlavor.manifestPlaceholders)
+        }
     }
 
     @Override
