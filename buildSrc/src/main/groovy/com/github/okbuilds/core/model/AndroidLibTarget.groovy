@@ -1,8 +1,9 @@
 package com.github.okbuilds.core.model
 
 import com.android.build.gradle.api.BaseVariant
-import groovy.util.slurpersupport.GPathResult
+import com.android.manifmerger.ManifestMerger2
 import org.gradle.api.Project
+
 /**
  * An Android library target
  */
@@ -18,7 +19,7 @@ class AndroidLibTarget extends AndroidTarget {
     }
 
     @Override
-    protected void manipulateManifest(GPathResult manifest) {
-        // nothing need be done right now
+    ManifestMerger2.MergeType getMergeType() {
+        return ManifestMerger2.MergeType.LIBRARY
     }
 }

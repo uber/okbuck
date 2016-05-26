@@ -2,11 +2,13 @@ package com.github.okbuilds.core.model
 
 import com.android.build.gradle.api.BaseVariant
 import com.android.builder.model.SigningConfig
-import com.github.okbuilds.okbuck.OkBuckExtension
+import com.android.manifmerger.ManifestMerger2
 import com.github.okbuilds.core.dependency.ExternalDependency
 import com.github.okbuilds.core.util.FileUtil
+import com.github.okbuilds.okbuck.OkBuckExtension
 import groovy.transform.ToString
 import groovy.util.slurpersupport.GPathResult
+import groovy.xml.StreamingMarkupBuilder
 import org.apache.commons.io.FilenameUtils
 import org.apache.commons.lang3.tuple.Pair
 import org.gradle.api.Project
@@ -60,7 +62,7 @@ class AndroidAppTarget extends AndroidLibTarget {
     @Override
     List<String> getBuildConfigFields() {
         List<String> buildConfig = super.getBuildConfigFields()
-        buildConfig.add("String APPLICATION_ID = \"${applicationId}\"")
+        buildConfig.add("String APPLICATION_ID = \"${applicationId + applicationIdSuffix}\"")
         if (versionCode != null) {
             buildConfig.add("int VERSION_CODE = ${versionCode}")
         }
@@ -77,20 +79,41 @@ class AndroidAppTarget extends AndroidLibTarget {
     }
 
     @Override
-    protected void manipulateManifest(GPathResult manifest) {
-        manifest.@package = applicationIdWithSuffix
-        manifest.@'android:versionCode' = versionCode.toString()
-        manifest.@'android:versionName' = versionName
+    ManifestMerger2.MergeType getMergeType() {
+        return ManifestMerger2.MergeType.APPLICATION
+    }
 
-        if (manifest.'uses-sdk'.size() == 0) {
-            manifest.appendNode({
-                'uses-sdk'('android:minSdkVersion': new Integer(minSdk).toString(),
-                        'android:targetSdkVersion': new Integer(targetSdk).toString()) {}
+    @Override
+    String getManifest() {
+        String mergedManifest = super.getManifest()
+
+        XmlSlurper slurper = new XmlSlurper()
+        GPathResult manifestXml = slurper.parse(project.file(mergedManifest))
+
+        manifestXml.@package = applicationId + applicationIdSuffix
+        manifestXml.@'android:versionCode' = String.valueOf(versionCode)
+        manifestXml.@'android:versionName' = versionName
+        manifestXml.@'android:debuggable' = String.valueOf(debuggable)
+        if (manifestXml.'uses-sdk'.size() == 0) {
+            manifestXml.appendNode({
+                'uses-sdk'('android:minSdkVersion': String.valueOf(minSdk),
+                        'android:targetSdkVersion': String.valueOf(targetSdk)) {}
             })
-        } else {
-            manifest.'uses-sdk'.@'android:minSdkVersion' = new Integer(minSdk).toString()
-            manifest.'uses-sdk'.@'android:targetSdkVersion' = new Integer(targetSdk).toString()
         }
+
+        def builder = new StreamingMarkupBuilder()
+        builder.setUseDoubleQuotes(true)
+        project.file(mergedManifest).text = (builder.bind {
+            mkp.yield manifestXml
+        } as String)
+                .replaceAll("\\{http://schemas.android.com/apk/res/android\\}versionCode", "android:versionCode")
+                .replaceAll("\\{http://schemas.android.com/apk/res/android\\}versionName", "android:versionName")
+                .replaceAll("\\{http://schemas.android.com/apk/res/android\\}debuggable", "android:debuggable")
+                .replaceAll('xmlns:android="http://schemas.android.com/apk/res/android"', "")
+                .replaceAll("<manifest ", '<manifest xmlns:android="http://schemas.android.com/apk/res/android" ')
+
+
+        return mergedManifest
     }
 
     Pair<Set<String>, Set<Target>> getAppLibDependencies() {

@@ -1,16 +1,17 @@
 package com.github.okbuilds.core.model
 
 import com.android.build.gradle.api.BaseVariant
-import com.android.build.gradle.tasks.InvokeManifestMerger
 import com.android.builder.model.ClassField
 import com.android.builder.model.SourceProvider
+import com.android.manifmerger.ManifestMerger2
+import com.android.manifmerger.MergingReport
+import com.android.utils.ILogger
 import com.github.okbuilds.core.dependency.DependencyCache
 import com.github.okbuilds.core.util.FileUtil
+import groovy.transform.Memoized
 import groovy.transform.ToString
-import groovy.util.slurpersupport.GPathResult
-import groovy.xml.StreamingMarkupBuilder
 import org.gradle.api.Project
-import org.gradle.api.UnknownTaskException
+import org.gradle.api.logging.Logger
 
 /**
  * An Android target
@@ -18,30 +19,35 @@ import org.gradle.api.UnknownTaskException
 abstract class AndroidTarget extends JavaLibTarget {
 
     final String applicationId
-    final String applicationIdWithSuffix
+    final String applicationIdSuffix
     final String versionName
     final Integer versionCode
     final int minSdk
     final int targetSdk
-    final String manifest
 
     AndroidTarget(Project project, String name) {
         super(project, name)
 
-        applicationId = baseVariant.applicationId
         String suffix = ""
         if (baseVariant.mergedFlavor.applicationIdSuffix != null) {
             suffix += baseVariant.mergedFlavor.applicationIdSuffix
         }
-        applicationIdWithSuffix = applicationId + suffix
+        if (baseVariant.buildType.applicationIdSuffix != null) {
+            suffix += baseVariant.buildType.applicationIdSuffix
+        }
+        applicationIdSuffix = suffix
+        applicationId = baseVariant.applicationId - applicationIdSuffix
         versionName = baseVariant.mergedFlavor.versionName
         versionCode = baseVariant.mergedFlavor.versionCode
         minSdk = baseVariant.mergedFlavor.minSdkVersion.apiLevel
         targetSdk = baseVariant.mergedFlavor.targetSdkVersion.apiLevel
-        manifest = extractMergedManifest()
     }
 
     protected abstract BaseVariant getBaseVariant()
+
+    protected abstract ManifestMerger2.MergeType getMergeType()
+
+
 
     @Override
     protected Set<File> sourceDirs() {
@@ -125,7 +131,8 @@ abstract class AndroidTarget extends JavaLibTarget {
         }.flatten() as Set<String>
     }
 
-    protected String extractMergedManifest() {
+    @Memoized
+    String getManifest() {
         Set<String> manifests = [] as Set
 
         baseVariant.sourceSets.each { SourceProvider provider ->
@@ -136,7 +143,7 @@ abstract class AndroidTarget extends JavaLibTarget {
             return null
         }
 
-        File mainManifest = project.file(manifests[manifests.size() - 1])
+        File mainManifest = project.file(manifests[0])
 
         List<File> secondaryManifests = []
         secondaryManifests.addAll(manifests.collect {
@@ -147,44 +154,16 @@ abstract class AndroidTarget extends JavaLibTarget {
         File mergedManifest = project.file("${project.buildDir}/okbuck/${name}/AndroidManifest.xml")
         mergedManifest.parentFile.mkdirs()
         mergedManifest.createNewFile()
-        mergedManifest.text = ""
 
-        String manifestMergeTaskname = "okbuckMerge${name}Manifest"
-        InvokeManifestMerger manifestMerger
-        try {
-            manifestMerger = (InvokeManifestMerger) project.tasks.getByName(manifestMergeTaskname)
-        } catch (UnknownTaskException ignored) {
-            manifestMerger = project.tasks.create("okbuckMerge${name}Manifest",
-                    InvokeManifestMerger, {
-                it.mainManifestFile = mainManifest;
-                it.secondaryManifestFiles = secondaryManifests;
-                it.outputFile = mergedManifest
-            })
-        }
-
-        manifestMerger.doFullTaskAction()
-
-        XmlSlurper slurper = new XmlSlurper()
-        GPathResult manifestXml = slurper.parse(mergedManifest)
-
-        manipulateManifest(manifestXml)
-
-        def builder = new StreamingMarkupBuilder()
-        builder.setUseDoubleQuotes(true)
-        mergedManifest.text = builder.bind {
-            mkp.yield manifestXml
-        } as String
-
-        mergedManifest.text = mergedManifest.text
-                .replaceAll("\\{http://schemas.android.com/apk/res/android\\}versionCode", "android:versionCode")
-                .replaceAll("\\{http://schemas.android.com/apk/res/android\\}versionName", "android:versionName")
-                .replaceAll('xmlns:android="http://schemas.android.com/apk/res/android"', "")
-                .replaceAll("<manifest ", '<manifest xmlns:android="http://schemas.android.com/apk/res/android" ')
+        mergedManifest.text = ManifestMerger2
+                .newMerger(mainManifest, new GradleLogger(project.logger), mergeType)
+                .addFlavorAndBuildTypeManifests(secondaryManifests as File[])
+                .withFeatures(ManifestMerger2.Invoker.Feature.NO_PLACEHOLDER_REPLACEMENT) // needs to be handled by buck
+                .merge()
+                .getMergedDocument(MergingReport.MergedManifestKind.MERGED)
 
         return FileUtil.getRelativePath(project.projectDir, mergedManifest)
     }
-
-    protected abstract void manipulateManifest(GPathResult manifest)
 
     @ToString(includeNames = true)
     static class ResBundle {
@@ -206,5 +185,34 @@ abstract class AndroidTarget extends JavaLibTarget {
                 map.get("${identifier}${flavor.capitalize()}" as String,
                         map.get("${identifier}${buildType.capitalize()}" as String,
                                 map.get(identifier, defaultValue))))
+    }
+
+    private static class GradleLogger implements ILogger {
+
+        private final Logger mLogger;
+
+        GradleLogger(Logger logger) {
+            mLogger = logger;
+        }
+
+        @Override
+        void error(Throwable throwable, String s, Object... objects) {
+            mLogger.error(s, objects)
+        }
+
+        @Override
+        void warning(String s, Object... objects) {
+            mLogger.warn(s, objects)
+        }
+
+        @Override
+        void info(String s, Object... objects) {
+            mLogger.info(s, objects)
+        }
+
+        @Override
+        void verbose(String s, Object... objects) {
+            mLogger.debug(s, objects)
+        }
     }
 }
