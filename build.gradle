@@ -72,6 +72,11 @@ okbuck {
     experimental {
         placeholderSupport true
     }
+
+    install {
+        gitUrl 'https://github.com/OkBuilds/buck.git'
+        sha 'okbuck'
+    }
 }
 
 task clean(type: Delete) {
