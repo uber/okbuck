@@ -24,7 +24,7 @@
 
 package com.github.okbuilds.okbuck
 
-import com.github.okbuilds.core.build.Build
+import com.github.okbuilds.core.system.BuildSystem
 import com.github.okbuilds.core.dependency.DependencyCache
 import com.github.okbuilds.core.util.InstallUtil
 import com.github.okbuilds.okbuck.config.BUCKFile

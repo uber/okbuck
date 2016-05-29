@@ -1,16 +1,16 @@
 package com.github.okbuilds.core.util
 
-import com.github.okbuilds.core.build.Build
+import com.github.okbuilds.core.system.BuildSystem
 import org.gradle.api.Project
 
 /**
- * Utility class to install a {@link Build} tool.
+ * Utility class to install a {@link BuildSystem} tool.
  */
 class InstallUtil {
 
     private InstallUtil() {}
 
-    static void install(Project project, Build build, String gitUrl, String sha, File cacheDir) {
+    static void install(Project project, BuildSystem build, String gitUrl, String sha, File cacheDir) {
         cacheDir.mkdirs()
         File repoDir = new File(cacheDir, build.name)
 
