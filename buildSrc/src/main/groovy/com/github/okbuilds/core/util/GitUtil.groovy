@@ -15,7 +15,7 @@ class GitUtil {
      * @param repoDir The directory to clone to
      */
     static void clone(String repo, File repoDir = "") {
-        "git clone ${repo} ${repoDir.absolutePath}".execute()
+        CmdUtil.run("git clone ${repo} ${repoDir.absolutePath}")
     }
 
     /**
@@ -23,7 +23,7 @@ class GitUtil {
      * @param repoDir The git repository directory
      */
     static void fetchAll(File repoDir) {
-        "git -C ${repoDir.absolutePath} fetch --all".execute()
+        CmdUtil.run("git -C ${repoDir.absolutePath} fetch --all")
     }
 
     /**
@@ -31,27 +31,26 @@ class GitUtil {
      * @param repoDir The git repository directory
      * @param repoDir The git sha/branch/tag
      */
-    static void checkout(File repoDir, String sha) {
-        "git -C ${repoDir.absolutePath} fetch --all".execute()
+    static void checkout(File repoDir, String sha, String remoteName) {
+        CmdUtil.run("git -C ${repoDir.absolutePath} checkout ${remoteName}/${sha}")
     }
 
     /**
-     * Add a new remote url if not already present.
+     * Add a remote git url.
      * @param repoDir The git repository directory
      * @param gitUrl The remote git url
      */
-    static void addRemoteIfNeeded(File repoDir, String gitUrl) {
-        Set<String> remotes = []
-        String existing = "git -C ${repoDir.absolutePath} remote -v".execute().text
-        if (existing) {
-            remotes.addAll(existing.split('\n')
-                    .findAll { !it.empty }
-                    .collect { it.split(' ')[1] })
-        }
-        if (!remotes.contains(gitUrl)) {
-            String remote_name = DigestUtils.md5Hex(gitUrl)
-            "git -C ${repoDir.absolutePath} remote add ${remote_name} ${gitUrl}"
-        }
+    static void addRemote(File repoDir, String gitUrl) {
+        CmdUtil.run("git -C ${repoDir.absolutePath} remote add ${remoteName(gitUrl)} ${gitUrl}", true)
+    }
+
+    /**
+     * Get the remote name for a git url
+     * @param gitUrl The git repository url
+     * @return The remote name
+     */
+    static String remoteName(String gitUrl) {
+        return DigestUtils.md5Hex(gitUrl)
     }
 
     /**
@@ -59,7 +58,7 @@ class GitUtil {
      * @param repoDir The git repository directory
      */
     static void cleanReset(File repoDir) {
-        "git -C ${repoDir.absolutePath} reset --hard".execute()
-        "git -C ${repoDir.absolutePath} clean -fdx".execute()
+        CmdUtil.run("git -C ${repoDir.absolutePath} reset --hard")
+        CmdUtil.run("git -C ${repoDir.absolutePath} clean -fdx")
     }
 }

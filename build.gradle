@@ -54,7 +54,7 @@ okbuck {
                     'libraries/javalibrary:main',
                     'libraries/common:paidRelease',
             ],
-            'appDev': [
+            'appDev' : [
                     'buck-android-support',
                     'com.android.support:multidex',
                     'libraries/javalibrary:main',

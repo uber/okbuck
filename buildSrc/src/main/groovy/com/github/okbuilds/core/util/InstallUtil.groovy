@@ -19,13 +19,17 @@ class InstallUtil {
             GitUtil.clone(build.gitUrl, repoDir)
         }
 
+        def remoteUrl = build.gitUrl
+        def remoteName = "origin"
         if (gitUrl != null && !gitUrl.empty) {
-            GitUtil.addRemoteIfNeeded(repoDir, gitUrl)
+            remoteUrl = gitUrl
+            remoteName = GitUtil.remoteName(remoteUrl)
         }
 
+        GitUtil.addRemote(repoDir, remoteUrl)
         GitUtil.fetchAll(repoDir)
         GitUtil.cleanReset(repoDir)
-        GitUtil.checkout(repoDir, sha)
+        GitUtil.checkout(repoDir, sha, remoteName)
 
         build.installer.install(project, repoDir)
     }
