@@ -83,7 +83,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         buckInstall.setDescription("Install buck")
 
         buckInstall << {
-            InstallUtil.install(project, Build.BUCK, install.gitUrl, install.sha, new File(install.dir))
+            InstallUtil.install(project, BuildSystem.BUCK, install.gitUrl, install.sha, new File(install.dir))
         }
     }
 

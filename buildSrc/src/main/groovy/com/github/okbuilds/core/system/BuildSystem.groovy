@@ -4,7 +4,7 @@ import org.gradle.api.Project
 
 enum BuildSystem {
 
-    BUCK('buck', 'git@github.com:facebook/buck.git')
+    BUCK('buck', 'git@github.com:facebook/buck.git', new BuckInstaller())
 
     final String name
     final String gitUrl
