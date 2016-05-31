@@ -26,7 +26,7 @@ enum BuildSystem {
         void install(Project project, File buildDir) {
             File buckLink = project.file("buck")
             if (!buckLink.exists()) {
-                "ln -s ${new File(buildDir, 'bin/buck').absolutePath} ${buckLink.absolutePath}".execute()
+                "ln -nsf ${new File(buildDir, 'bin/buck').absolutePath} ${buckLink.absolutePath}".execute().waitFor()
             }
         }
     }

@@ -79,6 +79,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         }
 
         Task buckInstall = project.task(BUCK_INSTALL)
+        buckInstall.outputs.upToDateWhen { false }
         buckInstall.setGroup(GROUP)
         buckInstall.setDescription("Install buck")
 

@@ -1,4 +1,3 @@
-# Disabling sudo moves build to the Container Based Infrastructure on Travis CI
 sudo: false
 
 language: android
@@ -8,17 +7,17 @@ android:
   components:
     - android-23
     - build-tools-23.0.1
-    - extra-android-m2repository
-    - extra-android-support
 
-# Emulator Management: Create, Start and Wait
 script:
-  - bash ./gradlew okbuck && ./gradlew buckInstall && ./buck build appDevDebug appDevRelease appProdDebug appProdRelease another-appDebug another-appRelease
+  - bash ./gradlew okbuck buckInstall && \
+    ./buck build appDevDebug appDevRelease appProdDebug appProdRelease another-appDebug another-appRelease
 
 notifications:
   email: false
 
+before_cache:
+  - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
 cache:
   directories:
-    - $HOME/.m2
-    - $HOME/.gradle
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
