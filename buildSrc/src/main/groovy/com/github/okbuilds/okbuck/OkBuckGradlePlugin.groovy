@@ -35,6 +35,7 @@ import org.apache.commons.io.IOUtils
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.logging.Logger
 
 class OkBuckGradlePlugin implements Plugin<Project> {
 
@@ -49,7 +50,10 @@ class OkBuckGradlePlugin implements Plugin<Project> {
 
     DependencyCache dependencyCache
 
+    static Logger LOGGER
+
     void apply(Project project) {
+        LOGGER = project.logger
         OkBuckExtension okbuck = project.extensions.create(OKBUCK, OkBuckExtension, project)
         InstallExtension install = okbuck.extensions.create(INSTALL, InstallExtension, project)
         okbuck.extensions.create(EXPERIMENTAL, ExperimentalExtension)
@@ -79,6 +83,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         }
 
         Task buckInstall = project.task(BUCK_INSTALL)
+        buckInstall.outputs.upToDateWhen { false }
         buckInstall.setGroup(GROUP)
         buckInstall.setDescription("Install buck")
 
