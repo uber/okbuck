@@ -7,6 +7,8 @@ android:
   components:
     - android-23
     - build-tools-23.0.1
+    - extra-android-m2repository
+    - extra-android-support
 
 script:
   - bash ./gradlew okbuck buckInstall && \
