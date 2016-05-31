@@ -1,5 +1,6 @@
 package com.github.okbuilds.core.system
 
+import com.github.okbuilds.core.util.CmdUtil
 import org.gradle.api.Project
 
 enum BuildSystem {
@@ -26,7 +27,7 @@ enum BuildSystem {
         void install(Project project, File buildDir) {
             File buckLink = project.file("buck")
             if (!buckLink.exists()) {
-                "ln -nsf ${new File(buildDir, 'bin/buck').absolutePath} ${buckLink.absolutePath}".execute().waitFor()
+                CmdUtil.run("ln -nsf ${new File(buildDir, 'bin/buck').absolutePath} ${buckLink.absolutePath}")
             }
         }
     }

@@ -11,7 +11,7 @@ android:
     - extra-android-support
 
 script:
-  - bash ./gradlew okbuck buckInstall && \
+  - bash ./gradlew okbuck buckInstall --info && \
     ./buck build appDevDebug appDevRelease appProdDebug appProdRelease another-appDebug another-appRelease
 
 notifications:
