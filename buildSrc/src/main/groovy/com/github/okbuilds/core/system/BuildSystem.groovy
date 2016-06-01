@@ -1,10 +1,11 @@
 package com.github.okbuilds.core.system
 
+import com.github.okbuilds.core.util.CmdUtil
 import org.gradle.api.Project
 
 enum BuildSystem {
 
-    BUCK('buck', 'git@github.com:facebook/buck.git', new BuckInstaller())
+    BUCK('buck', 'https://github.com/facebook/buck.git', new BuckInstaller())
 
     final String name
     final String gitUrl
@@ -26,7 +27,7 @@ enum BuildSystem {
         void install(Project project, File buildDir) {
             File buckLink = project.file("buck")
             if (!buckLink.exists()) {
-                "ln -s ${new File(buildDir, 'bin/buck').absolutePath} ${buckLink.absolutePath}".execute()
+                CmdUtil.run("ln -nsf ${new File(buildDir, 'bin/buck').absolutePath} ${buckLink.absolutePath}")
             }
         }
     }
