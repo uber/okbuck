@@ -1,4 +1,6 @@
 # Change log
++  [v0.1.4](https://github.com/OkBuilds/OkBuck/releases/tag/v0.1.4)
+ - add support to install/maintain buck versions
 +  [v0.1.3](https://github.com/OkBuilds/OkBuck/releases/tag/v0.1.3)
  - experimental manifest placeholder support
 +  [v0.1.2](https://github.com/OkBuilds/OkBuck/releases/tag/v0.1.2)
