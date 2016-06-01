@@ -74,7 +74,7 @@ dependencies {
 def siteUrl = 'https://github.com/OkBuilds/OkBuck'
 def gitUrl = 'https://github.com/OkBuilds/OkBuck.git'
 def publishGroup = 'com.github.okbuilds'
-def publishVersion = '0.1.3'
+def publishVersion = '0.1.4'
 
 group = publishGroup
 version = publishVersion
@@ -100,8 +100,8 @@ publishing {
 }
 
 bintray {
-    user = properties.getProperty("bintray.user")
-    key = properties.getProperty("bintray.apikey")
+    user = project.properties.get("bintray.user", properties.getProperty("bintray.user"))
+    key = project.properties.get("bintray.apikey", properties.getProperty("bintray.apikey"))
     publications = ['mavenJava'] //When uploading Maven-based publication files
     dryRun = false //Whether to run this as dry-run, without deploying
     publish = true //If version should be auto published after an upload
