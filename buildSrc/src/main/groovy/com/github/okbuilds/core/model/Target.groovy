@@ -39,14 +39,19 @@ abstract class Target {
     final Project project
     final Project rootProject
     final String name
+    final String testName
     final String identifier
     final String path
+
     final Set<String> sources = [] as Set
+    final Set<String> testSources = [] as Set
     final Set<Target> targetAptDeps = [] as Set
     final Set<Target> targetCompileDeps = [] as Set
+    final Set<Target> targetTestCompileDeps = [] as Set
 
     protected final Set<ExternalDependency> externalAptDeps = [] as Set
     protected final Set<ExternalDependency> externalCompileDeps = [] as Set
+    protected final Set<ExternalDependency> externalTestCompileDeps = [] as Set
 
     /**
      * Constructor.
@@ -54,9 +59,10 @@ abstract class Target {
      * @param project The project.
      * @param name The target name.
      */
-    Target(Project project, String name) {
+    Target(Project project, String name, String testName = 'test') {
         this.project = project
         this.name = name
+        this.testName = testName
 
         identifier = project.path.replaceFirst(':', '')
         path = identifier.replaceAll(':', '/')
@@ -64,6 +70,7 @@ abstract class Target {
         rootProject = project.gradle.rootProject
 
         sources.addAll(getAvailable(sourceDirs()))
+        testSources.addAll(getAvailable(testSourceDirs()))
 
         extractConfigurations(APT_CONFIGURATIONS, externalAptDeps, targetAptDeps)
         OkBuckExtension okbuck = rootProject.okbuck
@@ -72,6 +79,7 @@ abstract class Target {
         })
 
         extractConfigurations(compileConfigurations(), externalCompileDeps, targetCompileDeps)
+        extractConfigurations(testCompileConfigurations(), externalTestCompileDeps, targetTestCompileDeps)
     }
 
     /**
@@ -80,9 +88,19 @@ abstract class Target {
     protected abstract Set<File> sourceDirs()
 
     /**
+     * List of test source directories.
+     */
+    protected abstract Set<File> testSourceDirs()
+
+    /**
      * List of compile configurations.
      */
     protected abstract Set<String> compileConfigurations()
+
+    /**
+     * List of test compile configurations.
+     */
+    protected abstract Set<String> testCompileConfigurations()
 
     Set<String> getAnnotationProcessors() {
         OkBuckExtension okbuck = rootProject.okbuck
@@ -102,6 +120,12 @@ abstract class Target {
 
     Set<String> getCompileDeps() {
         externalCompileDeps.collect { ExternalDependency dependency ->
+            dependencyCache.get(dependency)
+        }
+    }
+
+    Set<String> getTestCompileDeps() {
+        externalTestCompileDeps.collect { ExternalDependency dependency ->
             dependencyCache.get(dependency)
         }
     }

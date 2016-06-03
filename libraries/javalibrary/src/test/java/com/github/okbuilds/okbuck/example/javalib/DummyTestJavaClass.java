@@ -22,18 +22,18 @@
  * SOFTWARE.
  */
 
-apply plugin: 'java'
-apply plugin: 'nebula.provided-base'
-apply plugin: 'me.tatarka.retrolambda'
+package com.github.okbuilds.okbuck.example.javalib;
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
+import org.junit.Test;
 
-dependencies {
-    compile 'com.google.code.gson:gson:2.6.2'
-    compile 'com.google.dagger:dagger:2.0.1'
-    provided 'org.glassfish:javax.annotation:10.0-b28'
-    provided 'com.google.dagger:dagger-compiler:2.0.1'
+import static org.junit.Assert.assertFalse;
 
-    testCompile 'junit:junit:4.12'
+public class DummyTestJavaClass {
+
+    @Test
+    public void testAssertFalse() {
+        assertFalse("failure - should be false", false);
+    }
+
 }
+

@@ -32,9 +32,17 @@ class JavaLibTarget extends Target {
         return project.files("src/main/java") as Set
     }
 
+    protected Set<File> testSourceDirs() {
+        return project.files("src/test/java") as Set
+    }
+
     @Override
     protected Set<String> compileConfigurations() {
         return ["compile"]
+    }
+
+    protected Set<String> testCompileConfigurations() {
+        return ["testCompile"]
     }
 
     String getSourceCompatibility() {
