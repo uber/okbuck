@@ -42,11 +42,9 @@ final class FileUtil {
     }
 
     static void copyResourceToProject(String resource, File destination) {
-        try {
-            InputStream inputStream = FileUtil.getResourceAsStream(resource)
-            OutputStream outputStream = new FileOutputStream(destination)
-            outputStream.write(inputStream.bytes)
-            outputStream.close()
-        } catch (Exception ignored) { }
+        InputStream inputStream = FileUtil.getResourceAsStream(resource)
+        OutputStream outputStream = new FileOutputStream(destination)
+        outputStream.write(inputStream.bytes)
+        outputStream.close()
     }
 }

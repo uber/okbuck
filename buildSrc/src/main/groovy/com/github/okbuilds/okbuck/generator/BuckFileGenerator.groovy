@@ -34,6 +34,7 @@ import com.github.okbuilds.okbuck.composer.AptRuleComposer
 import com.github.okbuilds.okbuck.composer.ExopackageAndroidLibraryRuleComposer
 import com.github.okbuilds.okbuck.composer.GenAidlRuleComposer
 import com.github.okbuilds.okbuck.composer.JavaLibraryRuleComposer
+import com.github.okbuilds.okbuck.composer.JavaTestRuleComposer
 import com.github.okbuilds.okbuck.composer.KeystoreRuleComposer
 import com.github.okbuilds.okbuck.composer.PreBuiltNativeLibraryRuleComposer
 import com.github.okbuilds.okbuck.config.BUCKFile
@@ -99,7 +100,8 @@ final class BuckFileGenerator {
     }
 
     private static List<BuckRule> createRules(JavaLibTarget target) {
-        return [JavaLibraryRuleComposer.compose(target)]
+        return [JavaLibraryRuleComposer.compose(target) as BuckRule,
+                JavaTestRuleComposer.compose(target) as BuckRule]
     }
 
     private static List<BuckRule> createRules(AndroidLibTarget target, String appClass = null) {
