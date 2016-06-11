@@ -1,27 +1,3 @@
-/*
- * The MIT License (MIT)
- *
- * Copyright (c) 2015 Piasy
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 package com.github.okbuilds.okbuck.example;
 
 import android.content.Context;
@@ -37,16 +13,16 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import butterknife.ButterKnife;
 
 public class CollapsingAppBarActivity extends AppCompatActivity {
+    private final float APP_BAR_AUTO_COLLAPSE_RATION = 0.3F;
     RecyclerView mRecyclerView;
     AppBarLayout mAppBarLayout;
     CoordinatorLayout mCoordinatorLayout;
-
     private int mAppBarHeight = -1;
     private int mCurrentAppBarOffset;   // -height ==> 0
-    private final float APP_BAR_AUTO_COLLAPSE_RATION = 0.3F;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,13 +74,12 @@ public class CollapsingAppBarActivity extends AppCompatActivity {
 
         private final Context mContext;
         private final Action mAction;
+        private int mContentCount = 0;
 
         public Adapter(Context context, Action action) {
             mContext = context;
             mAction = action;
         }
-
-        private int mContentCount = 0;
 
         public void setContentCount(int contentCount) {
             mContentCount = contentCount;
@@ -115,10 +90,6 @@ public class CollapsingAppBarActivity extends AppCompatActivity {
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             return new ViewHolder(LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.ui_recycler_view_horizontal_item, parent, false));
-        }
-
-        public interface Action {
-            void onClick();
         }
 
         @Override
@@ -136,6 +107,10 @@ public class CollapsingAppBarActivity extends AppCompatActivity {
         @Override
         public int getItemCount() {
             return mContentCount;
+        }
+
+        public interface Action {
+            void onClick();
         }
     }
 

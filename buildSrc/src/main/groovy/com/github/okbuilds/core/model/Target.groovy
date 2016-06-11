@@ -1,11 +1,11 @@
 package com.github.okbuilds.core.model
 
-import com.github.okbuilds.okbuck.OkBuckExtension
-import com.github.okbuilds.okbuck.OkBuckGradlePlugin
 import com.github.okbuilds.core.dependency.DependencyCache
 import com.github.okbuilds.core.dependency.ExternalDependency
 import com.github.okbuilds.core.util.FileUtil
 import com.github.okbuilds.core.util.ProjectUtil
+import com.github.okbuilds.okbuck.OkBuckExtension
+import com.github.okbuilds.okbuck.OkBuckGradlePlugin
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
 import org.apache.commons.io.FilenameUtils
@@ -17,6 +17,7 @@ import org.gradle.api.artifacts.UnknownConfigurationException
 
 import java.util.jar.JarEntry
 import java.util.jar.JarFile
+
 /**
  * A target is roughly equivalent to what can be built with gradle via the various assemble tasks.
  *
@@ -150,7 +151,7 @@ abstract class Target {
     }
 
     protected void extractConfigurations(Set<String> configurations, Set<ExternalDependency> externalConfigurationDeps,
-                                       Set<Target> targetConfigurationDeps) {
+                                         Set<Target> targetConfigurationDeps) {
         configurations.each { String configName ->
             try {
                 Configuration configuration = project.configurations.getByName(configName)
