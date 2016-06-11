@@ -134,7 +134,7 @@ If other versions have any compatibility problems, please file an issue.
 ```
 The MIT License (MIT)
 
-Copyright (c) 2015 Piasy
+Copyright (c) 2015 OkBuilds
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
