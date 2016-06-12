@@ -6,26 +6,22 @@ import com.github.okbuilds.core.model.Target
 import com.github.okbuilds.okbuck.generator.RetroLambdaGenerator
 import com.github.okbuilds.okbuck.rule.AndroidLibraryRule
 
-final class AndroidLibraryRuleComposer {
+final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
 
     private AndroidLibraryRuleComposer() {
         // no instance
     }
 
-    static AndroidLibraryRule compose(AndroidLibTarget target, List<String> deps, List<String> aptDeps,
-                                      List<String> aidlRuleNames, String appClass) {
-        deps.addAll(target.compileDeps.collect { String dep ->
-            "//${dep.reverse().replaceFirst("/", ":").reverse()}"
-        })
-
-        deps.addAll(target.targetCompileDeps.collect { Target targetDep ->
-            "//${targetDep.path}:src_${targetDep.name}"
-        })
+    static AndroidLibraryRule compose(AndroidLibTarget target, List<String> deps,
+                                      List<String> aptDeps, List<String> aidlRuleNames,
+                                      String appClass) {
+        deps.addAll(external(target.compileDeps))
+        deps.addAll(targets(target.targetCompileDeps))
 
         target.targetCompileDeps.each { Target targetDep ->
             if (targetDep instanceof AndroidTarget) {
                 targetDep.resources.each { AndroidTarget.ResBundle bundle ->
-                    deps.add("//${targetDep.path}:res_${targetDep.name}_${bundle.id}")
+                    deps.add(res(targetDep, bundle))
                 }
             }
         }
@@ -35,7 +31,7 @@ final class AndroidLibraryRuleComposer {
             postprocessClassesCommands.add(RetroLambdaGenerator.generate(target))
         }
 
-        return new AndroidLibraryRule("src_${target.name}", ["PUBLIC"], deps, target.sources,
+        return new AndroidLibraryRule(src(target), ["PUBLIC"], deps, target.sources,
                 target.manifest, target.annotationProcessors as List, aptDeps, aidlRuleNames,
                 appClass, target.sourceCompatibility, target.targetCompatibility,
                 postprocessClassesCommands, target.jvmArgs)

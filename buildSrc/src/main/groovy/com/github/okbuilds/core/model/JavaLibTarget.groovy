@@ -3,11 +3,12 @@ package com.github.okbuilds.core.model
 import com.github.okbuilds.core.dependency.ExternalDependency
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
+import org.gradle.internal.jvm.Jvm
 
 /**
  * A java library target
  */
-class JavaLibTarget extends Target {
+class JavaLibTarget extends JavaTarget {
 
     private static final String RETRO_LAMBDA_CONFIG = "retrolambdaConfig"
     static final String MAIN = "main"
@@ -64,17 +65,13 @@ class JavaLibTarget extends Target {
     String getBootClasspath() {
         String bootCp = initialBootCp
         if (retrolambda) {
-            bootCp += ":${rtJar}"
+            bootCp += ":${Jvm.current().getRuntimeJar()}"
         }
         return bootCp
     }
 
     protected String getInitialBootCp() {
         return project.compileJava.options.bootClasspath
-    }
-
-    protected static String getRtJar() {
-        return "${System.properties.'java.home'}/lib/rt.jar"
     }
 
     protected static String javaVersion(JavaVersion version) {

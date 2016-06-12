@@ -4,6 +4,7 @@ import com.github.okbuilds.core.model.ProjectType
 import com.github.okbuilds.core.model.Target
 import com.github.okbuilds.core.util.ProjectUtil
 import com.github.okbuilds.okbuck.OkBuckExtension
+import com.github.okbuilds.okbuck.composer.AndroidBuckRuleComposer
 import com.github.okbuilds.okbuck.config.DotBuckConfigLocalFile
 import org.gradle.api.Project
 
@@ -20,7 +21,8 @@ final class DotBuckConfigLocalGenerator {
             ProjectUtil.getType(project) == ProjectType.ANDROID_APP
         }.each { Project project ->
             ProjectUtil.getTargets(project).each { String name, Target target ->
-                aliases.put("${target.identifier}${name.capitalize()}", "//${target.path}:bin_${name}")
+                aliases.put("${target.identifier}${name.capitalize()}",
+                        "//${target.path}:${AndroidBuckRuleComposer.bin(target)}")
             }
         }
 
