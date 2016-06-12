@@ -1,10 +1,9 @@
 package com.github.okbuilds.core.dependency
 
 import com.github.okbuilds.core.util.FileUtil
+import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
-
-import java.security.MessageDigest
 
 class DependencyCache {
 
@@ -34,7 +33,7 @@ class DependencyCache {
         ExternalDependency greatestVersion = greatestVersions.get(dependency)
         if (!finalDepFiles.containsKey(greatestVersion)) {
             File depFile = greatestVersion.depFile
-            File cachedCopy = new File(cacheDir, "${md5(depFile.parentFile.absolutePath)}/${depFile.name}")
+            File cachedCopy = new File(cacheDir, "${DigestUtils.md5Hex(depFile.parentFile.absolutePath)}/${depFile.name}")
             if (!cachedCopy.exists()) {
                 FileUtils.copyFile(depFile, cachedCopy)
             }
@@ -57,11 +56,5 @@ class DependencyCache {
 
     private static boolean isValid(File dep) {
         return (dep.name.endsWith(".jar") || dep.name.endsWith(".aar"))
-    }
-
-    static String md5(String s) {
-        MessageDigest digest = MessageDigest.getInstance("MD5")
-        digest.update(s.bytes);
-        new BigInteger(1, digest.digest()).toString(16).padLeft(32, '0')
     }
 }

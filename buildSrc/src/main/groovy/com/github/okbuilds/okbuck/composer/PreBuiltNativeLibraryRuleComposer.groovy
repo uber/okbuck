@@ -3,14 +3,14 @@ package com.github.okbuilds.okbuck.composer
 import com.github.okbuilds.core.model.AndroidTarget
 import com.github.okbuilds.okbuck.rule.PrebuiltNativeLibraryRule
 
-final class PreBuiltNativeLibraryRuleComposer {
+final class PreBuiltNativeLibraryRuleComposer extends AndroidBuckRuleComposer {
 
     private PreBuiltNativeLibraryRuleComposer() {
         // no instance
     }
 
     static PrebuiltNativeLibraryRule compose(AndroidTarget target, String jniLibDir) {
-        String ruleName = "prebuilt_native_library_${target.name}_${jniLibDir.replaceAll("/", "_")}"
-        return new PrebuiltNativeLibraryRule(ruleName, Arrays.asList("PUBLIC"), jniLibDir)
+        return new PrebuiltNativeLibraryRule(prebuiltNative(target, jniLibDir),
+                Arrays.asList("PUBLIC"), jniLibDir)
     }
 }

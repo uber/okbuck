@@ -6,13 +6,12 @@ import com.android.builder.model.SourceProvider
 import com.android.manifmerger.ManifestMerger2
 import com.android.manifmerger.MergingReport
 import com.android.utils.ILogger
-import com.github.okbuilds.core.dependency.DependencyCache
 import com.github.okbuilds.core.util.FileUtil
 import groovy.transform.Memoized
 import groovy.transform.ToString
+import org.apache.commons.codec.digest.DigestUtils
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger
-
 /**
  * An Android target
  */
@@ -180,7 +179,7 @@ abstract class AndroidTarget extends JavaLibTarget {
         ResBundle(String identifier, String resDir, String assetsDir) {
             this.resDir = resDir
             this.assetsDir = assetsDir
-            id = DependencyCache.md5("${identifier}:${resDir}:${assetsDir}")
+            id = DigestUtils.md5Hex("${identifier}:${resDir}:${assetsDir}")
         }
     }
 

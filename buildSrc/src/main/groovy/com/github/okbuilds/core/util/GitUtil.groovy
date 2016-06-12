@@ -52,13 +52,4 @@ class GitUtil {
     static String remoteName(String gitUrl) {
         return DigestUtils.md5Hex(gitUrl)
     }
-
-    /**
-     * Cleans and resets the state of a git repository
-     * @param repoDir The git repository directory
-     */
-    static void cleanReset(File repoDir) {
-        CmdUtil.run("git -C ${repoDir.absolutePath} reset --hard")
-        CmdUtil.run("git -C ${repoDir.absolutePath} clean -fdx")
-    }
 }
