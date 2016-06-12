@@ -1,8 +1,5 @@
 package com.github.okbuilds.okbuck.rule
 
-import static com.github.okbuilds.core.util.CheckUtil.checkNotNull
-import static com.github.okbuilds.core.util.CheckUtil.checkStringNotEmpty
-
 final class AndroidBinaryRule extends BuckRule {
     private final String mManifest
     private final String mKeystore
@@ -21,13 +18,10 @@ final class AndroidBinaryRule extends BuckRule {
                       String proguardConfig, Map<String, Object> placeholders) {
         super("android_binary", name, visibility, deps)
 
-        checkStringNotEmpty(manifest, "AndroidBinaryRule manifest must be set.")
         mManifest = manifest
-        checkStringNotEmpty(keystore, "AndroidBinaryRule keystore must be set.")
         mKeystore = keystore
         mMultidexEnabled = multidexEnabled
         mLinearAllocHardLimit = linearAllocHardLimit
-        checkNotNull(primaryDexPatterns, "AndroidBinaryRule primaryDexPatterns must be non-null.")
         mPrimaryDexPatterns = primaryDexPatterns
         mExopackage = exopackage
         mCpuFilters = cpuFilters

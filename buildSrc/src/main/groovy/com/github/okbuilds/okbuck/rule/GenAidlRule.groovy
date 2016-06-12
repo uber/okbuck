@@ -1,7 +1,5 @@
 package com.github.okbuilds.okbuck.rule
 
-import static com.github.okbuilds.core.util.CheckUtil.checkStringNotEmpty
-
 final class GenAidlRule extends BuckRule {
 
     private final String mAidlFilePath
@@ -10,9 +8,7 @@ final class GenAidlRule extends BuckRule {
 
     GenAidlRule(String name, String aidlFilePath, String importPath, Set<String> deps) {
         super("gen", name)
-        checkStringNotEmpty(aidlFilePath, "GenAidlRule aidlFilePath can't be empty.")
         mAidlFilePath = aidlFilePath
-        checkStringNotEmpty(importPath, "GenAidlRule importPath can't be empty.")
         mImportPath = importPath
         mAidlDeps = deps
     }

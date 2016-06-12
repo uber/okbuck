@@ -2,8 +2,6 @@ package com.github.okbuilds.okbuck.rule
 
 import org.apache.commons.lang.StringUtils
 
-import static com.github.okbuilds.core.util.CheckUtil.checkStringNotEmpty
-
 final class AndroidResourceRule extends BuckRule {
 
     private final String mRes
@@ -14,7 +12,6 @@ final class AndroidResourceRule extends BuckRule {
                         String res, String assets) {
         super("android_resource", name, visibility, deps)
         mRes = res
-        checkStringNotEmpty(packageName, "AndroidResourceRule package can't be empty.")
         mPackage = packageName
         mAssets = assets
     }

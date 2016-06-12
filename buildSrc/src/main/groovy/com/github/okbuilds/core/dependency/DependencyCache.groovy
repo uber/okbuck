@@ -13,9 +13,9 @@ class DependencyCache {
     private Map<VersionlessDependency, String> finalDepFiles = [:]
     private Map<VersionlessDependency, ExternalDependency> greatestVersions = [:]
 
-    DependencyCache(Project rootProject) {
+    DependencyCache(Project rootProject, String cacheDirPath) {
         this.rootProject = rootProject
-        cacheDir = new File(rootProject.projectDir, ".okbuck/cache")
+        cacheDir = new File(rootProject.projectDir, cacheDirPath)
         cacheDir.mkdirs()
     }
 
