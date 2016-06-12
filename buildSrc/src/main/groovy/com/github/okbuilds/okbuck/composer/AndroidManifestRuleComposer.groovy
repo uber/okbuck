@@ -5,7 +5,7 @@ import com.github.okbuilds.core.model.AndroidLibTarget
 import com.github.okbuilds.core.model.Target
 import com.github.okbuilds.okbuck.rule.AndroidManifestRule
 
-final class AndroidManifestRuleComposer {
+final class AndroidManifestRuleComposer extends AndroidBuckRuleComposer {
 
     private AndroidManifestRuleComposer() {
         // no instance
@@ -14,18 +14,14 @@ final class AndroidManifestRuleComposer {
     static AndroidManifestRule compose(AndroidAppTarget target) {
         List<String> deps = []
 
-        deps.addAll(target.compileDeps.findAll { String dep ->
+        deps.addAll(external(target.compileDeps.findAll { String dep ->
             dep.endsWith("aar")
-        }.collect { String dep ->
-            "//${dep.reverse().replaceFirst("/", ":").reverse()}"
-        })
+        }))
 
-        deps.addAll(target.targetCompileDeps.findAll { Target targetDep ->
+        deps.addAll(targets(target.targetCompileDeps.findAll { Target targetDep ->
             targetDep instanceof AndroidLibTarget
-        }.collect { Target targetDep ->
-            "//${targetDep.path}:src_${targetDep.name}"
-        })
+        }))
 
-        return new AndroidManifestRule("manifest_${target.name}", ["PUBLIC"], deps, target.manifest)
+        return new AndroidManifestRule(manifest(target), ["PUBLIC"], deps, target.manifest)
     }
 }

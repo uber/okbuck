@@ -3,7 +3,7 @@ package com.github.okbuilds.okbuck.composer
 import com.github.okbuilds.core.model.AndroidAppTarget
 import com.github.okbuilds.okbuck.rule.AndroidBinaryRule
 
-final class AndroidBinaryRuleComposer {
+final class AndroidBinaryRuleComposer extends AndroidBuckRuleComposer {
 
     private static Map<String, String> CPU_FILTER_MAP = [
             "armeabi"    : "ARM",
@@ -23,7 +23,7 @@ final class AndroidBinaryRuleComposer {
             CPU_FILTER_MAP.get(cpuFilter)
         }.findAll { String cpuFilter -> cpuFilter != null }
 
-        return new AndroidBinaryRule("bin_${target.name}", ["PUBLIC"], deps, manifestRuleName, keystoreRuleName,
+        return new AndroidBinaryRule(bin(target), ["PUBLIC"], deps, manifestRuleName, keystoreRuleName,
                 target.multidexEnabled, target.linearAllocHardLimit, target.primaryDexPatterns, target.exopackage,
                 mappedCpuFilters, target.minifyEnabled, target.proguardConfig, target.placeholders)
     }
