@@ -34,7 +34,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         InstallExtension install = okbuck.extensions.create(INSTALL, InstallExtension, project)
         okbuck.extensions.create(EXPERIMENTAL, ExperimentalExtension)
 
-        dependencyCache = new DependencyCache(project)
+        dependencyCache = new DependencyCache(project, ".okbuck/cache")
 
         Task okBuckClean = project.task(OKBUCK_CLEAN)
         okBuckClean.setGroup(GROUP)

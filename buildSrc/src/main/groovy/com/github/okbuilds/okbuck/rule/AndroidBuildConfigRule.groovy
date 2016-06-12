@@ -1,8 +1,5 @@
 package com.github.okbuilds.okbuck.rule
 
-import static com.github.okbuilds.core.util.CheckUtil.checkNotNull
-import static com.github.okbuilds.core.util.CheckUtil.checkStringNotEmpty
-
 final class AndroidBuildConfigRule extends BuckRule {
 
     private final String mPackage
@@ -14,9 +11,7 @@ final class AndroidBuildConfigRule extends BuckRule {
             List<String> values
     ) {
         super("android_build_config", name, visibility)
-        checkStringNotEmpty(packageName, "AndroidBuildConfigRule package can't be empty.")
         mPackage = packageName
-        checkNotNull(values, "AndroidBuildConfigRule values must be non-null.")
         mValues = values
     }
 
