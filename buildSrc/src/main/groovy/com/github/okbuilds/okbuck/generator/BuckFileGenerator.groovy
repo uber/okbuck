@@ -55,8 +55,7 @@ final class BuckFileGenerator {
     }
 
     private static List<BuckRule> createRules(JavaLibTarget target) {
-        return [JavaLibraryRuleComposer.compose(target) as BuckRule,
-                JavaTestRuleComposer.compose(target) as BuckRule]
+        return [JavaLibraryRuleComposer.compose(target), JavaTestRuleComposer.compose(target)]
     }
 
     private static List<BuckRule> createRules(AndroidLibTarget target, String appClass = null) {
@@ -82,7 +81,7 @@ final class BuckFileGenerator {
 
         // Apt
         List<String> aptDeps = []
-        if (!target.aptDeps.empty) {
+        if (!target.annotationProcessors.empty && !target.aptDeps.empty) {
             AptRule aptRule = AptRuleComposer.compose(target)
             rules.add(aptRule)
             aptDeps.add(":${aptRule.name}")

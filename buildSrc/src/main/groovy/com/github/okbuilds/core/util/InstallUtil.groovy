@@ -28,7 +28,6 @@ class InstallUtil {
 
         GitUtil.addRemote(repoDir, remoteUrl)
         GitUtil.fetchAll(repoDir)
-        GitUtil.cleanReset(repoDir)
         GitUtil.checkout(repoDir, sha, remoteName)
 
         build.installer.install(project, repoDir)
