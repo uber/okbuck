@@ -1,22 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="60dp"
-              android:id="@+id/mLlContainer"
-              android:gravity="center"
-              android:background="#ffffff"
-              android:layout_marginTop="4dp"
-              android:layout_marginLeft="4dp"
-              android:layout_marginRight="4dp"
-        >
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mLlContainer"
+    android:layout_width="match_parent"
+    android:layout_height="60dp"
+    android:layout_marginLeft="4dp"
+    android:layout_marginRight="4dp"
+    android:layout_marginTop="4dp"
+    android:background="#ffffff"
+    android:gravity="center"
+    android:orientation="vertical">
+
     <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/mNumber"
-            android:textColor="#ff000000"
-            android:textSize="16sp"
-            tools:text="100"
-            />
+        android:id="@+id/mNumber"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#ff000000"
+        android:textSize="16sp"
+        tools:text="100" />
 </LinearLayout>
