@@ -12,8 +12,8 @@ final class JavaLibraryRuleComposer extends JavaBuckRuleComposer {
 
     static JavaLibraryRule compose(JavaLibTarget target) {
         List<String> deps = []
-        deps.addAll(external(target.main.externalDeps))
-        deps.addAll(targets(target.main.targetDeps))
+        deps.addAll(external(target.main.externalDeps + target.provided.externalDeps))
+        deps.addAll(targets(target.main.targetDeps + target.provided.targetDeps))
 
         Set<String> aptDeps = [] as Set
         aptDeps.addAll(external(target.apt.externalDeps))
