@@ -1,17 +1,11 @@
 package com.github.okbuilds.core.model
 
-import com.github.okbuilds.core.dependency.DependencyCache
-import com.github.okbuilds.core.dependency.ExternalDependency
 import com.github.okbuilds.core.util.FileUtil
-import com.github.okbuilds.core.util.ProjectUtil
-import com.github.okbuilds.okbuck.OkBuckGradlePlugin
+import com.github.okbuilds.okbuck.OkBuckExtension
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
-import org.apache.commons.io.FilenameUtils
 import org.gradle.api.Project
-import org.gradle.api.artifacts.Configuration
-import org.gradle.api.artifacts.ResolvedArtifact
-import org.gradle.api.artifacts.UnknownConfigurationException
+
 /**
  * A target is roughly equivalent to what can be built with gradle via the various assemble tasks.
  *
@@ -32,6 +26,7 @@ abstract class Target {
     final String name
     final String identifier
     final String path
+    final OkBuckExtension okbuck
 
     /**
      * Constructor.
@@ -47,6 +42,7 @@ abstract class Target {
         path = identifier.replaceAll(':', '/')
 
         rootProject = project.gradle.rootProject
+        okbuck = rootProject.okbuck
     }
 
     protected Set<String> getAvailable(Collection<File> files) {
@@ -54,50 +50,6 @@ abstract class Target {
             file.exists()
         }.collect { File file ->
             FileUtil.getRelativePath(project.projectDir, file)
-        }
-    }
-
-    DependencyCache getDependencyCache() {
-        return ((OkBuckGradlePlugin) rootProject.plugins
-                .getPlugin(OkBuckGradlePlugin)).dependencyCache
-    }
-
-    void extractConfigurations(Set<String> configurations, Set<ExternalDependency> externalConfigurationDeps,
-                                         Set<Target> targetConfigurationDeps) {
-        configurations.each { String configName ->
-            try {
-                Configuration configuration = project.configurations.getByName(configName)
-                Set<File> resolvedFiles = [] as Set
-                configuration.resolvedConfiguration.resolvedArtifacts.each { ResolvedArtifact artifact ->
-                    String identifier = artifact.id.componentIdentifier.displayName
-                    File dep = artifact.file
-
-                    resolvedFiles.add(dep)
-
-                    if (identifier.contains(" ")) {
-                        Target target = ProjectUtil.getTargetForOutput(rootProject, dep)
-                        if (target != null) {
-                            targetConfigurationDeps.add(target)
-                        }
-                    } else {
-                        ExternalDependency dependency = new ExternalDependency(identifier, dep)
-                        externalConfigurationDeps.add(dependency)
-                        dependencyCache.put(dependency)
-                    }
-                }
-
-                configuration.resolve().findAll { File resolved ->
-                    !resolvedFiles.contains(resolved)
-                }.each { File localDep ->
-                    ExternalDependency dependency = new ExternalDependency(
-                            "${identifier.replaceAll(':', '_')}:${FilenameUtils.getBaseName(localDep.name)}:1.0.0",
-                            localDep)
-                    externalConfigurationDeps.add(dependency)
-                    dependencyCache.put(dependency)
-                }
-
-            } catch (UnknownConfigurationException ignored) {
-            }
         }
     }
 

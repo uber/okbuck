@@ -14,11 +14,11 @@ final class AndroidManifestRuleComposer extends AndroidBuckRuleComposer {
     static AndroidManifestRule compose(AndroidAppTarget target) {
         List<String> deps = []
 
-        deps.addAll(external(target.compileDeps.findAll { String dep ->
+        deps.addAll(external(target.main.externalDeps.findAll { String dep ->
             dep.endsWith("aar")
         }))
 
-        deps.addAll(targets(target.targetCompileDeps.findAll { Target targetDep ->
+        deps.addAll(targets(target.main.targetDeps.findAll { Target targetDep ->
             targetDep instanceof AndroidLibTarget
         }))
 

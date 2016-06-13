@@ -24,7 +24,8 @@ final class AndroidBinaryRuleComposer extends AndroidBuckRuleComposer {
         }.findAll { String cpuFilter -> cpuFilter != null }
 
         return new AndroidBinaryRule(bin(target), ["PUBLIC"], deps, manifestRuleName, keystoreRuleName,
-                target.multidexEnabled, target.linearAllocHardLimit, target.primaryDexPatterns, target.exopackage,
-                mappedCpuFilters, target.minifyEnabled, target.proguardConfig, target.placeholders)
+                target.multidexEnabled, target.linearAllocHardLimit, target.primaryDexPatterns,
+                target.exopackage != null, mappedCpuFilters, target.minifyEnabled,
+                target.proguardConfig, target.placeholders)
     }
 }

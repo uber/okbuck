@@ -1,49 +1,37 @@
 package com.github.okbuilds.core.model
 
-import com.github.okbuilds.core.dependency.ExternalDependency
-import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.internal.jvm.Jvm
-
 /**
  * A java library target
  */
 class JavaLibTarget extends JavaTarget {
 
-    private static final String RETRO_LAMBDA_CONFIG = "retrolambdaConfig"
     static final String MAIN = "main"
-    final boolean retrolambda
+    final Scope retrolambda
 
-    private final Set<ExternalDependency> retroLambdaDeps = [] as Set
     protected final List<String> extraJvmArgs = []
 
     JavaLibTarget(Project project, String name) {
         super(project, name)
 
         // Retrolambda
-        retrolambda = project.plugins.hasPlugin('me.tatarka.retrolambda')
-        if (retrolambda) {
-            extractConfigurations([RETRO_LAMBDA_CONFIG] as Set, retroLambdaDeps, [] as Set)
+        if (project.plugins.hasPlugin('me.tatarka.retrolambda')) {
+            retrolambda = new Scope(project, ["retrolambdaConfig"] as Set)
             extraJvmArgs.addAll(["-bootclasspath", bootClasspath])
+        } else {
+            retrolambda = null
         }
     }
 
     @Override
-    protected Set<File> sourceDirs() {
-        return project.files("src/main/java") as Set
-    }
-
-    protected Set<File> testSourceDirs() {
-        return project.files("src/test/java") as Set
+    Scope getMain() {
+        return new Scope(project, ["compile"], project.files("src/main/java") as Set)
     }
 
     @Override
-    protected Set<String> compileConfigurations() {
-        return ["compile"]
-    }
-
-    protected Set<String> testCompileConfigurations() {
-        return ["testCompile"]
+    Scope getTest() {
+        return new Scope(project, ["testCompile"], project.files("src/test/java") as Set)
     }
 
     String getSourceCompatibility() {
@@ -55,7 +43,7 @@ class JavaLibTarget extends JavaTarget {
     }
 
     String getRetroLambdaJar() {
-        dependencyCache.get(retroLambdaDeps[0])
+        retrolambda.externalDeps[0]
     }
 
     List<String> getJvmArgs() {
@@ -72,20 +60,5 @@ class JavaLibTarget extends JavaTarget {
 
     protected String getInitialBootCp() {
         return project.compileJava.options.bootClasspath
-    }
-
-    protected static String javaVersion(JavaVersion version) {
-        switch (version) {
-            case JavaVersion.VERSION_1_6:
-                return '6'
-            case JavaVersion.VERSION_1_7:
-                return '7'
-            case JavaVersion.VERSION_1_8:
-                return '8'
-            case JavaVersion.VERSION_1_9:
-                return '9'
-            default:
-                return '7'
-        }
     }
 }
