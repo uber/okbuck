@@ -81,12 +81,12 @@ final class BuckFileGenerator {
 
         // Apt
         List<String> aptDeps = []
-        if (!target.annotationProcessors.empty && !target.aptDeps.empty) {
+        if (!target.annotationProcessors.empty && !target.apt.externalDeps.empty) {
             AptRule aptRule = AptRuleComposer.compose(target)
             rules.add(aptRule)
             aptDeps.add(":${aptRule.name}")
         }
-        aptDeps.addAll(BuckRuleComposer.targets(target.targetAptDeps))
+        aptDeps.addAll(BuckRuleComposer.targets(target.apt.targetDeps))
 
         // Jni
         androidLibRules.addAll(target.jniLibs.collect { String jniLib ->
@@ -110,7 +110,7 @@ final class BuckFileGenerator {
         List<String> deps = [":${AndroidBuckRuleComposer.src(target)}"]
 
         Set<BuckRule> libRules = createRules((AndroidLibTarget) target,
-                target.exopackage ? target.appClass : null)
+                target.exopackage ? target.exopackage.appClass : null)
         rules.addAll(libRules)
 
         libRules.each { BuckRule rule ->

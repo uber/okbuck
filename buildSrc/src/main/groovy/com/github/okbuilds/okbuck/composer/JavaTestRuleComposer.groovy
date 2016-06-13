@@ -12,19 +12,19 @@ final class JavaTestRuleComposer extends JavaBuckRuleComposer {
 
     static JavaTestRule compose(JavaLibTarget target) {
         List<String> deps = [":${src(target)}"]
-        deps.addAll(external(target.testCompileDeps))
-        deps.addAll(targets(target.targetTestCompileDeps))
+        deps.addAll(external(target.test.externalDeps))
+        deps.addAll(targets(target.test.targetDeps))
 
         Set<String> aptDeps = [] as Set
-        aptDeps.addAll(external(target.aptDeps))
-        aptDeps.addAll(targets(target.targetAptDeps))
+        aptDeps.addAll(external(target.apt.externalDeps))
+        aptDeps.addAll(targets(target.apt.targetDeps))
 
         List<String> postprocessClassesCommands = []
         if (target.retrolambda) {
             postprocessClassesCommands.add(RetroLambdaGenerator.generate(target))
         }
 
-        new JavaTestRule(test(target), ["PUBLIC"], deps, target.testSources,
+        new JavaTestRule(test(target), ["PUBLIC"], deps, target.test.sources,
                 target.annotationProcessors, aptDeps, target.sourceCompatibility,
                 target.targetCompatibility, postprocessClassesCommands, target.jvmArgs)
     }

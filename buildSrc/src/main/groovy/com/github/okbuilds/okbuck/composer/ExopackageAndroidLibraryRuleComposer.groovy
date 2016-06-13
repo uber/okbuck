@@ -1,10 +1,8 @@
 package com.github.okbuilds.okbuck.composer
 
 import com.github.okbuilds.core.model.AndroidAppTarget
-import com.github.okbuilds.core.model.Target
 import com.github.okbuilds.okbuck.generator.RetroLambdaGenerator
 import com.github.okbuilds.okbuck.rule.ExopackageAndroidLibraryRule
-import org.apache.commons.lang3.tuple.Pair
 
 final class ExopackageAndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
 
@@ -14,10 +12,9 @@ final class ExopackageAndroidLibraryRuleComposer extends AndroidBuckRuleComposer
 
     static ExopackageAndroidLibraryRule compose(AndroidAppTarget target) {
         List<String> deps = []
-        Pair<Set<String>, Set<Target>> appLibDependencies = target.appLibDependencies
 
-        deps.addAll(external(appLibDependencies.left))
-        deps.addAll(targets(appLibDependencies.right))
+        deps.addAll(external(target.exopackage.externalDeps))
+        deps.addAll(targets(target.exopackage.targetDeps))
         deps.add(":${buildConfig(target)}")
 
         List<String> postprocessClassesCommands = []
@@ -25,7 +22,7 @@ final class ExopackageAndroidLibraryRuleComposer extends AndroidBuckRuleComposer
             postprocessClassesCommands.add(RetroLambdaGenerator.generate(target))
         }
 
-        return new ExopackageAndroidLibraryRule(appLib(target), target.appClass, ["PUBLIC"], deps,
+        return new ExopackageAndroidLibraryRule(appLib(target), target.exopackage.appClass, ["PUBLIC"], deps,
                 target.sourceCompatibility, target.targetCompatibility, postprocessClassesCommands,
                 target.jvmArgs)
     }

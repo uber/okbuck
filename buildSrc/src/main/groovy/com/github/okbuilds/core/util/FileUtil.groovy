@@ -1,5 +1,7 @@
 package com.github.okbuilds.core.util
 
+import org.gradle.api.Project
+
 final class FileUtil {
 
     private FileUtil() {
@@ -22,5 +24,13 @@ final class FileUtil {
         OutputStream outputStream = new FileOutputStream(destination)
         outputStream.write(inputStream.bytes)
         outputStream.close()
+    }
+
+    static Set<String> getAvailable(Project project, Collection<File> files) {
+        return files.findAll { File file ->
+            file.exists()
+        }.collect { File file ->
+            getRelativePath(project.projectDir, file)
+        }
     }
 }
