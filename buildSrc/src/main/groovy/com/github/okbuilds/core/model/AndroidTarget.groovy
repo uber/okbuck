@@ -12,6 +12,7 @@ import groovy.transform.ToString
 import org.apache.commons.codec.digest.DigestUtils
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger
+
 /**
  * An Android target
  */
@@ -46,17 +47,13 @@ abstract class AndroidTarget extends JavaLibTarget {
 
     protected abstract ManifestMerger2.MergeType getMergeType()
 
-
     @Override
-    protected Set<File> sourceDirs() {
-        return baseVariant.sourceSets.collect { SourceProvider provider ->
-            provider.javaDirectories
-        }.flatten() as Set<File>
-    }
-
-    @Override
-    protected Set<String> compileConfigurations() {
-        return ["compile", "${buildType}Compile", "${flavor}Compile", "${name}Compile"]
+    Scope getMain() {
+        return new Scope(project,
+                ["compile", "${buildType}Compile", "${flavor}Compile", "${name}Compile"] as Set,
+                baseVariant.sourceSets.collect { SourceProvider provider ->
+                    provider.javaDirectories
+                }.flatten() as Set<File>)
     }
 
     @Override

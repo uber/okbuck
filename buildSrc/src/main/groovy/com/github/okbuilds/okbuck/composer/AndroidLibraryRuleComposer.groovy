@@ -15,10 +15,10 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
     static AndroidLibraryRule compose(AndroidLibTarget target, List<String> deps,
                                       List<String> aptDeps, List<String> aidlRuleNames,
                                       String appClass) {
-        deps.addAll(external(target.compileDeps))
-        deps.addAll(targets(target.targetCompileDeps))
+        deps.addAll(external(target.main.externalDeps))
+        deps.addAll(targets(target.main.targetDeps))
 
-        target.targetCompileDeps.each { Target targetDep ->
+        target.main.targetDeps.each { Target targetDep ->
             if (targetDep instanceof AndroidTarget) {
                 targetDep.resources.each { AndroidTarget.ResBundle bundle ->
                     deps.add(res(targetDep, bundle))
@@ -31,7 +31,7 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
             postprocessClassesCommands.add(RetroLambdaGenerator.generate(target))
         }
 
-        return new AndroidLibraryRule(src(target), ["PUBLIC"], deps, target.sources,
+        return new AndroidLibraryRule(src(target), ["PUBLIC"], deps, target.main.sources,
                 target.manifest, target.annotationProcessors as List, aptDeps, aidlRuleNames,
                 appClass, target.sourceCompatibility, target.targetCompatibility,
                 postprocessClassesCommands, target.jvmArgs)

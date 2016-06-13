@@ -4,17 +4,13 @@ import com.android.build.gradle.api.BaseVariant
 import com.android.builder.model.SigningConfig
 import com.android.manifmerger.ManifestMerger2
 import com.github.okbuilds.core.annotation.Experimental
-import com.github.okbuilds.core.dependency.ExternalDependency
 import com.github.okbuilds.core.util.FileUtil
 import com.github.okbuilds.okbuck.ExperimentalExtension
-import com.github.okbuilds.okbuck.OkBuckExtension
 import groovy.transform.ToString
 import groovy.util.slurpersupport.GPathResult
 import groovy.xml.StreamingMarkupBuilder
 import org.apache.commons.io.FilenameUtils
-import org.apache.commons.lang3.tuple.Pair
 import org.gradle.api.Project
-import org.gradle.api.file.FileTree
 
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
@@ -31,11 +27,11 @@ class AndroidAppTarget extends AndroidLibTarget {
     final Keystore keystore
     final Set<String> cpuFilters
 
-    final boolean exopackage
     final int linearAllocHardLimit
     final Set<String> primaryDexPatterns
     final Set<String> exoPackageDependencies
-    final String appClass
+
+    final ExoPackageScope exopackage
 
     final boolean minifyEnabled
 
@@ -45,8 +41,8 @@ class AndroidAppTarget extends AndroidLibTarget {
     AndroidAppTarget(Project project, String name) {
         super(project, name)
 
-        multidexEnabled = baseVariant.mergedFlavor.multiDexEnabled
         debuggable = baseVariant.buildType.debuggable
+        minifyEnabled = baseVariant.buildType.minifyEnabled
         keystore = extractKeystore()
         if (baseVariant.ndkCompile.abiFilters != null) {
             cpuFilters = baseVariant.ndkCompile.abiFilters
@@ -54,14 +50,16 @@ class AndroidAppTarget extends AndroidLibTarget {
             cpuFilters = [] as Set
         }
 
-        OkBuckExtension okbuck = rootProject.okbuck
-        exopackage = getProp(okbuck.exopackage, false)
+        multidexEnabled = baseVariant.mergedFlavor.multiDexEnabled
         primaryDexPatterns = getProp(okbuck.primaryDexPatterns, []) as Set
-        exoPackageDependencies = getProp(okbuck.appLibDependencies, []) as Set
         linearAllocHardLimit = getProp(okbuck.linearAllocHardLimit, DEFAULT_LINEARALLOC_LIMIT) as Integer
-        appClass = extractAppClass()
 
-        minifyEnabled = baseVariant.buildType.minifyEnabled
+        exoPackageDependencies = getProp(okbuck.appLibDependencies, []) as Set
+        if (getProp(okbuck.exopackage, false)) {
+            exopackage = new ExoPackageScope(project, main, exoPackageDependencies, manifest)
+        } else {
+            exopackage = null
+        }
 
         ExperimentalExtension experimental = okbuck.experimental
         if (experimental.placeholderSupport) {
@@ -128,52 +126,6 @@ class AndroidAppTarget extends AndroidLibTarget {
         return mergedManifest
     }
 
-    Pair<Set<String>, Set<Target>> getAppLibDependencies() {
-        Set<String> externalDeps = [] as Set
-        Set<Target> projectDeps = [] as Set
-        exoPackageDependencies.each { String exoPackageDep ->
-            String first // can denote either group or project name
-            String last // can denote either module or configuration name
-            boolean fullyQualified = false
-
-            if (exoPackageDep.contains(":")) {
-                List<String> parts = exoPackageDep.split(":")
-                first = parts[0]
-                last = parts[1]
-                fullyQualified = true
-            } else {
-                first = last = exoPackageDep
-            }
-
-            ExternalDependency external = externalCompileDeps.find { ExternalDependency externalDependency ->
-                boolean match = true
-                if (fullyQualified) {
-                    match &= externalDependency.group == first
-                }
-                match &= externalDependency.module == last
-                return match
-            }
-
-            if (external != null) {
-                externalDeps.add(dependencyCache.get(external))
-            } else {
-                Target variantDep = targetCompileDeps.find { Target variant ->
-                    boolean match = true
-                    if (fullyQualified) {
-                        match &= variant.name == last
-                    }
-                    match &= variant.path == first
-                    return match
-                }
-
-                if (variantDep != null) {
-                    projectDeps.add(variantDep)
-                }
-            }
-        }
-        return Pair.of(externalDeps, projectDeps)
-    }
-
     String getProguardConfig() {
         File mergedProguardConfig = project.file("${project.buildDir}/okbuck/${name}/proguard.pro")
         mergedProguardConfig.parentFile.mkdirs()
@@ -184,7 +136,7 @@ class AndroidAppTarget extends AndroidLibTarget {
         configs.addAll(baseVariant.buildType.proguardFiles)
 
         // Consumer proguard files of target dependencies
-        configs.addAll((targetCompileDeps.findAll { Target target ->
+        configs.addAll((main.targetDeps.findAll { Target target ->
             target instanceof AndroidLibTarget
         } as List<AndroidLibTarget>).collect { AndroidLibTarget target ->
             target.baseVariant.mergedFlavor.consumerProguardFiles +
@@ -198,7 +150,7 @@ class AndroidAppTarget extends AndroidLibTarget {
         }
 
         // Consumer proguard files of compiled aar dependencies
-        compileDeps.findAll { String dep ->
+        main.externalDeps.findAll { String dep ->
             dep.endsWith(".aar")
         }.each { String dep ->
             String config = getPackedProguardConfig(rootProject.file(dep))
@@ -235,28 +187,6 @@ class AndroidAppTarget extends AndroidLibTarget {
         } else {
             return null
         }
-    }
-
-    private String extractAppClass() {
-        String appClass = null
-        XmlSlurper slurper = new XmlSlurper()
-        slurper.DTDHandler = null
-        GPathResult manifestXml = slurper.parse(project.file(manifest))
-        try {
-            appClass = manifestXml.application.@"android:name"
-            appClass = appClass.replaceAll('\\.', "/")
-        } catch (Exception ignored) {
-        }
-        if (appClass != null && !appClass.empty) {
-            sources.each { String sourceDir ->
-                FileTree found = project.fileTree(dir: sourceDir, includes:
-                        ["${appClass}.java"])
-                if (found.size() == 1) {
-                    appClass = FileUtil.getRelativePath(project.projectDir, found[0])
-                }
-            }
-        }
-        return appClass
     }
 
     @ToString(includes = [])

@@ -24,8 +24,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
 
     static final String GROUP = "okbuck"
 
-    DependencyCache dependencyCache
-
+    static DependencyCache depCache
     static Logger LOGGER
 
     void apply(Project project) {
@@ -34,7 +33,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         InstallExtension install = okbuck.extensions.create(INSTALL, InstallExtension, project)
         okbuck.extensions.create(EXPERIMENTAL, ExperimentalExtension)
 
-        dependencyCache = new DependencyCache(project, ".okbuck/cache")
+        depCache = new DependencyCache(project, ".okbuck/cache")
 
         Task okBuckClean = project.task(OKBUCK_CLEAN)
         okBuckClean.setGroup(GROUP)

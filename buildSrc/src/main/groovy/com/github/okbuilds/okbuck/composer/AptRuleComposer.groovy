@@ -10,6 +10,6 @@ final class AptRuleComposer extends JavaBuckRuleComposer {
     }
 
     static AptRule compose(Target target) {
-        return new AptRule(aptJar(target), external(target.aptDeps) as List)
+        return new AptRule(aptJar(target), external(target.apt.externalDeps) as List)
     }
 }
