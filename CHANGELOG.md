@@ -1,4 +1,6 @@
 # Change log
++  [v0.1.7](https://github.com/OkBuilds/OkBuck/releases/tag/v0.1.7)
+ - Use buck's provided_deps
 +  [v0.1.6](https://github.com/OkBuilds/OkBuck/releases/tag/v0.1.6)
  - Fix regression caused by provided configuration support
 +  [v0.1.5](https://github.com/OkBuilds/OkBuck/releases/tag/v0.1.5)
