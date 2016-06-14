@@ -29,20 +29,11 @@ abstract class JavaTarget extends Target {
      */
     @Memoized
     Scope getApt() {
-        Scope aptScope = new Scope(project, ['apt', 'provided', 'compileOnly'])
+        Scope aptScope = new Scope(project, ["apt", "provided", 'compileOnly'])
         aptScope.targetDeps.retainAll(aptScope.targetDeps.findAll { Target target ->
             target.getProp(okbuck.annotationProcessors, null) != null
         })
         return aptScope
-    }
-
-    /**
-     * Provided Scope
-     */
-    @Memoized
-    Scope getProvided() {
-        Scope providedScope = new Scope(project, ['provided', 'compileOnly'])
-        return providedScope
     }
 
     /**
