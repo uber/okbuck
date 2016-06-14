@@ -1,4 +1,6 @@
 # Change log
++  [v0.1.6](https://github.com/OkBuilds/OkBuck/releases/tag/v0.1.6)
+ - Fix regression caused by provided configuration support
 +  [v0.1.5](https://github.com/OkBuilds/OkBuck/releases/tag/v0.1.5)
  - add support for provided configurations
 +  [v0.1.4](https://github.com/OkBuilds/OkBuck/releases/tag/v0.1.4)
