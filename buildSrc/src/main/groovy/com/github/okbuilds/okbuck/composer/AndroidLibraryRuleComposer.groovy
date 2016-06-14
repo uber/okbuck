@@ -15,8 +15,8 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
     static AndroidLibraryRule compose(AndroidLibTarget target, List<String> deps,
                                       List<String> aptDeps, List<String> aidlRuleNames,
                                       String appClass) {
-        deps.addAll(external(target.main.externalDeps + target.provided.externalDeps))
-        deps.addAll(targets(target.main.targetDeps + target.provided.targetDeps))
+        deps.addAll(external(target.main.externalDeps))
+        deps.addAll(targets(target.main.targetDeps))
 
         target.main.targetDeps.each { Target targetDep ->
             if (targetDep instanceof AndroidTarget) {
