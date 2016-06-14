@@ -13,6 +13,7 @@ final class AndroidLibraryRule extends BuckRule {
     private final String mTargetCompatibility
     private final List<String> mPostprocessClassesCommands
     private final List<String> mOptions
+    private final Set<String> mProvidedDeps
 
     /**
      * @param appClass , if exopackage is enabled, pass the detected app class, otherwise, pass null
@@ -20,9 +21,9 @@ final class AndroidLibraryRule extends BuckRule {
     AndroidLibraryRule(
             String name, List<String> visibility, List<String> deps, Set<String> srcSet,
             String manifest, List<String> annotationProcessors, List<String> aptDeps,
-            List<String> aidlRuleNames, String appClass, String sourceCompatibility,
-            String targetCompatibility, List<String> postprocessClassesCommands,
-            List<String> options) {
+            Set<String> providedDeps, List<String> aidlRuleNames, String appClass,
+            String sourceCompatibility, String targetCompatibility,
+            List<String> postprocessClassesCommands, List<String> options) {
         super("android_library", name, visibility, deps)
 
         mSrcSet = srcSet
@@ -35,6 +36,7 @@ final class AndroidLibraryRule extends BuckRule {
         mTargetCompatibility = targetCompatibility
         mPostprocessClassesCommands = postprocessClassesCommands
         mOptions = options
+        mProvidedDeps = providedDeps
     }
 
     @Override
@@ -64,8 +66,16 @@ final class AndroidLibraryRule extends BuckRule {
 
         if (!mAptDeps.empty) {
             printer.println("\tannotation_processor_deps = [")
-            for (String processor : mAptDeps) {
-                printer.println("\t\t'${processor}',")
+            for (String dep : mAptDeps) {
+                printer.println("\t\t'${dep}',")
+            }
+            printer.println("\t],")
+        }
+
+        if (!mProvidedDeps.empty) {
+            printer.println("\tprovided_deps = [")
+            for (String dep : mProvidedDeps) {
+                printer.println("\t\t'${dep}',")
             }
             printer.println("\t],")
         }
