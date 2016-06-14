@@ -31,10 +31,6 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
             postprocessClassesCommands.add(RetroLambdaGenerator.generate(target))
         }
 
-        if (!target.apt.classpath.empty) {
-            target.jvmArgs.addAll(['-classpath', target.apt.classpath])
-        }
-
         return new AndroidLibraryRule(src(target), ["PUBLIC"], deps, target.main.sources,
                 target.manifest, target.annotationProcessors as List, aptDeps, aidlRuleNames,
                 appClass, target.sourceCompatibility, target.targetCompatibility,
