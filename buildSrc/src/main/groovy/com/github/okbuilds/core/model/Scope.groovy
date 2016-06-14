@@ -21,8 +21,6 @@ class Scope {
     protected final Project project
     protected final Set<ExternalDependency> external = [] as Set
 
-    private final Set<File> files = [] as Set
-
     Scope(Project project, Collection<String> configurations, Set<File> sourceDirs = [], Set<File> resDirs = []) {
         this.project = project
         sources = FileUtil.getAvailable(project, sourceDirs)
@@ -34,10 +32,6 @@ class Scope {
         external.collect { ExternalDependency dependency ->
             OkBuckGradlePlugin.depCache.get(dependency)
         }
-    }
-
-    String getClasspath(){
-        return files.collect{ it.absolutePath }.join(':')
     }
 
     private void extractConfigurations(Collection<String> configurations) {
@@ -72,8 +66,6 @@ class Scope {
                     external.add(dependency)
                     OkBuckGradlePlugin.depCache.put(dependency)
                 }
-
-                files.addAll(resolvedFiles)
             } catch (UnknownConfigurationException ignored) {
             }
         }
