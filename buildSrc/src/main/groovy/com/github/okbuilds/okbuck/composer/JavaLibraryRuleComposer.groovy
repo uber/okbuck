@@ -12,8 +12,8 @@ final class JavaLibraryRuleComposer extends JavaBuckRuleComposer {
 
     static JavaLibraryRule compose(JavaLibTarget target) {
         List<String> deps = []
-        deps.addAll(external(target.main.externalDeps + target.provided.externalDeps))
-        deps.addAll(targets(target.main.targetDeps + target.provided.targetDeps))
+        deps.addAll(external(target.main.externalDeps))
+        deps.addAll(targets(target.main.targetDeps))
 
         Set<String> aptDeps = [] as Set
         aptDeps.addAll(external(target.apt.externalDeps))
@@ -22,6 +22,10 @@ final class JavaLibraryRuleComposer extends JavaBuckRuleComposer {
         List<String> postprocessClassesCommands = []
         if (target.retrolambda) {
             postprocessClassesCommands.add(RetroLambdaGenerator.generate(target))
+        }
+
+        if (!target.apt.classpath.empty) {
+            target.jvmArgs.addAll(['-classpath', target.apt.classpath])
         }
 
         new JavaLibraryRule(src(target), ["PUBLIC"], deps, target.main.sources,
