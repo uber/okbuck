@@ -45,7 +45,9 @@ final class ProjectUtil {
                 }
                 break
             case ProjectType.JAVA_LIB:
-                ["${JavaLibTarget.MAIN}": new JavaLibTarget(project, JavaLibTarget.MAIN)]
+                def targets = new HashMap<String, Target>()
+                targets.put(JavaLibTarget.MAIN, new JavaLibTarget(project, JavaLibTarget.MAIN))
+                return targets
                 break
             default:
                 [:]

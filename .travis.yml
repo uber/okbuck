@@ -12,7 +12,9 @@ android:
 
 script:
   - bash ./gradlew okbuck installBuck &&
-    ./buck build appDevDebug appDevRelease appProdDebug appProdRelease another-appDebug another-appRelease
+    ./buck build appDevDebug appDevRelease appProdDebug appProdRelease another-appDebug another-appRelease &&
+    ./buck project --ide intellij &&
+    ./buck project --ide intellij --deprecated-ij-generation
 
 notifications:
   email: false

@@ -19,7 +19,10 @@ abstract class BuckRule {
      */
     void print(PrintStream printer) {
         printer.println("${mRuleType}(")
-        printer.println("\tname = '${name}',")
+
+        if (name != null) {
+            printer.println("\tname = '${name}',")
+        }
         printContent(printer)
         if (!mDeps.empty) {
             printer.println("\tdeps = [")

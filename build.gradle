@@ -77,6 +77,12 @@ okbuck {
         gitUrl 'https://github.com/OkBuilds/buck.git'
         sha 'okbuck'
     }
+
+    projectTargets = [
+            'app': 'devDebug',
+            'common': 'freeRelease',
+            'dummylibrary': 'freeRelease',
+    ]
 }
 
 task clean(type: Delete) {
