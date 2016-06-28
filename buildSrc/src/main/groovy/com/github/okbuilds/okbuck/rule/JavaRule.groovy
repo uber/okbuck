@@ -4,23 +4,35 @@ abstract class JavaRule extends BuckRule {
     private final Set<String> mSrcSet
     private final Set<String> mAnnotationProcessors
     private final Set<String> mAnnotationProcessorDeps
+    private final String mResourcesDir
     private final String mSourceCompatibility
     private final String mTargetCompatibility
     private final List<String> mPostprocessClassesCommands
     private final List<String> mOptions
     private final Set<String> mProvidedDeps
 
-    JavaRule(String ruleType, String name, List<String> visibility, List<String> deps,
-             Set<String> srcSet, Set<String> annotationProcessors,
-             Set<String> aptDeps, Set<String> providedDeps, String sourceCompatibility,
-             String targetCompatibility, List<String> postprocessClassesCommands,
-             List<String> options) {
+    JavaRule(
+            String ruleType,
+            String name,
+            List<String> visibility,
+            List<String> deps,
+            Set<String> srcSet,
+            Set<String> annotationProcessors,
+            Set<String> aptDeps,
+            Set<String> providedDeps,
+            String resourcesDir,
+            String sourceCompatibility,
+            String targetCompatibility,
+            List<String> postprocessClassesCommands,
+            List<String> options) {
+
         super(ruleType, name, visibility, deps)
         mSrcSet = srcSet
         mAnnotationProcessors = annotationProcessors
         mAnnotationProcessorDeps = aptDeps
         mSourceCompatibility = sourceCompatibility
         mTargetCompatibility = targetCompatibility
+        mResourcesDir = resourcesDir
         mPostprocessClassesCommands = postprocessClassesCommands
         mOptions = options
         mProvidedDeps = providedDeps
@@ -34,6 +46,14 @@ abstract class JavaRule extends BuckRule {
                 printer.println("\t\t'${src}/**/*.java',")
             }
             printer.println("\t]),")
+        }
+
+        if (mResourcesDir) {
+            printer.println("\tresources = glob([")
+            printer.println("\t\t'${mResourcesDir}/**',")
+            printer.println("\t]),")
+
+            printer.println("\tresources_root = '${mResourcesDir}',")
         }
 
         if (!mAnnotationProcessors.empty) {

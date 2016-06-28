@@ -10,6 +10,7 @@ import com.github.okbuilds.core.util.FileUtil
 import groovy.transform.Memoized
 import groovy.transform.ToString
 import org.apache.commons.codec.digest.DigestUtils
+import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 
@@ -53,22 +54,30 @@ abstract class AndroidTarget extends JavaLibTarget {
                 ["compile", "${buildType}Compile", "${flavor}Compile", "${name}Compile"] as Set,
                 baseVariant.sourceSets.collect { SourceProvider provider ->
                     provider.javaDirectories
-                }.flatten() as Set<File>)
+                }.flatten() as Set<File>,
+                null,
+                extraJvmArgs)
+    }
+
+    @Override
+    Scope getTest() {
+        return new Scope(project,
+                ["testCompile", "${buildType}TestCompile", "${flavor}TestCompile", "${name}TestCompile"] as Set,
+                baseVariant.sourceSets.collect { SourceProvider provider ->
+                    provider.javaDirectories
+                }.flatten() as Set<File>,
+                null,
+                extraJvmArgs)
     }
 
     @Override
     String getSourceCompatibility() {
-        return javaVersion(project.android.compileOptions.sourceCompatibility)
+        return javaVersion(project.android.compileOptions.sourceCompatibility as JavaVersion)
     }
 
     @Override
     String getTargetCompatibility() {
-        return javaVersion(project.android.compileOptions.targetCompatibility)
-    }
-
-    @Override
-    List<String> getJvmArgs() {
-        return extraJvmArgs
+        return javaVersion(project.android.compileOptions.targetCompatibility as JavaVersion)
     }
 
     @Override
@@ -141,9 +150,11 @@ abstract class AndroidTarget extends JavaLibTarget {
         File mainManifest = project.file(manifests[0])
 
         List<File> secondaryManifests = []
-        secondaryManifests.addAll(manifests.collect {
-            String manifestFile -> project.file(manifestFile)
-        })
+        secondaryManifests.addAll(
+                manifests.collect {
+                    String manifestFile -> project.file(manifestFile)
+                })
+
         secondaryManifests.remove(mainManifest)
 
         File mergedManifest = project.file("${project.buildDir}/okbuck/${name}/AndroidManifest.xml")

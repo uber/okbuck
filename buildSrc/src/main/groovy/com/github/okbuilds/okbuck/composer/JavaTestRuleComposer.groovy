@@ -2,6 +2,7 @@ package com.github.okbuilds.okbuck.composer
 
 import com.github.okbuilds.core.model.JavaLibTarget
 import com.github.okbuilds.okbuck.generator.RetroLambdaGenerator
+import com.github.okbuilds.okbuck.rule.JavaLibraryRule
 import com.github.okbuilds.okbuck.rule.JavaTestRule
 
 final class JavaTestRuleComposer extends JavaBuckRuleComposer {
@@ -11,7 +12,8 @@ final class JavaTestRuleComposer extends JavaBuckRuleComposer {
     }
 
     static JavaTestRule compose(JavaLibTarget target) {
-        List<String> deps = [":${src(target)}"]
+        List<String> deps = []
+        deps.add(":${src(target)}")
         deps.addAll(external(target.test.externalDeps))
         deps.addAll(targets(target.test.targetDeps))
 
@@ -29,8 +31,18 @@ final class JavaTestRuleComposer extends JavaBuckRuleComposer {
             postprocessClassesCommands.add(RetroLambdaGenerator.generate(target))
         }
 
-        new JavaTestRule(test(target), ["PUBLIC"], deps, target.test.sources,
-                target.annotationProcessors, aptDeps, providedDeps, target.sourceCompatibility,
-                target.targetCompatibility, postprocessClassesCommands, target.jvmArgs)
+        new JavaTestRule(
+                test(target),
+                ["PUBLIC"],
+                deps,
+                target.test.sources,
+                target.annotationProcessors,
+                aptDeps,
+                providedDeps,
+                target.test.resourcesDir,
+                target.sourceCompatibility,
+                target.targetCompatibility,
+                postprocessClassesCommands,
+                target.test.jvmArgs)
     }
 }

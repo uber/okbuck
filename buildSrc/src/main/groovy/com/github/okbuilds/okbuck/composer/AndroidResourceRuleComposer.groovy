@@ -20,7 +20,7 @@ final class AndroidResourceRuleComposer extends AndroidBuckRuleComposer {
         target.main.targetDeps.each { Target targetDep ->
             if (targetDep instanceof AndroidTarget) {
                 targetDep.resources.each { AndroidTarget.ResBundle bundle ->
-                    resDeps.add(res(targetDep, bundle))
+                    resDeps.add(res(targetDep as AndroidTarget, bundle))
                 }
             }
         }
