@@ -8,20 +8,22 @@ abstract class JavaRule extends BuckRule {
     private final String mTargetCompatibility
     private final List<String> mPostprocessClassesCommands
     private final List<String> mOptions
+    private final Set<String> mProvidedDeps
 
     JavaRule(String ruleType, String name, List<String> visibility, List<String> deps,
              Set<String> srcSet, Set<String> annotationProcessors,
-             Set<String> annotationProcessorDeps, String sourceCompatibility,
+             Set<String> aptDeps, Set<String> providedDeps, String sourceCompatibility,
              String targetCompatibility, List<String> postprocessClassesCommands,
              List<String> options) {
         super(ruleType, name, visibility, deps)
         mSrcSet = srcSet
         mAnnotationProcessors = annotationProcessors
-        mAnnotationProcessorDeps = annotationProcessorDeps
+        mAnnotationProcessorDeps = aptDeps
         mSourceCompatibility = sourceCompatibility
         mTargetCompatibility = targetCompatibility
         mPostprocessClassesCommands = postprocessClassesCommands
         mOptions = options
+        mProvidedDeps = providedDeps
     }
 
     @Override
@@ -48,6 +50,14 @@ abstract class JavaRule extends BuckRule {
                 }
                 printer.println("\t],")
             }
+        }
+
+        if (!mProvidedDeps.empty) {
+            printer.println("\tprovided_deps = [")
+            for (String dep : mProvidedDeps) {
+                printer.println("\t\t'${dep}',")
+            }
+            printer.println("\t],")
         }
 
         printer.println("\tsource = '${mSourceCompatibility}',")
