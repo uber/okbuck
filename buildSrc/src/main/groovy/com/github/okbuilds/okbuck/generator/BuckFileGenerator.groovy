@@ -10,6 +10,9 @@ import org.gradle.api.Project
 
 final class BuckFileGenerator {
 
+    private static final TARGET_DEBUG = 'debug'
+    private static final TARGET_RELEASE = 'release'
+
     private final Project mRootProject
     private final OkBuckExtension mOkbuck
 
@@ -23,7 +26,12 @@ final class BuckFileGenerator {
      */
     Map<Project, BUCKFile> generate() {
         Map<Project, List<BuckRule>> projectRules = mOkbuck.buckProjects.collectEntries { Project project ->
-            [project, createRules(project)]
+            List<BuckRule> rules = createRules(project)
+            def projectConfigRule = createProjectConfigRule(project, mOkbuck.projectTargets)
+            if (projectConfigRule != null) {
+                rules.add(projectConfigRule)
+            }
+            [project, rules]
         }
 
         return projectRules.findAll { Project project, List<BuckRule> rules ->
@@ -51,7 +59,35 @@ final class BuckFileGenerator {
                     break
             }
         }
+
+        createProjectConfigRule(project, project.okbuck.projectTargets)
+
         return rules
+    }
+
+    private static ProjectConfigRule createProjectConfigRule(Project project, Map<String, String> projectConfigTargets) {
+        def projectType = ProjectUtil.getType(project)
+        switch (projectType) {
+            case ProjectType.ANDROID_APP:
+                def customBuildVariant = projectConfigTargets.get(project.name)
+                def appTarget = (AndroidAppTarget) getTargetForVariant(
+                        project,
+                        customBuildVariant != null ? customBuildVariant : TARGET_DEBUG
+                )
+                return ProjectConfigComposer.composeAndroidApp(appTarget)
+            case ProjectType.ANDROID_LIB:
+                def customBuildVariant = projectConfigTargets.get(project.name)
+                def libraryTarget = (AndroidLibTarget) getTargetForVariant(
+                        project,
+                        customBuildVariant != null ? customBuildVariant : TARGET_RELEASE
+                )
+                return ProjectConfigComposer.composeLibrary(libraryTarget)
+            case ProjectType.JAVA_LIB:
+                def libraryTarget = (JavaLibTarget) getTargetForVariant(project, JavaLibTarget.MAIN)
+                return ProjectConfigComposer.composeLibrary(libraryTarget)
+            default:
+                return null
+        }
     }
 
     private static List<BuckRule> createRules(JavaLibTarget target) {
@@ -134,5 +170,16 @@ final class BuckFileGenerator {
         rules.add(AndroidBinaryRuleComposer.compose(target, deps, ":${manifestRule.name}",
                 keystoreRuleName))
         return rules
+    }
+
+    private static Target getTargetForVariant(Project project, String desiredVariant) {
+        def target = ProjectUtil.getTargets(project).get(desiredVariant)
+        if (target == null) {
+            throw new IllegalStateException("Unable to infer default project target for ${project.name} (tried looking " +
+                    "for ${desiredVariant}), if you are using a custom build variants add a projectTarget entry to " +
+                    "your root build.gradle.")
+        }
+
+        return target
     }
 }
