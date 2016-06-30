@@ -1,4 +1,8 @@
 # Change log
++  [v0.2.0](https://github.com/OkBuilds/OkBuck/releases/tag/v0.2.0)
+ - Support for generating project_config rules
+ - Support for provided_deps in java rules
+ - Promote manifest placeholders support from experimental to full supported
 +  [v0.1.7](https://github.com/OkBuilds/OkBuck/releases/tag/v0.1.7)
  - Use buck's provided_deps
 +  [v0.1.6](https://github.com/OkBuilds/OkBuck/releases/tag/v0.1.6)
