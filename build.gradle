@@ -4,10 +4,9 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.1.0'
+        classpath 'com.android.tools.build:gradle:2.1.2'
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
         classpath 'me.tatarka:gradle-retrolambda:3.2.5'
-        classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:3.0.3'
     }
 }
 
@@ -69,13 +68,8 @@ okbuck {
     ]
     buckProjects = project.subprojects.findAll { it.name != "plugin" }
 
-    experimental {
-        placeholderSupport true
-    }
-
     install {
-        gitUrl 'https://github.com/OkBuilds/buck.git'
-        sha 'okbuck'
+        sha '2d937846d94b3372a5f784dc6d5c730f0c09cdc8'
     }
 
     projectTargets = [

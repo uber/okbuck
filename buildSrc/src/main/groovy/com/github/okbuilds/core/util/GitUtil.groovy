@@ -27,12 +27,12 @@ class GitUtil {
     }
 
     /**
-     * Checks out a given sha/branch/tag on a repo
+     * Checks out a given ref (sha/branch/tag) on a repo
      * @param repoDir The git repository directory
-     * @param repoDir The git sha/branch/tag
+     * @param repoDir The git ref/branch/tag
      */
-    static void checkout(File repoDir, String sha, String remoteName) {
-        CmdUtil.run("git -C ${repoDir.absolutePath} checkout ${remoteName}/${sha}")
+    static void checkout(File repoDir, String ref) {
+        CmdUtil.run("git -C ${repoDir.absolutePath} checkout ${ref}")
     }
 
     /**

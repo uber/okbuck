@@ -1,10 +1,6 @@
 package com.github.okbuilds.okbuck
 
-import org.apache.http.annotation.Experimental
+import com.github.okbuilds.core.annotation.Experimental
 
 @Experimental
-class ExperimentalExtension {
-
-    // Enables support for manifest placeholders
-    boolean placeholderSupport = false
-}
+class ExperimentalExtension { }
