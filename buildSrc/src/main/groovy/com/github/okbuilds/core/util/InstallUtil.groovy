@@ -10,7 +10,7 @@ class InstallUtil {
 
     private InstallUtil() {}
 
-    static void install(Project project, BuildSystem build, String gitUrl, String sha, File cacheDir) {
+    static void install(Project project, BuildSystem build, String gitUrl, String ref, File cacheDir) {
         cacheDir.mkdirs()
         File repoDir = new File(cacheDir, build.name)
 
@@ -20,15 +20,13 @@ class InstallUtil {
         }
 
         def remoteUrl = build.gitUrl
-        def remoteName = "origin"
         if (gitUrl != null && !gitUrl.empty) {
             remoteUrl = gitUrl
-            remoteName = GitUtil.remoteName(remoteUrl)
         }
 
         GitUtil.addRemote(repoDir, remoteUrl)
         GitUtil.fetchAll(repoDir)
-        GitUtil.checkout(repoDir, sha, remoteName)
+        GitUtil.checkout(repoDir, ref)
 
         build.installer.install(project, repoDir)
     }
