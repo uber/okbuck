@@ -14,17 +14,25 @@ import org.gradle.api.artifacts.UnknownConfigurationException
 @EqualsAndHashCode
 class Scope {
 
+    final String resourcesDir
     final Set<String> sources
-    final Set<String> resources
     final Set<Target> targetDeps = [] as Set
+    List<String> jvmArgs
 
     protected final Project project
     protected final Set<ExternalDependency> external = [] as Set
 
-    Scope(Project project, Collection<String> configurations, Set<File> sourceDirs = [], Set<File> resDirs = []) {
+    Scope(Project project,
+          Collection<String> configurations,
+          Set<File> sourceDirs = [],
+          File resDir = null,
+          List<String> jvmArguments = []) {
+
         this.project = project
         sources = FileUtil.getAvailable(project, sourceDirs)
-        resources = FileUtil.getAvailable(project, resDirs)
+        resourcesDir = FileUtil.getAvailableFile(project, resDir)
+        jvmArgs = jvmArguments
+
         extractConfigurations(configurations)
     }
 

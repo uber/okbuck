@@ -24,6 +24,6 @@ final class ExopackageAndroidLibraryRuleComposer extends AndroidBuckRuleComposer
 
         return new ExopackageAndroidLibraryRule(appLib(target), target.exopackage.appClass, ["PUBLIC"], deps,
                 target.sourceCompatibility, target.targetCompatibility, postprocessClassesCommands,
-                target.jvmArgs)
+                target.exopackage.jvmArgs)
     }
 }

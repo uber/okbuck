@@ -26,12 +26,20 @@ class JavaLibTarget extends JavaTarget {
 
     @Override
     Scope getMain() {
-        return new Scope(project, ["compile"], project.files("src/main/java") as Set)
+        return new Scope(project,
+                ["compile"],
+                project.files("src/main/java") as Set,
+                project.file("src/main/resources"),
+                project.compileJava.options.compilerArgs + extraJvmArgs as List<String>)
     }
 
     @Override
     Scope getTest() {
-        return new Scope(project, ["testCompile"], project.files("src/test/java") as Set)
+        return new Scope(project,
+                ["testCompile"],
+                project.files("src/test/java") as Set,
+                project.file("src/test/resources"),
+                project.compileTestJava.options.compilerArgs + extraJvmArgs as List<String>)
     }
 
     String getSourceCompatibility() {

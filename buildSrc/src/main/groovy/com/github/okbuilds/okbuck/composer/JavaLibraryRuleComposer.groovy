@@ -29,8 +29,19 @@ final class JavaLibraryRuleComposer extends JavaBuckRuleComposer {
             postprocessClassesCommands.add(RetroLambdaGenerator.generate(target))
         }
 
-        new JavaLibraryRule(src(target), ["PUBLIC"], deps, target.main.sources,
-                target.annotationProcessors, aptDeps, providedDeps, target.sourceCompatibility,
-                target.targetCompatibility, postprocessClassesCommands, target.jvmArgs)
+        new JavaLibraryRule(
+                src(target),
+                ["PUBLIC"],
+                deps,
+                target.main.sources,
+                target.annotationProcessors,
+                aptDeps,
+                providedDeps,
+                target.main.resourcesDir,
+                target.sourceCompatibility,
+                target.targetCompatibility,
+                postprocessClassesCommands,
+                target.main.jvmArgs)
     }
+
 }

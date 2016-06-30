@@ -19,11 +19,20 @@ final class AndroidLibraryRule extends BuckRule {
      * @param appClass , if exopackage is enabled, pass the detected app class, otherwise, pass null
      * */
     AndroidLibraryRule(
-            String name, List<String> visibility, List<String> deps, Set<String> srcSet,
-            String manifest, List<String> annotationProcessors, List<String> aptDeps,
-            Set<String> providedDeps, List<String> aidlRuleNames, String appClass,
-            String sourceCompatibility, String targetCompatibility,
-            List<String> postprocessClassesCommands, List<String> options) {
+            String name,
+            List<String> visibility,
+            List<String> deps,
+            Set<String> srcSet,
+            String manifest,
+            List<String> annotationProcessors,
+            List<String> aptDeps,
+            Set<String> providedDeps,
+            List<String> aidlRuleNames,
+            String appClass,
+            String sourceCompatibility,
+            String targetCompatibility,
+            List<String> postprocessClassesCommands,
+            List<String> options) {
         super("android_library", name, visibility, deps)
 
         mSrcSet = srcSet
