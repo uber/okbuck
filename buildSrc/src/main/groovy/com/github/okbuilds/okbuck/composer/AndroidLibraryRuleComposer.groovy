@@ -26,7 +26,7 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
         target.main.targetDeps.each { Target targetDep ->
             if (targetDep instanceof AndroidTarget) {
                 targetDep.resources.each { AndroidTarget.ResBundle bundle ->
-                    deps.add(res(targetDep, bundle))
+                    deps.add(res(targetDep as AndroidTarget, bundle))
                 }
             }
         }
@@ -36,9 +36,20 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
             postprocessClassesCommands.add(RetroLambdaGenerator.generate(target))
         }
 
-        return new AndroidLibraryRule(src(target), ["PUBLIC"], deps, target.main.sources,
-                target.manifest, target.annotationProcessors as List, aptDeps, providedDeps,
-                aidlRuleNames, appClass, target.sourceCompatibility, target.targetCompatibility,
-                postprocessClassesCommands, target.jvmArgs)
+        return new AndroidLibraryRule(
+                src(target),
+                ["PUBLIC"],
+                deps,
+                target.main.sources,
+                target.manifest,
+                target.annotationProcessors as List,
+                aptDeps,
+                providedDeps,
+                aidlRuleNames,
+                appClass,
+                target.sourceCompatibility,
+                target.targetCompatibility,
+                postprocessClassesCommands,
+                target.main.jvmArgs)
     }
 }
