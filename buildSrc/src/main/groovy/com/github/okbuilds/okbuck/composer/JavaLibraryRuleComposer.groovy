@@ -19,13 +19,18 @@ final class JavaLibraryRuleComposer extends JavaBuckRuleComposer {
         aptDeps.addAll(external(target.apt.externalDeps))
         aptDeps.addAll(targets(target.apt.targetDeps))
 
+        Set<String> providedDeps = []
+        providedDeps.addAll(external(target.apt.externalDeps))
+        providedDeps.addAll(targets(target.apt.targetDeps))
+        providedDeps.removeAll(deps)
+
         List<String> postprocessClassesCommands = []
         if (target.retrolambda) {
             postprocessClassesCommands.add(RetroLambdaGenerator.generate(target))
         }
 
         new JavaLibraryRule(src(target), ["PUBLIC"], deps, target.main.sources,
-                target.annotationProcessors, aptDeps, target.sourceCompatibility,
+                target.annotationProcessors, aptDeps, providedDeps, target.sourceCompatibility,
                 target.targetCompatibility, postprocessClassesCommands, target.jvmArgs)
     }
 }
