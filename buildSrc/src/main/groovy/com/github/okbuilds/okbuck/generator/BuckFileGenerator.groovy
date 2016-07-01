@@ -81,10 +81,10 @@ final class BuckFileGenerator {
                         project,
                         customBuildVariant != null ? customBuildVariant : TARGET_RELEASE
                 )
-                return ProjectConfigComposer.composeLibrary(libraryTarget)
+                return ProjectConfigComposer.composeAndroidLibrary(libraryTarget)
             case ProjectType.JAVA_LIB:
                 def libraryTarget = (JavaLibTarget) getTargetForVariant(project, JavaLibTarget.MAIN)
-                return ProjectConfigComposer.composeLibrary(libraryTarget)
+                return ProjectConfigComposer.composeJavaLibrary(libraryTarget)
             default:
                 return null
         }
