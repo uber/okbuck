@@ -59,7 +59,7 @@ class Scope {
                             targetDeps.add(target)
                         }
                     } else {
-                        ExternalDependency dependency = new ExternalDependency(identifier, dep)
+                        ExternalDependency dependency = new ExternalDependency(identifier, dep, "${project.path.replaceFirst(':', '').replaceAll(':', '_')}:${FilenameUtils.getBaseName(dep.name)}:1.0.0")
                         external.add(dependency)
                         OkBuckGradlePlugin.depCache.put(dependency)
                     }
