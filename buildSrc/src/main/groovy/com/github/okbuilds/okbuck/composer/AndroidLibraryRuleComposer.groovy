@@ -50,6 +50,7 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
                 target.sourceCompatibility,
                 target.targetCompatibility,
                 postprocessClassesCommands,
-                target.main.jvmArgs)
+                target.main.jvmArgs,
+                target.generateR2)
     }
 }

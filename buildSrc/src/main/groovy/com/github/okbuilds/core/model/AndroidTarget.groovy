@@ -25,6 +25,7 @@ abstract class AndroidTarget extends JavaLibTarget {
     final Integer versionCode
     final int minSdk
     final int targetSdk
+    final boolean generateR2
 
     AndroidTarget(Project project, String name) {
         super(project, name)
@@ -42,6 +43,9 @@ abstract class AndroidTarget extends JavaLibTarget {
         versionCode = baseVariant.mergedFlavor.versionCode
         minSdk = baseVariant.mergedFlavor.minSdkVersion.apiLevel
         targetSdk = baseVariant.mergedFlavor.targetSdkVersion.apiLevel
+
+        // Butterknife support
+        generateR2 = project.plugins.hasPlugin('com.jakewharton.butterknife')
     }
 
     protected abstract BaseVariant getBaseVariant()

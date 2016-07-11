@@ -14,6 +14,7 @@ final class AndroidLibraryRule extends BuckRule {
     private final List<String> mPostprocessClassesCommands
     private final List<String> mOptions
     private final Set<String> mProvidedDeps
+    private final boolean mGenerateR2
 
     /**
      * @param appClass , if exopackage is enabled, pass the detected app class, otherwise, pass null
@@ -32,7 +33,8 @@ final class AndroidLibraryRule extends BuckRule {
             String sourceCompatibility,
             String targetCompatibility,
             List<String> postprocessClassesCommands,
-            List<String> options) {
+            List<String> options,
+            boolean generateR2) {
         super("android_library", name, visibility, deps)
 
         mSrcSet = srcSet
@@ -46,6 +48,7 @@ final class AndroidLibraryRule extends BuckRule {
         mPostprocessClassesCommands = postprocessClassesCommands
         mOptions = options
         mProvidedDeps = providedDeps
+        mGenerateR2 = generateR2
     }
 
     @Override
@@ -113,6 +116,10 @@ final class AndroidLibraryRule extends BuckRule {
                 printer.println("\t\t'${option}',")
             }
             printer.println("\t],")
+        }
+
+        if (mGenerateR2) {
+            printer.println("\tfinal_r_name = 'R2',")
         }
     }
 }
