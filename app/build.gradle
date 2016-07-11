@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.neenbedankt.android-apt'
 apply plugin: 'me.tatarka.retrolambda'
+apply plugin: 'com.jakewharton.butterknife'
 
 android {
     compileSdkVersion rootProject.ext.androidCompileSdkVersion
@@ -75,7 +76,7 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
     compile 'com.android.support:multidex:1.0.1'
-    compile 'com.jakewharton:butterknife:7.0.1'
+    compile 'com.jakewharton:butterknife:8.2.0'
 
     compile("com.android.support:design:${rootProject.ext.androidSupportSdkVersion}") {
         exclude module: 'appcompat-v7'
@@ -94,4 +95,5 @@ dependencies {
     testCompile project(path: ':dummylibrary', configuration: 'freeDebug')
     testCompile 'junit:junit:4.12'
     testCompile 'org.mockito:mockito-core:1.9.5'
+    testCompile 'com.android.support:support-annotations:24.0.0'
 }

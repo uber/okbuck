@@ -10,6 +10,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import butterknife.BindView;
+import butterknife.Unbinder;
 import com.example.hellojni.HelloJni;
 import com.github.okbuilds.okbuck.example.common.Calc;
 import com.github.okbuilds.okbuck.example.common.CalcMonitor;
@@ -30,8 +32,15 @@ public class MainActivity extends AppCompatActivity {
     @Inject
     DummyAndroidClass mDummyAndroidClass;
     IMyAidlInterface mIMyAidlInterface;
-    private TextView mTextView;
-    private TextView mTextView2;
+
+    private Unbinder mUnbinder;
+
+    @BindView(R2.id.mTextView)
+    TextView mTextView;
+
+    @BindView(R2.id.mTextView2)
+    TextView mTextView2;
+
     private ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -48,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        bind();
+        mUnbinder = ButterKnife.bind(this);
 
         DummyComponent component = DaggerDummyComponent.builder().build();
         component.inject(this);
@@ -74,8 +83,9 @@ public class MainActivity extends AppCompatActivity {
         Log.d("test", "1 + 2 = " + new Calc(new CalcMonitor(this)).add(1, 2));
     }
 
-    private void bind() {
-        mTextView = ButterKnife.findById(this, R.id.mTextView);
-        mTextView2 = ButterKnife.findById(this, R.id.mTextView2);
+    @Override
+    protected void onDestroy() {
+        mUnbinder.unbind();
+        super.onDestroy();
     }
 }
