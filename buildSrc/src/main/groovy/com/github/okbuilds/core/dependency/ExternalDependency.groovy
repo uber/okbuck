@@ -7,9 +7,12 @@ class ExternalDependency extends VersionlessDependency {
     final DefaultArtifactVersion version
     final File depFile
 
-    ExternalDependency(String identifier, File depFile) {
+    ExternalDependency(String identifier, File depFile, String fallbackId = "") {
         super(identifier)
         List<String> parts = identifier.split(":")
+        if (parts.size() < 3) {
+            parts = fallbackId.split(":")
+        }
         version = new DefaultArtifactVersion(parts[2])
         this.depFile = depFile
     }

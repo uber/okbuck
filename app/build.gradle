@@ -72,8 +72,20 @@ android {
     }
 }
 
+repositories {
+    flatDir {
+        dirs 'aars'
+    }
+}
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile(name:'rxscreenshotdetector-release', ext:'aar')
+    compile 'io.reactivex:rxjava:1.1.0'
+    compile ('io.reactivex:rxandroid:1.1.0') {
+        exclude module: 'rxjava'
+    }
+    compile 'com.tbruyelle.rxpermissions:rxpermissions:0.5.2@aar'
 
     compile 'com.android.support:multidex:1.0.1'
     compile 'com.jakewharton:butterknife:8.2.0'
