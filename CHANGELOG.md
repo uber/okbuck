@@ -1,4 +1,6 @@
 # Change log
++  [v0.2.1](https://github.com/OkBuilds/OkBuck/releases/tag/v0.2.1)
+ - fix NPE during local aar dependency processing
 +  [v0.2.0](https://github.com/OkBuilds/OkBuck/releases/tag/v0.2.0)
  - Support for generating project_config rules
  - Support for provided_deps in java rules
