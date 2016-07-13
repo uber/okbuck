@@ -1,5 +1,8 @@
 # Change log
 +  [v0.2.1](https://github.com/OkBuilds/OkBuck/releases/tag/v0.2.1)
+ - Add support for ButterKnife
+ - Add test targets to project_config generation
+ - Remove : from alias names
  - fix NPE during local aar dependency processing
 +  [v0.2.0](https://github.com/OkBuilds/OkBuck/releases/tag/v0.2.0)
  - Support for generating project_config rules
