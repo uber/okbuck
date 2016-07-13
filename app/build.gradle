@@ -88,7 +88,8 @@ dependencies {
     compile 'com.tbruyelle.rxpermissions:rxpermissions:0.5.2@aar'
 
     compile 'com.android.support:multidex:1.0.1'
-    compile 'com.jakewharton:butterknife:8.2.0'
+    compile 'com.jakewharton:butterknife:8.2.1'
+    apt 'com.jakewharton:butterknife-compiler:8.2.1'
 
     compile("com.android.support:design:${rootProject.ext.androidSupportSdkVersion}") {
         exclude module: 'appcompat-v7'
