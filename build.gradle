@@ -69,10 +69,6 @@ okbuck {
     ]
     buckProjects = project.subprojects.findAll { it.name != "plugin" }
 
-    install {
-        sha '2d937846d94b3372a5f784dc6d5c730f0c09cdc8'
-    }
-
     projectTargets = [
             'app': 'devDebug',
             'common': 'freeRelease',
