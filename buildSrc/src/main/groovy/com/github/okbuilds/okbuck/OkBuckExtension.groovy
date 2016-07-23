@@ -54,6 +54,11 @@ class OkBuckExtension {
      */
     List<String> keep = []
 
+    /**
+     * Extra buck options
+     */
+    Map<String, Map<String, List<String>>> extraBuckOpts = [:]
+
     OkBuckExtension(Project project) {
         buckProjects = project.subprojects
     }
