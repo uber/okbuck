@@ -18,6 +18,7 @@ import java.util.zip.ZipFile
 class AndroidAppTarget extends AndroidLibTarget {
 
     private static final int DEFAULT_LINEARALLOC_LIMIT = 7194304
+    private static final String BINARY_OPT = "binary"
 
     final boolean multidexEnabled
     final boolean debuggable
@@ -33,6 +34,7 @@ class AndroidAppTarget extends AndroidLibTarget {
     final boolean minifyEnabled
 
     final Map<String, Object> placeholders = [:]
+    final Set<String> extraOpts
 
     AndroidAppTarget(Project project, String name) {
         super(project, name)
@@ -60,6 +62,8 @@ class AndroidAppTarget extends AndroidLibTarget {
         placeholders.put('applicationId', applicationId + applicationIdSuffix)
         placeholders.putAll(baseVariant.buildType.manifestPlaceholders)
         placeholders.putAll(baseVariant.mergedFlavor.manifestPlaceholders)
+
+        extraOpts = getProp(okbuck.extraBuckOpts, [:]).get(BINARY_OPT, [])
     }
 
     @Override
