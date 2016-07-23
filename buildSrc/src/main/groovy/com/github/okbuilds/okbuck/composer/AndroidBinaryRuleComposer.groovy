@@ -26,6 +26,6 @@ final class AndroidBinaryRuleComposer extends AndroidBuckRuleComposer {
         return new AndroidBinaryRule(bin(target), ["PUBLIC"], deps, manifestRuleName, keystoreRuleName,
                 target.multidexEnabled, target.linearAllocHardLimit, target.primaryDexPatterns,
                 target.exopackage != null, mappedCpuFilters, target.minifyEnabled,
-                target.proguardConfig, target.placeholders)
+                target.proguardConfig, target.placeholders, target.extraOpts)
     }
 }
