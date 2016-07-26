@@ -56,4 +56,8 @@ abstract class Target {
     def getProp(Map map, defaultValue) {
         return map.get("${identifier}${name}", map.get(identifier, defaultValue))
     }
+
+    public void resolve() {
+        // no scope to resolve
+    }
 }
