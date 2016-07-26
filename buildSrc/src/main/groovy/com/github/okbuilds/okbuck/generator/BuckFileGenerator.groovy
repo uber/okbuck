@@ -25,6 +25,10 @@ final class BuckFileGenerator {
      * generate {@code BUCKFile}
      */
     Map<Project, BUCKFile> generate() {
+        mOkbuck.buckProjects.each { Project project ->
+            resolve(project)
+        }
+
         Map<Project, List<BuckRule>> projectRules = mOkbuck.buckProjects.collectEntries { Project project ->
             List<BuckRule> rules = createRules(project)
             def projectConfigRule = createProjectConfigRule(project, mOkbuck.projectTargets)
@@ -39,6 +43,14 @@ final class BuckFileGenerator {
         }.collectEntries { Project project, List<BuckRule> rules ->
             [project, new BUCKFile(rules)]
         } as Map<Project, BUCKFile>
+    }
+
+    private static void resolve(Project project) {
+        Map<String, Target> targets = ProjectUtil.getTargets(project)
+
+        targets.each { String name, Target target ->
+            target.resolve()
+        }
     }
 
     private static List<BuckRule> createRules(Project project) {
@@ -59,8 +71,6 @@ final class BuckFileGenerator {
                     break
             }
         }
-
-        createProjectConfigRule(project, project.okbuck.projectTargets)
 
         return rules
     }

@@ -16,4 +16,9 @@ class ExternalDependency extends VersionlessDependency {
         version = new DefaultArtifactVersion(parts[2])
         this.depFile = depFile
     }
+
+    @Override
+    String toString() {
+        return "${this.version} : ${this.depFile.toString()}"
+    }
 }

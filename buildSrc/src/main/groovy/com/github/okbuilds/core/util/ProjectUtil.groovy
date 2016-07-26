@@ -6,7 +6,6 @@ import com.android.build.gradle.api.BaseVariant
 import com.android.build.gradle.api.BaseVariantOutput
 import com.github.okbuilds.core.model.*
 import com.github.okbuilds.okbuck.OkBuckExtension
-import groovy.transform.Memoized
 import org.apache.commons.io.FilenameUtils
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
@@ -17,7 +16,6 @@ final class ProjectUtil {
         // no instance
     }
 
-    @Memoized
     static ProjectType getType(Project project) {
         if (project.plugins.hasPlugin(AppPlugin)) {
             return ProjectType.ANDROID_APP
@@ -30,7 +28,6 @@ final class ProjectUtil {
         }
     }
 
-    @Memoized
     static Map<String, Target> getTargets(Project project) {
         ProjectType type = getType(project)
         switch (type) {
@@ -55,7 +52,6 @@ final class ProjectUtil {
         }
     }
 
-    @Memoized
     static Target getTargetForOutput(Project rootProject, File output) {
         Target result = null
         OkBuckExtension okbuck = rootProject.okbuck
@@ -70,7 +66,7 @@ final class ProjectUtil {
                     def baseVariants = project.android.libraryVariants
                     baseVariants.all { BaseVariant baseVariant ->
                         def variant = baseVariant.outputs.find { BaseVariantOutput out ->
-                            out.outputFile.equals(output)
+                            (out.outputFile == output)
                         }
                         if (variant != null) {
                             result = new AndroidLibTarget(project, variant.name)

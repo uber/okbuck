@@ -92,10 +92,10 @@ abstract class AndroidTarget extends JavaLibTarget {
     List<String> getBuildConfigFields() {
         return ["String BUILD_TYPE = \"${buildType}\"",
                 "String FLAVOR = \"${flavor}\"",
-        ].plus(baseVariant.mergedFlavor.buildConfigFields.collect {
+        ] + baseVariant.mergedFlavor.buildConfigFields.collect {
             String key, ClassField classField ->
                 "${classField.type} ${key} = ${classField.value}"
-        })
+        }
     }
 
     String getFlavor() {
@@ -122,7 +122,7 @@ abstract class AndroidTarget extends JavaLibTarget {
             [project.file(asset).parentFile.path, asset]
         }
 
-        return resourceMap.keySet().plus(assetMap.keySet()).collect { key ->
+        return (resourceMap.keySet() + assetMap.keySet()).collect { key ->
             new ResBundle(identifier, resourceMap.get(key, null), assetMap.get(key, null))
         } as Set
     }
@@ -139,7 +139,6 @@ abstract class AndroidTarget extends JavaLibTarget {
         }.flatten() as Set<String>
     }
 
-    @Memoized
     String getManifest() {
         Set<String> manifests = [] as Set
 

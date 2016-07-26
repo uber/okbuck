@@ -27,7 +27,6 @@ abstract class JavaTarget extends Target {
     /**
      * Apt Scope
      */
-    @Memoized
     Scope getApt() {
         Scope aptScope = new Scope(project, ["apt", "provided", 'compileOnly'])
         aptScope.targetDeps.retainAll(aptScope.targetDeps.findAll { Target target ->
@@ -39,16 +38,15 @@ abstract class JavaTarget extends Target {
     /**
      * List of annotation processor classes.
      */
-    @Memoized
     Set<String> getAnnotationProcessors() {
-        return apt.externalDeps.collect { String aptDep ->
+        return (apt.externalDeps.collect { String aptDep ->
             JarFile jar = new JarFile(new File(aptDep))
             jar.entries().findAll { JarEntry entry ->
-                entry.name.equals("META-INF/services/javax.annotation.processing.Processor")
+                (entry.name == "META-INF/services/javax.annotation.processing.Processor")
             }.collect { JarEntry aptEntry ->
                 IOUtils.toString(jar.getInputStream(aptEntry)).trim().split("\\n")
             }
-        }.plus(apt.targetDeps.collect { Target target ->
+        } + apt.targetDeps.collect { Target target ->
             (List<String>) target.getProp(okbuck.annotationProcessors, null)
         }.findAll { List<String> processors ->
             processors != null
@@ -68,5 +66,14 @@ abstract class JavaTarget extends Target {
             default:
                 return '7'
         }
+    }
+
+    @Override
+    public void resolve() {
+        super.resolve()
+
+        getApt()
+        getMain()
+        getTest()
     }
 }
