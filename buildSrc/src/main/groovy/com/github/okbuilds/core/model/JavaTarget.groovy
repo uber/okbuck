@@ -67,4 +67,13 @@ abstract class JavaTarget extends Target {
                 return '7'
         }
     }
+
+    @Override
+    public void resolve() {
+        super.resolve()
+
+        getApt()
+        getMain()
+        getTest()
+    }
 }

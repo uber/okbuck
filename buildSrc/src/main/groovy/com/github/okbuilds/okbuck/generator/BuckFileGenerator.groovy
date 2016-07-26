@@ -26,7 +26,7 @@ final class BuckFileGenerator {
      */
     Map<Project, BUCKFile> generate() {
         mOkbuck.buckProjects.each { Project project ->
-            extractDependencyAndPopulateCache(project)
+            resolve(project)
         }
 
         Map<Project, List<BuckRule>> projectRules = mOkbuck.buckProjects.collectEntries { Project project ->
@@ -45,24 +45,11 @@ final class BuckFileGenerator {
         } as Map<Project, BUCKFile>
     }
 
-    private static void extractDependencyAndPopulateCache(Project project) {
-
-        ProjectType projectType = ProjectUtil.getType(project)
+    private static void resolve(Project project) {
         Map<String, Target> targets = ProjectUtil.getTargets(project)
 
         targets.each { String name, Target target ->
-            switch (projectType) {
-                case ProjectType.JAVA_LIB:
-                case ProjectType.ANDROID_LIB:
-                case ProjectType.ANDROID_APP:
-                    JavaLibTarget currentTarget = (JavaLibTarget) target
-                    currentTarget.getApt()
-                    currentTarget.getMain()
-                    currentTarget.getTest()
-                    break
-                default:
-                    break
-            }
+            target.resolve()
         }
     }
 
