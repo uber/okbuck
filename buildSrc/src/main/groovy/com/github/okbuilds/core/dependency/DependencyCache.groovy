@@ -24,7 +24,7 @@ class DependencyCache {
         }
 
         ExternalDependency externalDependency = greatestVersions.get(dependency)
-        if (externalDependency == null || dependency.version.compareTo(externalDependency.version) > 0) {
+        if (externalDependency == null || dependency.version > externalDependency.version) {
             greatestVersions.put(dependency, dependency)
         }
     }
@@ -44,10 +44,9 @@ class DependencyCache {
             if (!thirdPartyBuckFile.exists()) {
                 copyThirdPartyBuckFile(cachedCopy.parentFile)
             }
-            return path
-        } else {
-            return finalDepFiles.get(dependency)
         }
+
+        return finalDepFiles.get(greatestVersion)
     }
 
     private static void copyThirdPartyBuckFile(File dstDir) {

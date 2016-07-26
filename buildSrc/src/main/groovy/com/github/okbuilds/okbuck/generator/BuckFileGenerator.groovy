@@ -25,6 +25,10 @@ final class BuckFileGenerator {
      * generate {@code BUCKFile}
      */
     Map<Project, BUCKFile> generate() {
+        mOkbuck.buckProjects.each { Project project ->
+            extractDependencyAndPopulateCache(project)
+        }
+
         Map<Project, List<BuckRule>> projectRules = mOkbuck.buckProjects.collectEntries { Project project ->
             List<BuckRule> rules = createRules(project)
             def projectConfigRule = createProjectConfigRule(project, mOkbuck.projectTargets)
@@ -39,6 +43,27 @@ final class BuckFileGenerator {
         }.collectEntries { Project project, List<BuckRule> rules ->
             [project, new BUCKFile(rules)]
         } as Map<Project, BUCKFile>
+    }
+
+    private static void extractDependencyAndPopulateCache(Project project) {
+
+        ProjectType projectType = ProjectUtil.getType(project)
+        Map<String, Target> targets = ProjectUtil.getTargets(project)
+
+        targets.each { String name, Target target ->
+            switch (projectType) {
+                case ProjectType.JAVA_LIB:
+                case ProjectType.ANDROID_LIB:
+                case ProjectType.ANDROID_APP:
+                    JavaLibTarget currentTarget = (JavaLibTarget) target
+                    currentTarget.getApt()
+                    currentTarget.getMain()
+                    currentTarget.getTest()
+                    break
+                default:
+                    break
+            }
+        }
     }
 
     private static List<BuckRule> createRules(Project project) {
@@ -59,8 +84,6 @@ final class BuckFileGenerator {
                     break
             }
         }
-
-        createProjectConfigRule(project, project.okbuck.projectTargets)
 
         return rules
     }
