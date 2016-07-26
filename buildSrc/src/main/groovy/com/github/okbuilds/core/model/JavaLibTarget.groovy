@@ -54,10 +54,6 @@ class JavaLibTarget extends JavaTarget {
         retrolambda.externalDeps[0]
     }
 
-    List<String> getJvmArgs() {
-        return project.compileJava.options.compilerArgs + extraJvmArgs
-    }
-
     String getBootClasspath() {
         String bootCp = initialBootCp
         if (retrolambda) {

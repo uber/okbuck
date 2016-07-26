@@ -4,37 +4,38 @@ import com.github.okbuilds.core.model.AndroidLibTarget
 import com.github.okbuilds.core.model.AndroidTarget
 import com.github.okbuilds.core.model.Target
 import com.github.okbuilds.okbuck.generator.RetroLambdaGenerator
-import com.github.okbuilds.okbuck.rule.AndroidLibraryRule
+import com.github.okbuilds.okbuck.rule.AndroidTestRule
 
-final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
+final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
 
-    private AndroidLibraryRuleComposer() {
+    private AndroidTestRuleComposer() {
         // no instance
     }
 
-    static AndroidLibraryRule compose(
+    static AndroidTestRule compose(
             AndroidLibTarget target,
             List<String> deps,
             List<String> aptDeps,
             List<String> aidlRuleNames,
             String appClass) {
 
-        List<String> libraryDeps = new ArrayList<>(deps);
-        List<String> libraryAptDeps = new ArrayList<>(aptDeps);
-        List<String> libraryAidlRuleNames = new ArrayList<>(aidlRuleNames);
+        List<String> testDeps = new ArrayList<>(deps);
+        List<String> testAptDeps = new ArrayList<>(aptDeps);
+        List<String> testAidlRuleNames = new ArrayList<>(aidlRuleNames);
         Set<String> providedDeps = []
 
-        libraryDeps.addAll(external(target.main.externalDeps))
-        libraryDeps.addAll(targets(target.main.targetDeps))
+        testDeps.add(":${src(target)}")
+        testDeps.addAll(external(target.test.externalDeps))
+        testDeps.addAll(targets(target.test.targetDeps))
 
         providedDeps.addAll(external(target.apt.externalDeps))
         providedDeps.addAll(targets(target.apt.targetDeps))
-        providedDeps.removeAll(libraryDeps)
+        providedDeps.removeAll(testDeps)
 
-        target.main.targetDeps.each { Target targetDep ->
+        target.test.targetDeps.each { Target targetDep ->
             if (targetDep instanceof AndroidTarget) {
                 targetDep.resources.each { AndroidTarget.ResBundle bundle ->
-                    libraryDeps.add(res(targetDep as AndroidTarget, bundle))
+                    testDeps.add(res(targetDep as AndroidTarget, bundle))
                 }
             }
         }
@@ -44,27 +45,28 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
             postprocessClassesCommands.add(RetroLambdaGenerator.generate(target))
         }
 
-        List<String> testTargets = [];
-        if (target.test.sources) {
-            testTargets.add(":${test(target)}")
+        List<String> srcTargets = [];
+        if (target.main.sources) {
+            srcTargets.add(":${src(target)}")
         }
 
-        return new AndroidLibraryRule(
-                src(target),
+        return new AndroidTestRule(
+                test(target),
                 ["PUBLIC"],
-                libraryDeps,
-                target.main.sources,
+                testDeps,
+                target.test.sources,
                 target.manifest,
                 target.annotationProcessors as List,
-                libraryAptDeps,
+                testAptDeps,
                 providedDeps,
-                libraryAidlRuleNames,
+                testAidlRuleNames,
                 appClass,
                 target.sourceCompatibility,
                 target.targetCompatibility,
                 postprocessClassesCommands,
-                target.main.jvmArgs,
-                target.generateR2,
-                testTargets)
+                target.test.jvmArgs,
+                target.test.resourcesDir,
+                'robolectric/test',
+                srcTargets)
     }
 }

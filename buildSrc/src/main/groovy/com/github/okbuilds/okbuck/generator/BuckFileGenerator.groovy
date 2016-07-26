@@ -101,7 +101,13 @@ final class BuckFileGenerator {
     }
 
     private static List<BuckRule> createRules(JavaLibTarget target) {
-        return [JavaLibraryRuleComposer.compose(target), JavaTestRuleComposer.compose(target)]
+        List<BuckRule> rules = []
+        rules.add(JavaLibraryRuleComposer.compose(target))
+
+        if (target.test.sources) {
+            rules.add(JavaTestRuleComposer.compose(target))
+        }
+        return rules
     }
 
     private static List<BuckRule> createRules(AndroidLibTarget target, String appClass = null) {
@@ -144,7 +150,22 @@ final class BuckFileGenerator {
         }
 
         // Lib
-        androidLibRules.add(AndroidLibraryRuleComposer.compose(target, deps, aptDeps, aidlRuleNames, appClass))
+        androidLibRules.add(AndroidLibraryRuleComposer.compose(
+                target,
+                deps,
+                aptDeps,
+                aidlRuleNames,
+                appClass))
+
+        // Test
+        if (target.test.sources) {
+            androidLibRules.add(AndroidTestRuleComposer.compose(
+                    target,
+                    deps,
+                    aptDeps,
+                    aidlRuleNames,
+                    appClass))
+        }
 
         rules.addAll(androidLibRules)
         return rules

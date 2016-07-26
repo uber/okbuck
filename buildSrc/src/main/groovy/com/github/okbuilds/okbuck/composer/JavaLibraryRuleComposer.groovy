@@ -29,6 +29,11 @@ final class JavaLibraryRuleComposer extends JavaBuckRuleComposer {
             postprocessClassesCommands.add(RetroLambdaGenerator.generate(target))
         }
 
+        List<String> testTargets = [];
+        if (target.test.sources) {
+            testTargets.add(":${test(target)}")
+        }
+
         new JavaLibraryRule(
                 src(target),
                 ["PUBLIC"],
@@ -41,7 +46,8 @@ final class JavaLibraryRuleComposer extends JavaBuckRuleComposer {
                 target.sourceCompatibility,
                 target.targetCompatibility,
                 postprocessClassesCommands,
-                target.main.jvmArgs)
+                target.main.jvmArgs,
+                testTargets)
     }
 
 }

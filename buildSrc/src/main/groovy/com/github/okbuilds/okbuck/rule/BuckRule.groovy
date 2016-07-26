@@ -26,7 +26,7 @@ abstract class BuckRule {
         printContent(printer)
         if (!mDeps.empty) {
             printer.println("\tdeps = [")
-            mDeps.each { String dep ->
+            mDeps.sort().each { String dep ->
                 printer.println("\t\t'${dep}',")
             }
             printer.println("\t],")

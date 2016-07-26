@@ -14,15 +14,15 @@ class ProjectConfigComposer extends JavaBuckRuleComposer {
     }
 
     static ProjectConfigRule composeAndroidApp(AndroidAppTarget androidAppTarget) {
-        return compose(bin(androidAppTarget), null, androidAppTarget)
+        return compose(bin(androidAppTarget) as String, null, androidAppTarget as JavaTarget)
     }
 
     static ProjectConfigRule composeAndroidLibrary(AndroidLibTarget androidLibTarget) {
-      return compose(src(androidLibTarget), null, androidLibTarget)
+      return compose(src(androidLibTarget) as String, test(androidLibTarget) as String, androidLibTarget as JavaTarget)
     }
 
     static ProjectConfigRule composeJavaLibrary(JavaTarget javaTarget) {
-        return compose(src(javaTarget), test(javaTarget), javaTarget)
+        return compose(src(javaTarget) as String, test(javaTarget) as String, javaTarget)
     }
 
     private static ProjectConfigRule compose(String targetName, String testTargetName, JavaTarget target) {
