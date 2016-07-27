@@ -1,0 +1,12 @@
+[project]
+    ide = intellij
+    ignore = .git, .idea, .gradle, local.properties, **/.DS_Store, **/*.iml
+    temp_files = ^#.*#$, .*~$, .*\.swp$
+    parallel_parsing = true
+
+[intellij]
+    jdk_name = Android API 23 Platform
+    jdk_type = AndroidSDK
+    language_level = JDK_1_7
+[ndk]
+    gcc_version=4.9

@@ -14,7 +14,7 @@ script:
   - bash ./gradlew okbuck installBuck &&
     ./buck build appDevDebug appDevRelease appProdDebug appProdRelease another-appDebug another-appRelease &&
     ./buck test &&
-    ./buck project
+    ./buck project project --ide intellij
 
 notifications:
   email: false
