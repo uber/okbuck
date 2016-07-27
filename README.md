@@ -23,7 +23,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.github.okbuilds:okbuild-gradle-plugin:0.2.2'
+        classpath 'com.github.okbuilds:okbuild-gradle-plugin:0.3.0'
     }
 }
 
