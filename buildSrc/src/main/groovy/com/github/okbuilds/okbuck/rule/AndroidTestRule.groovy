@@ -1,12 +1,12 @@
 package com.github.okbuilds.okbuck.rule
 
 
-final class AndroidLibraryRule extends AndroidRule {
+final class AndroidTestRule extends AndroidRule {
 
     /**
      * @param appClass , if exopackage is enabled, pass the detected app class, otherwise, pass null
      * */
-    AndroidLibraryRule(
+    AndroidTestRule(
             String name,
             List<String> visibility,
             List<String> deps,
@@ -21,11 +21,12 @@ final class AndroidLibraryRule extends AndroidRule {
             String targetCompatibility,
             List<String> postprocessClassesCommands,
             List<String> options,
-            boolean generateR2,
-            List<String> testTargets) {
+            String mResourcesDir,
+            String runtimeDependency,
+            List<String> srcTargets) {
 
         super(
-                "android_library",
+                "robolectric_test",
                 name,
                 visibility,
                 deps,
@@ -40,10 +41,10 @@ final class AndroidLibraryRule extends AndroidRule {
                 targetCompatibility,
                 postprocessClassesCommands,
                 options,
-                generateR2,
+                false,
+                mResourcesDir,
+                runtimeDependency,
                 null,
-                null,
-                testTargets,
-                null)
+                srcTargets);
     }
 }

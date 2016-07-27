@@ -14,7 +14,8 @@ final class JavaTestRule extends JavaRule {
             String sourceCompatibility,
             String targetCompatibility,
             List<String> postprocessClassesCommands,
-            List<String> options) {
+            List<String> options,
+            List<String> srcTargets) {
         super(
                 "java_test",
                 name,
@@ -28,6 +29,8 @@ final class JavaTestRule extends JavaRule {
                 sourceCompatibility,
                 targetCompatibility,
                 postprocessClassesCommands,
-                options)
+                options,
+                srcTargets,
+                null)
     }
 }

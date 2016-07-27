@@ -14,7 +14,8 @@ final class JavaLibraryRule extends JavaRule {
             String sourceCompatibility,
             String targetCompatibility,
             List<String> postprocessClassesCommands,
-            List<String> options) {
+            List<String> options,
+            List<String> testTargets) {
 
         super(
                 "java_library",
@@ -29,6 +30,8 @@ final class JavaLibraryRule extends JavaRule {
                 sourceCompatibility,
                 targetCompatibility,
                 postprocessClassesCommands,
-                options)
+                options,
+                null,
+                testTargets)
     }
 }

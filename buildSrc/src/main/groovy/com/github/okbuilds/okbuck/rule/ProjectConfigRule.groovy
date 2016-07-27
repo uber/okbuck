@@ -24,11 +24,10 @@ final class ProjectConfigRule extends BuckRule {
         }
         printer.println("\t],")
 
-        if (mTestTarget != null) {
-            printer.println("\ttest_target = ':${mTestTarget}',")
-        }
 
-        if (mTestRoots != null && !mTestRoots.empty) {
+        if (mTestTarget && mTestRoots) {
+            printer.println("\ttest_target = ':${mTestTarget}',")
+
             printer.println("\ttest_roots = [")
             for (String src : mTestRoots) {
                 printer.println("\t\t'${src}',")

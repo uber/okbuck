@@ -14,22 +14,29 @@ class ProjectConfigComposer extends JavaBuckRuleComposer {
     }
 
     static ProjectConfigRule composeAndroidApp(AndroidAppTarget androidAppTarget) {
-        return compose(bin(androidAppTarget), null, androidAppTarget)
+        return compose(bin(androidAppTarget) as String, null, androidAppTarget as JavaTarget)
     }
 
     static ProjectConfigRule composeAndroidLibrary(AndroidLibTarget androidLibTarget) {
-      return compose(src(androidLibTarget), null, androidLibTarget)
+        String testTargetName = null;
+        if (androidLibTarget.robolectric) {
+            testTargetName = test(androidLibTarget) as String
+        }
+        return compose(src(androidLibTarget) as String, testTargetName, androidLibTarget as JavaTarget)
     }
 
     static ProjectConfigRule composeJavaLibrary(JavaTarget javaTarget) {
-        return compose(src(javaTarget), test(javaTarget), javaTarget)
+        return compose(src(javaTarget) as String, test(javaTarget) as String, javaTarget)
     }
 
     private static ProjectConfigRule compose(String targetName, String testTargetName, JavaTarget target) {
         Set<String> mainSources = new LinkedHashSet<>()
         Set<String> testSources = new LinkedHashSet<>()
         mainSources.addAll(target.main.sources)
-        testSources.addAll(target.test.sources)
+
+        if (testTargetName) {
+            testSources.addAll(target.test.sources)
+        }
 
         return new ProjectConfigRule(targetName, mainSources, testTargetName, testSources)
     }
