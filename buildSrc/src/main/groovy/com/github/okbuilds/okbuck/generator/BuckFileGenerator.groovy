@@ -2,7 +2,6 @@ package com.github.okbuilds.okbuck.generator
 
 import com.github.okbuilds.core.model.*
 import com.github.okbuilds.core.util.ProjectUtil
-import com.github.okbuilds.okbuck.ExperimentalExtension
 import com.github.okbuilds.okbuck.OkBuckExtension
 import com.github.okbuilds.okbuck.composer.*
 import com.github.okbuilds.okbuck.config.BUCKFile
@@ -54,7 +53,7 @@ final class BuckFileGenerator {
         }
     }
 
-    private List<BuckRule> createRules(Project project) {
+    private static List<BuckRule> createRules(Project project) {
         List<BuckRule> rules = []
         ProjectType projectType = ProjectUtil.getType(project)
         ProjectUtil.getTargets(project).each { String name, Target target ->
@@ -101,7 +100,7 @@ final class BuckFileGenerator {
         }
     }
 
-    private List<BuckRule> createRules(JavaLibTarget target) {
+    private static List<BuckRule> createRules(JavaLibTarget target) {
         List<BuckRule> rules = []
         rules.add(JavaLibraryRuleComposer.compose(target))
 
@@ -111,7 +110,7 @@ final class BuckFileGenerator {
         return rules
     }
 
-    private List<BuckRule> createRules(AndroidLibTarget target, String appClass = null) {
+    private static List<BuckRule> createRules(AndroidLibTarget target, String appClass = null) {
         List<BuckRule> rules = []
         List<BuckRule> androidLibRules = []
 
@@ -159,8 +158,7 @@ final class BuckFileGenerator {
                 appClass))
 
         // Test
-        ExperimentalExtension experimental = mOkbuck.experimental
-        if (experimental.robolectric && target.test.sources) {
+        if (target.robolectric && target.test.sources) {
             androidLibRules.add(AndroidTestRuleComposer.compose(
                     target,
                     deps,
@@ -174,7 +172,7 @@ final class BuckFileGenerator {
 
     }
 
-    private List<BuckRule> createRules(AndroidAppTarget target) {
+    private static List<BuckRule> createRules(AndroidAppTarget target) {
         List<BuckRule> rules = []
         List<String> deps = [":${AndroidBuckRuleComposer.src(target)}"]
 

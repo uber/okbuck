@@ -45,7 +45,7 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
         }
 
         List<String> testTargets = [];
-        if (target.test.sources) {
+        if (target.robolectric && target.test.sources) {
             testTargets.add(":${test(target)}")
         }
 

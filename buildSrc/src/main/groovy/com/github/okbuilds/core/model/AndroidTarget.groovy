@@ -7,6 +7,7 @@ import com.android.manifmerger.ManifestMerger2
 import com.android.manifmerger.MergingReport
 import com.android.utils.ILogger
 import com.github.okbuilds.core.util.FileUtil
+import com.github.okbuilds.okbuck.ExperimentalExtension
 import groovy.transform.Memoized
 import groovy.transform.ToString
 import org.apache.commons.codec.digest.DigestUtils
@@ -73,6 +74,13 @@ abstract class AndroidTarget extends JavaLibTarget {
                 project.files("src/test/java") as Set<File>,
                 project.file("src/test/resources"),
                 extraJvmArgs)
+    }
+
+    public boolean getRobolectric() {
+        ExperimentalExtension experimental = rootProject.okbuck.experimental
+        if (experimental.robolectric) {
+            return true
+        }
     }
 
     @Override

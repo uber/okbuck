@@ -18,7 +18,11 @@ class ProjectConfigComposer extends JavaBuckRuleComposer {
     }
 
     static ProjectConfigRule composeAndroidLibrary(AndroidLibTarget androidLibTarget) {
-      return compose(src(androidLibTarget) as String, test(androidLibTarget) as String, androidLibTarget as JavaTarget)
+        String testTargetName = null;
+        if (androidLibTarget.robolectric) {
+            testTargetName = test(androidLibTarget) as String
+        }
+        return compose(src(androidLibTarget) as String, testTargetName, androidLibTarget as JavaTarget)
     }
 
     static ProjectConfigRule composeJavaLibrary(JavaTarget javaTarget) {
@@ -29,7 +33,10 @@ class ProjectConfigComposer extends JavaBuckRuleComposer {
         Set<String> mainSources = new LinkedHashSet<>()
         Set<String> testSources = new LinkedHashSet<>()
         mainSources.addAll(target.main.sources)
-        testSources.addAll(target.test.sources)
+
+        if (testTargetName) {
+            testSources.addAll(target.test.sources)
+        }
 
         return new ProjectConfigRule(targetName, mainSources, testTargetName, testSources)
     }
