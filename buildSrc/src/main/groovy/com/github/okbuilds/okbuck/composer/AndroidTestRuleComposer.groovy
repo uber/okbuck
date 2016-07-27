@@ -3,6 +3,7 @@ package com.github.okbuilds.okbuck.composer
 import com.github.okbuilds.core.model.AndroidLibTarget
 import com.github.okbuilds.core.model.AndroidTarget
 import com.github.okbuilds.core.model.Target
+import com.github.okbuilds.core.util.RobolectricUtil
 import com.github.okbuilds.okbuck.generator.RetroLambdaGenerator
 import com.github.okbuilds.okbuck.rule.AndroidTestRule
 
@@ -66,7 +67,7 @@ final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
                 postprocessClassesCommands,
                 target.test.jvmArgs,
                 target.test.resourcesDir,
-                'robolectric/test',
+                RobolectricUtil.ROBOLECTRIC_CACHE,
                 srcTargets)
     }
 }
