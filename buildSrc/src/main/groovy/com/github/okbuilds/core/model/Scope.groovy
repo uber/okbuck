@@ -1,5 +1,6 @@
 package com.github.okbuilds.core.model
 
+import com.github.okbuilds.core.dependency.DependencyCache
 import com.github.okbuilds.core.dependency.ExternalDependency
 import com.github.okbuilds.core.util.FileUtil
 import com.github.okbuilds.core.util.ProjectUtil
@@ -18,6 +19,7 @@ class Scope {
     final Set<String> sources
     final Set<Target> targetDeps = [] as Set
     List<String> jvmArgs
+    DependencyCache depCache
 
     protected final Project project
     protected final Set<ExternalDependency> external = [] as Set
@@ -26,19 +28,21 @@ class Scope {
           Collection<String> configurations,
           Set<File> sourceDirs = [],
           File resDir = null,
-          List<String> jvmArguments = []) {
+          List<String> jvmArguments = [],
+          DependencyCache depCache = OkBuckGradlePlugin.depCache) {
 
         this.project = project
         sources = FileUtil.getAvailable(project, sourceDirs)
         resourcesDir = FileUtil.getAvailableFile(project, resDir)
         jvmArgs = jvmArguments
+        this.depCache = depCache
 
         extractConfigurations(configurations)
     }
 
     Set<String> getExternalDeps() {
         external.collect { ExternalDependency dependency ->
-            OkBuckGradlePlugin.depCache.get(dependency)
+            depCache.get(dependency)
         }
     }
 
@@ -61,7 +65,7 @@ class Scope {
                     } else {
                         ExternalDependency dependency = new ExternalDependency(identifier, dep, "${project.path.replaceFirst(':', '').replaceAll(':', '_')}:${FilenameUtils.getBaseName(dep.name)}:1.0.0")
                         external.add(dependency)
-                        OkBuckGradlePlugin.depCache.put(dependency)
+                        depCache.put(dependency)
                     }
                 }
 
@@ -72,7 +76,7 @@ class Scope {
                             "${project.path.replaceFirst(':', '').replaceAll(':', '_')}:${FilenameUtils.getBaseName(localDep.name)}:1.0.0",
                             localDep)
                     external.add(dependency)
-                    OkBuckGradlePlugin.depCache.put(dependency)
+                    depCache.put(dependency)
                 }
             } catch (UnknownConfigurationException ignored) {
             }
