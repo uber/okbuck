@@ -41,8 +41,8 @@ class DependencyCache {
         }
     }
 
-    String get(ExternalDependency dependency, boolean getExact = false) {
-        ExternalDependency greatestVersion = getExact ? dependency : greatestVersions.get(dependency)
+    String get(ExternalDependency dependency) {
+        ExternalDependency greatestVersion = greatestVersions.get(dependency)
         if (!finalDepFiles.containsKey(greatestVersion)) {
             File depFile = greatestVersion.depFile
             File cachedCopy = new File(cacheDir, fileFormat(depFile))

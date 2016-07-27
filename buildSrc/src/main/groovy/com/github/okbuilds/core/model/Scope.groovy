@@ -40,9 +40,9 @@ class Scope {
         extractConfigurations(configurations)
     }
 
-    Set<String> getExternalDeps(boolean getExact = false) {
+    Set<String> getExternalDeps() {
         external.collect { ExternalDependency dependency ->
-            depCache.get(dependency, getExact)
+            depCache.get(dependency)
         }
     }
 
