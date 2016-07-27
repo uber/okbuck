@@ -3,6 +3,7 @@ package com.github.okbuilds.okbuck
 import com.github.okbuilds.core.dependency.DependencyCache
 import com.github.okbuilds.core.system.BuildSystem
 import com.github.okbuilds.core.util.InstallUtil
+import com.github.okbuilds.core.util.RobolectricUtil
 import com.github.okbuilds.okbuck.config.BUCKFile
 import com.github.okbuilds.okbuck.generator.BuckFileGenerator
 import com.github.okbuilds.okbuck.generator.DotBuckConfigLocalGenerator
@@ -21,6 +22,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     static final String EXPERIMENTAL = "experimental"
     static final String INSTALL = "install"
     static final String INSTALL_BUCK = "installBuck"
+    static final String DEFAULT_CACHE_PATH = ".okbuck/cache"
 
     static final String GROUP = "okbuck"
 
@@ -33,7 +35,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         InstallExtension install = okbuck.extensions.create(INSTALL, InstallExtension, project)
         okbuck.extensions.create(EXPERIMENTAL, ExperimentalExtension)
 
-        depCache = new DependencyCache(project, ".okbuck/cache")
+        depCache = new DependencyCache(project, DEFAULT_CACHE_PATH)
 
         Task okBuckClean = project.task(OKBUCK_CLEAN)
         okBuckClean.setGroup(GROUP)
@@ -64,6 +66,18 @@ class OkBuckGradlePlugin implements Plugin<Project> {
 
         installBuck << {
             InstallUtil.install(project, BuildSystem.BUCK, install.gitUrl, install.sha, new File(install.dir))
+        }
+
+        Task fetchRobolectricRuntimeDeps = project.task('fetchRobolectricRuntimeDeps')
+        okBuck.dependsOn(fetchRobolectricRuntimeDeps)
+        fetchRobolectricRuntimeDeps.mustRunAfter(okBuckClean)
+        fetchRobolectricRuntimeDeps.setDescription("Fetches runtime dependencies for robolectric")
+
+        fetchRobolectricRuntimeDeps << {
+            ExperimentalExtension experimental = okbuck.experimental
+            if (experimental.robolectric) {
+                RobolectricUtil.download(project)
+            }
         }
     }
 
