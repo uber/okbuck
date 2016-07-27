@@ -1,16 +1,19 @@
 package com.github.okbuilds.core.util
 
+import com.github.okbuilds.core.annotation.Experimental
 import com.github.okbuilds.core.dependency.DependencyCache
 import com.github.okbuilds.core.model.Scope
 import com.github.okbuilds.okbuck.OkBuckGradlePlugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 
+@Experimental
 class RobolectricUtil {
 
     static final String JSON = 'org.json:json:20080701'
     static final String TAGSOUP = 'org.ccil.cowan.tagsoup:tagsoup:1.2'
-    public static final String ROBOLECTRIC_RUNTIME = "robolectricRuntime"
+    static final String ROBOLECTRIC_RUNTIME = "robolectricRuntime"
+    static final String ROBOLECTRIC_CACHE = "${OkBuckGradlePlugin.DEFAULT_CACHE_PATH}/robolectric"
 
     static enum API {
 
@@ -50,8 +53,7 @@ class RobolectricUtil {
         Set<File> sourceDirs = []
         List<String> jvmArguments = []
         runtimeDeps.each { Configuration configuration ->
-            DependencyCache cache = new DependencyCache(project, "${OkBuckGradlePlugin.DEFAULT_CACHE_PATH}/robolectric",
-                    { File depFile -> depFile.name }, false)
+            DependencyCache cache = new DependencyCache(project, ROBOLECTRIC_CACHE, { File depFile -> depFile.name }, false)
             Scope runtimeDepsScope = new Scope(project, [configuration.name], sourceDirs, res, jvmArguments, cache)
             runtimeDepsScope.getExternalDeps(true)
         }

@@ -19,7 +19,9 @@ class DependencyCache {
         "${DigestUtils.md5Hex(depFile.parentFile.absolutePath)}/${depFile.name}"
     }
 
-    DependencyCache(Project rootProject, String cacheDirPath, Closure<String> fileFormat = digestFormat,
+    DependencyCache(Project rootProject,
+                    String cacheDirPath,
+                    Closure<String> fileFormat = digestFormat,
                     createBuckFile = true) {
         this.rootProject = rootProject
         cacheDir = new File(rootProject.projectDir, cacheDirPath)
