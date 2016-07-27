@@ -15,7 +15,7 @@ class AndroidLibTarget extends AndroidTarget {
 
     @Override
     protected BaseVariant getBaseVariant() {
-        return (BaseVariant) project.android.libraryVariants.find { it.name == name }
+        return project.android.libraryVariants.find { it.name == name } as BaseVariant
     }
 
     @Override

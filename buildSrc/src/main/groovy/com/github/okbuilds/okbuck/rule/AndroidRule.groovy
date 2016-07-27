@@ -1,56 +1,79 @@
 package com.github.okbuilds.okbuck.rule
 
-abstract class JavaRule extends BuckRule {
+import org.apache.commons.lang.StringUtils
+
+abstract class AndroidRule extends BuckRule {
     private final Set<String> mSrcSet
-    private final Set<String> mAnnotationProcessors
-    private final Set<String> mAnnotationProcessorDeps
-    private final String mResourcesDir
+    private final String mManifest
+    private final List<String> mAnnotationProcessors
+    private final List<String> mAptDeps
+    private final List<String> mAidlRuleNames
+    private final String mAppClass
     private final String mSourceCompatibility
     private final String mTargetCompatibility
     private final List<String> mPostprocessClassesCommands
     private final List<String> mOptions
     private final Set<String> mProvidedDeps
-    private final List<String> mSrcTargets
+    private final boolean mGenerateR2
+    private final String mResourcesDir
+    private final String mRuntimeDependency
     private final List<String> mTestTargets
+    private final List<String> mSrcTargets
 
-    JavaRule(
+    /**
+     * @param appClass , if exopackage is enabled, pass the detected app class, otherwise, pass null
+     * */
+    AndroidRule(
             String ruleType,
             String name,
             List<String> visibility,
             List<String> deps,
             Set<String> srcSet,
-            Set<String> annotationProcessors,
-            Set<String> aptDeps,
+            String manifest,
+            List<String> annotationProcessors,
+            List<String> aptDeps,
             Set<String> providedDeps,
-            String resourcesDir,
+            List<String> aidlRuleNames,
+            String appClass,
             String sourceCompatibility,
             String targetCompatibility,
             List<String> postprocessClassesCommands,
             List<String> options,
-            List<String> srcTargets,
-            List<String> testTargets) {
-
+            boolean generateR2,
+            String resourcesDir,
+            String runtimeDependency,
+            List<String> testTargets,
+            List<String> srcTargets) {
         super(ruleType, name, visibility, deps)
+
         mSrcSet = srcSet
+        mManifest = manifest
         mAnnotationProcessors = annotationProcessors
-        mAnnotationProcessorDeps = aptDeps
+        mAptDeps = aptDeps
+        mAidlRuleNames = aidlRuleNames
+        mAppClass = appClass
         mSourceCompatibility = sourceCompatibility
         mTargetCompatibility = targetCompatibility
-        mResourcesDir = resourcesDir
         mPostprocessClassesCommands = postprocessClassesCommands
         mOptions = options
         mProvidedDeps = providedDeps
-        mSrcTargets = srcTargets
-        mTestTargets = testTargets
+        mGenerateR2 = generateR2
+        mResourcesDir = resourcesDir
+        mRuntimeDependency = runtimeDependency;
+        mTestTargets = testTargets;
+        mSrcTargets = srcTargets;
     }
 
     @Override
     protected final void printContent(PrintStream printer) {
-        if (!mSrcSet.empty) {
-            printer.println("\tsrcs = glob([")
-            for (String src : mSrcSet) {
-                printer.println("\t\t'${src}/**/*.java',")
-            }
+        printer.println("\tsrcs = glob([")
+        for (String src : mSrcSet) {
+            printer.println("\t\t'${src}/**/*.java',")
+        }
+
+        if (!StringUtils.isEmpty(mAppClass)) {
+            printer.println("\t], excludes = ['${mAppClass}']),")
+        } else {
             printer.println("\t]),")
         }
 
@@ -78,26 +101,38 @@ abstract class JavaRule extends BuckRule {
             printer.println("\tresources_root = '${mResourcesDir}',")
         }
 
+        if (!StringUtils.isEmpty(mManifest)) {
+            printer.println("\tmanifest = '${mManifest}',")
+        }
+
         if (!mAnnotationProcessors.empty) {
             printer.println("\tannotation_processors = [")
-            mAnnotationProcessors.sort().each { String processor ->
+            for (String processor : mAnnotationProcessors) {
                 printer.println("\t\t'${processor}',")
             }
             printer.println("\t],")
+        }
 
-            if (!mAnnotationProcessorDeps.empty) {
-                printer.println("\tannotation_processor_deps = [")
-                for (String dep : mAnnotationProcessorDeps.sort()) {
-                    printer.println("\t\t'${dep}',")
-                }
-                printer.println("\t],")
+        if (!mAptDeps.empty) {
+            printer.println("\tannotation_processor_deps = [")
+            for (String dep : mAptDeps.sort()) {
+                printer.println("\t\t'${dep}',")
             }
+            printer.println("\t],")
         }
 
         if (!mProvidedDeps.empty) {
             printer.println("\tprovided_deps = [")
             for (String dep : mProvidedDeps.sort()) {
                 printer.println("\t\t'${dep}',")
+            }
+            printer.println("\t],")
+        }
+
+        if (!mAidlRuleNames.empty) {
+            printer.println("\texported_deps = [")
+            mAidlRuleNames.sort().each { String aidlRuleName ->
+                printer.println("\t\t'${aidlRuleName}',")
             }
             printer.println("\t],")
         }
@@ -118,6 +153,14 @@ abstract class JavaRule extends BuckRule {
                 printer.println("\t\t'${option}',")
             }
             printer.println("\t],")
+        }
+
+        if (mGenerateR2) {
+            printer.println("\tfinal_r_name = 'R2',")
+        }
+
+        if (mRuntimeDependency) {
+            printer.println("\truntime_dependency = '${mRuntimeDependency}',")
         }
     }
 }

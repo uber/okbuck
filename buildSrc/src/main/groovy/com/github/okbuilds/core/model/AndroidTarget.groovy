@@ -7,6 +7,7 @@ import com.android.manifmerger.ManifestMerger2
 import com.android.manifmerger.MergingReport
 import com.android.utils.ILogger
 import com.github.okbuilds.core.util.FileUtil
+import com.github.okbuilds.okbuck.ExperimentalExtension
 import groovy.transform.Memoized
 import groovy.transform.ToString
 import org.apache.commons.codec.digest.DigestUtils
@@ -54,7 +55,8 @@ abstract class AndroidTarget extends JavaLibTarget {
 
     @Override
     Scope getMain() {
-        return new Scope(project,
+        return new Scope(
+                project,
                 ["compile", "${buildType}Compile", "${flavor}Compile", "${name}Compile"] as Set,
                 baseVariant.sourceSets.collect { SourceProvider provider ->
                     provider.javaDirectories
@@ -65,13 +67,17 @@ abstract class AndroidTarget extends JavaLibTarget {
 
     @Override
     Scope getTest() {
-        return new Scope(project,
-                ["testCompile", "${buildType}TestCompile", "${flavor}TestCompile", "${name}TestCompile"] as Set,
-                baseVariant.sourceSets.collect { SourceProvider provider ->
-                    provider.javaDirectories
-                }.flatten() as Set<File>,
-                null,
+        return new Scope(
+                project,
+                ["compile", "${buildType}Compile", "${flavor}Compile", "${name}Compile",
+                 "testCompile", "${buildType}TestCompile", "${flavor}TestCompile", "${name}TestCompile"] as Set,
+                project.files("src/test/java") as Set<File>,
+                project.file("src/test/resources"),
                 extraJvmArgs)
+    }
+
+    public boolean getRobolectric() {
+        return rootProject.okbuck.experimental.robolectric
     }
 
     @Override
