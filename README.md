@@ -23,7 +23,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.github.okbuilds:okbuild-gradle-plugin:0.3.0'
+        classpath 'com.github.okbuilds:okbuild-gradle-plugin:0.3.1'
     }
 }
 
@@ -107,7 +107,7 @@ configuring buck's exopackage mode. For more details about exopackage configurat
 please read the [Exopackage wiki page](https://github.com/OkBuilds/OkBuck/wiki/Exopackage-Configuration-Guide), if you don't need exopackage, you can ignore these parameters
 + `annotationProcessors` is used to depend on annotation processors declared locally as another gradle module in the same root project.
 +  `buckProjects` is a set of projects to generate buck configs for. Default is all sub projects of the root project.
-+ `keep` is a list of files to not clean up by the plugin when running `okbuckclean`. This may be useful to keep the `buck-out` folder around for faster incremental builds even when buck files are regenerated. Also useful if you want made manual modifications to some buck configuration and would like to keep it intact while regenerating the configuration for other projects.
++ `keep` is a list of files to not clean up by the plugin when running `okbuckClean`. This may be useful if you want made manual modifications to some buck configuration and would like to keep it intact while regenerating the configuration for other projects.
 + `install` is used to download and install buck from the [official version](https://github.com/facebook/buck) or from any fork. It keeps a cache of different forks you can use across your projects. To install the specified version you need to explictly run the `buckInstall` task and can use it via the `buck` symlink in your project.
  - `gitUrl` - The git url of the buck fork. Default is [facebook/buck](https://github.com/facebook/buck)
  - `sha` - The git sha/branch/tag to checkout before building. Defaults to origin/master
