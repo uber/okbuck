@@ -52,7 +52,7 @@ class OkBuckExtension {
     /**
      * List of files to leave untouched when generating configuration.
      */
-    List<String> keep = []
+    List<String> keep = [".okbuck/**"]
 
     /**
      * Extra buck options
