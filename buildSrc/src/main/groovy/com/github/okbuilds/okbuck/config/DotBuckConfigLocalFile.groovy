@@ -30,5 +30,9 @@ final class DotBuckConfigLocalFile extends BuckConfigFile {
         printer.println("[project]")
         printer.print("\tignore = ${mIgnore.join(', ')}")
         printer.println()
+
+        printer.println("[httpserver]")
+        printer.print("\tport = 0")
+        printer.println()
     }
 }
