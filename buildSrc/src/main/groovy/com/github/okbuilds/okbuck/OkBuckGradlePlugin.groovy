@@ -62,15 +62,17 @@ class OkBuckGradlePlugin implements Plugin<Project> {
             InstallUtil.install(project, BuildSystem.BUCK, install.gitUrl, install.sha, new File(install.dir))
         }
 
-        Task fetchRobolectricRuntimeDeps = project.task('fetchRobolectricRuntimeDeps')
-        okBuck.dependsOn(fetchRobolectricRuntimeDeps)
-        fetchRobolectricRuntimeDeps.mustRunAfter(okBuckClean)
-        fetchRobolectricRuntimeDeps.setDescription("Fetches runtime dependencies for robolectric")
-
-        fetchRobolectricRuntimeDeps << {
+        project.afterEvaluate {
             ExperimentalExtension experimental = okbuck.experimental
             if (experimental.robolectric) {
-                RobolectricUtil.download(project)
+                Task fetchRobolectricRuntimeDeps = project.task('fetchRobolectricRuntimeDeps')
+                okBuck.dependsOn(fetchRobolectricRuntimeDeps)
+                fetchRobolectricRuntimeDeps.mustRunAfter(okBuckClean)
+                fetchRobolectricRuntimeDeps.setDescription("Fetches runtime dependencies for robolectric")
+
+                fetchRobolectricRuntimeDeps << {
+                    RobolectricUtil.download(project)
+                }
             }
         }
     }

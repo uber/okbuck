@@ -128,8 +128,9 @@ abstract class AndroidTarget extends JavaLibTarget {
             [project.file(asset).parentFile.path, asset]
         }
 
-        return (resourceMap.keySet() + assetMap.keySet()).collect { key ->
-            new ResBundle(identifier, resourceMap.get(key, null), assetMap.get(key, null))
+        Set<String> keys = (resourceMap.keySet() + assetMap.keySet())
+        return keys.collect { key ->
+            new ResBundle(identifier, resourceMap.get(key, null), assetMap.get(key, null), keys.size() > 1)
         } as Set
     }
 
@@ -193,10 +194,14 @@ abstract class AndroidTarget extends JavaLibTarget {
         String resDir
         String assetsDir
 
-        ResBundle(String identifier, String resDir, String assetsDir) {
+        ResBundle(String identifier, String resDir, String assetsDir, boolean digestId = true) {
             this.resDir = resDir
             this.assetsDir = assetsDir
-            id = DigestUtils.md5Hex("${identifier}:${resDir}:${assetsDir}")
+            if (digestId) {
+                id = DigestUtils.md5Hex("${identifier}:${resDir}:${assetsDir}")
+            } else {
+                id = null
+            }
         }
     }
 
