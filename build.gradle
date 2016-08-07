@@ -7,7 +7,7 @@ buildscript {
         classpath 'com.android.tools.build:gradle:2.1.2'
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
         classpath 'me.tatarka:gradle-retrolambda:3.2.5'
-        classpath 'com.jakewharton:butterknife-gradle-plugin:8.2.0'
+        classpath 'com.jakewharton:butterknife-gradle-plugin:8.2.1'
     }
 }
 
@@ -19,11 +19,11 @@ allprojects {
 }
 
 ext {
-    androidCompileSdkVersion = 23
-    androidBuildToolsVersion = '23.0.1'
+    androidCompileSdkVersion = 24
+    androidBuildToolsVersion = '24.0.1'
     androidMinSdkVersion = 15
-    androidTargetSdkVersion = 23
-    androidSupportSdkVersion = '23.4.0'
+    androidTargetSdkVersion = 24
+    androidSupportSdkVersion = '24.1.1'
 }
 
 apply plugin: 'com.github.okbuilds.okbuck-gradle-plugin'
