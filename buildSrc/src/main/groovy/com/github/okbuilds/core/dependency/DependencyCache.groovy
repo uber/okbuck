@@ -1,7 +1,6 @@
 package com.github.okbuilds.core.dependency
 
 import com.github.okbuilds.core.util.FileUtil
-import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
 
@@ -15,13 +14,13 @@ class DependencyCache {
     private Map<VersionlessDependency, String> finalDepFiles = [:]
     private Map<VersionlessDependency, ExternalDependency> greatestVersions = [:]
 
-    static digestFormat = { File depFile ->
-        "${DigestUtils.md5Hex(depFile.parentFile.absolutePath)}/${depFile.name}"
+    static flatFormat = { File depFile ->
+        depFile.name
     }
 
     DependencyCache(Project rootProject,
                     String cacheDirPath,
-                    Closure<String> fileFormat = digestFormat,
+                    Closure<String> fileFormat = flatFormat,
                     createBuckFile = true) {
         this.rootProject = rootProject
         cacheDir = new File(rootProject.projectDir, cacheDirPath)

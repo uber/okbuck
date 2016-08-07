@@ -10,7 +10,7 @@ abstract class AndroidBuckRuleComposer extends JavaBuckRuleComposer {
     }
 
     static String resLocal(AndroidTarget target, AndroidTarget.ResBundle bundle) {
-        return "res_${target.name}_${bundle.id}"
+        return "res_${target.name}${bundle.id ? "_${bundle.id}" : ""}"
     }
 
     static String manifest(AndroidTarget target) {
