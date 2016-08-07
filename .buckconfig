@@ -10,3 +10,6 @@
     language_level = JDK_1_7
 [ndk]
     gcc_version=4.9
+
+[tools]
+  proguard = tools/proguard.jar
