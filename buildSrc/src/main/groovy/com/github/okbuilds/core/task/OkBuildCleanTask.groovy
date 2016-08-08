@@ -18,8 +18,8 @@ class OkBuildCleanTask extends DefaultTask {
 
     @TaskAction
     void clean() {
-        new FileNameFinder().getFileNames(project.projectDir.absolutePath, remove.join(' '), keep.join(' ')).each {
-            FileUtils.deleteQuietly(project.file(it))
+        project.fileTree(dir: project.projectDir.absolutePath, includes: remove, excludes: keep).each { File f ->
+            FileUtils.deleteQuietly(f)
         }
     }
 }
