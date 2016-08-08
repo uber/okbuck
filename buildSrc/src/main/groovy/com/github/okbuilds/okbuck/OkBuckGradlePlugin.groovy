@@ -36,8 +36,6 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         InstallExtension install = okbuck.extensions.create(INSTALL, InstallExtension, project)
         okbuck.extensions.create(EXPERIMENTAL, ExperimentalExtension)
 
-        depCache = new DependencyCache(project, DEFAULT_CACHE_PATH)
-
         Task okBuckClean = project.tasks.create(OKBUCK_CLEAN, OkBuildCleanTask,
                 { it.remove = ['.buckconfig.local', "**/${BUCK}"]; it.keep = okbuck.keep })
         okBuckClean.setGroup(GROUP)
@@ -64,6 +62,9 @@ class OkBuckGradlePlugin implements Plugin<Project> {
 
         project.afterEvaluate {
             ExperimentalExtension experimental = okbuck.experimental
+
+            depCache = new DependencyCache(project, DEFAULT_CACHE_PATH, true, true, experimental.sources)
+
             if (experimental.robolectric) {
                 Task fetchRobolectricRuntimeDeps = project.task('fetchRobolectricRuntimeDeps')
                 okBuck.dependsOn(fetchRobolectricRuntimeDeps)

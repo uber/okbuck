@@ -5,6 +5,7 @@ import org.apache.maven.artifact.versioning.DefaultArtifactVersion
 class ExternalDependency extends VersionlessDependency {
 
     final DefaultArtifactVersion version
+    final String group
     final File depFile
 
     ExternalDependency(String identifier, File depFile, String fallbackId = "") {
@@ -13,6 +14,7 @@ class ExternalDependency extends VersionlessDependency {
         if (parts.size() < 3) {
             parts = fallbackId.split(":")
         }
+        group = parts[0]
         version = new DefaultArtifactVersion(parts[2])
         this.depFile = depFile
     }
@@ -20,5 +22,9 @@ class ExternalDependency extends VersionlessDependency {
     @Override
     String toString() {
         return "${this.version} : ${this.depFile.toString()}"
+    }
+
+    String getCacheName() {
+        return "${group}.${depFile.name}"
     }
 }
