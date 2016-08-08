@@ -9,4 +9,9 @@ class ExperimentalExtension {
      * Enable generation of robolectric rules.
      */
     boolean robolectric = false
+
+    /**
+     * Enable fetching source jars.
+     */
+    boolean sources = false
 }
