@@ -7,14 +7,11 @@ import com.android.manifmerger.ManifestMerger2
 import com.android.manifmerger.MergingReport
 import com.android.utils.ILogger
 import com.github.okbuilds.core.util.FileUtil
-import com.github.okbuilds.okbuck.ExperimentalExtension
-import groovy.transform.Memoized
 import groovy.transform.ToString
 import org.apache.commons.codec.digest.DigestUtils
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger
-
 /**
  * An Android target
  */
@@ -27,6 +24,8 @@ abstract class AndroidTarget extends JavaLibTarget {
     final int minSdk
     final int targetSdk
     final boolean generateR2
+    final Scope sqldelight
+    final File sqldelightDir
 
     AndroidTarget(Project project, String name) {
         super(project, name)
@@ -47,20 +46,40 @@ abstract class AndroidTarget extends JavaLibTarget {
 
         // Butterknife support
         generateR2 = project.plugins.hasPlugin('com.jakewharton.butterknife')
+
+        sqldelightDir = new File(project.projectDir, "build/okbuck/sqldelight")
+        // SqlDelight support
+        if (project.plugins.hasPlugin('com.squareup.sqldelight')) {
+            sqldelightDir.mkdirs()
+            sqldelight = new Scope(project, ["provided"] as Set, [sqldelightDir] as Set)
+        } else {
+            sqldelight = null
+        }
     }
 
     protected abstract BaseVariant getBaseVariant()
 
     protected abstract ManifestMerger2.MergeType getMergeType()
 
+    String getSqlDelightJar() {
+        String runner = sqldelight.externalDeps.find { it.contains("SqlDelightBin") }
+        if (runner == null) {
+            throw new IllegalStateException("SqlDelight model module must declare the SqlDelightBin dependency, " +
+                    "read more at https://github.com/OkBuilds/OkBuck/wiki/Known-caveats#sqldelight-work-around")
+        }
+        return project.rootProject.projectDir.absolutePath + "/" + runner
+    }
+
     @Override
     Scope getMain() {
+        Set<File> srcDirs = baseVariant.sourceSets.collect { SourceProvider provider ->
+            provider.javaDirectories
+        }.flatten() as Set<File>
+
         return new Scope(
                 project,
                 ["compile", "${buildType}Compile", "${flavor}Compile", "${name}Compile"] as Set,
-                baseVariant.sourceSets.collect { SourceProvider provider ->
-                    provider.javaDirectories
-                }.flatten() as Set<File>,
+                srcDirs,
                 null,
                 extraJvmArgs)
     }

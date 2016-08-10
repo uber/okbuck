@@ -4,12 +4,14 @@ package com.github.okbuilds.okbuck.rule
 final class AndroidTestRule extends AndroidRule {
 
     /**
+     * @srcTargets, used for SqlDelight support(or other case), genrule's output will be used as src, pass empty set if not present
      * @param appClass , if exopackage is enabled, pass the detected app class, otherwise, pass null
      * */
     AndroidTestRule(
             String name,
             List<String> visibility,
             List<String> deps,
+            Set<String> srcTargets,
             Set<String> srcSet,
             String manifest,
             List<String> annotationProcessors,
@@ -23,13 +25,14 @@ final class AndroidTestRule extends AndroidRule {
             List<String> options,
             String mResourcesDir,
             String runtimeDependency,
-            List<String> srcTargets) {
+            List<String> testSrcTargets) {
 
         super(
                 "robolectric_test",
                 name,
                 visibility,
                 deps,
+                srcTargets,
                 srcSet,
                 manifest,
                 annotationProcessors,
@@ -45,6 +48,6 @@ final class AndroidTestRule extends AndroidRule {
                 mResourcesDir,
                 runtimeDependency,
                 null,
-                srcTargets);
+                testSrcTargets);
     }
 }

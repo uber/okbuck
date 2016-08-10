@@ -4,12 +4,14 @@ package com.github.okbuilds.okbuck.rule
 final class AndroidLibraryRule extends AndroidRule {
 
     /**
+     * @srcTargets, used for SqlDelight support(or other case), genrule's output will be used as src, pass empty set if not present
      * @param appClass , if exopackage is enabled, pass the detected app class, otherwise, pass null
      * */
     AndroidLibraryRule(
             String name,
             List<String> visibility,
             List<String> deps,
+            Set<String> srcTargets,
             Set<String> srcSet,
             String manifest,
             List<String> annotationProcessors,
@@ -29,6 +31,7 @@ final class AndroidLibraryRule extends AndroidRule {
                 name,
                 visibility,
                 deps,
+                srcTargets,
                 srcSet,
                 manifest,
                 annotationProcessors,

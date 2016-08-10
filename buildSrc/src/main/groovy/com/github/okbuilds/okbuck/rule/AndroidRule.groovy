@@ -3,6 +3,7 @@ package com.github.okbuilds.okbuck.rule
 import org.apache.commons.lang.StringUtils
 
 abstract class AndroidRule extends BuckRule {
+    private final Set<String> mSrcTargets
     private final Set<String> mSrcSet
     private final String mManifest
     private final List<String> mAnnotationProcessors
@@ -18,9 +19,10 @@ abstract class AndroidRule extends BuckRule {
     private final String mResourcesDir
     private final String mRuntimeDependency
     private final List<String> mTestTargets
-    private final List<String> mSrcTargets
+    private final List<String> mTestSrcTargets
 
     /**
+     * @srcTargets, used for SqlDelight support(or other case), genrule's output will be used as src, pass empty set if not present
      * @param appClass , if exopackage is enabled, pass the detected app class, otherwise, pass null
      * */
     AndroidRule(
@@ -28,6 +30,7 @@ abstract class AndroidRule extends BuckRule {
             String name,
             List<String> visibility,
             List<String> deps,
+            Set<String> srcTargets,
             Set<String> srcSet,
             String manifest,
             List<String> annotationProcessors,
@@ -43,9 +46,10 @@ abstract class AndroidRule extends BuckRule {
             String resourcesDir,
             String runtimeDependency,
             List<String> testTargets,
-            List<String> srcTargets) {
+            List<String> testSrcTargets) {
         super(ruleType, name, visibility, deps)
 
+        mSrcTargets = srcTargets
         mSrcSet = srcSet
         mManifest = manifest
         mAnnotationProcessors = annotationProcessors
@@ -61,12 +65,20 @@ abstract class AndroidRule extends BuckRule {
         mResourcesDir = resourcesDir
         mRuntimeDependency = runtimeDependency;
         mTestTargets = testTargets;
-        mSrcTargets = srcTargets;
+        mTestSrcTargets = testSrcTargets;
     }
 
     @Override
     protected final void printContent(PrintStream printer) {
-        printer.println("\tsrcs = glob([")
+        if (mSrcTargets.empty) {
+            printer.println("\tsrcs = glob([")
+        } else {
+            printer.println("\tsrcs = [")
+            for (String target : mSrcTargets) {
+                printer.println("\t\t'${target}',")
+            }
+            printer.println("\t] + glob([")
+        }
         for (String src : mSrcSet) {
             printer.println("\t\t'${src}/**/*.java',")
         }
@@ -77,9 +89,9 @@ abstract class AndroidRule extends BuckRule {
             printer.println("\t]),")
         }
 
-        if (mSrcTargets) {
+        if (mTestSrcTargets) {
             printer.println("\tsource_under_test = [")
-            for (String srcTarget : mSrcTargets) {
+            for (String srcTarget : mTestSrcTargets) {
                 printer.println("\t\t'${srcTarget}',")
             }
             printer.println("\t],")

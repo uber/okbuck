@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.neenbedankt.android-apt'
 apply plugin: 'me.tatarka.retrolambda'
 apply plugin: 'com.jakewharton.butterknife'
+apply plugin: 'com.squareup.sqldelight'
 
 android {
     compileSdkVersion rootProject.ext.androidCompileSdkVersion
@@ -12,6 +13,7 @@ android {
         minSdkVersion rootProject.ext.androidMinSdkVersion
         targetSdkVersion rootProject.ext.androidTargetSdkVersion
         multiDexEnabled true
+        vectorDrawables.useSupportLibrary = true
         versionCode 1
         versionName "1.0"
         buildConfigField "boolean", "CAN_JUMP", "true"
@@ -37,6 +39,7 @@ android {
         dev {
             buildConfigField "boolean", "CAN_JUMP", "true"
             applicationIdSuffix = ".dev"
+            buildConfigField "int", "EXOPACKAGE_FLAGS", "1"
         }
         prod {
             buildConfigField "boolean", "CAN_JUMP", "false"
@@ -45,6 +48,7 @@ android {
         demo {
             buildConfigField "boolean", "CAN_JUMP", "false"
             applicationIdSuffix = ".demo"
+            buildConfigField "int", "EXOPACKAGE_FLAGS", "1"
         }
     }
 
@@ -97,7 +101,14 @@ dependencies {
     compile "com.android.support:recyclerview-v7:${rootProject.ext.androidSupportSdkVersion}"
     compile "com.squareup.leakcanary:leakcanary-android:1.3.1"
 
-    apt 'com.google.dagger:dagger-compiler:2.0.1'
+    apt 'com.google.dagger:dagger-compiler:2.5'
+    apt "com.ryanharter.auto.value:auto-value-gson:0.3.1"
+    apt "com.google.auto.value:auto-value:1.2"
+    // used for AndroidStudio sync
+    provided "com.google.auto.value:auto-value:1.2"
+    // to make OkBuck work with SqlDelight
+    provided 'com.github.okbuilds:SqlDelightBin:0.4.3'
+
     devCompile project(path: ':dummylibrary', configuration: 'freeRelease')
     prodCompile project(path: ':dummylibrary', configuration: 'paidRelease')
     demoCompile project(path: ':dummylibrary', configuration: 'paidRelease')
