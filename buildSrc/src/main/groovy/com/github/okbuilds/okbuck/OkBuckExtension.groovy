@@ -64,7 +64,10 @@ class OkBuckExtension {
      */
     Map<String, Map<String, List<String>>> extraBuckOpts = [:]
 
+    File gradle
+
     OkBuckExtension(Project project) {
         buckProjects = project.subprojects
+        gradle = project.file("gradlew")
     }
 }

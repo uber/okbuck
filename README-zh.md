@@ -84,10 +84,10 @@ okbuck {
 获得，默认为`android-23`
 +  `linearAllocHardLimit`和`primaryDexPatterns`都是map，用来配置BUCK multidex的
 linearAllocHardLimit和primaryDexPatterns部分，更多详细关于multidex配置的说明，请参阅
-[multidex wiki](https://github.com/Piasy/OkBuck/wiki/Multidex-Configuration-Guide)，
+[multidex wiki](https://github.com/OkBuilds/OkBuck/wiki/Multidex-Configuration-Guide)，
 如果未使用multidex（未在`build.gradle`文件中开启），可以忽略这两个参数
 +  `exopackage`和`appLibDependencies`都是map，用来配置BUCK exopackage，
-更多详细关于exopackage配置的说明，请参阅[exopackage wiki](https://github.com/Piasy/OkBuck/wiki/Exopackage-Configuration-Guide)，
+更多详细关于exopackage配置的说明，请参阅[exopackage wiki](https://github.com/OkBuilds/OkBuck/wiki/Exopackage-Configuration-Guide)，
 如果未使用exopackage，可以忽略这三个参数
 + `annotationProcessors` 用来声明项目中的注解处理器, key 为 module 路径, value 为注解处理器类的全名。
 +  `buckProjects` 用于控制哪些 module 将使用 BUCK 进行构建, 默认是项目中的所有 module
@@ -98,6 +98,6 @@ linearAllocHardLimit和primaryDexPatterns部分，更多详细关于multidex配�
  - 指定 module 名字, flavor 名字以及 build type 的名字, 例如: 'appDemoRelease'
 
 ## Troubleshooting
-如果遇到任何问题，请[提一个issue](https://github.com/Piasy/OkBuck/issues/new)，如果能提供
+如果遇到任何问题，请[提一个issue](https://github.com/OkBuilds/OkBuck/issues/new)，如果能提供
 `./gradle okbuck --stacktrace --debug`的输出，就是极好的了。如有任何OkBuck或者BUCK的使用问题，
 欢迎加入**OkBuck使用问题交流群**：`170102067`。

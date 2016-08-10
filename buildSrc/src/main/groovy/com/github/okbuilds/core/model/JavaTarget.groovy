@@ -1,6 +1,5 @@
 package com.github.okbuilds.core.model
 
-import groovy.transform.Memoized
 import org.apache.commons.io.IOUtils
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
@@ -51,6 +50,13 @@ abstract class JavaTarget extends Target {
         }.findAll { List<String> processors ->
             processors != null
         }).flatten() as List<String>
+    }
+
+    /**
+     * Set of gradle tasks that generate sources outside buck.
+     */
+    Set<GradleSourcegen> getGradleSourcegen() {
+        return [] as Set
     }
 
     protected static String javaVersion(JavaVersion version) {

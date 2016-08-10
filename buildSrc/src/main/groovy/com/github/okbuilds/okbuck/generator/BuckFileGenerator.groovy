@@ -14,7 +14,7 @@ final class BuckFileGenerator {
     private static final TARGET_RELEASE = 'release'
 
     private final Project mRootProject
-    private final OkBuckExtension mOkbuck
+    static OkBuckExtension mOkbuck
 
     BuckFileGenerator(Project rootProject) {
         mRootProject = rootProject
@@ -149,13 +149,26 @@ final class BuckFileGenerator {
             ":${rule.name}"
         }
 
+        // Gradle generate sources tasks
+        List<GradleSourcegenRule> sourcegenRules = GradleSourcegenRuleComposer.compose(target, mOkbuck.gradle.absolutePath)
+        List<ZipRule> zipRules = sourcegenRules.collect { GradleSourcegenRule sourcegenRule ->
+            ZipRuleComposer.compose(sourcegenRule)
+        }
+        rules.addAll(sourcegenRules)
+        rules.addAll(zipRules)
+        Set<String> zipRuleNames = zipRules.collect { ZipRule rule ->
+            ":${rule.name}"
+        }
+
         // Lib
         androidLibRules.add(AndroidLibraryRuleComposer.compose(
                 target,
                 deps,
                 aptDeps,
                 aidlRuleNames,
-                appClass))
+                appClass,
+                zipRuleNames
+        ))
 
         // Test
         if (target.robolectric && target.test.sources) {
