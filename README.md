@@ -87,6 +87,8 @@ okbuck {
             ]
     ]
     buckProjects = project.subprojects
+
+    remove = []
     keep = []
 
     install {
@@ -107,8 +109,9 @@ configuring buck's exopackage mode. For more details about exopackage configurat
 please read the [Exopackage wiki page](https://github.com/OkBuilds/OkBuck/wiki/Exopackage-Configuration-Guide), if you don't need exopackage, you can ignore these parameters
 + `annotationProcessors` is used to depend on annotation processors declared locally as another gradle module in the same root project.
 +  `buckProjects` is a set of projects to generate buck configs for. Default is all sub projects of the root project.
-+ `keep` is a list of files to not clean up by the plugin when running `okbuckClean`. This may be useful if you want made manual modifications to some buck configuration and would like to keep it intact while regenerating the configuration for other projects.
-+ `install` is used to download and install buck from the [official version](https://github.com/facebook/buck) or from any fork. It keeps a cache of different forks you can use across your projects. To install the specified version you need to explictly run the `buckInstall` task and can use it via the `buck` symlink in your project.
++ `remove` is a list of files to clean up by the plugin when running `okbuckClean`. By default it is set to ['.buckconfig.local', '**/BUCK'].
++ `keep` is a list of files to not clean up by the plugin when running `okbuckClean`. This may be useful if you want made manual modifications to some buck configuration and would like to keep it intact while regenerating the configuration for other projects. By default it is set to ['.okbuck/**'].
++ `install` is used to download and install buck from the [official version](https://github.com/facebook/buck) or from any fork. It keeps a cache of different forks you can use across your projects. To install the specified version you need to explicitly run the `buckInstall` task and can use it via the `buck` symlink in your project.
  - `gitUrl` - The git url of the buck fork. Default is [facebook/buck](https://github.com/facebook/buck)
  - `sha` - The git sha/branch/tag to checkout before building. Defaults to origin/master
  - `dir` - The directory to clone buck in. Defaults to `~/.gradle/caches/okbuilds`
