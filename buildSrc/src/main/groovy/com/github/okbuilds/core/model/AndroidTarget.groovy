@@ -7,9 +7,9 @@ import com.android.manifmerger.ManifestMerger2
 import com.android.manifmerger.MergingReport
 import com.android.utils.ILogger
 import com.github.okbuilds.core.util.FileUtil
-import com.github.okbuilds.okbuck.ExperimentalExtension
-import groovy.transform.Memoized
 import groovy.transform.ToString
+import groovy.util.slurpersupport.GPathResult
+import groovy.xml.StreamingMarkupBuilder
 import org.apache.commons.codec.digest.DigestUtils
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
@@ -26,6 +26,7 @@ abstract class AndroidTarget extends JavaLibTarget {
     final Integer versionCode
     final int minSdk
     final int targetSdk
+    final boolean debuggable
     final boolean generateR2
 
     AndroidTarget(Project project, String name) {
@@ -44,6 +45,7 @@ abstract class AndroidTarget extends JavaLibTarget {
         versionCode = baseVariant.mergedFlavor.versionCode
         minSdk = baseVariant.mergedFlavor.minSdkVersion.apiLevel
         targetSdk = baseVariant.mergedFlavor.targetSdkVersion.apiLevel
+        debuggable = baseVariant.buildType.debuggable
 
         // Butterknife support
         generateR2 = project.plugins.hasPlugin('com.jakewharton.butterknife')
@@ -178,6 +180,39 @@ abstract class AndroidTarget extends JavaLibTarget {
 
         if (report.result.success) {
             mergedManifest.text = report.getMergedDocument(MergingReport.MergedManifestKind.MERGED)
+
+            XmlSlurper slurper = new XmlSlurper()
+            GPathResult manifestXml = slurper.parse(project.file(mergedManifest))
+
+            manifestXml.@package = applicationId + applicationIdSuffix
+            if (versionCode) {
+                manifestXml.@'android:versionCode' = String.valueOf(versionCode)
+            }
+            if (versionName) {
+                manifestXml.@'android:versionName' = versionName
+            }
+            manifestXml.application.@'android:debuggable' = String.valueOf(debuggable)
+
+            def sdkNode = {
+                'uses-sdk'('android:minSdkVersion': String.valueOf(minSdk),
+                        'android:targetSdkVersion': String.valueOf(targetSdk)) {}
+            }
+            if (manifestXml.'uses-sdk'.size() == 0) {
+                manifestXml.appendNode(sdkNode)
+            } else {
+                manifestXml.'uses-sdk'.replaceNode(sdkNode)
+            }
+
+            def builder = new StreamingMarkupBuilder()
+            builder.setUseDoubleQuotes(true)
+            mergedManifest.text = (builder.bind {
+                mkp.yield manifestXml
+            } as String)
+                    .replaceAll("\\{http://schemas.android.com/apk/res/android\\}versionCode", "android:versionCode")
+                    .replaceAll("\\{http://schemas.android.com/apk/res/android\\}versionName", "android:versionName")
+                    .replaceAll("\\{http://schemas.android.com/apk/res/android\\}debuggable", "android:debuggable")
+                    .replaceAll('xmlns:android="http://schemas.android.com/apk/res/android"', "")
+                    .replaceAll("<manifest ", '<manifest xmlns:android="http://schemas.android.com/apk/res/android" ')
         } else if (report.result.error) {
             throw new IllegalStateException(report.loggingRecords.collect {
                 "${it.severity}: ${it.message} at ${it.sourceLocation}"
