@@ -5,8 +5,6 @@ import com.android.builder.model.SigningConfig
 import com.android.manifmerger.ManifestMerger2
 import com.github.okbuilds.core.util.FileUtil
 import groovy.transform.ToString
-import groovy.util.slurpersupport.GPathResult
-import groovy.xml.StreamingMarkupBuilder
 import org.apache.commons.io.FilenameUtils
 import org.gradle.api.Project
 
@@ -21,7 +19,6 @@ class AndroidAppTarget extends AndroidLibTarget {
     private static final String BINARY_OPT = "binary"
 
     final boolean multidexEnabled
-    final boolean debuggable
     final Keystore keystore
     final Set<String> cpuFilters
 
@@ -39,7 +36,6 @@ class AndroidAppTarget extends AndroidLibTarget {
     AndroidAppTarget(Project project, String name) {
         super(project, name)
 
-        debuggable = baseVariant.buildType.debuggable
         minifyEnabled = baseVariant.buildType.minifyEnabled
         keystore = extractKeystore()
         if (baseVariant.ndkCompile.abiFilters != null) {
@@ -88,39 +84,6 @@ class AndroidAppTarget extends AndroidLibTarget {
     @Override
     ManifestMerger2.MergeType getMergeType() {
         return ManifestMerger2.MergeType.APPLICATION
-    }
-
-    @Override
-    String getManifest() {
-        String mergedManifest = super.getManifest()
-
-        XmlSlurper slurper = new XmlSlurper()
-        GPathResult manifestXml = slurper.parse(project.file(mergedManifest))
-
-        manifestXml.@package = applicationId + applicationIdSuffix
-        manifestXml.@'android:versionCode' = String.valueOf(versionCode)
-        manifestXml.@'android:versionName' = versionName
-        manifestXml.application.@'android:debuggable' = String.valueOf(debuggable)
-        if (manifestXml.'uses-sdk'.size() == 0) {
-            manifestXml.appendNode({
-                'uses-sdk'('android:minSdkVersion': String.valueOf(minSdk),
-                        'android:targetSdkVersion': String.valueOf(targetSdk)) {}
-            })
-        }
-
-        def builder = new StreamingMarkupBuilder()
-        builder.setUseDoubleQuotes(true)
-        project.file(mergedManifest).text = (builder.bind {
-            mkp.yield manifestXml
-        } as String)
-                .replaceAll("\\{http://schemas.android.com/apk/res/android\\}versionCode", "android:versionCode")
-                .replaceAll("\\{http://schemas.android.com/apk/res/android\\}versionName", "android:versionName")
-                .replaceAll("\\{http://schemas.android.com/apk/res/android\\}debuggable", "android:debuggable")
-                .replaceAll('xmlns:android="http://schemas.android.com/apk/res/android"', "")
-                .replaceAll("<manifest ", '<manifest xmlns:android="http://schemas.android.com/apk/res/android" ')
-
-
-        return mergedManifest
     }
 
     String getProguardConfig() {
