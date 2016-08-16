@@ -1,8 +1,9 @@
 package com.github.okbuilds.core.task
 
+import com.github.okbuilds.okbuck.OkBuckExtension
+import com.github.okbuilds.okbuck.OkBuckGradlePlugin
 import org.apache.commons.io.FileUtils
 import org.gradle.api.DefaultTask
-import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 
 /**
@@ -10,15 +11,11 @@ import org.gradle.api.tasks.TaskAction
  */
 class OkBuildCleanTask extends DefaultTask {
 
-    @Input
-    Set<String> remove
-
-    @Input
-    Set<String> keep
-
     @TaskAction
     void clean() {
-        project.fileTree(dir: project.projectDir.absolutePath, includes: remove, excludes: keep).each { File f ->
+        OkBuckExtension okbuck = project.extensions.getByName(OkBuckGradlePlugin.OKBUCK) as OkBuckExtension
+
+        project.fileTree(dir: project.projectDir.absolutePath, includes: okbuck.remove, excludes: okbuck.keep).each { File f ->
             FileUtils.deleteQuietly(f)
         }
     }
