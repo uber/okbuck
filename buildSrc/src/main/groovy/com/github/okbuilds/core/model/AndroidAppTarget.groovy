@@ -89,38 +89,42 @@ class AndroidAppTarget extends AndroidLibTarget {
     String getProguardConfig() {
         File mergedProguardConfig = project.file("${project.buildDir}/okbuck/${name}/proguard.pro")
         mergedProguardConfig.parentFile.mkdirs()
-        Set<File> configs = [] as Set
+        mergedProguardConfig.createNewFile()
 
-        // project proguard files
-        configs.addAll(baseVariant.mergedFlavor.proguardFiles)
-        configs.addAll(baseVariant.buildType.proguardFiles)
+        if (minifyEnabled) {
+            Set<File> configs = [] as Set
 
-        // Consumer proguard files of target dependencies
-        configs.addAll((main.targetDeps.findAll { Target target ->
-            target instanceof AndroidLibTarget
-        } as List<AndroidLibTarget>).collect { AndroidLibTarget target ->
-            target.baseVariant.mergedFlavor.consumerProguardFiles +
-                    target.baseVariant.buildType.consumerProguardFiles
-        }.flatten() as Set<File>)
+            // project proguard files
+            configs.addAll(baseVariant.mergedFlavor.proguardFiles)
+            configs.addAll(baseVariant.buildType.proguardFiles)
 
-        String mergedConfig = ""
-        configs.each { File config ->
-            mergedConfig += "\n##---- ${config} ----##\n"
-            mergedConfig += config.text
-        }
+            // Consumer proguard files of target dependencies
+            configs.addAll((main.targetDeps.findAll { Target target ->
+                target instanceof AndroidLibTarget
+            } as List<AndroidLibTarget>).collect { AndroidLibTarget target ->
+                target.baseVariant.mergedFlavor.consumerProguardFiles +
+                        target.baseVariant.buildType.consumerProguardFiles
+            }.flatten() as Set<File>)
 
-        // Consumer proguard files of compiled aar dependencies
-        main.externalDeps.findAll { String dep ->
-            dep.endsWith(".aar")
-        }.each { String dep ->
-            String config = getPackedProguardConfig(rootProject.file(dep))
-            if (!config.empty) {
-                mergedConfig += "\n##---- ${FilenameUtils.getBaseName(dep)} ----##\n"
-                mergedConfig += config
+            String mergedConfig = ""
+            configs.each { File config ->
+                mergedConfig += "\n##---- ${config} ----##\n"
+                mergedConfig += config.text
             }
-        }
 
-        mergedProguardConfig.text = mergedConfig
+            // Consumer proguard files of compiled aar dependencies
+            main.externalDeps.findAll { String dep ->
+                dep.endsWith(".aar")
+            }.each { String dep ->
+                String config = getPackedProguardConfig(rootProject.file(dep))
+                if (!config.empty) {
+                    mergedConfig += "\n##---- ${FilenameUtils.getBaseName(dep)} ----##\n"
+                    mergedConfig += config
+                }
+            }
+
+            mergedProguardConfig.text = mergedConfig
+        }
         return FileUtil.getRelativePath(project.projectDir, mergedProguardConfig)
     }
 
