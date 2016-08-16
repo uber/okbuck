@@ -52,7 +52,7 @@ dependencies {
 def siteUrl = 'https://github.com/OkBuilds/OkBuck'
 def gitUrl = 'https://github.com/OkBuilds/OkBuck.git'
 def publishGroup = 'com.github.okbuilds'
-def publishVersion = '0.4.1'
+def publishVersion = '0.4.2'
 
 group = publishGroup
 version = publishVersion
