@@ -8,6 +8,7 @@ import com.github.okbuilds.core.model.*
 import com.github.okbuilds.okbuck.OkBuckExtension
 import org.apache.commons.io.FilenameUtils
 import org.gradle.api.Project
+import org.gradle.api.plugins.ApplicationPlugin
 import org.gradle.api.plugins.JavaPlugin
 
 final class ProjectUtil {
@@ -21,6 +22,8 @@ final class ProjectUtil {
             return ProjectType.ANDROID_APP
         } else if (project.plugins.hasPlugin(LibraryPlugin)) {
             return ProjectType.ANDROID_LIB
+        } else if (project.plugins.hasPlugin(ApplicationPlugin.class)) {
+            return ProjectType.JAVA_APP
         } else if (project.plugins.hasPlugin(JavaPlugin)) {
             return ProjectType.JAVA_LIB
         } else {
@@ -40,6 +43,11 @@ final class ProjectUtil {
                 project.android.libraryVariants.collectEntries { BaseVariant variant ->
                     [variant.name, new AndroidLibTarget(project, variant.name)]
                 }
+                break
+            case ProjectType.JAVA_APP:
+                def targets = new HashMap<String, Target>()
+                targets.put(JavaAppTarget.MAIN, new JavaAppTarget(project, JavaAppTarget.MAIN))
+                return targets
                 break
             case ProjectType.JAVA_LIB:
                 def targets = new HashMap<String, Target>()

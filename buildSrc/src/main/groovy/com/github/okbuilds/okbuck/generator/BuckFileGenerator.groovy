@@ -61,6 +61,9 @@ final class BuckFileGenerator {
                 case ProjectType.JAVA_LIB:
                     rules.addAll(createRules((JavaLibTarget) target))
                     break
+                case ProjectType.JAVA_APP:
+                    rules.addAll(createRules((JavaAppTarget) target))
+                    break
                 case ProjectType.ANDROID_LIB:
                     rules.addAll(createRules((AndroidLibTarget) target))
                     break
@@ -107,6 +110,13 @@ final class BuckFileGenerator {
         if (target.test.sources) {
             rules.add(JavaTestRuleComposer.compose(target))
         }
+        return rules
+    }
+
+    private static List<BuckRule> createRules(JavaAppTarget target) {
+        List<BuckRule> rules = []
+        rules.addAll(createRules((JavaLibTarget) target))
+        rules.add(JavaBinaryRuleComposer.compose(target))
         return rules
     }
 
