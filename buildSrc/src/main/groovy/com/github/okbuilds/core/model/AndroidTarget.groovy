@@ -131,9 +131,15 @@ abstract class AndroidTarget extends JavaLibTarget {
         }
 
         Set<String> keys = (resourceMap.keySet() + assetMap.keySet())
-        return keys.collect { key ->
+        Set<ResBundle> resBundles = keys.collect { key ->
             new ResBundle(identifier, resourceMap.get(key, null), assetMap.get(key, null), keys.size() > 1)
         } as Set
+
+        // Add an empty resource bundle even if no res and assets folders exist since we use resource_union
+        if (resBundles.empty) {
+            resBundles.add(new ResBundle(identifier, null, null, false))
+        }
+        return resBundles
     }
 
     Set<String> getAidl() {
