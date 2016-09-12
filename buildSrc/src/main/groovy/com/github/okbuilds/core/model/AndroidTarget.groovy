@@ -1,6 +1,8 @@
 package com.github.okbuilds.core.model
 
 import com.android.build.gradle.api.BaseVariant
+import com.android.build.gradle.api.UnitTestVariant
+import com.android.build.gradle.internal.api.TestedVariant
 import com.android.builder.model.ClassField
 import com.android.builder.model.SourceProvider
 import com.android.manifmerger.ManifestMerger2
@@ -14,6 +16,8 @@ import org.apache.commons.codec.digest.DigestUtils
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger
+import org.gradle.api.tasks.compile.AbstractCompile
+import org.gradle.api.tasks.compile.JavaCompile
 
 /**
  * An Android target
@@ -64,7 +68,7 @@ abstract class AndroidTarget extends JavaLibTarget {
                     provider.javaDirectories
                 }.flatten() as Set<File>,
                 null,
-                extraJvmArgs)
+                getJavaCompilerOptions(baseVariant) + extraJvmArgs)
     }
 
     @Override
@@ -75,7 +79,7 @@ abstract class AndroidTarget extends JavaLibTarget {
                  "testCompile", "${buildType}TestCompile", "${flavor}TestCompile", "${name}TestCompile"] as Set,
                 project.files("src/test/java") as Set<File>,
                 project.file("src/test/resources"),
-                extraJvmArgs)
+                getJavaCompilerOptions(unitTestVariant) + extraJvmArgs)
     }
 
     public boolean getRobolectric() {
@@ -226,6 +230,34 @@ abstract class AndroidTarget extends JavaLibTarget {
         }
 
         return FileUtil.getRelativePath(project.projectDir, mergedManifest)
+    }
+
+    static List<String> getJavaCompilerOptions(BaseVariant baseVariant) {
+        AbstractCompile abstractCompile = baseVariant.javaCompiler
+        if (abstractCompile instanceof JavaCompile) {
+            List<String> options = ((JavaCompile) abstractCompile).options.compilerArgs
+            // Remove options added by apt plugin since they are handled by apt scope separately
+            filterOptions(options, ["-s", "-processorpath"])
+            return options
+        } else {
+            return []
+        }
+    }
+
+    static void filterOptions(List<String> options, List<String> remove) {
+        remove.each { String key ->
+            int index = options.indexOf(key)
+            if (index != -1) {
+                options.remove(index + 1)
+                options.remove(index)
+            }
+        }
+    }
+
+    UnitTestVariant getUnitTestVariant(){
+        if(baseVariant instanceof TestedVariant) {
+            return ((TestedVariant) baseVariant).unitTestVariant
+        }
     }
 
     @ToString(includeNames = true)
