@@ -55,11 +55,6 @@ okbuck {
                     '^com/squareup/leakcanary/LeakCanary^',
             ]
     ]
-    projectTargets = [
-            'app': 'devDebug',
-            'common': 'freeRelease',
-            'dummylibrary': 'freeRelease',
-    ]
     exopackage = [
             appDebug: true
     ]
@@ -101,7 +96,6 @@ okbuck {
 +  `linearAllocHardLimit` and `primaryDexPatterns` are maps, configuration used by buck for multidex. For more details about multidex configuration, please read the
 [Multidex wiki page](https://github.com/OkBuilds/OkBuck/wiki/Multidex-Configuration-Guide), 
 if you don't need multidex, you can ignore these parameters
-+  `projectTargets` is a map of project name to the buck target to use when generating an IntelliJ project.
 +  `exopackage`, `appClassSource` and `appLibDependencies` are used for
 configuring buck's exopackage mode. For more details about exopackage configuration, 
 please read the [Exopackage wiki page](https://github.com/OkBuilds/OkBuck/wiki/Exopackage-Configuration-Guide), if you don't need exopackage, you can ignore these parameters

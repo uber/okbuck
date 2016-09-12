@@ -30,11 +30,6 @@ class OkBuckExtension {
     Map<String, List<String>> primaryDexPatterns = [:]
 
     /**
-     * Configure the targets for project generation
-     */
-    Map<String, String> projectTargets = [:]
-
-    /**
      * Whether to enable exopackage.
      */
     Map<String, Boolean> exopackage = [:]

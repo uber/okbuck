@@ -17,7 +17,6 @@ class WrapperTask extends DefaultTask {
     @Input
     List<String> keep
 
-    @OutputFile
     File wrapper = project.file('buckw')
 
     @TaskAction
