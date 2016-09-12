@@ -1,0 +1,10 @@
+CREATE TABLE GithubUsers (
+  id INTEGER PRIMARY KEY,
+  login TEXT NOT NULL
+);
+
+delete_all:
+DELETE FROM GithubUsers WHERE 1;
+
+get_all:
+SELECT * FROM GithubUsers;

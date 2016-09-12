@@ -1,79 +1,81 @@
 buildscript {
     repositories {
-        mavenLocal()
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.1.2'
+        classpath 'com.android.tools.build:gradle:2.2.0-rc2'
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
         classpath 'me.tatarka:gradle-retrolambda:3.2.5'
-        classpath 'com.jakewharton:butterknife-gradle-plugin:8.2.1'
+        classpath 'com.jakewharton:butterknife-gradle-plugin:8.4.0'
+        classpath 'com.squareup.sqldelight:gradle-plugin:0.4.4'
     }
 }
 
 allprojects {
     repositories {
-        mavenLocal()
         jcenter()
     }
 }
 
 ext {
     androidCompileSdkVersion = 24
-    androidBuildToolsVersion = '24.0.1'
+    androidBuildToolsVersion = '24.0.2'
     androidMinSdkVersion = 15
     androidTargetSdkVersion = 24
     androidSupportSdkVersion = '24.1.1'
 }
 
-apply plugin: 'com.github.okbuilds.okbuck-gradle-plugin'
+// Workaround to make gradle source tasks in buck run on travis
+if (project.file("buildSrc").exists()) {
+    apply plugin: 'com.github.okbuilds.okbuck-gradle-plugin'
 
-okbuck {
-    buildToolVersion rootProject.ext.androidBuildToolsVersion
-    target "android-${rootProject.ext.androidCompileSdkVersion}"
+    okbuck {
+        buildToolVersion rootProject.ext.androidBuildToolsVersion
+        target "android-${rootProject.ext.androidCompileSdkVersion}"
 
-    primaryDexPatterns = [
-            'app': [
-                    '^com/github/okbuilds/okbuck/example/AppShell^',
-                    '^com/github/okbuilds/okbuck/example/BuildConfig^',
-                    '^android/support/multidex/',
-                    '^com/facebook/buck/android/support/exopackage/',
-                    '^com/github/promeg/xlog_android/lib/XLogConfig^',
-                    '^com/squareup/leakcanary/LeakCanary^',
-                    '^com/github/okbuilds/okbuck/example/common/Calc^',
-                    '^com/github/okbuilds/okbuck/example/common/BuildConfig^',
-            ]
-    ]
-    exopackage = [
-            'app': true
-    ]
-    appLibDependencies = [
-            'appProd': [
-                    'buck-android-support',
-                    'com.android.support:multidex',
-                    'libraries/javalibrary:main',
-                    'libraries/common:paidRelease',
-            ],
-            'appDev' : [
-                    'buck-android-support',
-                    'com.android.support:multidex',
-                    'libraries/javalibrary:main',
-                    'libraries/common:freeDebug',
-            ],
-            'appDemo': [
-                    'buck-android-support',
-                    'com.android.support:multidex',
-                    'libraries/javalibrary:main',
-                    'libraries/common:paidRelease',
-            ]
-    ]
-    buckProjects = project.subprojects.findAll { it.name != "plugin" }
+        primaryDexPatterns = [
+                'app': [
+                        '^com/github/okbuilds/okbuck/example/AppShell^',
+                        '^com/github/okbuilds/okbuck/example/BuildConfig^',
+                        '^android/support/multidex/',
+                        '^com/facebook/buck/android/support/exopackage/',
+                        '^com/github/promeg/xlog_android/lib/XLogConfig^',
+                        '^com/squareup/leakcanary/LeakCanary^',
+                        '^com/github/okbuilds/okbuck/example/common/Calc^',
+                        '^com/github/okbuilds/okbuck/example/common/BuildConfig^',
+                ]
+        ]
+        exopackage = [
+                'app': true
+        ]
+        appLibDependencies = [
+                'appProd': [
+                        'buck-android-support',
+                        'com.android.support:multidex',
+                        'libraries/javalibrary:main',
+                        'libraries/common:paidRelease',
+                ],
+                'appDev' : [
+                        'buck-android-support',
+                        'com.android.support:multidex',
+                        'libraries/javalibrary:main',
+                        'libraries/common:freeDebug',
+                ],
+                'appDemo': [
+                        'buck-android-support',
+                        'com.android.support:multidex',
+                        'libraries/javalibrary:main',
+                        'libraries/common:paidRelease',
+                ]
+        ]
+        buckProjects = project.subprojects.findAll { it.name != "plugin" }
 
-    projectTargets = [
-            'app': 'devDebug',
-            'common': 'freeRelease',
-            'dummylibrary': 'freeRelease',
-    ]
+        projectTargets = [
+                'app'         : 'devDebug',
+                'common'      : 'freeRelease',
+                'dummylibrary': 'freeRelease',
+        ]
+    }
 }
 
 task clean(type: Delete) {
