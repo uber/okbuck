@@ -8,6 +8,7 @@ import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.TextView;
+import android.widget.Toast;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
@@ -19,6 +20,8 @@ import com.github.okbuilds.okbuck.example.dummylibrary.DummyActivity;
 import com.github.okbuilds.okbuck.example.dummylibrary.DummyAndroidClass;
 import com.github.okbuilds.okbuck.example.javalib.DummyJavaClass;
 import com.github.piasy.rxscreenshotdetector.RxScreenshotDetector;
+import com.github.okbuilds.okbuck.example.sqldelightmodel.GithubRepo;
+import com.github.okbuilds.okbuck.example.sqldelightmodel.GithubUser;
 import com.promegu.xlog.base.XLog;
 import javax.inject.Inject;
 import rx.Subscriber;
@@ -73,10 +76,8 @@ public class MainActivity extends AppCompatActivity {
                 + FlavorLogger.log(this));
 
         if (BuildConfig.CAN_JUMP) {
-            mTextView.setOnClickListener(v -> {
-                //startActivity(new Intent(MainActivity.this, CollapsingAppBarActivity.class));
-                startActivity(new Intent(MainActivity.this, DummyActivity.class));
-            });
+            mTextView.setOnClickListener(
+                    v -> startActivity(new Intent(MainActivity.this, DummyActivity.class)));
         }
 
         Log.d("test", "1 + 2 = " + new Calc(new CalcMonitor(this)).add(1, 2));
@@ -100,6 +101,10 @@ public class MainActivity extends AppCompatActivity {
                         mTextView.setText(mTextView.getText() + "\nScreenshot: " + path);
                     }
                 });
+        GithubUser user = GithubUser.create(100, "OkBuilds");
+        Toast.makeText(this, user.login(), Toast.LENGTH_SHORT).show();
+        GithubRepo repo = GithubRepo.create(100, "OkBuck", "auto buck");
+        Toast.makeText(this, repo.name() + ": " + repo.description(), Toast.LENGTH_SHORT).show();
     }
 
     @Override

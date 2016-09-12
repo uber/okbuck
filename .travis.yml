@@ -9,15 +9,22 @@ android:
     - tools
     - platform-tools
     - android-24
-    - build-tools-24.0.1
+    - build-tools-24.0.2
     - extra-android-m2repository
     - extra-android-support
+  licenses:
+    - android-sdk-preview-license-84831b94
+    - android-sdk-license-2be07077
+    - android-sdk-license-.+
+    - google-gdk-license-.+
 
 script:
   - bash ./gradlew okbuck installBuck &&
+    mv buildSrc notBuildSrc &&
     ./buck build appDevDebug appDevRelease appProdDebug appProdRelease another-appDebug another-appRelease &&
     ./buck test &&
-    ./buck project
+    ./buck project &&
+    mv notBuildSrc buildSrc
 
 notifications:
   email: false

@@ -107,7 +107,9 @@ class AndroidAppTarget extends AndroidLibTarget {
             }.flatten() as Set<File>)
 
             String mergedConfig = ""
-            configs.each { File config ->
+            configs.findAll { File config ->
+                config.exists()
+            }.each { File config ->
                 mergedConfig += "\n##---- ${config} ----##\n"
                 mergedConfig += config.text
             }

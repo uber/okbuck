@@ -17,7 +17,8 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
             List<String> deps,
             List<String> aptDeps,
             List<String> aidlRuleNames,
-            String appClass) {
+            String appClass,
+            Set<String> srcTargets = []) {
 
         List<String> libraryDeps = new ArrayList<>(deps);
         List<String> libraryAptDeps = new ArrayList<>(aptDeps);
@@ -53,6 +54,7 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
                 src(target),
                 ["PUBLIC"],
                 libraryDeps,
+                srcTargets,
                 target.main.sources,
                 target.manifest,
                 target.annotationProcessors as List,
