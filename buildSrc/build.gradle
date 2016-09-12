@@ -37,6 +37,14 @@ task sourcesJar(type: Jar) {
     classifier = 'sources'
 }
 
+configurations.all {
+    resolutionStrategy {
+        dependencySubstitution {
+            substitute module('com.tunnelvisionlabs:antlr4') with module('org.antlr:antlr4:4.5.3')
+        }
+    }
+}
+
 dependencies {
     compile gradleApi()
     compile localGroovy()
@@ -44,7 +52,7 @@ dependencies {
     compile 'commons-io:commons-io:2.4'
     compile 'commons-lang:commons-lang:2.6'
     compile 'org.apache.maven:maven-artifact:3.3.9'
-    compile 'com.android.tools.build:gradle:2.1.0'
+    compile 'com.android.tools.build:gradle:2.1.2'
 
     testCompile 'junit:junit:4.12'
 }

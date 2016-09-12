@@ -53,6 +53,7 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
                 src(target),
                 ["PUBLIC"],
                 libraryDeps,
+                target.sqldelight ? [":sqldelight_${target.name}"] as Set : [] as Set,
                 target.main.sources,
                 target.manifest,
                 target.annotationProcessors as List,
