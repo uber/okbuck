@@ -32,6 +32,7 @@ class AndroidAppTarget extends AndroidLibTarget {
 
     final Map<String, Object> placeholders = [:]
     final Set<String> extraOpts
+    final boolean includesVectorDrawables
 
     AndroidAppTarget(Project project, String name) {
         super(project, name)
@@ -60,6 +61,8 @@ class AndroidAppTarget extends AndroidLibTarget {
         placeholders.putAll(baseVariant.mergedFlavor.manifestPlaceholders)
 
         extraOpts = getProp(okbuck.extraBuckOpts, [:]).get(BINARY_OPT, [])
+
+        includesVectorDrawables = project.android.defaultConfig.vectorDrawables.useSupportLibrary
     }
 
     @Override

@@ -10,7 +10,6 @@ abstract class JavaRule extends BuckRule {
     private final List<String> mPostprocessClassesCommands
     private final List<String> mOptions
     private final Set<String> mProvidedDeps
-    private final List<String> mSrcTargets
     private final List<String> mTestTargets
 
     JavaRule(
@@ -27,7 +26,6 @@ abstract class JavaRule extends BuckRule {
             String targetCompatibility,
             List<String> postprocessClassesCommands,
             List<String> options,
-            List<String> srcTargets,
             List<String> testTargets) {
 
         super(ruleType, name, visibility, deps)
@@ -40,7 +38,6 @@ abstract class JavaRule extends BuckRule {
         mPostprocessClassesCommands = postprocessClassesCommands
         mOptions = options
         mProvidedDeps = providedDeps
-        mSrcTargets = srcTargets
         mTestTargets = testTargets
     }
 
@@ -52,14 +49,6 @@ abstract class JavaRule extends BuckRule {
                 printer.println("\t\t'${src}/**/*.java',")
             }
             printer.println("\t]),")
-        }
-
-        if (mSrcTargets) {
-            printer.println("\tsource_under_test = [")
-            for (String srcTarget : mSrcTargets) {
-                printer.println("\t\t'${srcTarget}',")
-            }
-            printer.println("\t],")
         }
 
         if (mTestTargets) {

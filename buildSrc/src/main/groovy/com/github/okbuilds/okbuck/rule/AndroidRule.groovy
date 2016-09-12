@@ -19,7 +19,6 @@ abstract class AndroidRule extends BuckRule {
     private final String mResourcesDir
     private final String mRuntimeDependency
     private final List<String> mTestTargets
-    private final List<String> mTestSrcTargets
 
     /**
      * @srcTargets, used for SqlDelight support(or other case), genrule's output will be used as src, pass empty set if not present
@@ -45,8 +44,7 @@ abstract class AndroidRule extends BuckRule {
             boolean generateR2,
             String resourcesDir,
             String runtimeDependency,
-            List<String> testTargets,
-            List<String> testSrcTargets) {
+            List<String> testTargets) {
         super(ruleType, name, visibility, deps)
 
         mSrcTargets = srcTargets
@@ -63,9 +61,8 @@ abstract class AndroidRule extends BuckRule {
         mProvidedDeps = providedDeps
         mGenerateR2 = generateR2
         mResourcesDir = resourcesDir
-        mRuntimeDependency = runtimeDependency;
-        mTestTargets = testTargets;
-        mTestSrcTargets = testSrcTargets;
+        mRuntimeDependency = runtimeDependency
+        mTestTargets = testTargets
     }
 
     @Override
@@ -87,14 +84,6 @@ abstract class AndroidRule extends BuckRule {
             printer.println("\t], excludes = ['${mAppClass}']),")
         } else {
             printer.println("\t]),")
-        }
-
-        if (mTestSrcTargets) {
-            printer.println("\tsource_under_test = [")
-            for (String srcTarget : mTestSrcTargets) {
-                printer.println("\t\t'${srcTarget}',")
-            }
-            printer.println("\t],")
         }
 
         if (mTestTargets) {

@@ -12,11 +12,13 @@ final class AndroidBinaryRule extends BuckRule {
     private final String mProguardConfig
     private final Map<String, Object> mPlaceholders
     private final Set<String> mExtraOpts
+    private final boolean mIncludesVectorDrawables
 
     AndroidBinaryRule(String name, List<String> visibility, List<String> deps, String manifest, String keystore,
                       boolean multidexEnabled, int linearAllocHardLimit, Set<String> primaryDexPatterns,
                       boolean exopackage, Set<String> cpuFilters, boolean minifyEnabled,
-                      String proguardConfig, Map<String, Object> placeholders, Set<String> extraOpts) {
+                      String proguardConfig, Map<String, Object> placeholders, Set<String> extraOpts,
+                      boolean includesVectorDrawables) {
         super("android_binary", name, visibility, deps)
 
         mManifest = manifest
@@ -30,6 +32,7 @@ final class AndroidBinaryRule extends BuckRule {
         mProguardConfig = proguardConfig
         mPlaceholders = placeholders
         mExtraOpts = extraOpts
+        mIncludesVectorDrawables = includesVectorDrawables
     }
 
     @Override
@@ -71,6 +74,10 @@ final class AndroidBinaryRule extends BuckRule {
             }
             printer.println("\t\t},")
             printer.println("\t},")
+        }
+
+        if (mIncludesVectorDrawables) {
+            printer.println("\tincludes_vector_drawables = True,")
         }
 
         mExtraOpts.each { String option ->
