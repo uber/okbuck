@@ -50,16 +50,6 @@ class OkBuckExtension {
     Set<Project> buckProjects
 
     /**
-     * List of files to remove when generating configuration.
-     */
-    List<String> remove = ['.buckconfig.local', "**/${OkBuckGradlePlugin.BUCK}"]
-
-    /**
-     * List of files to leave untouched when generating configuration.
-     */
-    List<String> keep = [".okbuck/**"]
-
-    /**
      * Extra buck options
      */
     Map<String, Map<String, List<String>>> extraBuckOpts = [:]

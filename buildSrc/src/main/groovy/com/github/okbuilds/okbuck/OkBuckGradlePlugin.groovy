@@ -1,14 +1,13 @@
 package com.github.okbuilds.okbuck
 
 import com.github.okbuilds.core.dependency.DependencyCache
-import com.github.okbuilds.core.system.BuildSystem
 import com.github.okbuilds.core.task.OkBuildCleanTask
-import com.github.okbuilds.core.util.InstallUtil
 import com.github.okbuilds.core.util.RobolectricUtil
 import com.github.okbuilds.okbuck.config.BUCKFile
 import com.github.okbuilds.okbuck.generator.BuckFileGenerator
 import com.github.okbuilds.okbuck.generator.DotBuckConfigLocalGenerator
-import org.apache.commons.io.FileUtils
+import com.github.okbuilds.okbuck.wrapper.WrapperExtension
+import com.github.okbuilds.okbuck.wrapper.WrapperTask
 import org.apache.commons.io.IOUtils
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -21,8 +20,8 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     static final String OKBUCK_CLEAN = 'okbuckClean'
     static final String BUCK = "BUCK"
     static final String EXPERIMENTAL = "experimental"
-    static final String INSTALL = "install"
-    static final String INSTALL_BUCK = "installBuck"
+    static final String WRAPPER = "wrapper"
+    static final String BUCK_WRAPPER = "buckWrapper"
     static final String DEFAULT_CACHE_PATH = ".okbuck/cache"
 
     static final String GROUP = "okbuck"
@@ -33,7 +32,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     void apply(Project project) {
         LOGGER = project.logger
         OkBuckExtension okbuck = project.extensions.create(OKBUCK, OkBuckExtension, project)
-        InstallExtension install = okbuck.extensions.create(INSTALL, InstallExtension, project)
+        WrapperExtension wrapper = okbuck.extensions.create(WRAPPER, WrapperExtension)
         okbuck.extensions.create(EXPERIMENTAL, ExperimentalExtension)
 
         Task okBuckClean = project.tasks.create(OKBUCK_CLEAN, OkBuildCleanTask)
@@ -50,14 +49,13 @@ class OkBuckGradlePlugin implements Plugin<Project> {
             generate(project)
         }
 
-        Task installBuck = project.task(INSTALL_BUCK)
-        installBuck.outputs.upToDateWhen { false }
-        installBuck.setGroup(GROUP)
-        installBuck.setDescription("Install buck")
-
-        installBuck << {
-            InstallUtil.install(project, BuildSystem.BUCK, install.gitUrl, install.sha, new File(install.dir))
-        }
+        WrapperTask buckWrapper = project.tasks.create(BUCK_WRAPPER, WrapperTask, {
+            repo = wrapper.repo;
+            remove = wrapper.remove;
+            keep = wrapper.keep;
+        })
+        buckWrapper.setGroup(GROUP)
+        buckWrapper.setDescription("Create buck wrapper")
 
         project.afterEvaluate {
             ExperimentalExtension experimental = okbuck.experimental
