@@ -46,7 +46,6 @@ final class AndroidLibraryRule extends AndroidRule {
                 generateR2,
                 null,
                 null,
-                testTargets,
-                null)
+                testTargets)
     }
 }
