@@ -46,11 +46,6 @@ final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
             postprocessClassesCommands.add(RetroLambdaGenerator.generate(target))
         }
 
-        List<String> srcTargets = [];
-        if (target.main.sources) {
-            srcTargets.add(":${src(target)}")
-        }
-
         return new AndroidTestRule(
                 test(target),
                 ["PUBLIC"],
@@ -68,7 +63,6 @@ final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
                 postprocessClassesCommands,
                 target.test.jvmArgs,
                 target.test.resourcesDir,
-                RobolectricUtil.ROBOLECTRIC_CACHE,
-                srcTargets)
+                RobolectricUtil.ROBOLECTRIC_CACHE)
     }
 }

@@ -24,8 +24,7 @@ final class AndroidTestRule extends AndroidRule {
             List<String> postprocessClassesCommands,
             List<String> options,
             String mResourcesDir,
-            String runtimeDependency,
-            List<String> testSrcTargets) {
+            String runtimeDependency) {
 
         super(
                 "robolectric_test",
@@ -47,7 +46,6 @@ final class AndroidTestRule extends AndroidRule {
                 false,
                 mResourcesDir,
                 runtimeDependency,
-                null,
-                testSrcTargets);
+                null)
     }
 }
