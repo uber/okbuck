@@ -12,7 +12,6 @@ import android.widget.Toast;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
-import com.example.hellojni.HelloJni;
 import com.github.okbuilds.okbuck.example.common.Calc;
 import com.github.okbuilds.okbuck.example.common.CalcMonitor;
 import com.github.okbuilds.okbuck.example.common.IMyAidlInterface;
@@ -68,12 +67,6 @@ public class MainActivity extends AppCompatActivity {
         mTextView.setText(
                 String.format("%s %s, --from %s.", getString(R.string.dummy_library_android_str),
                         mDummyAndroidClass.getAndroidWord(this), mDummyJavaClass.getJavaWord()));
-
-        mTextView2.setText(mTextView2.getText()
-                + "\n\n"
-                + HelloJni.stringFromJNI()
-                + "\n\n"
-                + FlavorLogger.log(this));
 
         if (BuildConfig.CAN_JUMP) {
             mTextView.setOnClickListener(

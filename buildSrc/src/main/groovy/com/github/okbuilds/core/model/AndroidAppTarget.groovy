@@ -1,7 +1,10 @@
 package com.github.okbuilds.core.model
 
+import com.android.build.gradle.api.ApplicationVariant
 import com.android.build.gradle.api.BaseVariant
+import com.android.build.gradle.api.TestVariant
 import com.android.builder.model.SigningConfig
+import com.android.builder.model.SourceProvider
 import com.android.manifmerger.ManifestMerger2
 import com.github.okbuilds.core.util.FileUtil
 import groovy.transform.ToString
@@ -133,7 +136,22 @@ class AndroidAppTarget extends AndroidLibTarget {
         return FileUtil.getRelativePath(project.projectDir, mergedProguardConfig)
     }
 
-    private static String getPackedProguardConfig(File file) {
+    boolean hasInstrumentationTestVariant() {
+        TestVariant testVariant = ((ApplicationVariant) baseVariant).testVariant
+        if (testVariant != null) {
+            Set<String> manifests = [] as Set
+            testVariant.sourceSets.each { SourceProvider provider ->
+                manifests.addAll(getAvailable(Collections.singletonList(provider.manifestFile)))
+            }
+            if (manifests.empty) {
+                return false
+            }
+            return true
+        }
+        return false
+    }
+
+    static String getPackedProguardConfig(File file) {
         ZipFile zipFile = new ZipFile(file)
         ZipEntry proguardEntry = zipFile.entries().find {
             !it.directory && it.name == "proguard.txt"

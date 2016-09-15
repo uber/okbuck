@@ -2,6 +2,7 @@ package com.github.okbuilds.okbuck.generator
 
 import com.github.okbuilds.core.model.*
 import com.github.okbuilds.core.util.ProjectUtil
+import com.github.okbuilds.okbuck.ExperimentalExtension
 import com.github.okbuilds.okbuck.OkBuckExtension
 import com.github.okbuilds.okbuck.composer.*
 import com.github.okbuilds.okbuck.config.BUCKFile
@@ -9,9 +10,6 @@ import com.github.okbuilds.okbuck.rule.*
 import org.gradle.api.Project
 
 final class BuckFileGenerator {
-
-    private static final TARGET_DEBUG = 'debug'
-    private static final TARGET_RELEASE = 'release'
 
     private final Project mRootProject
     static OkBuckExtension mOkbuck
@@ -29,12 +27,9 @@ final class BuckFileGenerator {
             resolve(project)
         }
 
+        ExperimentalExtension experimental = mOkbuck.experimental
         Map<Project, List<BuckRule>> projectRules = mOkbuck.buckProjects.collectEntries { Project project ->
-            List<BuckRule> rules = createRules(project)
-            def projectConfigRule = createProjectConfigRule(project, mOkbuck.projectTargets)
-            if (projectConfigRule != null) {
-                rules.add(projectConfigRule)
-            }
+            List<BuckRule> rules = createRules(project, experimental.espresso)
             [project, rules]
         }
 
@@ -53,7 +48,7 @@ final class BuckFileGenerator {
         }
     }
 
-    private static List<BuckRule> createRules(Project project) {
+    private static List<BuckRule> createRules(Project project, boolean espresso) {
         List<BuckRule> rules = []
         ProjectType projectType = ProjectUtil.getType(project)
         ProjectUtil.getTargets(project).each { String name, Target target ->
@@ -68,7 +63,14 @@ final class BuckFileGenerator {
                     rules.addAll(createRules((AndroidLibTarget) target))
                     break
                 case ProjectType.ANDROID_APP:
-                    rules.addAll(createRules((AndroidAppTarget) target))
+                    List<BuckRule> targetRules = createRules((AndroidAppTarget) target);
+                    rules.addAll(targetRules)
+                    if (espresso && ((AndroidAppTarget) target).instrumentationTestVariant) {
+                        AndroidInstrumentationTarget instrumentationTarget =
+                                new AndroidInstrumentationTarget(target.project,
+                                        AndroidInstrumentationTarget.getInstrumentationTargetName(target.name))
+                        rules.addAll(createRules(instrumentationTarget, (AndroidAppTarget) target, targetRules))
+                    }
                     break
                 default:
                     break
@@ -76,31 +78,6 @@ final class BuckFileGenerator {
         }
 
         return rules
-    }
-
-    private static ProjectConfigRule createProjectConfigRule(Project project, Map<String, String> projectConfigTargets) {
-        def projectType = ProjectUtil.getType(project)
-        switch (projectType) {
-            case ProjectType.ANDROID_APP:
-                def customBuildVariant = projectConfigTargets.get(project.name)
-                def appTarget = (AndroidAppTarget) getTargetForVariant(
-                        project,
-                        customBuildVariant != null ? customBuildVariant : TARGET_DEBUG
-                )
-                return ProjectConfigComposer.composeAndroidApp(appTarget)
-            case ProjectType.ANDROID_LIB:
-                def customBuildVariant = projectConfigTargets.get(project.name)
-                def libraryTarget = (AndroidLibTarget) getTargetForVariant(
-                        project,
-                        customBuildVariant != null ? customBuildVariant : TARGET_RELEASE
-                )
-                return ProjectConfigComposer.composeAndroidLibrary(libraryTarget)
-            case ProjectType.JAVA_LIB:
-                def libraryTarget = (JavaLibTarget) getTargetForVariant(project, JavaLibTarget.MAIN)
-                return ProjectConfigComposer.composeJavaLibrary(libraryTarget)
-            default:
-                return null
-        }
     }
 
     private static List<BuckRule> createRules(JavaLibTarget target) {
@@ -120,7 +97,7 @@ final class BuckFileGenerator {
         return rules
     }
 
-    private static List<BuckRule> createRules(AndroidLibTarget target, String appClass = null) {
+    private static List<BuckRule> createRules(AndroidLibTarget target, String appClass = null, List<String> extraDeps = []) {
         List<BuckRule> rules = []
         List<BuckRule> androidLibRules = []
 
@@ -157,11 +134,12 @@ final class BuckFileGenerator {
 
         List<String> deps = androidLibRules.collect { BuckRule rule ->
             ":${rule.name}"
-        }
+        } as List<String>
+        deps.addAll(extraDeps)
 
         // Gradle generate sources tasks
-        List<GradleSourcegenRule> sourcegenRules = GradleSourcegenRuleComposer.compose(target, mOkbuck.gradle.absolutePath)
-        List<ZipRule> zipRules = sourcegenRules.collect { GradleSourcegenRule sourcegenRule ->
+        List<GradleSourceGenRule> sourcegenRules = GradleSourceGenRuleComposer.compose(target, mOkbuck.gradle.absolutePath)
+        List<ZipRule> zipRules = sourcegenRules.collect { GradleSourceGenRule sourcegenRule ->
             ZipRuleComposer.compose(sourcegenRule)
         }
         rules.addAll(sourcegenRules)
@@ -223,17 +201,30 @@ final class BuckFileGenerator {
 
         rules.add(AndroidBinaryRuleComposer.compose(target, deps, ":${manifestRule.name}",
                 keystoreRuleName))
+
         return rules
     }
 
-    private static Target getTargetForVariant(Project project, String desiredVariant) {
-        def target = ProjectUtil.getTargets(project).get(desiredVariant)
-        if (target == null) {
-            throw new IllegalStateException("Unable to infer default project target for ${project.name} (tried looking " +
-                    "for ${desiredVariant}), if you are using a custom build variants add a projectTarget entry to " +
-                    "your root build.gradle.")
-        }
+    private static List<BuckRule> createRules(AndroidInstrumentationTarget target, AndroidAppTarget mainApkTarget,
+                                              List<BuckRule> mainApkTargetRules) {
+        List<BuckRule> rules = []
 
-        return target
+        Set<BuckRule> libRules = createRules((AndroidLibTarget) target, null, filterAndroidDepRules(mainApkTargetRules))
+        rules.addAll(libRules)
+
+        AndroidManifestRule manifestRule = AndroidManifestRuleComposer.compose(target, target.instrumentation)
+        rules.add(manifestRule)
+
+        rules.add(AndroidInstrumentationApkRuleComposer.compose(filterAndroidDepRules(rules), ":${manifestRule.name}", mainApkTarget))
+        rules.add(AndroidInstrumentationTestRuleComposer.compose(mainApkTarget))
+        return rules
+    }
+
+    private static List<String> filterAndroidDepRules(List<BuckRule> rules) {
+        return rules.findAll { BuckRule rule ->
+            rule instanceof AndroidLibraryRule || rule instanceof AndroidResourceRule
+        }.collect {
+            ":${it.name}"
+        }
     }
 }

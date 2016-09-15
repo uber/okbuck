@@ -1,6 +1,6 @@
 package com.github.okbuilds.okbuck.rule
 
-final class GradleSourcegenRule extends BuckRule {
+final class GradleSourceGenRule extends BuckRule {
 
     private final String mRootProjectPath
     private final String mGradlePath
@@ -8,7 +8,7 @@ final class GradleSourcegenRule extends BuckRule {
     private final Set<String> mInputs
     private final String mOutputDir
 
-    GradleSourcegenRule(String name, String rootProjectPath, String gradlePath, String gradleTask, Set<String> inputs, String outputDir) {
+    GradleSourceGenRule(String name, String rootProjectPath, String gradlePath, String gradleTask, Set<String> inputs, String outputDir) {
         super("genrule", name)
         mRootProjectPath = rootProjectPath
         mGradlePath = gradlePath

@@ -4,7 +4,7 @@
 ##
 ##  Buck wrapper script to invoke okbuck when needed, before running buck
 ##
-##  Created by OkBuck Gradle Plugin on : Wed Sep 14 16:49:10 PDT 2016
+##  Created by OkBuck Gradle Plugin on : Wed Sep 14 22:24:03 PDT 2016
 ##
 #########################################################################
 
@@ -41,6 +41,16 @@ success ( ) {
 ensure ( ) {
     command -v $1 >/dev/null 2>&1 || die "ERROR: '$1' could be found in your PATH. Please install $1. $2"
 }
+
+ensure python 'https://www.python.org'
+ensure ant 'http://ant.apache.org/'
+INSTALLED_WATCHMAN=`command -v watchman`
+if [ -z "$INSTALLED_WATCHMAN" ] ; then
+    warn 'ALWAYS RUNNING OKBUCK SINCE WATCHMAN IS NOT INSTALLED'
+    warn 'INSTALL WATCHMAN FOR FASTER BUILDS'
+    warn 'https://facebook.github.io/watchman'
+    echo
+fi
 
 md5digest ( ) {
     # only md5 is available by default on osx, while md5sum is available on other *nix systems
@@ -109,7 +119,7 @@ runOkBuck ( ) {
     mkdir -p $OKBUCK_FAILURE_DIR
     touch $OKBUCK_FAILURE
 
-    if [ -z "$NO_BUCKD" ]; then
+    if [ ! -z "$INSTALLED_WATCHMAN" ]; then
         getToClean | jsonq '"\n".join(obj["files"])' | xargs rm
         info "DELETED OLD BUCK FILES"
         EXTRA_ARGS="-xokbuckClean"
@@ -120,7 +130,7 @@ runOkBuck ( ) {
 
 # Run tasks before buck command
 setupBuckRun ( ) {
-    if [ -z "$NO_BUCKD" ]; then
+    if [ ! -z "$INSTALLED_WATCHMAN" ]; then
         # Get list of changed files since last time by querying watchman
         getChanges
 
@@ -182,14 +192,6 @@ setupBuckRun ( ) {
         BUCK_BINARY="$BUCK_HOME/bin/buck"
     fi
 }
-
-ensure python 'https://www.python.org'
-ensure ant 'http://ant.apache.org/'
-if [ -z "$NO_BUCKD" ]; then
-    ensure watchman 'https://facebook.github.io/watchman'
-else
-    warn "NOT USING WATCHMAN SINCE NO_BUCKD IS SET"
-fi
 
 setupBuckRun
 

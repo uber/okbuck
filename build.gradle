@@ -46,7 +46,7 @@ if (project.file("buildSrc").exists()) {
                 ]
         ]
         exopackage = [
-                'app': true
+                'appDevDebug': true
         ]
         appLibDependencies = [
                 'appProd': [
@@ -70,11 +70,15 @@ if (project.file("buildSrc").exists()) {
         ]
         buckProjects = project.subprojects.findAll { it.name != "plugin" }
 
-        projectTargets = [
-                'app'         : 'devDebug',
-                'common'      : 'freeRelease',
-                'dummylibrary': 'freeRelease',
-        ]
+        experimental {
+            espresso = true
+        }
+    }
+
+    tasks.getByName("okbuck").doLast {
+        "zip -d .okbuck/cache/org.hamcrest.hamcrest-core-1.3.jar LICENSE.txt".execute()
+        "zip -d .okbuck/cache/org.hamcrest.hamcrest-library-1.3.jar LICENSE.txt".execute()
+        "zip -d .okbuck/cache/org.hamcrest.hamcrest-integration-1.3.jar LICENSE.txt".execute()
     }
 }
 
