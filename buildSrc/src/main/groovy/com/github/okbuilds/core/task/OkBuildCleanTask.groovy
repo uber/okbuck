@@ -15,7 +15,7 @@ class OkBuildCleanTask extends DefaultTask {
     void clean() {
         OkBuckExtension okbuck = project.extensions.getByName(OkBuckGradlePlugin.OKBUCK) as OkBuckExtension
 
-        project.fileTree(dir: project.projectDir.absolutePath, includes: okbuck.remove, excludes: okbuck.keep).each { File f ->
+        project.fileTree(dir: project.projectDir.absolutePath, includes: okbuck.wrapper.remove, excludes: okbuck.wrapper.keep).each { File f ->
             FileUtils.deleteQuietly(f)
         }
     }
