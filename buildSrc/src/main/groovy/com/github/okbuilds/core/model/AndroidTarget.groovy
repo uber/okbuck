@@ -131,12 +131,22 @@ abstract class AndroidTarget extends JavaLibTarget {
     }
 
     List<String> getBuildConfigFields() {
-        return ["String BUILD_TYPE = \"${buildType}\"",
-                "String FLAVOR = \"${flavor}\"",
-        ] + baseVariant.mergedFlavor.buildConfigFields.collect {
+        List<String> buildConfig = [
+            "String BUILD_TYPE = \"${buildType}\"",
+            "String FLAVOR = \"${flavor}\"",
+        ]
+        if (versionCode != null) {
+            buildConfig.add("int VERSION_CODE = ${versionCode}")
+        }
+        if (versionName != null) {
+            buildConfig.add("String VERSION_NAME = \"${versionName}\"")
+        }
+        buildConfig += baseVariant.mergedFlavor.buildConfigFields.collect {
             String key, ClassField classField ->
                 "${classField.type} ${key} = ${classField.value}"
         }
+
+        return buildConfig
     }
 
     String getFlavor() {
