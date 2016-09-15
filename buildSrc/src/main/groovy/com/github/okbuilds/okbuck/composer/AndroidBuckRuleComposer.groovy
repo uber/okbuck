@@ -36,4 +36,12 @@ abstract class AndroidBuckRuleComposer extends JavaBuckRuleComposer {
     static String bin(AndroidAppTarget target) {
         return "bin_${target.name}"
     }
+
+    static String instrumentation(AndroidAppTarget target) {
+        return "instrumentation_${target.name}_apk"
+    }
+
+    static String instrumentationTest(AndroidAppTarget target) {
+        return "instrumentation_${target.name}_test"
+    }
 }

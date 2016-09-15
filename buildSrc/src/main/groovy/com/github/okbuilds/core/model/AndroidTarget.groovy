@@ -1,6 +1,7 @@
 package com.github.okbuilds.core.model
 
 import com.android.build.gradle.api.BaseVariant
+import com.android.build.gradle.api.TestVariant
 import com.android.build.gradle.api.UnitTestVariant
 import com.android.build.gradle.internal.api.TestedVariant
 import com.android.build.gradle.internal.variant.BaseVariantData
@@ -18,7 +19,6 @@ import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.logging.Logger
-import org.gradle.api.tasks.compile.AbstractCompile
 import org.gradle.api.tasks.compile.JavaCompile
 
 /**
@@ -96,9 +96,11 @@ abstract class AndroidTarget extends JavaLibTarget {
             Task sqlDelightGen = data.sourceGenTask.getDependsOn().find {
                 it instanceof Task && it.name.toLowerCase().contains("sqldelight")
             } as Task
-            tasks.add(new GradleSourcegen(sqlDelightGen,
-                    srcDirNames.collect { "src/${it}/sqldelight/**/*.sq" },
-                    sqlDelightGen.outputs.files[0]))
+            if (sqlDelightGen) {
+                tasks.add(new GradleSourcegen(sqlDelightGen,
+                        srcDirNames.collect { "src/${it}/sqldelight/**/*.sq" },
+                        sqlDelightGen.outputs.files[0]))
+            }
         }
         return tasks
     }
@@ -260,9 +262,8 @@ abstract class AndroidTarget extends JavaLibTarget {
     }
 
     static List<String> getJavaCompilerOptions(BaseVariant baseVariant) {
-        AbstractCompile abstractCompile = baseVariant.javaCompiler
-        if (abstractCompile instanceof JavaCompile) {
-            List<String> options = ((JavaCompile) abstractCompile).options.compilerArgs
+        if (baseVariant != null && baseVariant.javaCompiler instanceof JavaCompile) {
+            List<String> options = ((JavaCompile) baseVariant.javaCompiler).options.compilerArgs
             // Remove options added by apt plugin since they are handled by apt scope separately
             filterOptions(options, ["-s", "-processorpath"])
             return options
@@ -282,8 +283,27 @@ abstract class AndroidTarget extends JavaLibTarget {
     }
 
     UnitTestVariant getUnitTestVariant(){
-        if(baseVariant instanceof TestedVariant) {
+        if (baseVariant instanceof TestedVariant) {
             return ((TestedVariant) baseVariant).unitTestVariant
+        } else {
+            return null
+        }
+    }
+
+    TestVariant getInstrumentationTestVariant() {
+        if (baseVariant instanceof TestedVariant) {
+            TestVariant testVariant = ((TestedVariant) baseVariant).testVariant
+            if (testVariant != null) {
+                Set<String> manifests = [] as Set
+                testVariant.sourceSets.each { SourceProvider provider ->
+                    manifests.addAll(getAvailable(Collections.singletonList(provider.manifestFile)))
+                }
+                return manifests.empty ? null : testVariant
+            } else {
+                return null
+            }
+        } else {
+            return null
         }
     }
 

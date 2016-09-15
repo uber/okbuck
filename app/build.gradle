@@ -19,6 +19,7 @@ android {
         buildConfigField "boolean", "CAN_JUMP", "true"
         buildConfigField "boolean", "XLOG_ENABLED", "true"
         buildConfigField "int", "EXOPACKAGE_FLAGS", "0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
     compileOptions {
@@ -95,9 +96,7 @@ dependencies {
     compile 'com.jakewharton:butterknife:8.4.0'
     apt 'com.jakewharton:butterknife-compiler:8.4.0'
 
-    compile("com.android.support:design:${rootProject.ext.androidSupportSdkVersion}") {
-        exclude module: 'appcompat-v7'
-    }
+    compile "com.android.support:design:${rootProject.ext.androidSupportSdkVersion}"
     compile "com.android.support:recyclerview-v7:${rootProject.ext.androidSupportSdkVersion}"
     compile "com.squareup.leakcanary:leakcanary-android:1.3.1"
 
@@ -117,7 +116,14 @@ dependencies {
     testCompile project(path: ':dummylibrary', configuration: 'freeDebug')
     testCompile 'junit:junit:4.12'
     testCompile 'org.mockito:mockito-core:1.9.5'
-    testCompile 'com.android.support:support-annotations:24.0.0'
+    testCompile "com.android.support:support-annotations:${rootProject.ext.androidSupportSdkVersion}"
+
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2') {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    }
+    androidTestCompile('com.android.support.test:runner:0.5') {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    }
 }
 
 afterEvaluate {
