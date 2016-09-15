@@ -72,13 +72,6 @@ class AndroidAppTarget extends AndroidLibTarget {
     List<String> getBuildConfigFields() {
         List<String> buildConfig = super.getBuildConfigFields()
         buildConfig.add("String APPLICATION_ID = \"${applicationId + applicationIdSuffix}\"")
-        if (versionCode != null) {
-            buildConfig.add("int VERSION_CODE = ${versionCode}")
-        }
-        if (versionName != null) {
-            buildConfig.add("String VERSION_NAME = \"${versionName}\"")
-        }
-
         return buildConfig
     }
 
