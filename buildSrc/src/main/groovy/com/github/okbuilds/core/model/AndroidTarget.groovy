@@ -132,6 +132,7 @@ abstract class AndroidTarget extends JavaLibTarget {
 
     List<String> getBuildConfigFields() {
         List<String> buildConfig = [
+            "String APPLICATION_ID = \"${applicationId + applicationIdSuffix}\"",
             "String BUILD_TYPE = \"${buildType}\"",
             "String FLAVOR = \"${flavor}\"",
         ]
