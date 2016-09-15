@@ -69,13 +69,6 @@ class AndroidAppTarget extends AndroidLibTarget {
     }
 
     @Override
-    List<String> getBuildConfigFields() {
-        List<String> buildConfig = super.getBuildConfigFields()
-        buildConfig.add("String APPLICATION_ID = \"${applicationId + applicationIdSuffix}\"")
-        return buildConfig
-    }
-
-    @Override
     protected BaseVariant getBaseVariant() {
         return (BaseVariant) project.android.applicationVariants.find { it.name == name }
     }

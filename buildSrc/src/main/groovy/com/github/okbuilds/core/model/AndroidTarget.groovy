@@ -145,6 +145,7 @@ abstract class AndroidTarget extends JavaLibTarget {
             String key, ClassField classField ->
                 "${classField.type} ${key} = ${classField.value}"
         }
+        buildConfig.add("String APPLICATION_ID = \"${applicationId + applicationIdSuffix}\"")
 
         return buildConfig
     }
