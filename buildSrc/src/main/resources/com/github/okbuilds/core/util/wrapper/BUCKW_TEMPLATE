@@ -181,7 +181,7 @@ setupBuckRun ( ) {
         if [ ! -z $CUSTOM_BUCK_REPO ]; then
             REMOTE_NAME=$(printf '%s' $CUSTOM_BUCK_REPO | md5digest | cut -d ' ' -f 1)
             cd $BUCK_HOME
-            REMOTE_EXISTS=$(git remote -v | grep '$REMOTE_NAME')
+            REMOTE_EXISTS=$(git remote -v | grep "$REMOTE_NAME")
             if [ -z "$REMOTE_EXISTS" ]; then
                 git remote add $REMOTE_NAME $CUSTOM_BUCK_REPO
             fi
