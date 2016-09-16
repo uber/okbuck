@@ -4,7 +4,7 @@
 ##
 ##  Buck wrapper script to invoke okbuck when needed, before running buck
 ##
-##  Created by OkBuck Gradle Plugin on : Wed Sep 14 22:24:03 PDT 2016
+##  Created by OkBuck Gradle Plugin on : Fri Sep 16 12:55:04 CDT 2016
 ##
 #########################################################################
 
@@ -182,7 +182,7 @@ setupBuckRun ( ) {
         if [ ! -z $CUSTOM_BUCK_REPO ]; then
             REMOTE_NAME=$(printf '%s' $CUSTOM_BUCK_REPO | md5digest | cut -d ' ' -f 1)
             cd $BUCK_HOME
-            REMOTE_EXISTS=$(git remote -v | grep $REMOTE_NAME)
+            REMOTE_EXISTS=$(git remote -v | grep '$REMOTE_NAME')
             if [ -z "$REMOTE_EXISTS" ]; then
                 git remote add $REMOTE_NAME $CUSTOM_BUCK_REPO
             fi
