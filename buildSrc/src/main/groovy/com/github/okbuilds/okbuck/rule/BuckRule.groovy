@@ -4,14 +4,14 @@ abstract class BuckRule {
 
     final String name
     private final String mRuleType
-    private final List<String> mVisibility
-    private final List<String> mDeps
+    private final Set<String> mVisibility
+    private final Set<String> mDeps
 
     BuckRule(String ruleType, String name, List<String> visibility = [], List<String> deps = []) {
         this.name = name
         mRuleType = ruleType
-        mVisibility = visibility
-        mDeps = deps
+        mVisibility = new LinkedHashSet(visibility)
+        mDeps = new LinkedHashSet(deps) // de-dup dependencies
     }
 
     /**

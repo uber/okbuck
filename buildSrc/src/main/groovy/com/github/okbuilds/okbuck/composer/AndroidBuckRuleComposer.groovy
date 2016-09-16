@@ -6,11 +6,11 @@ import com.github.okbuilds.core.model.AndroidTarget
 abstract class AndroidBuckRuleComposer extends JavaBuckRuleComposer {
 
     static String res(AndroidTarget target, AndroidTarget.ResBundle bundle) {
-        return "//${target.path}:${resLocal(target, bundle)}"
+        return "//${target.path}:${resLocal(bundle)}"
     }
 
-    static String resLocal(AndroidTarget target, AndroidTarget.ResBundle bundle) {
-        return "res_${target.name}${bundle.id ? "_${bundle.id}" : ""}"
+    static String resLocal(AndroidTarget.ResBundle bundle) {
+        return "res_${bundle.name}"
     }
 
     static String manifest(AndroidTarget target) {
