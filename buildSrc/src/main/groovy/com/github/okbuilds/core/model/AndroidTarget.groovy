@@ -14,7 +14,6 @@ import com.github.okbuilds.core.util.FileUtil
 import groovy.transform.ToString
 import groovy.util.slurpersupport.GPathResult
 import groovy.xml.StreamingMarkupBuilder
-import org.apache.commons.codec.digest.DigestUtils
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -25,6 +24,8 @@ import org.gradle.api.tasks.compile.JavaCompile
  * An Android target
  */
 abstract class AndroidTarget extends JavaLibTarget {
+
+    static final String DEFAULT_RES_NAME = "main"
 
     final String applicationId
     final String applicationIdSuffix
@@ -167,21 +168,21 @@ abstract class AndroidTarget extends JavaLibTarget {
             assets.addAll(getAvailable(provider.assetsDirectories))
         }
 
-        Map<String, String> resourceMap = resources.collectEntries { String res ->
-            [project.file(res).parentFile.path, res]
+        Map<File, String> resourceMap = resources.collectEntries { String res ->
+            [project.file(res).parentFile, res]
         }
-        Map<String, String> assetMap = assets.collectEntries { String asset ->
-            [project.file(asset).parentFile.path, asset]
+        Map<File, String> assetMap = assets.collectEntries { String asset ->
+            [project.file(asset).parentFile, asset]
         }
 
-        Set<String> keys = (resourceMap.keySet() + assetMap.keySet())
+        Set<File> keys = (resourceMap.keySet() + assetMap.keySet())
         Set<ResBundle> resBundles = keys.collect { key ->
-            new ResBundle(identifier, resourceMap.get(key, null), assetMap.get(key, null), keys.size() > 1)
+            new ResBundle(key.name, resourceMap.get(key, null), assetMap.get(key, null))
         } as Set
 
         // Add an empty resource bundle even if no res and assets folders exist since we use resource_union
         if (resBundles.empty) {
-            resBundles.add(new ResBundle(identifier, null, null, false))
+            resBundles.add(new ResBundle(DEFAULT_RES_NAME, null, null))
         }
         return resBundles
     }
@@ -321,18 +322,14 @@ abstract class AndroidTarget extends JavaLibTarget {
     @ToString(includeNames = true)
     static class ResBundle {
 
-        String id
+        String name
         String resDir
         String assetsDir
 
-        ResBundle(String identifier, String resDir, String assetsDir, boolean digestId = true) {
+        ResBundle(String name, String resDir, String assetsDir) {
+            this.name = name
             this.resDir = resDir
             this.assetsDir = assetsDir
-            if (digestId) {
-                id = DigestUtils.md5Hex("${identifier}:${resDir}:${assetsDir}")
-            } else {
-                id = null
-            }
         }
     }
 

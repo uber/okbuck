@@ -25,7 +25,7 @@ final class AndroidResourceRuleComposer extends AndroidBuckRuleComposer {
             }
         }
 
-        return new AndroidResourceRule(resLocal(target, resBundle), ["PUBLIC"], resDeps,
+        return new AndroidResourceRule(resLocal(resBundle), ["PUBLIC"], resDeps,
                 target.applicationId, resBundle.resDir, resBundle.assetsDir)
     }
 }

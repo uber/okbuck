@@ -63,7 +63,7 @@ final class BuckFileGenerator {
                     rules.addAll(createRules((AndroidLibTarget) target))
                     break
                 case ProjectType.ANDROID_APP:
-                    List<BuckRule> targetRules = createRules((AndroidAppTarget) target);
+                    List<BuckRule> targetRules = createRules((AndroidAppTarget) target)
                     rules.addAll(targetRules)
                     if (espresso && ((AndroidAppTarget) target).instrumentationTestVariant) {
                         AndroidInstrumentationTarget instrumentationTarget =
@@ -75,6 +75,11 @@ final class BuckFileGenerator {
                 default:
                     break
             }
+        }
+
+        // de-dup rules by name
+        rules = rules.unique { rule ->
+            rule.name
         }
 
         return rules
