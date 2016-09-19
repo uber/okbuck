@@ -6,7 +6,7 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
-class WrapperTask extends DefaultTask {
+class BuckWrapperTask extends DefaultTask {
 
     @Input
     String repo
