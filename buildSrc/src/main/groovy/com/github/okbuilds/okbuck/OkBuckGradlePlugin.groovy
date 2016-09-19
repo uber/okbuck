@@ -7,7 +7,7 @@ import com.github.okbuilds.okbuck.config.BUCKFile
 import com.github.okbuilds.okbuck.generator.BuckFileGenerator
 import com.github.okbuilds.okbuck.generator.DotBuckConfigLocalGenerator
 import com.github.okbuilds.okbuck.wrapper.WrapperExtension
-import com.github.okbuilds.okbuck.wrapper.WrapperTask
+import com.github.okbuilds.okbuck.wrapper.BuckWrapperTask
 import org.apache.commons.io.IOUtils
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -49,14 +49,6 @@ class OkBuckGradlePlugin implements Plugin<Project> {
             generate(project)
         }
 
-        WrapperTask buckWrapper = project.tasks.create(BUCK_WRAPPER, WrapperTask, {
-            repo = wrapper.repo;
-            remove = wrapper.remove;
-            keep = wrapper.keep;
-        })
-        buckWrapper.setGroup(GROUP)
-        buckWrapper.setDescription("Create buck wrapper")
-
         project.afterEvaluate {
             ExperimentalExtension experimental = okbuck.experimental
 
@@ -72,6 +64,14 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                     RobolectricUtil.download(project)
                 }
             }
+
+            BuckWrapperTask buckWrapper = project.tasks.create(BUCK_WRAPPER, BuckWrapperTask, {
+                repo = wrapper.repo
+                remove = wrapper.remove
+                keep = wrapper.keep
+            })
+            buckWrapper.setGroup(GROUP)
+            buckWrapper.setDescription("Create buck wrapper")
         }
     }
 
