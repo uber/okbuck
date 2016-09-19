@@ -6,9 +6,9 @@ captures
 
 **.iml
 .idea
+
 buck-out
 .buckd
-
 .okbuck
 .buckconfig.local
 **/BUCK
