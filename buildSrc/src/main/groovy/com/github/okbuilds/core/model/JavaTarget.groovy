@@ -43,7 +43,10 @@ abstract class JavaTarget extends Target {
             jar.entries().findAll { JarEntry entry ->
                 (entry.name == "META-INF/services/javax.annotation.processing.Processor")
             }.collect { JarEntry aptEntry ->
-                IOUtils.toString(jar.getInputStream(aptEntry)).trim().split("\\n")
+                IOUtils.toString(jar.getInputStream(aptEntry))
+                        .trim().split("\\n").findAll { String entry ->
+                    !entry.startsWith('#') && !entry.trim().empty // filter out comments and empty lines
+                }
             }
         } + apt.targetDeps.collect { Target target ->
             (List<String>) target.getProp(okbuck.annotationProcessors, null)
