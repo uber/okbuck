@@ -1,10 +1,7 @@
 package com.github.okbuilds.core.model
 
-import com.android.build.gradle.api.ApplicationVariant
 import com.android.build.gradle.api.BaseVariant
-import com.android.build.gradle.api.TestVariant
 import com.android.builder.model.SigningConfig
-import com.android.builder.model.SourceProvider
 import com.android.manifmerger.ManifestMerger2
 import com.github.okbuilds.core.util.FileUtil
 import groovy.transform.ToString
@@ -79,11 +76,11 @@ class AndroidAppTarget extends AndroidLibTarget {
     }
 
     String getProguardConfig() {
-        File mergedProguardConfig = project.file("${project.buildDir}/okbuck/${name}/proguard.pro")
-        mergedProguardConfig.parentFile.mkdirs()
-        mergedProguardConfig.createNewFile()
-
         if (minifyEnabled) {
+            File mergedProguardConfig = project.file("${project.buildDir}/okbuck/${name}/proguard.pro")
+            mergedProguardConfig.parentFile.mkdirs()
+            mergedProguardConfig.createNewFile()
+
             Set<File> configs = [] as Set
 
             // project proguard files
@@ -118,23 +115,10 @@ class AndroidAppTarget extends AndroidLibTarget {
             }
 
             mergedProguardConfig.text = mergedConfig
+            return FileUtil.getRelativePath(project.projectDir, mergedProguardConfig)
+        } else {
+            return null
         }
-        return FileUtil.getRelativePath(project.projectDir, mergedProguardConfig)
-    }
-
-    boolean hasInstrumentationTestVariant() {
-        TestVariant testVariant = ((ApplicationVariant) baseVariant).testVariant
-        if (testVariant != null) {
-            Set<String> manifests = [] as Set
-            testVariant.sourceSets.each { SourceProvider provider ->
-                manifests.addAll(getAvailable(Collections.singletonList(provider.manifestFile)))
-            }
-            if (manifests.empty) {
-                return false
-            }
-            return true
-        }
-        return false
     }
 
     static String getPackedProguardConfig(File file) {

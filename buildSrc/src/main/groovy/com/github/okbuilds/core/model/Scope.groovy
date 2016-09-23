@@ -69,7 +69,7 @@ class Scope {
                     }
                 }
 
-                configuration.resolve().findAll { File resolved ->
+                configuration.files.findAll { File resolved ->
                     !resolvedFiles.contains(resolved)
                 }.each { File localDep ->
                     ExternalDependency dependency = new ExternalDependency(
