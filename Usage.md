@@ -1,7 +1,5 @@
 # Usage
 
-You can type `./buckw targets` to get a list of targets that can be build. The generated `.buckconfig.local` file will have some aliases setup to build your apps without having to type the rulename. i.e you can do things like `./buckw build appDebug another-appPaidRelease` etc. The plugin also generates an empty `.buckconfig` file if it does not exist. You can customize the settings in the `.buckconfig` file by using the various [options](https://buckbuild.com/concept/buckconfig.html)
-
 ## Configuring OkBuck
 Example configuration
 ```gradle
@@ -80,4 +78,10 @@ please read the [Exopackage wiki](https://github.com/OkBuilds/OkBuck/wiki/Exopac
 
 You can configure behavior of buck by using various configuration files like [buckconfig](https://buckbuild
 .com/concept/buckconfig.html), [buckjavaargs](https://buckbuild.com/concept/buckjavaargs.html), [bucklogging](https://buckbuild.com/contributing/logging.html) and [buckversion](https://buckbuild.com/concept/buckversion.html). It is recommended to atleast set the buckversion so you are pointed at a good revision of the [buck
-codebase](https://github.com/facebook/buck). Similarly, watchman can be configured for better performance via [watchmanconfig](https://facebook.github.io/watchman/docs/config.html). For examples of these configuration files, you can look at the existing configuration files in this repository.
+codebase](https://github.com/facebook/buck).
+
+Similarly, watchman can be configured for better performance via [watchmanconfig](https://facebook.github.io/watchman/docs/config.html). For examples of these configuration files, you can look at the existing configuration files in this repository.
+
+The `buckw` and various configuration files can be checked into version control. The following paths can be ignored `buck-out .buckd .okbuck .buckconfig.local **/BUCK`
+
+You can type `./buckw targets` to get a list of targets that can be built. The generated `.buckconfig.local` file will have some aliases setup to build your apps without having to type the rulename. i.e you can build targets via the alias like `./buckw build appDebug another-appPaidRelease` etc.

@@ -58,8 +58,6 @@ Invoking buck comamnds via the buck wrapper has several advantages
 
 Please make sure you have watchman installed for `buckw` to run `okbuck` only when needed. A new `okbuck` run is typically needed when gradle configuration or Android manifest files change. If watchman is not installed, the `okbuck` task in always run before invoking any buck commands.
 
-The `buckw` and various configuration files can be checked into version control. The following paths can be ignored `buck-out .buckd .okbuck .buckconfig.local **/BUCK`
-
 ## Usage
 
 ```bash
@@ -76,7 +74,7 @@ The `buckw` and various configuration files can be checked into version control.
 ./buckw project
 ```
 
-See the [Usage](https://github.com/OkBuilds/OkBuck/blob/master/Usage.md) page for complete details on how to configure the plugin.
+See the [Usage](https://github.com/OkBuilds/OkBuck/blob/master/Usage.md) page for complete details on how to configure OkBuck and Buck.
 
 ## Liscense
 ```
