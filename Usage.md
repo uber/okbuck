@@ -67,7 +67,7 @@ please read the [Exopackage wiki](https://github.com/OkBuilds/OkBuck/wiki/Exopac
 +  `buckProjects` is a set of projects to generate buck files for. Default is all sub projects.
 +  `extraBuckOpts` provides a hook to add additional configuration options for buck [android_binary](https://buckbuild.com/rule/android_binary.html) rules
 +  `wrapper` is used to configure creation of the buck wrapper script.
- - `repo` - The git url of any custom buck fork. Default is [OkBuilds/buck](https://github.com/OkBuilds/buck)
+ - `repo` - The git url of any custom buck fork. Default is none.
  - `remove` - List of file patterns to clean up by wrapper before running `okbuck`. Default is `['.buckconfig.local', '**/BUCK']`
  - `keep` - List of file patterns to not clean up by the wrapper before running `okbuck`. This may be useful if you made manual modifications to some buck files and would like to keep them intact while regenerating the configuration for other projects. Default is `['.okbuck/**/BUCK']`.
 + The keys used to configure various options can be for 
@@ -75,3 +75,9 @@ please read the [Exopackage wiki](https://github.com/OkBuilds/OkBuck/wiki/Exopac
  - All buildTypes of a particular flavor i.e 'appDemo'
  - All flavors of a particular buildType i.e 'appDebug'
  - A particular variant (buildType + flavor combination) i,e 'appDemoRelease'
+
+## Configuring Buck
+
+You can configure behavior of buck by using various configuration files like [buckconfig](https://buckbuild
+.com/concept/buckconfig.html), [buckjavaargs](https://buckbuild.com/concept/buckjavaargs.html), [bucklogging](https://buckbuild.com/contributing/logging.html) and [buckversion](https://buckbuild.com/concept/buckversion.html). It is recommended to atleast set the buckversion so you are pointed at a good revision of the [buck
+codebase](https://github.com/facebook/buck). Similarly, watchman can be configured for better performance via [watchmanconfig](https://facebook.github.io/watchman/docs/config.html). For examples of these configuration files, you can look at the existing configuration files in this repository.

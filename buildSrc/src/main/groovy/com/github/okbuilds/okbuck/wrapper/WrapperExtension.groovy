@@ -1,13 +1,11 @@
 package com.github.okbuilds.okbuck.wrapper
 
-import com.github.okbuilds.okbuck.OkBuckGradlePlugin
-
 class WrapperExtension {
 
     /**
      * Custom buck repository to add as a remote to the wrapper buck installation
      */
-    String repo = "https://github.com/OkBuilds/buck.git"
+    String repo = ''
 
     /**
      * List of files to remove when generating configuration.

@@ -49,7 +49,7 @@ Run the buck wrapper task
 ```bash
 ./gradlew :buckWrapper
 ```
-This creates a `buckw` wrapper similar to the gradle wrapper. It also creates various configuration files like [buckconfig](https://buckbuild.com/concept/buckconfig.html), [buckjavaargs](https://buckbuild.com/concept/buckjavaargs.html), [bucklogging](https://buckbuild.com/contributing/logging.html), [buckversion](https://buckbuild.com/concept/buckversion.html) and [watchmanconfig](https://facebook.github.io/watchman/docs/config.html)
+This creates a `buckw` wrapper similar to the gradle wrapper
 
 Invoking buck comamnds via the buck wrapper has several advantages
 - Downloads/installs/updates buck
