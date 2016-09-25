@@ -19,6 +19,3 @@
 [log]
   max_traces = 5
   compress_traces = true
-
-[tools]
-  proguard = tools/proguard.jar
