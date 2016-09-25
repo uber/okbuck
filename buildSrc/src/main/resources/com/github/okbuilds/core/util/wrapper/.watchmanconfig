@@ -1,0 +1,13 @@
+{
+    "ignore_dirs": [
+        "buck-out",
+        ".idea",
+        ".buckd",
+        "build",
+        ".gradle",
+        ".swp",
+        "java"
+    ],
+    "fsevents_latency": 0.05,
+    "suppress_recrawl_warnings": true
+}
