@@ -3,10 +3,11 @@ package com.github.okbuilds.okbuck.wrapper
 import com.github.okbuilds.core.util.FileUtil
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
 class BuckWrapperTask extends DefaultTask {
+
+    static final List<String> CONFIGS = ['.buckconfig', '.buckjavaargs', '.bucklogging.properties', '.watchmanconfig']
 
     @Input
     String repo
@@ -32,6 +33,10 @@ class BuckWrapperTask extends DefaultTask {
 
         wrapper.text = outputText
         wrapper.setExecutable(true)
+
+        CONFIGS.each { String configFile ->
+            FileUtil.copyResourceToProject("wrapper/${configFile}", project.file(configFile))
+        }
     }
 
     static String toWatchmanMatchers(List<String> wildcardPatterns) {
