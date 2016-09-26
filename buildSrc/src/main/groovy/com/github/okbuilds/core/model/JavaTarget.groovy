@@ -58,7 +58,7 @@ abstract class JavaTarget extends Target {
     /**
      * Set of gradle tasks that generate sources outside buck.
      */
-    Set<GradleSourcegen> getGradleSourcegen() {
+    Set<GradleSourceGen> getGradleSourcegen() {
         return [] as Set
     }
 

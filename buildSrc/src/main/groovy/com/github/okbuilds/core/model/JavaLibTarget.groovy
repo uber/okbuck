@@ -1,5 +1,6 @@
 package com.github.okbuilds.core.model
 
+import com.github.okbuilds.core.util.ProjectUtil
 import org.gradle.api.Project
 import org.gradle.internal.jvm.Jvm
 /**
@@ -57,7 +58,7 @@ class JavaLibTarget extends JavaTarget {
     String getBootClasspath() {
         String bootCp = initialBootCp
         if (retrolambda) {
-            bootCp += ":${Jvm.current().getRuntimeJar()}"
+            bootCp += ":${ProjectUtil.runtimeJar}"
         }
         return bootCp
     }

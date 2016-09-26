@@ -95,7 +95,8 @@ getChanges ( ) {
         ["type", "f"],
         ["anyof",
             ["imatch", "**/*.gradle", "wholename"],
-            ["imatch", "**/src/**/AndroidManifest.xml", "wholename"]
+            ["imatch", "**/src/**/AndroidManifest.xml", "wholename"],
+            ["imatch", "**/gradle-wrapper.properties", "wholename"]
         ]
     ],
     "fields": ["name"]
