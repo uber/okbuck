@@ -4,7 +4,7 @@
 ##
 ##  Buck wrapper script to invoke okbuck when needed, before running buck
 ##
-##  Created by OkBuck Gradle Plugin on : Sun Sep 25 15:52:34 PDT 2016
+##  Created by OkBuck Gradle Plugin on : Sun Sep 25 18:11:38 PDT 2016
 ##
 #########################################################################
 
@@ -42,16 +42,6 @@ ensure ( ) {
     command -v $1 >/dev/null 2>&1 || die "ERROR: '$1' could be found in your PATH. Please install $1. $2"
 }
 
-ensure python 'https://www.python.org'
-ensure ant 'http://ant.apache.org/'
-INSTALLED_WATCHMAN=`command -v watchman`
-if [ -z "$INSTALLED_WATCHMAN" ] ; then
-    warn 'ALWAYS RUNNING OKBUCK SINCE WATCHMAN IS NOT INSTALLED'
-    warn 'INSTALL WATCHMAN FOR FASTER BUILDS'
-    warn 'https://facebook.github.io/watchman'
-    echo
-fi
-
 md5digest ( ) {
     # only md5 is available by default on osx, while md5sum is available on other *nix systems
     ( ensure md5sum && md5sum $1 ) || ( ensure md5 && md5 $1 )
@@ -61,13 +51,24 @@ jsonq() {
     python -c "import sys,json; obj=json.load(sys.stdin); print($1)"
 }
 
+ensure python 'https://www.python.org'
+ensure ant 'http://ant.apache.org/'
+INSTALLED_WATCHMAN=`command -v watchman`
+
 DEFAULT_BUCK_REPO="https://github.com/facebook/buck.git"
 DEFAULT_BUCK_INSTALL_DIR="$HOME/.gradle/caches/okbuilds/buck"
-CUSTOM_BUCK_REPO="https://github.com/OkBuilds/buck.git"
-OKBUCK_FAILURE="$WORKING_DIR/build/okbuck.fail"
+CUSTOM_BUCK_REPO=""
+OKBUCK_SUCCESS="$WORKING_DIR/build/okbuck.success"
+OKBUCK_DIR=".okbuck"
 MAX_DISPLAY_CHANGES=10
 
+ensureWatch ( ) {
+    watchman watch-project $WORKING_DIR >/dev/null 2>&1
+}
+
 getToClean ( ) {
+    ensureWatch
+
     watchman --output-encoding=json -j 2>&1 <<-EOT
 ["query", "$WORKING_DIR", {
     "expression": ["allof",
@@ -86,6 +87,8 @@ EOT
 }
 
 getChanges ( ) {
+    ensureWatch
+
     WATCHED_CHANGES=`watchman --output-encoding=json -j 2>&1 <<-EOT
 ["query", "$WORKING_DIR", {
     "since": "n:okbuck_trig",
@@ -111,79 +114,67 @@ EOT`
 EOT`
 }
 
+updateOkBuckSuccess ( ) {
+    OKBUCK_SUCCESS_DIR=`dirname $OKBUCK_SUCCESS`
+    mkdir -p $OKBUCK_SUCCESS_DIR
+    touch "$OKBUCK_SUCCESS"
+}
+
 runOkBuck ( ) {
     info "RUNNING OKBUCK..."
     echo
 
-    OKBUCK_FAILURE_DIR=`dirname $OKBUCK_FAILURE`
-    mkdir -p $OKBUCK_FAILURE_DIR
-    touch $OKBUCK_FAILURE
-
-    if [ ! -z "$INSTALLED_WATCHMAN" ]; then
+    if [[ ! -z "$INSTALLED_WATCHMAN" ]]; then
         getToClean | jsonq '"\n".join(obj["files"])' | xargs rm
         info "DELETED OLD BUCK FILES"
         EXTRA_ARGS="-xokbuckClean"
     fi
 
-    ( $WORKING_DIR/gradlew -p $WORKING_DIR okbuck $EXTRA_ARGS --stacktrace && rm -f $OKBUCK_FAILURE && success "PROCEEDING WITH BUCK" ) || die "OKBUCK FAILED"
+    rm -f $OKBUCK_SUCCESS
+    ( $WORKING_DIR/gradlew -p $WORKING_DIR :okbuck -Dokbuck.wrapper=true $EXTRA_ARGS --stacktrace && updateOkBuckSuccess && success "PROCEEDING WITH BUCK" ) || die "OKBUCK FAILED"
 }
 
-# Run tasks before buck command
-setupBuckRun ( ) {
-    if [ ! -z "$INSTALLED_WATCHMAN" ]; then
-        # Get list of changed files since last time by querying watchman
-        getChanges
+watchmanWorkflow ( ) {
+    # Get list of changed files since last time by querying watchman
+    getChanges
 
-        if [[ $WATCHED_CHANGES == *'"error":"unable to resolve root'* ]]; then
-            # Watch project
-            info "WATCHING PROJECT '$WORKING_DIR' FOR CHANGES..."
-            echo
-            watchman watch-project $WORKING_DIR >/dev/null 2>&1
-            getChanges
+    # Format list for simpler output
+    CHANGES=$(echo $WATCHED_CHANGES | jsonq '" ".join(obj["files"])')
+    NEW_OR_DELETED_RESOURCE_ROOTS=$(echo $RESOURCE_ROOTS | jsonq '" ".join([f["name"] for f in obj["files"] if (not f["exists"] or f["new"])])')
+    NUM_CHANGES=$(echo $CHANGES $NEW_OR_DELETED_RESOURCE_ROOTS | wc -w)
+
+    if [[ $NUM_CHANGES -gt 0 ]]; then
+        info "CHANGES DETECTED IN:"
+        echo $CHANGES $NEW_OR_DELETED_RESOURCE_ROOTS | tr ' ' '\n' | head -n $MAX_DISPLAY_CHANGES
+        if [[ $NUM_CHANGES -gt $MAX_DISPLAY_CHANGES ]]; then
+            DIFF=`expr $NUM_CHANGES - $MAX_DISPLAY_CHANGES`
+            echo "...and $DIFF more"
         fi
-
-        # Format list for simpler output
-        CHANGES=$(echo $WATCHED_CHANGES | jsonq '" ".join(obj["files"])')
-        NEW_OR_DELETED_RESOURCE_ROOTS=$(echo $RESOURCE_ROOTS | jsonq '" ".join([f["name"] for f in obj["files"] if (not f["exists"] or f["new"])])')
-        NUM_CHANGES=$(echo $CHANGES $NEW_OR_DELETED_RESOURCE_ROOTS | wc -w)
-
-        if [[ $NUM_CHANGES -gt 0 ]]; then
-            info "CHANGES DETECTED IN:"
-            echo $CHANGES $NEW_OR_DELETED_RESOURCE_ROOTS | tr ' ' '\n' | head -n $MAX_DISPLAY_CHANGES
-            if [[ $NUM_CHANGES -gt $MAX_DISPLAY_CHANGES ]]; then
-                DIFF=`expr $NUM_CHANGES - $MAX_DISPLAY_CHANGES`
-                echo "...and $DIFF more"
-            fi
-            echo
-            runOkBuck
-        # If a previous okbuck run failed
-        elif [ -f "$OKBUCK_FAILURE" ]; then
-            warn "FAILED TO RUN OKBUCK PREVIOUSLY"
-            runOkBuck
-        fi
-    else
+        echo
         runOkBuck
     fi
+}
 
+setupBuckBinary ( ) {
     # If no explicit buck binary is set
-    if [ -z "$BUCK_BINARY" ] ; then
+    if [[ -z "$BUCK_BINARY" ]] ; then
         # If no buck installation directory is set
-        if [ -z "$BUCK_HOME" ]; then
+        if [[ -z "$BUCK_HOME" ]]; then
             BUCK_HOME=$DEFAULT_BUCK_INSTALL_DIR
         fi
 
         # Install buck from source if not already available
-        if [ ! -d "$BUCK_HOME" ]; then
+        if [[ ! -d "$BUCK_HOME" ]]; then
             warn "BUCK NOT FOUND IN '$BUCK_HOME'. INSTALLING BUCK..."
             git clone $DEFAULT_BUCK_REPO $BUCK_HOME
         fi
 
         # Add custom buck remote
-        if [ ! -z $CUSTOM_BUCK_REPO ]; then
+        if [[ ! -z $CUSTOM_BUCK_REPO ]]; then
             REMOTE_NAME=$(printf '%s' $CUSTOM_BUCK_REPO | md5digest | cut -d ' ' -f 1)
             cd $BUCK_HOME
             REMOTE_EXISTS=$(git remote -v | grep "$REMOTE_NAME")
-            if [ -z "$REMOTE_EXISTS" ]; then
+            if [[ -z "$REMOTE_EXISTS" ]]; then
                 git remote add $REMOTE_NAME $CUSTOM_BUCK_REPO
             fi
             cd $WORKING_DIR
@@ -191,6 +182,27 @@ setupBuckRun ( ) {
 
         BUCK_BINARY="$BUCK_HOME/bin/buck"
     fi
+}
+
+# Run tasks before buck command
+setupBuckRun ( ) {
+    if [[ ! -f "$OKBUCK_SUCCESS" ]] || [[ ! -d "$OKBUCK_DIR" ]]; then
+        warn "NO PREVIOUS SUCCESSFUL OKBUCK RUN"
+        if [[ ! -z "$INSTALLED_WATCHMAN" ]]; then
+            getChanges # Prevent watchman from running after this run, since changes would already be accounted for
+        fi
+        runOkBuck
+    elif [[ ! -z "$INSTALLED_WATCHMAN" ]]; then
+        watchmanWorkflow
+    else
+        warn 'ALWAYS RUNNING OKBUCK SINCE WATCHMAN IS NOT INSTALLED'
+        warn 'INSTALL WATCHMAN FOR FASTER BUILDS'
+        warn 'https://facebook.github.io/watchman'
+        echo
+        runOkBuck
+    fi
+
+    setupBuckBinary
 }
 
 setupBuckRun
