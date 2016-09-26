@@ -4,8 +4,8 @@
 Example configuration
 ```gradle
 okbuck {
-    buildToolVersion "23.0.3"
-    target "android-23"
+    buildToolVersion "24.0.2"
+    target "android-24"
     linearAllocHardLimit = [
             app: 16 * 1024 * 1024
     ]
@@ -54,8 +54,8 @@ okbuck {
 }
 ```
 
-+  `buildToolVersion` specifies the version of the Android SDK Build-tools, defaults to `23.0.3`
-+  `target` specifies the Android compile sdk version, default is `android-23`
++  `buildToolVersion` specifies the version of the Android SDK Build-tools, defaults to `24.0.2`
++  `target` specifies the Android compile sdk version, default is `android-24`
 +  `linearAllocHardLimit` and `primaryDexPatterns` are used to configure options used by buck for multidex apps. For more details about multidex configuration, please read the
 [Multidex wiki](https://github.com/OkBuilds/OkBuck/wiki/Multidex-Configuration-Guide).
 +  `exopackage` and `appLibDependencies` are used for

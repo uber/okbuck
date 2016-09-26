@@ -9,10 +9,10 @@ android:
     - tools
     - platform-tools
     - android-24
-    - build-tools-24.0.1
+    - build-tools-24.0.2
   licenses:
     - android-sdk-preview-license-84831b94
-    - android-sdk-license-2be07077
+    - android-sdk-license-8933bad1
     - android-sdk-license-.+
     - google-gdk-license-.+
 

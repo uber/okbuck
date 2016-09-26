@@ -7,12 +7,12 @@ class OkBuckExtension {
     /**
      * build_tools_version
      */
-    String buildToolVersion = "23.0.3"
+    String buildToolVersion = "24.0.2"
 
     /**
      * Android target sdk version
      */
-    String target = "android-23"
+    String target = "android-24"
 
     /**
      * Annotation processor classes of project dependencies

@@ -4,7 +4,12 @@ import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.LibraryPlugin
 import com.android.build.gradle.api.BaseVariant
 import com.android.build.gradle.api.BaseVariantOutput
-import com.github.okbuilds.core.model.*
+import com.github.okbuilds.core.model.AndroidAppTarget
+import com.github.okbuilds.core.model.AndroidLibTarget
+import com.github.okbuilds.core.model.JavaAppTarget
+import com.github.okbuilds.core.model.JavaLibTarget
+import com.github.okbuilds.core.model.ProjectType
+import com.github.okbuilds.core.model.Target
 import com.github.okbuilds.okbuck.OkBuckExtension
 import org.apache.commons.io.FilenameUtils
 import org.gradle.api.Project
@@ -89,5 +94,19 @@ final class ProjectUtil {
             }
         }
         return result
+    }
+
+    static File getRuntimeJar() {
+        try {
+            final File javaBase = new File(System.getProperty("java.home")).getCanonicalFile();
+            File runtimeJar = new File(javaBase, "lib/rt.jar");
+            if (runtimeJar.exists()) {
+                return runtimeJar;
+            }
+            runtimeJar = new File(javaBase, "jre/lib/rt.jar");
+            return runtimeJar.exists() ? runtimeJar : null;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
