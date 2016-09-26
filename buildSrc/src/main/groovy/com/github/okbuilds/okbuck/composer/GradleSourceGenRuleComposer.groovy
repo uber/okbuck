@@ -1,6 +1,6 @@
 package com.github.okbuilds.okbuck.composer
 
-import com.github.okbuilds.core.model.GradleSourcegen
+import com.github.okbuilds.core.model.GradleSourceGen
 import com.github.okbuilds.core.model.JavaTarget
 import com.github.okbuilds.okbuck.rule.GradleSourceGenRule
 
@@ -11,7 +11,7 @@ final class GradleSourceGenRuleComposer extends AndroidBuckRuleComposer {
     }
 
     static List<GradleSourceGenRule> compose(JavaTarget target, String gradlePath) {
-        target.gradleSourcegen.collect { GradleSourcegen sourceTask ->
+        target.gradleSourcegen.collect { GradleSourceGen sourceTask ->
             String taskName = sourceTask.task.name.replaceAll(':', '_')
             new GradleSourceGenRule(
                     "gradle_sourcegen${taskName}" as String,

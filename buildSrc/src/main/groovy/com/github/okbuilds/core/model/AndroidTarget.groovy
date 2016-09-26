@@ -89,8 +89,8 @@ abstract class AndroidTarget extends JavaLibTarget {
     }
 
     @Override
-    Set<GradleSourcegen> getGradleSourcegen() {
-        Set<GradleSourcegen> tasks = super.getGradleSourcegen()
+    Set<GradleSourceGen> getGradleSourcegen() {
+        Set<GradleSourceGen> tasks = super.getGradleSourcegen()
         // SqlDelight support
         if (project.plugins.hasPlugin('com.squareup.sqldelight')) {
             BaseVariantData data = baseVariant.variantData
@@ -98,7 +98,7 @@ abstract class AndroidTarget extends JavaLibTarget {
                 it instanceof Task && it.name.toLowerCase().contains("sqldelight")
             } as Task
             if (sqlDelightGen) {
-                tasks.add(new GradleSourcegen(sqlDelightGen,
+                tasks.add(new GradleSourceGen(sqlDelightGen,
                         srcDirNames.collect { "src/${it}/sqldelight/**/*.sq" },
                         sqlDelightGen.outputs.files[0]))
             }

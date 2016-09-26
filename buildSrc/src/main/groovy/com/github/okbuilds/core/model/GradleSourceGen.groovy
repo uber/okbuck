@@ -2,13 +2,13 @@ package com.github.okbuilds.core.model
 
 import org.gradle.api.Task
 
-class GradleSourcegen {
+class GradleSourceGen {
 
     Task task
     Set<String> inputs
     File outputDir
 
-    GradleSourcegen(task, inputs, outputDir) {
+    GradleSourceGen(task, inputs, outputDir) {
         this.task = task
         this.inputs = inputs
         this.outputDir = outputDir
