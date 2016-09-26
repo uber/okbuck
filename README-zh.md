@@ -20,22 +20,22 @@ apply plugin: 'com.github.okbuilds.okbuck-gradle-plugin'
 必须加入到 `buildscript` 和 `allprojects` 的 `repositories` 列表中，
 而且必须在 `apply plugin` 部分之前。
 
-应用 OkBuck 插件之后，工程内将会产生两个 gradle task，`okbuck` 和 `okbuckClean`
+应用 OkBuck 插件之后，工程内将会产生两个 gradle task，`okbuck` 和 `buckWrapper`
 
 +  `okbuck` 将会生成 BUCK 配置文件
-+  `okbuckClean` 将会删除所有的 OkBuck 临时文件，BUCK 配置文件，以及 BUCK 临时文件
++  `buckWrapper` buck wrapper 类似于 gradle wrapper, 利用它 OkBuck 可以进行更聪明地为我们服务
 
-可以执行 `buck targets` 命令查看所有可以 build 的目标, 而生成的 `.buckconfig` 
+可以执行 `buck targets` 命令查看所有可以 build 的目标, 而生成的 `.buckconfig.local`
 文件中会指定多个 alias, 例如 `appDevDebug`，`appProdRelease`，`another-appDebug`
 等，根据它们可以确定 BUCK build 的命令，例如 `buck build appDevDebug` 等。
 
 ## 自定义配置
 ```gradle
 okbuck {
-    buildToolVersion "23.0.3"
-    target "android-23"
+    buildToolVersion "24.0.2"
+    target "android-24"
     linearAllocHardLimit = [
-            app: 7194304
+            app: 16 * 1024 * 1024
     ]
     primaryDexPatterns = [
             app: [
@@ -50,9 +50,6 @@ okbuck {
     exopackage = [
             appDebug: true
     ]
-    annotationProcessors = [
-            "local-apt-dependency": ['com.okuilds.apt.ExampleProcessor']
-    ]
     appLibDependencies = [
             'appProd': [
                     'buck-android-support',
@@ -65,23 +62,30 @@ okbuck {
                     'com.android.support:multidex',
                     'libraries/javalibrary:main',
                     'libraries/common:freeDebug',
-            ],
-            'appDemo': [
-                    'buck-android-support',
-                    'com.android.support:multidex',
-                    'libraries/javalibrary:main',
-                    'libraries/common:paidRelease',
             ]
     ]
+    annotationProcessors = [
+            "local-apt-dependency": ['com.okbuilds.apt.ExampleProcessor']
+    ]
     buckProjects = project.subprojects
-    keep = []
+    extraBuckOpts = [
+        'appDebug', [
+            "binary": ["trim_resource_ids = True"]
+        ]
+    ]
+
+    wrapper {
+        repo = 'https://github.com/OkBuilds/buck.git'
+        remove = ['.buckconfig.local', "**/BUCK"]
+        keep = [".okbuck/**/BUCK"]
+    }
 }
 ```
 
 ## 详细解释
-+  `buildToolVersion`指定Android SDK Build-tools版本，默认为`23.0.3`
++  `buildToolVersion`指定Android SDK Build-tools版本，默认为`24.0.2`
 +  `target`指定Android target sdk版本，可以运行`<sdk home>/tools/android list targets --compact`
-获得，默认为`android-23`
+获得，默认为`android-24`
 +  `linearAllocHardLimit`和`primaryDexPatterns`都是map，用来配置BUCK multidex的
 linearAllocHardLimit和primaryDexPatterns部分，更多详细关于multidex配置的说明，请参阅
 [multidex wiki](https://github.com/OkBuilds/OkBuck/wiki/Multidex-Configuration-Guide)，
