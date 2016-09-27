@@ -25,9 +25,11 @@ apply plugin: 'com.github.okbuilds.okbuck-gradle-plugin'
 +  `okbuck` 将会生成 BUCK 配置文件
 +  `buckWrapper` buck wrapper 类似于 gradle wrapper, 利用它 OkBuck 可以进行更聪明地为我们服务
 
-可以执行 `buck targets` 命令查看所有可以 build 的目标, 而生成的 `.buckconfig.local`
+我们非常建议大家使用 `buckWrapper`，即执行：`./gradlew buckWrapper`。
+
+可以执行 `./buckw targets` 命令查看所有可以 build 的目标, 而生成的 `.buckconfig.local`
 文件中会指定多个 alias, 例如 `appDevDebug`，`appProdRelease`，`another-appDebug`
-等，根据它们可以确定 BUCK build 的命令，例如 `buck build appDevDebug` 等。
+等，根据它们可以确定 BUCK build 的命令，例如 `./buckw build appDevDebug` 等。
 
 ## 自定义配置
 ```gradle
@@ -102,6 +104,5 @@ linearAllocHardLimit和primaryDexPatterns部分，更多详细关于multidex配�
  - 指定 module 名字, flavor 名字以及 build type 的名字, 例如: 'appDemoRelease'
 
 ## Troubleshooting
-如果遇到任何问题，请[提一个issue](https://github.com/OkBuilds/OkBuck/issues/new)，如果能提供
-`./gradle okbuck --stacktrace --debug`的输出，就是极好的了。如有任何OkBuck或者BUCK的使用问题，
+如果遇到任何问题，请[提一个issue](https://github.com/OkBuilds/OkBuck/issues/new)，如果能提供错误日志，就是极好的了。如有任何OkBuck或者BUCK的使用问题，
 欢迎加入**OkBuck使用问题交流群**：`170102067`。
