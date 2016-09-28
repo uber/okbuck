@@ -51,8 +51,13 @@ abstract class AndroidTarget extends JavaLibTarget {
         applicationId = baseVariant.applicationId - applicationIdSuffix
         versionName = baseVariant.mergedFlavor.versionName
         versionCode = baseVariant.mergedFlavor.versionCode
-        minSdk = baseVariant.mergedFlavor.minSdkVersion.apiLevel
-        targetSdk = baseVariant.mergedFlavor.targetSdkVersion.apiLevel
+        try {
+            minSdk = baseVariant.mergedFlavor.minSdkVersion.apiLevel
+            targetSdk = baseVariant.mergedFlavor.targetSdkVersion.apiLevel
+        } catch (NullPointerException e) {
+            throw new IllegalStateException("module `" + project.name +
+                    "` must specify minSdkVersion and targetSdkVersion in build.gradle")
+        }
         debuggable = baseVariant.buildType.debuggable
 
         // Butterknife support
