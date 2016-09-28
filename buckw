@@ -132,7 +132,7 @@ runOkBuck ( ) {
     fi
 
     rm -f $OKBUCK_SUCCESS
-    ( $WORKING_DIR/gradlew -p $WORKING_DIR :okbuck -Dokbuck.wrapper=true $EXTRA_ARGS --stacktrace && updateOkBuckSuccess && success "PROCEEDING WITH BUCK" ) || die "OKBUCK FAILED"
+    ( $WORKING_DIR/gradlew -p $WORKING_DIR okbuck -Dokbuck.wrapper=true $EXTRA_ARGS --stacktrace && updateOkBuckSuccess && success "PROCEEDING WITH BUCK" ) || die "OKBUCK FAILED"
 }
 
 watchmanWorkflow ( ) {
