@@ -19,7 +19,7 @@ brew install watchman
 ```
 
 ### Linux
-Installation instrcutions for: [Android NDK](https://developer.android.com/ndk/downloads/index.html), [Ant](http://ant.apache.org/), [Watchman](https://facebook.github.io/watchman/docs/install.html)
+Installation instructions for: [Android NDK](https://developer.android.com/ndk/downloads/index.html), [Ant](http://ant.apache.org/), [Watchman](https://facebook.github.io/watchman/docs/install.html)
 
 ### Configuration
 Set the `ANDROID_NDK` environment variable to point to your android ndk installation
@@ -40,7 +40,7 @@ apply plugin: 'com.uber.okbuck'
 ```
 
 After applying the plugin, the following tasks will be added to the root project
-  +  `buckWrapper` will create a buck wrapper script and varios configuration files to invoke buck commands
+  +  `buckWrapper` will create a buck wrapper script and various configuration files to invoke buck commands
   +  `okbuck` will generate BUCK files
 
 ### Buck Wrapper
@@ -51,7 +51,7 @@ Run the buck wrapper task
 ```
 This creates a `buckw` wrapper similar to the gradle wrapper
 
-Invoking buck comamnds via the buck wrapper has several advantages
+Invoking buck commands via the buck wrapper has several advantages
 - Downloads/installs/updates buck
 - Minimal overhead to decide when to run `okbuck` before invoking buck (using watchman)
 - Handles gracefully, the cases when `okbuck` task fails/is stopped abruptly
