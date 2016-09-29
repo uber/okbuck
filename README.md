@@ -1,6 +1,6 @@
 # OkBuck
 [![Master branch build status](https://travis-ci.org/uber/okbuck.svg?branch=master)](https://travis-ci.org/uber/okbuck)
-[ ![Download](https://api.bintray.com/packages/okbuild/maven/OkBuild/images/download.svg) ](https://bintray.com/okbuild/maven/OkBuild/_latestVersion)
+[ ![Download](https://api.bintray.com/packages/uber/gradle-plugins/okbuck/images/download.svg) ](https://bintray.com/uber/gradle-plugins/okbuck/_latestVersion)
 
 OkBuck is a gradle plugin that lets developers utilize the [Buck](https://buckbuild.com/) build system on a gradle project.
 
