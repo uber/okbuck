@@ -76,6 +76,14 @@ Please make sure you have watchman installed for `buckw` to run `okbuck` only wh
 
 See the [Usage](https://github.com/OkBuilds/OkBuck/blob/master/Usage.md) page for complete details on how to configure OkBuck and Buck.
 
+## Contributors
+
+We'd love for you to contribute to our open source projects. Before we can accept your contributions, we kindly ask you to sign our [Uber Contributor License Agreement](https://docs.google.com/a/uber.com/forms/d/1pAwS_-dA1KhPlfxzYLBqK6rsSWwRwH95OCCZrcsY5rk/viewform).
+
+- If you **find a bug**, open an issue or submit a fix via a pull request.
+- If you **have a feature request**, open an issue or submit an implementation via a pull request
+- If you **want to contribute**, submit a pull request.
+
 ## Liscense
 ```
 Copyright (c) 2016 Uber Technologies, Inc.
