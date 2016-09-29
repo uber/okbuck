@@ -4,7 +4,7 @@
 ##
 ##  Buck wrapper script to invoke okbuck when needed, before running buck
 ##
-##  Created by OkBuck Gradle Plugin on : Wed Sep 28 21:45:57 EDT 2016
+##  Created by OkBuck Gradle Plugin on : Wed Sep 28 21:51:03 EDT 2016
 ##
 #########################################################################
 
@@ -132,7 +132,7 @@ runOkBuck ( ) {
     fi
 
     rm -f $OKBUCK_SUCCESS
-    ( $WORKING_DIR/gradlew -p $WORKING_DIR :okbuck -Dokbuck.wrapper=true $EXTRA_ARGS --stacktrace && updateOkBuckSuccess && success "PROCEEDING WITH BUCK" ) || die "OKBUCK FAILED"
+    ( $WORKING_DIR/gradlew -p $WORKING_DIR okbuck -Dokbuck.wrapper=true $EXTRA_ARGS --stacktrace && updateOkBuckSuccess && success "PROCEEDING WITH BUCK" ) || die "OKBUCK FAILED"
 }
 
 watchmanWorkflow ( ) {
