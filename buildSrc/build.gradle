@@ -84,8 +84,8 @@ bintray {
     dryRun = false
     publish = true
     pkg {
-        repo = 'maven'
-        name = 'OkBuck'
+        repo = 'gradle-plugins'
+        name = 'okbuck'
         userOrg = 'uber'
         desc = 'Gradle plugin that lets developers utilize the Buck build system on a Gradle project'
         websiteUrl = siteUrl
