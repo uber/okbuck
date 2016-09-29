@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.github.okbuilds.okbuck.example.common">
+    package="com.uber.okbuck.example.common">
 
     <application
         android:allowBackup="true"

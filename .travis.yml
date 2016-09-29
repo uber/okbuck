@@ -17,7 +17,7 @@ android:
     - google-gdk-license-.+
 
 before_script:
-  - export PATH=$PATH:$HOME/.gradle/caches/okbuilds/buck/bin
+  - export PATH=$PATH:$HOME/.gradle/caches/okbuck/buck/bin
   - echo no | android create avd --force -n test -t android-18 --abi armeabi-v7a
   - emulator -avd test -no-audio -no-window &
 

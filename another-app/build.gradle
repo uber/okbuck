@@ -6,7 +6,7 @@ android {
     buildToolsVersion rootProject.ext.androidBuildToolsVersion
 
     defaultConfig {
-        applicationId "com.github.okbuilds.okbuck.example.anotherapp"
+        applicationId "com.uber.okbuck.example.anotherapp"
         minSdkVersion rootProject.ext.androidMinSdkVersion
         targetSdkVersion rootProject.ext.androidTargetSdkVersion
         versionCode 1

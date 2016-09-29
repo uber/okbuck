@@ -1,9 +1,9 @@
-<manifest package="com.github.okbuilds.okbuck.example.test"
+<manifest package="com.uber.okbuck.example.test"
           xmlns:android="http://schemas.android.com/apk/res/android">
     <application />
 
     <instrumentation
         android:name="android.support.test.runner.AndroidJUnitRunner"
-        android:targetPackage="com.github.okbuilds.okbuck.example.demo.debug" />
+        android:targetPackage="com.uber.okbuck.example.demo.debug" />
 
 </manifest>

@@ -11,8 +11,8 @@ okbuck {
     ]
     primaryDexPatterns = [
             app: [
-                    '^com/github/okbuilds/okbuck/example/AppShell^',
-                    '^com/github/okbuilds/okbuck/example/BuildConfig^',
+                    '^com/uber/okbuck/example/AppShell^',
+                    '^com/uber/okbuck/example/BuildConfig^',
                     '^android/support/multidex/',
                     '^com/facebook/buck/android/support/exopackage/',
                     '^com/github/promeg/xlog_android/lib/XLogConfig^',
@@ -37,7 +37,7 @@ okbuck {
             ]
     ]
     annotationProcessors = [
-            "local-apt-dependency": ['com.okbuilds.apt.ExampleProcessor']
+            "local-apt-dependency": ['com.okbuck.apt.ExampleProcessor']
     ]
     buckProjects = project.subprojects
     extraBuckOpts = [
@@ -47,7 +47,7 @@ okbuck {
     ]
 
     wrapper {
-        repo = 'https://github.com/OkBuilds/buck.git'
+        repo = 'https://github.com/facebook/buck.git'
         remove = ['.buckconfig.local', "**/BUCK"]
         keep = [".okbuck/**/BUCK"]
     }
@@ -57,10 +57,10 @@ okbuck {
 +  `buildToolVersion` specifies the version of the Android SDK Build-tools, defaults to `24.0.2`
 +  `target` specifies the Android compile sdk version, default is `android-24`
 +  `linearAllocHardLimit` and `primaryDexPatterns` are used to configure options used by buck for multidex apps. For more details about multidex configuration, please read the
-[Multidex wiki](https://github.com/OkBuilds/OkBuck/wiki/Multidex-Configuration-Guide).
+[Multidex wiki](https://github.com/uber/okbuck/wiki/Multidex-Configuration-Guide).
 +  `exopackage` and `appLibDependencies` are used for
 configuring buck's exopackage mode. For more details about exopackage configuration, 
-please read the [Exopackage wiki](https://github.com/OkBuilds/OkBuck/wiki/Exopackage-Configuration-Guide), if you don't need exopackage, you can ignore these parameters
+please read the [Exopackage wiki](https://github.com/uber/okbuck/wiki/Exopackage-Configuration-Guide), if you don't need exopackage, you can ignore these parameters
 + `annotationProcessors` is used to depend on annotation processors declared locally as another gradle module in the same project.
 +  `buckProjects` is a set of projects to generate buck files for. Default is all sub projects.
 +  `extraBuckOpts` provides a hook to add additional configuration options for buck [android_binary](https://buckbuild.com/rule/android_binary.html) rules

@@ -27,7 +27,7 @@ ext {
 
 // Workaround to make gradle source tasks in buck run on travis
 if (project.file("buildSrc").exists()) {
-    apply plugin: 'com.github.okbuilds.okbuck-gradle-plugin'
+    apply plugin: 'com.uber.okbuck'
 
     okbuck {
         buildToolVersion rootProject.ext.androidBuildToolsVersion
@@ -35,14 +35,14 @@ if (project.file("buildSrc").exists()) {
 
         primaryDexPatterns = [
                 'app': [
-                        '^com/github/okbuilds/okbuck/example/AppShell^',
-                        '^com/github/okbuilds/okbuck/example/BuildConfig^',
+                        '^com/uber/okbuck/example/AppShell^',
+                        '^com/uber/okbuck/example/BuildConfig^',
                         '^android/support/multidex/',
                         '^com/facebook/buck/android/support/exopackage/',
                         '^com/github/promeg/xlog_android/lib/XLogConfig^',
                         '^com/squareup/leakcanary/LeakCanary^',
-                        '^com/github/okbuilds/okbuck/example/common/Calc^',
-                        '^com/github/okbuilds/okbuck/example/common/BuildConfig^',
+                        '^com/uber/okbuck/example/common/Calc^',
+                        '^com/uber/okbuck/example/common/BuildConfig^',
                 ]
         ]
         exopackage = [

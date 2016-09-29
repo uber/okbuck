@@ -49,10 +49,10 @@ dependencies {
     testCompile 'junit:junit:4.12'
 }
 
-def siteUrl = 'https://github.com/OkBuilds/OkBuck'
-def gitUrl = 'https://github.com/OkBuilds/OkBuck.git'
-def publishGroup = 'com.github.okbuilds'
-def publishVersion = '0.6.0'
+def siteUrl = 'https://github.com/uber/okbuck'
+def gitUrl = 'https://github.com/uber/okbuck.git'
+def publishGroup = 'com.uber'
+def publishVersion = '0.7.0-SNAPSHOT'
 
 group = publishGroup
 version = publishVersion
@@ -72,7 +72,7 @@ publishing {
             artifact sourcesJar
             artifact javadocJar
 
-            artifactId 'okbuild-gradle-plugin'
+            artifactId 'okbuck'
         }
     }
 }
@@ -85,14 +85,14 @@ bintray {
     publish = true
     pkg {
         repo = 'maven'
-        name = 'OkBuild'
-        userOrg = 'okbuild'
-        desc = 'Gradle plugin to convert build to buck'
+        name = 'OkBuck'
+        userOrg = 'uber'
+        desc = 'Gradle plugin that lets developers utilize the Buck build system on a Gradle project'
         websiteUrl = siteUrl
         issueTrackerUrl = siteUrl + '/issues'
         vcsUrl = gitUrl
         licenses = ['MIT']
-        labels = ['buck', 'okbuck', 'okbuild']
+        labels = ['buck', 'okbuck', 'uber']
         publicDownloadNumbers = true
         version {
             name = publishVersion

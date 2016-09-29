@@ -9,7 +9,7 @@ android {
     buildToolsVersion rootProject.ext.androidBuildToolsVersion
 
     defaultConfig {
-        applicationId "com.github.okbuilds.okbuck.example"
+        applicationId "com.uber.okbuck.example"
         minSdkVersion rootProject.ext.androidMinSdkVersion
         targetSdkVersion rootProject.ext.androidTargetSdkVersion
         multiDexEnabled true

@@ -4,7 +4,7 @@
 
 OkBuck is a gradle plugin that lets developers utilize the [Buck](https://buckbuild.com/) build system on a gradle project.
 
-[Wiki](https://github.com/OkBuilds/OkBuck/wiki), [中文版](https://github.com/OkBuilds/OkBuck/blob/master/README-zh.md)
+[Wiki](https://github.com/uber/okbuck/wiki), [中文版](https://github.com/uber/okbuck/blob/master/README-zh.md)
 
 ## Installation
 ### Mac OS X
@@ -32,11 +32,11 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.github.okbuilds:okbuild-gradle-plugin:0.6.0'
+        classpath 'com.uber:okbuck:0.7.0'
     }
 }
 
-apply plugin: 'com.github.okbuilds.okbuck-gradle-plugin'
+apply plugin: 'com.uber.okbuck'
 ```
 
 After applying the plugin, the following tasks will be added to the root project
@@ -74,7 +74,7 @@ Please make sure you have watchman installed for `buckw` to run `okbuck` only wh
 ./buckw project
 ```
 
-See the [Usage](https://github.com/OkBuilds/OkBuck/blob/master/Usage.md) page for complete details on how to configure OkBuck and Buck.
+See the [Usage](https://github.com/uber/okbuck/blob/master/Usage.md) page for complete details on how to configure OkBuck and Buck.
 
 ## Contributors
 
