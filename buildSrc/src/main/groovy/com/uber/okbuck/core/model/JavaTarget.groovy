@@ -27,7 +27,7 @@ abstract class JavaTarget extends Target {
      * Apt Scope
      */
     Scope getApt() {
-        Scope aptScope = new Scope(project, ["apt", "provided", 'compileOnly'])
+        Scope aptScope = new Scope(project, ["apt", "provided", 'compileOnly', "annotationProcessor"])
         aptScope.targetDeps.retainAll(aptScope.targetDeps.findAll { Target target ->
             target.getProp(okbuck.annotationProcessors, null) != null
         })
