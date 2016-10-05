@@ -10,7 +10,7 @@ final class JavaTestRuleComposer extends JavaBuckRuleComposer {
         // no instance
     }
 
-    static JavaTestRule compose(JavaLibTarget target) {
+    static JavaTestRule compose(JavaLibTarget target, List<String> postProcessCommands) {
         List<String> deps = []
         deps.add(":${src(target)}")
         deps.addAll(external(target.test.externalDeps))
@@ -29,6 +29,7 @@ final class JavaTestRuleComposer extends JavaBuckRuleComposer {
         if (target.retrolambda) {
             postprocessClassesCommands.add(RetroLambdaGenerator.generate(target))
         }
+        postprocessClassesCommands.addAll(postProcessCommands);
 
         new JavaTestRule(
                 test(target),

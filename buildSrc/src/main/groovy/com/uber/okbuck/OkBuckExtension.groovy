@@ -45,6 +45,11 @@ class OkBuckExtension {
     Set<Project> buckProjects
 
     /**
+     * Set of post process commands to be launched for post processing the classes.
+     */
+    List<String> postProcessClassesCommands = []
+
+    /**
      * Extra buck options
      */
     Map<String, Map<String, List<String>>> extraBuckOpts = [:]

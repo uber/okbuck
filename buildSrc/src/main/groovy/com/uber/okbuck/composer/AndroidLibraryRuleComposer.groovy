@@ -17,6 +17,7 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
             List<String> deps,
             List<String> aptDeps,
             List<String> aidlRuleNames,
+            List<String> postProcessCommands,
             String appClass,
             Set<String> srcTargets = []) {
 
@@ -44,6 +45,7 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
         if (target.retrolambda) {
             postprocessClassesCommands.add(RetroLambdaGenerator.generate(target))
         }
+        postprocessClassesCommands.addAll(postProcessCommands);
 
         List<String> testTargets = [];
         if (target.robolectric && target.test.sources) {

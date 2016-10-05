@@ -18,6 +18,7 @@ final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
             List<String> deps,
             List<String> aptDeps,
             List<String> aidlRuleNames,
+            List<String> postProcessCommands,
             String appClass) {
 
         List<String> testDeps = new ArrayList<>(deps);
@@ -45,6 +46,7 @@ final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
         if (target.retrolambda) {
             postprocessClassesCommands.add(RetroLambdaGenerator.generate(target))
         }
+        postprocessClassesCommands.addAll(postProcessCommands);
 
         return new AndroidTestRule(
                 test(target),
