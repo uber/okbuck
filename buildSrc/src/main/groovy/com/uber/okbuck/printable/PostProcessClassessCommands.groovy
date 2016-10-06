@@ -23,7 +23,7 @@ public class PostProcessClassessCommands implements Printable {
     @Override
     public void println(PrintStream printer) {
         if (!mPostprocessClassesCommands.isEmpty()) {
-            String deps = "\$(JARS=(`find ${mGenDir} ! -name \"*-abi.jar\" ! -name \"*dex.dex.jar\" -name \"*.jar\"`); CLASSPATH=${mBootClasspath}; IFS=:; MERGED=( \"\${JARS[*]}\" \"\${CLASSPATH[*]}\" ); echo \"\${MERGED[*]}\")"
+            String deps = "\$(JARS=(`find ${mGenDir} ! -name \"*-abi.jar\" ! -name \"*dex.dex.jar\" -name \"*.jar\"`); CLASSPATH=${mBootClasspath}; IFS=:; MERGED=( \"\${JARS[@]}\" \"\${CLASSPATH[@]}\" ); echo \"\${MERGED[*]}\")"
             printer.println("\tpostprocess_classes_commands = [")
             mPostprocessClassesCommands.each {
                 String command -> printer.println("\t\t'DEPS=${deps} ${command}',")
