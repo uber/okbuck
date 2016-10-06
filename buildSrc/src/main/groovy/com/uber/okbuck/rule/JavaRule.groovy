@@ -1,6 +1,6 @@
 package com.uber.okbuck.rule
 
-import com.uber.okbuck.block.PostProcessClassessCommands
+import com.uber.okbuck.printable.PostProcessClassessCommands
 
 abstract class JavaRule extends BuckRule {
     private final Set<String> mSrcSet

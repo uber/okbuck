@@ -1,4 +1,4 @@
-package com.uber.okbuck.block;
+package com.uber.okbuck.printable;
 
 import java.io.PrintStream;
 

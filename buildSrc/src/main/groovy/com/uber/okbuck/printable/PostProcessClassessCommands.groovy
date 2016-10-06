@@ -1,4 +1,4 @@
-package com.uber.okbuck.block;
+package com.uber.okbuck.printable;
 
 public class PostProcessClassessCommands implements Printable {
 

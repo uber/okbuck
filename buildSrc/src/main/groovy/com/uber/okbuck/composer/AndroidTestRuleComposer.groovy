@@ -6,7 +6,7 @@ import com.uber.okbuck.core.model.Target
 import com.uber.okbuck.core.util.RobolectricUtil
 import com.uber.okbuck.generator.RetroLambdaGenerator
 import com.uber.okbuck.rule.AndroidTestRule
-import com.uber.okbuck.block.PostProcessClassessCommands
+import com.uber.okbuck.printable.PostProcessClassessCommands
 
 final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
 
