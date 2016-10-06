@@ -4,5 +4,5 @@ import java.io.PrintStream;
 
 public interface Printable {
 
-    void println(PrintStream printer);
+    void print(PrintStream printer);
 }
