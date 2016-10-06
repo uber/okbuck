@@ -12,5 +12,6 @@ final class AndroidInstrumentationTestRule extends BuckRule {
     @Override
     protected final void printContent(PrintStream printer) {
         printer.println("\tapk = ':${mInstrumentationApkRuleName}',")
+        printer.println("\tlabels = ['ui', 'android', 'device', 'espresso', 'instrumentation'],")
     }
 }

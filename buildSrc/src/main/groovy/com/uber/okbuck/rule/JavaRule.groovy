@@ -11,6 +11,7 @@ abstract class JavaRule extends BuckRule {
     private final List<String> mOptions
     private final Set<String> mProvidedDeps
     private final List<String> mTestTargets
+    private final List<String> mLabels
 
     JavaRule(
             String ruleType,
@@ -26,7 +27,8 @@ abstract class JavaRule extends BuckRule {
             String targetCompatibility,
             List<String> postprocessClassesCommands,
             List<String> options,
-            List<String> testTargets) {
+            List<String> testTargets,
+            List<String> labels = null) {
 
         super(ruleType, name, visibility, deps)
         mSrcSet = srcSet
@@ -39,6 +41,7 @@ abstract class JavaRule extends BuckRule {
         mOptions = options
         mProvidedDeps = providedDeps
         mTestTargets = testTargets
+        mLabels = labels
     }
 
     @Override
@@ -105,6 +108,14 @@ abstract class JavaRule extends BuckRule {
             printer.println("\textra_arguments = [")
             mOptions.each { String option ->
                 printer.println("\t\t'${option}',")
+            }
+            printer.println("\t],")
+        }
+
+        if (mLabels) {
+            printer.println("\tlabels = [")
+            mLabels.each { String label ->
+                printer.println("\t\t'${label}',")
             }
             printer.println("\t],")
         }
