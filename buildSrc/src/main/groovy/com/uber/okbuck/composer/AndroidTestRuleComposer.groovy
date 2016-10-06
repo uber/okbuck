@@ -6,6 +6,7 @@ import com.uber.okbuck.core.model.Target
 import com.uber.okbuck.core.util.RobolectricUtil
 import com.uber.okbuck.generator.RetroLambdaGenerator
 import com.uber.okbuck.rule.AndroidTestRule
+import com.uber.okbuck.block.PostProcessClassessCommands
 
 final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
 
@@ -42,11 +43,13 @@ final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
             }
         }
 
-        List<String> postprocessClassesCommands = []
+        PostProcessClassessCommands postprocessClassesCommands = new PostProcessClassessCommands(
+                target.bootClasspath,
+                target.rootProject.file("buck-out/gen").absolutePath);
         if (target.retrolambda) {
-            postprocessClassesCommands.add(RetroLambdaGenerator.generate(target))
+            postprocessClassesCommands.addCommand(RetroLambdaGenerator.generate(target))
         }
-        postprocessClassesCommands.addAll(postProcessCommands);
+        postprocessClassesCommands.addCommands(postProcessCommands);
 
         return new AndroidTestRule(
                 test(target),

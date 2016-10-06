@@ -1,5 +1,7 @@
 package com.uber.okbuck.rule
 
+import com.uber.okbuck.block.PostProcessClassessCommands
+
 final class JavaLibraryRule extends JavaRule {
 
     JavaLibraryRule(
@@ -13,11 +15,9 @@ final class JavaLibraryRule extends JavaRule {
             String resourcesDir,
             String sourceCompatibility,
             String targetCompatibility,
-            List<String> postprocessClassesCommands,
+            PostProcessClassessCommands postprocessClassesCommands,
             List<String> options,
-            List<String> testTargets,
-            String bootClasspath,
-            String genDir) {
+            List<String> testTargets) {
 
         super(
                 "java_library",
@@ -33,8 +33,6 @@ final class JavaLibraryRule extends JavaRule {
                 targetCompatibility,
                 postprocessClassesCommands,
                 options,
-                testTargets,
-                bootClasspath,
-                genDir)
+                testTargets)
     }
 }

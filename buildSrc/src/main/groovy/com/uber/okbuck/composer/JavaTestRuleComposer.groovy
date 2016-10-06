@@ -3,6 +3,7 @@ package com.uber.okbuck.composer
 import com.uber.okbuck.core.model.JavaLibTarget
 import com.uber.okbuck.generator.RetroLambdaGenerator
 import com.uber.okbuck.rule.JavaTestRule
+import com.uber.okbuck.block.PostProcessClassessCommands
 
 final class JavaTestRuleComposer extends JavaBuckRuleComposer {
 
@@ -25,11 +26,13 @@ final class JavaTestRuleComposer extends JavaBuckRuleComposer {
         providedDeps.addAll(targets(target.apt.targetDeps))
         providedDeps.removeAll(deps)
 
-        List<String> postprocessClassesCommands = []
+        PostProcessClassessCommands postprocessClassesCommands = new PostProcessClassessCommands(
+                target.bootClasspath,
+                target.rootProject.file("buck-out/gen").absolutePath);
         if (target.retrolambda) {
-            postprocessClassesCommands.add(RetroLambdaGenerator.generate(target))
+            postprocessClassesCommands.addCommand(RetroLambdaGenerator.generate(target))
         }
-        postprocessClassesCommands.addAll(postProcessCommands);
+        postprocessClassesCommands.addCommands(postProcessCommands);
 
         new JavaTestRule(
                 test(target),
@@ -43,8 +46,6 @@ final class JavaTestRuleComposer extends JavaBuckRuleComposer {
                 target.sourceCompatibility,
                 target.targetCompatibility,
                 postprocessClassesCommands,
-                target.test.jvmArgs,
-                target.bootClasspath,
-                target.rootProject.file("buck-out/gen").absolutePath)
+                target.test.jvmArgs)
     }
 }

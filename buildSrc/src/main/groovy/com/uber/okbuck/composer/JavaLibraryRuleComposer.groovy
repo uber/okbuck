@@ -3,6 +3,7 @@ package com.uber.okbuck.composer
 import com.uber.okbuck.core.model.JavaLibTarget
 import com.uber.okbuck.generator.RetroLambdaGenerator
 import com.uber.okbuck.rule.JavaLibraryRule
+import com.uber.okbuck.block.PostProcessClassessCommands
 
 final class JavaLibraryRuleComposer extends JavaBuckRuleComposer {
 
@@ -24,11 +25,13 @@ final class JavaLibraryRuleComposer extends JavaBuckRuleComposer {
         providedDeps.addAll(targets(target.apt.targetDeps))
         providedDeps.removeAll(deps)
 
-        List<String> postprocessClassesCommands = []
+        PostProcessClassessCommands postprocessClassesCommands = new PostProcessClassessCommands(
+                target.bootClasspath,
+                target.rootProject.file("buck-out/gen").absolutePath);
         if (target.retrolambda) {
-            postprocessClassesCommands.add(RetroLambdaGenerator.generate(target))
+            postprocessClassesCommands.addCommand(RetroLambdaGenerator.generate(target))
         }
-        postprocessClassesCommands.addAll(postProcessCommands);
+        postprocessClassesCommands.addCommands(postProcessCommands);
 
         List<String> testTargets = [];
         if (target.test.sources) {
@@ -48,9 +51,7 @@ final class JavaLibraryRuleComposer extends JavaBuckRuleComposer {
                 target.targetCompatibility,
                 postprocessClassesCommands,
                 target.main.jvmArgs,
-                testTargets,
-                target.bootClasspath,
-                target.rootProject.file("buck-out/gen").absolutePath)
+                testTargets)
     }
 
 }

@@ -1,5 +1,7 @@
 package com.uber.okbuck.rule
 
+import com.uber.okbuck.block.PostProcessClassessCommands
+
 
 final class AndroidLibraryRule extends AndroidRule {
 
@@ -21,12 +23,10 @@ final class AndroidLibraryRule extends AndroidRule {
             String appClass,
             String sourceCompatibility,
             String targetCompatibility,
-            List<String> postprocessClassesCommands,
+            PostProcessClassessCommands postprocessClassesCommands,
             List<String> options,
             boolean generateR2,
-            List<String> testTargets,
-            String bootClasspath,
-            String genDir) {
+            List<String> testTargets) {
 
         super(
                 "android_library",
@@ -48,8 +48,6 @@ final class AndroidLibraryRule extends AndroidRule {
                 generateR2,
                 null,
                 null,
-                testTargets,
-                bootClasspath,
-                genDir)
+                testTargets)
     }
 }
