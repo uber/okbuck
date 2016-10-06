@@ -141,9 +141,7 @@ abstract class AndroidRule extends BuckRule {
 
         printer.println("\tsource = '${mSourceCompatibility}',")
         printer.println("\ttarget = '${mTargetCompatibility}',")
-        if (!mPostprocessClassesCommands.isEmpty()) {
-            printer.println(mPostprocessClassesCommands.buildCommand())
-        }
+        mPostprocessClassesCommands.println(printer)
 
         if (!mOptions.empty) {
             printer.println("\textra_arguments = [")

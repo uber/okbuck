@@ -1,6 +1,6 @@
 package com.uber.okbuck.block;
 
-public class PostProcessClassessCommands {
+public class PostProcessClassessCommands implements Printable {
 
     private final List<String> mPostprocessClassesCommands;
     private final String mBootClasspath;
@@ -20,18 +20,15 @@ public class PostProcessClassessCommands {
         mPostprocessClassesCommands.addAll(commands)
     }
 
-    public boolean isEmpty() {
-        return mPostprocessClassesCommands.isEmpty();
-    }
-
-    public String buildCommand() {
-        String deps = "\$(JARS=(`find ${mGenDir} ! -name \"*-abi.jar\" ! -name \"*dex.dex.jar\" -name \"*.jar\"`); CLASSPATH=${mBootClasspath}; IFS=:; echo \"\${JARS[*]}\":\"\${CLASSPATH[*]}\")"
-        StringBuilder sb = new StringBuilder()
-        sb.append("\tpostprocess_classes_commands = [\n")
-        mPostprocessClassesCommands.each {
-            String command -> sb.append("\t\t'DEPS=${deps} ${command}'\n,")
+    @Override
+    public void println(PrintStream printer) {
+        if (!mPostprocessClassesCommands.isEmpty()) {
+            String deps = "\$(JARS=(`find ${mGenDir} ! -name \"*-abi.jar\" ! -name \"*dex.dex.jar\" -name \"*.jar\"`); CLASSPATH=${mBootClasspath}; IFS=:; MERGED=( \"\${JARS[*]}\" \"\${CLASSPATH[*]}\" ); echo \"\${MERGED[*]}\")"
+            printer.println("\tpostprocess_classes_commands = [")
+            mPostprocessClassesCommands.each {
+                String command -> printer.println("\t\t'DEPS=${deps} ${command}',")
+            }
+            printer.println("\t],")
         }
-        sb.append("\t],")
-        return sb.toString();
     }
 }

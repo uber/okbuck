@@ -30,9 +30,7 @@ final class ExopackageAndroidLibraryRule extends BuckRule {
         printer.println("\tsrcs = ['${mAppClass}'],")
         printer.println("\tsource = '${mSourceCompatibility}',")
         printer.println("\ttarget = '${mTargetCompatibility}',")
-        if (!mPostprocessClassesCommands.isEmpty()) {
-            printer.println(mPostprocessClassesCommands.buildCommand())
-        }
+        mPostprocessClassesCommands.println(printer)
 
         if (!mOptions.empty) {
             printer.println("\textra_arguments = [")
