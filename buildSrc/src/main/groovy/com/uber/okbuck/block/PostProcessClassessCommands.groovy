@@ -31,7 +31,7 @@ public class PostProcessClassessCommands {
         StringBuilder sb = new StringBuilder()
         sb.append("\tpostprocess_classes_commands = [\n")
         mPostprocessClassesCommands.each {
-            String command -> sb.append("\t\t'export DEPS=${deps}; export ANDROID_JAR=${androidJar}; ${command}'\n,")
+            String command -> sb.append("\t\t'DEPS=${deps} ANDROID_JAR=${androidJar} ${command}'\n,")
         }
         sb.append("\t],")
         return sb.toString();
