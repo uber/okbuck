@@ -1,6 +1,4 @@
-package com.uber.okbuck.printable;
-
-import java.io.PrintStream;
+package com.uber.okbuck.printable
 
 public interface Printable {
 
