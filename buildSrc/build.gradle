@@ -52,7 +52,7 @@ dependencies {
 def siteUrl = 'https://github.com/uber/okbuck'
 def gitUrl = 'https://github.com/uber/okbuck.git'
 def publishGroup = 'com.uber'
-def publishVersion = '0.7.0'
+def publishVersion = '0.7.1'
 
 group = publishGroup
 version = publishVersion
