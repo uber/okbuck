@@ -46,6 +46,7 @@ final class AndroidTestRule extends AndroidRule {
                 false,
                 mResourcesDir,
                 runtimeDependency,
-                null)
+                null,
+                ['unit', 'android', 'robolectric'])
     }
 }

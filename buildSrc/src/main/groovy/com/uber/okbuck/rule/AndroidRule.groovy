@@ -19,6 +19,7 @@ abstract class AndroidRule extends BuckRule {
     private final String mResourcesDir
     private final String mRuntimeDependency
     private final List<String> mTestTargets
+    private final List<String> mLabels
 
     /**
      * @srcTargets, used for SqlDelight support(or other case), genrule's output will be used as src, pass empty set if not present
@@ -44,7 +45,8 @@ abstract class AndroidRule extends BuckRule {
             boolean generateR2,
             String resourcesDir,
             String runtimeDependency,
-            List<String> testTargets) {
+            List<String> testTargets,
+            List<String> labels = null) {
         super(ruleType, name, visibility, deps)
 
         mSrcTargets = srcTargets
@@ -63,6 +65,7 @@ abstract class AndroidRule extends BuckRule {
         mResourcesDir = resourcesDir
         mRuntimeDependency = runtimeDependency
         mTestTargets = testTargets
+        mLabels = labels
     }
 
     @Override
@@ -162,6 +165,14 @@ abstract class AndroidRule extends BuckRule {
 
         if (mRuntimeDependency) {
             printer.println("\truntime_dependency = '${mRuntimeDependency}',")
+        }
+
+        if (mLabels) {
+            printer.println("\tlabels = [")
+            mLabels.each { String label ->
+                printer.println("\t\t'${label}',")
+            }
+            printer.println("\t],")
         }
     }
 }

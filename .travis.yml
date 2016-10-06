@@ -25,7 +25,7 @@ script:
   - ./buckw --version
   - mv buildSrc notBuildSrc
   - buck query "kind('android_binary', '//...')" | xargs buck build
-  - buck query "kind('java_test', '//...') + kind('robolectric_test', '//...')" | xargs buck test
+  - buck test --include unit
   - android-wait-for-emulator
   - adb shell input keyevent 82
   - buck test //app:instrumentation_demoDebug_test

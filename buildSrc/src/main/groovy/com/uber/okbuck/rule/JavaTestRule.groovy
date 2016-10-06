@@ -29,6 +29,7 @@ final class JavaTestRule extends JavaRule {
                 targetCompatibility,
                 postprocessClassesCommands,
                 options,
-                null)
+                null,
+                ['unit', 'java'])
     }
 }
