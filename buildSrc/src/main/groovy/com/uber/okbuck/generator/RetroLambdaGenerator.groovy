@@ -1,5 +1,6 @@
 package com.uber.okbuck.generator
 
+import com.uber.okbuck.constant.BUCKConstants
 import com.uber.okbuck.core.model.JavaLibTarget
 import com.uber.okbuck.core.util.FileUtil
 
@@ -19,7 +20,7 @@ final class RetroLambdaGenerator {
         FileUtil.copyResourceToProject("retrolambda/RetroLambda.sh", output)
 
         String outputText = output.text
-        outputText = outputText.replaceAll('gen-dir', target.rootProject.file("buck-out/gen").absolutePath)
+        outputText = outputText.replaceAll('gen-dir', target.rootProject.file(BUCKConstants.DEFAULT_BUCK_OUT_GEN_PATH).absolutePath)
                 .replaceAll('retrolambda-jar', target.retroLambdaJar)
         outputText = outputText.replaceAll('android-jar', target.bootClasspath)
 

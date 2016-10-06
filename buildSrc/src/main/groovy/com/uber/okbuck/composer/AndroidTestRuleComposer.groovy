@@ -1,5 +1,6 @@
 package com.uber.okbuck.composer
 
+import com.uber.okbuck.constant.BUCKConstants
 import com.uber.okbuck.core.model.AndroidLibTarget
 import com.uber.okbuck.core.model.AndroidTarget
 import com.uber.okbuck.core.model.Target
@@ -45,7 +46,7 @@ final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
 
         PostProcessClassessCommands postprocessClassesCommands = new PostProcessClassessCommands(
                 target.bootClasspath,
-                target.rootProject.file("buck-out/gen").absolutePath);
+                target.rootProject.file(BUCKConstants.DEFAULT_BUCK_OUT_GEN_PATH).absolutePath);
         if (target.retrolambda) {
             postprocessClassesCommands.addCommand(RetroLambdaGenerator.generate(target))
         }

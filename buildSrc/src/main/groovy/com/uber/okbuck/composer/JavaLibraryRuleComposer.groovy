@@ -1,5 +1,6 @@
 package com.uber.okbuck.composer
 
+import com.uber.okbuck.constant.BUCKConstants
 import com.uber.okbuck.core.model.JavaLibTarget
 import com.uber.okbuck.generator.RetroLambdaGenerator
 import com.uber.okbuck.rule.JavaLibraryRule
@@ -27,7 +28,7 @@ final class JavaLibraryRuleComposer extends JavaBuckRuleComposer {
 
         PostProcessClassessCommands postprocessClassesCommands = new PostProcessClassessCommands(
                 target.bootClasspath,
-                target.rootProject.file("buck-out/gen").absolutePath);
+                target.rootProject.file(BUCKConstants.DEFAULT_BUCK_OUT_GEN_PATH).absolutePath);
         if (target.retrolambda) {
             postprocessClassesCommands.addCommand(RetroLambdaGenerator.generate(target))
         }
