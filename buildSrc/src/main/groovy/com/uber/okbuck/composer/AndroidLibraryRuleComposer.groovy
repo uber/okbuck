@@ -69,6 +69,8 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
                 postprocessClassesCommands,
                 target.main.jvmArgs,
                 target.generateR2,
-                testTargets)
+                testTargets,
+                target.bootClasspath,
+                target.rootProject.file("buck-out/gen").absolutePath)
     }
 }

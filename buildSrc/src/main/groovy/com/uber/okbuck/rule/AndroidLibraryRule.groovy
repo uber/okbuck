@@ -4,7 +4,7 @@ package com.uber.okbuck.rule
 final class AndroidLibraryRule extends AndroidRule {
 
     /**
-     * @srcTargets, used for SqlDelight support(or other case), genrule's output will be used as src, pass empty set if not present
+     * @srcTargets , used for SqlDelight support(or other case), genrule's output will be used as src, pass empty set if not present
      * @param appClass , if exopackage is enabled, pass the detected app class, otherwise, pass null
      * */
     AndroidLibraryRule(
@@ -24,7 +24,9 @@ final class AndroidLibraryRule extends AndroidRule {
             List<String> postprocessClassesCommands,
             List<String> options,
             boolean generateR2,
-            List<String> testTargets) {
+            List<String> testTargets,
+            String bootClasspath,
+            String genDir) {
 
         super(
                 "android_library",
@@ -46,6 +48,8 @@ final class AndroidLibraryRule extends AndroidRule {
                 generateR2,
                 null,
                 null,
-                testTargets)
+                testTargets,
+                bootClasspath,
+                genDir)
     }
 }

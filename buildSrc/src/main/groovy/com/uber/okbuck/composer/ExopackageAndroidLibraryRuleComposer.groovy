@@ -23,8 +23,16 @@ final class ExopackageAndroidLibraryRuleComposer extends AndroidBuckRuleComposer
         }
         postprocessClassesCommands.addAll(postProcessCommands);
 
-        return new ExopackageAndroidLibraryRule(appLib(target), target.exopackage.appClass, ["PUBLIC"], deps,
-                target.sourceCompatibility, target.targetCompatibility, postprocessClassesCommands,
-                target.exopackage.jvmArgs)
+        return new ExopackageAndroidLibraryRule(
+                appLib(target),
+                target.exopackage.appClass,
+                ["PUBLIC"],
+                deps,
+                target.sourceCompatibility,
+                target.targetCompatibility,
+                postprocessClassesCommands,
+                target.exopackage.jvmArgs,
+                target.bootClasspath,
+                target.rootProject.file("buck-out/gen").absolutePath)
     }
 }

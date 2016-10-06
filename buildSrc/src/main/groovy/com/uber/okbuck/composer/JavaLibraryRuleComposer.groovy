@@ -48,7 +48,9 @@ final class JavaLibraryRuleComposer extends JavaBuckRuleComposer {
                 target.targetCompatibility,
                 postprocessClassesCommands,
                 target.main.jvmArgs,
-                testTargets)
+                testTargets,
+                target.bootClasspath,
+                target.rootProject.file("buck-out/gen").absolutePath)
     }
 
 }

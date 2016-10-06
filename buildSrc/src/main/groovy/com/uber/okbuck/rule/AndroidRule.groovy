@@ -19,6 +19,8 @@ abstract class AndroidRule extends BuckRule {
     private final String mResourcesDir
     private final String mRuntimeDependency
     private final List<String> mTestTargets
+    private final String mBootClasspath
+    private final String mGenDir
 
     /**
      * @srcTargets, used for SqlDelight support(or other case), genrule's output will be used as src, pass empty set if not present
@@ -44,7 +46,9 @@ abstract class AndroidRule extends BuckRule {
             boolean generateR2,
             String resourcesDir,
             String runtimeDependency,
-            List<String> testTargets) {
+            List<String> testTargets,
+            String bootClasspath,
+            String genDir) {
         super(ruleType, name, visibility, deps)
 
         mSrcTargets = srcTargets
@@ -63,6 +67,8 @@ abstract class AndroidRule extends BuckRule {
         mResourcesDir = resourcesDir
         mRuntimeDependency = runtimeDependency
         mTestTargets = testTargets
+        mBootClasspath = bootClasspath
+        mGenDir = genDir
     }
 
     @Override
@@ -141,9 +147,11 @@ abstract class AndroidRule extends BuckRule {
         printer.println("\tsource = '${mSourceCompatibility}',")
         printer.println("\ttarget = '${mTargetCompatibility}',")
         if (!mPostprocessClassesCommands.empty) {
+            String deps = "\$(JARS=(`find ${mGenDir} ! -name \"*-abi.jar\" ! -name \"*dex.dex.jar\" -name \"*.jar\"`); IFS=:; echo \"\${JARS[*]}\")"
+            String androidJar = mBootClasspath
             printer.println("\tpostprocess_classes_commands = [")
             mPostprocessClassesCommands.each { String command ->
-                printer.println("\t\t'${command}',")
+                printer.println("\t\t'export DEPS=${deps}; export ANDROID_JAR=${androidJar}; ${command}',")
             }
             printer.println("\t],")
         }

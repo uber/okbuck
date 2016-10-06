@@ -43,6 +43,8 @@ final class JavaTestRuleComposer extends JavaBuckRuleComposer {
                 target.sourceCompatibility,
                 target.targetCompatibility,
                 postprocessClassesCommands,
-                target.test.jvmArgs)
+                target.test.jvmArgs,
+                target.bootClasspath,
+                target.rootProject.file("buck-out/gen").absolutePath)
     }
 }

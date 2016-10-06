@@ -11,6 +11,8 @@ abstract class JavaRule extends BuckRule {
     private final List<String> mOptions
     private final Set<String> mProvidedDeps
     private final List<String> mTestTargets
+    private final String mBootClasspath
+    private final String mGenDir
 
     JavaRule(
             String ruleType,
@@ -26,7 +28,9 @@ abstract class JavaRule extends BuckRule {
             String targetCompatibility,
             List<String> postprocessClassesCommands,
             List<String> options,
-            List<String> testTargets) {
+            List<String> testTargets,
+            String bootClasspath,
+            String genDir) {
 
         super(ruleType, name, visibility, deps)
         mSrcSet = srcSet
@@ -39,6 +43,8 @@ abstract class JavaRule extends BuckRule {
         mOptions = options
         mProvidedDeps = providedDeps
         mTestTargets = testTargets
+        mBootClasspath = bootClasspath
+        mGenDir = genDir
     }
 
     @Override
@@ -94,9 +100,11 @@ abstract class JavaRule extends BuckRule {
         printer.println("\tsource = '${mSourceCompatibility}',")
         printer.println("\ttarget = '${mTargetCompatibility}',")
         if (!mPostprocessClassesCommands.empty) {
+            String deps = "\$(JARS=(`find ${mGenDir} ! -name \"*-abi.jar\" ! -name \"*dex.dex.jar\" -name \"*.jar\"`); IFS=:; echo \"\${JARS[*]}\")"
+            String androidJar = mBootClasspath
             printer.println("\tpostprocess_classes_commands = [")
             mPostprocessClassesCommands.each { String command ->
-                printer.println("\t\t'${command}',")
+                printer.println("\t\t'export DEPS=${deps}; export ANDROID_JAR=${androidJar}; ${command}',")
             }
             printer.println("\t],")
         }
