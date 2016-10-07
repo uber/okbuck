@@ -31,7 +31,7 @@ public class PostProcessClassessCommands implements Printable {
             String commandClassPath = mPostProcessDeps.join(":")
             printer.println("\tpostprocess_classes_commands = [")
             mPostprocessClassesCommands.each {
-                String command -> printer.println("\t\t'DEPS=${deps} COMMAND=${commandClassPath} ${command}',")
+                String command -> printer.println("\t\t'DEPS=${deps} POSTPROCESS_CLASSPATH=${commandClassPath} ${command}',")
             }
             printer.println("\t],")
         }
