@@ -2,6 +2,9 @@ package com.uber.okbuck.printable
 
 public class PostProcessClassessCommands implements Printable {
 
+    private static final DEPENDENCIES_CLASSPATH = "DEPENDENCIES_CLASSPATH"
+    private static final POSTPROCESS_CLASSPATH = "POSTPROCESS_CLASSPATH"
+
     private final List<String> mPostprocessClassesCommands;
     private final Set<String> mPostProcessDeps
     private final String mBootClasspath;
@@ -31,7 +34,7 @@ public class PostProcessClassessCommands implements Printable {
             String commandClassPath = mPostProcessDeps.join(":")
             printer.println("\tpostprocess_classes_commands = [")
             mPostprocessClassesCommands.each {
-                String command -> printer.println("\t\t'DEPS=${deps} POSTPROCESS_CLASSPATH=${commandClassPath} ${command}',")
+                String command -> printer.println("\t\t'${DEPENDENCIES_CLASSPATH}=${deps} ${POSTPROCESS_CLASSPATH}=${commandClassPath} ${command}',")
             }
             printer.println("\t],")
         }
