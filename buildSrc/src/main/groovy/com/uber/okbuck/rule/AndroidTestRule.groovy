@@ -1,5 +1,7 @@
 package com.uber.okbuck.rule
 
+import com.uber.okbuck.printable.PostProcessClassessCommands
+
 
 final class AndroidTestRule extends AndroidRule {
 
@@ -21,7 +23,7 @@ final class AndroidTestRule extends AndroidRule {
             String appClass,
             String sourceCompatibility,
             String targetCompatibility,
-            List<String> postprocessClassesCommands,
+            PostProcessClassessCommands postprocessClassesCommands,
             List<String> options,
             String mResourcesDir,
             String runtimeDependency) {

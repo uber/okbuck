@@ -1,5 +1,6 @@
 package com.uber.okbuck.rule
 
+import com.uber.okbuck.printable.PostProcessClassessCommands
 import org.apache.commons.lang.StringUtils
 
 abstract class AndroidRule extends BuckRule {
@@ -12,7 +13,7 @@ abstract class AndroidRule extends BuckRule {
     private final String mAppClass
     private final String mSourceCompatibility
     private final String mTargetCompatibility
-    private final List<String> mPostprocessClassesCommands
+    private final PostProcessClassessCommands mPostprocessClassesCommands
     private final List<String> mOptions
     private final Set<String> mProvidedDeps
     private final boolean mGenerateR2
@@ -40,7 +41,7 @@ abstract class AndroidRule extends BuckRule {
             String appClass,
             String sourceCompatibility,
             String targetCompatibility,
-            List<String> postprocessClassesCommands,
+            PostProcessClassessCommands postprocessClassesCommands,
             List<String> options,
             boolean generateR2,
             String resourcesDir,
@@ -143,13 +144,7 @@ abstract class AndroidRule extends BuckRule {
 
         printer.println("\tsource = '${mSourceCompatibility}',")
         printer.println("\ttarget = '${mTargetCompatibility}',")
-        if (!mPostprocessClassesCommands.empty) {
-            printer.println("\tpostprocess_classes_commands = [")
-            mPostprocessClassesCommands.each { String command ->
-                printer.println("\t\t'${command}',")
-            }
-            printer.println("\t],")
-        }
+        mPostprocessClassesCommands.print(printer)
 
         if (!mOptions.empty) {
             printer.println("\textra_arguments = [")

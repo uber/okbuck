@@ -1,10 +1,12 @@
 package com.uber.okbuck.composer
 
+import com.uber.okbuck.constant.BuckConstants
 import com.uber.okbuck.core.model.AndroidLibTarget
 import com.uber.okbuck.core.model.AndroidTarget
 import com.uber.okbuck.core.model.Target
 import com.uber.okbuck.generator.RetroLambdaGenerator
 import com.uber.okbuck.rule.AndroidLibraryRule
+import com.uber.okbuck.printable.PostProcessClassessCommands
 
 final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
 
@@ -17,6 +19,7 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
             List<String> deps,
             List<String> aptDeps,
             List<String> aidlRuleNames,
+            List<String> postProcessCommands,
             String appClass,
             Set<String> srcTargets = []) {
 
@@ -40,10 +43,13 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
             }
         }
 
-        List<String> postprocessClassesCommands = []
+        PostProcessClassessCommands postprocessClassesCommands = new PostProcessClassessCommands(
+                target.bootClasspath,
+                target.rootProject.file(BuckConstants.DEFAULT_BUCK_OUT_GEN_PATH).absolutePath);
         if (target.retrolambda) {
-            postprocessClassesCommands.add(RetroLambdaGenerator.generate(target))
+            postprocessClassesCommands.addCommand(RetroLambdaGenerator.generate(target))
         }
+        postprocessClassesCommands.addCommands(postProcessCommands);
 
         List<String> testTargets = [];
         if (target.robolectric && target.test.sources) {

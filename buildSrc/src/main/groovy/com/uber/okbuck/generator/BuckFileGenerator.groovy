@@ -84,10 +84,14 @@ final class BuckFileGenerator {
 
     private static List<com.uber.okbuck.rule.BuckRule> createRules(com.uber.okbuck.core.model.JavaLibTarget target) {
         List<com.uber.okbuck.rule.BuckRule> rules = []
-        rules.add(com.uber.okbuck.composer.JavaLibraryRuleComposer.compose(target))
+        rules.add(com.uber.okbuck.composer.JavaLibraryRuleComposer.compose(
+                target,
+                mOkbuck.postProcessClassesCommands))
 
         if (target.test.sources) {
-            rules.add(com.uber.okbuck.composer.JavaTestRuleComposer.compose(target))
+            rules.add(com.uber.okbuck.composer.JavaTestRuleComposer.compose(
+                    target,
+                    mOkbuck.postProcessClassesCommands))
         }
         return rules
     }
@@ -156,6 +160,7 @@ final class BuckFileGenerator {
                 deps,
                 aptDeps,
                 aidlRuleNames,
+                mOkbuck.postProcessClassesCommands,
                 appClass,
                 zipRuleNames
         ))
@@ -167,6 +172,7 @@ final class BuckFileGenerator {
                     deps,
                     aptDeps,
                     aidlRuleNames,
+                    mOkbuck.postProcessClassesCommands,
                     appClass))
         }
 
@@ -196,7 +202,9 @@ final class BuckFileGenerator {
 
         if (target.exopackage) {
             com.uber.okbuck.rule.ExopackageAndroidLibraryRule exoPackageRule =
-                    com.uber.okbuck.composer.ExopackageAndroidLibraryRuleComposer.compose(target)
+                    com.uber.okbuck.composer.ExopackageAndroidLibraryRuleComposer.compose(
+                            target,
+                            mOkbuck.postProcessClassesCommands)
             rules.add(exoPackageRule)
             deps.add(":${exoPackageRule.name}")
         }

@@ -1,8 +1,10 @@
 package com.uber.okbuck.composer
 
+import com.uber.okbuck.constant.BuckConstants
 import com.uber.okbuck.core.model.JavaLibTarget
 import com.uber.okbuck.generator.RetroLambdaGenerator
 import com.uber.okbuck.rule.JavaLibraryRule
+import com.uber.okbuck.printable.PostProcessClassessCommands
 
 final class JavaLibraryRuleComposer extends JavaBuckRuleComposer {
 
@@ -10,7 +12,7 @@ final class JavaLibraryRuleComposer extends JavaBuckRuleComposer {
         // no instance
     }
 
-    static JavaLibraryRule compose(JavaLibTarget target) {
+    static JavaLibraryRule compose(JavaLibTarget target, List<String> postProcessCommands) {
         List<String> deps = []
         deps.addAll(external(target.main.externalDeps))
         deps.addAll(targets(target.main.targetDeps))
@@ -24,10 +26,13 @@ final class JavaLibraryRuleComposer extends JavaBuckRuleComposer {
         providedDeps.addAll(targets(target.apt.targetDeps))
         providedDeps.removeAll(deps)
 
-        List<String> postprocessClassesCommands = []
+        PostProcessClassessCommands postprocessClassesCommands = new PostProcessClassessCommands(
+                target.bootClasspath,
+                target.rootProject.file(BuckConstants.DEFAULT_BUCK_OUT_GEN_PATH).absolutePath);
         if (target.retrolambda) {
-            postprocessClassesCommands.add(RetroLambdaGenerator.generate(target))
+            postprocessClassesCommands.addCommand(RetroLambdaGenerator.generate(target))
         }
+        postprocessClassesCommands.addCommands(postProcessCommands);
 
         List<String> testTargets = [];
         if (target.test.sources) {

@@ -1,16 +1,22 @@
 package com.uber.okbuck.rule
 
+import com.uber.okbuck.printable.PostProcessClassessCommands
+
 final class ExopackageAndroidLibraryRule extends BuckRule {
     private final String mAppClass
     private final String mSourceCompatibility
     private final String mTargetCompatibility
-    private final List<String> mPostprocessClassesCommands
+    private final PostProcessClassessCommands mPostprocessClassesCommands
     private final List<String> mOptions
 
-    ExopackageAndroidLibraryRule(String name, String appClass, List<String> visibility,
-                                 List<String> deps, String sourceCompatibility,
+    ExopackageAndroidLibraryRule(String name,
+                                 String appClass,
+                                 List<String> visibility,
+                                 List<String> deps,
+                                 String sourceCompatibility,
                                  String targetCompatibility,
-                                 List<String> postprocessClassesCommands, List<String> options) {
+                                 PostProcessClassessCommands postprocessClassesCommands,
+                                 List<String> options) {
         super("android_library", name, visibility, deps)
         mAppClass = appClass
         mSourceCompatibility = sourceCompatibility
@@ -24,13 +30,7 @@ final class ExopackageAndroidLibraryRule extends BuckRule {
         printer.println("\tsrcs = ['${mAppClass}'],")
         printer.println("\tsource = '${mSourceCompatibility}',")
         printer.println("\ttarget = '${mTargetCompatibility}',")
-        if (!mPostprocessClassesCommands.empty) {
-            printer.println("\tpostprocess_classes_commands = [")
-            mPostprocessClassesCommands.each { String command ->
-                printer.println("\t\t'${command}',")
-            }
-            printer.println("\t],")
-        }
+        mPostprocessClassesCommands.print(printer)
 
         if (!mOptions.empty) {
             printer.println("\textra_arguments = [")
