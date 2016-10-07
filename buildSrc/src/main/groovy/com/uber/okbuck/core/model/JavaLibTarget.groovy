@@ -10,6 +10,7 @@ class JavaLibTarget extends JavaTarget {
 
     static final String MAIN = "main"
     final Scope retrolambda
+    final Scope postProcess
 
     protected final List<String> extraJvmArgs = []
 
@@ -23,6 +24,8 @@ class JavaLibTarget extends JavaTarget {
         } else {
             retrolambda = null
         }
+
+        postProcess = new Scope(project.getRootProject(), ["postProcess"] as Set)
     }
 
     @Override

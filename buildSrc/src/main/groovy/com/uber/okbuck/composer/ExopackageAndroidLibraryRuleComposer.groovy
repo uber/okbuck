@@ -19,9 +19,14 @@ final class ExopackageAndroidLibraryRuleComposer extends AndroidBuckRuleComposer
         deps.addAll(targets(target.exopackage.targetDeps))
         deps.add(":${buildConfig(target)}")
 
+        Set<String> postProcessDeps = []
+        postProcessDeps.addAll(external(target.postProcess.externalDeps))
+        postProcessDeps.addAll(targets(target.postProcess.targetDeps))
+
         PostProcessClassessCommands postprocessClassesCommands = new PostProcessClassessCommands(
                 target.bootClasspath,
-                target.rootProject.file(BuckConstants.DEFAULT_BUCK_OUT_GEN_PATH).absolutePath);
+                target.rootProject.file(BuckConstants.DEFAULT_BUCK_OUT_GEN_PATH).absolutePath,
+                postProcessDeps);
         if (target.retrolambda) {
             postprocessClassesCommands.addCommand(RetroLambdaGenerator.generate(target))
         }

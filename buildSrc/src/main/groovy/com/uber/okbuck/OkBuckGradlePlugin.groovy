@@ -23,6 +23,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     static final String WRAPPER = "wrapper"
     static final String BUCK_WRAPPER = "buckWrapper"
     static final String DEFAULT_CACHE_PATH = ".okbuck/cache"
+    static final String CONFIGURATION_POST_PROCESS = "postProcess"
 
     static final String GROUP = "okbuck"
 
@@ -39,6 +40,8 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         okBuck.setGroup(GROUP)
         okBuck.setDescription("Generate BUCK files")
         okBuck.outputs.upToDateWhen { false }
+
+        project.configurations.maybeCreate(CONFIGURATION_POST_PROCESS)
 
         project.afterEvaluate {
             Task okBuckClean = project.tasks.create(OKBUCK_CLEAN, OkBuckCleanTask, {

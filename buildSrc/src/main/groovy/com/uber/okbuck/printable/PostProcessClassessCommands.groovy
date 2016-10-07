@@ -1,15 +1,20 @@
-package com.uber.okbuck.printable;
+package com.uber.okbuck.printable
 
 public class PostProcessClassessCommands implements Printable {
 
+    private static final DEPENDENCIES_CLASSPATH = "DEPENDENCIES_CLASSPATH"
+    private static final POSTPROCESS_CLASSPATH = "POSTPROCESS_CLASSPATH"
+
     private final List<String> mPostprocessClassesCommands;
+    private final Set<String> mPostProcessDeps
     private final String mBootClasspath;
     private final String mGenDir;
 
-    public PostProcessClassessCommands(String bootClasspath, String genDir) {
+    public PostProcessClassessCommands(String bootClasspath, String genDir, Set<String> postProcessDeps) {
         mPostprocessClassesCommands = []
         mBootClasspath = bootClasspath
         mGenDir = genDir
+        mPostProcessDeps = postProcessDeps
     }
 
     public void addCommand(String command) {
@@ -23,10 +28,13 @@ public class PostProcessClassessCommands implements Printable {
     @Override
     public void print(PrintStream printer) {
         if (!mPostprocessClassesCommands.isEmpty()) {
-            String deps = "\$(JARS=(`find ${mGenDir} ! -name \"*-abi.jar\" ! -name \"*dex.dex.jar\" -name \"*.jar\"`); CLASSPATH=${mBootClasspath}; IFS=:; MERGED=( \"\${JARS[@]}\" \"\${CLASSPATH[@]}\" ); echo \"\${MERGED[*]}\")"
+            String deps = "\$(JARS=(`find ${mGenDir} ! -name \"*-abi.jar\" ! -name \"*dex.dex.jar\" -name \"*.jar\"`); " +
+                    "CLASSPATH=${mBootClasspath}; IFS=:; MERGED=( \"\${JARS[@]}\" \"\${CLASSPATH[@]}\" ); " +
+                    "echo \"\${MERGED[*]}\")"
+            String commandClassPath = mPostProcessDeps.join(":")
             printer.println("\tpostprocess_classes_commands = [")
             mPostprocessClassesCommands.each {
-                String command -> printer.println("\t\t'DEPS=${deps} ${command}',")
+                String command -> printer.println("\t\t'${DEPENDENCIES_CLASSPATH}=${deps} ${POSTPROCESS_CLASSPATH}=${commandClassPath} ${command}',")
             }
             printer.println("\t],")
         }
