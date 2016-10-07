@@ -59,7 +59,7 @@ class Scope {
 
                     if (identifier.contains(" ")) {
                         Target target = ProjectUtil.getTargetForOutput(project.gradle.rootProject, dep)
-                        if (target != null) {
+                        if (target != null && target.project != project) {
                             targetDeps.add(target)
                         }
                     } else {
