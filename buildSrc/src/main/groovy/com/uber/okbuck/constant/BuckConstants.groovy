@@ -1,6 +1,6 @@
 package com.uber.okbuck.constant;
 
-public class BUCKConstants {
+public class BuckConstants {
 
     /**
      * Default buck out gen path.
