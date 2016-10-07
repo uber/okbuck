@@ -35,6 +35,10 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
         providedDeps.addAll(targets(target.apt.targetDeps))
         providedDeps.removeAll(libraryDeps)
 
+        Set<String> postProcessDeps = []
+        postProcessDeps.addAll(external(target.postProcess.externalDeps))
+        postProcessDeps.addAll(targets(target.postProcess.targetDeps))
+
         target.main.targetDeps.each { Target targetDep ->
             if (targetDep instanceof AndroidTarget) {
                 targetDep.resources.each { AndroidTarget.ResBundle bundle ->
@@ -45,7 +49,8 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
 
         PostProcessClassessCommands postprocessClassesCommands = new PostProcessClassessCommands(
                 target.bootClasspath,
-                target.rootProject.file(BuckConstants.DEFAULT_BUCK_OUT_GEN_PATH).absolutePath);
+                target.rootProject.file(BuckConstants.DEFAULT_BUCK_OUT_GEN_PATH).absolutePath,
+                postProcessDeps);
         if (target.retrolambda) {
             postprocessClassesCommands.addCommand(RetroLambdaGenerator.generate(target))
         }

@@ -40,6 +40,8 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         okBuck.setDescription("Generate BUCK files")
         okBuck.outputs.upToDateWhen { false }
 
+        project.configurations.maybeCreate("postProcess")
+
         project.afterEvaluate {
             Task okBuckClean = project.tasks.create(OKBUCK_CLEAN, OkBuckCleanTask, {
                 dir = project.projectDir.absolutePath
