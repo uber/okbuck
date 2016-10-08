@@ -262,6 +262,7 @@ abstract class AndroidTarget extends JavaLibTarget {
             GPathResult manifestXml = slurper.parse(project.file(mergedManifest))
 
             packageName = manifestXml.@package
+            manifestXml.@package = applicationId + applicationIdSuffix
 
             if (versionCode) {
                 manifestXml.@'android:versionCode' = String.valueOf(versionCode)
