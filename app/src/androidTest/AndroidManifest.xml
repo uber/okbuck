@@ -4,6 +4,6 @@
 
     <instrumentation
         android:name="android.support.test.runner.AndroidJUnitRunner"
-        android:targetPackage="com.uber.okbuck.example.test" />
+        android:targetPackage="com.uber.okbuck.example" />
 
 </manifest>

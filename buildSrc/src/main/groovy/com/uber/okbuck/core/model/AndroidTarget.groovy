@@ -11,6 +11,7 @@ import com.android.manifmerger.ManifestMerger2
 import com.android.manifmerger.MergingReport
 import com.android.utils.ILogger
 import com.uber.okbuck.core.util.FileUtil
+import groovy.transform.Memoized
 import groovy.transform.ToString
 import groovy.util.slurpersupport.GPathResult
 import groovy.xml.StreamingMarkupBuilder
@@ -221,19 +222,13 @@ abstract class AndroidTarget extends JavaLibTarget {
         }.flatten() as Set<String>
     }
 
-    String getPackage(){
-        Set manifests = getManifestsFromSourceSets()
-        if (manifests.empty) {
-            return null
+    String getManifest() {
+        Set<String> manifests = [] as Set
+
+        baseVariant.sourceSets.each { SourceProvider provider ->
+            manifests.addAll(getAvailable(Collections.singletonList(provider.manifestFile)))
         }
 
-        XmlSlurper slurper = new XmlSlurper()
-        GPathResult manifestXml = slurper.parse(project.file(manifests[0]))
-        return manifestXml.@package
-    }
-
-    String getManifest() {
-        Set manifests = getManifestsFromSourceSets()
         if (manifests.empty) {
             return null
         }
@@ -298,16 +293,6 @@ abstract class AndroidTarget extends JavaLibTarget {
         }
 
         return FileUtil.getRelativePath(project.projectDir, mergedManifest)
-    }
-
-    private Set<String> getManifestsFromSourceSets(){
-        Set<String> manifests = [] as Set
-
-        baseVariant.sourceSets.each { SourceProvider provider ->
-            manifests.addAll(getAvailable(Collections.singletonList(provider.manifestFile)))
-        }
-
-        return manifests
     }
 
     static List<String> getJavaCompilerOptions(BaseVariant baseVariant) {
@@ -405,5 +390,13 @@ abstract class AndroidTarget extends JavaLibTarget {
         void verbose(String s, Object... objects) {
             mLogger.debug(s, objects)
         }
+    }
+
+    @Memoized
+    static String getPackage(Project project) {
+        def manifest = project.android.sourceSets.main.manifestFile
+        XmlSlurper slurper = new XmlSlurper()
+        GPathResult manifestXml = slurper.parse(project.file(manifest))
+        return manifestXml.@package
     }
 }
