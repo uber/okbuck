@@ -12,7 +12,7 @@ final class ExopackageAndroidLibraryRuleComposer extends AndroidBuckRuleComposer
         // no instance
     }
 
-    static ExopackageAndroidLibraryRule compose(AndroidAppTarget target, List<String> postProcessCommands) {
+    static ExopackageAndroidLibraryRule compose(AndroidAppTarget target) {
         List<String> deps = []
 
         deps.addAll(external(target.exopackage.externalDeps))
@@ -23,14 +23,16 @@ final class ExopackageAndroidLibraryRuleComposer extends AndroidBuckRuleComposer
         postProcessDeps.addAll(external(target.postProcess.externalDeps))
         postProcessDeps.addAll(targets(target.postProcess.targetDeps))
 
+
+        List<String> postProcessClassesCommands = target.postProcessClassesCommands
+        if (target.retrolambda) {
+            postProcessClassesCommands.add(RetroLambdaGenerator.generate(target))
+        }
         PostProcessClassessCommands postprocessClassesCommands = new PostProcessClassessCommands(
                 target.bootClasspath,
                 target.rootProject.file(BuckConstants.DEFAULT_BUCK_OUT_GEN_PATH).absolutePath,
-                postProcessDeps);
-        if (target.retrolambda) {
-            postprocessClassesCommands.addCommand(RetroLambdaGenerator.generate(target))
-        }
-        postprocessClassesCommands.addCommands(postProcessCommands);
+                postProcessDeps,
+                postProcessClassesCommands);
 
         return new ExopackageAndroidLibraryRule(
                 appLib(target),

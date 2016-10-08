@@ -1,5 +1,6 @@
 package com.uber.okbuck.core.model
 
+import com.uber.okbuck.OkBuckGradlePlugin
 import com.uber.okbuck.core.util.ProjectUtil
 import org.gradle.api.Project
 
@@ -25,7 +26,7 @@ class JavaLibTarget extends JavaTarget {
             retrolambda = null
         }
 
-        postProcess = new Scope(project.getRootProject(), ["postProcess"] as Set)
+        postProcess = new Scope(project.getRootProject(), [OkBuckGradlePlugin.CONFIGURATION_POST_PROCESS] as Set)
     }
 
     @Override
@@ -64,6 +65,10 @@ class JavaLibTarget extends JavaTarget {
             bootCp += ":${ProjectUtil.runtimeJar}"
         }
         return bootCp
+    }
+
+    List<String> getPostProcessClassesCommands() {
+        return (List<String>) getProp(okbuck.postProcessClassesCommands, [])
     }
 
     protected String getInitialBootCp() {
