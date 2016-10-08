@@ -5,14 +5,17 @@ final class GradleSourceGenRule extends BuckRule {
     private final String mRootProjectPath
     private final String mGradlePath
     private final String mGradleTask
+    private final Set<String> mOptions
     private final Set<String> mInputs
     private final String mOutputDir
 
-    GradleSourceGenRule(String name, String rootProjectPath, String gradlePath, String gradleTask, Set<String> inputs, String outputDir) {
+    GradleSourceGenRule(String name, String rootProjectPath, String gradlePath, String gradleTask,
+                        Set<String> options, Set<String> inputs, String outputDir) {
         super("genrule", name)
         mRootProjectPath = rootProjectPath
         mGradlePath = gradlePath
         mGradleTask = gradleTask
+        mOptions = options
         mOutputDir = outputDir
         mInputs = inputs
     }
@@ -27,7 +30,7 @@ final class GradleSourceGenRule extends BuckRule {
             printer.println("\t]),")
         }
         printer.println("\tout = '${name}_out',")
-        printer.println("\tbash = '${mGradlePath} -p ${mRootProjectPath} ${mGradleTask}" +
+        printer.println("\tbash = '${mGradlePath} -p ${mRootProjectPath} ${mGradleTask} ${mOptions.join(' ')}" +
                 " --stacktrace && cp -a ${mOutputDir} \$OUT',")
     }
 }

@@ -1,4 +1,4 @@
-package com.uber.okbuck
+package com.uber.okbuck.extension
 
 import com.uber.okbuck.core.annotation.Experimental
 

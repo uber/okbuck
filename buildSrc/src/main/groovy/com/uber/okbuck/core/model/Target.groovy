@@ -1,6 +1,6 @@
 package com.uber.okbuck.core.model
 
-import com.uber.okbuck.OkBuckExtension
+import com.uber.okbuck.extension.OkBuckExtension
 import com.uber.okbuck.core.util.FileUtil
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString

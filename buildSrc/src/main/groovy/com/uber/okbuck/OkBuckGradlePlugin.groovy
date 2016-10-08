@@ -4,10 +4,13 @@ import com.uber.okbuck.config.BUCKFile
 import com.uber.okbuck.core.dependency.DependencyCache
 import com.uber.okbuck.core.task.OkBuckCleanTask
 import com.uber.okbuck.core.util.RobolectricUtil
+import com.uber.okbuck.extension.ExperimentalExtension
+import com.uber.okbuck.extension.GradleGenExtension
+import com.uber.okbuck.extension.OkBuckExtension
 import com.uber.okbuck.generator.BuckFileGenerator
 import com.uber.okbuck.generator.DotBuckConfigLocalGenerator
 import com.uber.okbuck.wrapper.BuckWrapperTask
-import com.uber.okbuck.wrapper.WrapperExtension
+import com.uber.okbuck.extension.WrapperExtension
 import org.apache.commons.io.IOUtils
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -20,6 +23,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     static final String OKBUCK_CLEAN = 'okbuckClean'
     static final String BUCK = "BUCK"
     static final String EXPERIMENTAL = "experimental"
+    static final String GRADLE_GEN = "gradleGen"
     static final String WRAPPER = "wrapper"
     static final String BUCK_WRAPPER = "buckWrapper"
     static final String DEFAULT_CACHE_PATH = ".okbuck/cache"
@@ -35,6 +39,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         OkBuckExtension okbuck = project.extensions.create(OKBUCK, OkBuckExtension, project)
         WrapperExtension wrapper = okbuck.extensions.create(WRAPPER, WrapperExtension)
         ExperimentalExtension experimental = okbuck.extensions.create(EXPERIMENTAL, ExperimentalExtension)
+        okbuck.extensions.create(GRADLE_GEN, GradleGenExtension, project)
 
         Task okBuck = project.task(OKBUCK)
         okBuck.setGroup(GROUP)

@@ -4,7 +4,7 @@ import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.LibraryPlugin
 import com.android.build.gradle.api.BaseVariant
 import com.android.build.gradle.api.BaseVariantOutput
-import com.uber.okbuck.OkBuckExtension
+import com.uber.okbuck.extension.OkBuckExtension
 import com.uber.okbuck.core.model.AndroidAppTarget
 import com.uber.okbuck.core.model.AndroidLibTarget
 import com.uber.okbuck.core.model.JavaAppTarget

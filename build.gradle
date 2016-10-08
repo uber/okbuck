@@ -73,6 +73,10 @@ if (project.file("buildSrc").exists()) {
         experimental {
             espresso = true
         }
+
+        gradleGen {
+            options = ["--offline", "-Dorg.gradle.configureondemand=true", "-Dorg.gradle.parallel=true"]
+        }
     }
 
     afterEvaluate {
