@@ -1,4 +1,4 @@
-package com.uber.okbuck
+package com.uber.okbuck.extension
 
 import org.gradle.api.Project
 
@@ -54,13 +54,7 @@ class OkBuckExtension {
      */
     Map<String, Map<String, List<String>>> extraBuckOpts = [:]
 
-    /**
-     * Location of the gradle binary or wrapper
-     */
-    File gradle
-
     OkBuckExtension(Project project) {
         buckProjects = project.subprojects
-        gradle = project.file("gradlew")
     }
 }

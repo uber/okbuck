@@ -1,6 +1,6 @@
 package com.uber.okbuck.generator
 
-import com.uber.okbuck.OkBuckExtension
+import com.uber.okbuck.extension.OkBuckExtension
 import com.uber.okbuck.composer.AndroidBuckRuleComposer
 import com.uber.okbuck.config.DotBuckConfigLocalFile
 import com.uber.okbuck.core.model.AndroidAppTarget

@@ -1,4 +1,4 @@
-package com.uber.okbuck.wrapper
+package com.uber.okbuck.extension
 
 class WrapperExtension {
 
