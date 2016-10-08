@@ -1,9 +1,9 @@
 package com.uber.okbuck.core.util
 
+import com.uber.okbuck.OkBuckGradlePlugin
 import com.uber.okbuck.core.annotation.Experimental
 import com.uber.okbuck.core.dependency.DependencyCache
 import com.uber.okbuck.core.model.Scope
-import com.uber.okbuck.OkBuckGradlePlugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 

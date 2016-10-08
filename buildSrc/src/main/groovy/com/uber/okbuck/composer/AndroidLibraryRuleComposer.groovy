@@ -5,8 +5,8 @@ import com.uber.okbuck.core.model.AndroidLibTarget
 import com.uber.okbuck.core.model.AndroidTarget
 import com.uber.okbuck.core.model.Target
 import com.uber.okbuck.generator.RetroLambdaGenerator
-import com.uber.okbuck.rule.AndroidLibraryRule
 import com.uber.okbuck.printable.PostProcessClassessCommands
+import com.uber.okbuck.rule.AndroidLibraryRule
 
 final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
 

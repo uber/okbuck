@@ -1,13 +1,13 @@
 package com.uber.okbuck
 
+import com.uber.okbuck.config.BUCKFile
 import com.uber.okbuck.core.dependency.DependencyCache
 import com.uber.okbuck.core.task.OkBuckCleanTask
 import com.uber.okbuck.core.util.RobolectricUtil
-import com.uber.okbuck.config.BUCKFile
 import com.uber.okbuck.generator.BuckFileGenerator
 import com.uber.okbuck.generator.DotBuckConfigLocalGenerator
-import com.uber.okbuck.wrapper.WrapperExtension
 import com.uber.okbuck.wrapper.BuckWrapperTask
+import com.uber.okbuck.wrapper.WrapperExtension
 import org.apache.commons.io.IOUtils
 import org.gradle.api.Plugin
 import org.gradle.api.Project

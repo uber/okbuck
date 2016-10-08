@@ -1,11 +1,11 @@
 package com.uber.okbuck.generator
 
-import com.uber.okbuck.core.model.ProjectType
-import com.uber.okbuck.core.model.Target
-import com.uber.okbuck.core.util.ProjectUtil
 import com.uber.okbuck.OkBuckExtension
 import com.uber.okbuck.composer.AndroidBuckRuleComposer
 import com.uber.okbuck.config.DotBuckConfigLocalFile
+import com.uber.okbuck.core.model.ProjectType
+import com.uber.okbuck.core.model.Target
+import com.uber.okbuck.core.util.ProjectUtil
 import org.gradle.api.Project
 
 final class DotBuckConfigLocalGenerator {
