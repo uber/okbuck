@@ -3,6 +3,7 @@ package com.uber.okbuck.rule
 import com.uber.okbuck.printable.PostProcessClassessCommands
 
 abstract class JavaRule extends BuckRule {
+
     private final Set<String> mSrcSet
     private final Set<String> mAnnotationProcessors
     private final Set<String> mAnnotationProcessorDeps

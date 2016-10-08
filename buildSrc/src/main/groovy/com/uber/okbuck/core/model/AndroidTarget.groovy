@@ -138,9 +138,9 @@ abstract class AndroidTarget extends JavaLibTarget {
 
     List<String> getBuildConfigFields() {
         List<String> buildConfig = [
-            "String APPLICATION_ID = \"${applicationId + applicationIdSuffix}\"",
-            "String BUILD_TYPE = \"${buildType}\"",
-            "String FLAVOR = \"${flavor}\"",
+                "String APPLICATION_ID = \"${applicationId + applicationIdSuffix}\"",
+                "String BUILD_TYPE = \"${buildType}\"",
+                "String FLAVOR = \"${flavor}\"",
         ]
         if (versionCode != null) {
             buildConfig.add("int VERSION_CODE = ${versionCode}")
@@ -299,7 +299,7 @@ abstract class AndroidTarget extends JavaLibTarget {
         }
     }
 
-    UnitTestVariant getUnitTestVariant(){
+    UnitTestVariant getUnitTestVariant() {
         if (baseVariant instanceof TestedVariant) {
             return ((TestedVariant) baseVariant).unitTestVariant
         } else {
