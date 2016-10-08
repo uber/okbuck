@@ -3,6 +3,7 @@ package com.uber.okbuck.rule
 import com.uber.okbuck.printable.PostProcessClassessCommands
 
 final class ExopackageAndroidLibraryRule extends BuckRule {
+
     private final String mAppClass
     private final String mSourceCompatibility
     private final String mTargetCompatibility

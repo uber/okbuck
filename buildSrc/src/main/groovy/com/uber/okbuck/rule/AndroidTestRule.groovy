@@ -6,7 +6,7 @@ import com.uber.okbuck.printable.PostProcessClassessCommands
 final class AndroidTestRule extends AndroidRule {
 
     /**
-     * @srcTargets, used for SqlDelight support(or other case), genrule's output will be used as src, pass empty set if not present
+     * @srcTargets , used for SqlDelight support(or other case), genrule's output will be used as src, pass empty set if not present
      * @param appClass , if exopackage is enabled, pass the detected app class, otherwise, pass null
      * */
     AndroidTestRule(

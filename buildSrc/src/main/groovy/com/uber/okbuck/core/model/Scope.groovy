@@ -1,10 +1,10 @@
 package com.uber.okbuck.core.model
 
+import com.uber.okbuck.OkBuckGradlePlugin
 import com.uber.okbuck.core.dependency.DependencyCache
 import com.uber.okbuck.core.dependency.ExternalDependency
 import com.uber.okbuck.core.util.FileUtil
 import com.uber.okbuck.core.util.ProjectUtil
-import com.uber.okbuck.OkBuckGradlePlugin
 import groovy.transform.EqualsAndHashCode
 import org.apache.commons.io.FilenameUtils
 import org.gradle.api.Project

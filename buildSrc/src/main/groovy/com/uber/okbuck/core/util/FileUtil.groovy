@@ -27,7 +27,9 @@ final class FileUtil {
     }
 
     static Set<String> getAvailable(Project project, Collection<File> files) {
-        if (!files) { return [] }
+        if (!files) {
+            return []
+        }
 
         files.collect { File file ->
             getAvailableFile(project, file)
@@ -37,7 +39,9 @@ final class FileUtil {
     }
 
     static String getAvailableFile(Project project, File file) {
-        if (!file || !file.exists()) { return null }
+        if (!file || !file.exists()) {
+            return null
+        }
 
         return getRelativePath(project.projectDir, file)
     }

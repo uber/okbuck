@@ -4,6 +4,7 @@ import com.uber.okbuck.printable.PostProcessClassessCommands
 import org.apache.commons.lang.StringUtils
 
 abstract class AndroidRule extends BuckRule {
+
     private final Set<String> mSrcTargets
     private final Set<String> mSrcSet
     private final String mManifest
@@ -23,7 +24,7 @@ abstract class AndroidRule extends BuckRule {
     private final List<String> mLabels
 
     /**
-     * @srcTargets, used for SqlDelight support(or other case), genrule's output will be used as src, pass empty set if not present
+     * @srcTargets , used for SqlDelight support(or other case), genrule's output will be used as src, pass empty set if not present
      * @param appClass , if exopackage is enabled, pass the detected app class, otherwise, pass null
      * */
     AndroidRule(

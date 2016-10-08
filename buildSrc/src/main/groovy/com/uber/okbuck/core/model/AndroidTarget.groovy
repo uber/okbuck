@@ -51,17 +51,22 @@ abstract class AndroidTarget extends JavaLibTarget {
         applicationId = baseVariant.applicationId - applicationIdSuffix
         versionName = baseVariant.mergedFlavor.versionName
         versionCode = baseVariant.mergedFlavor.versionCode
-        try {
-            minSdk = baseVariant.mergedFlavor.minSdkVersion.apiLevel
-            targetSdk = baseVariant.mergedFlavor.targetSdkVersion.apiLevel
-        } catch (NullPointerException e) {
-            throw new IllegalStateException("module `" + project.name +
-                    "` must specify minSdkVersion and targetSdkVersion in build.gradle")
-        }
+
         debuggable = baseVariant.buildType.debuggable
 
         // Butterknife support
         generateR2 = project.plugins.hasPlugin('com.jakewharton.butterknife')
+
+        if (baseVariant.mergedFlavor.minSdkVersion == null ||
+                baseVariant.mergedFlavor.targetSdkVersion == null) {
+            minSdk = 1
+            targetSdk = 1
+            throw new IllegalStateException("module `" + project.name +
+                    "` must specify minSdkVersion and targetSdkVersion in build.gradle")
+        } else {
+            minSdk = baseVariant.mergedFlavor.minSdkVersion.apiLevel
+            targetSdk = baseVariant.mergedFlavor.targetSdkVersion.apiLevel
+        }
     }
 
     protected abstract BaseVariant getBaseVariant()
@@ -131,6 +136,7 @@ abstract class AndroidTarget extends JavaLibTarget {
         return javaVersion(project.android.compileOptions.targetCompatibility as JavaVersion)
     }
 
+    @SuppressWarnings("Deprecated")
     @Override
     String getInitialBootCp() {
         return baseVariant.javaCompile.options.bootClasspath
@@ -138,9 +144,9 @@ abstract class AndroidTarget extends JavaLibTarget {
 
     List<String> getBuildConfigFields() {
         List<String> buildConfig = [
-            "String APPLICATION_ID = \"${applicationId + applicationIdSuffix}\"",
-            "String BUILD_TYPE = \"${buildType}\"",
-            "String FLAVOR = \"${flavor}\"",
+                "String APPLICATION_ID = \"${applicationId + applicationIdSuffix}\"",
+                "String BUILD_TYPE = \"${buildType}\"",
+                "String FLAVOR = \"${flavor}\"",
         ]
         if (versionCode != null) {
             buildConfig.add("int VERSION_CODE = ${versionCode}")
@@ -299,7 +305,7 @@ abstract class AndroidTarget extends JavaLibTarget {
         }
     }
 
-    UnitTestVariant getUnitTestVariant(){
+    UnitTestVariant getUnitTestVariant() {
         if (baseVariant instanceof TestedVariant) {
             return ((TestedVariant) baseVariant).unitTestVariant
         } else {

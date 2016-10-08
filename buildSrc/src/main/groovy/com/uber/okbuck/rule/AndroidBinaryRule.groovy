@@ -1,6 +1,7 @@
 package com.uber.okbuck.rule
 
 final class AndroidBinaryRule extends BuckRule {
+
     private final String mManifest
     private final String mKeystore
     private final boolean mMultidexEnabled

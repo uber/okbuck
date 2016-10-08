@@ -3,8 +3,8 @@ package com.uber.okbuck.composer
 import com.uber.okbuck.constant.BuckConstants
 import com.uber.okbuck.core.model.JavaLibTarget
 import com.uber.okbuck.generator.RetroLambdaGenerator
-import com.uber.okbuck.rule.JavaTestRule
 import com.uber.okbuck.printable.PostProcessClassessCommands
+import com.uber.okbuck.rule.JavaTestRule
 
 final class JavaTestRuleComposer extends JavaBuckRuleComposer {
 

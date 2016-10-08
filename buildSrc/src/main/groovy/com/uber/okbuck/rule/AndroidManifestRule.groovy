@@ -1,6 +1,7 @@
 package com.uber.okbuck.rule
 
 final class AndroidManifestRule extends BuckRule {
+
     private final String mSkeleton
 
     AndroidManifestRule(String name, List<String> visibility, List<String> deps, String skeleton) {
