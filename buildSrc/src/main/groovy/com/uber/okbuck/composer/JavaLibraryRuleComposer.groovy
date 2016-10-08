@@ -12,7 +12,7 @@ final class JavaLibraryRuleComposer extends JavaBuckRuleComposer {
         // no instance
     }
 
-    static JavaLibraryRule compose(JavaLibTarget target, List<String> postProcessCommands) {
+    static JavaLibraryRule compose(JavaLibTarget target) {
         List<String> deps = []
         deps.addAll(external(target.main.externalDeps))
         deps.addAll(targets(target.main.targetDeps))
@@ -30,14 +30,15 @@ final class JavaLibraryRuleComposer extends JavaBuckRuleComposer {
         postProcessDeps.addAll(external(target.postProcess.externalDeps))
         postProcessDeps.addAll(targets(target.postProcess.targetDeps))
 
+        List<String> postProcessClassesCommands = target.postProcessClassesCommands
+        if (target.retrolambda) {
+            postProcessClassesCommands.add(RetroLambdaGenerator.generate(target))
+        }
         PostProcessClassessCommands postprocessClassesCommands = new PostProcessClassessCommands(
                 target.bootClasspath,
                 target.rootProject.file(BuckConstants.DEFAULT_BUCK_OUT_GEN_PATH).absolutePath,
-                postProcessDeps);
-        if (target.retrolambda) {
-            postprocessClassesCommands.addCommand(RetroLambdaGenerator.generate(target))
-        }
-        postprocessClassesCommands.addCommands(postProcessCommands);
+                postProcessDeps,
+                postProcessClassesCommands);
 
         List<String> testTargets = [];
         if (target.test.sources) {

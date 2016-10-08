@@ -12,7 +12,7 @@ final class JavaTestRuleComposer extends JavaBuckRuleComposer {
         // no instance
     }
 
-    static JavaTestRule compose(JavaLibTarget target, List<String> postProcessCommands) {
+    static JavaTestRule compose(JavaLibTarget target) {
         List<String> deps = []
         deps.add(":${src(target)}")
         deps.addAll(external(target.test.externalDeps))
@@ -31,14 +31,15 @@ final class JavaTestRuleComposer extends JavaBuckRuleComposer {
         postProcessDeps.addAll(external(target.postProcess.externalDeps))
         postProcessDeps.addAll(targets(target.postProcess.targetDeps))
 
+        List<String> postProcessClassesCommands = target.postProcessClassesCommands
+        if (target.retrolambda) {
+            postProcessClassesCommands.add(RetroLambdaGenerator.generate(target))
+        }
         PostProcessClassessCommands postprocessClassesCommands = new PostProcessClassessCommands(
                 target.bootClasspath,
                 target.rootProject.file(BuckConstants.DEFAULT_BUCK_OUT_GEN_PATH).absolutePath,
-                postProcessDeps);
-        if (target.retrolambda) {
-            postprocessClassesCommands.addCommand(RetroLambdaGenerator.generate(target))
-        }
-        postprocessClassesCommands.addCommands(postProcessCommands);
+                postProcessDeps,
+                postProcessClassesCommands);
 
         new JavaTestRule(
                 test(target),

@@ -10,19 +10,12 @@ public class PostProcessClassessCommands implements Printable {
     private final String mBootClasspath;
     private final String mGenDir;
 
-    public PostProcessClassessCommands(String bootClasspath, String genDir, Set<String> postProcessDeps) {
-        mPostprocessClassesCommands = []
+    public PostProcessClassessCommands(String bootClasspath, String genDir, Set<String> postProcessDeps,
+                                       List<String> postprocessClassesCommands = []) {
+        mPostprocessClassesCommands = postprocessClassesCommands
         mBootClasspath = bootClasspath
         mGenDir = genDir
         mPostProcessDeps = postProcessDeps
-    }
-
-    public void addCommand(String command) {
-        mPostprocessClassesCommands.add(command)
-    }
-
-    public void addCommands(List<String> commands) {
-        mPostprocessClassesCommands.addAll(commands)
     }
 
     @Override
