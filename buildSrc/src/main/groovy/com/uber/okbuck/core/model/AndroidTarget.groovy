@@ -221,13 +221,19 @@ abstract class AndroidTarget extends JavaLibTarget {
         }.flatten() as Set<String>
     }
 
-    String getManifest() {
-        Set<String> manifests = [] as Set
-
-        baseVariant.sourceSets.each { SourceProvider provider ->
-            manifests.addAll(getAvailable(Collections.singletonList(provider.manifestFile)))
+    String getPackage(){
+        Set manifests = getManifestsFromSourceSets()
+        if (manifests.empty) {
+            return null
         }
 
+        XmlSlurper slurper = new XmlSlurper()
+        GPathResult manifestXml = slurper.parse(project.file(manifests[0]))
+        return manifestXml.@package
+    }
+
+    String getManifest() {
+        Set manifests = getManifestsFromSourceSets()
         if (manifests.empty) {
             return null
         }
@@ -257,7 +263,6 @@ abstract class AndroidTarget extends JavaLibTarget {
             XmlSlurper slurper = new XmlSlurper()
             GPathResult manifestXml = slurper.parse(project.file(mergedManifest))
 
-            manifestXml.@package = applicationId + applicationIdSuffix
             if (versionCode) {
                 manifestXml.@'android:versionCode' = String.valueOf(versionCode)
             }
@@ -293,6 +298,16 @@ abstract class AndroidTarget extends JavaLibTarget {
         }
 
         return FileUtil.getRelativePath(project.projectDir, mergedManifest)
+    }
+
+    private Set<String> getManifestsFromSourceSets(){
+        Set<String> manifests = [] as Set
+
+        baseVariant.sourceSets.each { SourceProvider provider ->
+            manifests.addAll(getAvailable(Collections.singletonList(provider.manifestFile)))
+        }
+
+        return manifests
     }
 
     static List<String> getJavaCompilerOptions(BaseVariant baseVariant) {
