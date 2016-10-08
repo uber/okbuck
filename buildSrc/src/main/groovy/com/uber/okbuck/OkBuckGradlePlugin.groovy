@@ -96,7 +96,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         IOUtils.closeQuietly(configPrinter)
 
         // generate BUCK file for each project
-        Map<Project, BUCKFile> buckFiles = new BuckFileGenerator(project).generate()
+        Map<Project, BUCKFile> buckFiles = BuckFileGenerator.generate(project)
 
         buckFiles.each { Project subProject, BUCKFile buckFile ->
             PrintStream buckPrinter = new PrintStream(subProject.file(BUCK))

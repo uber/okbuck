@@ -47,24 +47,19 @@ import static com.uber.okbuck.core.util.ProjectUtil.getTargets
 
 final class BuckFileGenerator {
 
-    private final Project mRootProject
-    static OkBuckExtension mOkbuck
-
-    BuckFileGenerator(Project rootProject) {
-        mRootProject = rootProject
-        mOkbuck = mRootProject.okbuck
-    }
+    private BuckFileGenerator(){ }
 
     /**
      * generate {@code BUCKFile}
      */
-    Map<Project, BUCKFile> generate() {
-        mOkbuck.buckProjects.each { Project project ->
+    static Map<Project, BUCKFile> generate(Project rootProject) {
+        OkBuckExtension okbuck = rootProject.okbuck
+        okbuck.buckProjects.each { Project project ->
             resolve(project)
         }
 
-        ExperimentalExtension experimental = mOkbuck.experimental
-        Map<Project, List<BuckRule>> projectRules = mOkbuck.buckProjects.collectEntries { Project project ->
+        ExperimentalExtension experimental = okbuck.experimental
+        Map<Project, List<BuckRule>> projectRules = okbuck.buckProjects.collectEntries { Project project ->
             List<BuckRule> rules = createRules(project, experimental.espresso)
             [project, rules]
         }
@@ -140,8 +135,7 @@ final class BuckFileGenerator {
         return rules
     }
 
-    private
-    static List<BuckRule> createRules(AndroidLibTarget target, String appClass = null, List<String> extraDeps = []) {
+    private static List<BuckRule> createRules(AndroidLibTarget target, String appClass = null, List<String> extraDeps = []) {
         List<BuckRule> rules = []
         List<BuckRule> androidLibRules = []
 
@@ -182,7 +176,8 @@ final class BuckFileGenerator {
         deps.addAll(extraDeps)
 
         // Gradle generate sources tasks
-        List<GradleSourceGenRule> sourcegenRules = GradleSourceGenRuleComposer.compose(target, mOkbuck.gradle.absolutePath)
+        OkBuckExtension okbuck = target.rootProject.okbuck
+        List<GradleSourceGenRule> sourcegenRules = GradleSourceGenRuleComposer.compose(target, okbuck.gradle.absolutePath)
         List<ZipRule> zipRules = sourcegenRules.collect { GradleSourceGenRule sourcegenRule ->
             ZipRuleComposer.compose(sourcegenRule)
         }
@@ -250,8 +245,7 @@ final class BuckFileGenerator {
         return rules
     }
 
-    private
-    static List<BuckRule> createRules(AndroidInstrumentationTarget target, AndroidAppTarget mainApkTarget,
+    private static List<BuckRule> createRules(AndroidInstrumentationTarget target, AndroidAppTarget mainApkTarget,
                                       List<BuckRule> mainApkTargetRules) {
         List<BuckRule> rules = []
 

@@ -65,6 +65,7 @@ final class ProjectUtil {
         }
     }
 
+    @SuppressWarnings("GrReassignedInClosureLocalVar")
     static Target getTargetForOutput(Project rootProject, File output) {
         Target result = null
         OkBuckExtension okbuck = rootProject.okbuck
