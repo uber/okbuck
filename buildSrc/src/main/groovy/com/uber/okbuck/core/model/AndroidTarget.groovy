@@ -35,6 +35,8 @@ abstract class AndroidTarget extends JavaLibTarget {
     final int targetSdk
     final boolean debuggable
     final boolean generateR2
+    String manifest
+    String packageName
 
     AndroidTarget(Project project, String name) {
         super(project, name)
@@ -67,6 +69,8 @@ abstract class AndroidTarget extends JavaLibTarget {
             minSdk = baseVariant.mergedFlavor.minSdkVersion.apiLevel
             targetSdk = baseVariant.mergedFlavor.targetSdkVersion.apiLevel
         }
+
+        ensureManifest()
     }
 
     protected abstract BaseVariant getBaseVariant()
@@ -221,7 +225,7 @@ abstract class AndroidTarget extends JavaLibTarget {
         }.flatten() as Set<String>
     }
 
-    String getManifest() {
+    private void ensureManifest() {
         Set<String> manifests = [] as Set
 
         baseVariant.sourceSets.each { SourceProvider provider ->
@@ -229,7 +233,7 @@ abstract class AndroidTarget extends JavaLibTarget {
         }
 
         if (manifests.empty) {
-            return null
+            return
         }
 
         File mainManifest = project.file(manifests[0])
@@ -257,7 +261,9 @@ abstract class AndroidTarget extends JavaLibTarget {
             XmlSlurper slurper = new XmlSlurper()
             GPathResult manifestXml = slurper.parse(project.file(mergedManifest))
 
+            packageName = manifestXml.@package
             manifestXml.@package = applicationId + applicationIdSuffix
+
             if (versionCode) {
                 manifestXml.@'android:versionCode' = String.valueOf(versionCode)
             }
@@ -292,7 +298,7 @@ abstract class AndroidTarget extends JavaLibTarget {
             }.join('\n'))
         }
 
-        return FileUtil.getRelativePath(project.projectDir, mergedManifest)
+        manifest = FileUtil.getRelativePath(project.projectDir, mergedManifest)
     }
 
     static List<String> getJavaCompilerOptions(BaseVariant baseVariant) {
@@ -391,4 +397,5 @@ abstract class AndroidTarget extends JavaLibTarget {
             mLogger.debug(s, objects)
         }
     }
+
 }
