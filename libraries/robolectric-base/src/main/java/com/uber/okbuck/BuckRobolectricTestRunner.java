@@ -2,7 +2,6 @@ package com.uber.okbuck;
 
 import org.junit.runners.model.InitializationError;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 import org.robolectric.manifest.AndroidManifest;
 import org.robolectric.res.Fs;
@@ -17,6 +16,12 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.ListIterator;
 
+/**
+ * The example test runner only runs robolectric tests with buck.
+ * If you want to run unit tests with both gradle and buck,
+ * you can use the example test runner and create a hybrid
+ * with robolectric's {@link org.robolectric.RobolectricGradleTestRunner}.
+ */
 public class BuckRobolectricTestRunner extends RobolectricTestRunner {
 
     private static final String ROBOLECTRIC_RESOURCE_DIRECTORIES = "buck.robolectric_res_directories";
