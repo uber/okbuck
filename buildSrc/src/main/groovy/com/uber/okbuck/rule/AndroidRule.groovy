@@ -8,6 +8,7 @@ abstract class AndroidRule extends BuckRule {
     private final Set<String> mSrcTargets
     private final Set<String> mSrcSet
     private final String mManifest
+    private final String mRobolectricManifest
     private final List<String> mAnnotationProcessors
     private final List<String> mAptDeps
     private final List<String> mAidlRuleNames
@@ -35,6 +36,7 @@ abstract class AndroidRule extends BuckRule {
             Set<String> srcTargets,
             Set<String> srcSet,
             String manifest,
+            String robolectricManifest,
             List<String> annotationProcessors,
             List<String> aptDeps,
             Set<String> providedDeps,
@@ -54,6 +56,7 @@ abstract class AndroidRule extends BuckRule {
         mSrcTargets = srcTargets
         mSrcSet = srcSet
         mManifest = manifest
+        mRobolectricManifest = robolectricManifest
         mAnnotationProcessors = annotationProcessors
         mAptDeps = aptDeps
         mAidlRuleNames = aidlRuleNames
@@ -111,6 +114,10 @@ abstract class AndroidRule extends BuckRule {
             printer.println("\tmanifest = '${mManifest}',")
         }
 
+        if (!StringUtils.isEmpty(mRobolectricManifest)) {
+            printer.println("\trobolectric_manifest = '${mRobolectricManifest}',")
+        }
+
         if (!mAnnotationProcessors.empty) {
             printer.println("\tannotation_processors = [")
             for (String processor : mAnnotationProcessors) {
@@ -160,7 +167,7 @@ abstract class AndroidRule extends BuckRule {
         }
 
         if (mRuntimeDependency) {
-            printer.println("\truntime_dependency = '${mRuntimeDependency}',")
+            printer.println("\trobolectric_runtime_dependency = '${mRuntimeDependency}',")
         }
 
         if (mLabels) {

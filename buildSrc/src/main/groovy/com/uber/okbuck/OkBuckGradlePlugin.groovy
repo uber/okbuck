@@ -6,7 +6,9 @@ import com.uber.okbuck.core.task.OkBuckCleanTask
 import com.uber.okbuck.core.util.RobolectricUtil
 import com.uber.okbuck.extension.ExperimentalExtension
 import com.uber.okbuck.extension.GradleGenExtension
+import com.uber.okbuck.extension.IntellijExtension
 import com.uber.okbuck.extension.OkBuckExtension
+import com.uber.okbuck.extension.TestExtension
 import com.uber.okbuck.generator.BuckFileGenerator
 import com.uber.okbuck.generator.DotBuckConfigLocalGenerator
 import com.uber.okbuck.wrapper.BuckWrapperTask
@@ -23,6 +25,8 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     static final String OKBUCK_CLEAN = 'okbuckClean'
     static final String BUCK = "BUCK"
     static final String EXPERIMENTAL = "experimental"
+    static final String INTELLIJ = "intellij"
+    static final String TEST = "test"
     static final String GRADLE_GEN = "gradleGen"
     static final String WRAPPER = "wrapper"
     static final String BUCK_WRAPPER = "buckWrapper"
@@ -39,6 +43,8 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         OkBuckExtension okbuck = project.extensions.create(OKBUCK, OkBuckExtension, project)
         WrapperExtension wrapper = okbuck.extensions.create(WRAPPER, WrapperExtension)
         ExperimentalExtension experimental = okbuck.extensions.create(EXPERIMENTAL, ExperimentalExtension)
+        TestExtension test = okbuck.extensions.create(TEST, TestExtension)
+        IntellijExtension intellij = okbuck.extensions.create(INTELLIJ, IntellijExtension)
         okbuck.extensions.create(GRADLE_GEN, GradleGenExtension, project)
 
         Task okBuck = project.task(OKBUCK)
@@ -62,9 +68,9 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                 generate(project)
             }
 
-            depCache = new DependencyCache(project, DEFAULT_CACHE_PATH, true, true, experimental.sources)
+            depCache = new DependencyCache(project, DEFAULT_CACHE_PATH, true, true, intellij.sources)
 
-            if (experimental.robolectric) {
+            if (test.robolectric) {
                 Task fetchRobolectricRuntimeDeps = project.task('fetchRobolectricRuntimeDeps')
                 okBuck.dependsOn(fetchRobolectricRuntimeDeps)
                 fetchRobolectricRuntimeDeps.mustRunAfter(okBuckClean)

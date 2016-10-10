@@ -44,7 +44,7 @@ dependencies {
     compile 'commons-io:commons-io:2.4'
     compile 'commons-lang:commons-lang:2.6'
     compile 'org.apache.maven:maven-artifact:3.3.9'
-    compile 'com.android.tools.build:gradle:2.2.0'
+    compile 'com.android.tools.build:gradle:2.2.1'
 
     testCompile 'junit:junit:4.12'
 }

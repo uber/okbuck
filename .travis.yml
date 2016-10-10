@@ -39,4 +39,5 @@ before_cache:
 cache:
   directories:
     - $HOME/.gradle/caches/modules-2/
+    - $HOME/.gradle/caches/okbuck/
     - $HOME/.gradle/wrapper/

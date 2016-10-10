@@ -32,6 +32,7 @@ android {
 
 dependencies {
     testCompile 'junit:junit:4.12'
+    testCompile project(':libraries:robolectric-base')
     compile "com.android.support:appcompat-v7:${rootProject.ext.androidSupportSdkVersion}"
 
     compile project(':libraries:parcelable')

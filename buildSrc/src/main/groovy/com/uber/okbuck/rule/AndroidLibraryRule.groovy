@@ -36,6 +36,7 @@ final class AndroidLibraryRule extends AndroidRule {
                 srcTargets,
                 srcSet,
                 manifest,
+                null,
                 annotationProcessors,
                 aptDeps,
                 providedDeps,
