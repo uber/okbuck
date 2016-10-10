@@ -16,6 +16,12 @@ class BuckWrapperTask extends DefaultTask {
     @Input
     List<String> keep
 
+    @Input
+    List<String> watch
+
+    @Input
+    List<String> sourceRoots
+
     File wrapper = project.file('buckw')
 
     @TaskAction
@@ -28,6 +34,8 @@ class BuckWrapperTask extends DefaultTask {
                 .replaceFirst('template-custom-buck-repo', repo)
                 .replaceFirst('template-remove', toWatchmanMatchers(remove))
                 .replaceFirst('template-keep', toWatchmanMatchers(keep))
+                .replaceFirst('template-watch', toWatchmanMatchers(watch))
+                .replaceFirst('template-source-roots', toWatchmanMatchers(sourceRoots))
 
         wrapper.text = outputText
         wrapper.setExecutable(true)
