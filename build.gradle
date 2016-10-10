@@ -70,7 +70,11 @@ if (project.file("buildSrc").exists()) {
         ]
         buckProjects = project.subprojects.findAll { it.name != "plugin" }
 
-        experimental {
+        intellij {
+            sources = true
+        }
+
+        test {
             espresso = true
         }
 

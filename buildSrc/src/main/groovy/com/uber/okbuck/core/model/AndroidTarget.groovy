@@ -127,7 +127,7 @@ abstract class AndroidTarget extends JavaLibTarget {
     }
 
     public boolean getRobolectric() {
-        return rootProject.okbuck.experimental.robolectric
+        return rootProject.okbuck.test.robolectric
     }
 
     @Override

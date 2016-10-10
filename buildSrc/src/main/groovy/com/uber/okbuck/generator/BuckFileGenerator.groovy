@@ -1,6 +1,5 @@
 package com.uber.okbuck.generator
 
-import com.uber.okbuck.extension.ExperimentalExtension
 import com.uber.okbuck.extension.GradleGenExtension
 import com.uber.okbuck.extension.OkBuckExtension
 import com.uber.okbuck.composer.AndroidBinaryRuleComposer
@@ -33,6 +32,7 @@ import com.uber.okbuck.core.model.JavaLibTarget
 import com.uber.okbuck.core.model.ProjectType
 import com.uber.okbuck.core.model.Target
 import com.uber.okbuck.core.util.ProjectUtil
+import com.uber.okbuck.extension.TestExtension
 import com.uber.okbuck.rule.AndroidLibraryRule
 import com.uber.okbuck.rule.AndroidManifestRule
 import com.uber.okbuck.rule.AndroidResourceRule
@@ -59,9 +59,9 @@ final class BuckFileGenerator {
             resolve(project)
         }
 
-        ExperimentalExtension experimental = okbuck.experimental
+        TestExtension test = okbuck.test
         Map<Project, List<BuckRule>> projectRules = okbuck.buckProjects.collectEntries { Project project ->
-            List<BuckRule> rules = createRules(project, experimental.espresso)
+            List<BuckRule> rules = createRules(project, test.espresso)
             [project, rules]
         }
 
