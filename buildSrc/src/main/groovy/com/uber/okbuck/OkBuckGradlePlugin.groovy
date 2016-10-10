@@ -85,6 +85,8 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                 repo = wrapper.repo
                 remove = wrapper.remove
                 keep = wrapper.keep
+                watch = wrapper.watch
+                sourceRoots = wrapper.sourceRoots
             })
             buckWrapper.setGroup(GROUP)
             buckWrapper.setDescription("Create buck wrapper")
