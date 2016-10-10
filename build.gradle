@@ -3,7 +3,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.0'
+        classpath 'com.android.tools.build:gradle:2.2.1'
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
         classpath 'me.tatarka:gradle-retrolambda:3.3.0'
         classpath 'com.jakewharton:butterknife-gradle-plugin:8.4.0'
@@ -76,6 +76,7 @@ if (project.file("buildSrc").exists()) {
 
         test {
             espresso = true
+            robolectric = true
         }
 
         gradleGen {
