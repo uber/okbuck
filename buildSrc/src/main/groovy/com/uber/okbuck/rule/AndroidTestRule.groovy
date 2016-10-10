@@ -35,6 +35,7 @@ final class AndroidTestRule extends AndroidRule {
                 deps,
                 srcTargets,
                 srcSet,
+                null,
                 manifest,
                 annotationProcessors,
                 aptDeps,
