@@ -225,14 +225,14 @@ abstract class AndroidTarget extends JavaLibTarget {
     }
 
     String getPackage() {
-        if (packageName == null) {
+        if (!packageName) {
             ensureManifest()
         }
         return packageName
     }
 
     String getManifest() {
-        if (manifest == null) {
+        if (!manifest) {
             ensureManifest()
         }
         return manifest
