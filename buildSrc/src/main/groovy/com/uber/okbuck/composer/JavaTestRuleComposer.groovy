@@ -28,12 +28,11 @@ final class JavaTestRuleComposer extends JavaBuckRuleComposer {
         providedDeps.removeAll(deps)
 
         Set<String> postProcessDeps = []
-        postProcessDeps.addAll(external(target.postProcess.externalDeps))
-        postProcessDeps.addAll(targets(target.postProcess.targetDeps))
+        postProcessDeps.addAll(target.postProcess.externalDeps)
 
         List<String> postProcessClassesCommands = target.postProcessClassesCommands
         if (target.retrolambda) {
-            postProcessClassesCommands.add(RetroLambdaGenerator.generate(target))
+            postProcessClassesCommands.add(0, RetroLambdaGenerator.generate(target))
         }
         PostProcessClassessCommands postprocessClassesCommands = new PostProcessClassessCommands(
                 target.bootClasspath,
