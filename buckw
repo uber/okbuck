@@ -42,11 +42,6 @@ ensure ( ) {
     command -v $1 >/dev/null 2>&1 || die "ERROR: '$1' could be found in your PATH. Please install $1. $2"
 }
 
-md5digest ( ) {
-    # only md5 is available by default on osx, while md5sum is available on other *nix systems
-    ( ensure md5sum && md5sum $1 ) || ( ensure md5 && md5 $1 )
-}
-
 jsonq() {
     python -c "import sys,json; obj=json.load(sys.stdin); print($1)"
 }
@@ -58,6 +53,7 @@ INSTALLED_WATCHMAN=`command -v watchman`
 DEFAULT_BUCK_REPO="https://github.com/facebook/buck.git"
 DEFAULT_BUCK_INSTALL_DIR="$HOME/.gradle/caches/okbuck/buck"
 CUSTOM_BUCK_REPO=""
+CUSTOM_REMOTE_NAME="custom"
 OKBUCK_SUCCESS="$WORKING_DIR/build/okbuck.success"
 OKBUCK_DIR=".okbuck"
 MAX_DISPLAY_CHANGES=10
@@ -176,11 +172,10 @@ setupBuckBinary ( ) {
 
         # Add custom buck remote
         if [[ ! -z $CUSTOM_BUCK_REPO ]]; then
-            REMOTE_NAME=$(printf '%s' $CUSTOM_BUCK_REPO | md5digest | cut -d ' ' -f 1)
             cd $BUCK_HOME
-            REMOTE_EXISTS=$(git remote -v | grep "$REMOTE_NAME")
+            REMOTE_EXISTS=$(git remote -v | grep "$CUSTOM_REMOTE_NAME")
             if [[ -z "$REMOTE_EXISTS" ]]; then
-                git remote add $REMOTE_NAME $CUSTOM_BUCK_REPO
+                git remote add $CUSTOM_REMOTE_NAME $CUSTOM_BUCK_REPO
             fi
             cd $WORKING_DIR
         fi
