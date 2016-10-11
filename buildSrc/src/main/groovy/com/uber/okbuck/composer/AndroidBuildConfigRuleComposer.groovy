@@ -10,7 +10,7 @@ final class AndroidBuildConfigRuleComposer extends AndroidBuckRuleComposer {
     }
 
     static AndroidBuildConfigRule compose(AndroidTarget target) {
-        return new AndroidBuildConfigRule(buildConfig(target), ["PUBLIC"], target.applicationId,
+        return new AndroidBuildConfigRule(buildConfig(target), ["PUBLIC"], target.package,
                 target.buildConfigFields)
     }
 }
