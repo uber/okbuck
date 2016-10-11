@@ -311,7 +311,7 @@ abstract class AndroidTarget extends JavaLibTarget {
             }.join('\n'))
         }
 
-        manifest = FileUtil.getRelativePath(project.projectDir, mergedManifest)
+        manifestPath = FileUtil.getRelativePath(project.projectDir, mergedManifest)
     }
 
     static List<String> getJavaCompilerOptions(BaseVariant baseVariant) {
