@@ -35,8 +35,9 @@ abstract class AndroidTarget extends JavaLibTarget {
     final int targetSdk
     final boolean debuggable
     final boolean generateR2
-    String manifest
-    String packageName
+
+    private String manifest
+    private String packageName
 
     AndroidTarget(Project project, String name) {
         super(project, name)
@@ -69,8 +70,6 @@ abstract class AndroidTarget extends JavaLibTarget {
             minSdk = baseVariant.mergedFlavor.minSdkVersion.apiLevel
             targetSdk = baseVariant.mergedFlavor.targetSdkVersion.apiLevel
         }
-
-        ensureManifest()
     }
 
     protected abstract BaseVariant getBaseVariant()
@@ -223,6 +222,20 @@ abstract class AndroidTarget extends JavaLibTarget {
         baseVariant.sourceSets.collect { SourceProvider provider ->
             getAvailable(provider.jniLibsDirectories)
         }.flatten() as Set<String>
+    }
+
+    String getPackage() {
+        if (packageName == null) {
+            ensureManifest()
+        }
+        return manifest
+    }
+
+    String getManifest() {
+        if (manifest == null) {
+            ensureManifest()
+        }
+        return manifest
     }
 
     private void ensureManifest() {
