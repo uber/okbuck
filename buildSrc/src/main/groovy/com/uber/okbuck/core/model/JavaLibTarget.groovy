@@ -61,7 +61,7 @@ class JavaLibTarget extends JavaTarget {
 
     String getBootClasspath() {
         List<String> classpaths = []
-        if (initialBootCp != null && !initialBootCp.isEmpty()) {
+        if (initialBootCp) {
             classpaths.add(initialBootCp)
         }
         if (retrolambda) {
