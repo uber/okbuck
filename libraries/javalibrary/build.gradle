@@ -1,14 +1,12 @@
 apply plugin: 'java'
 apply plugin: 'me.tatarka.retrolambda'
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
-
 dependencies {
-    compile 'com.google.code.gson:gson:2.6.2'
-    compile 'com.google.dagger:dagger:2.5'
-    compileOnly 'org.glassfish:javax.annotation:10.0-b28'
-    compileOnly 'com.google.dagger:dagger-compiler:2.5'
+    compile deps.external.gson
+    compile deps.external.dagger
 
-    testCompile 'junit:junit:4.12'
+    compileOnly deps.apt.javax
+    compileOnly deps.apt.daggerCompiler
+
+    testCompile deps.test.junit
 }

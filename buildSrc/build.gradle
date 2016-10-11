@@ -1,25 +1,23 @@
-import java.text.SimpleDateFormat
-
-apply plugin: 'maven-publish'
-apply plugin: "com.jfrog.bintray"
-apply plugin: 'maven'
-apply plugin: 'groovy'
-
-buildscript {
-    repositories {
-        jcenter()
-    }
-
-    dependencies {
-        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.3.1"
-        classpath 'com.github.dcendents:android-maven-plugin:1.2'
-    }
+plugins {
+    id "groovy"
+    id "maven-publish"
+    id "com.jfrog.bintray" version "1.7"
 }
 
-allprojects {
-    repositories {
-        jcenter()
-    }
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile gradleApi()
+    compile localGroovy()
+
+    compile 'com.android.tools.build:gradle:2.2.1'
+    compile 'commons-io:commons-io:2.5'
+    compile 'commons-lang:commons-lang:2.6'
+    compile 'org.apache.maven:maven-artifact:3.3.9'
+
+    testCompile 'junit:junit:4.12'
 }
 
 tasks.withType(JavaCompile) {
@@ -37,32 +35,10 @@ task sourcesJar(type: Jar) {
     classifier = 'sources'
 }
 
-dependencies {
-    compile gradleApi()
-    compile localGroovy()
-
-    compile 'commons-io:commons-io:2.4'
-    compile 'commons-lang:commons-lang:2.6'
-    compile 'org.apache.maven:maven-artifact:3.3.9'
-    compile 'com.android.tools.build:gradle:2.2.1'
-
-    testCompile 'junit:junit:4.12'
-}
-
+group = 'com.uber'
+version = '0.8.0'
 def siteUrl = 'https://github.com/uber/okbuck'
 def gitUrl = 'https://github.com/uber/okbuck.git'
-def publishGroup = 'com.uber'
-def publishVersion = '0.8.0'
-
-group = publishGroup
-version = publishVersion
-
-Properties properties = new Properties()
-// for wrapper project structure
-File propertyFile = project.rootProject.file('buildSrc/bintray.properties')
-if (propertyFile.exists()) {
-    properties.load(propertyFile.newDataInputStream())
-}
 
 publishing {
     publications {
@@ -78,8 +54,8 @@ publishing {
 }
 
 bintray {
-    user = project.properties.get("bintray.user", properties.getProperty("bintray.user"))
-    key = project.properties.get("bintray.apikey", properties.getProperty("bintray.apikey"))
+    user = project.properties.get("bintray.user")
+    key = project.properties.get("bintray.apikey")
     publications = ['mavenJava']
     dryRun = false
     publish = true
@@ -95,9 +71,9 @@ bintray {
         labels = ['buck', 'okbuck', 'uber']
         publicDownloadNumbers = true
         version {
-            name = publishVersion
-            released = new SimpleDateFormat('yyyy-MM-dd\'T\'HH:mm:ss.SSSZZ').format(new Date())
-            vcsTag = publishVersion
+            name = version
+            released = new java.text.SimpleDateFormat('yyyy-MM-dd\'T\'HH:mm:ss.SSSZZ').format(new Date())
+            vcsTag = version
         }
     }
 }
