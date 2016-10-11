@@ -1,5 +1,5 @@
 apply plugin: 'java'
 
 dependencies {
-    compile 'org.robolectric:robolectric:3.0'
+    compile deps.test.robolectric
 }

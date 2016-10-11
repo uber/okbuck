@@ -2,21 +2,8 @@ apply plugin: 'com.android.library'
 apply plugin: 'me.tatarka.retrolambda'
 
 android {
-    compileSdkVersion rootProject.ext.androidCompileSdkVersion
-    buildToolsVersion rootProject.ext.androidBuildToolsVersion
-
     defaultConfig {
-        minSdkVersion rootProject.ext.androidMinSdkVersion
-        targetSdkVersion rootProject.ext.androidTargetSdkVersion
-        versionCode 1
-        versionName "1.0"
-
         buildConfigField "String", "COMMON_CONFIG", "\"default\""
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
     }
 
     publishNonDefault true
@@ -31,9 +18,10 @@ android {
 }
 
 dependencies {
-    testCompile 'junit:junit:4.12'
-    testCompile project(':libraries:robolectric-base')
-    compile "com.android.support:appcompat-v7:${rootProject.ext.androidSupportSdkVersion}"
-
+    compile deps.support.appCompat
     compile project(':libraries:parcelable')
+
+    testCompile deps.test.junit
+    testCompile project(':libraries:robolectric-base')
+
 }

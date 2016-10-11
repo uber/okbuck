@@ -1,0 +1,71 @@
+def versions = [
+        butterKnifeVersion: '8.4.0',
+        daggerVersion     : '2.7',
+        leakCanaryVersion : '1.4',
+        supportVersion    : '24.1.1',
+]
+
+def build = [
+        androidPlugin    : 'com.android.tools.build:gradle:2.2.1',
+        androidAptPlugin : 'com.neenbedankt.gradle.plugins:android-apt:1.8',
+        butterKnifePlugin: "com.jakewharton:butterknife-gradle-plugin:${versions.butterKnifeVersion}",
+        retrolambdaPlugin: 'me.tatarka:gradle-retrolambda:3.3.0',
+        sqlDelightPlugin : 'com.squareup.sqldelight:gradle-plugin:0.4.4',
+]
+
+def buildConfig = [
+        compileSdk: 24,
+        buildTools: '24.0.2',
+        minSdk    : 16,
+        targetSdk : 24,
+]
+
+def apt = [
+        autoValue          : 'com.google.auto.value:auto-value:1.3-rc2',
+        autoValueGson      : 'com.ryanharter.auto.value:auto-value-gson:0.4.2',
+        butterKnifeCompiler: "com.jakewharton:butterknife-compiler:${versions.butterKnifeVersion}",
+        daggerCompiler     : "com.google.dagger:dagger-compiler:${versions.daggerVersion}",
+        javax              : 'org.glassfish:javax.annotation:10.0-b28',
+]
+
+def external = [
+        butterKnife    : "com.jakewharton:butterknife:${versions.butterKnifeVersion}",
+        dagger         : "com.google.dagger:dagger:${versions.daggerVersion}",
+        gson           : 'com.google.code.gson:gson:2.7',
+        leakCanary     : "com.squareup.leakcanary:leakcanary-android:${versions.leakCanaryVersion}",
+        rxandroid      : 'io.reactivex:rxandroid:1.2.1',
+        rxjava         : 'io.reactivex:rxjava:1.1.8',
+        rxPermissions  : 'com.tbruyelle.rxpermissions:rxpermissions:0.5.2',
+        sqlite         : 'com.pushtorefresh.storio:sqlite:1.11.0',
+        xlogAndroidIdle: 'com.github.promeg:xlog-android-idle:2.1.1',
+]
+
+def support = [
+        annotations : "com.android.support:support-annotations:${versions.supportVersion}",
+        appCompat   : "com.android.support:appcompat-v7:${versions.supportVersion}",
+        design      : "com.android.support:design:${versions.supportVersion}",
+        multidex    : 'com.android.support:multidex:1.0.1',
+        recyclerView: "com.android.support:recyclerview-v7:${versions.supportVersion}",
+        v4          : "com.android.support:support-v4:${versions.supportVersion}",
+]
+
+def test = [
+        espressoCore  : 'com.android.support.test.espresso:espresso-core:2.2.2',
+        espressoRunner: 'com.android.support.test:runner:0.5',
+        junit         : 'junit:junit:4.12',
+        mockito       : 'org.mockito:mockito-core:1.10.19',
+        robolectric   : 'org.robolectric:robolectric:3.0',
+]
+
+ext.config = [
+        "build": buildConfig,
+]
+
+ext.deps = [
+        "apt"     : apt,
+        "build"   : build,
+        "external": external,
+        "support" : support,
+        "test"    : test,
+        "versions": versions
+]
