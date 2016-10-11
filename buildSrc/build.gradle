@@ -35,8 +35,9 @@ task sourcesJar(type: Jar) {
     classifier = 'sources'
 }
 
+def publishVersion = '0.8.1'
 group = 'com.uber'
-version = '0.8.0'
+version = publishVersion
 def siteUrl = 'https://github.com/uber/okbuck'
 def gitUrl = 'https://github.com/uber/okbuck.git'
 
@@ -71,9 +72,9 @@ bintray {
         labels = ['buck', 'okbuck', 'uber']
         publicDownloadNumbers = true
         version {
-            name = version
+            name = publishVersion
             released = new java.text.SimpleDateFormat('yyyy-MM-dd\'T\'HH:mm:ss.SSSZZ').format(new Date())
-            vcsTag = version
+            vcsTag = publishVersion
         }
     }
 }
