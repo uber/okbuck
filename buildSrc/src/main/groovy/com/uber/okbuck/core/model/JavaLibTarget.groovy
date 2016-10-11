@@ -60,11 +60,14 @@ class JavaLibTarget extends JavaTarget {
     }
 
     String getBootClasspath() {
-        String bootCp = initialBootCp
-        if (retrolambda) {
-            bootCp += ":${ProjectUtil.runtimeJar}"
+        List<String> classpaths = []
+        if (initialBootCp) {
+            classpaths.add(initialBootCp)
         }
-        return bootCp
+        if (retrolambda) {
+            classpaths.add(ProjectUtil.runtimeJar)
+        }
+        return classpaths.join(":")
     }
 
     List<String> getPostProcessClassesCommands() {
