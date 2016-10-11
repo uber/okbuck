@@ -36,8 +36,8 @@ abstract class AndroidTarget extends JavaLibTarget {
     final boolean debuggable
     final boolean generateR2
 
-    private String manifest
-    private String packageName
+    String manifest
+    String packageName
 
     AndroidTarget(Project project, String name) {
         super(project, name)
