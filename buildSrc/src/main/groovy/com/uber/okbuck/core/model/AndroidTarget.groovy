@@ -36,7 +36,7 @@ abstract class AndroidTarget extends JavaLibTarget {
     final boolean debuggable
     final boolean generateR2
 
-    String manifest
+    String manifestPath
     String packageName
 
     AndroidTarget(Project project, String name) {
@@ -232,10 +232,10 @@ abstract class AndroidTarget extends JavaLibTarget {
     }
 
     String getManifest() {
-        if (!manifest) {
+        if (!manifestPath) {
             ensureManifest()
         }
-        return manifest
+        return manifestPath
     }
 
     private void ensureManifest() {
