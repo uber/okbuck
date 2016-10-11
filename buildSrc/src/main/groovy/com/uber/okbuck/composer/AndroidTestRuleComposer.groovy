@@ -46,10 +46,12 @@ final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
             }
         }
 
-        List<String> postProcessClassesCommands = target.postProcessClassesCommands
+        List<String> postProcessClassesCommands = []
         if (target.retrolambda) {
-            postProcessClassesCommands.add(0, RetroLambdaGenerator.generate(target))
+            postProcessClassesCommands.add(RetroLambdaGenerator.generate(target))
         }
+        postProcessClassesCommands.addAll(target.postProcessClassesCommands)
+
         PostProcessClassessCommands postprocessClassesCommands = new PostProcessClassessCommands(
                 target.bootClasspath,
                 target.rootProject.file(BuckConstants.DEFAULT_BUCK_OUT_GEN_PATH).absolutePath,
