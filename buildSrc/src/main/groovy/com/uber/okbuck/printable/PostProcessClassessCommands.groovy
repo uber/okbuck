@@ -22,8 +22,7 @@ public class PostProcessClassessCommands implements Printable {
     public void print(PrintStream printer) {
         if (!mPostprocessClassesCommands.isEmpty()) {
             List<String> depsFindConstraints = []
-            depsFindConstraints.add("! -name \"*-abi.jar\"")
-            depsFindConstraints.add("! -path \"*#dummy*/abi.jar\"")
+            depsFindConstraints.add("! -name \"*abi.jar\"")
             depsFindConstraints.add("! -name \"*#dummy*.jar\"")
             depsFindConstraints.add("! -name \"*dex.dex.jar\"")
             depsFindConstraints.add("-name \"*.jar\"")
