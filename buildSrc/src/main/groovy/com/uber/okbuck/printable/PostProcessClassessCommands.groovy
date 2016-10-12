@@ -21,7 +21,12 @@ public class PostProcessClassessCommands implements Printable {
     @Override
     public void print(PrintStream printer) {
         if (!mPostprocessClassesCommands.isEmpty()) {
-            String deps = "\$(JARS=(`find ${mGenDir} ! -name \"*-abi.jar\" ! -name \"*dex.dex.jar\" -name \"*.jar\"`); " +
+            List<String> depsFindConstraints = []
+            depsFindConstraints.add("! -name \"*abi.jar\"")
+            depsFindConstraints.add("! -name \"*#dummy*.jar\"")
+            depsFindConstraints.add("! -name \"*dex.dex.jar\"")
+            depsFindConstraints.add("-name \"*.jar\"")
+            String deps = "\$(JARS=(`find ${mGenDir} ${depsFindConstraints.join(" ")}`); " +
                     "CLASSPATH=${mBootClasspath}; IFS=:; MERGED=( \"\${JARS[@]}\" \"\${CLASSPATH[@]}\" ); " +
                     "echo \"\${MERGED[*]}\")"
             String commandClassPath = mPostProcessDeps.join(":")
