@@ -44,7 +44,12 @@ ensure ( ) {
 
 md5digest ( ) {
     # only md5 is available by default on osx, while md5sum is available on other *nix systems
-    ( ensure md5sum && md5sum $1 ) || ( ensure md5 && md5 $1 )
+    unamestr=$(uname)
+    if [[ "$unamestr" == 'Darwin' ]]; then
+        ensure md5 && md5 $1
+    else
+        ensure md5sum && md5sum $1
+    fi
 }
 
 jsonq() {
