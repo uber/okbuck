@@ -52,8 +52,7 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
         postProcessClassesCommands.addAll(target.postProcessClassesCommands)
 
         PostProcessClassessCommands postprocessClassesCommands = new PostProcessClassessCommands(
-                target.bootClasspath,
-                target.rootProject.file(BuckConstants.DEFAULT_BUCK_OUT_GEN_PATH).absolutePath,
+                target,
                 postProcessDeps,
                 postProcessClassesCommands);
 
