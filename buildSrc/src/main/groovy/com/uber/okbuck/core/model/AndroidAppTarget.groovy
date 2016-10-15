@@ -35,8 +35,8 @@ class AndroidAppTarget extends AndroidLibTarget {
     final Set<String> extraOpts
     final boolean includesVectorDrawables
 
-    AndroidAppTarget(Project project, String name) {
-        super(project, name)
+    AndroidAppTarget(Project project, String name, boolean isTest = false) {
+        super(project, name, isTest)
 
         minifyEnabled = baseVariant.buildType.minifyEnabled
         keystore = extractKeystore()
@@ -57,7 +57,11 @@ class AndroidAppTarget extends AndroidLibTarget {
             exopackage = null
         }
 
-        placeholders.put('applicationId', applicationId + applicationIdSuffix)
+        if(isTest) {
+            placeholders.put('applicationId', applicationId - ".test" + applicationIdSuffix + ".test")
+        } else {
+            placeholders.put('applicationId', applicationId + applicationIdSuffix)
+        }
         placeholders.putAll(baseVariant.buildType.manifestPlaceholders)
         placeholders.putAll(baseVariant.mergedFlavor.manifestPlaceholders)
 
