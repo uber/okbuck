@@ -7,13 +7,15 @@ final class AndroidResourceRule extends BuckRule {
     private final String mRes
     private final String mPackage
     private final String mAssets
+    private final boolean mResourceUnion
 
     AndroidResourceRule(String name, List<String> visibility, List<String> deps, String packageName,
-                        String res, String assets) {
+                        String res, String assets, boolean resourceUnion) {
         super("android_resource", name, visibility, deps)
         mRes = res
         mPackage = packageName
         mAssets = assets
+        mResourceUnion = resourceUnion
     }
 
     @Override
@@ -25,6 +27,8 @@ final class AndroidResourceRule extends BuckRule {
         if (!StringUtils.isEmpty(mAssets)) {
             printer.println("\tassets = '${mAssets}',")
         }
-        printer.println("\tresource_union = True,")
+        if (mResourceUnion) {
+            printer.println("\tresource_union = True,")
+        }
     }
 }

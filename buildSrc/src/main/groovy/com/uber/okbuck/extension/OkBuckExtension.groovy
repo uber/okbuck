@@ -54,6 +54,11 @@ class OkBuckExtension {
      */
     Map<String, Map<String, List<String>>> extraBuckOpts = [:]
 
+    /**
+     * Whether to turn on buck's resource_union to reflect gradle's resource merging behavior
+     */
+    boolean resourceUnion = true
+
     OkBuckExtension(Project project) {
         buckProjects = project.subprojects
     }

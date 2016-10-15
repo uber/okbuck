@@ -2,6 +2,7 @@ package com.uber.okbuck.composer
 
 import com.uber.okbuck.core.model.AndroidTarget
 import com.uber.okbuck.core.model.Target
+import com.uber.okbuck.extension.OkBuckExtension
 import com.uber.okbuck.rule.AndroidResourceRule
 
 final class AndroidResourceRuleComposer extends AndroidBuckRuleComposer {
@@ -25,7 +26,8 @@ final class AndroidResourceRuleComposer extends AndroidBuckRuleComposer {
             }
         }
 
+        OkBuckExtension okbuck = target.rootProject.okbuck
         return new AndroidResourceRule(resLocal(resBundle), ["PUBLIC"], resDeps,
-                target.package, resBundle.resDir, resBundle.assetsDir)
+                target.package, resBundle.resDir, resBundle.assetsDir, okbuck.resourceUnion)
     }
 }
