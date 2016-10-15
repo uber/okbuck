@@ -11,7 +11,7 @@ import org.gradle.api.Project
 class AndroidInstrumentationTarget extends AndroidAppTarget {
 
     AndroidInstrumentationTarget(Project project, String name) {
-        super(project, name)
+        super(project, name, true)
     }
 
     @Override

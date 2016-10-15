@@ -38,9 +38,11 @@ abstract class AndroidTarget extends JavaLibTarget {
 
     private String manifestPath
     private String packageName
+    private boolean mIsTest
 
-    AndroidTarget(Project project, String name) {
+    AndroidTarget(Project project, String name, boolean isTest = false) {
         super(project, name)
+        mIsTest = isTest
 
         String suffix = ""
         if (baseVariant.mergedFlavor.applicationIdSuffix != null) {
@@ -51,7 +53,12 @@ abstract class AndroidTarget extends JavaLibTarget {
         }
 
         applicationIdSuffix = suffix
-        applicationId = baseVariant.applicationId - applicationIdSuffix
+        if (isTest) {
+            applicationId = baseVariant.applicationId - ".test" - applicationIdSuffix
+            applicationId = applicationId - applicationIdSuffix
+        } else {
+            applicationId = baseVariant.applicationId - applicationIdSuffix
+        }
         versionName = baseVariant.mergedFlavor.versionName
         versionCode = baseVariant.mergedFlavor.versionCode
 
@@ -147,7 +154,8 @@ abstract class AndroidTarget extends JavaLibTarget {
 
     List<String> getBuildConfigFields() {
         List<String> buildConfig = [
-                "String APPLICATION_ID = \"${applicationId + applicationIdSuffix}\"",
+                mIsTest ? "String APPLICATION_ID = \"${applicationId + applicationIdSuffix + ".test"}\""
+                        : "String APPLICATION_ID = \"${applicationId + applicationIdSuffix}\"",
                 "String BUILD_TYPE = \"${buildType}\"",
                 "String FLAVOR = \"${flavor}\"",
         ]
@@ -275,7 +283,11 @@ abstract class AndroidTarget extends JavaLibTarget {
             GPathResult manifestXml = slurper.parse(project.file(mergedManifest))
 
             packageName = manifestXml.@package
-            manifestXml.@package = applicationId + applicationIdSuffix
+            if (mIsTest) {
+                manifestXml.@package = applicationId + applicationIdSuffix + ".test"
+            } else {
+                manifestXml.@package = applicationId + applicationIdSuffix
+            }
 
             if (versionCode) {
                 manifestXml.@'android:versionCode' = String.valueOf(versionCode)

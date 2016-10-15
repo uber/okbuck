@@ -9,8 +9,8 @@ import org.gradle.api.Project
  */
 class AndroidLibTarget extends AndroidTarget {
 
-    AndroidLibTarget(Project project, String name) {
-        super(project, name)
+    AndroidLibTarget(Project project, String name, boolean isTest = false) {
+        super(project, name, isTest)
     }
 
     @Override
