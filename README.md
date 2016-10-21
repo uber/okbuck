@@ -76,6 +76,10 @@ Please make sure you have watchman installed for `buckw` to run `okbuck` only wh
 
 See the [Usage](https://github.com/uber/okbuck/blob/master/Usage.md) page for complete details on how to configure OkBuck and Buck.
 
+## Buck Http Cache
+
+To speed up your builds even more, you can use an implementation of [Buck's HTTP Cache API](https://github.com/uber/buck-http-cache) to take advantage of building once and using the same build artifacts on all machines.
+
 ## Contributors
 
 We'd love for you to contribute to our open source projects. Before we can accept your contributions, we kindly ask you to sign our [Uber Contributor License Agreement](https://docs.google.com/a/uber.com/forms/d/1pAwS_-dA1KhPlfxzYLBqK6rsSWwRwH95OCCZrcsY5rk/viewform).
