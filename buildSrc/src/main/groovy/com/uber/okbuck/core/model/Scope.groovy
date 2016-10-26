@@ -11,6 +11,7 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ResolvedArtifact
 import org.gradle.api.artifacts.UnknownConfigurationException
+import org.gradle.plugins.ide.internal.IdeDependenciesExtractor
 
 @EqualsAndHashCode
 class Scope {
@@ -47,9 +48,11 @@ class Scope {
     }
 
     private void extractConfigurations(Collection<String> configurations) {
+        List<Configuration> validConfigurations = []
         configurations.each { String configName ->
             try {
                 Configuration configuration = project.configurations.getByName(configName)
+                validConfigurations.add(configuration)
                 Set<File> resolvedFiles = [] as Set
                 configuration.resolvedConfiguration.resolvedArtifacts.each { ResolvedArtifact artifact ->
                     String identifier = artifact.id.componentIdentifier.displayName
@@ -80,6 +83,11 @@ class Scope {
                 }
             } catch (UnknownConfigurationException ignored) {
             }
+        }
+
+        // Download sources if enabled
+        if (depCache.fetchSources) {
+            new IdeDependenciesExtractor().extractRepoFileDependencies(project.dependencies, validConfigurations, [], true, false)
         }
     }
 }
