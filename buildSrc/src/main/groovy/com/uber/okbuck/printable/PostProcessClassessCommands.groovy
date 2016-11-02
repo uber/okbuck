@@ -6,8 +6,8 @@ import com.uber.okbuck.core.util.FileUtil
 
 public class PostProcessClassessCommands implements Printable {
 
-    private static final DEPENDENCIES_CLASSPATH = "DEPENDENCIES_CLASSPATH"
-    private static final POSTPROCESS_CLASSPATH = "POSTPROCESS_CLASSPATH"
+    private static final DEPENDENCIES_CLASSPATH_FILE = "DEPENDENCIES_CLASSPATH_FILE"
+    private static final POSTPROCESS_CLASSPATH_FILE = "POSTPROCESS_CLASSPATH_FILE"
 
     private final List<String> mPostprocessClassesCommands;
     private final Set<String> mPostProcessDeps
@@ -37,28 +37,51 @@ public class PostProcessClassessCommands implements Printable {
     }
 
     private String generate(String command) {
-        String suffix = command
-                .replace("/", "_").replace(".", "_").replace(":", "_").replace(" ", "_").replace("\\", "_")
-        File output = new File(
-                ".okbuck/postprocess/${mTarget.identifier.replaceAll(':', '_')}_${mTarget.name}_${suffix}_postprocess.sh")
-        output.parentFile.mkdirs()
-        output.createNewFile()
+        String suffix = command.replace("/", "_").replace(".", "_").replace(":", "_").replace(" ", "_").replace("\\", "_")
+        String baseFileName = ".okbuck/postprocess/${mTarget.identifier.replaceAll(':', '_')}_${mTarget.name}_${suffix}_postprocess";
 
+        String postProcessPath = writeFile("${baseFileName}_postProcessDeps", mPostProcessDeps.join(":")).getAbsolutePath()
+        String dependenciesPath = ".okbuck/postprocess/${mTarget.identifier.replaceAll(':', '_')}_deps"
+
+        File scriptFile = writeFile("${baseFileName}.sh",
+                "#!/bin/bash\n" +
+                "set -x \n" +
+                "set -e \n" +
+                "${generateFindDepsCommand(dependenciesPath)} \n",
+                "${DEPENDENCIES_CLASSPATH_FILE}=${dependenciesPath} ${POSTPROCESS_CLASSPATH_FILE}=${postProcessPath} ${command} \$1 \n")
+        scriptFile.setExecutable(true)
+
+        return "./${FileUtil.getRelativePath(mTarget.rootProject.projectDir, scriptFile)}"
+    }
+
+    private String generateFindDepsCommand(String outputFile) {
         List<String> depsFindConstraints = []
         depsFindConstraints.add("! -name \"*abi.jar\"")
         depsFindConstraints.add("! -name \"*#dummy*.jar\"")
         depsFindConstraints.add("! -name \"*dex.dex.jar\"")
         depsFindConstraints.add("-name \"*.jar\"")
-        String deps = "\$(JARS=(`find ${mGenDir} ${depsFindConstraints.join(" ")}`); " +
-                "CLASSPATH=${mBootClasspath}; IFS=:; MERGED=( \"\${JARS[@]}\" \"\${CLASSPATH[@]}\" ); " +
-                "echo \"\${MERGED[*]}\")"
-        String commandClassPath = mPostProcessDeps.join(":")
+        StringBuilder sb = new StringBuilder()
+
+        sb.append("if [ ! -f ${outputFile} ]; then \n")
+        sb.append("\tfind ${mGenDir} ${depsFindConstraints.join(" ")} | tr '\\n' ':'> ${outputFile} \n")
+        sb.append("\techo \"${mBootClasspath}\" >> ${outputFile} \n")
+        sb.append("fi \n")
+
+        return sb.toString()
+    }
+
+    private File writeFile(String filename, String... strings) {
+        File output = new File(filename)
+        output.parentFile.mkdirs()
+        output.createNewFile()
 
         FileWriter writer = new FileWriter(output)
-        writer.append("${DEPENDENCIES_CLASSPATH}=${deps} ${POSTPROCESS_CLASSPATH}=${commandClassPath} ${command} \$1")
+        for (String s : strings) {
+            writer.append(s)
+        }
         writer.close()
 
-        output.setExecutable(true)
-        return "./${FileUtil.getRelativePath(mTarget.rootProject.projectDir, output)}"
+        return output
     }
+
 }
