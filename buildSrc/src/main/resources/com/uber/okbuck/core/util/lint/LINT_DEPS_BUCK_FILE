@@ -1,0 +1,22 @@
+import re
+
+file_name_regex = re.compile(r'^.*/([^/]+)\.(jar)$', re.IGNORECASE)
+
+jars = []
+
+for jar in glob(['*.jar']):
+  name = file_name_regex.sub(r'\1', jar)
+  jars.append(name)
+
+for jar in jars:
+  prebuilt_jar(
+    name = jar,
+    binary_jar = jar,
+    visibility = ['PUBLIC'],
+  )
+
+java_library(
+  name='okbuck_lint_deps',
+  deps=map(lambda x: ":" + x, jars),
+  visibility = ['PUBLIC'],
+)

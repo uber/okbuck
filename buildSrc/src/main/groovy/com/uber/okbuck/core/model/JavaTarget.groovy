@@ -1,5 +1,8 @@
 package com.uber.okbuck.core.model
 
+import com.android.builder.model.LintOptions
+import com.uber.okbuck.OkBuckGradlePlugin
+import com.uber.okbuck.core.util.LintUtil
 import org.apache.commons.io.IOUtils
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
@@ -32,6 +35,27 @@ abstract class JavaTarget extends Target {
             target.getProp(okbuck.annotationProcessors, null) != null
         })
         return aptScope
+    }
+
+    /**
+     * Lint Scope
+     */
+    Scope getLint() {
+        File res = null
+        Set<File> sourceDirs = []
+        List<String> jvmArguments = []
+        return new Scope(project, [OkBuckGradlePlugin.BUCK_LINT], sourceDirs, res, jvmArguments,
+                LintUtil.getLintCache(project))
+    }
+
+    LintOptions getLintOptions() {
+        return null
+    }
+
+    boolean hasLintRegistry() {
+        try {
+            return project.jar.manifest.attributes.containsKey("Lint-Registry")
+        } catch (Exception ignored) { }
     }
 
     /**
@@ -84,5 +108,6 @@ abstract class JavaTarget extends Target {
         getApt()
         getMain()
         getTest()
+        getLint()
     }
 }

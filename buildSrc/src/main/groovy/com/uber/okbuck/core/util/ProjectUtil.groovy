@@ -4,13 +4,13 @@ import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.LibraryPlugin
 import com.android.build.gradle.api.BaseVariant
 import com.android.build.gradle.api.BaseVariantOutput
-import com.uber.okbuck.extension.OkBuckExtension
 import com.uber.okbuck.core.model.AndroidAppTarget
 import com.uber.okbuck.core.model.AndroidLibTarget
 import com.uber.okbuck.core.model.JavaAppTarget
 import com.uber.okbuck.core.model.JavaLibTarget
 import com.uber.okbuck.core.model.ProjectType
 import com.uber.okbuck.core.model.Target
+import com.uber.okbuck.extension.OkBuckExtension
 import org.apache.commons.io.FilenameUtils
 import org.gradle.api.Project
 import org.gradle.api.plugins.ApplicationPlugin

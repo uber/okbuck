@@ -1,6 +1,5 @@
 package com.uber.okbuck.composer
 
-import com.uber.okbuck.constant.BuckConstants
 import com.uber.okbuck.core.model.AndroidLibTarget
 import com.uber.okbuck.core.model.AndroidTarget
 import com.uber.okbuck.core.model.Target

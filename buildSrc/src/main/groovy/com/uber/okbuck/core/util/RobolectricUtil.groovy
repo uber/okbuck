@@ -50,8 +50,9 @@ class RobolectricUtil {
         File res = null
         Set<File> sourceDirs = []
         List<String> jvmArguments = []
+        String buckFile = null
         runtimeDeps.each { Configuration configuration ->
-            DependencyCache cache = new DependencyCache(project, ROBOLECTRIC_CACHE, false, false, false)
+            DependencyCache cache = new DependencyCache(project, ROBOLECTRIC_CACHE, false, buckFile)
             Scope runtimeDepsScope = new Scope(project, [configuration.name], sourceDirs, res, jvmArguments, cache)
             runtimeDepsScope.getExternalDeps()
         }

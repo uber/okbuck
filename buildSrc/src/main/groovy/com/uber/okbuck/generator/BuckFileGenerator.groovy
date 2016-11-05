@@ -1,7 +1,5 @@
 package com.uber.okbuck.generator
 
-import com.uber.okbuck.extension.GradleGenExtension
-import com.uber.okbuck.extension.OkBuckExtension
 import com.uber.okbuck.composer.AndroidBinaryRuleComposer
 import com.uber.okbuck.composer.AndroidBuckRuleComposer
 import com.uber.okbuck.composer.AndroidBuildConfigRuleComposer
@@ -20,6 +18,7 @@ import com.uber.okbuck.composer.JavaBinaryRuleComposer
 import com.uber.okbuck.composer.JavaLibraryRuleComposer
 import com.uber.okbuck.composer.JavaTestRuleComposer
 import com.uber.okbuck.composer.KeystoreRuleComposer
+import com.uber.okbuck.composer.LintRuleComposer
 import com.uber.okbuck.composer.PreBuiltNativeLibraryRuleComposer
 import com.uber.okbuck.composer.ZipRuleComposer
 import com.uber.okbuck.config.BUCKFile
@@ -32,6 +31,10 @@ import com.uber.okbuck.core.model.JavaLibTarget
 import com.uber.okbuck.core.model.ProjectType
 import com.uber.okbuck.core.model.Target
 import com.uber.okbuck.core.util.ProjectUtil
+import com.uber.okbuck.extension.ExperimentalExtension
+import com.uber.okbuck.extension.GradleGenExtension
+import com.uber.okbuck.extension.LintExtension
+import com.uber.okbuck.extension.OkBuckExtension
 import com.uber.okbuck.extension.TestExtension
 import com.uber.okbuck.rule.AndroidLibraryRule
 import com.uber.okbuck.rule.AndroidManifestRule
@@ -209,9 +212,14 @@ final class BuckFileGenerator {
                     appClass))
         }
 
+        ExperimentalExtension experimental = okbuck.experimental
+        LintExtension lint = okbuck.lint
+        if (experimental.lint && lint.include.contains('android_library')) {
+            androidLibRules.add(LintRuleComposer.compose(target))
+        }
+
         rules.addAll(androidLibRules)
         return rules
-
     }
 
     private static List<BuckRule> createRules(AndroidAppTarget target) {

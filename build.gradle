@@ -62,6 +62,10 @@ def addCommonConfigurationForAndroidModules(Project project) {
                 targetCompatibility JavaVersion.VERSION_1_7
             }
         }
+
+        lintOptions {
+            lintConfig project.rootProject.file('config/lint/lint.xml')
+        }
     }
     if (project.plugins.hasPlugin('com.android.application')) {
         project.android {
@@ -138,6 +142,10 @@ if (project.file("buildSrc").exists()) {
 
         gradleGen {
             options = ["--offline", "-Dorg.gradle.configureondemand=true", "-Dorg.gradle.parallel=true"]
+        }
+
+        experimental {
+            lint = true
         }
     }
 

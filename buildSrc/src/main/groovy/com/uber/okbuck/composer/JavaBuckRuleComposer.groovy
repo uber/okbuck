@@ -19,4 +19,8 @@ abstract class JavaBuckRuleComposer extends BuckRuleComposer {
     static String aptJar(JavaTarget target) {
         return "apt_jar_${target.name}"
     }
+
+    static String lint(JavaTarget target) {
+        return "lint_${target.name}"
+    }
 }
