@@ -6,6 +6,7 @@ import com.android.build.gradle.api.UnitTestVariant
 import com.android.build.gradle.internal.api.TestedVariant
 import com.android.build.gradle.internal.variant.BaseVariantData
 import com.android.builder.model.ClassField
+import com.android.builder.model.LintOptions
 import com.android.builder.model.SourceProvider
 import com.android.manifmerger.ManifestMerger2
 import com.android.manifmerger.MergingReport
@@ -124,6 +125,11 @@ abstract class AndroidTarget extends JavaLibTarget {
             }
         }
         return tasks
+    }
+
+    @Override
+    LintOptions getLintOptions() {
+        return project.android.lintOptions
     }
 
     Set<String> getSrcDirNames() {

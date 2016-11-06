@@ -1,7 +1,7 @@
 package com.uber.okbuck.core.model
 
-import com.uber.okbuck.extension.OkBuckExtension
 import com.uber.okbuck.core.util.FileUtil
+import com.uber.okbuck.extension.OkBuckExtension
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
 import org.gradle.api.Project

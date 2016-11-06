@@ -4,7 +4,7 @@
 ##
 ##  Buck wrapper script to invoke okbuck when needed, before running buck
 ##
-##  Created by OkBuck Gradle Plugin on : Mon Oct 10 12:58:03 PDT 2016
+##  Created by OkBuck Gradle Plugin on : Sun Nov 06 00:35:21 PDT 2016
 ##
 #########################################################################
 
@@ -93,7 +93,8 @@ getChanges ( ) {
         ["anyof",
             ["imatch", "**/*.gradle", "wholename"],
             ["imatch", "**/src/**/AndroidManifest.xml", "wholename"],
-            ["imatch", "**/gradle-wrapper.properties", "wholename"]
+            ["imatch", "**/gradle-wrapper.properties", "wholename"],
+            ["imatch", "**/lint.xml", "wholename"]
         ]
     ],
     "fields": ["name"]
@@ -128,11 +129,12 @@ runOkBuck ( ) {
     if [[ ! -z "$INSTALLED_WATCHMAN" ]]; then
         getToClean | jsonq '"\n".join(obj["files"])' | xargs rm
         info "DELETED OLD BUCK FILES"
-        EXTRA_ARGS="-xokbuckClean"
+        EXTRA_OKBUCK_ARGS="-xokbuckClean $EXTRA_OKBUCK_ARGS"
     fi
 
     rm -f $OKBUCK_SUCCESS
-    ( $WORKING_DIR/gradlew -p $WORKING_DIR okbuck -Dokbuck.wrapper=true $EXTRA_ARGS --stacktrace && updateOkBuckSuccess && success "PROCEEDING WITH BUCK" ) || die "OKBUCK FAILED"
+    ( $WORKING_DIR/gradlew -p $WORKING_DIR okbuck -Dokbuck.wrapper=true $EXTRA_OKBUCK_ARGS --stacktrace &&
+    updateOkBuckSuccess && success "PROCEEDING WITH BUCK" ) || die "OKBUCK FAILED"
 }
 
 watchmanWorkflow ( ) {

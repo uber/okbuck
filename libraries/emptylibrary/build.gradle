@@ -1,6 +1,12 @@
 apply plugin: 'com.android.library'
 apply plugin: 'me.tatarka.retrolambda'
 
+android {
+    lintOptions {
+        disable 'HardcodedDebugMode'
+    }
+}
+
 dependencies {
     compile deps.support.appCompat
 }

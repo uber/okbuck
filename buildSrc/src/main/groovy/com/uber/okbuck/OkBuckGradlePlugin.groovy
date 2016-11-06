@@ -3,16 +3,18 @@ package com.uber.okbuck
 import com.uber.okbuck.config.BUCKFile
 import com.uber.okbuck.core.dependency.DependencyCache
 import com.uber.okbuck.core.task.OkBuckCleanTask
+import com.uber.okbuck.core.util.LintUtil
 import com.uber.okbuck.core.util.RobolectricUtil
 import com.uber.okbuck.extension.ExperimentalExtension
 import com.uber.okbuck.extension.GradleGenExtension
 import com.uber.okbuck.extension.IntellijExtension
+import com.uber.okbuck.extension.LintExtension
 import com.uber.okbuck.extension.OkBuckExtension
 import com.uber.okbuck.extension.TestExtension
+import com.uber.okbuck.extension.WrapperExtension
 import com.uber.okbuck.generator.BuckFileGenerator
 import com.uber.okbuck.generator.DotBuckConfigLocalGenerator
 import com.uber.okbuck.wrapper.BuckWrapperTask
-import com.uber.okbuck.extension.WrapperExtension
 import org.apache.commons.io.IOUtils
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -32,8 +34,9 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     static final String BUCK_WRAPPER = "buckWrapper"
     static final String DEFAULT_CACHE_PATH = ".okbuck/cache"
     static final String CONFIGURATION_POST_PROCESS = "postProcess"
-
     static final String GROUP = "okbuck"
+    static final String BUCK_LINT = "buckLint"
+    static final String LINT = "lint"
 
     static DependencyCache depCache
     static Logger LOGGER
@@ -45,6 +48,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         ExperimentalExtension experimental = okbuck.extensions.create(EXPERIMENTAL, ExperimentalExtension)
         TestExtension test = okbuck.extensions.create(TEST, TestExtension)
         IntellijExtension intellij = okbuck.extensions.create(INTELLIJ, IntellijExtension)
+        LintExtension lint = okbuck.extensions.create(LINT, LintExtension, project)
         okbuck.extensions.create(GRADLE_GEN, GradleGenExtension, project)
 
         Task okBuck = project.task(OKBUCK)
@@ -68,7 +72,8 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                 generate(project)
             }
 
-            depCache = new DependencyCache(project, DEFAULT_CACHE_PATH, true, true, intellij.sources)
+            depCache = new DependencyCache(project, DEFAULT_CACHE_PATH, true, DependencyCache.THIRD_PARTY_BUCK_FILE,
+                    intellij.sources, experimental.lint)
 
             if (test.robolectric) {
                 Task fetchRobolectricRuntimeDeps = project.task('fetchRobolectricRuntimeDeps')
@@ -90,6 +95,19 @@ class OkBuckGradlePlugin implements Plugin<Project> {
             })
             buckWrapper.setGroup(GROUP)
             buckWrapper.setDescription("Create buck wrapper")
+
+            if (experimental.lint) {
+                okbuck.buckProjects.each { Project buckProject ->
+                    buckProject.configurations.maybeCreate(BUCK_LINT)
+                }
+
+                Task fetchLintDeps = project.task('fetchLintDeps')
+                okBuck.dependsOn(fetchLintDeps)
+                fetchLintDeps.mustRunAfter(okBuckClean)
+                fetchLintDeps << {
+                    LintUtil.fetchLintDeps(project, lint.version)
+                }
+            }
         }
     }
 

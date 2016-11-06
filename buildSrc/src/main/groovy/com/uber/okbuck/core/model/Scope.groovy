@@ -3,6 +3,7 @@ package com.uber.okbuck.core.model
 import com.uber.okbuck.OkBuckGradlePlugin
 import com.uber.okbuck.core.dependency.DependencyCache
 import com.uber.okbuck.core.dependency.ExternalDependency
+import com.uber.okbuck.core.dependency.InValidDependencyException
 import com.uber.okbuck.core.util.FileUtil
 import com.uber.okbuck.core.util.ProjectUtil
 import groovy.transform.EqualsAndHashCode
@@ -47,6 +48,14 @@ class Scope {
         }
     }
 
+    Set<String> getPackagedLintJars() {
+        external.findAll { ExternalDependency dependency ->
+            depCache.getLintJar(dependency) != null
+        }.collect { ExternalDependency dependency ->
+            depCache.getLintJar(dependency)
+        }
+    }
+
     private void extractConfigurations(Collection<String> configurations) {
         List<Configuration> validConfigurations = []
         configurations.each { String configName ->
@@ -63,6 +72,9 @@ class Scope {
                     if (identifier.contains(" ")) {
                         Target target = ProjectUtil.getTargetForOutput(project.gradle.rootProject, dep)
                         if (target != null && target.project != project) {
+                            if (!depCache.isValid(dep)) {
+                                throw new InValidDependencyException("${target.project} is not a valid project dependency")
+                            }
                             targetDeps.add(target)
                         }
                     } else {
@@ -81,8 +93,9 @@ class Scope {
                     external.add(dependency)
                     depCache.put(dependency)
                 }
-            } catch (UnknownConfigurationException ignored) {
-            }
+            } catch (InValidDependencyException e) {
+                throw new IllegalStateException("Invalid dependency found for ${project} , ${validConfigurations}", e)
+            } catch(UnknownConfigurationException ignored) { }
         }
 
         // Download sources if enabled

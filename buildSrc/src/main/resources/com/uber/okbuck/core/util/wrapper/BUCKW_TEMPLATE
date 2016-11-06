@@ -42,11 +42,6 @@ ensure ( ) {
     command -v $1 >/dev/null 2>&1 || die "ERROR: '$1' could be found in your PATH. Please install $1. $2"
 }
 
-md5digest ( ) {
-    # only md5 is available by default on osx, while md5sum is available on other *nix systems
-    ( ensure md5sum && md5sum $1 ) || ( ensure md5 && md5 $1 )
-}
-
 jsonq() {
     python -c "import sys,json; obj=json.load(sys.stdin); print($1)"
 }
@@ -128,11 +123,11 @@ runOkBuck ( ) {
     if [[ ! -z "$INSTALLED_WATCHMAN" ]]; then
         getToClean | jsonq '"\n".join(obj["files"])' | xargs rm
         info "DELETED OLD BUCK FILES"
-        EXTRA_ARGS="-xokbuckClean"
+        EXTRA_OKBUCK_ARGS="-xokbuckClean $EXTRA_OKBUCK_ARGS"
     fi
 
     rm -f $OKBUCK_SUCCESS
-    ( $WORKING_DIR/gradlew -p $WORKING_DIR okbuck -Dokbuck.wrapper=true $EXTRA_ARGS $EXTRA_OKBUCK_ARGS --stacktrace &&
+    ( $WORKING_DIR/gradlew -p $WORKING_DIR okbuck -Dokbuck.wrapper=true $EXTRA_OKBUCK_ARGS --stacktrace &&
     updateOkBuckSuccess && success "PROCEEDING WITH BUCK" ) || die "OKBUCK FAILED"
 }
 

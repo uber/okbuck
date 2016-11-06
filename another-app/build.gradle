@@ -24,6 +24,10 @@ android {
 
         test.setRoot('test')
     }
+
+    lintOptions {
+        disable 'HardcodedDebugMode'
+    }
 }
 
 dependencies {

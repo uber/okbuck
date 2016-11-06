@@ -23,5 +23,4 @@ dependencies {
 
     testCompile deps.test.junit
     testCompile project(':libraries:robolectric-base')
-
 }

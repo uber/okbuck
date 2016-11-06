@@ -4,34 +4,44 @@ import com.uber.okbuck.core.util.FileUtil
 import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
 
+import java.nio.file.FileSystem
+import java.nio.file.FileSystems
+import java.nio.file.Files
+import java.nio.file.Path
+
 class DependencyCache {
 
+    static final String THIRD_PARTY_BUCK_FILE = "thirdparty/BUCK_FILE"
     final Project rootProject
     final File cacheDir
     final boolean useFullDepName
     final boolean fetchSources
+    final boolean extractLintJars
 
     private Map<VersionlessDependency, String> finalDepFiles = [:]
+    private Map<VersionlessDependency, String> lintJars = [:]
     private Map<VersionlessDependency, ExternalDependency> greatestVersions = [:]
 
     DependencyCache(Project rootProject,
                     String cacheDirPath,
-                    useFullDepName = false,
-                    createBuckFile = true,
-                    fetchSources = false) {
+                    boolean useFullDepName = false,
+                    String buckFile = THIRD_PARTY_BUCK_FILE,
+                    boolean fetchSources = false,
+                    boolean extractLintJars = false) {
         this.rootProject = rootProject
         this.useFullDepName = useFullDepName
         this.fetchSources = fetchSources
+        this.extractLintJars = extractLintJars
         cacheDir = new File(rootProject.projectDir, cacheDirPath)
         cacheDir.mkdirs()
-        if (createBuckFile) {
-            FileUtil.copyResourceToProject("thirdparty/BUCK_FILE", new File(cacheDir, "BUCK"))
+        if (buckFile) {
+            FileUtil.copyResourceToProject(buckFile, new File(cacheDir, "BUCK"))
         }
     }
 
     void put(ExternalDependency dependency) {
         if (!isValid(dependency.depFile)) {
-            throw new IllegalArgumentException("${dependency.depFile.absolutePath} is not a valid jar/aar file")
+            throw new InValidDependencyException("${dependency.depFile.absolutePath} is not a valid dependency")
         }
 
         ExternalDependency externalDependency = greatestVersions.get(dependency)
@@ -46,7 +56,14 @@ class DependencyCache {
             File depFile = greatestVersion.depFile
             File cachedCopy = new File(cacheDir, useFullDepName ? dependency.cacheName : dependency.depFile.name)
             if (!cachedCopy.exists()) {
-                FileUtils.copyFile(depFile, cachedCopy)
+                Files.copy(depFile.toPath(), cachedCopy.toPath())
+            }
+            if (extractLintJars && cachedCopy.name.endsWith(".aar")) {
+                File lintJar = getPackagedLintJar(cachedCopy)
+                if (lintJar != null) {
+                    String lintJarPath = FileUtil.getRelativePath(rootProject.projectDir, lintJar)
+                    lintJars.put(greatestVersion, lintJarPath)
+                }
             }
             if (fetchSources) {
                 fetchSourcesFor(dependency)
@@ -56,6 +73,10 @@ class DependencyCache {
         }
 
         return finalDepFiles.get(greatestVersion)
+    }
+
+    String getLintJar(ExternalDependency dependency) {
+        return lintJars.get(dependency)
     }
 
     private void fetchSourcesFor(ExternalDependency dependency) {
@@ -79,7 +100,22 @@ class DependencyCache {
         }
     }
 
-    private static boolean isValid(File dep) {
+    boolean isValid(File dep) {
         return (dep.name.endsWith(".jar") || dep.name.endsWith(".aar"))
+    }
+
+    static File getPackagedLintJar(File aar) {
+        File lintJar = new File(aar.parentFile, aar.name.replaceFirst(/\.aar$/, '-lint.jar'))
+        if (lintJar.exists()) {
+            return lintJar
+        }
+        FileSystem zipFile = FileSystems.newFileSystem(aar.toPath(), null)
+        Path packagedLintJar = zipFile.getPath("lint.jar")
+        if (Files.exists(packagedLintJar)) {
+            Files.copy(packagedLintJar, lintJar.toPath())
+            return lintJar
+        } else {
+            return null
+        }
     }
 }

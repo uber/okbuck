@@ -26,6 +26,7 @@ script:
   - mv buildSrc notBuildSrc
   - buck query "kind('android_binary', '//...')" | xargs buck build
   - buck test --include unit
+  - buck query "filter('lint_*', kind('genrule', '//...'))" | xargs buck build
   - android-wait-for-emulator
   - adb shell input keyevent 82
   - buck test //app:instrumentation_demoDebug_test

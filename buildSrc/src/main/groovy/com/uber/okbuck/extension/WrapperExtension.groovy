@@ -20,7 +20,7 @@ class WrapperExtension {
     /**
      * List of changed files to trigger okbuck runs on
      */
-    List<String> watch = ["**/*.gradle", "**/src/**/AndroidManifest.xml", "**/gradle-wrapper.properties"]
+    List<String> watch = ["**/*.gradle", "**/src/**/AndroidManifest.xml", "**/gradle-wrapper.properties", "**/lint.xml"]
 
     /**
      * List of added/removed directories to trigger okbuck runs on

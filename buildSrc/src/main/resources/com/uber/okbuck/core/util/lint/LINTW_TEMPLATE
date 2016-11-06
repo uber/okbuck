@@ -1,0 +1,7 @@
+#!/bin/bash
+
+exec java \
+    template-jvmArgs \
+    -Djava.awt.headless=true \
+    -classpath "$LINT_DEPS" \
+    com.android.tools.lint.Main \
