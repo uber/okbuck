@@ -22,10 +22,9 @@ public class ExampleUnitTest {
 
     @Test
     public void resource_loading() {
-        Context context = (Context) RuntimeEnvironment.application;
+        Context context = RuntimeEnvironment.application;
         assertEquals(context.getResources().getString(R.string.app_name), "Common");
-        assertEquals(context.getResources().getColor(
-            com.uber.okbuck.example.parcelable.R.color.fooColor), 0xcccccc);
+        assertEquals(Person.getColor(context), 0xcccccc);
 
     }
 }

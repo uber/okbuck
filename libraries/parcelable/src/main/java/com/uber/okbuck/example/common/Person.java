@@ -1,7 +1,10 @@
 package com.uber.okbuck.example.common;
 
+import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import com.uber.okbuck.example.parcelable.R;
 
 public class Person implements Parcelable {
     public static final Parcelable.Creator<Person> CREATOR = new Parcelable.Creator<Person>() {
@@ -32,6 +35,10 @@ public class Person implements Parcelable {
 
     public String getName() {
         return mName;
+    }
+
+    static int getColor(Context context) {
+        return context.getResources().getColor(R.color.fooColor);
     }
 
     @Override
