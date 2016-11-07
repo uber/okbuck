@@ -87,6 +87,7 @@ final class ProjectUtil {
                         }
                     }
                     break
+                case ProjectType.JAVA_APP:
                 case ProjectType.JAVA_LIB:
                     result = new JavaLibTarget(project, JavaLibTarget.MAIN)
                     break
