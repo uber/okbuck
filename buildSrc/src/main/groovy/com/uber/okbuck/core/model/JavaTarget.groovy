@@ -55,7 +55,9 @@ abstract class JavaTarget extends Target {
     boolean hasLintRegistry() {
         try {
             return project.jar.manifest.attributes.containsKey("Lint-Registry")
-        } catch (Exception ignored) { }
+        } catch (Exception ignored) {
+            return false
+        }
     }
 
     /**

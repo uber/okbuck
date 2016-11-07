@@ -6,13 +6,31 @@ abstract class BuckRuleComposer {
 
     static Set<String> external(Set<String> deps) {
         return deps.collect { String dep ->
-            "//${dep.reverse().replaceFirst("/", ":").reverse()}"
+            external(dep)
         }
+    }
+
+    static String external(String dep) {
+        return "//${dep.reverse().replaceFirst("/", ":").reverse()}"
     }
 
     static Set<String> targets(Set<Target> deps) {
         return deps.collect { Target targetDep ->
-            "//${targetDep.path}:src_${targetDep.name}"
+            targets(targetDep)
         }
+    }
+
+    static String targets(Target dep) {
+        return "//${dep.path}:src_${dep.name}"
+    }
+
+    static Set<String> binTargets(Set<Target> deps) {
+        return deps.collect { Target targetDep ->
+            binTargets(targetDep)
+        }
+    }
+
+    static String binTargets(Target dep) {
+        return "//${dep.path}:bin_${dep.name}"
     }
 }
