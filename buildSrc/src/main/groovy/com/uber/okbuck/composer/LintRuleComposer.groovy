@@ -1,5 +1,6 @@
 package com.uber.okbuck.composer
 
+import com.uber.okbuck.core.model.JavaAppTarget
 import com.uber.okbuck.core.model.JavaTarget
 import com.uber.okbuck.core.model.Target
 import com.uber.okbuck.core.util.LintUtil
@@ -30,16 +31,25 @@ final class LintRuleComposer extends JavaBuckRuleComposer {
         customLintTargets.addAll(targets(lintJarTargets))
         customLintTargets.addAll(external(target.main.packagedLintJars))
 
-        Set<String> lintDeps = [] as Set
-        lintDeps.addAll(LintUtil.LINT_DEPS_RULE)
-        lintDeps.addAll(targets(lintJarTargets))
+        Set<String> classpathLintDeps = [] as Set
+        Set<String> locationLintDeps = [] as Set
+
+        locationLintDeps.addAll(LintUtil.LINT_DEPS_RULE)
+        lintJarTargets.each {
+            if (it instanceof JavaAppTarget) {
+                locationLintDeps.addAll(targets([it] as Set))
+            } else {
+                classpathLintDeps.addAll(targets([it] as Set))
+            }
+        }
 
         return new LintRule(
                 lint(target),
                 inputs,
                 LintUtil.getLintwRule(target),
                 customLintTargets,
-                lintDeps,
+                classpathLintDeps,
+                locationLintDeps,
                 target.main.sources.empty ? null : ":${src(target)}")
     }
 }

@@ -15,8 +15,12 @@ for jar in jars:
     visibility = ['PUBLIC'],
   )
 
-java_library(
+java_binary(
   name='okbuck_lint_deps',
   deps=map(lambda x: ":" + x, jars),
+  blacklist=[
+    'META-INF',
+    'org.jetbrains.annotations',
+  ],
   visibility = ['PUBLIC'],
 )
