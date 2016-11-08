@@ -24,12 +24,6 @@ abstract class BuckRuleComposer {
         return "//${dep.path}:src_${dep.name}"
     }
 
-    static Set<String> binTargets(Set<Target> deps) {
-        return deps.collect { Target targetDep ->
-            binTargets(targetDep)
-        }
-    }
-
     static String binTargets(Target dep) {
         return "//${dep.path}:bin_${dep.name}"
     }

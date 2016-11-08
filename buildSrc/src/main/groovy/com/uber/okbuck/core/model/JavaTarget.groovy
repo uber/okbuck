@@ -45,7 +45,7 @@ abstract class JavaTarget extends Target {
         Set<File> sourceDirs = []
         List<String> jvmArguments = []
         return new Scope(project, [OkBuckGradlePlugin.BUCK_LINT], sourceDirs, res, jvmArguments,
-                LintUtil.getLintCache(project))
+                LintUtil.getLintDepsCache(project))
     }
 
     LintOptions getLintOptions() {
