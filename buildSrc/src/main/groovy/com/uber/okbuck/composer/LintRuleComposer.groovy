@@ -24,23 +24,19 @@ final class LintRuleComposer extends JavaBuckRuleComposer {
         LintExtension lintExtension = target.rootProject.okbuck.lint
         LintWrapperGenerator.generate(target, lintExtension.jvmArgs)
 
-        Set<String> customLintTargets = [] as Set
-        Set<Target> lintJarTargets = target.lint.targetDeps.findAll {
+        Set<Target> customLintTargets = target.lint.targetDeps.findAll {
             (it instanceof JavaTarget) && (it.hasLintRegistry())
         }
 
-        customLintTargets.addAll(external(target.main.packagedLintJars))
-        customLintTargets.addAll(targets(lintJarTargets))
+        Set<String> customLintRules = [] as Set
+        customLintRules.addAll(external(target.main.packagedLintJars))
+        customLintRules.addAll(targets(customLintTargets))
 
-        Set<String> classpathLintDeps = [] as Set
-        Set<String> locationLintDeps = [] as Set
-
-        locationLintDeps.addAll(LintUtil.LINT_DEPS_RULE)
-        lintJarTargets.each {
+        Set<String> lintDeps = [] as Set
+        lintDeps.addAll(LintUtil.LINT_DEPS_RULE)
+        customLintTargets.each {
             if (ProjectUtil.getType(it.project) == ProjectType.JAVA_APP) {
-                locationLintDeps.addAll(binTargets(it))
-            } else {
-                classpathLintDeps.addAll(targets(it))
+                lintDeps.addAll(binTargets(it))
             }
         }
 
@@ -48,9 +44,8 @@ final class LintRuleComposer extends JavaBuckRuleComposer {
                 lint(target),
                 inputs,
                 LintUtil.getLintwRule(target),
-                customLintTargets,
-                classpathLintDeps,
-                locationLintDeps,
+                customLintRules,
+                lintDeps,
                 target.main.sources.empty ? null : ":${src(target)}")
     }
 }

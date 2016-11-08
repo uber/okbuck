@@ -17,7 +17,7 @@ public class LintWrapperGenerator {
         StringBuilder sb = new StringBuilder(outputText)
 
         if (!target.main.sources.empty) {
-            sb.append(toCmd('--classpath "$MODULE_JAR"'))
+            sb.append(toCmd('--classpath "$LINT_TARGET"'))
         }
         if (target.lintOptions.abortOnError) {
             sb.append(toCmd("--exitcode"))
