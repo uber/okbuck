@@ -3,5 +3,5 @@
 exec java \
     template-jvmArgs \
     -Djava.awt.headless=true \
-    -classpath "$LINT_DEPS" \
+    -classpath "$JAR_PATH" \
     com.android.tools.lint.Main \
