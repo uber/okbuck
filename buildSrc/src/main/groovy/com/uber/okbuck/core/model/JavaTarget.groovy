@@ -2,6 +2,7 @@ package com.uber.okbuck.core.model
 
 import com.android.builder.model.LintOptions
 import com.uber.okbuck.OkBuckGradlePlugin
+import com.uber.okbuck.composer.TrasformDependencyWriterRuleComposer
 import com.uber.okbuck.core.util.LintUtil
 import org.apache.commons.io.IOUtils
 import org.gradle.api.JavaVersion
@@ -36,6 +37,17 @@ abstract class JavaTarget extends Target {
             target.getProp(okbuck.annotationProcessors, null) != null
         })
         return aptScope
+    }
+
+    /**
+     * Transform Scope
+     */
+    Scope getTransform() {
+        File res = null
+        Set<File> sourceDirs = []
+        List<String> jvmArguments = []
+        return new Scope(project, [TrasformDependencyWriterRuleComposer.CONFIGURATION_TRANSFORM],
+                sourceDirs, res, jvmArguments, TrasformDependencyWriterRuleComposer.getTransformDepsCache(project))
     }
 
     /**

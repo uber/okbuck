@@ -19,6 +19,7 @@ import com.uber.okbuck.composer.JavaTestRuleComposer
 import com.uber.okbuck.composer.KeystoreRuleComposer
 import com.uber.okbuck.composer.LintRuleComposer
 import com.uber.okbuck.composer.PreBuiltNativeLibraryRuleComposer
+import com.uber.okbuck.composer.TrasformDependencyWriterRuleComposer
 import com.uber.okbuck.config.BUCKFile
 import com.uber.okbuck.core.model.AndroidAppTarget
 import com.uber.okbuck.core.model.AndroidInstrumentationTarget
@@ -193,6 +194,11 @@ final class BuckFileGenerator {
                     appClass))
         }
 
+
+        // Transform
+        rules.addAll(TrasformDependencyWriterRuleComposer.compose(target))
+
+        // Lint
         OkBuckExtension okbuck = target.rootProject.okbuck
         ExperimentalExtension experimental = okbuck.experimental
         LintExtension lint = okbuck.lint
@@ -233,6 +239,9 @@ final class BuckFileGenerator {
 
         rules.add(AndroidBinaryRuleComposer.compose(target, deps, ":${manifestRule.name}",
                 keystoreRuleName))
+
+        // Transform
+        rules.addAll(TrasformDependencyWriterRuleComposer.compose(target))
 
         return rules
     }

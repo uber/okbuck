@@ -14,12 +14,15 @@ final class AndroidBinaryRule extends BuckRule {
     private final Map<String, Object> mPlaceholders
     private final Set<String> mExtraOpts
     private final boolean mIncludesVectorDrawables
+    private final Set<String> mPreprocessJavaClassesDeps
+    private final String mPreprocessJavaClassesBash
 
     AndroidBinaryRule(String name, List<String> visibility, List<String> deps, String manifest, String keystore,
                       boolean multidexEnabled, int linearAllocHardLimit, Set<String> primaryDexPatterns,
                       boolean exopackage, Set<String> cpuFilters, boolean minifyEnabled,
                       String proguardConfig, Map<String, Object> placeholders, Set<String> extraOpts,
-                      boolean includesVectorDrawables) {
+                      boolean includesVectorDrawables, Set<String> preprocessJavaClassesDeps,
+                      String preprocessJavaClassesBash) {
         super("android_binary", name, visibility, deps)
 
         mManifest = manifest
@@ -34,6 +37,8 @@ final class AndroidBinaryRule extends BuckRule {
         mPlaceholders = placeholders
         mExtraOpts = extraOpts
         mIncludesVectorDrawables = includesVectorDrawables
+        mPreprocessJavaClassesDeps = preprocessJavaClassesDeps
+        mPreprocessJavaClassesBash = preprocessJavaClassesBash
     }
 
     @Override
@@ -53,6 +58,12 @@ final class AndroidBinaryRule extends BuckRule {
                 }
                 printer.println("\t],")
             }
+        }
+        if (mPreprocessJavaClassesDeps != null && !mPreprocessJavaClassesDeps.isEmpty()) {
+            printer.println("\tpreprocess_java_classes_deps = ['${mPreprocessJavaClassesDeps.join("','")}'],")
+        }
+        if (mPreprocessJavaClassesBash != null) {
+            printer.println("\tpreprocess_java_classes_bash = '${mPreprocessJavaClassesBash}',")
         }
         if (mCpuFilters != null && !mCpuFilters.empty) {
             printer.println("\tcpu_filters = [")

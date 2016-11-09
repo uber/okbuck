@@ -7,6 +7,7 @@ final class GenRule extends BuckRule {
     private final Set<String> bashCmds
     private final boolean globSrcs
     private final String output
+    private boolean executable;
 
     GenRule(String name,
             List<String> inputs,
@@ -19,6 +20,12 @@ final class GenRule extends BuckRule {
         this.bashCmds = bashCmds
         this.globSrcs = globSrcs
         this.output = output
+        this.executable = false
+    }
+
+    public GenRule setExecutable(boolean executable) {
+        this.executable = executable;
+        return this;
     }
 
     @Override
@@ -32,6 +39,9 @@ final class GenRule extends BuckRule {
         }
 
         printer.println("\tout = '${output}',")
+        if (executable) {
+            printer.println("\texecutable = True,")
+        }
         printer.println("\tbash = '' \\")
         bashCmds.each {
             printer.println("\t'${it} ' \\")

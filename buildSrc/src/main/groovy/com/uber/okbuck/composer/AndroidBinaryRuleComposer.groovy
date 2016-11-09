@@ -23,9 +23,19 @@ final class AndroidBinaryRuleComposer extends AndroidBuckRuleComposer {
             CPU_FILTER_MAP.get(cpuFilter)
         }.findAll { String cpuFilter -> cpuFilter != null }
 
+        Set<String> transformRules = TrasformDependencyWriterRuleComposer.getTransformRules(target)
+        String bashCommand = null;
+        if (transformRules != null && !transformRules.isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            for (String transformRule : transformRules) {
+                sb.append("\$(exe ${transformRule}) \$IN_JARS_DIR \$OUT_JARS_DIR \$ANDROID_BOOTCLASSPATH;")
+            }
+            bashCommand = sb.toString()
+        }
         return new AndroidBinaryRule(bin(target), ["PUBLIC"], deps, manifestRuleName, keystoreRuleName,
                 target.multidexEnabled, target.linearAllocHardLimit, target.primaryDexPatterns,
                 target.exopackage != null, mappedCpuFilters, target.minifyEnabled,
-                target.proguardConfig, target.placeholders, target.extraOpts, target.includesVectorDrawables)
+                target.proguardConfig, target.placeholders, target.extraOpts, target.includesVectorDrawables,
+                transformRules, bashCommand)
     }
 }
