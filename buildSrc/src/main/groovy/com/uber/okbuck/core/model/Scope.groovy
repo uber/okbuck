@@ -17,6 +17,8 @@ import org.gradle.plugins.ide.internal.IdeDependenciesExtractor
 @EqualsAndHashCode
 class Scope {
 
+    private static final FILE_SEPARATOR = System.getProperty("file.separator")
+
     final String resourcesDir
     final Set<String> sources
     final Set<Target> targetDeps = [] as Set
@@ -87,9 +89,10 @@ class Scope {
                 configuration.files.findAll { File resolved ->
                     !resolvedFiles.contains(resolved)
                 }.each { File localDep ->
+                    String localDepPath = FileUtil.getRelativePath(project.rootDir, localDep)
                     ExternalDependency dependency = new ExternalDependency(
-                            "${project.path.replaceFirst(':', '').replaceAll(':', '_')}:${FilenameUtils.getBaseName(localDep.name)}:1.0.0",
-                            localDep)
+                        "${localDepPath.replaceAll(FILE_SEPARATOR, '_')}:${FilenameUtils.getBaseName(localDep.name)}:1.0.0",
+                        localDep)
                     external.add(dependency)
                     depCache.put(dependency)
                 }
