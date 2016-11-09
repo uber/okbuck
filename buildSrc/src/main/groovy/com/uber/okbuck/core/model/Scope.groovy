@@ -90,7 +90,6 @@ class Scope {
                     !resolvedFiles.contains(resolved)
                 }.each { File localDep ->
                     String localDepPath = FileUtil.getRelativePath(project.rootDir, localDep)
-                    println localDepPath
                     ExternalDependency dependency = new ExternalDependency(
                         "${localDepPath.replaceAll(FILE_SEPARATOR, '_')}:${FilenameUtils.getBaseName(localDep.name)}:1.0.0",
                         localDep)
