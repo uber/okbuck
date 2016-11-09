@@ -14,9 +14,6 @@ import org.gradle.api.artifacts.ResolvedArtifact
 import org.gradle.api.artifacts.UnknownConfigurationException
 import org.gradle.plugins.ide.internal.IdeDependenciesExtractor
 
-import java.nio.file.Path
-import java.nio.file.Paths
-
 @EqualsAndHashCode
 class Scope {
 
@@ -27,7 +24,6 @@ class Scope {
     final Set<Target> targetDeps = [] as Set
     List<String> jvmArgs
     DependencyCache depCache
-    final Path rootPath
 
     protected final Project project
     protected final Set<ExternalDependency> external = [] as Set
@@ -40,7 +36,6 @@ class Scope {
           DependencyCache depCache = OkBuckGradlePlugin.depCache) {
 
         this.project = project
-        this.rootPath = Paths.get(project.gradle.rootProject.projectDir.absolutePath)
         sources = FileUtil.getAvailable(project, sourceDirs)
         resourcesDir = FileUtil.getAvailableFile(project, resDir)
         jvmArgs = jvmArguments
@@ -94,7 +89,8 @@ class Scope {
                 configuration.files.findAll { File resolved ->
                     !resolvedFiles.contains(resolved)
                 }.each { File localDep ->
-                    String localDepPath = rootPath.relativize(Paths.get(localDep.absolutePath)).toString()
+                    String localDepPath = FileUtil.getRelativePath(project.rootDir, localDep)
+                    println localDepPath
                     ExternalDependency dependency = new ExternalDependency(
                         "${localDepPath.replaceAll(FILE_SEPARATOR, '_')}:${FilenameUtils.getBaseName(localDep.name)}:1.0.0",
                         localDep)
