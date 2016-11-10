@@ -1,6 +1,7 @@
 package com.uber.okbuck.example.common;
 
 import android.content.Context;
+import android.graphics.Color;
 
 import com.uber.okbuck.BuckRobolectricTestRunner;
 
@@ -23,8 +24,9 @@ public class ExampleUnitTest {
     @Test
     public void resource_loading() {
         Context context = RuntimeEnvironment.application;
+        int actualColor = Color.parseColor("#cccccc");
         assertEquals(context.getResources().getString(R.string.app_name), "Common");
-        assertEquals(Person.getColor(context), 0xcccccc);
-
+        assertEquals(context.getResources().getColor(R.color.fooColor), actualColor);
+        assertEquals(Person.getColor(context), actualColor);
     }
 }
