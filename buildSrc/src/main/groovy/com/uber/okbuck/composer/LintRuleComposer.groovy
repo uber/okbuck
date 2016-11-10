@@ -4,6 +4,7 @@ import com.uber.okbuck.core.model.AndroidTarget
 import com.uber.okbuck.core.model.JavaTarget
 import com.uber.okbuck.core.model.ProjectType
 import com.uber.okbuck.core.model.Target
+import com.uber.okbuck.core.util.FileUtil
 import com.uber.okbuck.core.util.LintUtil
 import com.uber.okbuck.core.util.ProjectUtil
 import com.uber.okbuck.extension.LintExtension
@@ -18,9 +19,9 @@ final class LintRuleComposer extends JavaBuckRuleComposer {
     }
 
     static GenRule compose(JavaTarget target) {
-        List<String> inputs = []
+        String lintConfigXml = ""
         if (target.lintOptions.lintConfig != null && target.lintOptions.lintConfig.exists()) {
-            inputs.add(LintUtil.getLintwConfigRule(target.project, target.lintOptions.lintConfig))
+            lintConfigXml = LintUtil.getLintwConfigRule(target.project, target.lintOptions.lintConfig)
         }
 
         List<Target> customLintTargets = target.lint.targetDeps.findAll {
@@ -84,8 +85,8 @@ final class LintRuleComposer extends JavaBuckRuleComposer {
         if (target.lintOptions.enable) {
             lintCmds.add("--enable ${target.lintOptions.enable.join(',')}")
         }
-        if (target.lintOptions.lintConfig && target.lintOptions.lintConfig.exists()) {
-            lintCmds.add("--config ${target.lintOptions.lintConfig.absolutePath}")
+        if (lintConfigXml) {
+            lintCmds.add("--config ${toLocation(lintConfigXml)}")
         }
         if (target.lintOptions.xmlReport) {
             lintCmds.add('--xml "\$OUT/lint-results.xml"')
@@ -93,18 +94,25 @@ final class LintRuleComposer extends JavaBuckRuleComposer {
         if (target.lintOptions.htmlReport) {
             lintCmds.add('--html "\$OUT/lint-results.html"')
         }
+
+        List<String> inputs = []
         target.main.sources.each { String sourceDir ->
-            lintCmds.add("--sources ${new File(target.project.projectDir, sourceDir).absolutePath}")
+            lintCmds.add("--sources ${sourceDir}")
+            inputs.add(sourceDir)
         }
         if (target instanceof AndroidTarget) {
             target.getResources().each { AndroidTarget.ResBundle bundle ->
                 if (bundle.resDir) {
-                    lintCmds.add("--resources ${new File(target.project.projectDir, bundle.resDir).absolutePath}")
+                    lintCmds.add("--resources ${bundle.resDir}")
+                    inputs.add(bundle.resDir)
                 }
             }
 
             // Project root is at okbuck generated manifest for this target
-            lintCmds.add("${new File(target.project.projectDir, target.manifest).parentFile.absolutePath}")
+            String relativeManifestDir = FileUtil.getRelativePath(target.project.projectDir,
+                    target.project.file(target.manifest).parentFile)
+            inputs.add(relativeManifestDir)
+            lintCmds.add(relativeManifestDir)
         }
 
         return new GenRule(
