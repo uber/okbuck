@@ -1,11 +1,13 @@
 package com.uber.okbuck.core.model
 
+import com.android.builder.core.VariantType
 import com.android.builder.model.LintOptions
 import com.uber.okbuck.OkBuckGradlePlugin
 import com.uber.okbuck.core.util.LintUtil
 import org.apache.commons.io.IOUtils
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
+import org.gradle.api.tasks.testing.Test
 
 import java.util.jar.JarEntry
 import java.util.jar.JarFile
@@ -86,6 +88,16 @@ abstract class JavaTarget extends Target {
      */
     Set<GradleSourceGen> getGradleSourcegen() {
         return [] as Set
+    }
+
+    /**
+     * List of test jvm args
+     */
+    List<String> getTestRunnerJvmArgs() {
+        Test testTask = project.tasks.withType(Test).find {
+            it.name == "test"
+        }
+        return testTask != null ? testTask.allJvmArgs : []
     }
 
     protected static String javaVersion(JavaVersion version) {

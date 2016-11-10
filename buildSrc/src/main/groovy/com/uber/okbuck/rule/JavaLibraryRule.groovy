@@ -33,6 +33,7 @@ final class JavaLibraryRule extends JavaRule {
                 targetCompatibility,
                 postprocessClassesCommands,
                 options,
+                null,
                 testTargets)
     }
 }

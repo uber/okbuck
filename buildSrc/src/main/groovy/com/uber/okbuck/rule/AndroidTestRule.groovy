@@ -25,6 +25,7 @@ final class AndroidTestRule extends AndroidRule {
             String targetCompatibility,
             PostProcessClassessCommands postprocessClassesCommands,
             List<String> options,
+            List<String> testRunnerJvmArgs,
             String mResourcesDir,
             String runtimeDependency) {
 
@@ -46,6 +47,7 @@ final class AndroidTestRule extends AndroidRule {
                 targetCompatibility,
                 postprocessClassesCommands,
                 options,
+                testRunnerJvmArgs,
                 false,
                 mResourcesDir,
                 runtimeDependency,

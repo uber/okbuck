@@ -46,6 +46,7 @@ final class AndroidLibraryRule extends AndroidRule {
                 targetCompatibility,
                 postprocessClassesCommands,
                 options,
+                null,
                 generateR2,
                 null,
                 null,
