@@ -7,6 +7,7 @@ import com.uber.okbuck.core.dependency.InValidDependencyException
 import com.uber.okbuck.core.util.FileUtil
 import com.uber.okbuck.core.util.ProjectUtil
 import groovy.transform.EqualsAndHashCode
+import org.apache.commons.compress.compressors.FileNameUtil
 import org.apache.commons.io.FilenameUtils
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -89,9 +90,14 @@ class Scope {
                 configuration.files.findAll { File resolved ->
                     !resolvedFiles.contains(resolved)
                 }.each { File localDep ->
-                    String localDepPath = FileUtil.getRelativePath(project.rootDir, localDep)
+                    String localDepGroup
+                    if (FilenameUtils.directoryContains(project.rootDir.absolutePath, localDep.absolutePath)) {
+                        localDepGroup = FileUtil.getRelativePath(project.rootDir, localDep).replaceAll(FILE_SEPARATOR, '_')
+                    } else {
+                        localDepGroup = project.path.replaceFirst(':', '').replaceAll(':', '_')
+                    }
                     ExternalDependency dependency = new ExternalDependency(
-                        "${localDepPath.replaceAll(FILE_SEPARATOR, '_')}:${FilenameUtils.getBaseName(localDep.name)}:1.0.0",
+                        "${localDepGroup}:${FilenameUtils.getBaseName(localDep.name)}:1.0.0",
                         localDep)
                     external.add(dependency)
                     depCache.put(dependency)
