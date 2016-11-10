@@ -5,6 +5,7 @@ import com.android.build.gradle.api.TestVariant
 import com.android.build.gradle.api.UnitTestVariant
 import com.android.build.gradle.internal.api.TestedVariant
 import com.android.build.gradle.internal.variant.BaseVariantData
+import com.android.builder.core.VariantType
 import com.android.builder.model.ClassField
 import com.android.builder.model.LintOptions
 import com.android.builder.model.SourceProvider
@@ -20,6 +21,7 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.logging.Logger
 import org.gradle.api.tasks.compile.JavaCompile
+import org.gradle.api.tasks.testing.Test
 
 /**
  * An Android target
@@ -156,6 +158,14 @@ abstract class AndroidTarget extends JavaLibTarget {
     @Override
     String getInitialBootCp() {
         return baseVariant.javaCompile.options.bootClasspath
+    }
+
+    @Override
+    List<String> getTestRunnerJvmArgs() {
+        Test testTask = project.tasks.withType(Test).find {
+            it.name == "${VariantType.UNIT_TEST.prefix}${name.capitalize()}${VariantType.UNIT_TEST.suffix}" as String
+        }
+        return testTask != null ? testTask.allJvmArgs : []
     }
 
     List<String> getBuildConfigFields() {

@@ -16,7 +16,8 @@ final class JavaTestRule extends JavaRule {
             String sourceCompatibility,
             String targetCompatibility,
             PostProcessClassessCommands postprocessClassesCommands,
-            List<String> options) {
+            List<String> options,
+            List<String> testRunnerJvmArgs) {
         super(
                 "java_test",
                 name,
@@ -31,6 +32,7 @@ final class JavaTestRule extends JavaRule {
                 targetCompatibility,
                 postprocessClassesCommands,
                 options,
+                testRunnerJvmArgs,
                 null,
                 ['unit', 'java'])
     }

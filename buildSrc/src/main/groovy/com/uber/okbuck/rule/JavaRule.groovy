@@ -12,6 +12,7 @@ abstract class JavaRule extends BuckRule {
     private final String mTargetCompatibility
     private final PostProcessClassessCommands mPostprocessClassesCommands
     private final List<String> mOptions
+    private final List<String> mTestRunnerJvmArgs
     private final Set<String> mProvidedDeps
     private final List<String> mTestTargets
     private final List<String> mLabels
@@ -30,6 +31,7 @@ abstract class JavaRule extends BuckRule {
             String targetCompatibility,
             PostProcessClassessCommands postprocessClassesCommands,
             List<String> options,
+            List<String> testRunnerJvmArgs,
             List<String> testTargets,
             List<String> labels = null) {
 
@@ -42,6 +44,7 @@ abstract class JavaRule extends BuckRule {
         mResourcesDir = resourcesDir
         mPostprocessClassesCommands = postprocessClassesCommands
         mOptions = options
+        mTestRunnerJvmArgs = testRunnerJvmArgs
         mProvidedDeps = providedDeps
         mTestTargets = testTargets
         mLabels = labels
@@ -113,6 +116,14 @@ abstract class JavaRule extends BuckRule {
             printer.println("\tlabels = [")
             mLabels.each { String label ->
                 printer.println("\t\t'${label}',")
+            }
+            printer.println("\t],")
+        }
+
+        if (mTestRunnerJvmArgs) {
+            printer.println("\tvm_args = [")
+            mTestRunnerJvmArgs.each { String arg ->
+                printer.println("\t\t'${arg}',")
             }
             printer.println("\t],")
         }

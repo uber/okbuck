@@ -72,6 +72,7 @@ final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
                 target.targetCompatibility,
                 postprocessClassesCommands,
                 target.test.jvmArgs,
+                target.testRunnerJvmArgs,
                 target.test.resourcesDir,
                 RobolectricUtil.ROBOLECTRIC_CACHE)
     }

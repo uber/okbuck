@@ -17,6 +17,7 @@ abstract class AndroidRule extends BuckRule {
     private final String mTargetCompatibility
     private final PostProcessClassessCommands mPostprocessClassesCommands
     private final List<String> mOptions
+    private final List<String> mTestRunnerJvmArgs
     private final Set<String> mProvidedDeps
     private final boolean mGenerateR2
     private final String mResourcesDir
@@ -46,6 +47,7 @@ abstract class AndroidRule extends BuckRule {
             String targetCompatibility,
             PostProcessClassessCommands postprocessClassesCommands,
             List<String> options,
+            List<String> testRunnerJvmArgs,
             boolean generateR2,
             String resourcesDir,
             String runtimeDependency,
@@ -65,6 +67,7 @@ abstract class AndroidRule extends BuckRule {
         mTargetCompatibility = targetCompatibility
         mPostprocessClassesCommands = postprocessClassesCommands
         mOptions = options
+        mTestRunnerJvmArgs = testRunnerJvmArgs
         mProvidedDeps = providedDeps
         mGenerateR2 = generateR2
         mResourcesDir = resourcesDir
@@ -174,6 +177,14 @@ abstract class AndroidRule extends BuckRule {
             printer.println("\tlabels = [")
             mLabels.each { String label ->
                 printer.println("\t\t'${label}',")
+            }
+            printer.println("\t],")
+        }
+
+        if (mTestRunnerJvmArgs) {
+            printer.println("\tvm_args = [")
+            mTestRunnerJvmArgs.each { String arg ->
+                printer.println("\t\t'${arg}',")
             }
             printer.println("\t],")
         }

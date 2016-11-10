@@ -27,6 +27,10 @@ subprojects { project ->
                 || project.plugins.hasPlugin('com.android.library')) {
             addCommonConfigurationForAndroidModules(project)
         }
+
+        project.tasks.withType(Test) { Test task ->
+            task.jvmArgs << "-Djava.awt.headless=true"
+        }
     }
 }
 
