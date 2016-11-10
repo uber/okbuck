@@ -13,15 +13,12 @@ class JavaLibTarget extends JavaTarget {
     final Scope retrolambda
     final Scope postProcess
 
-    protected final List<String> extraJvmArgs = []
-
     JavaLibTarget(Project project, String name) {
         super(project, name)
 
         // Retrolambda
         if (project.plugins.hasPlugin('me.tatarka.retrolambda')) {
             retrolambda = new Scope(project, ["retrolambdaConfig"] as Set)
-            extraJvmArgs.addAll(["-bootclasspath", bootClasspath])
         } else {
             retrolambda = null
         }
@@ -35,7 +32,7 @@ class JavaLibTarget extends JavaTarget {
                 ["compile"],
                 project.files("src/main/java") as Set,
                 project.file("src/main/resources"),
-                project.compileJava.options.compilerArgs + extraJvmArgs as List<String>)
+                project.compileJava.options.compilerArgs as List)
     }
 
     @Override
@@ -44,7 +41,7 @@ class JavaLibTarget extends JavaTarget {
                 ["testCompile"],
                 project.files("src/test/java") as Set,
                 project.file("src/test/resources"),
-                project.compileTestJava.options.compilerArgs + extraJvmArgs as List<String>)
+                project.compileTestJava.options.compilerArgs as List)
     }
 
     String getSourceCompatibility() {
@@ -60,21 +57,10 @@ class JavaLibTarget extends JavaTarget {
     }
 
     String getBootClasspath() {
-        List<String> classpaths = []
-        if (initialBootCp) {
-            classpaths.add(initialBootCp)
-        }
-        if (retrolambda) {
-            classpaths.add(ProjectUtil.runtimeJar)
-        }
-        return classpaths.join(":")
+        return project.compileJava.options.bootClasspath
     }
 
     List<String> getPostProcessClassesCommands() {
         return (List<String>) getProp(okbuck.postProcessClassesCommands, [])
-    }
-
-    protected String getInitialBootCp() {
-        return project.compileJava.options.bootClasspath
     }
 }
