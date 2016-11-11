@@ -97,18 +97,4 @@ final class ProjectUtil {
         }
         return result
     }
-
-    static File getRuntimeJar() {
-        try {
-            final File javaBase = new File(System.getProperty("java.home")).getCanonicalFile();
-            File runtimeJar = new File(javaBase, "lib/rt.jar");
-            if (runtimeJar.exists()) {
-                return runtimeJar;
-            }
-            runtimeJar = new File(javaBase, "jre/lib/rt.jar");
-            return runtimeJar.exists() ? runtimeJar : null;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 }

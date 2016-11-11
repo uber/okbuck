@@ -46,7 +46,7 @@ class AndroidInstrumentationTarget extends AndroidAppTarget {
                     provider.javaDirectories
                 }.flatten() as Set<File>,
                 null,
-                getJavaCompilerOptions(baseVariant) + extraJvmArgs)
+                getJavaCompilerOptions(baseVariant))
     }
 
     Scope getInstrumentation() {
@@ -60,7 +60,7 @@ class AndroidInstrumentationTarget extends AndroidAppTarget {
                     provider.javaDirectories
                 }.flatten() as Set<File>,
                 null,
-                getJavaCompilerOptions(instrumentationTestVariant) + extraJvmArgs)
+                getJavaCompilerOptions(instrumentationTestVariant))
     }
 
 

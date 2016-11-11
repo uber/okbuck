@@ -97,7 +97,7 @@ abstract class AndroidTarget extends JavaLibTarget {
                 ["compile", "${buildType}Compile", "${flavor}Compile", "${name}Compile"] as Set,
                 srcDirs,
                 null,
-                getJavaCompilerOptions(baseVariant) + extraJvmArgs)
+                getJavaCompilerOptions(baseVariant))
     }
 
     @Override
@@ -108,7 +108,7 @@ abstract class AndroidTarget extends JavaLibTarget {
                  "testCompile", "${buildType}TestCompile", "${flavor}TestCompile", "${name}TestCompile"] as Set,
                 project.files("src/test/java") as Set<File>,
                 project.file("src/test/resources"),
-                getJavaCompilerOptions(unitTestVariant) + extraJvmArgs)
+                getJavaCompilerOptions(unitTestVariant))
     }
 
     @Override
@@ -156,7 +156,7 @@ abstract class AndroidTarget extends JavaLibTarget {
 
     @SuppressWarnings("Deprecated")
     @Override
-    String getInitialBootCp() {
+    String getBootClasspath() {
         return baseVariant.javaCompile.options.bootClasspath
     }
 
