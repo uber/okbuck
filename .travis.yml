@@ -23,6 +23,7 @@ before_script:
 
 script:
   - ./buckw --version
+  - export OKBUCK_PROJECT_ROOT=`pwd`
   - mv buildSrc notBuildSrc
   - buck query "kind('android_binary', '//...')" | xargs buck build
   - buck test --include unit
