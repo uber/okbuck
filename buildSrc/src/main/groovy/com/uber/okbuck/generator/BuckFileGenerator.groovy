@@ -43,7 +43,7 @@ import com.uber.okbuck.rule.AptRule
 import com.uber.okbuck.rule.BuckRule
 import com.uber.okbuck.rule.ExopackageAndroidLibraryRule
 import com.uber.okbuck.rule.GenAidlRule
-import com.uber.okbuck.rule.GradleSourceGenRule
+import com.uber.okbuck.rule.GenRule
 import com.uber.okbuck.rule.ZipRule
 import org.gradle.api.Project
 
@@ -182,8 +182,8 @@ final class BuckFileGenerator {
         // Gradle generate sources tasks
         OkBuckExtension okbuck = target.rootProject.okbuck
         GradleGenExtension gradleGen = okbuck.gradleGen
-        List<GradleSourceGenRule> sourcegenRules = GradleSourceGenRuleComposer.compose(target, gradleGen)
-        List<ZipRule> zipRules = sourcegenRules.collect { GradleSourceGenRule sourcegenRule ->
+        List<GenRule> sourcegenRules = GradleSourceGenRuleComposer.compose(target, gradleGen)
+        List<ZipRule> zipRules = sourcegenRules.collect { GenRule sourcegenRule ->
             ZipRuleComposer.compose(sourcegenRule)
         }
         rules.addAll(sourcegenRules)

@@ -204,4 +204,4 @@ setupBuckRun ( ) {
 setupBuckRun
 
 # Invoke buck binary with arguments
-exec "$BUCK_BINARY" "$@"
+exec env OKBUCK_PROJECT_ROOT="$WORKING_DIR" "$BUCK_BINARY" "$@"

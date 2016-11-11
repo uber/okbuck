@@ -12,8 +12,6 @@ import com.uber.okbuck.rule.GenRule
 
 final class LintRuleComposer extends JavaBuckRuleComposer {
 
-    static final String SEPARATOR = ':'
-
     private LintRuleComposer() {
         // no instance
     }
@@ -119,13 +117,5 @@ final class LintRuleComposer extends JavaBuckRuleComposer {
                 lint(target),
                 inputs,
                 lintCmds)
-    }
-
-    static String toLocation(List<String> targets) {
-        return (targets.collect { toLocation(it) }).join(SEPARATOR)
-    }
-
-    static String toLocation(String target) {
-        return "\$(location ${target})"
     }
 }
