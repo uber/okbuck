@@ -4,12 +4,14 @@ import com.uber.okbuck.config.BUCKFile
 import com.uber.okbuck.core.dependency.DependencyCache
 import com.uber.okbuck.core.task.OkBuckCleanTask
 import com.uber.okbuck.core.util.LintUtil
+import com.uber.okbuck.core.util.RetrolambdaUtil
 import com.uber.okbuck.core.util.RobolectricUtil
 import com.uber.okbuck.extension.ExperimentalExtension
 import com.uber.okbuck.extension.GradleGenExtension
 import com.uber.okbuck.extension.IntellijExtension
 import com.uber.okbuck.extension.LintExtension
 import com.uber.okbuck.extension.OkBuckExtension
+import com.uber.okbuck.extension.RetrolambdaExtension
 import com.uber.okbuck.extension.TestExtension
 import com.uber.okbuck.extension.WrapperExtension
 import com.uber.okbuck.generator.BuckFileGenerator
@@ -37,6 +39,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     static final String GROUP = "okbuck"
     static final String BUCK_LINT = "buckLint"
     static final String LINT = "lint"
+    static final String RETROLAMBDA = "retrolambda"
 
     static DependencyCache depCache
     static Logger LOGGER
@@ -49,6 +52,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         TestExtension test = okbuck.extensions.create(TEST, TestExtension)
         IntellijExtension intellij = okbuck.extensions.create(INTELLIJ, IntellijExtension)
         LintExtension lint = okbuck.extensions.create(LINT, LintExtension, project)
+        RetrolambdaExtension retrolambda = okbuck.extensions.create(RETROLAMBDA, RetrolambdaExtension)
         okbuck.extensions.create(GRADLE_GEN, GradleGenExtension, project)
 
         Task okBuck = project.task(OKBUCK)
@@ -106,6 +110,18 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                 fetchLintDeps.mustRunAfter(okBuckClean)
                 fetchLintDeps << {
                     LintUtil.fetchLintDeps(project, lint.version)
+                }
+            }
+
+            if (experimental.retrolambda) {
+                Task fetchRetrolambdaDeps = project.task('fetchRetrolambdaDeps')
+                okBuck.dependsOn(fetchRetrolambdaDeps)
+                fetchRetrolambdaDeps.mustRunAfter(okBuckClean)
+                fetchRetrolambdaDeps << {
+                    RetrolambdaUtil.fetchRetrolambdaDeps(project, retrolambda)
+                    okbuck.buckProjects.each { Project buckProject ->
+                            RetrolambdaUtil.createRetrolambdac(buckProject)
+                    }
                 }
             }
         }

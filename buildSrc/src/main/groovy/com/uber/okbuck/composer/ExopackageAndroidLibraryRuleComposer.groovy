@@ -1,8 +1,7 @@
 package com.uber.okbuck.composer
 
 import com.uber.okbuck.core.model.AndroidAppTarget
-import com.uber.okbuck.generator.RetroLambdaGenerator
-import com.uber.okbuck.printable.PostProcessClassessCommands
+import com.uber.okbuck.core.util.RetrolambdaUtil
 import com.uber.okbuck.rule.ExopackageAndroidLibraryRule
 
 final class ExopackageAndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
@@ -18,19 +17,10 @@ final class ExopackageAndroidLibraryRuleComposer extends AndroidBuckRuleComposer
         deps.addAll(targets(target.exopackage.targetDeps))
         deps.add(":${buildConfig(target)}")
 
-        Set<String> postProcessDeps = []
-        postProcessDeps.addAll(target.postProcess.externalDeps)
-
-        List<String> postProcessClassesCommands = []
-        if (target.retrolambda) {
-            postProcessClassesCommands.add(RetroLambdaGenerator.generate(target))
+        String javac = null
+        if (target.retrolambda && !target.main.sources.empty) {
+            javac = RetrolambdaUtil.PROJECT_RETROLAMBDAC
         }
-        postProcessClassesCommands.addAll(target.postProcessClassesCommands)
-
-        PostProcessClassessCommands postprocessClassesCommands = new PostProcessClassessCommands(
-                target,
-                postProcessDeps,
-                postProcessClassesCommands);
 
         return new ExopackageAndroidLibraryRule(
                 appLib(target),
@@ -39,7 +29,7 @@ final class ExopackageAndroidLibraryRuleComposer extends AndroidBuckRuleComposer
                 deps,
                 target.sourceCompatibility,
                 target.targetCompatibility,
-                postprocessClassesCommands,
+                javac,
                 target.exopackage.jvmArgs)
     }
 }

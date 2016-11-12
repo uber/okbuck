@@ -1,8 +1,5 @@
 package com.uber.okbuck.rule
 
-import com.uber.okbuck.printable.PostProcessClassessCommands
-
-
 final class AndroidTestRule extends AndroidRule {
 
     /**
@@ -23,7 +20,7 @@ final class AndroidTestRule extends AndroidRule {
             String appClass,
             String sourceCompatibility,
             String targetCompatibility,
-            PostProcessClassessCommands postprocessClassesCommands,
+            String javac,
             List<String> options,
             List<String> testRunnerJvmArgs,
             String mResourcesDir,
@@ -45,7 +42,7 @@ final class AndroidTestRule extends AndroidRule {
                 appClass,
                 sourceCompatibility,
                 targetCompatibility,
-                postprocessClassesCommands,
+                javac,
                 options,
                 testRunnerJvmArgs,
                 false,

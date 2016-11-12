@@ -1,6 +1,5 @@
 package com.uber.okbuck.core.model
 
-import com.android.builder.core.VariantType
 import com.android.builder.model.LintOptions
 import com.uber.okbuck.OkBuckGradlePlugin
 import com.uber.okbuck.core.util.LintUtil

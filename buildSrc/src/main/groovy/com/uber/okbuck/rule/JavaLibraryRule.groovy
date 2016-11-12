@@ -1,7 +1,5 @@
 package com.uber.okbuck.rule
 
-import com.uber.okbuck.printable.PostProcessClassessCommands
-
 final class JavaLibraryRule extends JavaRule {
 
     JavaLibraryRule(
@@ -15,7 +13,7 @@ final class JavaLibraryRule extends JavaRule {
             String resourcesDir,
             String sourceCompatibility,
             String targetCompatibility,
-            PostProcessClassessCommands postprocessClassesCommands,
+            String javac,
             List<String> options,
             List<String> testTargets) {
 
@@ -31,7 +29,7 @@ final class JavaLibraryRule extends JavaRule {
                 resourcesDir,
                 sourceCompatibility,
                 targetCompatibility,
-                postprocessClassesCommands,
+                javac,
                 options,
                 null,
                 testTargets)

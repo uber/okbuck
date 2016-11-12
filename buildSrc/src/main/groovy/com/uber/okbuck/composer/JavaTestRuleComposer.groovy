@@ -1,8 +1,7 @@
 package com.uber.okbuck.composer
 
 import com.uber.okbuck.core.model.JavaLibTarget
-import com.uber.okbuck.generator.RetroLambdaGenerator
-import com.uber.okbuck.printable.PostProcessClassessCommands
+import com.uber.okbuck.core.util.RetrolambdaUtil
 import com.uber.okbuck.rule.JavaTestRule
 
 final class JavaTestRuleComposer extends JavaBuckRuleComposer {
@@ -26,19 +25,11 @@ final class JavaTestRuleComposer extends JavaBuckRuleComposer {
         providedDeps.addAll(targets(target.apt.targetDeps))
         providedDeps.removeAll(deps)
 
-        Set<String> postProcessDeps = []
-        postProcessDeps.addAll(target.postProcess.externalDeps)
-
-        List<String> postProcessClassesCommands = []
-        if (target.retrolambda) {
-            postProcessClassesCommands.add(RetroLambdaGenerator.generate(target))
+        String javac = null
+        if (target.retrolambda && !target.test.sources.empty) {
+            providedDeps.add(RetrolambdaUtil.getRtStubJarRule())
+            javac = RetrolambdaUtil.PROJECT_RETROLAMBDAC
         }
-        postProcessClassesCommands.addAll(target.postProcessClassesCommands)
-
-        PostProcessClassessCommands postprocessClassesCommands = new PostProcessClassessCommands(
-                target,
-                postProcessDeps,
-                postProcessClassesCommands);
 
         new JavaTestRule(
                 test(target),
@@ -51,7 +42,7 @@ final class JavaTestRuleComposer extends JavaBuckRuleComposer {
                 target.test.resourcesDir,
                 target.sourceCompatibility,
                 target.targetCompatibility,
-                postprocessClassesCommands,
+                javac,
                 target.test.jvmArgs,
                 target.testRunnerJvmArgs)
     }

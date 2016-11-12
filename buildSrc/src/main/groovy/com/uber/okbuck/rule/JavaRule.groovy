@@ -1,7 +1,5 @@
 package com.uber.okbuck.rule
 
-import com.uber.okbuck.printable.PostProcessClassessCommands
-
 abstract class JavaRule extends BuckRule {
 
     private final Set<String> mSrcSet
@@ -10,7 +8,7 @@ abstract class JavaRule extends BuckRule {
     private final String mResourcesDir
     private final String mSourceCompatibility
     private final String mTargetCompatibility
-    private final PostProcessClassessCommands mPostprocessClassesCommands
+    private final String mJavac
     private final List<String> mOptions
     private final List<String> mTestRunnerJvmArgs
     private final Set<String> mProvidedDeps
@@ -29,7 +27,7 @@ abstract class JavaRule extends BuckRule {
             String resourcesDir,
             String sourceCompatibility,
             String targetCompatibility,
-            PostProcessClassessCommands postprocessClassesCommands,
+            String javac,
             List<String> options,
             List<String> testRunnerJvmArgs,
             List<String> testTargets,
@@ -42,7 +40,7 @@ abstract class JavaRule extends BuckRule {
         mSourceCompatibility = sourceCompatibility
         mTargetCompatibility = targetCompatibility
         mResourcesDir = resourcesDir
-        mPostprocessClassesCommands = postprocessClassesCommands
+        mJavac = javac
         mOptions = options
         mTestRunnerJvmArgs = testRunnerJvmArgs
         mProvidedDeps = providedDeps
@@ -56,6 +54,9 @@ abstract class JavaRule extends BuckRule {
             printer.println("\tsrcs = glob([")
             for (String src : mSrcSet) {
                 printer.println("\t\t'${src}/**/*.java',")
+            }
+            if (mJavac) {
+                printer.println("\t\t'${mJavac}',")
             }
             printer.println("\t]),")
         }
@@ -102,7 +103,10 @@ abstract class JavaRule extends BuckRule {
 
         printer.println("\tsource = '${mSourceCompatibility}',")
         printer.println("\ttarget = '${mTargetCompatibility}',")
-        mPostprocessClassesCommands.print(printer)
+
+        if (mJavac) {
+            printer.println("\tjavac = '${mJavac}',")
+        }
 
         if (!mOptions.empty) {
             printer.println("\textra_arguments = [")

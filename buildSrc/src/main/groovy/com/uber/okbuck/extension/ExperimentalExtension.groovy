@@ -9,4 +9,9 @@ class ExperimentalExtension {
      * Whether lint rules are to be generated
      */
     boolean lint = false
+
+    /**
+     * Whether retrolambda is enabled
+     */
+    boolean retrolambda = false
 }

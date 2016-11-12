@@ -3,9 +3,8 @@ package com.uber.okbuck.composer
 import com.uber.okbuck.core.model.AndroidLibTarget
 import com.uber.okbuck.core.model.AndroidTarget
 import com.uber.okbuck.core.model.Target
+import com.uber.okbuck.core.util.RetrolambdaUtil
 import com.uber.okbuck.core.util.RobolectricUtil
-import com.uber.okbuck.generator.RetroLambdaGenerator
-import com.uber.okbuck.printable.PostProcessClassessCommands
 import com.uber.okbuck.rule.AndroidTestRule
 
 final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
@@ -34,27 +33,11 @@ final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
         providedDeps.addAll(targets(target.apt.targetDeps))
         providedDeps.removeAll(testDeps)
 
-        Set<String> postProcessDeps = []
-        postProcessDeps.addAll(target.postProcess.externalDeps)
-
-        target.test.targetDeps.each { Target targetDep ->
-            if (targetDep instanceof AndroidTarget) {
-                targetDep.resources.each { AndroidTarget.ResBundle bundle ->
-                    testDeps.add(res(targetDep as AndroidTarget, bundle))
-                }
-            }
+        String javac = null
+        if (target.retrolambda && !target.test.sources.empty) {
+            providedDeps.add(RetrolambdaUtil.getRtStubJarRule())
+            javac = RetrolambdaUtil.PROJECT_RETROLAMBDAC
         }
-
-        List<String> postProcessClassesCommands = []
-        if (target.retrolambda) {
-            postProcessClassesCommands.add(RetroLambdaGenerator.generate(target))
-        }
-        postProcessClassesCommands.addAll(target.postProcessClassesCommands)
-
-        PostProcessClassessCommands postprocessClassesCommands = new PostProcessClassessCommands(
-                target,
-                postProcessDeps,
-                postProcessClassesCommands);
 
         return new AndroidTestRule(
                 test(target),
@@ -70,7 +53,7 @@ final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
                 appClass,
                 target.sourceCompatibility,
                 target.targetCompatibility,
-                postprocessClassesCommands,
+                javac,
                 target.test.jvmArgs,
                 target.testRunnerJvmArgs,
                 target.test.resourcesDir,
