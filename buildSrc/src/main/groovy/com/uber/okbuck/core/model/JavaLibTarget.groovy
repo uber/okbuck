@@ -2,6 +2,9 @@ package com.uber.okbuck.core.model
 
 import com.uber.okbuck.OkBuckGradlePlugin
 import com.uber.okbuck.core.util.ProjectUtil
+import com.uber.okbuck.core.util.RetrolambdaUtil
+import com.uber.okbuck.extension.ExperimentalExtension
+import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 
 /**
@@ -10,20 +13,9 @@ import org.gradle.api.Project
 class JavaLibTarget extends JavaTarget {
 
     static final String MAIN = "main"
-    final Scope retrolambda
-    final Scope postProcess
 
     JavaLibTarget(Project project, String name) {
         super(project, name)
-
-        // Retrolambda
-        if (project.plugins.hasPlugin('me.tatarka.retrolambda')) {
-            retrolambda = new Scope(project, ["retrolambdaConfig"] as Set)
-        } else {
-            retrolambda = null
-        }
-
-        postProcess = new Scope(project.getRootProject(), [OkBuckGradlePlugin.CONFIGURATION_POST_PROCESS] as Set)
     }
 
     @Override
@@ -49,18 +41,13 @@ class JavaLibTarget extends JavaTarget {
     }
 
     String getTargetCompatibility() {
-        return javaVersion(project.sourceCompatibility)
+        return javaVersion(project.targetCompatibility)
     }
 
-    String getRetroLambdaJar() {
-        retrolambda.externalDeps[0]
-    }
-
-    String getBootClasspath() {
-        return project.compileJava.options.bootClasspath
-    }
-
-    List<String> getPostProcessClassesCommands() {
-        return (List<String>) getProp(okbuck.postProcessClassesCommands, [])
+    boolean getRetrolambda() {
+        ExperimentalExtension experimental = project.rootProject.okbuck.experimental
+        return experimental.retrolambda &&
+                project.plugins.hasPlugin('me.tatarka.retrolambda') &&
+                JavaVersion.toVersion(sourceCompatibility) > JavaVersion.VERSION_1_7
     }
 }

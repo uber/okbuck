@@ -45,10 +45,6 @@ def addCommonConfigurationForJavaModules(Project project) {
 }
 
 def addCommonConfigurationForAndroidModules(Project project) {
-    project.dependencies {
-        provided files("lib/rt-stub.jar")
-    }
-
     project.android {
         compileSdkVersion config.build.compileSdk
         buildToolsVersion config.build.buildTools
@@ -154,6 +150,7 @@ if (project.file("buildSrc").exists()) {
 
         experimental {
             lint = true
+            retrolambda = true
         }
     }
 

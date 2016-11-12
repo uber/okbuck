@@ -154,12 +154,6 @@ abstract class AndroidTarget extends JavaLibTarget {
         return javaVersion(project.android.compileOptions.targetCompatibility as JavaVersion)
     }
 
-    @SuppressWarnings("Deprecated")
-    @Override
-    String getBootClasspath() {
-        return baseVariant.javaCompile.options.bootClasspath
-    }
-
     @Override
     List<String> getTestRunnerJvmArgs() {
         Test testTask = project.tasks.withType(Test).find {

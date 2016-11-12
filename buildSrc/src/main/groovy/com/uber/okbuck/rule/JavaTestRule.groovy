@@ -1,7 +1,5 @@
 package com.uber.okbuck.rule
 
-import com.uber.okbuck.printable.PostProcessClassessCommands
-
 final class JavaTestRule extends JavaRule {
 
     JavaTestRule(
@@ -15,7 +13,7 @@ final class JavaTestRule extends JavaRule {
             String resourcesDir,
             String sourceCompatibility,
             String targetCompatibility,
-            PostProcessClassessCommands postprocessClassesCommands,
+            String javac,
             List<String> options,
             List<String> testRunnerJvmArgs) {
         super(
@@ -30,7 +28,7 @@ final class JavaTestRule extends JavaRule {
                 resourcesDir,
                 sourceCompatibility,
                 targetCompatibility,
-                postprocessClassesCommands,
+                javac,
                 options,
                 testRunnerJvmArgs,
                 null,
