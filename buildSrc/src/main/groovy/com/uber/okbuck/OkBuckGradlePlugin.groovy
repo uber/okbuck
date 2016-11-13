@@ -7,7 +7,6 @@ import com.uber.okbuck.core.util.LintUtil
 import com.uber.okbuck.core.util.RetrolambdaUtil
 import com.uber.okbuck.core.util.RobolectricUtil
 import com.uber.okbuck.extension.ExperimentalExtension
-import com.uber.okbuck.extension.GradleGenExtension
 import com.uber.okbuck.extension.IntellijExtension
 import com.uber.okbuck.extension.LintExtension
 import com.uber.okbuck.extension.OkBuckExtension
@@ -53,7 +52,6 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         IntellijExtension intellij = okbuck.extensions.create(INTELLIJ, IntellijExtension)
         LintExtension lint = okbuck.extensions.create(LINT, LintExtension, project)
         RetrolambdaExtension retrolambda = okbuck.extensions.create(RETROLAMBDA, RetrolambdaExtension)
-        okbuck.extensions.create(GRADLE_GEN, GradleGenExtension, project)
 
         Task okBuck = project.task(OKBUCK)
         okBuck.setGroup(GROUP)

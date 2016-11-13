@@ -13,14 +13,12 @@ import com.uber.okbuck.composer.AptRuleComposer
 import com.uber.okbuck.composer.BuckRuleComposer
 import com.uber.okbuck.composer.ExopackageAndroidLibraryRuleComposer
 import com.uber.okbuck.composer.GenAidlRuleComposer
-import com.uber.okbuck.composer.GradleSourceGenRuleComposer
 import com.uber.okbuck.composer.JavaBinaryRuleComposer
 import com.uber.okbuck.composer.JavaLibraryRuleComposer
 import com.uber.okbuck.composer.JavaTestRuleComposer
 import com.uber.okbuck.composer.KeystoreRuleComposer
 import com.uber.okbuck.composer.LintRuleComposer
 import com.uber.okbuck.composer.PreBuiltNativeLibraryRuleComposer
-import com.uber.okbuck.composer.ZipRuleComposer
 import com.uber.okbuck.config.BUCKFile
 import com.uber.okbuck.core.model.AndroidAppTarget
 import com.uber.okbuck.core.model.AndroidInstrumentationTarget
@@ -32,7 +30,6 @@ import com.uber.okbuck.core.model.ProjectType
 import com.uber.okbuck.core.model.Target
 import com.uber.okbuck.core.util.ProjectUtil
 import com.uber.okbuck.extension.ExperimentalExtension
-import com.uber.okbuck.extension.GradleGenExtension
 import com.uber.okbuck.extension.LintExtension
 import com.uber.okbuck.extension.OkBuckExtension
 import com.uber.okbuck.extension.TestExtension
@@ -43,8 +40,6 @@ import com.uber.okbuck.rule.AptRule
 import com.uber.okbuck.rule.BuckRule
 import com.uber.okbuck.rule.ExopackageAndroidLibraryRule
 import com.uber.okbuck.rule.GenAidlRule
-import com.uber.okbuck.rule.GenRule
-import com.uber.okbuck.rule.ZipRule
 import org.gradle.api.Project
 
 import static com.uber.okbuck.core.util.ProjectUtil.getTargets
@@ -179,27 +174,13 @@ final class BuckFileGenerator {
         } as List<String>
         deps.addAll(extraDeps)
 
-        // Gradle generate sources tasks
-        OkBuckExtension okbuck = target.rootProject.okbuck
-        GradleGenExtension gradleGen = okbuck.gradleGen
-        List<GenRule> sourcegenRules = GradleSourceGenRuleComposer.compose(target, gradleGen)
-        List<ZipRule> zipRules = sourcegenRules.collect { GenRule sourcegenRule ->
-            ZipRuleComposer.compose(sourcegenRule)
-        }
-        rules.addAll(sourcegenRules)
-        rules.addAll(zipRules)
-        Set<String> zipRuleNames = zipRules.collect { ZipRule rule ->
-            ":${rule.name}"
-        }
-
         // Lib
         androidLibRules.add(AndroidLibraryRuleComposer.compose(
                 target,
                 deps,
                 aptDeps,
                 aidlRuleNames,
-                appClass,
-                zipRuleNames
+                appClass
         ))
 
         // Test
@@ -212,6 +193,7 @@ final class BuckFileGenerator {
                     appClass))
         }
 
+        OkBuckExtension okbuck = target.rootProject.okbuck
         ExperimentalExtension experimental = okbuck.experimental
         LintExtension lint = okbuck.lint
         if (experimental.lint && lint.include.contains('android_library')) {
