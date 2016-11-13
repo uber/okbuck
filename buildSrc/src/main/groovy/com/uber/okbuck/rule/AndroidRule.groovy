@@ -4,7 +4,6 @@ import org.apache.commons.lang.StringUtils
 
 abstract class AndroidRule extends BuckRule {
 
-    private final Set<String> mSrcTargets
     private final Set<String> mSrcSet
     private final String mManifest
     private final String mRobolectricManifest
@@ -33,7 +32,6 @@ abstract class AndroidRule extends BuckRule {
             String name,
             List<String> visibility,
             List<String> deps,
-            Set<String> srcTargets,
             Set<String> srcSet,
             String manifest,
             String robolectricManifest,
@@ -54,7 +52,6 @@ abstract class AndroidRule extends BuckRule {
             List<String> labels = null) {
         super(ruleType, name, visibility, deps)
 
-        mSrcTargets = srcTargets
         mSrcSet = srcSet
         mManifest = manifest
         mRobolectricManifest = robolectricManifest
@@ -77,26 +74,20 @@ abstract class AndroidRule extends BuckRule {
 
     @Override
     protected final void printContent(PrintStream printer) {
-        if (mSrcTargets.empty) {
+        if (!mSrcSet.empty) {
             printer.println("\tsrcs = glob([")
-        } else {
-            printer.println("\tsrcs = [")
-            for (String target : mSrcTargets) {
-                printer.println("\t\t'${target}',")
+            for (String src : mSrcSet) {
+                printer.println("\t\t'${src}/**/*.java',")
             }
-            printer.println("\t] + glob([")
-        }
-        for (String src : mSrcSet) {
-            printer.println("\t\t'${src}/**/*.java',")
-        }
-        if (mJavac) {
-            printer.println("\t\t'${mJavac}',")
-        }
+            if (mJavac) {
+                printer.println("\t\t'${mJavac}',")
+            }
 
-        if (!StringUtils.isEmpty(mAppClass)) {
-            printer.println("\t], excludes = ['${mAppClass}']),")
-        } else {
-            printer.println("\t]),")
+            if (!StringUtils.isEmpty(mAppClass)) {
+                printer.println("\t], excludes = ['${mAppClass}']),")
+            } else {
+                printer.println("\t]),")
+            }
         }
 
         if (mTestTargets) {

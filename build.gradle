@@ -19,13 +19,16 @@ allprojects { project ->
     }
 }
 
+apply plugin: 'com.uber.okbuck'
+Task okbuckTask = project.tasks.getByName("okbuck")
+
 subprojects { project ->
     afterEvaluate {
         if (project.plugins.hasPlugin('java')) {
             addCommonConfigurationForJavaModules(project)
         } else if (project.plugins.hasPlugin('com.android.application')
                 || project.plugins.hasPlugin('com.android.library')) {
-            addCommonConfigurationForAndroidModules(project)
+            addCommonConfigurationForAndroidModules(project, okbuckTask)
         }
 
         project.tasks.withType(Test) { Test task ->
@@ -44,7 +47,7 @@ def addCommonConfigurationForJavaModules(Project project) {
     }
 }
 
-def addCommonConfigurationForAndroidModules(Project project) {
+def addCommonConfigurationForAndroidModules(Project project, Task okbuckTask) {
     project.android {
         compileSdkVersion config.build.compileSdk
         buildToolsVersion config.build.buildTools
@@ -71,6 +74,8 @@ def addCommonConfigurationForAndroidModules(Project project) {
             lintConfig project.rootProject.file('config/lint/lint.xml')
         }
     }
+
+    def variants
     if (project.plugins.hasPlugin('com.android.application')) {
         project.android {
             signingConfigs {
@@ -87,78 +92,83 @@ def addCommonConfigurationForAndroidModules(Project project) {
                 }
             }
         }
+        variants = project.android.applicationVariants
+    } else {
+        variants = project.android.libraryVariants
+    }
+
+    if (project.plugins.hasPlugin('com.squareup.sqldelight')) {
+        variants.all {
+            Task sqlDelightTask = project.tasks.getByName("generate${it.name.capitalize()}SqlDelightInterface")
+            okbuckTask.dependsOn(sqlDelightTask)
+            project.android.sourceSets."${it.name}".java.srcDirs += [sqlDelightTask.outputs.files[0] as String]
+        }
     }
 }
 
-// Workaround to make gradle source tasks in buck run on travis
-if (project.file("buildSrc").exists()) {
-    apply plugin: 'com.uber.okbuck'
+okbuck {
+    buildToolVersion config.build.buildTools
+    target "android-${config.build.compileSdk}"
 
-    okbuck {
-        buildToolVersion config.build.buildTools
-        target "android-${config.build.compileSdk}"
+    primaryDexPatterns = [
+            'app': [
+                    '^com/uber/okbuck/example/AppShell^',
+                    '^com/uber/okbuck/example/BuildConfig^',
+                    '^android/support/multidex/',
+                    '^com/facebook/buck/android/support/exopackage/',
+                    '^com/github/promeg/xlog_android/lib/XLogConfig^',
+                    '^com/squareup/leakcanary/LeakCanary^',
+                    '^com/uber/okbuck/example/common/Calc^',
+                    '^com/uber/okbuck/example/common/BuildConfig^',
+            ]
+    ]
+    exopackage = [
+            'appDevDebug': true
+    ]
+    appLibDependencies = [
+            'appProd': [
+                    'buck-android-support',
+                    'com.android.support:multidex',
+                    'libraries/javalibrary:main',
+                    'libraries/common:paidRelease',
+            ],
+            'appDev' : [
+                    'buck-android-support',
+                    'com.android.support:multidex',
+                    'libraries/javalibrary:main',
+                    'libraries/common:freeDebug',
+            ],
+            'appDemo': [
+                    'buck-android-support',
+                    'com.android.support:multidex',
+                    'libraries/javalibrary:main',
+                    'libraries/common:paidRelease',
+            ]
+    ]
+    buckProjects = project.subprojects.findAll { it.name != "plugin" }
 
-        primaryDexPatterns = [
-                'app': [
-                        '^com/uber/okbuck/example/AppShell^',
-                        '^com/uber/okbuck/example/BuildConfig^',
-                        '^android/support/multidex/',
-                        '^com/facebook/buck/android/support/exopackage/',
-                        '^com/github/promeg/xlog_android/lib/XLogConfig^',
-                        '^com/squareup/leakcanary/LeakCanary^',
-                        '^com/uber/okbuck/example/common/Calc^',
-                        '^com/uber/okbuck/example/common/BuildConfig^',
-                ]
-        ]
-        exopackage = [
-                'appDevDebug': true
-        ]
-        appLibDependencies = [
-                'appProd': [
-                        'buck-android-support',
-                        'com.android.support:multidex',
-                        'libraries/javalibrary:main',
-                        'libraries/common:paidRelease',
-                ],
-                'appDev' : [
-                        'buck-android-support',
-                        'com.android.support:multidex',
-                        'libraries/javalibrary:main',
-                        'libraries/common:freeDebug',
-                ],
-                'appDemo': [
-                        'buck-android-support',
-                        'com.android.support:multidex',
-                        'libraries/javalibrary:main',
-                        'libraries/common:paidRelease',
-                ]
-        ]
-        buckProjects = project.subprojects.findAll { it.name != "plugin" }
-
-        intellij {
-            sources = true
-        }
-
-        test {
-            espresso = true
-            robolectric = true
-        }
-
-        gradleGen {
-            options = ["--offline", "-Dorg.gradle.configureondemand=true", "-Dorg.gradle.parallel=true"]
-        }
-
-        experimental {
-            lint = true
-            retrolambda = true
-        }
+    intellij {
+        sources = true
     }
 
-    afterEvaluate {
-        tasks.getByName("okbuck").doLast {
-            "zip -d .okbuck/cache/org.hamcrest.hamcrest-core-1.3.jar LICENSE.txt".execute()
-            "zip -d .okbuck/cache/org.hamcrest.hamcrest-library-1.3.jar LICENSE.txt".execute()
-            "zip -d .okbuck/cache/org.hamcrest.hamcrest-integration-1.3.jar LICENSE.txt".execute()
-        }
+    test {
+        espresso = true
+        robolectric = true
+    }
+
+    experimental {
+        lint = true
+        retrolambda = true
+    }
+    wrapper {
+        watch += ["**/*.sq"]
+    }
+}
+
+afterEvaluate {
+    okbuckTask.doLast {
+        "zip -d .okbuck/cache/org.hamcrest.hamcrest-core-1.3.jar LICENSE.txt".execute()
+        "zip -d .okbuck/cache/org.hamcrest.hamcrest-library-1.3.jar LICENSE.txt".execute()
+        "zip -d .okbuck/cache/org.hamcrest.hamcrest-integration-1.3.jar LICENSE.txt".execute()
     }
 }

@@ -112,32 +112,8 @@ abstract class AndroidTarget extends JavaLibTarget {
     }
 
     @Override
-    Set<GradleSourceGen> getGradleSourcegen() {
-        Set<GradleSourceGen> tasks = super.getGradleSourcegen()
-        // SqlDelight support
-        if (project.plugins.hasPlugin('com.squareup.sqldelight')) {
-            BaseVariantData data = baseVariant.variantData
-            Task sqlDelightGen = data.sourceGenTask.getDependsOn().find {
-                it instanceof Task && it.name.toLowerCase().contains("sqldelight")
-            } as Task
-            if (sqlDelightGen) {
-                tasks.add(new GradleSourceGen(sqlDelightGen,
-                        srcDirNames.collect { "src/${it}/sqldelight/**/*.sq" },
-                        sqlDelightGen.outputs.files[0]))
-            }
-        }
-        return tasks
-    }
-
-    @Override
     LintOptions getLintOptions() {
         return project.android.lintOptions
-    }
-
-    Set<String> getSrcDirNames() {
-        return baseVariant.sourceSets.collect { SourceProvider provider ->
-            provider.name
-        }
     }
 
     public boolean getRobolectric() {
@@ -432,5 +408,4 @@ abstract class AndroidTarget extends JavaLibTarget {
             mLogger.debug(s, objects)
         }
     }
-
 }

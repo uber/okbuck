@@ -83,13 +83,6 @@ abstract class JavaTarget extends Target {
     }
 
     /**
-     * Set of gradle tasks that generate sources outside buck.
-     */
-    Set<GradleSourceGen> getGradleSourcegen() {
-        return [] as Set
-    }
-
-    /**
      * List of test jvm args
      */
     List<String> getTestRunnerJvmArgs() {
