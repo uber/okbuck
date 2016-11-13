@@ -1,7 +1,7 @@
 def versions = [
         butterKnifeVersion: '8.4.0',
         daggerVersion     : '2.7',
-        leakCanaryVersion : '1.4',
+        leakCanaryVersion : '1.5',
         supportVersion    : '24.1.1',
 ]
 
@@ -21,8 +21,8 @@ def buildConfig = [
 ]
 
 def apt = [
-        autoValue          : 'com.google.auto.value:auto-value:1.3-rc2',
-        autoValueGson      : 'com.ryanharter.auto.value:auto-value-gson:0.4.2',
+        autoValue          : 'com.google.auto.value:auto-value:1.4-rc1',
+        autoValueGson      : 'com.ryanharter.auto.value:auto-value-gson:0.4.4',
         butterKnifeCompiler: "com.jakewharton:butterknife-compiler:${versions.butterKnifeVersion}",
         daggerCompiler     : "com.google.dagger:dagger-compiler:${versions.daggerVersion}",
         javax              : 'org.glassfish:javax.annotation:10.0-b28',
@@ -31,7 +31,7 @@ def apt = [
 def external = [
         butterKnife    : "com.jakewharton:butterknife:${versions.butterKnifeVersion}",
         dagger         : "com.google.dagger:dagger:${versions.daggerVersion}",
-        gson           : 'com.google.code.gson:gson:2.7',
+        gson           : 'com.google.code.gson:gson:2.8.0',
         leakCanary     : "com.squareup.leakcanary:leakcanary-android:${versions.leakCanaryVersion}",
         rxandroid      : 'io.reactivex:rxandroid:1.2.1',
         rxjava         : 'io.reactivex:rxjava:1.1.8',

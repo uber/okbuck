@@ -182,7 +182,11 @@ setupBuckBinary ( ) {
 
 # Run tasks before buck command
 setupBuckRun ( ) {
-    if [[ ! -f "$OKBUCK_SUCCESS" ]] || [[ ! -d "$OKBUCK_DIR" ]]; then
+    if [[ ! -z "$SKIP_OKBUCK" ]]; then
+        :
+    elif [[ ! -z "$FORCE_OKBUCK" ]]; then
+        runOkBuck
+    elif [[ ! -f "$OKBUCK_SUCCESS" ]] || [[ ! -d "$OKBUCK_DIR" ]]; then
         warn "NO PREVIOUS SUCCESSFUL OKBUCK RUN"
         if [[ ! -z "$INSTALLED_WATCHMAN" ]]; then
             getChanges # Prevent watchman from running after this run, since changes would already be accounted for
@@ -204,4 +208,4 @@ setupBuckRun ( ) {
 setupBuckRun
 
 # Invoke buck binary with arguments
-exec env OKBUCK_PROJECT_ROOT="$WORKING_DIR" "$BUCK_BINARY" "$@"
+exec "$BUCK_BINARY" "$@"
