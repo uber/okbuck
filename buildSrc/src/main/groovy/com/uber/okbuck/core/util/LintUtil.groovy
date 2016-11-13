@@ -18,6 +18,7 @@ class LintUtil {
 
     static final String LINT_DEPS_CONFIG = "${OkBuckGradlePlugin.BUCK_LINT}_deps"
     static final String LINT_DEPS_CACHE = "${OkBuckGradlePlugin.DEFAULT_CACHE_PATH}/lint"
+    static final String LINT_VERSION_FILE = "${LINT_DEPS_CACHE}/.lintVersion"
     static final String LINT_DEPS_RULE = "//${LINT_DEPS_CACHE}:okbuck_lint"
     static final String LINT_DEPS_BUCK_FILE = "lint/BUCK_FILE"
 
@@ -40,6 +41,14 @@ class LintUtil {
     static void fetchLintDeps(Project project, String version) {
         if (!version) {
             throw new IllegalStateException("Invalid lint jar version: ${version}")
+        }
+
+        // Invalidate lint deps when versions change
+        File lintVersionFile = project.file(LINT_VERSION_FILE)
+        if (!lintVersionFile.exists() || lintVersionFile.text != version) {
+            FileUtils.deleteDirectory(lintVersionFile.parentFile)
+            lintVersionFile.parentFile.mkdirs()
+            lintVersionFile.text = version
         }
 
         project.configurations.maybeCreate(LINT_DEPS_CONFIG)
