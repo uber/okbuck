@@ -27,21 +27,21 @@ if [[ $TRAPPED_EXIT_CODE == 0 ]]; then # If javac succeeded
     esac
     shift
     done
-
-    # Get script directory
-    prog="$0"
-    while [ -h "${prog}" ]; do
-        newProg=`/bin/ls -ld "${prog}"`
-        newProg=`expr "${newProg}" : ".* -> \(.*\)$"`
-        if expr "x${newProg}" : 'x/' >/dev/null; then
-            prog="${newProg}"
-        else
-            progdir=`dirname "${prog}"`
-            prog="${progdir}/${newProg}"
-        fi
-    done
-    DIR=`dirname $prog`
-    if [ -n "$OUTPUT_DIR" ]; then
+    # Skip retrolambda completely if there are no files to be processed
+    if [[ ! -z "$OUTPUT_DIR" ]]; then
+      # Get script directory
+      prog="$0"
+      while [ -h "${prog}" ]; do
+          newProg=`/bin/ls -ld "${prog}"`
+          newProg=`expr "${newProg}" : ".* -> \(.*\)$"`
+          if expr "x${newProg}" : 'x/' >/dev/null; then
+              prog="${newProg}"
+          else
+              progdir=`dirname "${prog}"`
+              prog="${progdir}/${newProg}"
+          fi
+      done
+      DIR=`dirname $prog`
       # Run retrolambda on the output classes
       java -Dretrolambda.inputDir="${OUTPUT_DIR}" \
       -Dretrolambda.classpath="${BOOT_CLASSPATH}":"${CLASSPATH}":"${OUTPUT_DIR}" \
