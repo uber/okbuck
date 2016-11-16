@@ -41,11 +41,12 @@ if [[ $TRAPPED_EXIT_CODE == 0 ]]; then # If javac succeeded
         fi
     done
     DIR=`dirname $prog`
-
-    # Run retrolambda on the output classes
-    java -Dretrolambda.inputDir="${OUTPUT_DIR}" \
-    -Dretrolambda.classpath="${BOOT_CLASSPATH}":"${CLASSPATH}":"${OUTPUT_DIR}" \
-    template-retrolambda-jvm-args -jar "${DIR}"/template-retrolambda-jar
+    if [ -n "$OUTPUT_DIR" ]; then
+      # Run retrolambda on the output classes
+      java -Dretrolambda.inputDir="${OUTPUT_DIR}" \
+      -Dretrolambda.classpath="${BOOT_CLASSPATH}":"${CLASSPATH}":"${OUTPUT_DIR}" \
+      template-retrolambda-jvm-args -jar "${DIR}"/template-retrolambda-jar
+    fi
 else
     exit $TRAPPED_EXIT_CODE # Exit with javac exit code if failure
 fi
