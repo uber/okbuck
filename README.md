@@ -88,7 +88,7 @@ We'd love for you to contribute to our open source projects. Before we can accep
 - If you **have a feature request**, open an issue or submit an implementation via a pull request
 - If you **want to contribute**, submit a pull request.
 
-## Liscense
+## License
 ```
 Copyright (c) 2016 Uber Technologies, Inc.
 
