@@ -7,6 +7,11 @@ import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ResolvedArtifact
 import org.gradle.api.artifacts.ResolvedDependency
 
+/**
+ * This class is responsible for writing {@code okbazel/BUILD}, a BUILD file for the JARs and AARs
+ * in the {@code  okbazel/cache} directory. This is necessary because we need to preserve the
+ * dependency structure of the imports instead of just dumping them into a flat list.
+ */
 class DependencyCacheBuildFileWriter {
     private final DependencyCache cache
 
