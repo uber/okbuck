@@ -41,6 +41,7 @@ import com.uber.okbuck.rule.AptRule
 import com.uber.okbuck.rule.BuckRule
 import com.uber.okbuck.rule.ExopackageAndroidLibraryRule
 import com.uber.okbuck.rule.GenAidlRule
+import com.uber.okbuck.rule.GenRule
 import org.gradle.api.Project
 
 import static com.uber.okbuck.core.util.ProjectUtil.getTargets
@@ -232,10 +233,11 @@ final class BuckFileGenerator {
             deps.add(":${exoPackageRule.name}")
         }
 
-        rules.add(AndroidBinaryRuleComposer.compose(target, deps, ":${manifestRule.name}",
-                keystoreRuleName))
+        List<GenRule> transformGenRules = TrasformDependencyWriterRuleComposer.compose(target)
+        rules.addAll(transformGenRules)
 
-        rules.addAll(TrasformDependencyWriterRuleComposer.compose(target))
+        rules.add(AndroidBinaryRuleComposer.compose(
+                target, deps, ":${manifestRule.name}", keystoreRuleName, transformGenRules))
 
         return rules
     }

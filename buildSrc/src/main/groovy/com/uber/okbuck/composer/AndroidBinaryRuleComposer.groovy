@@ -1,8 +1,8 @@
 package com.uber.okbuck.composer
 
 import com.uber.okbuck.core.model.AndroidAppTarget
-import com.uber.okbuck.core.util.TransformUtil
 import com.uber.okbuck.rule.AndroidBinaryRule
+import com.uber.okbuck.rule.GenRule
 
 final class AndroidBinaryRuleComposer extends AndroidBuckRuleComposer {
 
@@ -19,17 +19,19 @@ final class AndroidBinaryRuleComposer extends AndroidBuckRuleComposer {
     }
 
     static AndroidBinaryRule compose(AndroidAppTarget target, List<String> deps, String manifestRuleName,
-                                     String keystoreRuleName) {
+                                     String keystoreRuleName, List<GenRule> transformGenRules) {
         Set<String> mappedCpuFilters = target.cpuFilters.collect { String cpuFilter ->
             CPU_FILTER_MAP.get(cpuFilter)
         }.findAll { String cpuFilter -> cpuFilter != null }
 
-        Set<String> transformRules = TransformUtil.getTransformRules(target)
+        Set<String> transformRuleNames = []
         String bashCommand = null;
-        if (transformRules != null && !transformRules.isEmpty()) {
+        if (transformGenRules != null && !transformGenRules.isEmpty()) {
             StringBuilder sb = new StringBuilder();
-            for (String transformRule : transformRules) {
-                sb.append("\$(exe ${transformRule}) \$IN_JARS_DIR \$OUT_JARS_DIR \$ANDROID_BOOTCLASSPATH;")
+            for (GenRule transformRule : transformGenRules) {
+                String ruleName = ":${transformRule.name}"
+                transformRuleNames.add(ruleName)
+                sb.append("\$(exe ${ruleName}) \$IN_JARS_DIR \$OUT_JARS_DIR \$ANDROID_BOOTCLASSPATH;")
             }
             bashCommand = sb.toString()
         }
@@ -37,6 +39,6 @@ final class AndroidBinaryRuleComposer extends AndroidBuckRuleComposer {
                 target.multidexEnabled, target.linearAllocHardLimit, target.primaryDexPatterns,
                 target.exopackage != null, mappedCpuFilters, target.minifyEnabled,
                 target.proguardConfig, target.placeholders, target.extraOpts, target.includesVectorDrawables,
-                transformRules, bashCommand)
+                transformRuleNames, bashCommand)
     }
 }

@@ -12,10 +12,6 @@ import java.nio.file.Files
 
 class TransformUtil {
 
-    static final String OPT_TRANSFORM_PROVIDER_CLASS = "provider"
-    static final String OPT_TRANSFORM_CLASS = "transform"
-    static final String OPT_CONFIG_FILE = "configFile"
-
     static final String CONFIGURATION_TRANSFORM = "transform"
 
     static final String TRANSFORM_CACHE = "${OkBuckGradlePlugin.DEFAULT_CACHE_PATH}/transform"
@@ -39,53 +35,5 @@ class TransformUtil {
                 return dep.name.endsWith(".jar")
             }
         }
-    }
-
-    static getTransformRuleName(JavaLibTarget target, Map<String, String> options) {
-        String providerClass = options.get(OPT_TRANSFORM_PROVIDER_CLASS)
-        String transformClass = options.get(OPT_TRANSFORM_CLASS)
-        String name = providerClass != null ? providerClass : transformClass
-        return JavaBuckRuleComposer.transform(name, target);
-    }
-
-    static Set<String> getTransformRules(JavaLibTarget target) {
-        Set<String> transformRules = []
-        if (target.transforms != null) {
-            target.transforms.each { Map<String, String> options ->
-                transformRules.add(":${getTransformRuleName(target, options)}")
-            }
-        }
-        return transformRules;
-    }
-
-    static String getTransformConfigRuleForFile(Project project, File config) {
-        // Adding the config file
-        String path = getTransformFilePathForFile(project, config)
-        File configFile = new File("${TRANSFORM_CACHE}/${path}")
-        if (!configFile.exists() || !FileUtils.contentEquals(configFile, config)) {
-            if (configFile.exists()) {
-                configFile.delete()
-            } else {
-                configFile.parentFile.mkdirs()
-            }
-            Files.copy(config.toPath(), configFile.toPath())
-        }
-        return "//${TRANSFORM_CACHE}:${path}"
-    }
-
-    static String getTransformProviderClass(Map<String, String> options) {
-        return options.get(OPT_TRANSFORM_PROVIDER_CLASS)
-    }
-
-    static String getTransformClass(Map<String, String> options) {
-        return options.get(OPT_TRANSFORM_CLASS)
-    }
-
-    static String getConfigFile(Map<String, String> options) {
-        return options.get(OPT_CONFIG_FILE)
-    }
-
-    private static String getTransformFilePathForFile(Project project, File config) {
-        return FileUtil.getRelativePath(project.rootDir, config).replaceAll('/', '_')
     }
 }

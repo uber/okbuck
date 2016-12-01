@@ -1,10 +1,19 @@
 package com.uber.okbuck.composer
 
 import com.uber.okbuck.core.model.JavaLibTarget
+import com.uber.okbuck.core.util.FileUtil
 import com.uber.okbuck.core.util.TransformUtil
 import com.uber.okbuck.rule.GenRule
+import org.apache.commons.io.FileUtils
+import org.gradle.api.Project
+
+import java.nio.file.Files
 
 final class TrasformDependencyWriterRuleComposer extends JavaBuckRuleComposer {
+
+    static final String OPT_TRANSFORM_PROVIDER_CLASS = "provider"
+    static final String OPT_TRANSFORM_CLASS = "transform"
+    static final String OPT_CONFIG_FILE = "configFile"
 
     private TrasformDependencyWriterRuleComposer() {}
 
@@ -21,13 +30,13 @@ final class TrasformDependencyWriterRuleComposer extends JavaBuckRuleComposer {
     static GenRule compose(JavaLibTarget target, Map<String, String> options) {
 
         String runnerMainClass = target.transformRunnerClass
-        String providerClass = TransformUtil.getTransformProviderClass(options)
-        String transformClass = TransformUtil.getTransformClass(options)
-        String configFile = TransformUtil.getConfigFile(options)
+        String providerClass = options.get(OPT_TRANSFORM_PROVIDER_CLASS)
+        String transformClass = options.get(OPT_TRANSFORM_CLASS)
+        String configFile = options.get(OPT_CONFIG_FILE)
 
         List<String> input = []
         if (configFile != null) {
-            input.add(TransformUtil.getTransformConfigRuleForFile(target.project, new File(configFile)))
+            input.add(getTransformConfigRuleForFile(target.project, new File(configFile)))
         }
         
         String output = "\$OUT"
@@ -46,7 +55,32 @@ final class TrasformDependencyWriterRuleComposer extends JavaBuckRuleComposer {
                 "echo \"java -cp \$(location ${TransformUtil.TRANSFORM_RULE}) ${runnerMainClass}\" >> ${output};",
                 "chmod +x ${output}"]
 
-        return new GenRule(TransformUtil.getTransformRuleName(target, options), input, cmds)
+        return new GenRule(getTransformRuleName(target, options), input, cmds)
                 .setExecutable(true)
+    }
+
+    static getTransformRuleName(JavaLibTarget target, Map<String, String> options) {
+        String providerClass = options.get(OPT_TRANSFORM_PROVIDER_CLASS)
+        String transformClass = options.get(OPT_TRANSFORM_CLASS)
+        String name = providerClass != null ? providerClass : transformClass
+        return JavaBuckRuleComposer.transform(name, target);
+    }
+
+    static String getTransformConfigRuleForFile(Project project, File config) {
+        String path = getTransformFilePathForFile(project, config)
+        File configFile = new File("${TransformUtil.TRANSFORM_CACHE}/${path}")
+        if (!configFile.exists() || !FileUtils.contentEquals(configFile, config)) {
+            if (configFile.exists()) {
+                configFile.delete()
+            } else {
+                configFile.parentFile.mkdirs()
+            }
+            Files.copy(config.toPath(), configFile.toPath())
+        }
+        return "//${TransformUtil.TRANSFORM_CACHE}:${path}"
+    }
+
+    private static String getTransformFilePathForFile(Project project, File config) {
+        return FileUtil.getRelativePath(project.rootDir, config).replaceAll('/', '_')
     }
 }
