@@ -26,7 +26,7 @@ final class AndroidBinaryRuleComposer extends AndroidBuckRuleComposer {
 
         Set<String> transformRuleNames = []
         String bashCommand = null;
-        if (transformGenRules != null && !transformGenRules.isEmpty()) {
+        if (!transformGenRules.isEmpty()) {
             StringBuilder sb = new StringBuilder();
             for (GenRule transformRule : transformGenRules) {
                 String ruleName = ":${transformRule.name}"
