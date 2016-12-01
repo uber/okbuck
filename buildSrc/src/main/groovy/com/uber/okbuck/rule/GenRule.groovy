@@ -2,30 +2,31 @@ package com.uber.okbuck.rule
 
 final class GenRule extends BuckRule {
 
-    private final String lintw
     private final Set<String> inputs
     private final Set<String> bashCmds
     private final boolean globSrcs
     private final String output
-    private boolean executable;
+    private final boolean executable
+
+    GenRule(String name,
+            List<String> inputs,
+            List<String> bashCmds,
+            executable) {
+        this(name, inputs, bashCmds, false, "${name}_out", executable)
+    }
 
     GenRule(String name,
             List<String> inputs,
             List<String> bashCmds,
             boolean globSrcs = false,
-            String output = "${name}_out") {
+            String output = "${name}_out",
+            executable = false) {
         super("genrule", name)
-        this.lintw = lintw
         this.inputs = inputs
         this.bashCmds = bashCmds
         this.globSrcs = globSrcs
         this.output = output
-        this.executable = false
-    }
-
-    public GenRule setExecutable(boolean executable) {
-        this.executable = executable;
-        return this;
+        this.executable = executable
     }
 
     @Override

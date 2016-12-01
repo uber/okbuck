@@ -44,4 +44,8 @@ abstract class AndroidBuckRuleComposer extends JavaBuckRuleComposer {
     static String instrumentationTest(AndroidAppTarget target) {
         return "instrumentation_${target.name}_test"
     }
+
+    static String transform(String runnerClass, AndroidAppTarget target) {
+        return "transform_${runnerClass.replace(".", "_")}_${target.name}"
+    }
 }

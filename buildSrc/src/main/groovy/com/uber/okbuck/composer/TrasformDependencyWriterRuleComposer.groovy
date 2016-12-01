@@ -1,6 +1,6 @@
 package com.uber.okbuck.composer
 
-import com.uber.okbuck.core.model.JavaLibTarget
+import com.uber.okbuck.core.model.AndroidAppTarget
 import com.uber.okbuck.core.util.FileUtil
 import com.uber.okbuck.core.util.TransformUtil
 import com.uber.okbuck.rule.GenRule
@@ -9,7 +9,7 @@ import org.gradle.api.Project
 
 import java.nio.file.Files
 
-final class TrasformDependencyWriterRuleComposer extends JavaBuckRuleComposer {
+final class TrasformDependencyWriterRuleComposer extends AndroidBuckRuleComposer {
 
     static final String OPT_TRANSFORM_PROVIDER_CLASS = "provider"
     static final String OPT_TRANSFORM_CLASS = "transform"
@@ -17,18 +17,13 @@ final class TrasformDependencyWriterRuleComposer extends JavaBuckRuleComposer {
 
     private TrasformDependencyWriterRuleComposer() {}
 
-    static List<GenRule> compose(JavaLibTarget target) {
-        List<GenRule> rules = []
-        if (target.transforms != null) {
-            target.transforms.each { Map<String, String> options ->
-                rules.add(compose(target, options))
-            }
+    static List<GenRule> compose(AndroidAppTarget target) {
+        return target.transforms.collect { Map<String, String> options ->
+            compose(target, options)
         }
-        return rules;
     }
 
-    static GenRule compose(JavaLibTarget target, Map<String, String> options) {
-
+    static GenRule compose(AndroidAppTarget target, Map<String, String> options) {
         String runnerMainClass = target.transformRunnerClass
         String providerClass = options.get(OPT_TRANSFORM_PROVIDER_CLASS)
         String transformClass = options.get(OPT_TRANSFORM_CLASS)
@@ -55,15 +50,14 @@ final class TrasformDependencyWriterRuleComposer extends JavaBuckRuleComposer {
                 "echo \"java -cp \$(location ${TransformUtil.TRANSFORM_RULE}) ${runnerMainClass}\" >> ${output};",
                 "chmod +x ${output}"]
 
-        return new GenRule(getTransformRuleName(target, options), input, cmds)
-                .setExecutable(true)
+        return new GenRule(getTransformRuleName(target, options), input, cmds, true)
     }
 
-    static getTransformRuleName(JavaLibTarget target, Map<String, String> options) {
+    static getTransformRuleName(AndroidAppTarget target, Map<String, String> options) {
         String providerClass = options.get(OPT_TRANSFORM_PROVIDER_CLASS)
         String transformClass = options.get(OPT_TRANSFORM_CLASS)
         String name = providerClass != null ? providerClass : transformClass
-        return JavaBuckRuleComposer.transform(name, target);
+        return transform(name, target)
     }
 
     static String getTransformConfigRuleForFile(Project project, File config) {

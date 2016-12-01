@@ -23,8 +23,4 @@ abstract class JavaBuckRuleComposer extends BuckRuleComposer {
     static String lint(JavaTarget target) {
         return "lint_${target.name}"
     }
-
-    static String transform(String runnerClass, JavaTarget target) {
-        return "transform_${runnerClass.replace(".", "_")}_${target.name}"
-    }
 }

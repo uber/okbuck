@@ -24,17 +24,13 @@ final class AndroidBinaryRuleComposer extends AndroidBuckRuleComposer {
             CPU_FILTER_MAP.get(cpuFilter)
         }.findAll { String cpuFilter -> cpuFilter != null }
 
-        Set<String> transformRuleNames = []
-        String bashCommand = null;
-        if (!transformGenRules.isEmpty()) {
-            StringBuilder sb = new StringBuilder();
-            for (GenRule transformRule : transformGenRules) {
-                String ruleName = ":${transformRule.name}"
-                transformRuleNames.add(ruleName)
-                sb.append("\$(exe ${ruleName}) \$IN_JARS_DIR \$OUT_JARS_DIR \$ANDROID_BOOTCLASSPATH;")
-            }
-            bashCommand = sb.toString()
+        Set<String> transformRuleNames = transformGenRules.collect {
+            ":${it.name}"
         }
+
+        String bashCommand = transformRuleNames.collect {
+            "\$(exe ${it}) \$IN_JARS_DIR \$OUT_JARS_DIR \$ANDROID_BOOTCLASSPATH;"
+        }.join(" ")
         return new AndroidBinaryRule(bin(target), ["PUBLIC"], deps, manifestRuleName, keystoreRuleName,
                 target.multidexEnabled, target.linearAllocHardLimit, target.primaryDexPatterns,
                 target.exopackage != null, mappedCpuFilters, target.minifyEnabled,

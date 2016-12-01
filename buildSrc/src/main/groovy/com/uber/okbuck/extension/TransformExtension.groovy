@@ -13,5 +13,5 @@ class TransformExtension {
     /**
      * Transform runner class
      */
-    String main;
+    String main
 }

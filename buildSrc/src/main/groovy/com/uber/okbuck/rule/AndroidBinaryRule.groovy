@@ -59,10 +59,10 @@ final class AndroidBinaryRule extends BuckRule {
                 printer.println("\t],")
             }
         }
-        if (mPreprocessJavaClassesDeps != null && !mPreprocessJavaClassesDeps.isEmpty()) {
+        if (mPreprocessJavaClassesDeps) {
             printer.println("\tpreprocess_java_classes_deps = ['${mPreprocessJavaClassesDeps.join("','")}'],")
         }
-        if (mPreprocessJavaClassesBash != null) {
+        if (mPreprocessJavaClassesBash) {
             printer.println("\tpreprocess_java_classes_bash = '${mPreprocessJavaClassesBash}',")
         }
         if (mCpuFilters != null && !mCpuFilters.empty) {
