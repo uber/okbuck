@@ -126,6 +126,14 @@ class AndroidAppTarget extends AndroidLibTarget {
         }
     }
 
+    List<Map<String, String>> getTransforms() {
+        return (List<Map<String, String>>) getProp(okbuck.transform.transforms, [])
+    }
+
+    String getTransformRunnerClass() {
+        return okbuck.transform.main
+    }
+
     static String getPackedProguardConfig(File file) {
         ZipFile zipFile = new ZipFile(file)
         ZipEntry proguardEntry = zipFile.entries().find {

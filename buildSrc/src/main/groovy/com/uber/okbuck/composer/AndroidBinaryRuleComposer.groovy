@@ -2,6 +2,7 @@ package com.uber.okbuck.composer
 
 import com.uber.okbuck.core.model.AndroidAppTarget
 import com.uber.okbuck.rule.AndroidBinaryRule
+import com.uber.okbuck.rule.GenRule
 
 final class AndroidBinaryRuleComposer extends AndroidBuckRuleComposer {
 
@@ -18,14 +19,22 @@ final class AndroidBinaryRuleComposer extends AndroidBuckRuleComposer {
     }
 
     static AndroidBinaryRule compose(AndroidAppTarget target, List<String> deps, String manifestRuleName,
-                                     String keystoreRuleName) {
+                                     String keystoreRuleName, List<GenRule> transformGenRules = []) {
         Set<String> mappedCpuFilters = target.cpuFilters.collect { String cpuFilter ->
             CPU_FILTER_MAP.get(cpuFilter)
         }.findAll { String cpuFilter -> cpuFilter != null }
 
+        Set<String> transformRuleNames = transformGenRules.collect {
+            ":${it.name}"
+        }
+
+        String bashCommand = transformRuleNames.collect {
+            "\$(exe ${it}) \$IN_JARS_DIR \$OUT_JARS_DIR \$ANDROID_BOOTCLASSPATH;"
+        }.join(" ")
         return new AndroidBinaryRule(bin(target), ["PUBLIC"], deps, manifestRuleName, keystoreRuleName,
                 target.multidexEnabled, target.linearAllocHardLimit, target.primaryDexPatterns,
                 target.exopackage != null, mappedCpuFilters, target.minifyEnabled,
-                target.proguardConfig, target.placeholders, target.extraOpts, target.includesVectorDrawables)
+                target.proguardConfig, target.placeholders, target.extraOpts, target.includesVectorDrawables,
+                transformRuleNames, bashCommand)
     }
 }

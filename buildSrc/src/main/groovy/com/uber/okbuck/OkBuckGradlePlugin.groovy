@@ -6,12 +6,14 @@ import com.uber.okbuck.core.task.OkBuckCleanTask
 import com.uber.okbuck.core.util.LintUtil
 import com.uber.okbuck.core.util.RetrolambdaUtil
 import com.uber.okbuck.core.util.RobolectricUtil
+import com.uber.okbuck.core.util.TransformUtil
 import com.uber.okbuck.extension.ExperimentalExtension
 import com.uber.okbuck.extension.IntellijExtension
 import com.uber.okbuck.extension.LintExtension
 import com.uber.okbuck.extension.OkBuckExtension
 import com.uber.okbuck.extension.RetrolambdaExtension
 import com.uber.okbuck.extension.TestExtension
+import com.uber.okbuck.extension.TransformExtension
 import com.uber.okbuck.extension.WrapperExtension
 import com.uber.okbuck.generator.BuckFileGenerator
 import com.uber.okbuck.generator.DotBuckConfigLocalGenerator
@@ -34,10 +36,10 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     static final String WRAPPER = "wrapper"
     static final String BUCK_WRAPPER = "buckWrapper"
     static final String DEFAULT_CACHE_PATH = ".okbuck/cache"
-    static final String CONFIGURATION_POST_PROCESS = "postProcess"
     static final String GROUP = "okbuck"
     static final String BUCK_LINT = "buckLint"
     static final String LINT = "lint"
+    static final String TRANSFORM = "transform"
     static final String RETROLAMBDA = "retrolambda"
 
     static DependencyCache depCache
@@ -51,6 +53,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         TestExtension test = okbuck.extensions.create(TEST, TestExtension)
         IntellijExtension intellij = okbuck.extensions.create(INTELLIJ, IntellijExtension)
         LintExtension lint = okbuck.extensions.create(LINT, LintExtension, project)
+        TransformExtension transform = okbuck.extensions.create(TRANSFORM, TransformExtension)
         RetrolambdaExtension retrolambda = okbuck.extensions.create(RETROLAMBDA, RetrolambdaExtension)
 
         Task okBuck = project.task(OKBUCK)
@@ -58,7 +61,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         okBuck.setDescription("Generate BUCK files")
         okBuck.outputs.upToDateWhen { false }
 
-        project.configurations.maybeCreate(CONFIGURATION_POST_PROCESS)
+        project.configurations.maybeCreate(TransformUtil.CONFIGURATION_TRANSFORM)
 
         project.afterEvaluate {
             Task okBuckClean = project.tasks.create(OKBUCK_CLEAN, OkBuckCleanTask, {
@@ -109,6 +112,13 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                 fetchLintDeps.doLast {
                     LintUtil.fetchLintDeps(project, lint.version)
                 }
+            }
+
+            if (experimental.transform) {
+                Task fetchTransformDeps = project.task('fetchTransformDeps')
+                okBuck.dependsOn(fetchTransformDeps)
+                fetchTransformDeps.mustRunAfter(okBuckClean)
+                fetchTransformDeps.doLast { TransformUtil.fetchTransformDeps(project) }
             }
 
             if (experimental.retrolambda) {

@@ -14,4 +14,9 @@ class ExperimentalExtension {
      * Whether retrolambda is enabled
      */
     boolean retrolambda = false
+
+    /**
+     * Whether transform rules are to be generated
+     */
+    boolean transform = false
 }
