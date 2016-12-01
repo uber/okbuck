@@ -1,6 +1,7 @@
 package com.uber.okbuck.composer
 
 import com.uber.okbuck.core.model.AndroidAppTarget
+import com.uber.okbuck.core.util.TransformUtil
 import com.uber.okbuck.rule.AndroidBinaryRule
 
 final class AndroidBinaryRuleComposer extends AndroidBuckRuleComposer {
@@ -23,7 +24,7 @@ final class AndroidBinaryRuleComposer extends AndroidBuckRuleComposer {
             CPU_FILTER_MAP.get(cpuFilter)
         }.findAll { String cpuFilter -> cpuFilter != null }
 
-        Set<String> transformRules = TrasformDependencyWriterRuleComposer.getTransformRules(target)
+        Set<String> transformRules = TransformUtil.getTransformRules(target)
         String bashCommand = null;
         if (transformRules != null && !transformRules.isEmpty()) {
             StringBuilder sb = new StringBuilder();

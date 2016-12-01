@@ -194,11 +194,6 @@ final class BuckFileGenerator {
                     appClass))
         }
 
-
-        // Transform
-        rules.addAll(TrasformDependencyWriterRuleComposer.compose(target))
-
-        // Lint
         OkBuckExtension okbuck = target.rootProject.okbuck
         ExperimentalExtension experimental = okbuck.experimental
         LintExtension lint = okbuck.lint
@@ -240,7 +235,6 @@ final class BuckFileGenerator {
         rules.add(AndroidBinaryRuleComposer.compose(target, deps, ":${manifestRule.name}",
                 keystoreRuleName))
 
-        // Transform
         rules.addAll(TrasformDependencyWriterRuleComposer.compose(target))
 
         return rules

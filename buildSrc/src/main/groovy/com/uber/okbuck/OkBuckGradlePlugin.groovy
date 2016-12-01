@@ -7,6 +7,7 @@ import com.uber.okbuck.core.task.OkBuckCleanTask
 import com.uber.okbuck.core.util.LintUtil
 import com.uber.okbuck.core.util.RetrolambdaUtil
 import com.uber.okbuck.core.util.RobolectricUtil
+import com.uber.okbuck.core.util.TransformUtil
 import com.uber.okbuck.extension.ExperimentalExtension
 import com.uber.okbuck.extension.IntellijExtension
 import com.uber.okbuck.extension.LintExtension
@@ -61,7 +62,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         okBuck.setDescription("Generate BUCK files")
         okBuck.outputs.upToDateWhen { false }
 
-        project.configurations.maybeCreate(TrasformDependencyWriterRuleComposer.CONFIGURATION_TRANSFORM)
+        project.configurations.maybeCreate(TransformUtil.CONFIGURATION_TRANSFORM)
 
         project.afterEvaluate {
             Task okBuckClean = project.tasks.create(OKBUCK_CLEAN, OkBuckCleanTask, {
@@ -118,9 +119,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                 Task fetchTransformDeps = project.task('fetchTransformDeps')
                 okBuck.dependsOn(fetchTransformDeps)
                 fetchTransformDeps.mustRunAfter(okBuckClean)
-                fetchTransformDeps << {
-                    TrasformDependencyWriterRuleComposer.fetchTransformDeps(project)
-                }
+                fetchTransformDeps.doLast { TransformUtil.fetchTransformDeps(project) }
             }
 
             if (experimental.retrolambda) {

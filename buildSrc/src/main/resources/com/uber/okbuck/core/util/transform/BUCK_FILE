@@ -1,17 +1,11 @@
-import re
-
-file_name_regex = re.compile(r'^.*/([^/]+)\.(jar)$', re.IGNORECASE)
-
 jars = []
 configs = []
 
-for jar in glob(['*.jar']):
-  name = file_name_regex.sub(r'\1', jar)
-  jars.append(name)
-
-for config in glob(['*.config']):
-  name = file_name_regex.sub(r'\1', config)
-  configs.append(name)
+for entry in glob(['*.*']):
+  if entry.endswith('jar'):
+    jars.append(entry)
+  else:
+    configs.append(entry)
 
 for config in configs:
   export_file(
@@ -31,7 +25,6 @@ java_binary(
   deps=map(lambda x: ":" + x, jars),
   blacklist=[
     'META-INF',
-    'org.jetbrains.annotations',
   ],
   visibility = ['PUBLIC'],
 )

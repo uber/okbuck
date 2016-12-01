@@ -50,12 +50,4 @@ class JavaLibTarget extends JavaTarget {
                 project.plugins.hasPlugin('me.tatarka.retrolambda') &&
                 JavaVersion.toVersion(sourceCompatibility) > JavaVersion.VERSION_1_7
     }
-
-    List<Map<String, String>> getTransforms() {
-        return (List<Map<String, String>>) getProp(okbuck.transform.transforms, [])
-    }
-
-    String getTransformRunnerClass() {
-        return okbuck.transform.main
-    }
 }
