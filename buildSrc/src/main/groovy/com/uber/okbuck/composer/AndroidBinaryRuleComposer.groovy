@@ -19,7 +19,7 @@ final class AndroidBinaryRuleComposer extends AndroidBuckRuleComposer {
     }
 
     static AndroidBinaryRule compose(AndroidAppTarget target, List<String> deps, String manifestRuleName,
-                                     String keystoreRuleName, List<GenRule> transformGenRules) {
+                                     String keystoreRuleName, List<GenRule> transformGenRules = []) {
         Set<String> mappedCpuFilters = target.cpuFilters.collect { String cpuFilter ->
             CPU_FILTER_MAP.get(cpuFilter)
         }.findAll { String cpuFilter -> cpuFilter != null }

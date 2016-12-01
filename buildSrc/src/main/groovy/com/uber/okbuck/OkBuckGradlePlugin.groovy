@@ -1,6 +1,5 @@
 package com.uber.okbuck
 
-import com.uber.okbuck.composer.TrasformDependencyWriterRuleComposer
 import com.uber.okbuck.config.BUCKFile
 import com.uber.okbuck.core.dependency.DependencyCache
 import com.uber.okbuck.core.task.OkBuckCleanTask
