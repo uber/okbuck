@@ -1,14 +1,9 @@
 package com.uber.okbuck.core.util
 
 import com.uber.okbuck.OkBuckGradlePlugin
-import com.uber.okbuck.composer.JavaBuckRuleComposer
 import com.uber.okbuck.core.dependency.DependencyCache
-import com.uber.okbuck.core.model.JavaLibTarget
 import com.uber.okbuck.core.model.Scope
-import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
-
-import java.nio.file.Files
 
 class TransformUtil {
 
