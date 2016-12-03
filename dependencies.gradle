@@ -1,23 +1,22 @@
 def versions = [
         butterKnifeVersion: '8.4.0',
-        daggerVersion     : '2.7',
+        daggerVersion     : '2.8',
         leakCanaryVersion : '1.5',
-        supportVersion    : '24.1.1',
+        supportVersion    : '25.0.0',
 ]
 
 def build = [
-        androidPlugin    : 'com.android.tools.build:gradle:2.2.2',
-        androidAptPlugin : 'com.neenbedankt.gradle.plugins:android-apt:1.8',
+        androidPlugin    : 'com.android.tools.build:gradle:2.3.0-alpha2',
         butterKnifePlugin: "com.jakewharton:butterknife-gradle-plugin:${versions.butterKnifeVersion}",
-        retrolambdaPlugin: 'me.tatarka:gradle-retrolambda:3.3.1',
-        sqlDelightPlugin : 'com.squareup.sqldelight:gradle-plugin:0.4.4',
+        retrolambdaPlugin: 'me.tatarka:gradle-retrolambda:3.4.0',
+        sqlDelightPlugin : 'com.squareup.sqldelight:gradle-plugin:0.5.1',
 ]
 
 def buildConfig = [
-        compileSdk: 24,
-        buildTools: '24.0.2',
+        compileSdk: 25,
+        buildTools: '25.0.1',
         minSdk    : 16,
-        targetSdk : 24,
+        targetSdk : 25,
 ]
 
 def apt = [

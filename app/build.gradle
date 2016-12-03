@@ -1,5 +1,4 @@
 apply plugin: 'com.android.application'
-apply plugin: 'com.neenbedankt.android-apt'
 apply plugin: 'me.tatarka.retrolambda'
 apply plugin: 'com.jakewharton.butterknife'
 apply plugin: 'com.squareup.sqldelight'
@@ -67,8 +66,8 @@ dependencies {
     prodCompile project(path: ':dummylibrary', configuration: 'paidRelease')
     demoCompile project(path: ':dummylibrary', configuration: 'paidRelease')
 
-    apt deps.apt.autoValue
-    apt deps.apt.butterKnifeCompiler
+    annotationProcessor deps.apt.autoValue
+    annotationProcessor deps.apt.butterKnifeCompiler
     annotationProcessor deps.apt.daggerCompiler
     annotationProcessor deps.apt.autoValueGson
 

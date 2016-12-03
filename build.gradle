@@ -5,7 +5,6 @@ buildscript {
     }
     dependencies {
         classpath deps.build.androidPlugin
-        classpath deps.build.androidAptPlugin
         classpath deps.build.butterKnifePlugin
         classpath deps.build.retrolambdaPlugin
         classpath deps.build.sqlDelightPlugin
