@@ -6,23 +6,22 @@ jdk: oraclejdk8
 android:
   components:
     - tools
-    - tools
     - platform-tools
-    - android-24
-    - build-tools-24.0.2
-  licenses:
-    - android-sdk-preview-license-84831b94
-    - android-sdk-license-8933bad1
-    - android-sdk-license-.+
-    - google-gdk-license-.+
+    - tools
+    - build-tools-25.0.1
+    - android-25
+    - extra-android-m2repository
 
 before_script:
   - export SKIP_OKBUCK=true
+  - mkdir -p $ANDROID_HOME/licenses
+  - echo $android_sdk_license > $ANDROID_HOME/licenses/android-sdk-license
+  - echo $android_sdk_preview_license > $ANDROID_HOME/licenses/android-sdk-preview-license
   - echo no | android create avd --force -n test -t android-18 --abi armeabi-v7a
   - emulator -avd test -no-audio -no-window &
 
 script:
-  - SKIP_OKBUCK= ./buckw --version
+  - SKIP_OKBUCK= ./buckw --version || SKIP_OKBUCK= GRADLE_OPTS="-Dorg.gradle.parallel=false" ./buckw --version
   - ./buckw targets --type android_binary java_test robolectric_test genrule | xargs ./buckw build
   - ./buckw test --include unit
   - android-wait-for-emulator
