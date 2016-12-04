@@ -24,10 +24,8 @@ final class JavaLibraryRuleComposer extends JavaBuckRuleComposer {
         providedDeps.addAll(targets(target.apt.targetDeps))
         providedDeps.removeAll(deps)
 
-        String javac = null
-        if (target.retrolambda && !target.main.sources.empty) {
+        if (target.retrolambda) {
             providedDeps.add(RetrolambdaUtil.getRtStubJarRule())
-            javac = RetrolambdaUtil.PROJECT_RETROLAMBDAC
         }
 
         List<String> testTargets = [];
@@ -46,7 +44,7 @@ final class JavaLibraryRuleComposer extends JavaBuckRuleComposer {
                 target.main.resourcesDir,
                 target.sourceCompatibility,
                 target.targetCompatibility,
-                javac,
+                target.postprocessClassesCommands,
                 target.main.jvmArgs,
                 testTargets)
     }

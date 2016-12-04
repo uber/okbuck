@@ -160,6 +160,7 @@ okbuck {
         retrolambda = true
     }
     wrapper {
+        repo = "https://github.com/kageiit/buck.git"
         watch += ["**/*.sq"]
     }
 }

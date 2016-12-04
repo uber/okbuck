@@ -13,7 +13,7 @@ abstract class AndroidRule extends BuckRule {
     private final String mAppClass
     private final String mSourceCompatibility
     private final String mTargetCompatibility
-    private final String mJavac
+    private final List<String> mPostprocessClassesCommands
     private final List<String> mOptions
     private final List<String> mTestRunnerJvmArgs
     private final Set<String> mProvidedDeps
@@ -42,7 +42,7 @@ abstract class AndroidRule extends BuckRule {
             String appClass,
             String sourceCompatibility,
             String targetCompatibility,
-            String javac,
+            List<String> postprocessClassesCommands,
             List<String> options,
             List<String> testRunnerJvmArgs,
             boolean generateR2,
@@ -61,7 +61,7 @@ abstract class AndroidRule extends BuckRule {
         mAppClass = appClass
         mSourceCompatibility = sourceCompatibility
         mTargetCompatibility = targetCompatibility
-        mJavac = javac
+        mPostprocessClassesCommands = postprocessClassesCommands
         mOptions = options
         mTestRunnerJvmArgs = testRunnerJvmArgs
         mProvidedDeps = providedDeps
@@ -78,9 +78,6 @@ abstract class AndroidRule extends BuckRule {
             printer.println("\tsrcs = glob([")
             for (String src : mSrcSet) {
                 printer.println("\t\t'${src}/**/*.java',")
-            }
-            if (mJavac) {
-                printer.println("\t\t'${mJavac}',")
             }
 
             if (!StringUtils.isEmpty(mAppClass)) {
@@ -149,14 +146,18 @@ abstract class AndroidRule extends BuckRule {
         printer.println("\tsource = '${mSourceCompatibility}',")
         printer.println("\ttarget = '${mTargetCompatibility}',")
 
-        if (mJavac) {
-            printer.println("\tjavac = '${mJavac}',")
-        }
-
         if (!mOptions.empty) {
             printer.println("\textra_arguments = [")
             mOptions.each { String option ->
                 printer.println("\t\t'${option}',")
+            }
+            printer.println("\t],")
+        }
+
+        if (!mPostprocessClassesCommands.empty) {
+            printer.println("\tpostprocess_classes_commands = [")
+            mPostprocessClassesCommands.each { String cmd ->
+                printer.println("\t\t'${cmd}',")
             }
             printer.println("\t],")
         }

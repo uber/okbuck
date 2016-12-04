@@ -25,10 +25,8 @@ final class JavaTestRuleComposer extends JavaBuckRuleComposer {
         providedDeps.addAll(targets(target.apt.targetDeps))
         providedDeps.removeAll(deps)
 
-        String javac = null
-        if (target.retrolambda && !target.test.sources.empty) {
+        if (target.retrolambda) {
             providedDeps.add(RetrolambdaUtil.getRtStubJarRule())
-            javac = RetrolambdaUtil.PROJECT_RETROLAMBDAC
         }
 
         new JavaTestRule(
@@ -42,7 +40,7 @@ final class JavaTestRuleComposer extends JavaBuckRuleComposer {
                 target.test.resourcesDir,
                 target.sourceCompatibility,
                 target.targetCompatibility,
-                javac,
+                target.postprocessClassesCommands,
                 target.test.jvmArgs,
                 target.testRunnerJvmArgs)
     }

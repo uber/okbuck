@@ -1,7 +1,5 @@
 package com.uber.okbuck.core.model
 
-import com.uber.okbuck.OkBuckGradlePlugin
-import com.uber.okbuck.core.util.ProjectUtil
 import com.uber.okbuck.core.util.RetrolambdaUtil
 import com.uber.okbuck.extension.ExperimentalExtension
 import org.gradle.api.JavaVersion
@@ -49,5 +47,13 @@ class JavaLibTarget extends JavaTarget {
         return experimental.retrolambda &&
                 project.plugins.hasPlugin('me.tatarka.retrolambda') &&
                 JavaVersion.toVersion(sourceCompatibility) > JavaVersion.VERSION_1_7
+    }
+
+    List<String> getPostprocessClassesCommands() {
+        List<String> cmds = []
+        if (retrolambda) {
+            cmds += RetrolambdaUtil.retrolambdaCmd
+        }
+        return cmds
     }
 }

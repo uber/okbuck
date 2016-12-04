@@ -31,18 +31,16 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
         providedDeps.addAll(targets(target.apt.targetDeps))
         providedDeps.removeAll(libraryDeps)
 
+        if (target.retrolambda) {
+            providedDeps.add(RetrolambdaUtil.getRtStubJarRule())
+        }
+
         target.main.targetDeps.each { Target targetDep ->
             if (targetDep instanceof AndroidTarget) {
                 targetDep.resources.each { AndroidTarget.ResBundle bundle ->
                     libraryDeps.add(res(targetDep as AndroidTarget, bundle))
                 }
             }
-        }
-
-        String javac = null
-        if (target.retrolambda && !target.main.sources.empty) {
-            providedDeps.add(RetrolambdaUtil.getRtStubJarRule())
-            javac = RetrolambdaUtil.PROJECT_RETROLAMBDAC
         }
 
         List<String> testTargets = [];
@@ -63,7 +61,7 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
                 appClass,
                 target.sourceCompatibility,
                 target.targetCompatibility,
-                javac,
+                target.postprocessClassesCommands,
                 target.main.jvmArgs,
                 target.generateR2,
                 testTargets)
