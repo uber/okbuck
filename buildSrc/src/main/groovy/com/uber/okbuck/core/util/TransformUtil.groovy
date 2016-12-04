@@ -2,7 +2,7 @@ package com.uber.okbuck.core.util
 
 import com.uber.okbuck.OkBuckGradlePlugin
 import com.uber.okbuck.core.dependency.DependencyCache
-import com.uber.okbuck.core.model.Scope
+import com.uber.okbuck.core.model.base.Scope
 import org.gradle.api.Project
 
 class TransformUtil {

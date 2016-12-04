@@ -1,6 +1,6 @@
 package com.uber.okbuck.config
 
-import com.uber.okbuck.rule.BuckRule
+import com.uber.okbuck.rule.base.BuckRule
 
 final class BUCKFile extends BuckConfigFile {
 
