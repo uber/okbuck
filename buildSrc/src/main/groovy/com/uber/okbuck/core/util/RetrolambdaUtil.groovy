@@ -6,8 +6,6 @@ import com.uber.okbuck.core.model.Scope
 import com.uber.okbuck.extension.RetrolambdaExtension
 import org.gradle.api.Project
 
-import java.nio.file.Files
-
 class RetrolambdaUtil {
 
     static final String RETROLAMBDA_DEPS_CONFIG = "okbuckRetrolambda"
@@ -16,9 +14,8 @@ class RetrolambdaUtil {
     static final String RETROLAMDBA_CACHE = "${OkBuckGradlePlugin.DEFAULT_CACHE_PATH}/retrolambda"
     static final String RT_STUB_JAR = "rt-stub.jar"
     static final String RETROLAMBDA_DEPS_BUCK_FILE = "retrolambda/BUCK_FILE"
-    static final String RETROLAMBDAC = "retrolambdac"
-    static final String RETROLAMBDA_BUILD_DIR = "build/okbuck/retrolambda"
-    static final String PROJECT_RETROLAMBDAC = "${RETROLAMBDA_BUILD_DIR}/${RETROLAMBDAC}"
+
+    private static String sRetrolambdaCmd
 
     private RetrolambdaUtil() {}
 
@@ -47,21 +44,13 @@ class RetrolambdaUtil {
         FileUtil.copyResourceToProject(RETROLAMBDA_DEPS_BUCK_FILE, new File(retrolambdaDepCache.cacheDir, "BUCK"))
         FileUtil.copyResourceToProject("retrolambda/${RT_STUB_JAR}", new File(retrolambdaDepCache.cacheDir, RT_STUB_JAR))
 
-        File retrolambdac = new File(retrolambdaDepCache.cacheDir, RETROLAMBDAC)
-        FileUtil.copyResourceToProject("retrolambda/${RETROLAMBDAC}", retrolambdac)
-        retrolambdac.text = retrolambdac.text
-                .replaceFirst("template-retrolambda-jvm-args", extension.jvmArgs)
-                .replaceFirst("template-retrolambda-jar", retrolambdaJar.replaceFirst("${RETROLAMDBA_CACHE}/", ""))
-        retrolambdac.setExecutable(true)
+        sRetrolambdaCmd = "(read CLASSES_DIR && java -Dretrolambda.inputDir=\$CLASSES_DIR " +
+                "-Dretrolambda.classpath=\"\${COMPILATION_BOOTCLASSPATH}\":\"\${COMPILATION_CLASSPATH}\":\"\${CLASSES_DIR}\"" +
+                "${extension.jvmArgs} -jar ${retrolambdaJar}) <<<"
     }
 
-    static void createRetrolambdac(Project project) {
-        File retrolambdac = project.file(PROJECT_RETROLAMBDAC)
-        if (!retrolambdac.exists()) {
-            retrolambdac.parentFile.mkdirs()
-            Files.createSymbolicLink(retrolambdac.toPath(),
-                    project.rootProject.file("${RETROLAMDBA_CACHE}/${RETROLAMBDAC}").toPath())
-        }
+    static String getRetrolambdaCmd() {
+        return sRetrolambdaCmd
     }
 
     static DependencyCache getRetrolambdaDepsCache(Project project) {

@@ -5,7 +5,7 @@ final class ExopackageAndroidLibraryRule extends BuckRule {
     private final String mAppClass
     private final String mSourceCompatibility
     private final String mTargetCompatibility
-    private final String mJavac
+    private final List<String> mPostprocessClassesCommands
     private final List<String> mOptions
 
     ExopackageAndroidLibraryRule(String name,
@@ -14,34 +14,34 @@ final class ExopackageAndroidLibraryRule extends BuckRule {
                                  List<String> deps,
                                  String sourceCompatibility,
                                  String targetCompatibility,
-                                 String javac,
+                                 List<String> postprocessClassesCommands,
                                  List<String> options) {
         super("android_library", name, visibility, deps)
         mAppClass = appClass
         mSourceCompatibility = sourceCompatibility
         mTargetCompatibility = targetCompatibility
-        mJavac = javac
+        mPostprocessClassesCommands = postprocessClassesCommands
         mOptions = options
     }
 
     @Override
     protected final void printContent(PrintStream printer) {
-        if (mJavac) {
-            printer.println("\tsrcs = ['${mAppClass}', '${mJavac}'],")
-        } else {
-            printer.println("\tsrcs = ['${mAppClass}'],")
-        }
+        printer.println("\tsrcs = ['${mAppClass}'],")
         printer.println("\tsource = '${mSourceCompatibility}',")
         printer.println("\ttarget = '${mTargetCompatibility}',")
-
-        if (mJavac) {
-            printer.println("\tjavac = '${mJavac}',")
-        }
 
         if (!mOptions.empty) {
             printer.println("\textra_arguments = [")
             mOptions.each { String option ->
                 printer.println("\t\t'${option}',")
+            }
+            printer.println("\t],")
+        }
+
+        if (!mPostprocessClassesCommands.empty) {
+            printer.println("\tpostprocess_classes_commands = [")
+            mPostprocessClassesCommands.each { String cmd ->
+                printer.println("\t\t'${cmd}',")
             }
             printer.println("\t],")
         }

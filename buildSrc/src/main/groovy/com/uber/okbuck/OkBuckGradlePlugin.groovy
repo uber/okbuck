@@ -32,7 +32,6 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     static final String EXPERIMENTAL = "experimental"
     static final String INTELLIJ = "intellij"
     static final String TEST = "test"
-    static final String GRADLE_GEN = "gradleGen"
     static final String WRAPPER = "wrapper"
     static final String BUCK_WRAPPER = "buckWrapper"
     static final String DEFAULT_CACHE_PATH = ".okbuck/cache"
@@ -53,8 +52,8 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         TestExtension test = okbuck.extensions.create(TEST, TestExtension)
         IntellijExtension intellij = okbuck.extensions.create(INTELLIJ, IntellijExtension)
         LintExtension lint = okbuck.extensions.create(LINT, LintExtension, project)
-        TransformExtension transform = okbuck.extensions.create(TRANSFORM, TransformExtension)
         RetrolambdaExtension retrolambda = okbuck.extensions.create(RETROLAMBDA, RetrolambdaExtension)
+        okbuck.extensions.create(TRANSFORM, TransformExtension)
 
         Task okBuck = project.task(OKBUCK)
         okBuck.setGroup(GROUP)
@@ -127,9 +126,6 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                 fetchRetrolambdaDeps.mustRunAfter(okBuckClean)
                 fetchRetrolambdaDeps.doLast {
                     RetrolambdaUtil.fetchRetrolambdaDeps(project, retrolambda)
-                    okbuck.buckProjects.each { Project buckProject ->
-                            RetrolambdaUtil.createRetrolambdac(buckProject)
-                    }
                 }
             }
         }

@@ -1,8 +1,6 @@
 package com.uber.okbuck.composer
 
 import com.uber.okbuck.core.model.AndroidLibTarget
-import com.uber.okbuck.core.model.AndroidTarget
-import com.uber.okbuck.core.model.Target
 import com.uber.okbuck.core.util.RetrolambdaUtil
 import com.uber.okbuck.core.util.RobolectricUtil
 import com.uber.okbuck.rule.AndroidTestRule
@@ -33,10 +31,8 @@ final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
         providedDeps.addAll(targets(target.apt.targetDeps))
         providedDeps.removeAll(testDeps)
 
-        String javac = null
-        if (target.retrolambda && !target.test.sources.empty) {
+        if (target.retrolambda) {
             providedDeps.add(RetrolambdaUtil.getRtStubJarRule())
-            javac = RetrolambdaUtil.PROJECT_RETROLAMBDAC
         }
 
         return new AndroidTestRule(
@@ -52,7 +48,7 @@ final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
                 appClass,
                 target.sourceCompatibility,
                 target.targetCompatibility,
-                javac,
+                target.postprocessClassesCommands,
                 target.test.jvmArgs,
                 target.testRunnerJvmArgs,
                 target.test.resourcesDir,

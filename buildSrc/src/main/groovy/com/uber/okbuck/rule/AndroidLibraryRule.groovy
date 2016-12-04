@@ -19,7 +19,7 @@ final class AndroidLibraryRule extends AndroidRule {
             String appClass,
             String sourceCompatibility,
             String targetCompatibility,
-            String javac,
+            List<String> postprocessClassesCommands,
             List<String> options,
             boolean generateR2,
             List<String> testTargets) {
@@ -39,7 +39,7 @@ final class AndroidLibraryRule extends AndroidRule {
                 appClass,
                 sourceCompatibility,
                 targetCompatibility,
-                javac,
+                postprocessClassesCommands,
                 options,
                 null,
                 generateR2,

@@ -13,7 +13,7 @@ final class JavaTestRule extends JavaRule {
             String resourcesDir,
             String sourceCompatibility,
             String targetCompatibility,
-            String javac,
+            List<String> postprocessClassesCommands,
             List<String> options,
             List<String> testRunnerJvmArgs) {
         super(
@@ -28,7 +28,7 @@ final class JavaTestRule extends JavaRule {
                 resourcesDir,
                 sourceCompatibility,
                 targetCompatibility,
-                javac,
+                postprocessClassesCommands,
                 options,
                 testRunnerJvmArgs,
                 null,

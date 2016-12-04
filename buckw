@@ -4,7 +4,7 @@
 ##
 ##  Buck wrapper script to invoke okbuck when needed, before running buck
 ##
-##  Created by OkBuck Gradle Plugin on : Sat Nov 12 23:41:18 PST 2016
+##  Created by OkBuck Gradle Plugin on : Sun Dec 04 01:15:43 PST 2016
 ##
 #########################################################################
 
@@ -52,7 +52,7 @@ INSTALLED_WATCHMAN=`command -v watchman`
 
 DEFAULT_BUCK_REPO="https://github.com/facebook/buck.git"
 DEFAULT_BUCK_INSTALL_DIR="$HOME/.gradle/caches/okbuck/buck"
-CUSTOM_BUCK_REPO=""
+CUSTOM_BUCK_REPO="https://github.com/kageiit/buck.git"
 CUSTOM_REMOTE_NAME="custom"
 OKBUCK_SUCCESS="$WORKING_DIR/build/okbuck.success"
 OKBUCK_DIR=".okbuck"
