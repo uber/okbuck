@@ -3,17 +3,17 @@ package com.uber.okbuck.core.util
 import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.LibraryPlugin
 import com.android.build.gradle.api.BaseVariant
-import com.android.build.gradle.api.BaseVariantOutput
 import com.uber.okbuck.core.model.android.AndroidAppTarget
 import com.uber.okbuck.core.model.android.AndroidLibTarget
+import com.uber.okbuck.core.model.groovy.GroovyLibTarget
 import com.uber.okbuck.core.model.java.JavaAppTarget
 import com.uber.okbuck.core.model.java.JavaLibTarget
 import com.uber.okbuck.core.model.base.ProjectType
 import com.uber.okbuck.core.model.base.Target
-import com.uber.okbuck.extension.OkBuckExtension
-import org.apache.commons.io.FilenameUtils
+import com.uber.okbuck.core.model.jvm.JvmTarget
 import org.gradle.api.Project
 import org.gradle.api.plugins.ApplicationPlugin
+import org.gradle.api.plugins.GroovyPlugin
 import org.gradle.api.plugins.JavaPlugin
 
 final class ProjectUtil {
@@ -27,7 +27,9 @@ final class ProjectUtil {
             return ProjectType.ANDROID_APP
         } else if (project.plugins.hasPlugin(LibraryPlugin)) {
             return ProjectType.ANDROID_LIB
-        } else if (project.plugins.hasPlugin(ApplicationPlugin.class)) {
+        } else if (project.plugins.hasPlugin(GroovyPlugin)) {
+            return ProjectType.GROOVY_LIB
+        } else if (project.plugins.hasPlugin(ApplicationPlugin)) {
             return ProjectType.JAVA_APP
         } else if (project.plugins.hasPlugin(JavaPlugin)) {
             return ProjectType.JAVA_LIB
@@ -49,52 +51,24 @@ final class ProjectUtil {
                     [variant.name, new AndroidLibTarget(project, variant.name)]
                 }
                 break
+            case ProjectType.GROOVY_LIB:
+                def targets = new HashMap<String, Target>()
+                targets.put(JvmTarget.MAIN, new GroovyLibTarget(project, JvmTarget.MAIN))
+                return targets
+                break
             case ProjectType.JAVA_APP:
                 def targets = new HashMap<String, Target>()
-                targets.put(JavaAppTarget.MAIN, new JavaAppTarget(project, JavaAppTarget.MAIN))
+                targets.put(JvmTarget.MAIN, new JavaAppTarget(project, JvmTarget.MAIN))
                 return targets
                 break
             case ProjectType.JAVA_LIB:
                 def targets = new HashMap<String, Target>()
-                targets.put(JavaLibTarget.MAIN, new JavaLibTarget(project, JavaLibTarget.MAIN))
+                targets.put(JvmTarget.MAIN, new JavaLibTarget(project, JvmTarget.MAIN))
                 return targets
                 break
             default:
                 [:]
                 break
         }
-    }
-
-    @SuppressWarnings("GrReassignedInClosureLocalVar")
-    static Target getTargetForOutput(Project rootProject, File output) {
-        Target result = null
-        OkBuckExtension okbuck = rootProject.okbuck
-        Project project = okbuck.buckProjects.find { Project project ->
-            FilenameUtils.directoryContains(project.buildDir.absolutePath, output.absolutePath)
-        }
-
-        if (project != null) {
-            ProjectType type = getType(project)
-            switch (type) {
-                case ProjectType.ANDROID_LIB:
-                    def baseVariants = project.android.libraryVariants
-                    baseVariants.all { BaseVariant baseVariant ->
-                        def variant = baseVariant.outputs.find { BaseVariantOutput out ->
-                            (out.outputFile == output)
-                        }
-                        if (variant != null) {
-                            result = new AndroidLibTarget(project, variant.name)
-                        }
-                    }
-                    break
-                case ProjectType.JAVA_APP:
-                case ProjectType.JAVA_LIB:
-                    result = new JavaLibTarget(project, JavaLibTarget.MAIN)
-                    break
-                default:
-                    result = null
-            }
-        }
-        return result
     }
 }

@@ -23,3 +23,6 @@
 [log]
   max_traces = 5
   compress_traces = true
+
+[groovy]
+  groovy_home = tools/groovy_installation

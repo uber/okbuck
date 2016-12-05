@@ -22,7 +22,7 @@ before_script:
 
 script:
   - SKIP_OKBUCK= ./buckw --version || SKIP_OKBUCK= GRADLE_OPTS="-Dorg.gradle.parallel=false" ./buckw --version
-  - ./buckw targets --type android_binary java_test robolectric_test genrule | xargs ./buckw build
+  - ./buckw targets --type android_binary java_test groovy_test robolectric_test genrule | xargs ./buckw build
   - ./buckw test --include unit
   - android-wait-for-emulator
   - adb shell input keyevent 82
