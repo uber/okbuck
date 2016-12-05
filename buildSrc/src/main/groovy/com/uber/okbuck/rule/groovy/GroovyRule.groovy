@@ -60,8 +60,6 @@ abstract class GroovyRule extends BuckRule {
             printer.println("\tresources = glob([")
             printer.println("\t\t'${mResourcesDir}/**',")
             printer.println("\t]),")
-
-            printer.println("\tresources_root = '${mResourcesDir}',")
         }
 
         if (!mAnnotationProcessors.empty) {
