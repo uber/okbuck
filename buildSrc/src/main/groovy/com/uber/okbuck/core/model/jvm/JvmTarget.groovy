@@ -7,6 +7,8 @@ import org.gradle.api.tasks.testing.Test
 
 abstract class JvmTarget extends Target {
 
+    public static final String MAIN = "main"
+
     JvmTarget(Project project, String name) {
         super(project, name)
     }

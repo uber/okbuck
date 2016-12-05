@@ -9,6 +9,8 @@ import com.uber.okbuck.composer.android.AndroidLibraryRuleComposer
 import com.uber.okbuck.composer.android.AndroidManifestRuleComposer
 import com.uber.okbuck.composer.android.AndroidResourceRuleComposer
 import com.uber.okbuck.composer.android.AndroidTestRuleComposer
+import com.uber.okbuck.composer.groovy.GroovyLibraryRuleComposer
+import com.uber.okbuck.composer.groovy.GroovyTestRuleComposer
 import com.uber.okbuck.composer.java.AptRuleComposer
 import com.uber.okbuck.composer.base.BuckRuleComposer
 import com.uber.okbuck.composer.android.ExopackageAndroidLibraryRuleComposer
@@ -25,6 +27,7 @@ import com.uber.okbuck.core.model.android.AndroidAppTarget
 import com.uber.okbuck.core.model.android.AndroidInstrumentationTarget
 import com.uber.okbuck.core.model.android.AndroidLibTarget
 import com.uber.okbuck.core.model.android.AndroidTarget
+import com.uber.okbuck.core.model.groovy.GroovyLibTarget
 import com.uber.okbuck.core.model.java.JavaAppTarget
 import com.uber.okbuck.core.model.java.JavaLibTarget
 import com.uber.okbuck.core.model.base.ProjectType
@@ -91,6 +94,9 @@ final class BuckFileGenerator {
                 case ProjectType.JAVA_APP:
                     rules.addAll(createRules((JavaAppTarget) target))
                     break
+                case ProjectType.GROOVY_LIB:
+                    rules.addAll(createRules((GroovyLibTarget) target))
+                    break
                 case ProjectType.ANDROID_LIB:
                     rules.addAll(createRules((AndroidLibTarget) target))
                     break
@@ -119,12 +125,10 @@ final class BuckFileGenerator {
 
     private static List<BuckRule> createRules(JavaLibTarget target) {
         List<BuckRule> rules = []
-        rules.add(JavaLibraryRuleComposer.compose(
-                target))
+        rules.add(JavaLibraryRuleComposer.compose(target))
 
         if (target.test.sources) {
-            rules.add(JavaTestRuleComposer.compose(
-                    target))
+            rules.add(JavaTestRuleComposer.compose(target))
         }
         return rules
     }
@@ -133,6 +137,16 @@ final class BuckFileGenerator {
         List<BuckRule> rules = []
         rules.addAll(createRules((JavaLibTarget) target))
         rules.add(JavaBinaryRuleComposer.compose(target))
+        return rules
+    }
+
+    private static List<BuckRule> createRules(GroovyLibTarget target) {
+        List<BuckRule> rules = []
+        rules.add(GroovyLibraryRuleComposer.compose(target))
+
+        if (target.test.sources) {
+            rules.add(GroovyTestRuleComposer.compose(target))
+        }
         return rules
     }
 

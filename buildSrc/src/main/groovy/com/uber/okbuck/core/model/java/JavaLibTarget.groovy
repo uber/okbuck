@@ -11,8 +11,6 @@ import org.gradle.api.Project
  */
 class JavaLibTarget extends JavaTarget {
 
-    static final String MAIN = "main"
-
     JavaLibTarget(Project project, String name) {
         super(project, name)
     }

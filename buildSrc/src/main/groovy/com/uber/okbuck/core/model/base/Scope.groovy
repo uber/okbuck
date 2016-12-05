@@ -1,11 +1,18 @@
 package com.uber.okbuck.core.model.base
 
+import com.android.build.gradle.api.BaseVariant
+import com.android.build.gradle.api.BaseVariantOutput
 import com.uber.okbuck.OkBuckGradlePlugin
 import com.uber.okbuck.core.dependency.DependencyCache
 import com.uber.okbuck.core.dependency.ExternalDependency
 import com.uber.okbuck.core.dependency.InValidDependencyException
+import com.uber.okbuck.core.model.android.AndroidLibTarget
+import com.uber.okbuck.core.model.groovy.GroovyLibTarget
+import com.uber.okbuck.core.model.java.JavaLibTarget
+import com.uber.okbuck.core.model.jvm.JvmTarget
 import com.uber.okbuck.core.util.FileUtil
 import com.uber.okbuck.core.util.ProjectUtil
+import com.uber.okbuck.extension.OkBuckExtension
 import groovy.transform.EqualsAndHashCode
 import org.apache.commons.io.FilenameUtils
 import org.gradle.api.Project
@@ -72,7 +79,7 @@ class Scope {
                     resolvedFiles.add(dep)
 
                     if (identifier.contains(" ")) {
-                        Target target = ProjectUtil.getTargetForOutput(project.gradle.rootProject, dep)
+                        Target target = getTargetForOutput(project.rootProject, dep)
                         if (target != null && target.project != project) {
                             if (!depCache.isValid(dep)) {
                                 throw new InValidDependencyException("${target.project} is not a valid project dependency")
@@ -96,19 +103,56 @@ class Scope {
                         localDepGroup = project.path.replaceFirst(':', '').replaceAll(':', '_')
                     }
                     ExternalDependency dependency = new ExternalDependency(
-                        "${localDepGroup}:${FilenameUtils.getBaseName(localDep.name)}:1.0.0",
-                        localDep)
+                            "${localDepGroup}:${FilenameUtils.getBaseName(localDep.name)}:1.0.0",
+                            localDep)
                     external.add(dependency)
                     depCache.put(dependency)
                 }
             } catch (InValidDependencyException e) {
                 throw new IllegalStateException("Invalid dependency found for ${project} , ${validConfigurations}", e)
-            } catch(UnknownConfigurationException ignored) { }
+            } catch (UnknownConfigurationException ignored) {
+            }
         }
 
         // Download sources if enabled
         if (depCache.fetchSources) {
             new IdeDependenciesExtractor().extractRepoFileDependencies(project.dependencies, validConfigurations, [], true, false)
         }
+    }
+
+    @SuppressWarnings("GrReassignedInClosureLocalVar")
+    static Target getTargetForOutput(Project rootProject, File output) {
+        Target result = null
+        OkBuckExtension okbuck = rootProject.okbuck
+        Project project = okbuck.buckProjects.find { Project project ->
+            FilenameUtils.directoryContains(project.buildDir.absolutePath, output.absolutePath)
+        }
+
+        if (project != null) {
+            ProjectType type = ProjectUtil.getType(project)
+            switch (type) {
+                case ProjectType.ANDROID_LIB:
+                    def baseVariants = project.android.libraryVariants
+                    baseVariants.all { BaseVariant baseVariant ->
+                        def variant = baseVariant.outputs.find { BaseVariantOutput out ->
+                            (out.outputFile == output)
+                        }
+                        if (variant != null) {
+                            result = new AndroidLibTarget(project, variant.name)
+                        }
+                    }
+                    break
+                case ProjectType.GROOVY_LIB:
+                    result = new GroovyLibTarget(project, JvmTarget.MAIN)
+                    break
+                case ProjectType.JAVA_APP:
+                case ProjectType.JAVA_LIB:
+                    result = new JavaLibTarget(project, JvmTarget.MAIN)
+                    break
+                default:
+                    result = null
+            }
+        }
+        return result
     }
 }
