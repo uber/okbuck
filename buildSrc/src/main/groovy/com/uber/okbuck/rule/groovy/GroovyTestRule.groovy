@@ -1,5 +1,7 @@
 package com.uber.okbuck.rule.groovy
 
+import com.uber.okbuck.core.model.base.RuleType
+
 final class GroovyTestRule extends GroovyRule {
 
     GroovyTestRule(
@@ -14,9 +16,10 @@ final class GroovyTestRule extends GroovyRule {
             String sourceCompatibility,
             String targetCompatibility,
             List<String> javacOptions,
-            List<String> testRunnerJvmArgs) {
+            List<String> testRunnerJvmArgs,
+            Set<String> extraOpts) {
         super(
-                "groovy_test",
+                RuleType.GROOVY_TEST,
                 name,
                 visibility,
                 deps,
@@ -29,6 +32,7 @@ final class GroovyTestRule extends GroovyRule {
                 targetCompatibility,
                 javacOptions,
                 testRunnerJvmArgs,
-                ['unit', 'java'])
+                ['unit', 'java'],
+                extraOpts)
     }
 }

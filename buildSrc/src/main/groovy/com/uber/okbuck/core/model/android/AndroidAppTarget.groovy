@@ -18,7 +18,6 @@ import java.util.zip.ZipFile
 class AndroidAppTarget extends AndroidLibTarget {
 
     private static final int DEFAULT_LINEARALLOC_LIMIT = 7194304
-    private static final String BINARY_OPT = "binary"
 
     final boolean multidexEnabled
     final Keystore keystore
@@ -33,7 +32,6 @@ class AndroidAppTarget extends AndroidLibTarget {
     final boolean minifyEnabled
 
     final Map<String, Object> placeholders = [:]
-    final Set<String> extraOpts
     final boolean includesVectorDrawables
 
     AndroidAppTarget(Project project, String name, boolean isTest = false) {
@@ -65,9 +63,6 @@ class AndroidAppTarget extends AndroidLibTarget {
         }
         placeholders.putAll(baseVariant.buildType.manifestPlaceholders)
         placeholders.putAll(baseVariant.mergedFlavor.manifestPlaceholders)
-
-        extraOpts = getProp(okbuck.extraBuckOpts, [:]).get(BINARY_OPT, [])
-
         includesVectorDrawables = project.android.defaultConfig.vectorDrawables.useSupportLibrary
     }
 

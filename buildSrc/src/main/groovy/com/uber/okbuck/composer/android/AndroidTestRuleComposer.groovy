@@ -1,6 +1,7 @@
 package com.uber.okbuck.composer.android
 
 import com.uber.okbuck.core.model.android.AndroidLibTarget
+import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.core.util.RetrolambdaUtil
 import com.uber.okbuck.core.util.RobolectricUtil
 import com.uber.okbuck.rule.android.AndroidTestRule
@@ -52,6 +53,7 @@ final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
                 target.test.jvmArgs,
                 target.testRunnerJvmArgs,
                 target.test.resourcesDir,
-                RobolectricUtil.ROBOLECTRIC_CACHE)
+                RobolectricUtil.ROBOLECTRIC_CACHE,
+                target.getExtraOpts(RuleType.ROBOLECTRIC_TEST))
     }
 }

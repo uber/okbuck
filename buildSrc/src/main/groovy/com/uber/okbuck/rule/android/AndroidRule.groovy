@@ -1,5 +1,6 @@
 package com.uber.okbuck.rule.android
 
+import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.rule.base.BuckRule
 import org.apache.commons.lang.StringUtils
 
@@ -29,7 +30,7 @@ abstract class AndroidRule extends BuckRule {
      * @param appClass , if exopackage is enabled, pass the detected app class, otherwise, pass null
      * */
     AndroidRule(
-            String ruleType,
+            RuleType ruleType,
             String name,
             List<String> visibility,
             List<String> deps,
@@ -50,8 +51,9 @@ abstract class AndroidRule extends BuckRule {
             String resourcesDir,
             String runtimeDependency,
             List<String> testTargets,
-            List<String> labels = null) {
-        super(ruleType, name, visibility, deps)
+            List<String> labels = null,
+            Set<String> extraOpts = []) {
+        super(ruleType, name, visibility, deps, extraOpts)
 
         mSrcSet = srcSet
         mManifest = manifest

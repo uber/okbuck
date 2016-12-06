@@ -1,5 +1,6 @@
 package com.uber.okbuck.rule.android
 
+import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.rule.base.BuckRule
 
 final class ExopackageAndroidLibraryRule extends BuckRule {
@@ -17,8 +18,9 @@ final class ExopackageAndroidLibraryRule extends BuckRule {
                                  String sourceCompatibility,
                                  String targetCompatibility,
                                  List<String> postprocessClassesCommands,
-                                 List<String> options) {
-        super("android_library", name, visibility, deps)
+                                 List<String> options,
+                                 Set<String> extraOpts) {
+        super(RuleType.ANDROID_LIBRARY, name, visibility, deps, extraOpts)
         mAppClass = appClass
         mSourceCompatibility = sourceCompatibility
         mTargetCompatibility = targetCompatibility

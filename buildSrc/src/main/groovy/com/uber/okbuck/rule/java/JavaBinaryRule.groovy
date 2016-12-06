@@ -1,5 +1,6 @@
 package com.uber.okbuck.rule.java
 
+import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.rule.base.BuckRule
 
 final class JavaBinaryRule extends BuckRule {
@@ -11,8 +12,9 @@ final class JavaBinaryRule extends BuckRule {
                    List<String> visibility,
                    List<String> deps,
                    String mainClass,
-                   Set<String> excludes = []) {
-        super("java_binary", name, visibility, deps)
+                   Set<String> excludes = [],
+                   Set<String> extraOpts) {
+        super(RuleType.JAVA_BINARY, name, visibility, deps, extraOpts)
         mMainClass = mainClass
         mExcludes = excludes
     }

@@ -1,5 +1,7 @@
 package com.uber.okbuck.rule.java
 
+import com.uber.okbuck.core.model.base.RuleType
+
 final class JavaLibraryRule extends JavaRule {
 
     JavaLibraryRule(
@@ -15,10 +17,11 @@ final class JavaLibraryRule extends JavaRule {
             String targetCompatibility,
             List<String> postprocessClassesCommands,
             List<String> options,
-            List<String> testTargets) {
+            List<String> testTargets,
+            Set<String> extraOpts) {
 
         super(
-                "java_library",
+                RuleType.JAVA_LIBRARY,
                 name,
                 visibility,
                 deps,
@@ -32,6 +35,8 @@ final class JavaLibraryRule extends JavaRule {
                 postprocessClassesCommands,
                 options,
                 null,
-                testTargets)
+                testTargets,
+                null,
+                extraOpts)
     }
 }

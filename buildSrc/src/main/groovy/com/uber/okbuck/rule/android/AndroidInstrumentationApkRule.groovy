@@ -1,5 +1,6 @@
 package com.uber.okbuck.rule.android
 
+import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.rule.base.BuckRule
 
 final class AndroidInstrumentationApkRule extends BuckRule {
@@ -9,7 +10,7 @@ final class AndroidInstrumentationApkRule extends BuckRule {
 
     AndroidInstrumentationApkRule(String name, List<String> visibility, List<String> deps, String manifest, String
             mainApkRuleName) {
-        super("android_instrumentation_apk", name, visibility, deps)
+        super(RuleType.ANDROID_INSTRUMENTATION_APK, name, visibility, deps)
 
         mManifest = manifest
         mMainApkRuleName = mainApkRuleName

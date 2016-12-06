@@ -1,5 +1,6 @@
 package com.uber.okbuck.rule.android
 
+import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.rule.base.BuckRule
 
 final class AndroidBuildConfigRule extends BuckRule {
@@ -12,7 +13,7 @@ final class AndroidBuildConfigRule extends BuckRule {
             String name, List<String> visibility, String packageName,
             List<String> values
     ) {
-        super("android_build_config", name, visibility)
+        super(RuleType.ANDROID_BUILD_CONFIG, name, visibility)
         mPackage = packageName
         mValues = values
     }

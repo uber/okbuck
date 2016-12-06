@@ -1,5 +1,6 @@
 package com.uber.okbuck.rule.android
 
+import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.rule.base.BuckRule
 import org.apache.commons.lang.StringUtils
 
@@ -12,7 +13,7 @@ final class AndroidResourceRule extends BuckRule {
 
     AndroidResourceRule(String name, List<String> visibility, List<String> deps, String packageName,
                         String res, String assets, boolean resourceUnion) {
-        super("android_resource", name, visibility, deps)
+        super(RuleType.ANDROID_RESOURCE, name, visibility, deps)
         mRes = res
         mPackage = packageName
         mAssets = assets

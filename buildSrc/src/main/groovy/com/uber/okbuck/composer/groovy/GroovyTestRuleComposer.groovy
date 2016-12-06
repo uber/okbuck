@@ -1,6 +1,7 @@
 package com.uber.okbuck.composer.groovy
 
 import com.uber.okbuck.composer.jvm.JvmBuckRuleComposer
+import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.core.model.groovy.GroovyLibTarget
 import com.uber.okbuck.core.util.RetrolambdaUtil
 import com.uber.okbuck.rule.groovy.GroovyTestRule
@@ -42,6 +43,7 @@ final class GroovyTestRuleComposer extends JvmBuckRuleComposer {
                 target.sourceCompatibility,
                 target.targetCompatibility,
                 target.test.jvmArgs,
-                target.testRunnerJvmArgs)
+                target.testRunnerJvmArgs,
+                target.getExtraOpts(RuleType.GROOVY_TEST))
     }
 }

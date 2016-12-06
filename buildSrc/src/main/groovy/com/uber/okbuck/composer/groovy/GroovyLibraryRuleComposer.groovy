@@ -1,6 +1,7 @@
 package com.uber.okbuck.composer.groovy
 
 import com.uber.okbuck.composer.jvm.JvmBuckRuleComposer
+import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.core.model.groovy.GroovyLibTarget
 import com.uber.okbuck.core.util.RetrolambdaUtil
 import com.uber.okbuck.rule.groovy.GroovyLibraryRule
@@ -40,6 +41,7 @@ final class GroovyLibraryRuleComposer extends JvmBuckRuleComposer {
                 target.main.resourcesDir,
                 target.sourceCompatibility,
                 target.targetCompatibility,
-                target.main.jvmArgs)
+                target.main.jvmArgs,
+                target.getExtraOpts(RuleType.GROOVY_LIBRARY))
     }
 }

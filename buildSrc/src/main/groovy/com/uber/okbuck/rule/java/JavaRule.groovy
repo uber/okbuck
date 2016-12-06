@@ -1,5 +1,6 @@
 package com.uber.okbuck.rule.java
 
+import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.rule.base.BuckRule
 
 abstract class JavaRule extends BuckRule {
@@ -18,7 +19,7 @@ abstract class JavaRule extends BuckRule {
     private final List<String> mLabels
 
     JavaRule(
-            String ruleType,
+            RuleType ruleType,
             String name,
             List<String> visibility,
             List<String> deps,
@@ -33,9 +34,10 @@ abstract class JavaRule extends BuckRule {
             List<String> options,
             List<String> testRunnerJvmArgs,
             List<String> testTargets,
-            List<String> labels = null) {
+            List<String> labels = null,
+            Set<String> extraOpts = []) {
 
-        super(ruleType, name, visibility, deps)
+        super(ruleType, name, visibility, deps, extraOpts)
         mSrcSet = srcSet
         mAnnotationProcessors = annotationProcessors
         mAnnotationProcessorDeps = aptDeps

@@ -1,5 +1,6 @@
 package com.uber.okbuck.rule.groovy
 
+import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.rule.base.BuckRule
 
 abstract class GroovyRule extends BuckRule {
@@ -10,14 +11,13 @@ abstract class GroovyRule extends BuckRule {
     private final String mResourcesDir
     private final String mSourceCompatibility
     private final String mTargetCompatibility
-    private final List<String> mGroovycOptions
     private final List<String> mJavacOptions
     private final List<String> mTestRunnerJvmArgs
     private final Set<String> mProvidedDeps
     private final List<String> mLabels
 
     GroovyRule(
-            String ruleType,
+            RuleType ruleType,
             String name,
             List<String> visibility,
             List<String> deps,
@@ -30,9 +30,10 @@ abstract class GroovyRule extends BuckRule {
             String targetCompatibility,
             List<String> javacOptions,
             List<String> testRunnerJvmArgs,
-            List<String> labels = null) {
+            List<String> labels = null,
+            Set<String> extraOpts = []) {
 
-        super(ruleType, name, visibility, deps)
+        super(ruleType, name, visibility, deps, extraOpts)
         mSrcSet = srcSet
         mAnnotationProcessors = annotationProcessors
         mAnnotationProcessorDeps = aptDeps

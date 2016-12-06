@@ -1,5 +1,7 @@
 package com.uber.okbuck.rule.android
 
+import com.uber.okbuck.core.model.base.RuleType
+
 final class AndroidTestRule extends AndroidRule {
 
     /**
@@ -23,10 +25,11 @@ final class AndroidTestRule extends AndroidRule {
             List<String> options,
             List<String> testRunnerJvmArgs,
             String mResourcesDir,
-            String runtimeDependency) {
+            String runtimeDependency,
+            Set<String> extraOpts) {
 
         super(
-                "robolectric_test",
+                RuleType.ROBOLECTRIC_TEST,
                 name,
                 visibility,
                 deps,
@@ -47,6 +50,7 @@ final class AndroidTestRule extends AndroidRule {
                 mResourcesDir,
                 runtimeDependency,
                 null,
-                ['unit', 'android', 'robolectric'])
+                ['unit', 'android', 'robolectric'],
+                extraOpts)
     }
 }

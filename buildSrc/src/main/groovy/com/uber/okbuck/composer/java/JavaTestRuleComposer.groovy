@@ -1,5 +1,6 @@
 package com.uber.okbuck.composer.java
 
+import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.core.model.java.JavaLibTarget
 import com.uber.okbuck.core.util.RetrolambdaUtil
 import com.uber.okbuck.rule.java.JavaTestRule
@@ -42,6 +43,7 @@ final class JavaTestRuleComposer extends JavaBuckRuleComposer {
                 target.targetCompatibility,
                 target.postprocessClassesCommands,
                 target.test.jvmArgs,
-                target.testRunnerJvmArgs)
+                target.testRunnerJvmArgs,
+                target.getExtraOpts(RuleType.JAVA_TEST))
     }
 }

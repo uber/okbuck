@@ -1,6 +1,7 @@
 package com.uber.okbuck.composer.android
 
 import com.uber.okbuck.core.model.android.AndroidAppTarget
+import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.rule.android.AndroidBinaryRule
 import com.uber.okbuck.rule.base.GenRule
 
@@ -34,7 +35,7 @@ final class AndroidBinaryRuleComposer extends AndroidBuckRuleComposer {
         return new AndroidBinaryRule(bin(target), ["PUBLIC"], deps, manifestRuleName, keystoreRuleName,
                 target.multidexEnabled, target.linearAllocHardLimit, target.primaryDexPatterns,
                 target.exopackage != null, mappedCpuFilters, target.minifyEnabled,
-                target.proguardConfig, target.placeholders, target.extraOpts, target.includesVectorDrawables,
-                transformRuleNames, bashCommand)
+                target.proguardConfig, target.placeholders, target.getExtraOpts(RuleType.ANDROID_BINARY),
+                target.includesVectorDrawables, transformRuleNames, bashCommand)
     }
 }
