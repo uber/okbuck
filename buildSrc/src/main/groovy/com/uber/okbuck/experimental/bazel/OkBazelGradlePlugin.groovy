@@ -33,13 +33,6 @@ class OkBazelGradlePlugin implements Plugin<Project> {
     // path cannot begin with '.' as the okbuck plugin cache does.
     static final String CACHE_PATH = "okbazel/cache"
 
-    // The okbuck cache contains a BUCK file at `cacheDirPath/BUCK`. We cannot put a BUILD file
-    // there, because the JARs and AARs are also in that directory so we cannot create java_import
-    // and aar_import rules with the same names. Instead we put the BUILD file in `cacheDirPath/..`.
-    static Set<String> external(Set<String> deps) {
-        return deps.collect { String dep -> "//okbazel:${dep.tokenize('/').last()}" }
-    }
-
     @Override
     void apply(Project project) {
         project.extensions.create("okbuck", OkBuckExtension, project)
