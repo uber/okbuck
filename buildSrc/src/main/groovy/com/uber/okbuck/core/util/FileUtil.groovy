@@ -1,5 +1,6 @@
 package com.uber.okbuck.core.util
 
+import groovy.transform.Memoized
 import org.gradle.api.Project
 
 final class FileUtil {
@@ -8,6 +9,7 @@ final class FileUtil {
         // no instance
     }
 
+    @Memoized
     static String getRelativePath(File root, File f) {
         String rootPath = root.absolutePath
         String path = f.absolutePath

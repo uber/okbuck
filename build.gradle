@@ -158,6 +158,7 @@ okbuck {
     experimental {
         lint = true
         retrolambda = true
+        parallel = true
     }
     wrapper {
         repo = "https://github.com/kageiit/buck.git"

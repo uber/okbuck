@@ -19,4 +19,9 @@ class ExperimentalExtension {
      * Whether transform rules are to be generated
      */
     boolean transform = false
+
+    /**
+     * Generate buck files per project in parallel sub tasks
+     */
+    boolean parallel = false
 }
