@@ -15,7 +15,6 @@ final class AndroidBinaryRule extends BuckRule {
     private final boolean mMinifyEnabled
     private final String mProguardConfig
     private final Map<String, Object> mPlaceholders
-    private final Set<String> mExtraOpts
     private final boolean mIncludesVectorDrawables
     private final Set<String> mPreprocessJavaClassesDeps
     private final String mPreprocessJavaClassesBash
@@ -38,7 +37,6 @@ final class AndroidBinaryRule extends BuckRule {
         mMinifyEnabled = minifyEnabled
         mProguardConfig = proguardConfig
         mPlaceholders = placeholders
-        mExtraOpts = extraOpts
         mIncludesVectorDrawables = includesVectorDrawables
         mPreprocessJavaClassesDeps = preprocessJavaClassesDeps
         mPreprocessJavaClassesBash = preprocessJavaClassesBash
@@ -93,10 +91,6 @@ final class AndroidBinaryRule extends BuckRule {
 
         if (mIncludesVectorDrawables) {
             printer.println("\tincludes_vector_drawables = True,")
-        }
-
-        mExtraOpts.each { String option ->
-            printer.println("\t${option},")
         }
     }
 }
