@@ -3,7 +3,7 @@ package com.uber.okbuck.experimental.bazel
 import com.uber.okbuck.core.model.AndroidTarget
 import com.uber.okbuck.rule.BuckRule
 
-final class AndroidLibraryRule extends BuckRule {
+final class BazelAndroidLibraryRule extends BuckRule {
     private static final String RULE_TYPE = "android_library"
 
     private final Set<String> srcSet
@@ -12,7 +12,7 @@ final class AndroidLibraryRule extends BuckRule {
     private final String packageName
     private final Set<AndroidTarget.ResBundle> resources
 
-    AndroidLibraryRule(
+    BazelAndroidLibraryRule(
             String name,
             String packageName,
             List<String> deps,

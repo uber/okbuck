@@ -2,13 +2,13 @@ package com.uber.okbuck.experimental.bazel
 
 import com.uber.okbuck.rule.BuckRule
 
-final class JavaBinaryRule extends BuckRule {
+final class BazelJavaBinaryRule extends BuckRule {
     private static final String RULE_TYPE = "java_binary"
 
     private final String mainClass
     private final String javaLibrary
 
-    JavaBinaryRule(String name, String javaLibrary, String mainClass) {
+    BazelJavaBinaryRule(String name, String javaLibrary, String mainClass) {
         super(RULE_TYPE, name)
         this.javaLibrary = javaLibrary
         this.mainClass = mainClass

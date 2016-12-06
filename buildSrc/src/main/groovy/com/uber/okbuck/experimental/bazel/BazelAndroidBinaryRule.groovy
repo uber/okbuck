@@ -2,7 +2,7 @@ package com.uber.okbuck.experimental.bazel
 
 import com.uber.okbuck.rule.BuckRule
 
-final class AndroidBinaryRule extends BuckRule {
+final class BazelAndroidBinaryRule extends BuckRule {
     private static final String RULE_TYPE = "android_binary"
 
     private final String packageName
@@ -10,7 +10,7 @@ final class AndroidBinaryRule extends BuckRule {
     private final String manifest
     private final Map<String, Object> placeholders
 
-    AndroidBinaryRule(
+    BazelAndroidBinaryRule(
             String name,
             String packageName,
             String androidLibrary,

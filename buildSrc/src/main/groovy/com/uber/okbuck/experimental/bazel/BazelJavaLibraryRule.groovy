@@ -2,14 +2,14 @@ package com.uber.okbuck.experimental.bazel
 
 import com.uber.okbuck.rule.BuckRule
 
-class JavaLibraryRule extends BuckRule {
+class BazelJavaLibraryRule extends BuckRule {
     private static final String RULE_TYPE = "java_library"
 
     private final Set<String> srcSet
     private final String resourcesDir
     private final Set<String> deps
 
-    JavaLibraryRule(String name, Set<String> deps, Set<String> srcSet, String resourcesDir) {
+    BazelJavaLibraryRule(String name, Set<String> deps, Set<String> srcSet, String resourcesDir) {
         super(RULE_TYPE, name)
         this.srcSet = srcSet
         this.resourcesDir = resourcesDir

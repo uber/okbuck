@@ -3,9 +3,9 @@ package com.uber.okbuck.experimental.bazel
 import com.uber.okbuck.composer.AndroidBuckRuleComposer
 import com.uber.okbuck.core.model.AndroidLibTarget
 
-final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
+final class BazelAndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
 
-    static AndroidLibraryRule compose(AndroidLibTarget target) {
+    static BazelAndroidLibraryRule compose(AndroidLibTarget target) {
         List<String> deps = new ArrayList<>();
         Set<String> providedDeps = []
 
@@ -16,7 +16,7 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
         providedDeps.addAll(targets(target.apt.targetDeps))
         providedDeps.removeAll(deps)
 
-        return new AndroidLibraryRule(
+        return new BazelAndroidLibraryRule(
                 src(target),
                 target.getPackage(),
                 deps,

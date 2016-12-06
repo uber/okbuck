@@ -36,15 +36,15 @@ final class BuildFileGenerator {
     // the sources and resources and one *_binary target that depends on the library target.
     private static final def targetHandlers = [
             (ProjectType.JAVA_LIB)   : { target, rules ->
-                rules << JavaLibraryRuleComposer.compose(target as JavaLibTarget) },
+                rules << BazelJavaLibraryRuleComposer.compose(target as JavaLibTarget) },
             (ProjectType.JAVA_APP)   : { target, rules ->
-                rules << JavaLibraryRuleComposer.compose(target as JavaLibTarget)
-                rules << JavaBinaryRuleComposer.compose(target as JavaAppTarget) },
+                rules << BazelJavaLibraryRuleComposer.compose(target as JavaLibTarget)
+                rules << BazelJavaBinaryRuleComposer.compose(target as JavaAppTarget) },
             (ProjectType.ANDROID_LIB): { target, rules ->
-                rules << AndroidLibraryRuleComposer.compose(target as AndroidLibTarget) },
+                rules << BazelAndroidLibraryRuleComposer.compose(target as AndroidLibTarget) },
             (ProjectType.ANDROID_APP): { target, rules ->
-                rules << AndroidLibraryRuleComposer.compose(target as AndroidLibTarget)
-                rules << AndroidBinaryRuleComposer.compose(target as AndroidAppTarget) }]
+                rules << BazelAndroidLibraryRuleComposer.compose(target as AndroidLibTarget)
+                rules << BazelAndroidBinaryRuleComposer.compose(target as AndroidAppTarget) }]
 
     private static def createRules(Project project) {
         getTargets(project).values().inject([]) { rules, target ->
