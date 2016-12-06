@@ -1,6 +1,5 @@
 package com.uber.okbuck
 
-import com.uber.okbuck.config.BUCKFile
 import com.uber.okbuck.core.dependency.DependencyCache
 import com.uber.okbuck.core.task.OkBuckCleanTask
 import com.uber.okbuck.core.util.LintUtil
@@ -76,6 +75,10 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                 generate(project)
             }
 
+            if (experimental.parallel) {
+                createSubTasks(project, okBuck)
+            }
+
             depCache = new DependencyCache(project, DEFAULT_CACHE_PATH, true, DependencyCache.THIRD_PARTY_BUCK_FILE,
                     intellij.sources, experimental.lint)
 
@@ -131,7 +134,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         }
     }
 
-    private static generate(Project project) {
+    private static void generate(Project project) {
         OkBuckExtension okbuck = project.okbuck
 
         // generate empty .buckconfig if it does not exist
@@ -146,13 +149,22 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         DotBuckConfigLocalGenerator.generate(okbuck).print(configPrinter)
         IOUtils.closeQuietly(configPrinter)
 
-        // generate BUCK file for each project
-        Map<Project, BUCKFile> buckFiles = BuckFileGenerator.generate(project)
+        ExperimentalExtension experimental = okbuck.experimental
+        if (!experimental.parallel) {
+            okbuck.buckProjects.each { Project subProject ->
+                BuckFileGenerator.generate(subProject)
+            }
+        }
+    }
 
-        buckFiles.each { Project subProject, BUCKFile buckFile ->
-            PrintStream buckPrinter = new PrintStream(subProject.file(BUCK))
-            buckFile.print(buckPrinter)
-            IOUtils.closeQuietly(buckPrinter)
+    private static void createSubTasks(Project project, Task rootOkbuckTask) {
+        OkBuckExtension okbuck = project.okbuck
+        okbuck.buckProjects.each { Project subProject ->
+            Task okbuckProjectTask = subProject.tasks.maybeCreate(OKBUCK)
+            okbuckProjectTask.dependsOn(rootOkbuckTask)
+            okbuckProjectTask.doLast {
+                BuckFileGenerator.generate(subProject)
+            }
         }
     }
 }

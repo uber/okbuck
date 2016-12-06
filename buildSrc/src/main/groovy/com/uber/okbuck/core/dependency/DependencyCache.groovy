@@ -1,6 +1,7 @@
 package com.uber.okbuck.core.dependency
 
 import com.uber.okbuck.core.util.FileUtil
+import groovy.transform.Synchronized
 import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
 
@@ -8,6 +9,7 @@ import java.nio.file.FileSystem
 import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.nio.file.Path
+import java.util.concurrent.ConcurrentHashMap
 
 class DependencyCache {
 
@@ -20,7 +22,7 @@ class DependencyCache {
 
     private Map<VersionlessDependency, String> finalDepFiles = [:]
     private Map<VersionlessDependency, String> lintJars = [:]
-    private Map<VersionlessDependency, ExternalDependency> greatestVersions = [:]
+    private Map<VersionlessDependency, ExternalDependency> greatestVersions = new ConcurrentHashMap()
 
     DependencyCache(Project rootProject,
                     String cacheDirPath,
@@ -50,6 +52,7 @@ class DependencyCache {
         }
     }
 
+    @Synchronized
     String get(ExternalDependency dependency) {
         ExternalDependency greatestVersion = greatestVersions.get(dependency)
         if (!finalDepFiles.containsKey(greatestVersion)) {

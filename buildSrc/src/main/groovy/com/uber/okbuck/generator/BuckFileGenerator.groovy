@@ -1,5 +1,6 @@
 package com.uber.okbuck.generator
 
+import com.uber.okbuck.OkBuckGradlePlugin
 import com.uber.okbuck.composer.android.AndroidBinaryRuleComposer
 import com.uber.okbuck.composer.android.AndroidBuckRuleComposer
 import com.uber.okbuck.composer.android.AndroidBuildConfigRuleComposer
@@ -45,6 +46,7 @@ import com.uber.okbuck.rule.base.BuckRule
 import com.uber.okbuck.rule.android.ExopackageAndroidLibraryRule
 import com.uber.okbuck.rule.android.GenAidlRule
 import com.uber.okbuck.rule.base.GenRule
+import org.apache.commons.io.IOUtils
 import org.gradle.api.Project
 
 import static com.uber.okbuck.core.util.ProjectUtil.getTargets
@@ -56,23 +58,19 @@ final class BuckFileGenerator {
     /**
      * generate {@code BUCKFile}
      */
-    static Map<Project, BUCKFile> generate(Project rootProject) {
-        OkBuckExtension okbuck = rootProject.okbuck
-        okbuck.buckProjects.each { Project project ->
-            resolve(project)
-        }
+    static Map<Project, BUCKFile> generate(Project project) {
+        OkBuckExtension okbuck = project.rootProject.okbuck
+        resolve(project)
 
         TestExtension test = okbuck.test
-        Map<Project, List<BuckRule>> projectRules = okbuck.buckProjects.collectEntries { Project project ->
-            List<BuckRule> rules = createRules(project, test.espresso)
-            [project, rules]
-        }
+        List<BuckRule> rules = createRules(project, test.espresso)
 
-        return projectRules.findAll { Project project, List<BuckRule> rules ->
-            !rules.empty
-        }.collectEntries { Project project, List<BuckRule> rules ->
-            [project, new BUCKFile(rules)]
-        } as Map<Project, BUCKFile>
+        if (rules) {
+            BUCKFile buckFile = new BUCKFile(rules)
+            PrintStream buckPrinter = new PrintStream(project.file(OkBuckGradlePlugin.BUCK))
+            buckFile.print(buckPrinter)
+            IOUtils.closeQuietly(buckPrinter)
+        }
     }
 
     private static void resolve(Project project) {
