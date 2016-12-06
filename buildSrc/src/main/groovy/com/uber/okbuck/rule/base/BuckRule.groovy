@@ -29,6 +29,9 @@ abstract class BuckRule {
             printer.println("\tname = '${name}',")
         }
         printContent(printer)
+        mExtraBuckOpts.each { String option ->
+            printer.println("\t${option},")
+        }
         if (!mDeps.empty) {
             printer.println("\tdeps = [")
             mDeps.sort().each { String dep ->
@@ -42,9 +45,6 @@ abstract class BuckRule {
                 printer.println("\t\t'${visibility}',")
             }
             printer.println("\t],")
-        }
-        mExtraBuckOpts.each { String option ->
-            printer.println("\t${option},")
         }
         printer.println(")")
         printer.println()
