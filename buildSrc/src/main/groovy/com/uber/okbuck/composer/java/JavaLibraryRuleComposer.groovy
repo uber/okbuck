@@ -1,5 +1,6 @@
 package com.uber.okbuck.composer.java
 
+import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.core.model.java.JavaLibTarget
 import com.uber.okbuck.core.util.RetrolambdaUtil
 import com.uber.okbuck.rule.java.JavaLibraryRule
@@ -46,7 +47,8 @@ final class JavaLibraryRuleComposer extends JavaBuckRuleComposer {
                 target.targetCompatibility,
                 target.postprocessClassesCommands,
                 target.main.jvmArgs,
-                testTargets)
+                testTargets,
+                target.getExtraOpts(RuleType.JAVA_LIBRARY))
     }
 
 }

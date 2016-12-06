@@ -1,5 +1,6 @@
 package com.uber.okbuck.rule.android
 
+import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.rule.base.BuckRule
 
 final class GenAidlRule extends BuckRule {
@@ -9,7 +10,7 @@ final class GenAidlRule extends BuckRule {
     private final Set<String> mAidlDeps
 
     GenAidlRule(String name, String aidlFilePath, String importPath, Set<String> deps) {
-        super("gen", name)
+        super(RuleType.GEN_AIDL, name)
         mAidlFilePath = aidlFilePath
         mImportPath = importPath
         mAidlDeps = deps
@@ -42,6 +43,5 @@ final class GenAidlRule extends BuckRule {
     }
 
     @Override
-    protected void printContent(PrintStream printer) {
-    }
+    protected void printContent(PrintStream printer) {}
 }

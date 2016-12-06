@@ -1,5 +1,7 @@
 package com.uber.okbuck.rule.android
 
+import com.uber.okbuck.core.model.base.RuleType
+
 final class AndroidLibraryRule extends AndroidRule {
 
     /**
@@ -22,10 +24,11 @@ final class AndroidLibraryRule extends AndroidRule {
             List<String> postprocessClassesCommands,
             List<String> options,
             boolean generateR2,
-            List<String> testTargets) {
+            List<String> testTargets,
+            Set<String> extraOpts) {
 
         super(
-                "android_library",
+                RuleType.ANDROID_LIBRARY,
                 name,
                 visibility,
                 deps,
@@ -45,6 +48,8 @@ final class AndroidLibraryRule extends AndroidRule {
                 generateR2,
                 null,
                 null,
-                testTargets)
+                testTargets,
+                null,
+                extraOpts)
     }
 }

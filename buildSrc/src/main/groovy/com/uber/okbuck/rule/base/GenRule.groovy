@@ -1,5 +1,7 @@
 package com.uber.okbuck.rule.base
 
+import com.uber.okbuck.core.model.base.RuleType
+
 final class GenRule extends BuckRule {
 
     private final Set<String> inputs
@@ -21,7 +23,7 @@ final class GenRule extends BuckRule {
             boolean globSrcs = false,
             String output = "${name}_out",
             executable = false) {
-        super("genrule", name)
+        super(RuleType.GENRULE, name)
         this.inputs = inputs
         this.bashCmds = bashCmds
         this.globSrcs = globSrcs

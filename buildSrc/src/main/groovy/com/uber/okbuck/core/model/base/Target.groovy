@@ -57,6 +57,10 @@ abstract class Target {
         return map.get("${identifier}${name}", map.get(identifier, defaultValue))
     }
 
+    Set<String> getExtraOpts(RuleType ruleType){
+        return getProp(okbuck.extraBuckOpts, [:]).get(ruleType.name().toLowerCase(), [])
+    }
+
     void resolve() {
         // no scope to resolve
     }

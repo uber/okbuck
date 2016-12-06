@@ -1,5 +1,6 @@
 package com.uber.okbuck.rule.android
 
+import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.rule.base.BuckRule
 
 final class AndroidManifestRule extends BuckRule {
@@ -7,7 +8,7 @@ final class AndroidManifestRule extends BuckRule {
     private final String mSkeleton
 
     AndroidManifestRule(String name, List<String> visibility, List<String> deps, String skeleton) {
-        super("android_manifest", name, visibility, deps)
+        super(RuleType.ANDROID_MANIFEST, name, visibility, deps)
         mSkeleton = skeleton
     }
 

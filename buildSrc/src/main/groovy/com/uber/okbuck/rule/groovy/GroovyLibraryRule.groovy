@@ -1,5 +1,7 @@
 package com.uber.okbuck.rule.groovy
 
+import com.uber.okbuck.core.model.base.RuleType
+
 final class GroovyLibraryRule extends GroovyRule {
 
     GroovyLibraryRule(
@@ -13,10 +15,11 @@ final class GroovyLibraryRule extends GroovyRule {
             String resourcesDir,
             String sourceCompatibility,
             String targetCompatibility,
-            List<String> javacOptions) {
+            List<String> javacOptions,
+            Set<String> extraOpts) {
 
         super(
-                "groovy_library",
+                RuleType.GROOVY_LIBRARY,
                 name,
                 visibility,
                 deps,
@@ -28,6 +31,8 @@ final class GroovyLibraryRule extends GroovyRule {
                 sourceCompatibility,
                 targetCompatibility,
                 javacOptions,
-                null)
+                null,
+                null,
+                extraOpts)
     }
 }

@@ -2,6 +2,7 @@ package com.uber.okbuck.composer.android
 
 import com.uber.okbuck.core.model.android.AndroidLibTarget
 import com.uber.okbuck.core.model.android.AndroidTarget
+import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.core.model.base.Target
 import com.uber.okbuck.core.util.RetrolambdaUtil
 import com.uber.okbuck.rule.android.AndroidLibraryRule
@@ -64,6 +65,7 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
                 target.postprocessClassesCommands,
                 target.main.jvmArgs,
                 target.generateR2,
-                testTargets)
+                testTargets,
+                target.getExtraOpts(RuleType.ANDROID_LIBRARY))
     }
 }

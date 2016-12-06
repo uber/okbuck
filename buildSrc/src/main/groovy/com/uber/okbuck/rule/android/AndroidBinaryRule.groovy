@@ -1,5 +1,6 @@
 package com.uber.okbuck.rule.android
 
+import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.rule.base.BuckRule
 
 final class AndroidBinaryRule extends BuckRule {
@@ -25,7 +26,7 @@ final class AndroidBinaryRule extends BuckRule {
                       String proguardConfig, Map<String, Object> placeholders, Set<String> extraOpts,
                       boolean includesVectorDrawables, Set<String> preprocessJavaClassesDeps,
                       String preprocessJavaClassesBash) {
-        super("android_binary", name, visibility, deps)
+        super(RuleType.ANDROID_BINARY, name, visibility, deps, extraOpts)
 
         mManifest = manifest
         mKeystore = keystore

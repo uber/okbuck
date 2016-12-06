@@ -1,17 +1,22 @@
 package com.uber.okbuck.rule.base
 
+import com.uber.okbuck.core.model.base.RuleType
+
 abstract class BuckRule {
 
     final String name
     private final String mRuleType
     private final Set<String> mVisibility
     private final Set<String> mDeps
+    private final Set<String> mExtraBuckOpts
 
-    BuckRule(String ruleType, String name, List<String> visibility = [], List<String> deps = []) {
+    BuckRule(RuleType ruleType, String name, List<String> visibility = [], List<String> deps = [],
+             Set<String> extraBuckOpts = []) {
         this.name = name
-        mRuleType = ruleType
+        mRuleType = ruleType.name().toLowerCase()
         mVisibility = new LinkedHashSet(visibility)
         mDeps = new LinkedHashSet(deps) // de-dup dependencies
+        mExtraBuckOpts = extraBuckOpts
     }
 
     /**
@@ -37,6 +42,9 @@ abstract class BuckRule {
                 printer.println("\t\t'${visibility}',")
             }
             printer.println("\t],")
+        }
+        mExtraBuckOpts.each { String option ->
+            printer.println("\t${option},")
         }
         printer.println(")")
         printer.println()

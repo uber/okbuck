@@ -1,6 +1,7 @@
 package com.uber.okbuck.composer.android
 
 import com.uber.okbuck.core.model.android.AndroidAppTarget
+import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.rule.android.ExopackageAndroidLibraryRule
 
 final class ExopackageAndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
@@ -24,6 +25,7 @@ final class ExopackageAndroidLibraryRuleComposer extends AndroidBuckRuleComposer
                 target.sourceCompatibility,
                 target.targetCompatibility,
                 target.postprocessClassesCommands,
-                target.exopackage.jvmArgs)
+                target.exopackage.jvmArgs,
+                target.getExtraOpts(RuleType.ANDROID_LIBRARY))
     }
 }

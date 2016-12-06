@@ -1,5 +1,7 @@
 package com.uber.okbuck.rule.java
 
+import com.uber.okbuck.core.model.base.RuleType
+
 final class JavaTestRule extends JavaRule {
 
     JavaTestRule(
@@ -15,9 +17,10 @@ final class JavaTestRule extends JavaRule {
             String targetCompatibility,
             List<String> postprocessClassesCommands,
             List<String> options,
-            List<String> testRunnerJvmArgs) {
+            List<String> testRunnerJvmArgs,
+            Set<String> extraOpts) {
         super(
-                "java_test",
+                RuleType.JAVA_TEST,
                 name,
                 visibility,
                 deps,
@@ -32,6 +35,7 @@ final class JavaTestRule extends JavaRule {
                 options,
                 testRunnerJvmArgs,
                 null,
-                ['unit', 'java'])
+                ['unit', 'java'],
+                extraOpts)
     }
 }
