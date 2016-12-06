@@ -150,8 +150,9 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         IOUtils.closeQuietly(configPrinter)
 
         ExperimentalExtension experimental = okbuck.experimental
-        if (!experimental.parallel) {
-            okbuck.buckProjects.each { Project subProject ->
+        okbuck.buckProjects.each { Project subProject ->
+            BuckFileGenerator.resolve(subProject)
+            if (!experimental.parallel) {
                 BuckFileGenerator.generate(subProject)
             }
         }

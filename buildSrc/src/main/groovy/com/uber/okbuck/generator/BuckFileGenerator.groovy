@@ -60,7 +60,6 @@ final class BuckFileGenerator {
      */
     static Map<Project, BUCKFile> generate(Project project) {
         OkBuckExtension okbuck = project.rootProject.okbuck
-        resolve(project)
 
         TestExtension test = okbuck.test
         List<BuckRule> rules = createRules(project, test.espresso)
@@ -73,7 +72,7 @@ final class BuckFileGenerator {
         }
     }
 
-    private static void resolve(Project project) {
+    static void resolve(Project project) {
         Map<String, Target> targets = getTargets(project)
 
         targets.each { String name, Target target ->
