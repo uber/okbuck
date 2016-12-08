@@ -161,7 +161,6 @@ okbuck {
         parallel = true
     }
     wrapper {
-        repo = "https://github.com/kageiit/buck.git"
         watch += ["**/*.sq"]
     }
 }
