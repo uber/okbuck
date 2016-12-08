@@ -111,6 +111,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
             if (test.robolectric) {
                 Task fetchRobolectricRuntimeDeps = project.task('fetchRobolectricRuntimeDeps')
                 okbuckSetupTask.dependsOn(fetchRobolectricRuntimeDeps)
+                fetchRobolectricRuntimeDeps.mustRunAfter(okBuckClean)
                 fetchRobolectricRuntimeDeps.setDescription("Fetches runtime dependencies for robolectric")
 
                 fetchRobolectricRuntimeDeps.doLast {
@@ -125,6 +126,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
 
                 Task fetchLintDeps = project.task('fetchLintDeps')
                 okbuckSetupTask.dependsOn(fetchLintDeps)
+                fetchLintDeps.mustRunAfter(okBuckClean)
                 fetchLintDeps.doLast {
                     LintUtil.fetchLintDeps(project, lint.version)
                 }
@@ -133,12 +135,14 @@ class OkBuckGradlePlugin implements Plugin<Project> {
             if (experimental.transform) {
                 Task fetchTransformDeps = project.task('fetchTransformDeps')
                 okbuckSetupTask.dependsOn(fetchTransformDeps)
+                fetchTransformDeps.mustRunAfter(okBuckClean)
                 fetchTransformDeps.doLast { TransformUtil.fetchTransformDeps(project) }
             }
 
             if (experimental.retrolambda) {
                 Task fetchRetrolambdaDeps = project.task('fetchRetrolambdaDeps')
                 okbuckSetupTask.dependsOn(fetchRetrolambdaDeps)
+                fetchRetrolambdaDeps.mustRunAfter(okBuckClean)
                 fetchRetrolambdaDeps.doLast {
                     RetrolambdaUtil.fetchRetrolambdaDeps(project, retrolambda)
                 }

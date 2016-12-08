@@ -2,7 +2,6 @@ package com.uber.okbuck.core.dependency
 
 import com.uber.okbuck.core.util.FileUtil
 import org.apache.commons.io.FileUtils
-import org.apache.commons.io.FilenameUtils
 import org.gradle.api.Project
 
 import java.nio.file.FileSystem
