@@ -52,13 +52,7 @@ class RobolectricUtil {
         List<String> jvmArguments = []
         String buckFile = null
         runtimeDeps.each { Configuration configuration ->
-            DependencyCache cache = new DependencyCache(
-                    project,
-                    ROBOLECTRIC_CACHE,
-                    buckFile,
-                    false,
-                    false)
-
+            DependencyCache cache = new DependencyCache(project, ROBOLECTRIC_CACHE, buckFile)
             Scope runtimeDepsScope = new Scope(project, [configuration.name], sourceDirs, res, jvmArguments, cache)
             runtimeDepsScope.depCache.finalizeCache()
         }

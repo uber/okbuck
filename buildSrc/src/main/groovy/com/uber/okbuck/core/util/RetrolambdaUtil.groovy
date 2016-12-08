@@ -61,13 +61,7 @@ class RetrolambdaUtil {
     }
 
     static DependencyCache getRetrolambdaDepsCache(Project project) {
-        return new DependencyCache(
-                project.rootProject,
-                RETROLAMDBA_CACHE,
-                RETROLAMBDA_DEPS_BUCK_FILE,
-                false,
-                false) {
-
+        return new DependencyCache(project.rootProject, RETROLAMDBA_CACHE, RETROLAMBDA_DEPS_BUCK_FILE) {
             @Override
             boolean isValid(File dep) {
                 return dep.name.endsWith(".jar")

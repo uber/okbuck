@@ -23,13 +23,7 @@ class TransformUtil {
     }
 
     static DependencyCache getTransformDepsCache(Project project) {
-        return new DependencyCache(
-                project.rootProject,
-                TRANSFORM_CACHE,
-                TRANSFORM_BUCK_FILE,
-                false,
-                false) {
-
+        return new DependencyCache(project.rootProject, TRANSFORM_CACHE, TRANSFORM_BUCK_FILE) {
             @Override
             boolean isValid(File dep) {
                 return dep.name.endsWith(".jar")

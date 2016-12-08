@@ -1,5 +1,6 @@
 package com.uber.okbuck.core.dependency
 
+import org.apache.commons.io.FilenameUtils
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion
 import org.gradle.api.artifacts.ModuleVersionIdentifier
 
@@ -7,6 +8,8 @@ import org.gradle.api.artifacts.ModuleVersionIdentifier
 class ExternalDependency extends VersionlessDependency {
 
     static final String SOURCES_JAR = '-sources.jar'
+    static final String DEP_DELIM = '__'
+
     final DefaultArtifactVersion version
     final File depFile
 
@@ -25,18 +28,18 @@ class ExternalDependency extends VersionlessDependency {
         return "${this.version} : ${this.depFile.toString()}"
     }
 
-    String getCacheName(boolean useFullDepName=false) {
-        if(useFullDepName) {
-            String extension = depFile.name.substring(depFile.name.lastIndexOf('.'))
-            return "${group}__${name}__${version}${extension}"
+    String getCacheName(boolean useFullDepName = false) {
+        if (useFullDepName) {
+            String extension = FilenameUtils.getExtension(depFile.name)
+            return [group, name, version].join(DEP_DELIM) + ".${extension}"
         } else {
             return depFile.name
         }
     }
 
-    String getSourceCacheName(boolean useFullDepName=false) {
+    String getSourceCacheName(boolean useFullDepName = false) {
         if (useFullDepName) {
-            return "${group}__${name}__${version}${SOURCES_JAR}"
+            return [group, name, version].join(DEP_DELIM) + SOURCES_JAR
         } else {
             return depFile.name.replaceFirst(/\.(jar|aar)$/, SOURCES_JAR)
         }

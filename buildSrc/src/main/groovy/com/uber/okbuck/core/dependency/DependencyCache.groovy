@@ -1,8 +1,8 @@
 package com.uber.okbuck.core.dependency
 
 import com.uber.okbuck.core.util.FileUtil
-import groovy.transform.Synchronized
 import org.apache.commons.io.FileUtils
+import org.apache.commons.io.FilenameUtils
 import org.gradle.api.Project
 
 import java.nio.file.FileSystem
@@ -10,10 +10,8 @@ import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.nio.file.Path
 
-
 class DependencyCache {
 
-    static final String THIRD_PARTY_BUCK_FILE = "thirdparty/BUCK_FILE"
     final Project rootProject
     final File cacheDir
 
@@ -34,7 +32,6 @@ class DependencyCache {
                     boolean extractLintJars = false) {
 
         this.rootProject = rootProject
-
         this.cacheDir = new File(rootProject.projectDir, cacheDirPath)
         this.cacheDir.mkdirs()
 
@@ -48,15 +45,16 @@ class DependencyCache {
         this.extractLintJars = extractLintJars
     }
 
-    @Synchronized
     void put(ExternalDependency dependency) {
         if (!isValid(dependency.depFile)) {
             throw new InValidDependencyException("${dependency.depFile.absolutePath} is not a valid dependency")
         }
 
-        ExternalDependency externalDependency = greatestVersions.get(dependency)
-        if (externalDependency == null || dependency.version > externalDependency.version) {
-            greatestVersions.put(dependency, dependency)
+        synchronized (this) {
+            ExternalDependency externalDependency = greatestVersions.get(dependency)
+            if (externalDependency == null || dependency.version > externalDependency.version) {
+                greatestVersions.put(dependency, dependency)
+            }
         }
     }
 
@@ -64,9 +62,9 @@ class DependencyCache {
         File cachedCopy = new File(cacheDir, dependency.getCacheName(useFullDepName))
         String path = FileUtil.getRelativePath(rootProject.projectDir, cachedCopy)
 
+        // for greatest versions, we remove the version suffix
         if (useGreatestVersion) {
-            String extension = path.substring(path.lastIndexOf('.'))
-            path = path.substring(0, path.lastIndexOf('__')) + extension
+            path = path.substring(0, path.lastIndexOf(ExternalDependency.DEP_DELIM))
         }
 
         return path

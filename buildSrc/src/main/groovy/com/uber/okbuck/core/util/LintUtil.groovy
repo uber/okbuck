@@ -86,13 +86,7 @@ class LintUtil {
     }
 
     static DependencyCache getLintDepsCache(Project project) {
-        return new DependencyCache(
-                project.rootProject,
-                LINT_DEPS_CACHE,
-                LINT_DEPS_BUCK_FILE,
-                false,
-                false) {
-
+        return new DependencyCache(project.rootProject, LINT_DEPS_CACHE, LINT_DEPS_BUCK_FILE) {
             @Override
             boolean isValid(File dep) {
                 return dep.name.endsWith(".jar")

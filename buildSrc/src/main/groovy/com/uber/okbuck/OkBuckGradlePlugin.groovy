@@ -25,6 +25,7 @@ import org.gradle.api.logging.Logger
 
 class OkBuckGradlePlugin implements Plugin<Project> {
 
+    static final String EXTERNAL_DEP_BUCK_FILE = "thirdparty/BUCK_FILE"
     static final String OKBUCK = "okbuck"
     static final String OKBUCK_CLEAN = 'okbuckClean'
     static final String BUCK = "BUCK"
@@ -83,7 +84,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
             depCache = new DependencyCache(
                     project,
                     DEFAULT_CACHE_PATH,
-                    DependencyCache.THIRD_PARTY_BUCK_FILE,
+                    EXTERNAL_DEP_BUCK_FILE,
                     true,
                     true,
                     intellij.sources,

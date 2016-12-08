@@ -4,6 +4,8 @@ plugins {
     id "com.jfrog.bintray" version "1.7"
 }
 
+apply from: "../dependencies.gradle"
+
 repositories {
     jcenter()
 }
@@ -12,17 +14,12 @@ dependencies {
     compile gradleApi()
     compile localGroovy()
 
-    compile 'com.android.tools.build:gradle:2.2.1'
-    compile 'commons-io:commons-io:2.5'
-    compile 'commons-lang:commons-lang:2.6'
-    compile 'org.apache.maven:maven-artifact:3.3.9'
+    compile deps.build.androidPlugin
+    compile deps.build.commonsIo
+    compile deps.build.commonsLang
+    compile deps.build.mavenArtifact
 
-    testCompile 'junit:junit:4.12'
-}
-
-tasks.withType(JavaCompile) {
-    sourceCompatibility = '1.7'
-    targetCompatibility = '1.7'
+    testCompile deps.test.junit
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
