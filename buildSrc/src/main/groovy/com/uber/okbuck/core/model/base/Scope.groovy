@@ -21,6 +21,7 @@ import org.gradle.api.artifacts.ModuleIdentifier
 import org.gradle.api.artifacts.ModuleVersionIdentifier
 import org.gradle.api.artifacts.ResolvedArtifact
 import org.gradle.api.artifacts.UnknownConfigurationException
+import org.gradle.api.internal.artifacts.Module
 import org.gradle.plugins.ide.internal.IdeDependenciesExtractor
 
 @EqualsAndHashCode
@@ -106,32 +107,18 @@ class Scope {
                     !resolvedFiles.contains(resolved)
                 }.each { File localDep ->
 
-                    ModuleVersionIdentifier identifier = new ModuleVersionIdentifier() {
-
-                        @Override
-                        String getVersion() {
-                            return "1.0.0"
-                        }
-
-                        @Override
-                        String getGroup() {
-                            if (FilenameUtils.directoryContains(project.rootDir.absolutePath, localDep.absolutePath)) {
-                                return FileUtil.getRelativePath(project.rootDir, localDep).replaceAll(FILE_SEPARATOR, '_')
-                            } else {
-                                return project.path.replaceFirst(':', '').replaceAll(':', '_')
-                            }
-                        }
-
-                        @Override
-                        String getName() {
-                            return FilenameUtils.getBaseName(localDep.name)
-                        }
-
-                        @Override
-                        ModuleIdentifier getModule() {
-                            return null
-                        }
+                    String localDepGroup
+                    if (FilenameUtils.directoryContains(project.rootDir.absolutePath, localDep.absolutePath)) {
+                        localDepGroup = FileUtil.getRelativePath(project.rootDir, localDep).replaceAll(FILE_SEPARATOR, '_')
+                    } else {
+                        localDepGroup = project.path.replaceFirst(':', '').replaceAll(':', '_')
                     }
+
+                    ModuleVersionIdentifier identifier = getDepIdentifier(
+                            localDepGroup,
+                            FilenameUtils.getBaseName(localDep.name),
+                            "1.0.0")
+
                     ExternalDependency dependency = new ExternalDependency(identifier, localDep)
                     external.add(dependency)
                     depCache.put(dependency)
@@ -182,5 +169,30 @@ class Scope {
             }
         }
         return result
+    }
+
+    static ModuleVersionIdentifier getDepIdentifier(String group, String name, String version) {
+        return new ModuleVersionIdentifier() {
+
+            @Override
+            String getVersion() {
+                return version
+            }
+
+            @Override
+            String getGroup() {
+                return group
+            }
+
+            @Override
+            String getName() {
+                return name
+            }
+
+            @Override
+            ModuleIdentifier getModule() {
+                return null
+            }
+        }
     }
 }
