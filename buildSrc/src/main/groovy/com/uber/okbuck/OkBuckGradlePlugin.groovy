@@ -73,6 +73,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
             okBuck.dependsOn(okBuckClean)
             okBuck.doLast {
                 generate(project)
+                depCache.finalizeCache()
             }
 
             if (experimental.parallel) {
@@ -155,14 +156,11 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         DotBuckConfigLocalGenerator.generate(okbuck).print(configPrinter)
         IOUtils.closeQuietly(configPrinter)
 
-        ExperimentalExtension experimental = okbuck.experimental
         okbuck.buckProjects.each { Project subProject ->
             BuckFileGenerator.resolve(subProject)
         }
 
-        depCache.finalizeCache()
-
-        if (!experimental.parallel) {
+        if (!okbuck.experimental.parallel) {
             okbuck.buckProjects.each { Project subProject ->
                 BuckFileGenerator.generate(subProject)
             }
