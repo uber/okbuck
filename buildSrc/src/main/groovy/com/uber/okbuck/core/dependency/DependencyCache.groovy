@@ -9,38 +9,46 @@ import java.nio.file.FileSystem
 import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.nio.file.Path
-import java.util.concurrent.ConcurrentHashMap
+
 
 class DependencyCache {
 
     static final String THIRD_PARTY_BUCK_FILE = "thirdparty/BUCK_FILE"
     final Project rootProject
     final File cacheDir
+
     final boolean useFullDepName
+    final boolean useGreatestVersion
     final boolean fetchSources
     final boolean extractLintJars
 
-    private Map<VersionlessDependency, String> finalDepFiles = [:]
     private Map<VersionlessDependency, String> lintJars = [:]
-    private Map<VersionlessDependency, ExternalDependency> greatestVersions = new ConcurrentHashMap()
+    private Map<VersionlessDependency, ExternalDependency> greatestVersions = new HashMap<>()
 
     DependencyCache(Project rootProject,
                     String cacheDirPath,
+                    String buckFile = null,
                     boolean useFullDepName = false,
-                    String buckFile = THIRD_PARTY_BUCK_FILE,
+                    boolean useGreatestVersion = false,
                     boolean fetchSources = false,
                     boolean extractLintJars = false) {
+
         this.rootProject = rootProject
-        this.useFullDepName = useFullDepName
-        this.fetchSources = fetchSources
-        this.extractLintJars = extractLintJars
-        cacheDir = new File(rootProject.projectDir, cacheDirPath)
-        cacheDir.mkdirs()
+
+        this.cacheDir = new File(rootProject.projectDir, cacheDirPath)
+        this.cacheDir.mkdirs()
+
         if (buckFile) {
             FileUtil.copyResourceToProject(buckFile, new File(cacheDir, "BUCK"))
         }
+
+        this.useFullDepName = useFullDepName
+        this.useGreatestVersion = useGreatestVersion
+        this.fetchSources = fetchSources
+        this.extractLintJars = extractLintJars
     }
 
+    @Synchronized
     void put(ExternalDependency dependency) {
         if (!isValid(dependency.depFile)) {
             throw new InValidDependencyException("${dependency.depFile.absolutePath} is not a valid dependency")
@@ -52,30 +60,58 @@ class DependencyCache {
         }
     }
 
-    @Synchronized
     String get(ExternalDependency dependency) {
-        ExternalDependency greatestVersion = greatestVersions.get(dependency)
-        if (!finalDepFiles.containsKey(greatestVersion)) {
-            File depFile = greatestVersion.depFile
-            File cachedCopy = new File(cacheDir, useFullDepName ? dependency.cacheName : dependency.depFile.name)
-            if (!cachedCopy.exists()) {
-                Files.copy(depFile.toPath(), cachedCopy.toPath())
+        File cachedCopy = new File(cacheDir, dependency.getCacheName(useFullDepName))
+        String path = FileUtil.getRelativePath(rootProject.projectDir, cachedCopy)
+
+        if (useGreatestVersion) {
+            String extension = path.substring(path.lastIndexOf('.'))
+            path = path.substring(0, path.lastIndexOf('__')) + extension
+        }
+
+        return path
+    }
+
+    void finalizeCache() {
+
+        // Delete files from cache which are not needed
+        if (useGreatestVersion) {
+            HashSet<String> greatestVersionCacheNames = new HashSet<>()
+            for (Map.Entry<VersionlessDependency, ExternalDependency> entry : greatestVersions.entrySet()) {
+                greatestVersionCacheNames.add(entry.getValue().getCacheName(useFullDepName))
+                greatestVersionCacheNames.add(entry.getValue().getSourceCacheName(useFullDepName))
             }
+
+            for (File cacheDirFile : cacheDir.listFiles()) {
+                if (isValid(cacheDirFile) && !greatestVersionCacheNames.contains(cacheDirFile.name)) {
+                    cacheDirFile.delete()
+                }
+            }
+        }
+
+        // Run dependency related tasks
+        for (Map.Entry<VersionlessDependency, ExternalDependency> entry : greatestVersions.entrySet()) {
+            File cachedCopy = new File(cacheDir, entry.getValue().getCacheName(useFullDepName))
+
+            // Copy the file into the cache
+            if (!cachedCopy.exists()) {
+                Files.copy(entry.getValue().depFile.toPath(), cachedCopy.toPath())
+            }
+
+            // Extract Lint Jars
             if (extractLintJars && cachedCopy.name.endsWith(".aar")) {
                 File lintJar = getPackagedLintJar(cachedCopy)
                 if (lintJar != null) {
                     String lintJarPath = FileUtil.getRelativePath(rootProject.projectDir, lintJar)
-                    lintJars.put(greatestVersion, lintJarPath)
+                    lintJars.put(entry.getValue(), lintJarPath)
                 }
             }
-            if (fetchSources) {
-                fetchSourcesFor(dependency)
-            }
-            String path = FileUtil.getRelativePath(rootProject.projectDir, cachedCopy)
-            finalDepFiles.put(greatestVersion, path)
-        }
 
-        return finalDepFiles.get(greatestVersion)
+            // Fetch Sources
+            if (fetchSources) {
+                fetchSourcesFor(entry.getValue())
+            }
+        }
     }
 
     String getLintJar(ExternalDependency dependency) {
@@ -83,21 +119,21 @@ class DependencyCache {
     }
 
     private void fetchSourcesFor(ExternalDependency dependency) {
-        File depFile = dependency.depFile
-        String sourcesJarName = depFile.name.replaceFirst(/\.(jar|aar)$/, '-sources.jar')
+        String sourcesJarName = dependency.depFile.name.replaceFirst(/\.(jar|aar)$/, ExternalDependency.SOURCES_JAR)
 
         File sourcesJar = null
         if (FileUtils.directoryContains(rootProject.projectDir, dependency.depFile)) {
-            sourcesJar = new File(depFile.parentFile, sourcesJarName)
+            sourcesJar = new File(dependency.depFile.parentFile, sourcesJarName)
         } else {
-            def sourceJars = rootProject.fileTree(dir: depFile.parentFile.parentFile.absolutePath,
+            def sourceJars = rootProject.fileTree(
+                    dir: dependency.depFile.parentFile.parentFile.absolutePath,
                     includes: ["**/${sourcesJarName}"]) as List
             if (sourceJars.size() > 0) {
                 sourcesJar = sourceJars[0]
             }
         }
 
-        File cachedCopy = new File(cacheDir, "${dependency.group}.${sourcesJarName}")
+        File cachedCopy = new File(cacheDir, dependency.getSourceCacheName(useFullDepName))
         if (sourcesJar != null && sourcesJar.exists() && !cachedCopy.exists()) {
             FileUtils.copyFile(sourcesJar, cachedCopy)
         }

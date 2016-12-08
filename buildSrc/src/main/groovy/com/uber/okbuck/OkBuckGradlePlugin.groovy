@@ -79,8 +79,14 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                 createSubTasks(project, okBuck)
             }
 
-            depCache = new DependencyCache(project, DEFAULT_CACHE_PATH, true, DependencyCache.THIRD_PARTY_BUCK_FILE,
-                    intellij.sources, experimental.lint)
+            depCache = new DependencyCache(
+                    project,
+                    DEFAULT_CACHE_PATH,
+                    DependencyCache.THIRD_PARTY_BUCK_FILE,
+                    true,
+                    true,
+                    intellij.sources,
+                    experimental.lint)
 
             if (test.robolectric) {
                 Task fetchRobolectricRuntimeDeps = project.task('fetchRobolectricRuntimeDeps')
@@ -152,10 +158,16 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         ExperimentalExtension experimental = okbuck.experimental
         okbuck.buckProjects.each { Project subProject ->
             BuckFileGenerator.resolve(subProject)
-            if (!experimental.parallel) {
+        }
+
+        depCache.finalizeCache()
+
+        if (!experimental.parallel) {
+            okbuck.buckProjects.each { Project subProject ->
                 BuckFileGenerator.generate(subProject)
             }
         }
+
     }
 
     private static void createSubTasks(Project project, Task rootOkbuckTask) {

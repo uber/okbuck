@@ -58,9 +58,14 @@ class LintUtil {
         File res = null
         Set<File> sourceDirs = []
         List<String> jvmArguments = []
-        Scope lintDepsScope = new Scope(project, [LINT_DEPS_CONFIG], sourceDirs, res, jvmArguments,
+        Scope lintDepsScope = new Scope(
+                project,
+                [LINT_DEPS_CONFIG],
+                sourceDirs,
+                res,
+                jvmArguments,
                 getLintDepsCache(project))
-        lintDepsScope.getExternalDeps()
+        lintDepsScope.depCache.finalizeCache()
     }
 
     static String getLintwConfigName(Project project, File config) {
@@ -81,7 +86,12 @@ class LintUtil {
     }
 
     static DependencyCache getLintDepsCache(Project project) {
-        return new DependencyCache(project.rootProject, LINT_DEPS_CACHE, false, LINT_DEPS_BUCK_FILE) {
+        return new DependencyCache(
+                project.rootProject,
+                LINT_DEPS_CACHE,
+                LINT_DEPS_BUCK_FILE,
+                false,
+                false) {
 
             @Override
             boolean isValid(File dep) {

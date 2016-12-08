@@ -17,6 +17,8 @@ import groovy.transform.EqualsAndHashCode
 import org.apache.commons.io.FilenameUtils
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.ModuleIdentifier
+import org.gradle.api.artifacts.ModuleVersionIdentifier
 import org.gradle.api.artifacts.ResolvedArtifact
 import org.gradle.api.artifacts.UnknownConfigurationException
 import org.gradle.plugins.ide.internal.IdeDependenciesExtractor
@@ -51,6 +53,12 @@ class Scope {
         extractConfigurations(configurations)
     }
 
+    Set<String> getExternalDepsWithFullPath() {
+        external.collect { ExternalDependency dependency ->
+            dependency.depFile.path
+        }
+    }
+
     Set<String> getExternalDeps() {
         external.collect { ExternalDependency dependency ->
             depCache.get(dependency)
@@ -73,6 +81,7 @@ class Scope {
                 validConfigurations.add(configuration)
                 Set<File> resolvedFiles = [] as Set
                 configuration.resolvedConfiguration.resolvedArtifacts.each { ResolvedArtifact artifact ->
+
                     String identifier = artifact.id.componentIdentifier.displayName
                     File dep = artifact.file
 
@@ -87,7 +96,7 @@ class Scope {
                             targetDeps.add(target)
                         }
                     } else {
-                        ExternalDependency dependency = new ExternalDependency(identifier, dep, "${project.path.replaceFirst(':', '').replaceAll(':', '_')}:${FilenameUtils.getBaseName(dep.name)}:1.0.0")
+                        ExternalDependency dependency = new ExternalDependency(artifact.moduleVersion.id, dep)
                         external.add(dependency)
                         depCache.put(dependency)
                     }
@@ -96,15 +105,34 @@ class Scope {
                 configuration.files.findAll { File resolved ->
                     !resolvedFiles.contains(resolved)
                 }.each { File localDep ->
-                    String localDepGroup
-                    if (FilenameUtils.directoryContains(project.rootDir.absolutePath, localDep.absolutePath)) {
-                        localDepGroup = FileUtil.getRelativePath(project.rootDir, localDep).replaceAll(FILE_SEPARATOR, '_')
-                    } else {
-                        localDepGroup = project.path.replaceFirst(':', '').replaceAll(':', '_')
+
+                    ModuleVersionIdentifier identifier = new ModuleVersionIdentifier() {
+
+                        @Override
+                        String getVersion() {
+                            return "1.0.0"
+                        }
+
+                        @Override
+                        String getGroup() {
+                            if (FilenameUtils.directoryContains(project.rootDir.absolutePath, localDep.absolutePath)) {
+                                return FileUtil.getRelativePath(project.rootDir, localDep).replaceAll(FILE_SEPARATOR, '_')
+                            } else {
+                                return project.path.replaceFirst(':', '').replaceAll(':', '_')
+                            }
+                        }
+
+                        @Override
+                        String getName() {
+                            return FilenameUtils.getBaseName(localDep.name)
+                        }
+
+                        @Override
+                        ModuleIdentifier getModule() {
+                            return null
+                        }
                     }
-                    ExternalDependency dependency = new ExternalDependency(
-                            "${localDepGroup}:${FilenameUtils.getBaseName(localDep.name)}:1.0.0",
-                            localDep)
+                    ExternalDependency dependency = new ExternalDependency(identifier, localDep)
                     external.add(dependency)
                     depCache.put(dependency)
                 }

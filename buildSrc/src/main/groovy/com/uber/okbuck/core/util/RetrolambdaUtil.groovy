@@ -37,8 +37,15 @@ class RetrolambdaUtil {
         Set<File> sourceDirs = []
         List<String> jvmArguments = []
         DependencyCache retrolambdaDepCache = getRetrolambdaDepsCache(project)
-        Scope retrolambdaDepsScope = new Scope(project, [RETROLAMBDA_DEPS_CONFIG], sourceDirs, res, jvmArguments,
+        Scope retrolambdaDepsScope = new Scope(
+                project,
+                [RETROLAMBDA_DEPS_CONFIG],
+                sourceDirs,
+                res,
+                jvmArguments,
                 retrolambdaDepCache)
+        retrolambdaDepsScope.depCache.finalizeCache()
+
         String retrolambdaJar = retrolambdaDepsScope.getExternalDeps()[0]
 
         FileUtil.copyResourceToProject(RETROLAMBDA_DEPS_BUCK_FILE, new File(retrolambdaDepCache.cacheDir, "BUCK"))
@@ -54,7 +61,12 @@ class RetrolambdaUtil {
     }
 
     static DependencyCache getRetrolambdaDepsCache(Project project) {
-        return new DependencyCache(project.rootProject, RETROLAMDBA_CACHE, false, RETROLAMBDA_DEPS_BUCK_FILE) {
+        return new DependencyCache(
+                project.rootProject,
+                RETROLAMDBA_CACHE,
+                RETROLAMBDA_DEPS_BUCK_FILE,
+                false,
+                false) {
 
             @Override
             boolean isValid(File dep) {

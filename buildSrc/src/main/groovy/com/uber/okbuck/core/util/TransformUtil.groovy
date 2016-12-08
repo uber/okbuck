@@ -19,11 +19,16 @@ class TransformUtil {
         List<String> jvmArguments = []
         Scope transformScope = new Scope(
                 project, [CONFIGURATION_TRANSFORM], sourceDirs, res, jvmArguments, getTransformDepsCache(project))
-        transformScope.externalDeps
+        transformScope.depCache.finalizeCache()
     }
 
     static DependencyCache getTransformDepsCache(Project project) {
-        return new DependencyCache(project.rootProject, TRANSFORM_CACHE, false, TRANSFORM_BUCK_FILE) {
+        return new DependencyCache(
+                project.rootProject,
+                TRANSFORM_CACHE,
+                TRANSFORM_BUCK_FILE,
+                false,
+                false) {
 
             @Override
             boolean isValid(File dep) {

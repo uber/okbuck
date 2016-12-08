@@ -1,16 +1,16 @@
 package com.uber.okbuck.core.dependency
 
 import groovy.transform.EqualsAndHashCode
+import org.gradle.api.artifacts.ModuleVersionIdentifier
 
 @EqualsAndHashCode
 class VersionlessDependency {
 
     final String group
-    final String module
+    final String name
 
-    VersionlessDependency(String identifier) {
-        List<String> parts = identifier.split(":")
-        group = parts[0]
-        module = parts[1]
+    VersionlessDependency(ModuleVersionIdentifier identifier) {
+        group = identifier.group
+        name = identifier.name
     }
 }

@@ -1,52 +1,64 @@
 import re
 
-sources_regex = re.compile(r'-sources.jar$', re.IGNORECASE)
-base_name_regex = re.compile(r'\.(jar|aar)$', re.IGNORECASE)
-file_name_regex = re.compile(r'^.*/([^/]+)\.(jar|aar)$', re.IGNORECASE)
 
-jars = []
-aars = []
+def base_name(file_name):
+    parts = file_name.split('__')
+    return '{}__{}'.format(parts[0], parts[1])
+
+
+def trimmed_version_name(file_name):
+    parts = file_name.split('__')
+    extension = parts[-1].split('.')[-1]
+    return '{}__{}.{}'.format(parts[0], parts[1], extension)
+
+
+jars = {}
+aars = {}
 sources = {}
 
+
 for jar in glob(['*.jar']):
-  name = file_name_regex.sub(r'\1', jar)
-  if name.endswith('-sources.jar'):
-    sources[sources_regex.sub('', name)] = name
+  b_name = base_name(jar)
+  if jar.endswith('-sources.jar'):
+    sources[b_name] = jar
   else:
-    jars.append(name)
+    jars[b_name] = jar
+
 
 for aar in glob(['*.aar']):
-  name = file_name_regex.sub(r'\1', aar)
-  aars.append(name)
+  b_name = base_name(aar)
+  aars[b_name] = aar
 
-for jar in jars:
-  basename = base_name_regex.sub('', jar)
-  if sources.get(basename, None) is not None:
+
+for b_name, jar in jars.iteritems():
+  jar_name = trimmed_version_name(jar)
+  if sources.get(b_name):
     prebuilt_jar(
-      name = jar,
+      name = jar_name,
       binary_jar = jar,
-      source_jar = sources[basename],
+      source_jar = sources[b_name],
       visibility = ['PUBLIC'],
     )
   else:
     prebuilt_jar(
-      name = jar,
+      name = jar_name,
       binary_jar = jar,
       visibility = ['PUBLIC'],
     )
 
-for aar in aars:
-  basename = base_name_regex.sub('', aar)
-  if sources.get(basename, None) is not None:
+
+for b_name, aar in aars.iteritems():
+  aar_name = trimmed_version_name(aar)
+  if sources.get(b_name):
     android_prebuilt_aar(
-      name = aar,
+      name = aar_name,
       aar = aar,
-      source_jar = sources[basename],
+      source_jar = sources[b_name],
       visibility = ['PUBLIC'],
     )
   else:
     android_prebuilt_aar(
-      name = aar,
+      name = aar_name,
       aar = aar,
       visibility = ['PUBLIC'],
     )
