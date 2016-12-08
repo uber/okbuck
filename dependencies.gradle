@@ -6,7 +6,7 @@ def versions = [
 ]
 
 def build = [
-        androidPlugin    : 'com.android.tools.build:gradle:2.3.0-alpha2',
+        androidPlugin    : 'com.android.tools.build:gradle:2.2.3',
         butterKnifePlugin: "com.jakewharton:butterknife-gradle-plugin:${versions.butterKnifeVersion}",
         retrolambdaPlugin: 'me.tatarka:gradle-retrolambda:3.4.0',
         sqlDelightPlugin : 'com.squareup.sqldelight:gradle-plugin:0.5.1',

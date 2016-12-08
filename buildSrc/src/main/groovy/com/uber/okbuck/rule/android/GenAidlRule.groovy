@@ -7,12 +7,14 @@ final class GenAidlRule extends BuckRule {
 
     private final String mAidlFilePath
     private final String mImportPath
+    private final String mManifest
     private final Set<String> mAidlDeps
 
-    GenAidlRule(String name, String aidlFilePath, String importPath, Set<String> deps) {
+    GenAidlRule(String name, String aidlFilePath, String importPath, String manifest, Set<String> deps) {
         super(RuleType.GEN_AIDL, name)
         mAidlFilePath = aidlFilePath
         mImportPath = importPath
+        mManifest = manifest
         mAidlDeps = deps
     }
 
@@ -33,6 +35,9 @@ final class GenAidlRule extends BuckRule {
         printer.println("android_library(")
         printer.println("\tname = '${name}',")
         printer.println("\tsrcs = gen_${name},")
+        if (mManifest) {
+            printer.println("\tmanifest = '${mManifest}',")
+        }
         printer.println("\tdeps = [")
         mAidlDeps.each { String aidlDep ->
             printer.println("\t\t'${aidlDep}',")
