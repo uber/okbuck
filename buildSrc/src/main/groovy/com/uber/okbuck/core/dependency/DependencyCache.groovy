@@ -41,11 +41,7 @@ class DependencyCache {
 
         Configuration superConfiguration = rootProject.configurations.maybeCreate("${name}DepCache")
         superConfiguration.setExtendsFrom(configurations)
-        if (configurations.size() > 1) {
-            this.configuration = superConfiguration.copyRecursive()
-        } else {
-            this.configuration = superConfiguration
-        }
+        this.configuration = superConfiguration.copyRecursive()
 
         if (buckFile) {
             FileUtil.copyResourceToProject(buckFile, new File(cacheDir, "BUCK"))
