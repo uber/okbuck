@@ -6,6 +6,7 @@ import com.uber.okbuck.extension.ExperimentalExtension
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.UnknownConfigurationException
 
 /**
  * A java library target
@@ -39,9 +40,13 @@ class JavaLibTarget extends JavaTarget {
     }
 
     Set<Configuration> depConfigurations() {
-        return (project.configurations as Set<Configuration>).findAll { Configuration configuration ->
-            depConfigNames.contains(configuration.name)
-        } as Set<Configuration>
+        Set<Configuration> configurations = new HashSet()
+        depConfigNames.each { String configName ->
+            try {
+                configurations.add(project.configurations.getByName(configName))
+            } catch(UnknownConfigurationException ignored) {}
+        }
+        return configurations
     }
 
     String getSourceCompatibility() {
