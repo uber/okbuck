@@ -5,6 +5,7 @@ import com.uber.okbuck.core.util.RetrolambdaUtil
 import com.uber.okbuck.extension.ExperimentalExtension
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Configuration
 
 /**
  * A java library target
@@ -31,6 +32,16 @@ class JavaLibTarget extends JavaTarget {
                 project.files("src/test/java") as Set,
                 project.file("src/test/resources"),
                 project.compileTestJava.options.compilerArgs as List)
+    }
+
+    Set<String> getDepConfigNames() {
+        return APT_CONFIGS + ["compile", "testCompile"]
+    }
+
+    Set<Configuration> depConfigurations() {
+        return (project.configurations as Set<Configuration>).findAll { Configuration configuration ->
+            depConfigNames.contains(configuration.name)
+        } as Set<Configuration>
     }
 
     String getSourceCompatibility() {

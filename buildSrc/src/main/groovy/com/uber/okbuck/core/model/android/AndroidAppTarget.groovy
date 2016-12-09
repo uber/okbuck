@@ -56,7 +56,7 @@ class AndroidAppTarget extends AndroidLibTarget {
             exopackage = null
         }
 
-        if(isTest) {
+        if (isTest) {
             placeholders.put('applicationId', applicationId - ".test" + applicationIdSuffix + ".test")
         } else {
             placeholders.put('applicationId', applicationId + applicationIdSuffix)

@@ -5,6 +5,7 @@ import com.uber.okbuck.extension.OkBuckExtension
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Configuration
 
 /**
  * A target is roughly equivalent to what can be built with gradle via the various assemble tasks.
@@ -57,11 +58,7 @@ abstract class Target {
         return map.get("${identifier}${name}", map.get(identifier, defaultValue))
     }
 
-    Set<String> getExtraOpts(RuleType ruleType){
+    Set<String> getExtraOpts(RuleType ruleType) {
         return getProp(okbuck.extraBuckOpts, [:]).get(ruleType.name().toLowerCase(), [])
-    }
-
-    void resolve() {
-        // no scope to resolve
     }
 }

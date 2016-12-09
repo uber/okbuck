@@ -2,7 +2,6 @@ package com.uber.okbuck.core.util
 
 import com.uber.okbuck.OkBuckGradlePlugin
 import com.uber.okbuck.core.dependency.DependencyCache
-import com.uber.okbuck.core.model.base.Scope
 import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ModuleVersionIdentifier
@@ -20,6 +19,8 @@ class LintUtil {
     static final String LINT_VERSION_FILE = "${LINT_DEPS_CACHE}/.lintVersion"
     static final String LINT_DEPS_RULE = "//${LINT_DEPS_CACHE}:okbuck_lint"
     static final String LINT_DEPS_BUCK_FILE = "lint/BUCK_FILE"
+
+    private static DependencyCache lintDepCache
 
     private LintUtil() {}
 
@@ -55,17 +56,7 @@ class LintUtil {
             "${LINT_DEPS_CONFIG}" "${LINT_GROUP}:${LINT_MODULE}:${version}"
         }
 
-        File res = null
-        Set<File> sourceDirs = []
-        List<String> jvmArguments = []
-        Scope lintDepsScope = new Scope(
-                project,
-                [LINT_DEPS_CONFIG],
-                sourceDirs,
-                res,
-                jvmArguments,
-                getLintDepsCache(project))
-        lintDepsScope.depCache.finalizeCache()
+        getLintDepsCache(project)
     }
 
     static String getLintwConfigName(Project project, File config) {
@@ -86,11 +77,13 @@ class LintUtil {
     }
 
     static DependencyCache getLintDepsCache(Project project) {
-        return new DependencyCache(project.rootProject, LINT_DEPS_CACHE, LINT_DEPS_BUCK_FILE) {
-            @Override
-            boolean isValid(File dep) {
-                return dep.name.endsWith(".jar")
-            }
+        if (!lintDepCache) {
+            lintDepCache = new DependencyCache("lint",
+                    project.rootProject,
+                    LINT_DEPS_CACHE,
+                    [project.rootProject.configurations.getByName(LINT_DEPS_CONFIG)] as Set,
+                    LINT_DEPS_BUCK_FILE)
         }
+        return lintDepCache
     }
 }

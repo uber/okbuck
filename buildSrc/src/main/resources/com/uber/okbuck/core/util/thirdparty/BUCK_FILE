@@ -1,40 +1,52 @@
+import re
 
-def base_name(file_name):
-    parts = file_name.split('__')
-    return '{}__{}'.format(parts[0], parts[1])
+sources_regex = re.compile(r'-sources.jar$', re.IGNORECASE)
+base_name_regex = re.compile(r'\.(jar|aar)$', re.IGNORECASE)
+file_name_regex = re.compile(r'^.*/([^/]+)\.(jar|aar)$', re.IGNORECASE)
 
-
-jars = {}
-aars = {}
+jars = []
+aars = []
 sources = {}
 
-
 for jar in glob(['*.jar']):
-  b_name = base_name(jar)
-  if jar.endswith('-sources.jar'):
-    sources[b_name] = jar
+  name = file_name_regex.sub(r'\1', jar)
+  if name.endswith('-sources.jar'):
+    sources[sources_regex.sub('', name)] = name
   else:
-    jars[b_name] = jar
-
+    jars.append(name)
 
 for aar in glob(['*.aar']):
-  b_name = base_name(aar)
-  aars[b_name] = aar
+  name = file_name_regex.sub(r'\1', aar)
+  aars.append(name)
 
+for jar in jars:
+  basename = base_name_regex.sub('', jar)
+  if sources.get(basename, None) is not None:
+    prebuilt_jar(
+      name = jar,
+      binary_jar = jar,
+      source_jar = sources[basename],
+      visibility = ['PUBLIC'],
+    )
+  else:
+    prebuilt_jar(
+      name = jar,
+      binary_jar = jar,
+      visibility = ['PUBLIC'],
+    )
 
-for b_name, jar in jars.iteritems():
-  prebuilt_jar(
-    name = b_name,
-    binary_jar = jar,
-    source_jar = sources.get(b_name) or None,
-    visibility = ['PUBLIC'],
-  )
-
-
-for b_name, aar in aars.iteritems():
-  android_prebuilt_aar(
-    name = b_name,
-    aar = aar,
-    source_jar = sources.get(b_name) or None,
-    visibility = ['PUBLIC'],
-  )
+for aar in aars:
+  basename = base_name_regex.sub('', aar)
+  if sources.get(basename, None) is not None:
+    android_prebuilt_aar(
+      name = aar,
+      aar = aar,
+      source_jar = sources[basename],
+      visibility = ['PUBLIC'],
+    )
+  else:
+    android_prebuilt_aar(
+      name = aar,
+      aar = aar,
+      visibility = ['PUBLIC'],
+    )

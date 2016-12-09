@@ -32,10 +32,4 @@ abstract class JvmTarget extends Target {
         }
         return testTask != null ? testTask.allJvmArgs : []
     }
-
-    @Override
-    void resolve() {
-        getMain()
-        getTest()
-    }
 }

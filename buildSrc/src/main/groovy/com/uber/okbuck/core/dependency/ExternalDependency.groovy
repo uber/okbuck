@@ -8,7 +8,7 @@ import org.gradle.api.artifacts.ModuleVersionIdentifier
 class ExternalDependency extends VersionlessDependency {
 
     static final String SOURCES_JAR = '-sources.jar'
-    static final String DEP_DELIM = '__'
+    static final String DEP_DELIM = '.'
 
     final DefaultArtifactVersion version
     final File depFile

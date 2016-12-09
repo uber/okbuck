@@ -15,6 +15,8 @@ import java.util.jar.JarFile
 
 abstract class JavaTarget extends JvmTarget {
 
+    static final Set<String> APT_CONFIGS = ["apt", "provided", 'compileOnly', "annotationProcessor"]
+
     JavaTarget(Project project, String name) {
         super(project, name)
     }
@@ -23,7 +25,7 @@ abstract class JavaTarget extends JvmTarget {
      * Apt Scope
      */
     Scope getApt() {
-        Scope aptScope = new Scope(project, ["apt", "provided", 'compileOnly', "annotationProcessor"])
+        Scope aptScope = new Scope(project, APT_CONFIGS)
         aptScope.targetDeps.retainAll(aptScope.targetDeps.findAll { Target target ->
             target.getProp(okbuck.annotationProcessors, null) != null
         })
@@ -87,12 +89,5 @@ abstract class JavaTarget extends JvmTarget {
             default:
                 return '7'
         }
-    }
-
-    @Override
-    void resolve() {
-        super.resolve()
-        getApt()
-        getLint()
     }
 }

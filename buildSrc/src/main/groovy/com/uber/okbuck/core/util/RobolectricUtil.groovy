@@ -2,7 +2,6 @@ package com.uber.okbuck.core.util
 
 import com.uber.okbuck.OkBuckGradlePlugin
 import com.uber.okbuck.core.dependency.DependencyCache
-import com.uber.okbuck.core.model.base.Scope
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 
@@ -47,14 +46,11 @@ class RobolectricUtil {
             runtimeDeps.add(runtimeApi)
         }
 
-        File res = null
-        Set<File> sourceDirs = []
-        List<String> jvmArguments = []
-        String buckFile = null
         runtimeDeps.each { Configuration configuration ->
-            DependencyCache cache = new DependencyCache(project, ROBOLECTRIC_CACHE, buckFile)
-            Scope runtimeDepsScope = new Scope(project, [configuration.name], sourceDirs, res, jvmArguments, cache)
-            runtimeDepsScope.depCache.finalizeCache()
+            new DependencyCache("robolectric${configuration.name.toUpperCase()}",
+                    project,
+                    ROBOLECTRIC_CACHE,
+                    [configuration] as Set)
         }
     }
 }

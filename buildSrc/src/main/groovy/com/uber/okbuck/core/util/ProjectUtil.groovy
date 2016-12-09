@@ -5,11 +5,11 @@ import com.android.build.gradle.LibraryPlugin
 import com.android.build.gradle.api.BaseVariant
 import com.uber.okbuck.core.model.android.AndroidAppTarget
 import com.uber.okbuck.core.model.android.AndroidLibTarget
+import com.uber.okbuck.core.model.base.ProjectType
+import com.uber.okbuck.core.model.base.Target
 import com.uber.okbuck.core.model.groovy.GroovyLibTarget
 import com.uber.okbuck.core.model.java.JavaAppTarget
 import com.uber.okbuck.core.model.java.JavaLibTarget
-import com.uber.okbuck.core.model.base.ProjectType
-import com.uber.okbuck.core.model.base.Target
 import com.uber.okbuck.core.model.jvm.JvmTarget
 import groovy.transform.Memoized
 import org.gradle.api.Project

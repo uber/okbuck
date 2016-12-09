@@ -21,7 +21,6 @@ import org.gradle.api.artifacts.ModuleIdentifier
 import org.gradle.api.artifacts.ModuleVersionIdentifier
 import org.gradle.api.artifacts.ResolvedArtifact
 import org.gradle.api.artifacts.UnknownConfigurationException
-import org.gradle.api.internal.artifacts.Module
 import org.gradle.plugins.ide.internal.IdeDependenciesExtractor
 
 @EqualsAndHashCode
@@ -91,15 +90,11 @@ class Scope {
                     if (identifier.contains(" ")) {
                         Target target = getTargetForOutput(project.rootProject, dep)
                         if (target != null && target.project != project) {
-                            if (!depCache.isValid(dep)) {
-                                throw new InValidDependencyException("${target.project} is not a valid project dependency")
-                            }
                             targetDeps.add(target)
                         }
                     } else {
                         ExternalDependency dependency = new ExternalDependency(artifact.moduleVersion.id, dep)
                         external.add(dependency)
-                        depCache.put(dependency)
                     }
                 }
 
@@ -121,7 +116,6 @@ class Scope {
 
                     ExternalDependency dependency = new ExternalDependency(identifier, localDep)
                     external.add(dependency)
-                    depCache.put(dependency)
                 }
             } catch (InValidDependencyException e) {
                 throw new IllegalStateException("Invalid dependency found for ${project} , ${validConfigurations}", e)

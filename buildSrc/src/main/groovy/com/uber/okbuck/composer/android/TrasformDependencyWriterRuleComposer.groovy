@@ -33,7 +33,7 @@ final class TrasformDependencyWriterRuleComposer extends AndroidBuckRuleComposer
         if (configFile != null) {
             input.add(getTransformConfigRuleForFile(target.project, new File(configFile)))
         }
-        
+
         String output = "\$OUT"
         List<String> cmds = [
                 "echo \"#!/bin/bash\" > ${output};",

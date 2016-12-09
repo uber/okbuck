@@ -44,7 +44,6 @@ class RetrolambdaUtil {
                 res,
                 jvmArguments,
                 retrolambdaDepCache)
-        retrolambdaDepsScope.depCache.finalizeCache()
 
         String retrolambdaJar = retrolambdaDepsScope.getExternalDeps()[0]
 
@@ -61,11 +60,10 @@ class RetrolambdaUtil {
     }
 
     static DependencyCache getRetrolambdaDepsCache(Project project) {
-        return new DependencyCache(project.rootProject, RETROLAMDBA_CACHE, RETROLAMBDA_DEPS_BUCK_FILE) {
-            @Override
-            boolean isValid(File dep) {
-                return dep.name.endsWith(".jar")
-            }
-        }
+        return new DependencyCache("retrolambda",
+                project.rootProject,
+                RETROLAMDBA_CACHE,
+                [project.configurations.getByName(RETROLAMBDA_DEPS_CONFIG)] as Set,
+                RETROLAMBDA_DEPS_BUCK_FILE)
     }
 }

@@ -1,8 +1,10 @@
 package com.uber.okbuck
 
 import com.uber.okbuck.core.dependency.DependencyCache
+import com.uber.okbuck.core.model.java.JavaLibTarget
 import com.uber.okbuck.core.task.OkBuckCleanTask
 import com.uber.okbuck.core.util.LintUtil
+import com.uber.okbuck.core.util.ProjectUtil
 import com.uber.okbuck.core.util.RetrolambdaUtil
 import com.uber.okbuck.core.util.RobolectricUtil
 import com.uber.okbuck.core.util.TransformUtil
@@ -21,6 +23,7 @@ import org.apache.commons.io.IOUtils
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.artifacts.Configuration
 import org.gradle.api.logging.Logger
 
 class OkBuckGradlePlugin implements Plugin<Project> {
@@ -65,15 +68,6 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         project.configurations.maybeCreate(TransformUtil.CONFIGURATION_TRANSFORM)
 
         project.afterEvaluate {
-            depCache = new DependencyCache(
-                    project,
-                    DEFAULT_CACHE_PATH,
-                    EXTERNAL_DEP_BUCK_FILE,
-                    true,
-                    true,
-                    intellij.sources,
-                    experimental.lint)
-
             Task okBuckClean = project.tasks.create(OKBUCK_CLEAN, OkBuckCleanTask, {
                 dir = project.projectDir.absolutePath
                 includes = wrapper.remove
@@ -84,6 +78,11 @@ class OkBuckGradlePlugin implements Plugin<Project> {
 
             okBuck.dependsOn(okBuckClean)
             okBuck.dependsOn(okbuckSetupTask)
+
+            Task buildDepCache = project.task('buildDepCache')
+            okbuckSetupTask.dependsOn(buildDepCache)
+            buildDepCache.mustRunAfter(okBuckClean)
+
             okBuck.doLast {
                 generate(project)
                 if (!experimental.parallel) {
@@ -91,11 +90,23 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                         BuckFileGenerator.generate(subProject)
                     }
                 }
-                depCache.finalizeCache()
+            }
+
+            buildDepCache.doLast {
+                addSubProjectRepos(project, okbuck.buckProjects)
+                depCache = new DependencyCache(
+                        "external",
+                        project,
+                        DEFAULT_CACHE_PATH,
+                        configurations(okbuck.buckProjects),
+                        EXTERNAL_DEP_BUCK_FILE,
+                        true,
+                        intellij.sources,
+                        experimental.lint)
             }
 
             if (experimental.parallel) {
-                createSubTasks(project, okBuck, okbuckSetupTask)
+                createSubTasks(project, okbuckSetupTask)
             }
 
             BuckWrapperTask buckWrapper = project.tasks.create(BUCK_WRAPPER, BuckWrapperTask, {
@@ -166,15 +177,36 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         IOUtils.closeQuietly(configPrinter)
     }
 
-    private static void createSubTasks(Project project, Task rootOkbuckTask, Task okbuckSetupTask) {
+    private static Set<Configuration> configurations(Set<Project> projects) {
+        Set<Configuration> configurations = new HashSet()
+        projects.each { Project p ->
+            ProjectUtil.getTargets(p).values().each {
+                if (it instanceof JavaLibTarget) {
+                    configurations.addAll(it.depConfigurations())
+                }
+            }
+        }
+        return configurations
+    }
+
+    private static void createSubTasks(Project project, Task okbuckSetupTask) {
         OkBuckExtension okbuck = project.okbuck
         okbuck.buckProjects.each { Project subProject ->
             Task okbuckProjectTask = subProject.tasks.maybeCreate(OKBUCK)
             okbuckProjectTask.doLast {
                 BuckFileGenerator.generate(subProject)
             }
-            rootOkbuckTask.dependsOn(okbuckProjectTask)
             okbuckProjectTask.dependsOn(okbuckSetupTask)
+        }
+    }
+
+    /**
+     * This is required to let the root project super configuration resolve
+     * all recursively copied configurations.
+     */
+    private static void addSubProjectRepos(Project rootProject, Set<Project> subProjects) {
+        subProjects.each {
+            rootProject.repositories.addAll(it.repositories.asMap.values())
         }
     }
 }

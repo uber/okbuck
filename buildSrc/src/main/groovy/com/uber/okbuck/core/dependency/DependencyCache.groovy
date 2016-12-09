@@ -2,7 +2,13 @@ package com.uber.okbuck.core.dependency
 
 import com.uber.okbuck.core.util.FileUtil
 import org.apache.commons.io.FileUtils
+import org.apache.commons.io.FilenameUtils
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.ModuleIdentifier
+import org.gradle.api.artifacts.ModuleVersionIdentifier
+import org.gradle.api.artifacts.ResolvedArtifact
+import org.gradle.plugins.ide.internal.IdeDependenciesExtractor
 
 import java.nio.file.FileSystem
 import java.nio.file.FileSystems
@@ -11,102 +17,115 @@ import java.nio.file.Path
 
 class DependencyCache {
 
+    public static final String LOCAL_DEP_VERSION = "1.0.0"
+
     final Project rootProject
     final File cacheDir
 
     final boolean useFullDepName
-    final boolean useGreatestVersion
     final boolean fetchSources
     final boolean extractLintJars
 
-    private Map<VersionlessDependency, String> lintJars = [:]
-    private Map<VersionlessDependency, ExternalDependency> greatestVersions = new HashMap<>()
+    private final Configuration configuration
+    private final Map<VersionlessDependency, String> lintJars = [:]
+    private final Map<VersionlessDependency, String> externalDeps = [:]
 
-    DependencyCache(Project rootProject,
-                    String cacheDirPath,
-                    String buckFile = null,
-                    boolean useFullDepName = false,
-                    boolean useGreatestVersion = false,
-                    boolean fetchSources = false,
-                    boolean extractLintJars = false) {
+    DependencyCache(
+            String name,
+            Project rootProject,
+            String cacheDirPath,
+            Set<Configuration> configurations,
+            String buckFile = null,
+            boolean useFullDepName = false,
+            boolean fetchSources = false,
+            boolean extractLintJars = false) {
 
         this.rootProject = rootProject
         this.cacheDir = new File(rootProject.projectDir, cacheDirPath)
         this.cacheDir.mkdirs()
+
+        Configuration superConfiguration = rootProject.configurations.maybeCreate("${name}DepCache")
+        superConfiguration.setExtendsFrom(configurations)
+        if (configurations.size() > 1) {
+            this.configuration = superConfiguration.copyRecursive()
+        } else {
+            this.configuration = superConfiguration
+        }
 
         if (buckFile) {
             FileUtil.copyResourceToProject(buckFile, new File(cacheDir, "BUCK"))
         }
 
         this.useFullDepName = useFullDepName
-        this.useGreatestVersion = useGreatestVersion
         this.fetchSources = fetchSources
         this.extractLintJars = extractLintJars
-    }
-
-    void put(ExternalDependency dependency) {
-        if (!isValid(dependency.depFile)) {
-            throw new InValidDependencyException("${dependency.depFile.absolutePath} is not a valid dependency")
-        }
-
-        synchronized (this) {
-            ExternalDependency externalDependency = greatestVersions.get(dependency)
-            if (externalDependency == null || dependency.version > externalDependency.version) {
-                greatestVersions.put(dependency, dependency)
-            }
-        }
+        build()
     }
 
     String get(ExternalDependency dependency) {
-        File cachedCopy = new File(cacheDir, dependency.getCacheName(useFullDepName))
-        String path = FileUtil.getRelativePath(rootProject.projectDir, cachedCopy)
-
-        // for greatest versions, we remove the version suffix
-        if (useGreatestVersion) {
-            path = path.substring(0, path.lastIndexOf(ExternalDependency.DEP_DELIM))
-        }
-
-        return path
+        return externalDeps.get(dependency)
     }
 
-    void finalizeCache() {
+    private void build() {
+        Set<File> resolvedFiles = [] as Set
+        Set<ExternalDependency> allExtDeps = [] as Set
+        configuration.resolvedConfiguration.resolvedArtifacts.each { ResolvedArtifact artifact ->
+            String identifier = artifact.id.componentIdentifier.displayName
+            File dep = artifact.file
+            resolvedFiles.add(dep)
 
-        // Delete files from cache which are not needed
-        if (useGreatestVersion) {
-            HashSet<String> greatestVersionCacheNames = new HashSet<>()
-            for (Map.Entry<VersionlessDependency, ExternalDependency> entry : greatestVersions.entrySet()) {
-                greatestVersionCacheNames.add(entry.getValue().getCacheName(useFullDepName))
-                greatestVersionCacheNames.add(entry.getValue().getSourceCacheName(useFullDepName))
-            }
-
-            for (File cacheDirFile : cacheDir.listFiles()) {
-                if (isValid(cacheDirFile) && !greatestVersionCacheNames.contains(cacheDirFile.name)) {
-                    cacheDirFile.delete()
-                }
+            if (!identifier.contains(" ")) {
+                ExternalDependency dependency = new ExternalDependency(artifact.moduleVersion.id, dep)
+                allExtDeps.add(dependency)
             }
         }
 
-        // Run dependency related tasks
-        for (Map.Entry<VersionlessDependency, ExternalDependency> entry : greatestVersions.entrySet()) {
-            File cachedCopy = new File(cacheDir, entry.getValue().getCacheName(useFullDepName))
+        configuration.files.findAll { File resolved ->
+            !resolvedFiles.contains(resolved)
+        }.each { File localDep ->
+            String baseName = FilenameUtils.getBaseName(localDep.name)
+            ModuleVersionIdentifier identifier = getDepIdentifier(
+                    baseName,
+                    baseName,
+                    LOCAL_DEP_VERSION)
+
+            ExternalDependency dependency = new ExternalDependency(identifier, localDep)
+            allExtDeps.add(dependency)
+        }
+
+        // Download sources if enabled
+        if (fetchSources) {
+            new IdeDependenciesExtractor().extractRepoFileDependencies(
+                    rootProject.dependencies,
+                    [configuration],
+                    [],
+                    true,
+                    false)
+        }
+
+        allExtDeps.each { ExternalDependency e ->
+            File cachedCopy = new File(cacheDir, e.getCacheName(useFullDepName))
 
             // Copy the file into the cache
             if (!cachedCopy.exists()) {
-                Files.copy(entry.getValue().depFile.toPath(), cachedCopy.toPath())
+                Files.copy(e.depFile.toPath(), cachedCopy.toPath())
             }
+
+            String path = FileUtil.getRelativePath(rootProject.projectDir, cachedCopy)
+            externalDeps.put(e, path)
 
             // Extract Lint Jars
             if (extractLintJars && cachedCopy.name.endsWith(".aar")) {
                 File lintJar = getPackagedLintJar(cachedCopy)
                 if (lintJar != null) {
                     String lintJarPath = FileUtil.getRelativePath(rootProject.projectDir, lintJar)
-                    lintJars.put(entry.getValue(), lintJarPath)
+                    lintJars.put(e, lintJarPath)
                 }
             }
 
             // Fetch Sources
             if (fetchSources) {
-                fetchSourcesFor(entry.getValue())
+                fetchSourcesFor(e)
             }
         }
     }
@@ -136,10 +155,6 @@ class DependencyCache {
         }
     }
 
-    boolean isValid(File dep) {
-        return (dep.name.endsWith(".jar") || dep.name.endsWith(".aar"))
-    }
-
     static File getPackagedLintJar(File aar) {
         File lintJar = new File(aar.parentFile, aar.name.replaceFirst(/\.aar$/, '-lint.jar'))
         if (lintJar.exists()) {
@@ -152,6 +167,31 @@ class DependencyCache {
             return lintJar
         } else {
             return null
+        }
+    }
+
+    static ModuleVersionIdentifier getDepIdentifier(String group, String name, String version) {
+        return new ModuleVersionIdentifier() {
+
+            @Override
+            String getVersion() {
+                return version
+            }
+
+            @Override
+            String getGroup() {
+                return group
+            }
+
+            @Override
+            String getName() {
+                return name
+            }
+
+            @Override
+            ModuleIdentifier getModule() {
+                return null
+            }
         }
     }
 }
