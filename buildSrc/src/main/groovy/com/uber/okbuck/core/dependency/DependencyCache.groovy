@@ -5,6 +5,8 @@ import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ResolvedArtifact
+import org.gradle.api.artifacts.result.DependencyResult
+import org.gradle.api.artifacts.result.ResolvedDependencyResult
 import org.gradle.plugins.ide.internal.IdeDependenciesExtractor
 
 import java.nio.file.FileSystem
@@ -21,7 +23,7 @@ class DependencyCache {
     final boolean fetchSources
     final boolean extractLintJars
 
-    private final Configuration configuration
+    private final Configuration superConfiguration
     private final Map<VersionlessDependency, String> lintJars = [:]
     private final Map<VersionlessDependency, String> externalDeps = [:]
 
@@ -39,9 +41,7 @@ class DependencyCache {
         this.cacheDir = new File(rootProject.projectDir, cacheDirPath)
         this.cacheDir.mkdirs()
 
-        Configuration superConfiguration = rootProject.configurations.maybeCreate("${name}DepCache")
-        superConfiguration.setExtendsFrom(configurations)
-        this.configuration = superConfiguration.copyRecursive()
+        superConfiguration = createSuperConfiguration(rootProject, "${name}DepCache", configurations)
 
         if (buckFile) {
             FileUtil.copyResourceToProject(buckFile, new File(cacheDir, "BUCK"))
@@ -64,7 +64,7 @@ class DependencyCache {
     private void build() {
         Set<File> resolvedFiles = [] as Set
         Set<ExternalDependency> allExtDeps = [] as Set
-        configuration.resolvedConfiguration.resolvedArtifacts.each { ResolvedArtifact artifact ->
+        superConfiguration.resolvedConfiguration.resolvedArtifacts.each { ResolvedArtifact artifact ->
             String identifier = artifact.id.componentIdentifier.displayName
             File dep = artifact.file
             resolvedFiles.add(dep)
@@ -75,7 +75,7 @@ class DependencyCache {
             }
         }
 
-        configuration.files.findAll { File resolved ->
+        superConfiguration.files.findAll { File resolved ->
             !resolvedFiles.contains(resolved)
         }.each { File localDep ->
             allExtDeps.add(ExternalDependency.fromLocal(localDep))
@@ -85,7 +85,7 @@ class DependencyCache {
         if (fetchSources) {
             new IdeDependenciesExtractor().extractRepoFileDependencies(
                     rootProject.dependencies,
-                    [configuration],
+                    [superConfiguration],
                     [],
                     true,
                     false)
@@ -116,6 +116,19 @@ class DependencyCache {
                 fetchSourcesFor(e)
             }
         }
+    }
+
+    private static Configuration createSuperConfiguration(Project project, String superConfigName,
+                                                 Set<Configuration> configurations) {
+        Configuration superConfiguration = project.configurations.maybeCreate(superConfigName)
+        superConfiguration.setExtendsFrom(configurations)
+        configurations.each { Configuration configuration ->
+            Set<ResolvedDependencyResult> resolved = getResolved(configuration.incoming.resolutionResult.allDependencies)
+            resolved.each { ResolvedDependencyResult result ->
+                project.dependencies.add(superConfigName, result.selected.id.displayName)
+            }
+        }
+        return superConfiguration
     }
 
     String getLintJar(ExternalDependency dependency) {
@@ -155,6 +168,15 @@ class DependencyCache {
             return lintJar
         } else {
             return null
+        }
+    }
+
+    /**
+     * Gets the resolved dependency results.
+     */
+    private static Set<ResolvedDependencyResult> getResolved(Set<DependencyResult> dependencyResults) {
+        return dependencyResults.findAll { DependencyResult result ->
+            result instanceof ResolvedDependencyResult && !result.selected.id.displayName.contains(" ")
         }
     }
 }
