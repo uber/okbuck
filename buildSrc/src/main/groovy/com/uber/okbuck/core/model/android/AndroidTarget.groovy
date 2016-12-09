@@ -116,7 +116,12 @@ abstract class AndroidTarget extends JavaLibTarget {
         return super.getDepConfigNames() +
                 ["compile", "${buildType}Compile", "${flavor}Compile", "${name}Compile",
                  "testCompile", "${buildType}TestCompile", "${flavor}TestCompile",
-                 "${name}TestCompile"]
+                 "${name}TestCompile",
+                 "androidTestApt",
+                 "androidTestCompile",
+                 "androidTest${buildType.capitalize()}Compile",
+                 "androidTest${flavor.capitalize()}Compile",
+                 "androidTest${name}Compile"]
     }
 
     @Override

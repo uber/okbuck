@@ -5,7 +5,6 @@ import com.android.build.gradle.api.BaseVariantOutput
 import com.uber.okbuck.OkBuckGradlePlugin
 import com.uber.okbuck.core.dependency.DependencyCache
 import com.uber.okbuck.core.dependency.ExternalDependency
-import com.uber.okbuck.core.dependency.InValidDependencyException
 import com.uber.okbuck.core.model.android.AndroidLibTarget
 import com.uber.okbuck.core.model.groovy.GroovyLibTarget
 import com.uber.okbuck.core.model.java.JavaLibTarget
@@ -17,16 +16,11 @@ import groovy.transform.EqualsAndHashCode
 import org.apache.commons.io.FilenameUtils
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
-import org.gradle.api.artifacts.ModuleIdentifier
-import org.gradle.api.artifacts.ModuleVersionIdentifier
 import org.gradle.api.artifacts.ResolvedArtifact
 import org.gradle.api.artifacts.UnknownConfigurationException
-import org.gradle.plugins.ide.internal.IdeDependenciesExtractor
 
 @EqualsAndHashCode
 class Scope {
-
-    private static final FILE_SEPARATOR = System.getProperty("file.separator")
 
     final String resourcesDir
     final Set<String> sources
@@ -93,39 +87,17 @@ class Scope {
                             targetDeps.add(target)
                         }
                     } else {
-                        ExternalDependency dependency = new ExternalDependency(artifact.moduleVersion.id, dep)
-                        external.add(dependency)
+                        external.add(new ExternalDependency(artifact.moduleVersion.id, dep))
                     }
                 }
 
                 configuration.files.findAll { File resolved ->
                     !resolvedFiles.contains(resolved)
                 }.each { File localDep ->
-
-                    String localDepGroup
-                    if (FilenameUtils.directoryContains(project.rootDir.absolutePath, localDep.absolutePath)) {
-                        localDepGroup = FileUtil.getRelativePath(project.rootDir, localDep).replaceAll(FILE_SEPARATOR, '_')
-                    } else {
-                        localDepGroup = project.path.replaceFirst(':', '').replaceAll(':', '_')
-                    }
-
-                    ModuleVersionIdentifier identifier = getDepIdentifier(
-                            localDepGroup,
-                            FilenameUtils.getBaseName(localDep.name),
-                            "1.0.0")
-
-                    ExternalDependency dependency = new ExternalDependency(identifier, localDep)
-                    external.add(dependency)
+                    external.add(ExternalDependency.fromLocal(localDep))
                 }
-            } catch (InValidDependencyException e) {
-                throw new IllegalStateException("Invalid dependency found for ${project} , ${validConfigurations}", e)
             } catch (UnknownConfigurationException ignored) {
             }
-        }
-
-        // Download sources if enabled
-        if (depCache.fetchSources) {
-            new IdeDependenciesExtractor().extractRepoFileDependencies(project.dependencies, validConfigurations, [], true, false)
         }
     }
 
@@ -163,30 +135,5 @@ class Scope {
             }
         }
         return result
-    }
-
-    static ModuleVersionIdentifier getDepIdentifier(String group, String name, String version) {
-        return new ModuleVersionIdentifier() {
-
-            @Override
-            String getVersion() {
-                return version
-            }
-
-            @Override
-            String getGroup() {
-                return group
-            }
-
-            @Override
-            String getName() {
-                return name
-            }
-
-            @Override
-            ModuleIdentifier getModule() {
-                return null
-            }
-        }
     }
 }

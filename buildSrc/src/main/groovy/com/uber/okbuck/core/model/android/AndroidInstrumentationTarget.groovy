@@ -36,7 +36,8 @@ class AndroidInstrumentationTarget extends AndroidAppTarget {
     Scope getMain() {
         return new Scope(
                 project,
-                ["compile",
+                [
+                 "compile",
                  "${buildType}Compile",
                  "${flavor}Compile",
                  "${getMainTargetName(name).capitalize()}Compile",
@@ -49,6 +50,21 @@ class AndroidInstrumentationTarget extends AndroidAppTarget {
                 }.flatten() as Set<File>,
                 null,
                 getJavaCompilerOptions(baseVariant))
+    }
+
+    @Override
+    Set<String> getDepConfigNames() {
+        return super.getDepConfigNames() +
+                [
+                 "androidTestApt",
+                 "compile",
+                 "${buildType}Compile",
+                 "${flavor}Compile",
+                 "${getMainTargetName(name).capitalize()}Compile",
+                 "androidTestCompile",
+                 "androidTest${buildType.capitalize()}Compile",
+                 "androidTest${flavor.capitalize()}Compile",
+                 "androidTest${getMainTargetName(name).capitalize()}Compile"]
     }
 
     Scope getInstrumentation() {

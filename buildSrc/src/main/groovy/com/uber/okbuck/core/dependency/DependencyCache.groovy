@@ -2,11 +2,8 @@ package com.uber.okbuck.core.dependency
 
 import com.uber.okbuck.core.util.FileUtil
 import org.apache.commons.io.FileUtils
-import org.apache.commons.io.FilenameUtils
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
-import org.gradle.api.artifacts.ModuleIdentifier
-import org.gradle.api.artifacts.ModuleVersionIdentifier
 import org.gradle.api.artifacts.ResolvedArtifact
 import org.gradle.plugins.ide.internal.IdeDependenciesExtractor
 
@@ -16,8 +13,6 @@ import java.nio.file.Files
 import java.nio.file.Path
 
 class DependencyCache {
-
-    public static final String LOCAL_DEP_VERSION = "1.0.0"
 
     final Project rootProject
     final File cacheDir
@@ -63,7 +58,11 @@ class DependencyCache {
     }
 
     String get(ExternalDependency dependency) {
-        return externalDeps.get(dependency)
+        String dep = externalDeps.get(dependency)
+        if (dep == null) {
+            throw new IllegalStateException("Could not find dependency path for ${dependency}")
+        }
+        return dep
     }
 
     private void build() {
@@ -83,14 +82,7 @@ class DependencyCache {
         configuration.files.findAll { File resolved ->
             !resolvedFiles.contains(resolved)
         }.each { File localDep ->
-            String baseName = FilenameUtils.getBaseName(localDep.name)
-            ModuleVersionIdentifier identifier = getDepIdentifier(
-                    baseName,
-                    baseName,
-                    LOCAL_DEP_VERSION)
-
-            ExternalDependency dependency = new ExternalDependency(identifier, localDep)
-            allExtDeps.add(dependency)
+            allExtDeps.add(ExternalDependency.fromLocal(localDep))
         }
 
         // Download sources if enabled
@@ -167,31 +159,6 @@ class DependencyCache {
             return lintJar
         } else {
             return null
-        }
-    }
-
-    static ModuleVersionIdentifier getDepIdentifier(String group, String name, String version) {
-        return new ModuleVersionIdentifier() {
-
-            @Override
-            String getVersion() {
-                return version
-            }
-
-            @Override
-            String getGroup() {
-                return group
-            }
-
-            @Override
-            String getName() {
-                return name
-            }
-
-            @Override
-            ModuleIdentifier getModule() {
-                return null
-            }
         }
     }
 }
