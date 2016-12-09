@@ -108,10 +108,10 @@ class AndroidAppTarget extends AndroidLibTarget {
             }
 
             // Consumer proguard files of compiled aar dependencies
-            main.externalDepsWithFullPath.findAll { String dep ->
+            main.externalDeps.findAll { String dep ->
                 dep.endsWith(".aar")
             }.each { String dep ->
-                String config = getPackedProguardConfig(new File(dep))
+                String config = getPackedProguardConfig(rootProject.file(dep))
                 if (!config.empty) {
                     mergedConfig += "\n##---- ${FilenameUtils.getBaseName(dep)} ----##\n"
                     mergedConfig += config

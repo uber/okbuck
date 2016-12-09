@@ -47,12 +47,6 @@ class Scope {
         extractConfigurations(configurations)
     }
 
-    Set<String> getExternalDepsWithFullPath() {
-        external.collect { ExternalDependency dependency ->
-            dependency.depFile.path
-        }
-    }
-
     Set<String> getExternalDeps() {
         external.collect { ExternalDependency dependency ->
             depCache.get(dependency)
