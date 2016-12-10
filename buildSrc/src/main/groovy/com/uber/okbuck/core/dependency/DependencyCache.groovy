@@ -5,8 +5,6 @@ import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ResolvedArtifact
-import org.gradle.api.artifacts.result.DependencyResult
-import org.gradle.api.artifacts.result.ResolvedDependencyResult
 import org.gradle.plugins.ide.internal.IdeDependenciesExtractor
 
 import java.nio.file.FileSystem
@@ -119,14 +117,10 @@ class DependencyCache {
     }
 
     private static Configuration createSuperConfiguration(Project project, String superConfigName,
-                                                 Set<Configuration> configurations) {
+                                                          Set<Configuration> configurations) {
         Configuration superConfiguration = project.configurations.maybeCreate(superConfigName)
-        superConfiguration.setExtendsFrom(configurations)
-        configurations.each { Configuration configuration ->
-            Set<ResolvedDependencyResult> resolved = getResolved(configuration.incoming.resolutionResult.allDependencies)
-            resolved.each { ResolvedDependencyResult result ->
-                project.dependencies.add(superConfigName, result.selected.id.displayName)
-            }
+        configurations.each {
+            superConfiguration.dependencies.addAll(it.dependencies as Set)
         }
         return superConfiguration
     }
@@ -168,15 +162,6 @@ class DependencyCache {
             return lintJar
         } else {
             return null
-        }
-    }
-
-    /**
-     * Gets the resolved dependency results.
-     */
-    private static Set<ResolvedDependencyResult> getResolved(Set<DependencyResult> dependencyResults) {
-        return dependencyResults.findAll { DependencyResult result ->
-            result instanceof ResolvedDependencyResult && !result.selected.id.displayName.contains(" ")
         }
     }
 }
