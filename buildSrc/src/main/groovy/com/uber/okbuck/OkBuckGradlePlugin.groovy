@@ -43,6 +43,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     static final String LINT = "lint"
     static final String TRANSFORM = "transform"
     static final String RETROLAMBDA = "retrolambda"
+    static final String CONFIGURATION_EXTERNAL = "externalOkbuck"
 
     static DependencyCache depCache
     static Logger LOGGER
@@ -66,6 +67,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         Task okbuckSetupTask = project.tasks.create("okbuckSetupTask")
 
         project.configurations.maybeCreate(TransformUtil.CONFIGURATION_TRANSFORM)
+        Configuration externalOkbuck = project.configurations.maybeCreate(CONFIGURATION_EXTERNAL)
 
         project.afterEvaluate {
             Task okBuckClean = project.tasks.create(OKBUCK_CLEAN, OkBuckCleanTask, {
@@ -94,11 +96,14 @@ class OkBuckGradlePlugin implements Plugin<Project> {
 
             buildDepCache.doLast {
                 addSubProjectRepos(project as Project, okbuckExt.buckProjects as Set<Project>)
+                Set<Configuration> projectConfigurations = configurations(okbuckExt.buckProjects)
+                projectConfigurations.addAll([externalOkbuck])
+
                 depCache = new DependencyCache(
                         "external",
                         project,
                         DEFAULT_CACHE_PATH,
-                        configurations(okbuckExt.buckProjects as Set<Project>),
+                        projectConfigurations,
                         EXTERNAL_DEP_BUCK_FILE,
                         true,
                         intellij.sources,
