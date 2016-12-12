@@ -3,6 +3,8 @@ package com.uber.okbuck.experimental.bazel
 import com.uber.okbuck.OkBuckGradlePlugin
 import com.uber.okbuck.core.dependency.DependencyCache
 import com.uber.okbuck.extension.OkBuckExtension
+import com.uber.okbuck.extension.WrapperExtension
+import com.uber.okbuck.wrapper.BuckWrapperTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -29,20 +31,37 @@ class OkBazelGradlePlugin implements Plugin<Project> {
     private static final String BUILD_FILE_HEADER =
             """package(default_visibility = ["//visibility:public"])"""
 
+    private static final String WRAPPER = "wrapper"
+    private static final String BAZEL_WRAPPER = "bazelWrapper"
+    private static final String GROUP = "okbazel"
+
     // Due a known issue in Bazel (https://github.com/bazelbuild/bazel/issues/1998), the cache
     // path cannot begin with '.' as the okbuck plugin cache does.
     static final String CACHE_PATH = "okbazel/cache"
 
     @Override
     void apply(Project project) {
-        project.extensions.create("okbuck", OkBuckExtension, project)
+        def okbazel = project.extensions.create("okbuck", OkBuckExtension, project)
+        def wrapper = okbazel.extensions.create(WRAPPER, WrapperExtension)
 
         Task okBazel = project.task("okbazel")
-        okBazel.setGroup("okbazel")
+        okBazel.setGroup(GROUP)
         okBazel.setDescription("Generate Bazel BUILD files")
         okBazel.outputs.upToDateWhen { false }
 
         project.afterEvaluate {
+            def bazelWrapper = project.tasks.create(BAZEL_WRAPPER, BuckWrapperTask, {
+                repo = wrapper.repo
+                remove = ["**/BUILD"]
+                keep = []
+                watch = wrapper.watch
+                sourceRoots = wrapper.sourceRoots
+                wrapperFile = project.file('bazelw')
+                wrapperTemplate = "wrapper/BAZELW_TEMPLATE"
+            })
+            bazelWrapper.setGroup(GROUP)
+            bazelWrapper.setDescription("Create bazel wrapper")
+
             okBazel << {
                 File workspaceFile = project.file("WORKSPACE")
                 if (!workspaceFile.exists()) {

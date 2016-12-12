@@ -1,0 +1,187 @@
+#!/usr/bin/env bash
+
+#########################################################################
+##
+##  Bazel wrapper script to invoke okbazel when needed, before running bazel
+##
+##  Created by OkBazel Gradle Plugin on : template-creation-time
+##
+#########################################################################
+
+WORKING_DIR=$(pwd)
+
+red=`tput setab 1 2>/dev/null || true`
+yellow=`tput setab 3 2>/dev/null || true`
+green=`tput setab 2 2>/dev/null || true`
+blue=`tput setab 4 2>/dev/null || true`
+reset=`tput sgr0 2>/dev/null || true`
+bold=`tput bold 2>/dev/null || true`
+
+die ( ) {
+    echo
+    echo "${bold}${red} $* ${reset}"
+    echo
+    exit 1
+}
+
+info ( ) {
+    echo "${bold}${blue} $* ${reset}"
+}
+
+warn ( ) {
+    echo "${bold}${yellow} $* ${reset}"
+}
+
+success ( ) {
+    echo
+    echo "${bold}${green} $* ${reset}"
+    echo
+}
+
+jsonq() {
+    python -c "import sys,json; obj=json.load(sys.stdin); print($1)"
+}
+
+INSTALLED_WATCHMAN=`command -v watchman`
+
+CUSTOM_REMOTE_NAME="custom"
+OKBUCK_SUCCESS="$WORKING_DIR/build/okbazel.success"
+OKBUCK_DIR="okbazel"
+MAX_DISPLAY_CHANGES=10
+
+ensureWatch ( ) {
+    watchman watch-project $WORKING_DIR >/dev/null 2>&1
+}
+
+getToClean ( ) {
+    ensureWatch
+
+    watchman --output-encoding=json -j 2>&1 <<-EOT
+["query", "$WORKING_DIR", {
+    "expression": ["allof",
+        ["type", "f"],
+        ["anyof",
+template-remove
+        ],
+        ["not",
+template-keep
+        ]
+    ],
+    "fields": ["name"]
+}]
+EOT
+}
+
+getChanges ( ) {
+    ensureWatch
+
+    WATCHED_CHANGES=`watchman --output-encoding=json -j 2>&1 <<-EOT
+["query", "$WORKING_DIR", {
+    "since": "n:okbuck_trig",
+    "expression": ["allof",
+        ["type", "f"],
+        ["anyof",
+template-watch
+        ]
+    ],
+    "fields": ["name"]
+}]
+EOT`
+    SOURCE_ROOTS=`watchman --output-encoding=json -j 2>&1 <<-EOT
+["query", ".", {
+    "since": "n:okbuck_source_roots",
+    "expression": ["allof",
+        ["type", "d"],
+        ["anyof",
+template-source-roots
+        ]
+    ],
+    "fields": ["new", "exists", "name"]
+}]
+EOT`
+}
+
+updateOkBuckSuccess ( ) {
+    OKBUCK_SUCCESS_DIR=`dirname $OKBUCK_SUCCESS`
+    mkdir -p $OKBUCK_SUCCESS_DIR
+    touch "$OKBUCK_SUCCESS"
+}
+
+runOkBuck ( ) {
+    info "RUNNING OKBAZEL..."
+    echo
+
+    if [[ ! -z "$INSTALLED_WATCHMAN" ]]; then
+        getToClean | jsonq '"\n".join(obj["files"])' | xargs rm
+        info "DELETED OLD BAZEL FILES"
+    fi
+
+    rm -f $OKBUCK_SUCCESS
+    ( $WORKING_DIR/gradlew -p $WORKING_DIR okbazel -Dokbuck.wrapper=true $EXTRA_OKBUCK_ARGS --stacktrace &&
+    updateOkBuckSuccess && success "PROCEEDING WITH BAZEL" ) || die "OKBAZEL FAILED"
+}
+
+watchmanWorkflow ( ) {
+    # Get list of changed files since last time by querying watchman
+    getChanges
+
+    # Format list for simpler output
+    CHANGES=$(echo $WATCHED_CHANGES | jsonq '" ".join(obj["files"])')
+    NEW_OR_DELETED_SOURCE_ROOTS=$(echo $SOURCE_ROOTS | jsonq '" ".join([f["name"] for f in obj["files"] if (not f["exists"] or f["new"])])')
+    NUM_CHANGES=$(echo $CHANGES $NEW_OR_DELETED_SOURCE_ROOTS | wc -w)
+
+    if [[ $NUM_CHANGES -gt 0 ]]; then
+        info "CHANGES DETECTED IN:"
+        echo $CHANGES $NEW_OR_DELETED_SOURCE_ROOTS | tr ' ' '\n' | head -n $MAX_DISPLAY_CHANGES
+        if [[ $NUM_CHANGES -gt $MAX_DISPLAY_CHANGES ]]; then
+            DIFF=`expr $NUM_CHANGES - $MAX_DISPLAY_CHANGES`
+            echo "...and $DIFF more"
+        fi
+        echo
+        runOkBuck
+    fi
+}
+
+setupBuckBinary ( ) {
+    if [[ -z "$BAZEL_BINARY" ]]; then
+      if [ $(which bazel) ]; then
+        # Get Bazel from $PATH
+        BAZEL_BINARY=$(which bazel)
+      else
+        # Install Bazel
+        wget -qO bazel_installer.sh https://github.com/bazelbuild/bazel/releases/download/0.4.2/bazel-0.4.2-installer-linux-x86_64.sh
+        bash bazel_installer.sh --user
+        BAZEL_BINARY=$HOME/bin/bazel
+      fi
+    fi
+}
+
+# Run tasks before bazel command
+setupBuckRun ( ) {
+    if [[ ! -z "$SKIP_OKBUCK" ]]; then
+        :
+    elif [[ ! -z "$FORCE_OKBUCK" ]]; then
+        runOkBuck
+    elif [[ ! -f "$OKBUCK_SUCCESS" ]] || [[ ! -d "$OKBUCK_DIR" ]]; then
+        warn "NO PREVIOUS SUCCESSFUL OKBAZEL RUN"
+        if [[ ! -z "$INSTALLED_WATCHMAN" ]]; then
+            getChanges # Prevent watchman from running after this run, since changes would already be accounted for
+        fi
+        runOkBuck
+    elif [[ ! -z "$INSTALLED_WATCHMAN" ]]; then
+        watchmanWorkflow
+    else
+        warn 'ALWAYS RUNNING OKBAZEL SINCE WATCHMAN IS NOT INSTALLED'
+        warn 'INSTALL WATCHMAN FOR FASTER BUILDS'
+        warn 'https://facebook.github.io/watchman'
+        echo
+        runOkBuck
+    fi
+
+    setupBuckBinary
+}
+
+setupBuckRun
+
+# Invoke bazel binary with arguments
+exec "$BAZEL_BINARY" "$@"
