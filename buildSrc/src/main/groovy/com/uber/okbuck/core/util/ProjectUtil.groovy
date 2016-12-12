@@ -11,7 +11,6 @@ import com.uber.okbuck.core.model.groovy.GroovyLibTarget
 import com.uber.okbuck.core.model.java.JavaAppTarget
 import com.uber.okbuck.core.model.java.JavaLibTarget
 import com.uber.okbuck.core.model.jvm.JvmTarget
-import groovy.transform.Memoized
 import org.gradle.api.Project
 import org.gradle.api.plugins.ApplicationPlugin
 import org.gradle.api.plugins.GroovyPlugin
@@ -23,7 +22,6 @@ final class ProjectUtil {
         // no instance
     }
 
-    @Memoized
     static ProjectType getType(Project project) {
         if (project.plugins.hasPlugin(AppPlugin)) {
             return ProjectType.ANDROID_APP
@@ -40,7 +38,6 @@ final class ProjectUtil {
         }
     }
 
-    @Memoized
     static Map<String, Target> getTargets(Project project) {
         ProjectType type = getType(project)
         switch (type) {

@@ -5,7 +5,6 @@ import com.android.builder.model.SigningConfig
 import com.android.manifmerger.ManifestMerger2
 import com.uber.okbuck.core.model.base.Target
 import com.uber.okbuck.core.util.FileUtil
-import groovy.transform.Memoized
 import groovy.transform.ToString
 import org.apache.commons.io.FilenameUtils
 import org.gradle.api.Project
@@ -70,7 +69,6 @@ class AndroidAppTarget extends AndroidLibTarget {
         return ManifestMerger2.MergeType.APPLICATION
     }
 
-    @Memoized
     ExoPackageScope getExopackage() {
         if (getProp(okbuck.exopackage, false)) {
             return new ExoPackageScope(project, main, exoPackageDependencies, manifest)
