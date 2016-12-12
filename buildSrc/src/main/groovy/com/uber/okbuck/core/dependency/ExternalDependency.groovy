@@ -10,18 +10,19 @@ class ExternalDependency extends VersionlessDependency {
 
     static final String LOCAL_DEP_VERSION = "1.0.0"
     static final String SOURCES_JAR = '-sources.jar'
-    static final String DEP_DELIM = '.'
 
     final DefaultArtifactVersion version
     final File depFile
-    final List<String> parts
 
     ExternalDependency(ModuleVersionIdentifier identifier, File depFile) {
         super(identifier)
-        version = new DefaultArtifactVersion(identifier.version)
-        this.depFile = depFile
+        if (identifier.version) {
+            version = new DefaultArtifactVersion(identifier.version)
+        } else {
+            version = new DefaultArtifactVersion(LOCAL_DEP_VERSION)
+        }
 
-        parts = [group, name, identifier.version].findAll { !it.empty }
+        this.depFile = depFile
     }
 
     @Override
@@ -31,19 +32,19 @@ class ExternalDependency extends VersionlessDependency {
 
     String getCacheName(boolean useFullDepName = false) {
         if (useFullDepName) {
-            String extension = FilenameUtils.getExtension(depFile.name)
-            return parts.join(DEP_DELIM) + ".${extension}"
+            if (group) {
+                return "${group}.${depFile.name}"
+            } else {
+                return "${name}.${depFile.name}"
+            }
+
         } else {
             return depFile.name
         }
     }
 
     String getSourceCacheName(boolean useFullDepName = false) {
-        if (useFullDepName) {
-            return parts.join(DEP_DELIM) + SOURCES_JAR
-        } else {
-            return depFile.name.replaceFirst(/\.(jar|aar)$/, SOURCES_JAR)
-        }
+        return getCacheName(useFullDepName).replaceFirst(/\.(jar|aar)$/, SOURCES_JAR)
     }
 
     static ExternalDependency fromLocal(File localDep) {

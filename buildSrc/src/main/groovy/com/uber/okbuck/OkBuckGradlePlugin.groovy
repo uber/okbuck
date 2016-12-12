@@ -49,14 +49,14 @@ class OkBuckGradlePlugin implements Plugin<Project> {
 
     void apply(Project project) {
         LOGGER = project.logger
-        OkBuckExtension okbuck = project.extensions.create(OKBUCK, OkBuckExtension, project)
-        WrapperExtension wrapper = okbuck.extensions.create(WRAPPER, WrapperExtension)
-        ExperimentalExtension experimental = okbuck.extensions.create(EXPERIMENTAL, ExperimentalExtension)
-        TestExtension test = okbuck.extensions.create(TEST, TestExtension)
-        IntellijExtension intellij = okbuck.extensions.create(INTELLIJ, IntellijExtension)
-        LintExtension lint = okbuck.extensions.create(LINT, LintExtension, project)
-        RetrolambdaExtension retrolambda = okbuck.extensions.create(RETROLAMBDA, RetrolambdaExtension)
-        okbuck.extensions.create(TRANSFORM, TransformExtension)
+        OkBuckExtension okbuckExt = project.extensions.create(OKBUCK, OkBuckExtension, project)
+        WrapperExtension wrapper = okbuckExt.extensions.create(WRAPPER, WrapperExtension)
+        ExperimentalExtension experimental = okbuckExt.extensions.create(EXPERIMENTAL, ExperimentalExtension)
+        TestExtension test = okbuckExt.extensions.create(TEST, TestExtension)
+        IntellijExtension intellij = okbuckExt.extensions.create(INTELLIJ, IntellijExtension)
+        LintExtension lint = okbuckExt.extensions.create(LINT, LintExtension, project)
+        RetrolambdaExtension retrolambda = okbuckExt.extensions.create(RETROLAMBDA, RetrolambdaExtension)
+        okbuckExt.extensions.create(TRANSFORM, TransformExtension)
 
         Task okBuck = project.task(OKBUCK)
         okBuck.setGroup(GROUP)
@@ -84,21 +84,21 @@ class OkBuckGradlePlugin implements Plugin<Project> {
             buildDepCache.mustRunAfter(okBuckClean)
 
             okBuck.doLast {
-                generate(project)
+                generate(project, okbuckExt)
                 if (!experimental.parallel) {
-                    okbuck.buckProjects.each { Project subProject ->
+                    okbuckExt.buckProjects.each { Project subProject ->
                         BuckFileGenerator.generate(subProject)
                     }
                 }
             }
 
             buildDepCache.doLast {
-                addSubProjectRepos(project, okbuck.buckProjects)
+                addSubProjectRepos(project as Project, okbuckExt.buckProjects as Set<Project>)
                 depCache = new DependencyCache(
                         "external",
                         project,
                         DEFAULT_CACHE_PATH,
-                        configurations(okbuck.buckProjects),
+                        configurations(okbuckExt.buckProjects as Set<Project>),
                         EXTERNAL_DEP_BUCK_FILE,
                         true,
                         intellij.sources,
@@ -131,7 +131,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
             }
 
             if (experimental.lint) {
-                okbuck.buckProjects.each { Project buckProject ->
+                okbuckExt.buckProjects.each { Project buckProject ->
                     buckProject.configurations.maybeCreate(BUCK_LINT)
                 }
 
@@ -161,9 +161,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         }
     }
 
-    private static void generate(Project project) {
-        OkBuckExtension okbuck = project.okbuck
-
+    private static void generate(Project project, OkBuckExtension okbuckExt) {
         // generate empty .buckconfig if it does not exist
         File dotBuckConfig = project.file(".buckconfig")
         if (!dotBuckConfig.exists()) {
@@ -173,7 +171,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         // generate .buckconfig.local
         File dotBuckConfigLocal = project.file(".buckconfig.local")
         PrintStream configPrinter = new PrintStream(dotBuckConfigLocal)
-        DotBuckConfigLocalGenerator.generate(okbuck).print(configPrinter)
+        DotBuckConfigLocalGenerator.generate(okbuckExt).print(configPrinter)
         IOUtils.closeQuietly(configPrinter)
     }
 
