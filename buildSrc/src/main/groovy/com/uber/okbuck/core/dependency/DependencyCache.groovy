@@ -121,7 +121,13 @@ class DependencyCache {
 
         // cleanup
         if (cleanup) {
-            (rootProject.fileTree(dir: cacheDir, includes: ['*.jar', '*.aar']) - cachedCopies).each { File f ->
+            (cacheDir.listFiles(new FileFilter() {
+
+                @Override
+                boolean accept(File pathname) {
+                    return pathname.isFile() && (pathname.name.endsWith(".jar") || pathname.name.endsWith(".aar"))
+                }
+            }) - cachedCopies).each { File f ->
                 f.delete()
             }
         }
