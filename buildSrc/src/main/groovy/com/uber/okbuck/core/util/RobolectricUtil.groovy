@@ -50,7 +50,9 @@ class RobolectricUtil {
             new DependencyCache("robolectric${configuration.name.toUpperCase()}",
                     project,
                     ROBOLECTRIC_CACHE,
-                    [configuration] as Set)
+                    [configuration] as Set,
+                    null,
+                    false)
         }
     }
 }
