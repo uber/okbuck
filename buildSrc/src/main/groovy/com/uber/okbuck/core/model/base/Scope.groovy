@@ -11,9 +11,7 @@ import com.uber.okbuck.core.model.java.JavaLibTarget
 import com.uber.okbuck.core.model.jvm.JvmTarget
 import com.uber.okbuck.core.util.FileUtil
 import com.uber.okbuck.core.util.ProjectUtil
-import com.uber.okbuck.extension.OkBuckExtension
 import groovy.transform.EqualsAndHashCode
-import org.apache.commons.io.FilenameUtils
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ResolvedArtifact
@@ -67,66 +65,69 @@ class Scope {
             try {
                 Configuration configuration = project.configurations.getByName(configName)
                 validConfigurations.add(configuration)
-                Set<File> resolvedFiles = [] as Set
-                configuration.resolvedConfiguration.resolvedArtifacts.each { ResolvedArtifact artifact ->
-
-                    String identifier = artifact.id.componentIdentifier.displayName
-                    File dep = artifact.file
-
-                    resolvedFiles.add(dep)
-
-                    if (identifier.contains(" ")) {
-                        Target target = getTargetForOutput(project.rootProject, dep)
-                        if (target != null && target.project != project) {
-                            targetDeps.add(target)
-                        }
-                    } else {
-                        external.add(new ExternalDependency(artifact.moduleVersion.id, dep))
-                    }
-                }
-
-                configuration.files.findAll { File resolved ->
-                    !resolvedFiles.contains(resolved)
-                }.each { File localDep ->
-                    external.add(ExternalDependency.fromLocal(localDep))
-                }
             } catch (UnknownConfigurationException ignored) {
             }
         }
+
+        Set<ResolvedArtifact> artifacts = validConfigurations.collect {
+            it.resolvedConfiguration.resolvedArtifacts
+        }.flatten() as Set<ResolvedArtifact>
+
+        Set<File> files = validConfigurations.collect {
+            it.files
+        }.flatten() as Set<File>
+
+        Set<File> resolvedFiles = [] as Set
+        artifacts.each { ResolvedArtifact artifact ->
+            String identifier = artifact.id.componentIdentifier.displayName
+            File dep = artifact.file
+
+            resolvedFiles.add(dep)
+
+            if (identifier.contains(" ")) {
+                Project targetProject = project.project(identifier.replaceFirst("project ", ""))
+                Target target = getTargetForOutput(targetProject, dep)
+                if (target) {
+                    targetDeps.add(target)
+                }
+            } else {
+                external.add(new ExternalDependency(artifact.moduleVersion.id, dep))
+            }
+        }
+
+        files.findAll { File resolved ->
+            !resolvedFiles.contains(resolved)
+        }.each { File localDep ->
+            external.add(ExternalDependency.fromLocal(localDep))
+        }
+
     }
 
     @SuppressWarnings("GrReassignedInClosureLocalVar")
-    static Target getTargetForOutput(Project rootProject, File output) {
+    static Target getTargetForOutput(Project targetProject, File output) {
         Target result = null
-        OkBuckExtension okbuck = rootProject.okbuck
-        Project project = okbuck.buckProjects.find { Project project ->
-            FilenameUtils.directoryContains(project.buildDir.absolutePath, output.absolutePath)
-        }
-
-        if (project != null) {
-            ProjectType type = ProjectUtil.getType(project)
-            switch (type) {
-                case ProjectType.ANDROID_LIB:
-                    def baseVariants = project.android.libraryVariants
-                    baseVariants.all { BaseVariant baseVariant ->
-                        def variant = baseVariant.outputs.find { BaseVariantOutput out ->
-                            (out.outputFile == output)
-                        }
-                        if (variant != null) {
-                            result = new AndroidLibTarget(project, variant.name)
-                        }
+        ProjectType type = ProjectUtil.getType(targetProject)
+        switch (type) {
+            case ProjectType.ANDROID_LIB:
+                def baseVariants = targetProject.android.libraryVariants
+                baseVariants.all { BaseVariant baseVariant ->
+                    def variant = baseVariant.outputs.find { BaseVariantOutput out ->
+                        (out.outputFile == output)
                     }
-                    break
-                case ProjectType.GROOVY_LIB:
-                    result = new GroovyLibTarget(project, JvmTarget.MAIN)
-                    break
-                case ProjectType.JAVA_APP:
-                case ProjectType.JAVA_LIB:
-                    result = new JavaLibTarget(project, JvmTarget.MAIN)
-                    break
-                default:
-                    result = null
-            }
+                    if (variant != null) {
+                        result = new AndroidLibTarget(targetProject, variant.name)
+                    }
+                }
+                break
+            case ProjectType.GROOVY_LIB:
+                result = new GroovyLibTarget(targetProject, JvmTarget.MAIN)
+                break
+            case ProjectType.JAVA_APP:
+            case ProjectType.JAVA_LIB:
+                result = new JavaLibTarget(targetProject, JvmTarget.MAIN)
+                break
+            default:
+                result = null
         }
         return result
     }
