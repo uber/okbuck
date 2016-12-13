@@ -62,7 +62,7 @@ class ExoPackageScope extends Scope {
                 if (fullyQualified) {
                     match &= externalDependency.group == first
                 }
-                match &= externalDependency.module == last
+                match &= externalDependency.name == last
                 return match
             }
 

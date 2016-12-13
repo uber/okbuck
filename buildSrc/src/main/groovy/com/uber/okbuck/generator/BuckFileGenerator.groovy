@@ -10,29 +10,29 @@ import com.uber.okbuck.composer.android.AndroidLibraryRuleComposer
 import com.uber.okbuck.composer.android.AndroidManifestRuleComposer
 import com.uber.okbuck.composer.android.AndroidResourceRuleComposer
 import com.uber.okbuck.composer.android.AndroidTestRuleComposer
-import com.uber.okbuck.composer.groovy.GroovyLibraryRuleComposer
-import com.uber.okbuck.composer.groovy.GroovyTestRuleComposer
-import com.uber.okbuck.composer.java.AptRuleComposer
-import com.uber.okbuck.composer.base.BuckRuleComposer
 import com.uber.okbuck.composer.android.ExopackageAndroidLibraryRuleComposer
 import com.uber.okbuck.composer.android.GenAidlRuleComposer
-import com.uber.okbuck.composer.java.JavaBinaryRuleComposer
-import com.uber.okbuck.composer.java.JavaLibraryRuleComposer
-import com.uber.okbuck.composer.java.JavaTestRuleComposer
 import com.uber.okbuck.composer.android.KeystoreRuleComposer
 import com.uber.okbuck.composer.android.LintRuleComposer
 import com.uber.okbuck.composer.android.PreBuiltNativeLibraryRuleComposer
 import com.uber.okbuck.composer.android.TrasformDependencyWriterRuleComposer
+import com.uber.okbuck.composer.base.BuckRuleComposer
+import com.uber.okbuck.composer.groovy.GroovyLibraryRuleComposer
+import com.uber.okbuck.composer.groovy.GroovyTestRuleComposer
+import com.uber.okbuck.composer.java.AptRuleComposer
+import com.uber.okbuck.composer.java.JavaBinaryRuleComposer
+import com.uber.okbuck.composer.java.JavaLibraryRuleComposer
+import com.uber.okbuck.composer.java.JavaTestRuleComposer
 import com.uber.okbuck.config.BUCKFile
 import com.uber.okbuck.core.model.android.AndroidAppTarget
 import com.uber.okbuck.core.model.android.AndroidInstrumentationTarget
 import com.uber.okbuck.core.model.android.AndroidLibTarget
 import com.uber.okbuck.core.model.android.AndroidTarget
+import com.uber.okbuck.core.model.base.ProjectType
+import com.uber.okbuck.core.model.base.Target
 import com.uber.okbuck.core.model.groovy.GroovyLibTarget
 import com.uber.okbuck.core.model.java.JavaAppTarget
 import com.uber.okbuck.core.model.java.JavaLibTarget
-import com.uber.okbuck.core.model.base.ProjectType
-import com.uber.okbuck.core.model.base.Target
 import com.uber.okbuck.core.util.ProjectUtil
 import com.uber.okbuck.extension.ExperimentalExtension
 import com.uber.okbuck.extension.LintExtension
@@ -41,11 +41,11 @@ import com.uber.okbuck.extension.TestExtension
 import com.uber.okbuck.rule.android.AndroidLibraryRule
 import com.uber.okbuck.rule.android.AndroidManifestRule
 import com.uber.okbuck.rule.android.AndroidResourceRule
-import com.uber.okbuck.rule.java.AptRule
-import com.uber.okbuck.rule.base.BuckRule
 import com.uber.okbuck.rule.android.ExopackageAndroidLibraryRule
 import com.uber.okbuck.rule.android.GenAidlRule
+import com.uber.okbuck.rule.base.BuckRule
 import com.uber.okbuck.rule.base.GenRule
+import com.uber.okbuck.rule.java.AptRule
 import org.apache.commons.io.IOUtils
 import org.gradle.api.Project
 
@@ -53,7 +53,7 @@ import static com.uber.okbuck.core.util.ProjectUtil.getTargets
 
 final class BuckFileGenerator {
 
-    private BuckFileGenerator(){ }
+    private BuckFileGenerator() {}
 
     /**
      * generate {@code BUCKFile}
@@ -69,14 +69,6 @@ final class BuckFileGenerator {
             PrintStream buckPrinter = new PrintStream(project.file(OkBuckGradlePlugin.BUCK))
             buckFile.print(buckPrinter)
             IOUtils.closeQuietly(buckPrinter)
-        }
-    }
-
-    static void resolve(Project project) {
-        Map<String, Target> targets = getTargets(project)
-
-        targets.each { String name, Target target ->
-            target.resolve()
         }
     }
 
@@ -147,7 +139,8 @@ final class BuckFileGenerator {
         return rules
     }
 
-    private static List<BuckRule> createRules(AndroidLibTarget target, String appClass = null, List<String> extraDeps = []) {
+    private static List<BuckRule> createRules(AndroidLibTarget target, String appClass = null,
+                                              List<String> extraDeps = []) {
         List<BuckRule> rules = []
         List<BuckRule> androidLibRules = []
 
@@ -254,7 +247,7 @@ final class BuckFileGenerator {
     }
 
     private static List<BuckRule> createRules(AndroidInstrumentationTarget target, AndroidAppTarget mainApkTarget,
-                                      List<BuckRule> mainApkTargetRules) {
+                                              List<BuckRule> mainApkTargetRules) {
         List<BuckRule> rules = []
 
         Set<BuckRule> libRules = createRules((AndroidLibTarget) target, null, filterAndroidDepRules(mainApkTargetRules))

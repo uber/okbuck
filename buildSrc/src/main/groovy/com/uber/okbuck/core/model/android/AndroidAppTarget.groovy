@@ -27,8 +27,6 @@ class AndroidAppTarget extends AndroidLibTarget {
     final Set<String> primaryDexPatterns
     final Set<String> exoPackageDependencies
 
-    final ExoPackageScope exopackage
-
     final boolean minifyEnabled
 
     final Map<String, Object> placeholders = [:]
@@ -50,13 +48,8 @@ class AndroidAppTarget extends AndroidLibTarget {
         linearAllocHardLimit = getProp(okbuck.linearAllocHardLimit, DEFAULT_LINEARALLOC_LIMIT) as Integer
 
         exoPackageDependencies = getProp(okbuck.appLibDependencies, []) as Set
-        if (getProp(okbuck.exopackage, false)) {
-            exopackage = new ExoPackageScope(project, main, exoPackageDependencies, manifest)
-        } else {
-            exopackage = null
-        }
 
-        if(isTest) {
+        if (isTest) {
             placeholders.put('applicationId', applicationId - ".test" + applicationIdSuffix + ".test")
         } else {
             placeholders.put('applicationId', applicationId + applicationIdSuffix)
@@ -74,6 +67,14 @@ class AndroidAppTarget extends AndroidLibTarget {
     @Override
     ManifestMerger2.MergeType getMergeType() {
         return ManifestMerger2.MergeType.APPLICATION
+    }
+
+    ExoPackageScope getExopackage() {
+        if (getProp(okbuck.exopackage, false)) {
+            return new ExoPackageScope(project, main, exoPackageDependencies, manifest)
+        } else {
+            return null
+        }
     }
 
     String getProguardConfig() {

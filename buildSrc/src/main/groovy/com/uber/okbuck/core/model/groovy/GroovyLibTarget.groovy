@@ -2,9 +2,7 @@ package com.uber.okbuck.core.model.groovy
 
 import com.uber.okbuck.core.model.base.Scope
 import com.uber.okbuck.core.model.java.JavaLibTarget
-import com.uber.okbuck.core.model.jvm.JvmTarget
 import org.gradle.api.Project
-import org.gradle.api.tasks.compile.GroovyCompileOptions
 
 class GroovyLibTarget extends JavaLibTarget {
 

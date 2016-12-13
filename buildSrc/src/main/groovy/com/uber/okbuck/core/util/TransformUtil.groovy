@@ -2,7 +2,6 @@ package com.uber.okbuck.core.util
 
 import com.uber.okbuck.OkBuckGradlePlugin
 import com.uber.okbuck.core.dependency.DependencyCache
-import com.uber.okbuck.core.model.base.Scope
 import org.gradle.api.Project
 
 class TransformUtil {
@@ -14,21 +13,10 @@ class TransformUtil {
     static final String TRANSFORM_BUCK_FILE = "transform/BUCK_FILE"
 
     static void fetchTransformDeps(Project project) {
-        File res = null
-        Set<File> sourceDirs = []
-        List<String> jvmArguments = []
-        Scope transformScope = new Scope(
-                project, [CONFIGURATION_TRANSFORM], sourceDirs, res, jvmArguments, getTransformDepsCache(project))
-        transformScope.externalDeps
-    }
-
-    static DependencyCache getTransformDepsCache(Project project) {
-        return new DependencyCache(project.rootProject, TRANSFORM_CACHE, false, TRANSFORM_BUCK_FILE) {
-
-            @Override
-            boolean isValid(File dep) {
-                return dep.name.endsWith(".jar")
-            }
-        }
+        new DependencyCache("transform",
+                project.rootProject,
+                TRANSFORM_CACHE,
+                [project.configurations.getByName(CONFIGURATION_TRANSFORM)] as Set,
+                TRANSFORM_BUCK_FILE)
     }
 }

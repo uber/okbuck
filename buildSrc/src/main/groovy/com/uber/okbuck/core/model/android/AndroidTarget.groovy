@@ -112,11 +112,24 @@ abstract class AndroidTarget extends JavaLibTarget {
     }
 
     @Override
+    Set<String> getDepConfigNames() {
+        return super.getDepConfigNames() +
+                ["compile", "${buildType}Compile", "${flavor}Compile", "${name}Compile",
+                 "testCompile", "${buildType}TestCompile", "${flavor}TestCompile",
+                 "${name}TestCompile",
+                 "androidTestApt",
+                 "androidTestCompile",
+                 "androidTest${buildType.capitalize()}Compile",
+                 "androidTest${flavor.capitalize()}Compile",
+                 "androidTest${name}Compile"]
+    }
+
+    @Override
     LintOptions getLintOptions() {
         return project.android.lintOptions
     }
 
-    public boolean getRobolectric() {
+    boolean getRobolectric() {
         return rootProject.okbuck.test.robolectric
     }
 

@@ -1,81 +1,128 @@
 package com.uber.okbuck.core.dependency
 
 import com.uber.okbuck.core.util.FileUtil
-import groovy.transform.Synchronized
 import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.ResolvedArtifact
+import org.gradle.plugins.ide.internal.IdeDependenciesExtractor
 
 import java.nio.file.FileSystem
 import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.nio.file.Path
-import java.util.concurrent.ConcurrentHashMap
 
 class DependencyCache {
 
-    static final String THIRD_PARTY_BUCK_FILE = "thirdparty/BUCK_FILE"
     final Project rootProject
     final File cacheDir
+
     final boolean useFullDepName
     final boolean fetchSources
     final boolean extractLintJars
 
-    private Map<VersionlessDependency, String> finalDepFiles = [:]
-    private Map<VersionlessDependency, String> lintJars = [:]
-    private Map<VersionlessDependency, ExternalDependency> greatestVersions = new ConcurrentHashMap()
+    private final Configuration superConfiguration
+    private final Map<VersionlessDependency, String> lintJars = [:]
+    private final Map<VersionlessDependency, String> externalDeps = [:]
 
-    DependencyCache(Project rootProject,
-                    String cacheDirPath,
-                    boolean useFullDepName = false,
-                    String buckFile = THIRD_PARTY_BUCK_FILE,
-                    boolean fetchSources = false,
-                    boolean extractLintJars = false) {
+    DependencyCache(
+            String name,
+            Project rootProject,
+            String cacheDirPath,
+            Set<Configuration> configurations,
+            String buckFile = null,
+            boolean useFullDepName = false,
+            boolean fetchSources = false,
+            boolean extractLintJars = false) {
+
         this.rootProject = rootProject
-        this.useFullDepName = useFullDepName
-        this.fetchSources = fetchSources
-        this.extractLintJars = extractLintJars
-        cacheDir = new File(rootProject.projectDir, cacheDirPath)
-        cacheDir.mkdirs()
+        this.cacheDir = new File(rootProject.projectDir, cacheDirPath)
+        this.cacheDir.mkdirs()
+
+        superConfiguration = createSuperConfiguration(rootProject, "${name}DepCache", configurations)
+
         if (buckFile) {
             FileUtil.copyResourceToProject(buckFile, new File(cacheDir, "BUCK"))
         }
+
+        this.useFullDepName = useFullDepName
+        this.fetchSources = fetchSources
+        this.extractLintJars = extractLintJars
+        build()
     }
 
-    void put(ExternalDependency dependency) {
-        if (!isValid(dependency.depFile)) {
-            throw new InValidDependencyException("${dependency.depFile.absolutePath} is not a valid dependency")
-        }
-
-        ExternalDependency externalDependency = greatestVersions.get(dependency)
-        if (externalDependency == null || dependency.version > externalDependency.version) {
-            greatestVersions.put(dependency, dependency)
-        }
-    }
-
-    @Synchronized
     String get(ExternalDependency dependency) {
-        ExternalDependency greatestVersion = greatestVersions.get(dependency)
-        if (!finalDepFiles.containsKey(greatestVersion)) {
-            File depFile = greatestVersion.depFile
-            File cachedCopy = new File(cacheDir, useFullDepName ? dependency.cacheName : dependency.depFile.name)
-            if (!cachedCopy.exists()) {
-                Files.copy(depFile.toPath(), cachedCopy.toPath())
+        String dep = externalDeps.get(dependency)
+        if (dep == null) {
+            throw new IllegalStateException("Could not find dependency path for ${dependency}")
+        }
+        return dep
+    }
+
+    private void build() {
+        Set<File> resolvedFiles = [] as Set
+        Set<ExternalDependency> allExtDeps = [] as Set
+        superConfiguration.resolvedConfiguration.resolvedArtifacts.each { ResolvedArtifact artifact ->
+            String identifier = artifact.id.componentIdentifier.displayName
+            File dep = artifact.file
+            resolvedFiles.add(dep)
+
+            if (!identifier.contains(" ")) {
+                ExternalDependency dependency = new ExternalDependency(artifact.moduleVersion.id, dep)
+                allExtDeps.add(dependency)
             }
+        }
+
+        superConfiguration.files.findAll { File resolved ->
+            !resolvedFiles.contains(resolved)
+        }.each { File localDep ->
+            allExtDeps.add(ExternalDependency.fromLocal(localDep))
+        }
+
+        // Download sources if enabled
+        if (fetchSources) {
+            new IdeDependenciesExtractor().extractRepoFileDependencies(
+                    rootProject.dependencies,
+                    [superConfiguration],
+                    [],
+                    true,
+                    false)
+        }
+
+        allExtDeps.each { ExternalDependency e ->
+            File cachedCopy = new File(cacheDir, e.getCacheName(useFullDepName))
+
+            // Copy the file into the cache
+            if (!cachedCopy.exists()) {
+                Files.copy(e.depFile.toPath(), cachedCopy.toPath())
+            }
+
+            String path = FileUtil.getRelativePath(rootProject.projectDir, cachedCopy)
+            externalDeps.put(e, path)
+
+            // Extract Lint Jars
             if (extractLintJars && cachedCopy.name.endsWith(".aar")) {
                 File lintJar = getPackagedLintJar(cachedCopy)
                 if (lintJar != null) {
                     String lintJarPath = FileUtil.getRelativePath(rootProject.projectDir, lintJar)
-                    lintJars.put(greatestVersion, lintJarPath)
+                    lintJars.put(e, lintJarPath)
                 }
             }
-            if (fetchSources) {
-                fetchSourcesFor(dependency)
-            }
-            String path = FileUtil.getRelativePath(rootProject.projectDir, cachedCopy)
-            finalDepFiles.put(greatestVersion, path)
-        }
 
-        return finalDepFiles.get(greatestVersion)
+            // Fetch Sources
+            if (fetchSources) {
+                fetchSourcesFor(e)
+            }
+        }
+    }
+
+    private static Configuration createSuperConfiguration(Project project, String superConfigName,
+                                                          Set<Configuration> configurations) {
+        Configuration superConfiguration = project.configurations.maybeCreate(superConfigName)
+        configurations.each {
+            superConfiguration.dependencies.addAll(it.dependencies as Set)
+        }
+        return superConfiguration
     }
 
     String getLintJar(ExternalDependency dependency) {
@@ -83,28 +130,24 @@ class DependencyCache {
     }
 
     private void fetchSourcesFor(ExternalDependency dependency) {
-        File depFile = dependency.depFile
-        String sourcesJarName = depFile.name.replaceFirst(/\.(jar|aar)$/, '-sources.jar')
+        String sourcesJarName = dependency.depFile.name.replaceFirst(/\.(jar|aar)$/, ExternalDependency.SOURCES_JAR)
 
         File sourcesJar = null
         if (FileUtils.directoryContains(rootProject.projectDir, dependency.depFile)) {
-            sourcesJar = new File(depFile.parentFile, sourcesJarName)
+            sourcesJar = new File(dependency.depFile.parentFile, sourcesJarName)
         } else {
-            def sourceJars = rootProject.fileTree(dir: depFile.parentFile.parentFile.absolutePath,
+            def sourceJars = rootProject.fileTree(
+                    dir: dependency.depFile.parentFile.parentFile.absolutePath,
                     includes: ["**/${sourcesJarName}"]) as List
             if (sourceJars.size() > 0) {
                 sourcesJar = sourceJars[0]
             }
         }
 
-        File cachedCopy = new File(cacheDir, "${dependency.group}.${sourcesJarName}")
+        File cachedCopy = new File(cacheDir, dependency.getSourceCacheName(useFullDepName))
         if (sourcesJar != null && sourcesJar.exists() && !cachedCopy.exists()) {
             FileUtils.copyFile(sourcesJar, cachedCopy)
         }
-    }
-
-    boolean isValid(File dep) {
-        return (dep.name.endsWith(".jar") || dep.name.endsWith(".aar"))
     }
 
     static File getPackagedLintJar(File aar) {

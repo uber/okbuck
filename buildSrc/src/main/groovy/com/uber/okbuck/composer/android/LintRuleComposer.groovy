@@ -2,9 +2,9 @@ package com.uber.okbuck.composer.android
 
 import com.uber.okbuck.composer.java.JavaBuckRuleComposer
 import com.uber.okbuck.core.model.android.AndroidTarget
-import com.uber.okbuck.core.model.java.JavaTarget
 import com.uber.okbuck.core.model.base.ProjectType
 import com.uber.okbuck.core.model.base.Target
+import com.uber.okbuck.core.model.java.JavaTarget
 import com.uber.okbuck.core.util.FileUtil
 import com.uber.okbuck.core.util.LintUtil
 import com.uber.okbuck.core.util.ProjectUtil
