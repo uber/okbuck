@@ -18,10 +18,6 @@ final class GroovyTestRuleComposer extends JvmBuckRuleComposer {
         deps.addAll(external(target.test.externalDeps))
         deps.addAll(targets(target.test.targetDeps))
 
-        Set<String> aptDeps = [] as Set
-        aptDeps.addAll(external(target.apt.externalDeps))
-        aptDeps.addAll(targets(target.apt.targetDeps))
-
         Set<String> providedDeps = []
         providedDeps.addAll(external(target.apt.externalDeps))
         providedDeps.addAll(targets(target.apt.targetDeps))
@@ -36,8 +32,8 @@ final class GroovyTestRuleComposer extends JvmBuckRuleComposer {
                 ["PUBLIC"],
                 deps,
                 target.test.sources,
-                target.annotationProcessors,
-                aptDeps,
+                [] as Set,
+                [] as Set,
                 providedDeps,
                 target.test.resourcesDir,
                 target.sourceCompatibility,
