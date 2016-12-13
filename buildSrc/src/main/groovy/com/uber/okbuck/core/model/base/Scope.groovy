@@ -15,6 +15,7 @@ import groovy.transform.EqualsAndHashCode
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ResolvedArtifact
+import org.gradle.api.artifacts.ResolvedDependency
 import org.gradle.api.artifacts.UnknownConfigurationException
 
 @EqualsAndHashCode
@@ -28,6 +29,7 @@ class Scope {
 
     protected final Project project
     protected final Set<ExternalDependency> external = [] as Set
+    protected final Set<ExternalDependency> firstLevel = [] as Set
 
     Scope(Project project,
           Collection<String> configurations,
@@ -59,6 +61,16 @@ class Scope {
         }
     }
 
+    Set<String> getAnnotationProcessors() {
+        (firstLevel.collect {
+            depCache.getAnnotationProcessors(it)
+        } + targetDeps.collect { Target target ->
+            (List<String>) target.getProp(project.rootProject.okbuck.annotationProcessors, null)
+        }.findAll { List<String> processors ->
+            processors != null
+        }).flatten() as Set<String>
+    }
+
     private void extractConfigurations(Collection<String> configurations) {
         List<Configuration> validConfigurations = []
         configurations.each { String configName ->
@@ -72,6 +84,15 @@ class Scope {
         Set<ResolvedArtifact> artifacts = validConfigurations.collect {
             it.resolvedConfiguration.resolvedArtifacts
         }.flatten() as Set<ResolvedArtifact>
+
+        validConfigurations.collect {
+            it.resolvedConfiguration.firstLevelModuleDependencies.each { ResolvedDependency resolvedDependency ->
+                ResolvedArtifact artifact = resolvedDependency.moduleArtifacts[0]
+                if (!artifact.id.componentIdentifier.displayName.contains(" ")) {
+                    firstLevel.add(new ExternalDependency(artifact.moduleVersion.id, artifact.file))
+                }
+            }
+        }
 
         Set<File> files = validConfigurations.collect {
             it.files

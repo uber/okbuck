@@ -2,6 +2,7 @@ package com.uber.okbuck.core.util
 
 import com.uber.okbuck.OkBuckGradlePlugin
 import com.uber.okbuck.core.dependency.DependencyCache
+import groovy.transform.Synchronized
 import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ModuleVersionIdentifier
@@ -63,6 +64,7 @@ class LintUtil {
         return FileUtil.getRelativePath(project.rootDir, config).replaceAll('/', '_')
     }
 
+    @Synchronized
     static String getLintwConfigRule(Project project, File config) {
         File configFile = new File("${LINT_DEPS_CACHE}/${getLintwConfigName(project, config)}")
         if (!configFile.exists() || !FileUtils.contentEquals(configFile, config)) {

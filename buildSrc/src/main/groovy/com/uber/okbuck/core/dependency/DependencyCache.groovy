@@ -1,7 +1,9 @@
 package com.uber.okbuck.core.dependency
 
 import com.uber.okbuck.core.util.FileUtil
+import groovy.transform.Synchronized
 import org.apache.commons.io.FileUtils
+import org.apache.commons.io.IOUtils
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ResolvedArtifact
@@ -11,6 +13,8 @@ import java.nio.file.FileSystem
 import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.nio.file.Path
+import java.util.jar.JarEntry
+import java.util.jar.JarFile
 
 class DependencyCache {
 
@@ -24,6 +28,8 @@ class DependencyCache {
     private final Configuration superConfiguration
     private final Map<VersionlessDependency, String> lintJars = [:]
     private final Map<VersionlessDependency, String> externalDeps = [:]
+    private final Map<VersionlessDependency, Set<String>> annotationProcessors = [:]
+    private final Map<VersionlessDependency, ExternalDependency> greatestVersions = [:]
     private final Set<File> cachedCopies = [] as Set
 
     DependencyCache(
@@ -61,6 +67,22 @@ class DependencyCache {
         return dep
     }
 
+    @Synchronized
+    Set<String> getAnnotationProcessors(ExternalDependency dependency) {
+        ExternalDependency greatest = greatestVersions.get(dependency)
+        if (greatest.depFile.name.endsWith(".jar")) {
+            Set<String> processors = annotationProcessors.get(greatest)
+            if (!processors) {
+                File cachedCopy = new File(cacheDir, greatest.getCacheName(useFullDepName))
+                processors = getAnnotationProcessorsFile(cachedCopy).text.split('\n')
+                annotationProcessors.put(greatest, processors)
+            }
+            return processors
+        } else {
+            return []
+        }
+    }
+
     private void build(boolean cleanup) {
         Set<File> resolvedFiles = [] as Set
         Set<ExternalDependency> allExtDeps = [] as Set
@@ -92,6 +114,7 @@ class DependencyCache {
         }
 
         allExtDeps.each { ExternalDependency e ->
+            greatestVersions.put(e, e)
             File cachedCopy = new File(cacheDir, e.getCacheName(useFullDepName))
 
             // Copy the file into the cache
@@ -164,8 +187,8 @@ class DependencyCache {
         File cachedCopy = new File(cacheDir, dependency.getSourceCacheName(useFullDepName))
         if (sourcesJar != null && sourcesJar.exists() && !cachedCopy.exists()) {
             FileUtils.copyFile(sourcesJar, cachedCopy)
-            cachedCopies.add(cachedCopy)
         }
+        cachedCopies.add(cachedCopy)
     }
 
     static File getPackagedLintJar(File aar) {
@@ -181,5 +204,25 @@ class DependencyCache {
         } else {
             return null
         }
+    }
+
+    static File getAnnotationProcessorsFile(File jar) {
+        File processors = new File(jar.parentFile, jar.name.replaceFirst(/\.jar$/, '.processors'))
+        if (processors.exists()) {
+            return processors
+        }
+
+        JarFile jarFile = new JarFile(jar)
+        JarEntry jarEntry = (JarEntry) jarFile.getEntry("META-INF/services/javax.annotation.processing.Processor")
+        if (jarEntry) {
+            List<String> processorClasses = IOUtils.toString(jarFile.getInputStream(jarEntry))
+                    .trim().split("\\n").findAll { String entry ->
+                !entry.startsWith('#') && !entry.trim().empty // filter out comments and empty lines
+            }
+            processors.text = processorClasses.join('\n')
+        } else {
+            processors.createNewFile()
+        }
+        return processors
     }
 }

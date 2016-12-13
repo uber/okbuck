@@ -59,21 +59,7 @@ abstract class JavaTarget extends JvmTarget {
      * List of annotation processor classes.
      */
     Set<String> getAnnotationProcessors() {
-        return (apt.externalDeps.collect { String aptDep ->
-            JarFile jar = new JarFile(rootProject.file(aptDep))
-            jar.entries().findAll { JarEntry entry ->
-                (entry.name == "META-INF/services/javax.annotation.processing.Processor")
-            }.collect { JarEntry aptEntry ->
-                IOUtils.toString(jar.getInputStream(aptEntry))
-                        .trim().split("\\n").findAll { String entry ->
-                    !entry.startsWith('#') && !entry.trim().empty // filter out comments and empty lines
-                }
-            }
-        } + apt.targetDeps.collect { Target target ->
-            (List<String>) target.getProp(okbuck.annotationProcessors, null)
-        }.findAll { List<String> processors ->
-            processors != null
-        }).flatten() as List<String>
+        return apt.getAnnotationProcessors()
     }
 
     protected static String javaVersion(JavaVersion version) {
