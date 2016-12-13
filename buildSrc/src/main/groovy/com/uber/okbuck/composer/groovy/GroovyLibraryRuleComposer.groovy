@@ -17,10 +17,6 @@ final class GroovyLibraryRuleComposer extends JvmBuckRuleComposer {
         deps.addAll(external(target.main.externalDeps))
         deps.addAll(targets(target.main.targetDeps))
 
-        Set<String> aptDeps = [] as Set
-        aptDeps.addAll(external(target.apt.externalDeps))
-        aptDeps.addAll(targets(target.apt.targetDeps))
-
         Set<String> providedDeps = []
         providedDeps.addAll(external(target.apt.externalDeps))
         providedDeps.addAll(targets(target.apt.targetDeps))
@@ -35,8 +31,8 @@ final class GroovyLibraryRuleComposer extends JvmBuckRuleComposer {
                 ["PUBLIC"],
                 deps,
                 target.main.sources,
-                target.annotationProcessors,
-                aptDeps,
+                [],
+                [],
                 providedDeps,
                 target.main.resourcesDir,
                 target.sourceCompatibility,
