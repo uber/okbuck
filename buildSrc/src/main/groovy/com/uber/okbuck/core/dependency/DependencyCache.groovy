@@ -24,6 +24,7 @@ class DependencyCache {
     private final Configuration superConfiguration
     private final Map<VersionlessDependency, String> lintJars = [:]
     private final Map<VersionlessDependency, String> externalDeps = [:]
+    private final Set<File> cachedCopies = [] as Set
 
     DependencyCache(
             String name,
@@ -31,6 +32,7 @@ class DependencyCache {
             String cacheDirPath,
             Set<Configuration> configurations,
             String buckFile = null,
+            boolean cleanup = true,
             boolean useFullDepName = false,
             boolean fetchSources = false,
             boolean extractLintJars = false) {
@@ -48,7 +50,7 @@ class DependencyCache {
         this.useFullDepName = useFullDepName
         this.fetchSources = fetchSources
         this.extractLintJars = extractLintJars
-        build()
+        build(cleanup)
     }
 
     String get(ExternalDependency dependency) {
@@ -59,7 +61,7 @@ class DependencyCache {
         return dep
     }
 
-    private void build() {
+    private void build(boolean cleanup) {
         Set<File> resolvedFiles = [] as Set
         Set<ExternalDependency> allExtDeps = [] as Set
         superConfiguration.resolvedConfiguration.resolvedArtifacts.each { ResolvedArtifact artifact ->
@@ -96,6 +98,7 @@ class DependencyCache {
             if (!cachedCopy.exists()) {
                 Files.copy(e.depFile.toPath(), cachedCopy.toPath())
             }
+            cachedCopies.add(cachedCopy)
 
             String path = FileUtil.getRelativePath(rootProject.projectDir, cachedCopy)
             externalDeps.put(e, path)
@@ -106,12 +109,20 @@ class DependencyCache {
                 if (lintJar != null) {
                     String lintJarPath = FileUtil.getRelativePath(rootProject.projectDir, lintJar)
                     lintJars.put(e, lintJarPath)
+                    cachedCopies.add(lintJar)
                 }
             }
 
             // Fetch Sources
             if (fetchSources) {
                 fetchSourcesFor(e)
+            }
+        }
+
+        // cleanup
+        if (cleanup) {
+            (rootProject.fileTree(dir: cacheDir, includes: ['*.jar', '*.aar']) - cachedCopies).each { File f ->
+                f.delete()
             }
         }
     }
@@ -147,6 +158,7 @@ class DependencyCache {
         File cachedCopy = new File(cacheDir, dependency.getSourceCacheName(useFullDepName))
         if (sourcesJar != null && sourcesJar.exists() && !cachedCopy.exists()) {
             FileUtils.copyFile(sourcesJar, cachedCopy)
+            cachedCopies.add(cachedCopy)
         }
     }
 

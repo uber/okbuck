@@ -106,6 +106,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                         projectConfigurations,
                         EXTERNAL_DEP_BUCK_FILE,
                         true,
+                        true,
                         intellij.sources,
                         experimental.lint)
             }
