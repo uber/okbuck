@@ -62,13 +62,11 @@ class Scope {
     }
 
     Set<String> getAnnotationProcessors() {
-        (firstLevel.collect {
+        ((firstLevel.collect {
             depCache.getAnnotationProcessors(it)
         } + targetDeps.collect { Target target ->
             (List<String>) target.getProp(project.rootProject.okbuck.annotationProcessors, null)
-        }.findAll { List<String> processors ->
-            processors != null
-        }).flatten() as Set<String>
+        }).flatten() as Set<String>).findAll { it != null && !it.empty }
     }
 
     private void extractConfigurations(Collection<String> configurations) {
