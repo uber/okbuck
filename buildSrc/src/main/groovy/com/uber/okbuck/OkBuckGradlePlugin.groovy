@@ -108,7 +108,8 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                         true,
                         true,
                         intellij.sources,
-                        experimental.lint)
+                        experimental.lint,
+                        okbuckExt.buckProjects)
             }
 
             if (experimental.parallel) {

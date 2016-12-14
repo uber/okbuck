@@ -86,7 +86,7 @@ class Scope {
                 ResolvedArtifact artifact = resolvedDependency.moduleArtifacts[0]
                 VersionlessDependency dependency = new VersionlessDependency(artifact.moduleVersion.id)
 
-                if (!depCache.getTargetIdentifier(dependency)) {
+                if (!depCache.getProject(dependency)) {
                     firstLevel.add(dependency)
                 }
             }
@@ -105,9 +105,8 @@ class Scope {
         artifacts.each { ResolvedArtifact artifact ->
             VersionlessDependency dependency = new VersionlessDependency(artifact.moduleVersion.id)
 
-            String targetIdentifier = depCache.getTargetIdentifier(dependency)
-            if (targetIdentifier) {
-                Project targetProject = project.project(targetIdentifier.replaceFirst("project ", ""))
+            Project targetProject = depCache.getProject(dependency)
+            if (targetProject) {
                 Target target = getTargetForOutput(targetProject, artifact.file)
                 if (target) {
                     targetDeps.add(target)

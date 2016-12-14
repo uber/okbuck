@@ -55,29 +55,4 @@ class ExternalDependency extends VersionlessDependency {
                 LOCAL_DEP_VERSION)
         return new ExternalDependency(identifier, localDep)
     }
-
-    static ModuleVersionIdentifier getDepIdentifier(String group, String name, String version) {
-        return new ModuleVersionIdentifier() {
-
-            @Override
-            String getVersion() {
-                return version
-            }
-
-            @Override
-            String getGroup() {
-                return group
-            }
-
-            @Override
-            String getName() {
-                return name
-            }
-
-            @Override
-            ModuleIdentifier getModule() {
-                return null
-            }
-        }
-    }
 }
