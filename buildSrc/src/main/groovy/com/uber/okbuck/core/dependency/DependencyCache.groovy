@@ -27,10 +27,10 @@ class DependencyCache {
 
     private final Configuration superConfiguration
     private final Map<VersionlessDependency, String> lintJars = [:]
-    private final Map<VersionlessDependency, String> externalDeps = [:]
     private final Map<VersionlessDependency, Set<String>> annotationProcessors = [:]
-    private final Map<VersionlessDependency, ExternalDependency> greatestVersions = [:]
-    private final Set<File> cachedCopies = [] as Set
+
+    private final Map<VersionlessDependency, ExternalDependency> externalDeps = [:]
+    private final Map<VersionlessDependency, TargetDependency> targetDeps = [:]
 
     DependencyCache(
             String name,
@@ -59,17 +59,19 @@ class DependencyCache {
         build(cleanup)
     }
 
-    String get(ExternalDependency dependency) {
-        String dep = externalDeps.get(dependency)
-        if (dep == null) {
+    String get(VersionlessDependency dependency) {
+        ExternalDependency externalDependency = externalDeps.get(dependency)
+        if (externalDependency == null) {
             throw new IllegalStateException("Could not find dependency path for ${dependency}")
         }
-        return dep
+
+        File cachedCopy = new File(cacheDir, externalDependency.getCacheName(useFullDepName))
+        return FileUtil.getRelativePath(rootProject.projectDir, cachedCopy)
     }
 
     @Synchronized
-    Set<String> getAnnotationProcessors(ExternalDependency dependency) {
-        ExternalDependency greatest = greatestVersions.get(dependency)
+    Set<String> getAnnotationProcessors(VersionlessDependency dependency) {
+        ExternalDependency greatest = externalDeps.get(dependency)
         if (greatest.depFile.name.endsWith(".jar")) {
             Set<String> processors = annotationProcessors.get(greatest)
             if (!processors) {
@@ -85,23 +87,29 @@ class DependencyCache {
 
     private void build(boolean cleanup) {
         Set<File> resolvedFiles = [] as Set
-        Set<ExternalDependency> allExtDeps = [] as Set
-        superConfiguration.resolvedConfiguration.resolvedArtifacts.each { ResolvedArtifact artifact ->
-            String identifier = artifact.id.componentIdentifier.displayName
-            File dep = artifact.file
-            resolvedFiles.add(dep)
 
-            if (!identifier.contains(" ")) {
-                ExternalDependency dependency = new ExternalDependency(artifact.moduleVersion.id, dep)
-                allExtDeps.add(dependency)
+        superConfiguration.resolvedConfiguration.resolvedArtifacts.each { ResolvedArtifact artifact ->
+            String projectIdentifier = artifact.id.componentIdentifier.displayName
+
+            if (projectIdentifier.contains(" ")) {
+                TargetDependency dependency = new TargetDependency(artifact.moduleVersion.id, projectIdentifier)
+                targetDeps.put(dependency, dependency)
+            } else {
+                ExternalDependency dependency = new ExternalDependency(artifact.moduleVersion.id, artifact.file)
+                externalDeps.put(dependency, dependency)
             }
+
+            resolvedFiles.add(artifact.file)
         }
 
         superConfiguration.files.findAll { File resolved ->
             !resolvedFiles.contains(resolved)
         }.each { File localDep ->
-            allExtDeps.add(ExternalDependency.fromLocal(localDep))
+            ExternalDependency localDependency = ExternalDependency.fromLocal(localDep)
+            externalDeps.put(localDependency, localDependency)
         }
+
+        resolvedFiles = null
 
         // Download sources if enabled
         if (fetchSources) {
@@ -113,8 +121,9 @@ class DependencyCache {
                     false)
         }
 
-        allExtDeps.each { ExternalDependency e ->
-            greatestVersions.put(e, e)
+        Set<File> cachedCopies = [] as Set
+
+        externalDeps.each { _, ExternalDependency e ->
             File cachedCopy = new File(cacheDir, e.getCacheName(useFullDepName))
 
             // Copy the file into the cache
@@ -123,12 +132,9 @@ class DependencyCache {
             }
             cachedCopies.add(cachedCopy)
 
-            String path = FileUtil.getRelativePath(rootProject.projectDir, cachedCopy)
-            externalDeps.put(e, path)
-
             // Extract Lint Jars
             if (extractLintJars && cachedCopy.name.endsWith(".aar")) {
-                File lintJar = getPackagedLintJar(cachedCopy)
+                File lintJar = getPackagedLintJarFrom(cachedCopy)
                 if (lintJar != null) {
                     String lintJarPath = FileUtil.getRelativePath(rootProject.projectDir, lintJar)
                     lintJars.put(e, lintJarPath)
@@ -138,7 +144,7 @@ class DependencyCache {
 
             // Fetch Sources
             if (fetchSources) {
-                fetchSourcesFor(e)
+                cachedCopies.add(fetchSourcesFor(e))
             }
         }
 
@@ -156,7 +162,17 @@ class DependencyCache {
         }
     }
 
-    private static Configuration createSuperConfiguration(Project project, String superConfigName,
+    String getTargetIdentifier(VersionlessDependency dependency) {
+        TargetDependency targetDependency = targetDeps.get(dependency)
+        if (targetDependency) {
+            return targetDependency.projectIdentifier
+        } else {
+            return null
+        }
+    }
+
+    private static Configuration createSuperConfiguration(Project project,
+                                                          String superConfigName,
                                                           Set<Configuration> configurations) {
         Configuration superConfiguration = project.configurations.maybeCreate(superConfigName)
         configurations.each {
@@ -165,12 +181,12 @@ class DependencyCache {
         return superConfiguration
     }
 
-    String getLintJar(ExternalDependency dependency) {
+    String getLintJar(VersionlessDependency dependency) {
         return lintJars.get(dependency)
     }
 
-    private void fetchSourcesFor(ExternalDependency dependency) {
-        String sourcesJarName = dependency.depFile.name.replaceFirst(/\.(jar|aar)$/, ExternalDependency.SOURCES_JAR)
+    private File fetchSourcesFor(ExternalDependency dependency) {
+        String sourcesJarName = dependency.getSourceCacheName(false)
 
         File sourcesJar = null
         if (FileUtils.directoryContains(rootProject.projectDir, dependency.depFile)) {
@@ -188,10 +204,10 @@ class DependencyCache {
         if (sourcesJar != null && sourcesJar.exists() && !cachedCopy.exists()) {
             FileUtils.copyFile(sourcesJar, cachedCopy)
         }
-        cachedCopies.add(cachedCopy)
+        return cachedCopy
     }
 
-    static File getPackagedLintJar(File aar) {
+    static File getPackagedLintJarFrom(File aar) {
         File lintJar = new File(aar.parentFile, aar.name.replaceFirst(/\.aar$/, '-lint.jar'))
         if (lintJar.exists()) {
             return lintJar

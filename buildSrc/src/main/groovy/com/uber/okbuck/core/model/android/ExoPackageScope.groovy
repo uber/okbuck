@@ -1,6 +1,7 @@
 package com.uber.okbuck.core.model.android
 
 import com.uber.okbuck.core.dependency.ExternalDependency
+import com.uber.okbuck.core.dependency.VersionlessDependency
 import com.uber.okbuck.core.model.base.Scope
 import com.uber.okbuck.core.model.base.Target
 import com.uber.okbuck.core.util.FileUtil
@@ -57,12 +58,12 @@ class ExoPackageScope extends Scope {
                 first = last = exoPackageDep
             }
 
-            ExternalDependency externalDep = base.external.find { ExternalDependency externalDependency ->
+            VersionlessDependency externalDep = base.external.find { VersionlessDependency dependency ->
                 boolean match = true
                 if (fullyQualified) {
-                    match &= externalDependency.group == first
+                    match &= dependency.group == first
                 }
-                match &= externalDependency.name == last
+                match &= dependency.name == last
                 return match
             }
 

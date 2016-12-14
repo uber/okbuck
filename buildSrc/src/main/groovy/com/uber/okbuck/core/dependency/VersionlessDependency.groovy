@@ -13,4 +13,9 @@ class VersionlessDependency {
         group = identifier.group
         name = identifier.name
     }
+
+    @Override
+    String toString() {
+        return "${this.group}:${this.name}"
+    }
 }
