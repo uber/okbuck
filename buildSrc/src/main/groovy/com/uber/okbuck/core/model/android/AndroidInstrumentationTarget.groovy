@@ -25,11 +25,7 @@ class AndroidInstrumentationTarget extends AndroidAppTarget {
 
     @Override
     Scope getApt() {
-        Scope aptScope = new Scope(project, ["androidTestApt"])
-        aptScope.targetDeps.retainAll(aptScope.targetDeps.findAll { Target target ->
-            target.getProp(okbuck.annotationProcessors, null) != null
-        })
-        return aptScope
+        return new Scope(project, ["androidTestApt"])
     }
 
     @Override

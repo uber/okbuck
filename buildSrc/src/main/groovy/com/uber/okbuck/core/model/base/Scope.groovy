@@ -25,6 +25,7 @@ class Scope {
     final String resourcesDir
     final Set<String> sources
     final Set<Target> targetDeps = [] as Set
+
     List<String> jvmArgs
     DependencyCache depCache
 
@@ -62,11 +63,17 @@ class Scope {
         }
     }
 
+    Set<Target> getTargetAnnotationProcessorDeps() {
+        return targetDeps.findAll { Target target ->
+            target.getProp(project.rootProject.okbuck.annotationProcessors as Map, null) != null
+        }
+    }
+
     Set<String> getAnnotationProcessors() {
         return ((firstLevel.collect {
             depCache.getAnnotationProcessors(it)
-        } + targetDeps.collect { Target target ->
-            (List<String>) target.getProp(project.rootProject.okbuck.annotationProcessors, null)
+        } + getTargetAnnotationProcessorDeps().collect { Target target ->
+            target.getProp(project.rootProject.okbuck.annotationProcessors as Map, null) as Set<String>
         }).flatten() as Set<String>).findAll { it != null && !it.empty }
     }
 
