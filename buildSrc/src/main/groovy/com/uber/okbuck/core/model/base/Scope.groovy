@@ -5,6 +5,7 @@ import com.android.build.gradle.api.BaseVariantOutput
 import com.uber.okbuck.OkBuckGradlePlugin
 import com.uber.okbuck.core.dependency.DependencyCache
 import com.uber.okbuck.core.dependency.ExternalDependency
+import com.uber.okbuck.core.dependency.VersionlessDependency
 import com.uber.okbuck.core.model.android.AndroidLibTarget
 import com.uber.okbuck.core.model.groovy.GroovyLibTarget
 import com.uber.okbuck.core.model.java.JavaLibTarget
@@ -28,8 +29,8 @@ class Scope {
     DependencyCache depCache
 
     protected final Project project
-    protected final Set<ExternalDependency> external = [] as Set
-    protected final Set<ExternalDependency> firstLevel = [] as Set
+    protected final Set<VersionlessDependency> external = [] as Set
+    protected final Set<VersionlessDependency> firstLevel = [] as Set
 
     Scope(Project project,
           Collection<String> configurations,
@@ -48,21 +49,21 @@ class Scope {
     }
 
     Set<String> getExternalDeps() {
-        external.collect { ExternalDependency dependency ->
+        return external.collect { VersionlessDependency dependency ->
             depCache.get(dependency)
         }
     }
 
     Set<String> getPackagedLintJars() {
-        external.findAll { ExternalDependency dependency ->
-            depCache.getLintJar(dependency) != null
-        }.collect { ExternalDependency dependency ->
+        return external.collect { VersionlessDependency dependency ->
             depCache.getLintJar(dependency)
+        }.findAll { String lintJar ->
+            lintJar != null
         }
     }
 
     Set<String> getAnnotationProcessors() {
-        ((firstLevel.collect {
+        return ((firstLevel.collect {
             depCache.getAnnotationProcessors(it)
         } + targetDeps.collect { Target target ->
             (List<String>) target.getProp(project.rootProject.okbuck.annotationProcessors, null)
@@ -79,18 +80,22 @@ class Scope {
             }
         }
 
-        Set<ResolvedArtifact> artifacts = validConfigurations.collect {
-            it.resolvedConfiguration.resolvedArtifacts
-        }.flatten() as Set<ResolvedArtifact>
-
+        // get all first level external dependencies
         validConfigurations.collect {
             it.resolvedConfiguration.firstLevelModuleDependencies.each { ResolvedDependency resolvedDependency ->
                 ResolvedArtifact artifact = resolvedDependency.moduleArtifacts[0]
-                if (!artifact.id.componentIdentifier.displayName.contains(" ")) {
-                    firstLevel.add(new ExternalDependency(artifact.moduleVersion.id, artifact.file))
+                VersionlessDependency dependency = new VersionlessDependency(artifact.moduleVersion.id)
+
+                if (!depCache.getTargetIdentifier(dependency)) {
+                    firstLevel.add(dependency)
                 }
             }
         }
+
+        // get all resolved artifacts including transitives
+        Set<ResolvedArtifact> artifacts = validConfigurations.collect {
+            it.resolvedConfiguration.resolvedArtifacts
+        }.flatten() as Set<ResolvedArtifact>
 
         Set<File> files = validConfigurations.collect {
             it.files
@@ -98,28 +103,28 @@ class Scope {
 
         Set<File> resolvedFiles = [] as Set
         artifacts.each { ResolvedArtifact artifact ->
-            String identifier = artifact.id.componentIdentifier.displayName
-            File dep = artifact.file
+            VersionlessDependency dependency = new VersionlessDependency(artifact.moduleVersion.id)
 
-            resolvedFiles.add(dep)
-
-            if (identifier.contains(" ")) {
-                Project targetProject = project.project(identifier.replaceFirst("project ", ""))
-                Target target = getTargetForOutput(targetProject, dep)
+            String targetIdentifier = depCache.getTargetIdentifier(dependency)
+            if (targetIdentifier) {
+                Project targetProject = project.project(targetIdentifier.replaceFirst("project ", ""))
+                Target target = getTargetForOutput(targetProject, artifact.file)
                 if (target) {
                     targetDeps.add(target)
                 }
             } else {
-                external.add(new ExternalDependency(artifact.moduleVersion.id, dep))
+                external.add(dependency)
             }
+
+            resolvedFiles.add(artifact.file)
         }
 
+        // add remaining local jar/aar files to external dependency
         files.findAll { File resolved ->
             !resolvedFiles.contains(resolved)
         }.each { File localDep ->
             external.add(ExternalDependency.fromLocal(localDep))
         }
-
     }
 
     @SuppressWarnings("GrReassignedInClosureLocalVar")

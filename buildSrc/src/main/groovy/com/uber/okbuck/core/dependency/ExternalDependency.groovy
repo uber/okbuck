@@ -27,7 +27,7 @@ class ExternalDependency extends VersionlessDependency {
 
     @Override
     String toString() {
-        return "${this.version} : ${this.depFile.toString()}"
+        return "${this.group}:${this.name}:${this.version} -> ${this.depFile.toString()}"
     }
 
     String getCacheName(boolean useFullDepName = false) {
