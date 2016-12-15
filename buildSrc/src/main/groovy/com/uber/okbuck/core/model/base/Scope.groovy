@@ -115,7 +115,7 @@ class Scope {
             Project targetProject = depCache.getProject(dependency)
             if (targetProject) {
                 Target target = getTargetForOutput(targetProject, artifact.file)
-                if (target) {
+                if (target && target.project != project) {
                     targetDeps.add(target)
                 }
             } else {
