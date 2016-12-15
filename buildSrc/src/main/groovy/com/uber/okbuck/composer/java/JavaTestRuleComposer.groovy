@@ -19,7 +19,7 @@ final class JavaTestRuleComposer extends JavaBuckRuleComposer {
 
         Set<String> aptDeps = [] as Set
         aptDeps.addAll(external(target.apt.externalDeps))
-        aptDeps.addAll(targets(target.apt.targetDeps))
+        aptDeps.addAll(targets(target.apt.getTargetAnnotationProcessorDeps()))
 
         Set<String> providedDeps = []
         providedDeps.addAll(external(target.apt.externalDeps))

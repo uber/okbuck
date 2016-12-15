@@ -25,11 +25,7 @@ abstract class JavaTarget extends JvmTarget {
      * Apt Scope
      */
     Scope getApt() {
-        Scope aptScope = new Scope(project, APT_CONFIGS)
-        aptScope.targetDeps.retainAll(aptScope.targetDeps.findAll { Target target ->
-            target.getProp(okbuck.annotationProcessors, null) != null
-        })
-        return aptScope
+        return new Scope(project, APT_CONFIGS)
     }
 
     /**

@@ -30,7 +30,7 @@ class DependencyCache {
     private final Map<VersionlessDependency, Set<String>> annotationProcessors = [:]
 
     private final Map<VersionlessDependency, ExternalDependency> externalDeps = [:]
-    private final Map<VersionlessDependency, TargetDependency> targetDeps = [:]
+    private final Map<VersionlessDependency, ProjectDependency> projectDeps = [:]
 
     DependencyCache(
             String name,
@@ -41,7 +41,8 @@ class DependencyCache {
             boolean cleanup = true,
             boolean useFullDepName = false,
             boolean fetchSources = false,
-            boolean extractLintJars = false) {
+            boolean extractLintJars = false,
+            Set<Project> depProjects = null) {
 
         this.rootProject = rootProject
         this.cacheDir = new File(rootProject.projectDir, cacheDirPath)
@@ -56,7 +57,7 @@ class DependencyCache {
         this.useFullDepName = useFullDepName
         this.fetchSources = fetchSources
         this.extractLintJars = extractLintJars
-        build(cleanup)
+        build(cleanup, depProjects)
     }
 
     String get(VersionlessDependency dependency) {
@@ -85,20 +86,21 @@ class DependencyCache {
         }
     }
 
-    private void build(boolean cleanup) {
+    private void build(boolean cleanup, Set<Project> depProjects) {
         Set<File> resolvedFiles = [] as Set
 
-        superConfiguration.resolvedConfiguration.resolvedArtifacts.each { ResolvedArtifact artifact ->
-            String projectIdentifier = artifact.id.componentIdentifier.displayName
+        if (depProjects) {
+            depProjects.each { Project project ->
+                ProjectDependency dependency = new ProjectDependency(project)
+                projectDeps.put(dependency, dependency)
+            }
+        }
 
-            if (projectIdentifier.contains(" ")) {
-                TargetDependency dependency = new TargetDependency(artifact.moduleVersion.id, projectIdentifier)
-                targetDeps.put(dependency, dependency)
-            } else {
-                ExternalDependency dependency = new ExternalDependency(artifact.moduleVersion.id, artifact.file)
+        superConfiguration.resolvedConfiguration.resolvedArtifacts.each { ResolvedArtifact artifact ->
+            ExternalDependency dependency = new ExternalDependency(artifact.moduleVersion.id, artifact.file)
+            if (!projectDeps.containsKey(dependency)) {
                 externalDeps.put(dependency, dependency)
             }
-
             resolvedFiles.add(artifact.file)
         }
 
@@ -162,10 +164,10 @@ class DependencyCache {
         }
     }
 
-    String getTargetIdentifier(VersionlessDependency dependency) {
-        TargetDependency targetDependency = targetDeps.get(dependency)
+    Project getProject(VersionlessDependency dependency) {
+        ProjectDependency targetDependency = projectDeps.get(dependency)
         if (targetDependency) {
-            return targetDependency.projectIdentifier
+            return targetDependency.project
         } else {
             return null
         }
