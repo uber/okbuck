@@ -13,6 +13,7 @@ import com.uber.okbuck.core.model.jvm.JvmTarget
 import com.uber.okbuck.core.util.FileUtil
 import com.uber.okbuck.core.util.ProjectUtil
 import groovy.transform.EqualsAndHashCode
+import org.apache.commons.io.FilenameUtils
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ResolvedArtifact
@@ -129,6 +130,11 @@ class Scope {
         files.findAll { File resolved ->
             !resolvedFiles.contains(resolved)
         }.each { File localDep ->
+            if (!FilenameUtils.directoryContains(project.rootProject.projectDir.absolutePath, localDep.absolutePath)) {
+                throw new IllegalStateException("Local dependencies should be under project root. Dependencies " +
+                        "outside the project can cause hard to reproduce builds. Please move dependency: ${localDep} " +
+                        "inside ${project.rootProject.projectDir}")
+            }
             external.add(ExternalDependency.fromLocal(localDep))
         }
     }
