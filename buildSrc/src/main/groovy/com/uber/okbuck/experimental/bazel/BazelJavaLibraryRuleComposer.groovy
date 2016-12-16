@@ -1,7 +1,7 @@
 package com.uber.okbuck.experimental.bazel
 
-import com.uber.okbuck.composer.JavaBuckRuleComposer
-import com.uber.okbuck.core.model.JavaLibTarget
+import com.uber.okbuck.composer.java.JavaBuckRuleComposer
+import com.uber.okbuck.core.model.java.JavaLibTarget
 
 final class BazelJavaLibraryRuleComposer extends JavaBuckRuleComposer
         implements BazelRuleComposer {

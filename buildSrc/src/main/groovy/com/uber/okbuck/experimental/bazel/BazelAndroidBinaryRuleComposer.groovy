@@ -1,7 +1,7 @@
 package com.uber.okbuck.experimental.bazel
 
-import com.uber.okbuck.composer.AndroidBuckRuleComposer
-import com.uber.okbuck.core.model.AndroidAppTarget
+import com.uber.okbuck.composer.android.AndroidBuckRuleComposer
+import com.uber.okbuck.core.model.android.AndroidAppTarget
 
 final class BazelAndroidBinaryRuleComposer extends AndroidBuckRuleComposer {
     static BazelAndroidBinaryRule compose(AndroidAppTarget target) {

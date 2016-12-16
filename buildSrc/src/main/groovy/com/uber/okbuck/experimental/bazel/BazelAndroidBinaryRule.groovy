@@ -1,9 +1,10 @@
 package com.uber.okbuck.experimental.bazel
 
-import com.uber.okbuck.rule.BuckRule
+import com.uber.okbuck.core.model.base.RuleType
+import com.uber.okbuck.rule.base.BuckRule
 
 final class BazelAndroidBinaryRule extends BuckRule {
-    private static final String RULE_TYPE = "android_binary"
+    private static final RuleType RULE_TYPE = RuleType.ANDROID_BINARY
 
     private final String packageName
     private final boolean multidexEnabled

@@ -13,16 +13,18 @@ import org.gradle.api.artifacts.ResolvedDependency
  * dependency structure of the imports instead of just dumping them into a flat list.
  */
 class DependencyCacheBuildFileWriter {
+    private final Iterable<Project> projects
     private final DependencyCache cache
 
-    DependencyCacheBuildFileWriter(DependencyCache cache) {
+    DependencyCacheBuildFileWriter(Iterable<Project> projects, DependencyCache cache) {
+        this.projects = projects
         this.cache = cache
     }
 
     void write(File buildFile) {
         buildFile.append """package(default_visibility = ["//visibility:public"])\n\n"""
         Set<String> visitedDependencies = new HashSet<>()
-        cache.rootProject.okbuck.buckProjects.each { Project project ->
+        projects.each { Project project ->
             project.configurations.getAsMap().each { String name, Configuration config ->
                 if (true || name.toLowerCase().endsWith("compile")) {
                     config.resolvedConfiguration.getFirstLevelModuleDependencies().each {
@@ -93,12 +95,12 @@ class DependencyCacheBuildFileWriter {
         try {
             cache.get(toExternalDependency(artifact))
             return true
-        } catch (NullPointerException ignored) {
+        } catch (IllegalStateException ignored) {
             return false
         }
     }
 
     private static ExternalDependency toExternalDependency(ResolvedArtifact artifact) {
-        return new ExternalDependency(artifact.id.componentIdentifier.displayName, artifact.file)
+        return new ExternalDependency(artifact.moduleVersion.id, artifact.file)
     }
 }

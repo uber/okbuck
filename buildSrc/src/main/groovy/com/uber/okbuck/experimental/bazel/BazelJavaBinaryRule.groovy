@@ -1,9 +1,10 @@
 package com.uber.okbuck.experimental.bazel
 
-import com.uber.okbuck.rule.BuckRule
+import com.uber.okbuck.core.model.base.RuleType
+import com.uber.okbuck.rule.base.BuckRule
 
 final class BazelJavaBinaryRule extends BuckRule {
-    private static final String RULE_TYPE = "java_binary"
+    private static final RuleType RULE_TYPE = RuleType.JAVA_BINARY
 
     private final String mainClass
     private final String javaLibrary

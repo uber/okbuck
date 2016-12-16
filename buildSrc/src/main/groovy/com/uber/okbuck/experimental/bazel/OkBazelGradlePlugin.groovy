@@ -2,18 +2,19 @@ package com.uber.okbuck.experimental.bazel
 
 import com.uber.okbuck.OkBuckGradlePlugin
 import com.uber.okbuck.core.dependency.DependencyCache
+import com.uber.okbuck.core.model.base.TargetCache
 import com.uber.okbuck.extension.OkBuckExtension
 import com.uber.okbuck.extension.WrapperExtension
 import com.uber.okbuck.wrapper.BuckWrapperTask
-import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.artifacts.Configuration
 
 /**
  * The {@code com.uber.okbazel} plugin. It generates <a href="https://bazel.build">Bazel</a> BUILD
  * files from an existing Android or Java Gradle project.
  */
-class OkBazelGradlePlugin implements Plugin<Project> {
+class OkBazelGradlePlugin extends OkBuckGradlePlugin {
     // Every Bazel project must contain a top-level file called WORKSPACE. This file can be empty,
     // but to build Android projects it must contain an android_sdk_repository rule that points to
     // the location of an Android SDK. Projects with native code will also require an
@@ -41,23 +42,26 @@ class OkBazelGradlePlugin implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
-        def okbazel = project.extensions.create("okbuck", OkBuckExtension, project)
-        def wrapper = okbazel.extensions.create(WRAPPER, WrapperExtension)
+        def okBuckExt = project.extensions.create("okbuck", OkBuckExtension, project)
+        def wrapper = project.extensions.create(WRAPPER, WrapperExtension)
+        def externalOkbuck = project.configurations.maybeCreate(CONFIGURATION_EXTERNAL)
 
         Task okBazel = project.task("okbazel")
         okBazel.setGroup(GROUP)
         okBazel.setDescription("Generate Bazel BUILD files")
         okBazel.outputs.upToDateWhen { false }
 
+        targetCache = new TargetCache()
+
         project.afterEvaluate {
-            def bazelWrapper = project.tasks.create(BAZEL_WRAPPER, BuckWrapperTask, {
-                repo = wrapper.repo
-                remove = ["**/BUILD"]
-                keep = []
-                watch = wrapper.watch
-                sourceRoots = wrapper.sourceRoots
-                wrapperFile = project.file('bazelw')
-                wrapperTemplate = "wrapper/BAZELW_TEMPLATE"
+            def bazelWrapper = project.tasks.create(BAZEL_WRAPPER, BuckWrapperTask, { t ->
+                t.repo = wrapper.repo
+                t.remove = ["**/BUILD"]
+                t.keep = []
+                t.watch = wrapper.watch
+                t.sourceRoots = wrapper.sourceRoots
+                t.wrapperFile = project.file('bazelw')
+                t.wrapperTemplate = "wrapper/BAZELW_TEMPLATE"
             })
             bazelWrapper.setGroup(GROUP)
             bazelWrapper.setDescription("Create bazel wrapper")
@@ -67,15 +71,28 @@ class OkBazelGradlePlugin implements Plugin<Project> {
                 if (!workspaceFile.exists()) {
                     workspaceFile.write WORKSPACE
                 }
-                OkBuckGradlePlugin.depCache =
-                        new DependencyCache(project, CACHE_PATH, true, null, false, true)
+                addSubProjectRepos(project as Project, okBuckExt.buckProjects as Set<Project>)
+                def projectConfigurations = configurations(okBuckExt.buckProjects)
+                projectConfigurations.addAll([externalOkbuck])
 
-                BuildFileGenerator.generate(project).each { subProject, buildFile ->
+                depCache = new DependencyCache(
+                        /* name = */ "external",
+                        /* rootProject = */ project,
+                        /* cacheDirPath = */ CACHE_PATH,
+                        /* configurations = */ projectConfigurations,
+                        /* buckFile = */ null,
+                        /* cleanup = */ true,
+                        /* useFullDepName = */ true,
+                        /* fetchSources = */ false,
+                        /* extractLintJars = */ false,
+                        /* depProjects = */ okBuckExt.buckProjects)
+
+                BuildFileGenerator.generate(okBuckExt).each { subProject, buildFile ->
                     PrintStream printer = new PrintStream(subProject.file("BUILD")) {
                         @Override
-                        public void println(String s) {
+                        void println(String s) {
                             // BUILD files are typically space-delimited. Since
-                            // com.uber.okbuck.rule.BuckRule uses tabs and all the Bazel rules
+                            // com.uber.okbuck.rule.base.BuckRule uses tabs and all the Bazel rules
                             // inherit from that rule, all of the Bazel rules produce tabs. Here we
                             // convert them to spaces.
                             super.println(s.replaceAll("\t", "    "))
@@ -86,11 +103,11 @@ class OkBazelGradlePlugin implements Plugin<Project> {
                     printer.close()
                 }
 
-                File cacheBuildFile = new File(OkBuckGradlePlugin.depCache.cacheDir.parent, "BUILD")
+                File cacheBuildFile = new File(depCache.cacheDir.parent, "BUILD")
                 if (cacheBuildFile.exists()) {
                     cacheBuildFile.delete()
                 }
-                new DependencyCacheBuildFileWriter(OkBuckGradlePlugin.depCache)
+                new DependencyCacheBuildFileWriter(okBuckExt.buckProjects, depCache)
                         .write(cacheBuildFile)
             }
         }

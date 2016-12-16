@@ -31,7 +31,11 @@ public class BuckWrapperTask extends DefaultTask {
     @Input
     public Set<String> sourceRoots;
 
-    private final File wrapper = getProject().file("buckw");
+    @Input
+    public File wrapperFile;
+
+    @Input
+    public String wrapperTemplate;
 
     @TaskAction
     void installWrapper() {
@@ -44,8 +48,8 @@ public class BuckWrapperTask extends DefaultTask {
                 .put("template-source-roots", toWatchmanMatchers(sourceRoots))
                 .build();
 
-        FileUtil.copyResourceToProject("wrapper/BUCKW_TEMPLATE", wrapper, templates);
-        wrapper.setExecutable(true);
+        FileUtil.copyResourceToProject(wrapperTemplate, wrapperFile, templates);
+        wrapperFile.setExecutable(true);
     }
 
     private static String toWatchmanMatchers(Set<String> wildcardPatterns) {

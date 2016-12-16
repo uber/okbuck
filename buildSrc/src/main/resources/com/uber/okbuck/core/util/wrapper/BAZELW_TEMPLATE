@@ -148,8 +148,12 @@ setupBuckBinary ( ) {
         # Get Bazel from $PATH
         BAZEL_BINARY=$(which bazel)
       else
-        # Install Bazel
-        wget -qO bazel_installer.sh https://github.com/bazelbuild/bazel/releases/download/0.4.2/bazel-0.4.2-installer-linux-x86_64.sh
+        # Install Bazel, either 64 bit linux or 64 bit darwin.
+        installer_url=$( \
+          curl -s https://api.github.com/repos/bazelbuild/bazel/releases/latest \
+            | awk -v os=$(uname -s) '$0 ~ tolower(os) && /browser_download_url/ && !/jdk7/ && /sh"/' \
+            | cut -d '"' -f 4)
+        curl $installer_url --output bazel_installer.sh
         bash bazel_installer.sh --user
         BAZEL_BINARY=$HOME/bin/bazel
       fi

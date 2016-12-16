@@ -102,6 +102,8 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                 keep = wrapper.keep
                 watch = wrapper.watch
                 sourceRoots = wrapper.sourceRoots
+                wrapperFile = project.file("buckw")
+                wrapperTemplate = "wrapper/BUCKW_TEMPLATE"
             })
             buckWrapper.setGroup(GROUP)
             buckWrapper.setDescription("Create buck wrapper")
@@ -182,7 +184,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         IOUtils.closeQuietly(configPrinter)
     }
 
-    private static Set<Configuration> configurations(Set<Project> projects) {
+    protected static Set<Configuration> configurations(Set<Project> projects) {
         Set<Configuration> configurations = new HashSet() as Set<Configuration>
         projects.each { Project p ->
             ProjectUtil.getTargets(p).values().each {
@@ -209,7 +211,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
      * This is required to let the root project super configuration resolve
      * all recursively copied configurations.
      */
-    private static void addSubProjectRepos(Project rootProject, Set<Project> subProjects) {
+    protected static void addSubProjectRepos(Project rootProject, Set<Project> subProjects) {
         Map<Object, ArtifactRepository> reduced = [:]
 
         subProjects.each { Project subProject ->

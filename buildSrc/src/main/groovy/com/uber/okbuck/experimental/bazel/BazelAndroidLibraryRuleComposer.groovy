@@ -1,7 +1,7 @@
 package com.uber.okbuck.experimental.bazel
 
-import com.uber.okbuck.composer.AndroidBuckRuleComposer
-import com.uber.okbuck.core.model.AndroidLibTarget
+import com.uber.okbuck.composer.android.AndroidBuckRuleComposer
+import com.uber.okbuck.core.model.android.AndroidLibTarget
 
 final class BazelAndroidLibraryRuleComposer extends AndroidBuckRuleComposer
         implements BazelRuleComposer {

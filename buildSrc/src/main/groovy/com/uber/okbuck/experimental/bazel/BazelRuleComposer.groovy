@@ -2,10 +2,10 @@ package com.uber.okbuck.experimental.bazel
 
 /**
  * This class contains Bazel-specific overrides of
- * {@link com.uber.okbuck.composer.BuckRuleComposer}. It is a mixin trait as opposed to a subclass
- * because there are existing subclasses of {@code BuckRuleComposer} that are extended by their
- * Bazel counterparts, e.g.
- * {@link com.uber.okbuck.composer.JavaBuckRuleComposer} and
+ * {@link com.uber.okbuck.composer.base.BuckRuleComposer}. It is a mixin trait as opposed to a
+ * subclass because there are existing subclasses of {@code BuckRuleComposer} that are extended by
+ * their Bazel counterparts, e.g.
+ * {@link com.uber.okbuck.composer.java.JavaBuckRuleComposer} and
  * {@link com.uber.okbuck.experimental.bazel.BazelJavaLibraryRuleComposer}.
  *
  * Any Bazel rule composer class that needs these overrides should implement this trait.

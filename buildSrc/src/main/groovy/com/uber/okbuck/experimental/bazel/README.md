@@ -67,7 +67,7 @@ If you want to only build one target instead of all of the targets in your proje
 you will need to look in the generated `BUILD` files for the name of the target and
 then follow use `bazel build //path/to:name_of_target`.
 
-In a future stable Bazel these flags will become unnecessary. 
+In Bazel release 0.5 these flags will become unnecessary. 
 
 ## Testing
 

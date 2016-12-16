@@ -7,7 +7,6 @@ import com.uber.okbuck.core.dependency.DependencyCache;
 import com.uber.okbuck.core.model.base.ProjectType;
 import com.uber.okbuck.core.model.base.Target;
 import com.uber.okbuck.core.model.base.TargetCache;
-
 import org.gradle.api.Project;
 import org.gradle.api.plugins.ApplicationPlugin;
 import org.gradle.api.plugins.GroovyPlugin;
@@ -51,7 +50,11 @@ public final class ProjectUtil {
     }
 
     static OkBuckGradlePlugin getPlugin(Project project) {
-        return project.getRootProject().getPlugins().getPlugin(OkBuckGradlePlugin.class);
+        return project.getRootProject().getPlugins().stream()
+            .filter(p -> p instanceof OkBuckGradlePlugin)
+            .map(OkBuckGradlePlugin.class::cast)
+            .findFirst()
+            .get();
     }
 
     private static TargetCache getTargetCache(Project project) {

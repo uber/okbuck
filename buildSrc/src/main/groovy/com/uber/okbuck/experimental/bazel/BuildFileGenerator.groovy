@@ -1,40 +1,32 @@
 package com.uber.okbuck.experimental.bazel
 
 import com.uber.okbuck.config.BUCKFile
-import com.uber.okbuck.core.model.AndroidAppTarget
-import com.uber.okbuck.core.model.AndroidLibTarget
-import com.uber.okbuck.core.model.JavaAppTarget
-import com.uber.okbuck.core.model.JavaLibTarget
-import com.uber.okbuck.core.model.ProjectType
-import com.uber.okbuck.core.model.Target
+import com.uber.okbuck.core.model.android.AndroidAppTarget
+import com.uber.okbuck.core.model.android.AndroidLibTarget
+import com.uber.okbuck.core.model.base.ProjectType
+import com.uber.okbuck.core.model.java.JavaAppTarget
+import com.uber.okbuck.core.model.java.JavaLibTarget
 import com.uber.okbuck.core.util.ProjectUtil
-import com.uber.okbuck.rule.BuckRule
+import com.uber.okbuck.extension.OkBuckExtension
+import com.uber.okbuck.rule.base.BuckRule
 import org.gradle.api.Project
 
 import static com.uber.okbuck.core.util.ProjectUtil.getTargets
 
 final class BuildFileGenerator {
-    static Map<Project, BUCKFile> generate(Project rootProject) {
-        rootProject.okbuck.buckProjects.each { Project project ->
-            getTargets(project).each { String name, Target target ->
-                target.resolve()
-            }
-        }
-
-        def projectRules = rootProject.okbuck.buckProjects.collectEntries { Project project ->
+    static Map<Project, BUCKFile> generate(OkBuckExtension okBuckExt) {
+        okBuckExt.buckProjects.<Project, List<BuckRule>, Project> collectEntries { project ->
             [project, createRules(project)]
-        }
-
-        return projectRules.findAll { Project project, List<BuckRule> rules ->
+        }.findAll { project, rules ->
             !rules.empty
-        }.collectEntries { Project project, List<BuckRule> rules ->
+        }.collectEntries { project, rules ->
             [project, new BUCKFile(rules)]
         } as Map<Project, BUCKFile>
     }
 
     // Library targets create one *_library rule. App targets create one *_library rule containing
     // the sources and resources and one *_binary target that depends on the library target.
-    private static final def targetHandlers = [
+    private static final targetHandlers = [
             (ProjectType.JAVA_LIB)   : { target, rules ->
                 rules << BazelJavaLibraryRuleComposer.compose(target as JavaLibTarget) },
             (ProjectType.JAVA_APP)   : { target, rules ->
@@ -46,7 +38,7 @@ final class BuildFileGenerator {
                 rules << BazelAndroidLibraryRuleComposer.compose(target as AndroidLibTarget)
                 rules << BazelAndroidBinaryRuleComposer.compose(target as AndroidAppTarget) }]
 
-    private static def createRules(Project project) {
+    private static List<BuckRule> createRules(Project project) {
         getTargets(project).values().inject([]) { rules, target ->
             targetHandlers[ProjectUtil.getType(project)](target, rules)
         }
