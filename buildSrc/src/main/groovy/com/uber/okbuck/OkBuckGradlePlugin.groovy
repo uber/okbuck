@@ -24,6 +24,10 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.repositories.ArtifactRepository
+import org.gradle.api.artifacts.repositories.FlatDirectoryArtifactRepository
+import org.gradle.api.artifacts.repositories.IvyArtifactRepository
+import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.logging.Logger
 
 class OkBuckGradlePlugin implements Plugin<Project> {
@@ -210,8 +214,22 @@ class OkBuckGradlePlugin implements Plugin<Project> {
      * all recursively copied configurations.
      */
     private static void addSubProjectRepos(Project rootProject, Set<Project> subProjects) {
-        subProjects.each {
-            rootProject.repositories.addAll(it.repositories.asMap.values())
+        Map<Object, ArtifactRepository> reduced = [:]
+
+        subProjects.each { Project subProject ->
+            subProject.repositories.asMap.values().each {
+                if (it instanceof MavenArtifactRepository) {
+                    reduced.put(it.url, it)
+                } else if (it instanceof IvyArtifactRepository) {
+                    reduced.put(it.url, it)
+                } else if (it instanceof FlatDirectoryArtifactRepository) {
+                    reduced.put(it.dirs, it)
+                } else {
+                    rootProject.repositories.add(it)
+                }
+            }
         }
+
+        rootProject.repositories.addAll(reduced.values())
     }
 }

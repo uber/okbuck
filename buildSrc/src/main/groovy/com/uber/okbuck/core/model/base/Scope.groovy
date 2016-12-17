@@ -115,8 +115,17 @@ class Scope {
 
             Project targetProject = depCache.getProject(dependency)
             if (targetProject) {
-                Target target = getTargetForOutput(targetProject, artifact.file)
-                if (target && target.project != project) {
+                File artifactFile
+                if (artifact.id.componentIdentifier.displayName.contains(" ")) {
+                    artifactFile = artifact.file
+                } else {
+                    // Get the default configuration artifact file if an external
+                    // artifact is getting resolved to a project dependency.
+                    artifactFile = targetProject.configurations.getByName("default").allArtifacts.files.files[0]
+                }
+
+                Target target = getTargetForOutput(targetProject, artifactFile)
+                if (target.project != project) {
                     targetDeps.add(target)
                 }
             } else {
@@ -146,12 +155,15 @@ class Scope {
         switch (type) {
             case ProjectType.ANDROID_LIB:
                 def baseVariants = targetProject.android.libraryVariants
-                baseVariants.all { BaseVariant baseVariant ->
+
+                for (BaseVariant baseVariant : baseVariants) {
                     def variant = baseVariant.outputs.find { BaseVariantOutput out ->
                         (out.outputFile == output)
                     }
+
                     if (variant != null) {
                         result = new AndroidLibTarget(targetProject, variant.name)
+                        break
                     }
                 }
                 break
