@@ -128,9 +128,13 @@ runOkBuck ( ) {
     echo
 
     if [[ ! -z "$INSTALLED_WATCHMAN" ]]; then
-        getToClean | jsonq '"\n".join(obj["files"])' | xargs rm
-        info "DELETED OLD BUCK FILES"
-        EXTRA_OKBUCK_ARGS="-xokbuckClean $EXTRA_OKBUCK_ARGS"
+        getToClean | jsonq '"\n".join(obj["files"])' | xargs aasdasd
+        if [[ $? -eq 0 ]]; then
+            info "DELETED OLD BUCK FILES"
+            EXTRA_OKBUCK_ARGS="-xokbuckClean $EXTRA_OKBUCK_ARGS"
+        else
+            warn "WATCHMAN FAILED. USING OKBUCKCLEAN."
+        fi
     fi
 
     rm -f $OKBUCK_SUCCESS
