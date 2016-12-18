@@ -62,6 +62,10 @@ ensureWatch ( ) {
     watchman watch-project $WORKING_DIR >/dev/null 2>&1
 }
 
+removeWatch ( ) {
+    watchman watch-del $WORKING_DIR >/dev/null 2>&1
+}
+
 getToClean ( ) {
     ensureWatch
 
@@ -121,13 +125,19 @@ runOkBuck ( ) {
     echo
 
     if [[ ! -z "$INSTALLED_WATCHMAN" ]]; then
-        getToClean | jsonq '"\n".join(obj["files"])' | xargs rm
-        info "DELETED OLD BUCK FILES"
-        EXTRA_OKBUCK_ARGS="-xokbuckClean $EXTRA_OKBUCK_ARGS"
+        TO_CLEAN=$(getToClean | jsonq '"\n".join(obj["files"])')
+        if [[ $? -eq 0 ]]; then
+            echo $TO_CLEAN | xargs rm
+            info "DELETED OLD BUCK FILES"
+            EXTRA_OKBUCK_ARGS="-xokbuckClean $EXTRA_OKBUCK_ARGS"
+        else
+            warn "WATCHMAN FAILED. USING OKBUCKCLEAN."
+            removeWatch
+        fi
     fi
 
     rm -f $OKBUCK_SUCCESS
-    ( $WORKING_DIR/gradlew -p $WORKING_DIR okbuck -Dokbuck.wrapper=true $EXTRA_OKBUCK_ARGS --stacktrace &&
+    ( $WORKING_DIR/gradlew -p $WORKING_DIR okbuck -Dokbuck.wrapper=true $EXTRA_OKBUCK_ARGS &&
     updateOkBuckSuccess && success "PROCEEDING WITH BUCK" ) || die "OKBUCK FAILED"
 }
 
