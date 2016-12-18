@@ -4,7 +4,7 @@
 ##
 ##  Buck wrapper script to invoke okbuck when needed, before running buck
 ##
-##  Created by OkBuck Gradle Plugin on : Wed Dec 07 23:25:26 PST 2016
+##  Created by OkBuck Gradle Plugin on : Sat Dec 17 19:25:56 PST 2016
 ##
 #########################################################################
 
@@ -60,6 +60,10 @@ MAX_DISPLAY_CHANGES=10
 
 ensureWatch ( ) {
     watchman watch-project $WORKING_DIR >/dev/null 2>&1
+}
+
+removeWatch ( ) {
+    watchman watch-del $WORKING_DIR >/dev/null 2>&1
 }
 
 getToClean ( ) {
@@ -128,17 +132,19 @@ runOkBuck ( ) {
     echo
 
     if [[ ! -z "$INSTALLED_WATCHMAN" ]]; then
-        getToClean | jsonq '"\n".join(obj["files"])' | xargs aasdasd
+        TO_CLEAN=$(getToClean | jsonq '"\n".join(obj["files"])')
         if [[ $? -eq 0 ]]; then
+            echo $TO_CLEAN | xargs rm
             info "DELETED OLD BUCK FILES"
             EXTRA_OKBUCK_ARGS="-xokbuckClean $EXTRA_OKBUCK_ARGS"
         else
             warn "WATCHMAN FAILED. USING OKBUCKCLEAN."
+            removeWatch
         fi
     fi
 
     rm -f $OKBUCK_SUCCESS
-    ( $WORKING_DIR/gradlew -p $WORKING_DIR okbuck -Dokbuck.wrapper=true $EXTRA_OKBUCK_ARGS -Pandroid.enableImprovedDependenciesResolution=true --stacktrace &&
+    ( $WORKING_DIR/gradlew -p $WORKING_DIR okbuck -Dokbuck.wrapper=true $EXTRA_OKBUCK_ARGS -Pandroid.enableImprovedDependenciesResolution=true &&
     updateOkBuckSuccess && success "PROCEEDING WITH BUCK" ) || die "OKBUCK FAILED"
 }
 
