@@ -37,38 +37,4 @@ final class ProjectUtil {
             return ProjectType.UNKNOWN
         }
     }
-
-    static Map<String, Target> getTargets(Project project) {
-        ProjectType type = getType(project)
-        switch (type) {
-            case ProjectType.ANDROID_APP:
-                project.android.applicationVariants.collectEntries { BaseVariant variant ->
-                    [variant.name, new AndroidAppTarget(project, variant.name)]
-                }
-                break
-            case ProjectType.ANDROID_LIB:
-                project.android.libraryVariants.collectEntries { BaseVariant variant ->
-                    [variant.name, new AndroidLibTarget(project, variant.name)]
-                }
-                break
-            case ProjectType.GROOVY_LIB:
-                def targets = new HashMap<String, Target>()
-                targets.put(JvmTarget.MAIN, new GroovyLibTarget(project, JvmTarget.MAIN))
-                return targets
-                break
-            case ProjectType.JAVA_APP:
-                def targets = new HashMap<String, Target>()
-                targets.put(JvmTarget.MAIN, new JavaAppTarget(project, JvmTarget.MAIN))
-                return targets
-                break
-            case ProjectType.JAVA_LIB:
-                def targets = new HashMap<String, Target>()
-                targets.put(JvmTarget.MAIN, new JavaLibTarget(project, JvmTarget.MAIN))
-                return targets
-                break
-            default:
-                [:]
-                break
-        }
-    }
 }

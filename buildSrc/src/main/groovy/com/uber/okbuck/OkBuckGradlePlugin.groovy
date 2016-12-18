@@ -1,10 +1,10 @@
 package com.uber.okbuck
 
 import com.uber.okbuck.core.dependency.DependencyCache
+import com.uber.okbuck.core.model.base.TargetCache
 import com.uber.okbuck.core.model.java.JavaLibTarget
 import com.uber.okbuck.core.task.OkBuckCleanTask
 import com.uber.okbuck.core.util.LintUtil
-import com.uber.okbuck.core.util.ProjectUtil
 import com.uber.okbuck.core.util.RetrolambdaUtil
 import com.uber.okbuck.core.util.RobolectricUtil
 import com.uber.okbuck.core.util.TransformUtil
@@ -189,7 +189,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     private static Set<Configuration> configurations(Set<Project> projects) {
         Set<Configuration> configurations = new HashSet()
         projects.each { Project p ->
-            ProjectUtil.getTargets(p).values().each {
+            TargetCache.getTargets(p).values().each {
                 if (it instanceof JavaLibTarget) {
                     configurations.addAll(it.depConfigurations())
                 }
