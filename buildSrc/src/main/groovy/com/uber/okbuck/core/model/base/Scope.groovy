@@ -1,17 +1,10 @@
 package com.uber.okbuck.core.model.base
 
-import com.android.build.gradle.api.BaseVariant
-import com.android.build.gradle.api.BaseVariantOutput
 import com.uber.okbuck.OkBuckGradlePlugin
 import com.uber.okbuck.core.dependency.DependencyCache
 import com.uber.okbuck.core.dependency.ExternalDependency
 import com.uber.okbuck.core.dependency.VersionlessDependency
-import com.uber.okbuck.core.model.android.AndroidLibTarget
-import com.uber.okbuck.core.model.groovy.GroovyLibTarget
-import com.uber.okbuck.core.model.java.JavaLibTarget
-import com.uber.okbuck.core.model.jvm.JvmTarget
 import com.uber.okbuck.core.util.FileUtil
-import com.uber.okbuck.core.util.ProjectUtil
 import groovy.transform.EqualsAndHashCode
 import org.apache.commons.io.FilenameUtils
 import org.gradle.api.Project
@@ -124,7 +117,7 @@ class Scope {
                     artifactFile = targetProject.configurations.getByName("default").allArtifacts.files.files[0]
                 }
 
-                Target target = getTargetForOutput(targetProject, artifactFile)
+                Target target = TargetCache.getTargetForOutput(targetProject, artifactFile)
                 if (target.project != project) {
                     targetDeps.add(target)
                 }
@@ -148,35 +141,4 @@ class Scope {
         }
     }
 
-    @SuppressWarnings("GrReassignedInClosureLocalVar")
-    static Target getTargetForOutput(Project targetProject, File output) {
-        Target result = null
-        ProjectType type = ProjectUtil.getType(targetProject)
-        switch (type) {
-            case ProjectType.ANDROID_LIB:
-                def baseVariants = targetProject.android.libraryVariants
-
-                for (BaseVariant baseVariant : baseVariants) {
-                    def variant = baseVariant.outputs.find { BaseVariantOutput out ->
-                        (out.outputFile == output)
-                    }
-
-                    if (variant != null) {
-                        result = new AndroidLibTarget(targetProject, variant.name)
-                        break
-                    }
-                }
-                break
-            case ProjectType.GROOVY_LIB:
-                result = new GroovyLibTarget(targetProject, JvmTarget.MAIN)
-                break
-            case ProjectType.JAVA_APP:
-            case ProjectType.JAVA_LIB:
-                result = new JavaLibTarget(targetProject, JvmTarget.MAIN)
-                break
-            default:
-                result = null
-        }
-        return result
-    }
 }
