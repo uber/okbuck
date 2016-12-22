@@ -1,10 +1,13 @@
 package com.uber.okbuck
 
 import com.uber.okbuck.core.dependency.DependencyCache
+import com.uber.okbuck.core.model.base.ProjectType
 import com.uber.okbuck.core.model.base.TargetCache
 import com.uber.okbuck.core.model.java.JavaLibTarget
 import com.uber.okbuck.core.task.OkBuckCleanTask
+import com.uber.okbuck.core.util.GroovyUtil
 import com.uber.okbuck.core.util.LintUtil
+import com.uber.okbuck.core.util.ProjectUtil
 import com.uber.okbuck.core.util.RetrolambdaUtil
 import com.uber.okbuck.core.util.RobolectricUtil
 import com.uber.okbuck.core.util.TransformUtil
@@ -90,7 +93,12 @@ class OkBuckGradlePlugin implements Plugin<Project> {
             buildDepCache.mustRunAfter(okBuckClean)
 
             okBuck.doLast {
-                generate(project, okbuckExt)
+                boolean hasGroovyLib = okbuckExt.buckProjects.find {
+                    ProjectUtil.getType(it) == ProjectType.GROOVY_LIB
+                } != null
+                generate(project,
+                        okbuckExt,
+                        hasGroovyLib ? GroovyUtil.GROOVY_HOME_LOCATION : null)
                 if (!experimental.parallel) {
                     okbuckExt.buckProjects.each { Project subProject ->
                         BuckFileGenerator.generate(subProject)
@@ -169,10 +177,22 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                     RetrolambdaUtil.fetchRetrolambdaDeps(project, retrolambda)
                 }
             }
+
+            Task setupGroovyHome = project.task('setupGroovyHome')
+            okbuckSetupTask.dependsOn(setupGroovyHome)
+            setupGroovyHome.mustRunAfter(okBuckClean)
+            setupGroovyHome.doLast {
+                boolean hasGroovyLib = okbuckExt.buckProjects.find {
+                    ProjectUtil.getType(it) == ProjectType.GROOVY_LIB
+                } != null
+                if (hasGroovyLib) {
+                    GroovyUtil.setupGroovyHome(project)
+                }
+            }
         }
     }
 
-    private static void generate(Project project, OkBuckExtension okbuckExt) {
+    private static void generate(Project project, OkBuckExtension okbuckExt, String groovyHome) {
         // generate empty .buckconfig if it does not exist
         File dotBuckConfig = project.file(".buckconfig")
         if (!dotBuckConfig.exists()) {
@@ -182,7 +202,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         // generate .buckconfig.local
         File dotBuckConfigLocal = project.file(".buckconfig.local")
         PrintStream configPrinter = new PrintStream(dotBuckConfigLocal)
-        DotBuckConfigLocalGenerator.generate(okbuckExt).print(configPrinter)
+        DotBuckConfigLocalGenerator.generate(okbuckExt, groovyHome).print(configPrinter)
         IOUtils.closeQuietly(configPrinter)
     }
 
