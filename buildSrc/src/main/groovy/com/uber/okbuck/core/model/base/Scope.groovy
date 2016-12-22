@@ -16,6 +16,9 @@ import org.gradle.api.artifacts.UnknownConfigurationException
 @EqualsAndHashCode
 class Scope {
 
+    // These are used by conventions such as gradleApi() and localGroovy() and are whitelisted
+    private static final Set<String> WHITELIST_LOCAL_PATTERNS = ['generated-gradle-jars/gradle-api-', 'wrapper/dists']
+
     final String resourcesDir
     final Set<String> sources
     final Set<Target> targetDeps = [] as Set
@@ -132,7 +135,8 @@ class Scope {
         files.findAll { File resolved ->
             !resolvedFiles.contains(resolved)
         }.each { File localDep ->
-            if (!FilenameUtils.directoryContains(project.rootProject.projectDir.absolutePath, localDep.absolutePath)) {
+            if (!FilenameUtils.directoryContains(project.rootProject.projectDir.absolutePath, localDep.absolutePath)
+                    && WHITELIST_LOCAL_PATTERNS.find { localDep.absolutePath.contains(it) } == null) {
                 throw new IllegalStateException("Local dependencies should be under project root. Dependencies " +
                         "outside the project can cause hard to reproduce builds. Please move dependency: ${localDep} " +
                         "inside ${project.rootProject.projectDir}")
@@ -140,5 +144,4 @@ class Scope {
             external.add(ExternalDependency.fromLocal(localDep))
         }
     }
-
 }
