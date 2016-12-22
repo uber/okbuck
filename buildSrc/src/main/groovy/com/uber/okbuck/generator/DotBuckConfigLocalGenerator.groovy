@@ -17,7 +17,7 @@ final class DotBuckConfigLocalGenerator {
     /**
      * generate {@link DotBuckConfigLocalFile}
      */
-    static DotBuckConfigLocalFile generate(OkBuckExtension okbuck) {
+    static DotBuckConfigLocalFile generate(OkBuckExtension okbuck, String groovyHome) {
         Map<String, String> aliases = [:]
         okbuck.buckProjects.findAll { Project project ->
             ProjectUtil.getType(project) == ProjectType.ANDROID_APP
@@ -28,6 +28,10 @@ final class DotBuckConfigLocalGenerator {
             }
         }
 
-        return new DotBuckConfigLocalFile(aliases, okbuck.buildToolVersion, okbuck.target, [".git", "**/.svn"])
+        return new DotBuckConfigLocalFile(aliases,
+                okbuck.buildToolVersion,
+                okbuck.target,
+                [".git", "**/.svn"],
+                groovyHome)
     }
 }

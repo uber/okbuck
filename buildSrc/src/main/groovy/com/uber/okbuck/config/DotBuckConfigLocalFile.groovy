@@ -2,33 +2,45 @@ package com.uber.okbuck.config
 
 final class DotBuckConfigLocalFile extends BuckConfigFile {
 
-    private final Map<String, String> mAliases
-    private final String mBuildToolVersion
-    private final String mTarget
-    private final List<String> mIgnore
+    private final Map<String, String> aliases
+    private final String buildToolVersion
+    private final String target
+    private final List<String> ignore
+    private final String groovyHome
 
-    DotBuckConfigLocalFile(Map<String, String> aliases, String buildToolVersion, String target, List<String> ignore) {
-        mAliases = aliases
-        mBuildToolVersion = buildToolVersion
-        mTarget = target
-        mIgnore = ignore
+    DotBuckConfigLocalFile(Map<String, String> aliases,
+                           String buildToolVersion,
+                           String target,
+                           List<String> ignore,
+                           String groovyHome) {
+        this.aliases = aliases
+        this.buildToolVersion = buildToolVersion
+        this.target = target
+        this.ignore = ignore
+        this.groovyHome = groovyHome
     }
 
     @Override
     final void print(PrintStream printer) {
         printer.println("[alias]")
-        mAliases.each { alias, target ->
+        aliases.each { alias, target ->
             printer.println("\t${alias} = ${target}")
         }
         printer.println()
 
         printer.println("[android]")
-        printer.println("\tbuild_tools_version = ${mBuildToolVersion}")
-        printer.println("\ttarget = ${mTarget}")
+        printer.println("\tbuild_tools_version = ${buildToolVersion}")
+        printer.println("\ttarget = ${target}")
         printer.println()
 
         printer.println("[project]")
-        printer.print("\tignore = ${mIgnore.join(', ')}")
+        printer.print("\tignore = ${ignore.join(', ')}")
         printer.println()
+
+        if (groovyHome) {
+            printer.println("[groovy]")
+            printer.print("\tgroovy_home = ${groovyHome}")
+            printer.println()
+        }
     }
 }
