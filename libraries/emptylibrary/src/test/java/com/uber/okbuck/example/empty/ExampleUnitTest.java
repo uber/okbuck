@@ -1,19 +1,18 @@
-package com.uber.okbuck.example.common;
+package com.uber.okbuck.example.empty;
 
 import android.content.Context;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import com.uber.okbuck.BuckRobolectricTestRunner;
 
-import org.robolectric.annotation.Config;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.robolectric.RuntimeEnvironment;
+import org.robolectric.annotation.Config;
 
 import static org.junit.Assert.assertEquals;
 
 @RunWith(BuckRobolectricTestRunner.class)
-@Config(sdk = 21, packageName = "com.uber.okbuck.example.common")
+@Config(sdk = 21, packageName = "com.uber.okbuck.example.empty")
 public class ExampleUnitTest {
 
     @Test
@@ -24,6 +23,6 @@ public class ExampleUnitTest {
     @Test
     public void resource_loading() {
         Context context = (Context) RuntimeEnvironment.application;
-        assertEquals(context.getResources().getString(R.string.app_name), "Common");
+        assertEquals(context.getResources().getString(R.string.empty_release_string), "empty_release_string");
     }
 }

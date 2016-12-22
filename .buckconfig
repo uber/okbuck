@@ -26,3 +26,9 @@
 
 [groovy]
   groovy_home = tools/groovy_installation
+
+[java]
+  jar_spool_mode = direct_to_jar
+
+[cache]
+  dir_max_size = 512MB

@@ -20,7 +20,4 @@ android {
 dependencies {
     compile deps.support.appCompat
     compile project(':libraries:parcelable')
-
-    testCompile deps.test.junit
-    testCompile project(':libraries:robolectric-base')
 }

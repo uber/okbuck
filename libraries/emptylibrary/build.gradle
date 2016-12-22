@@ -9,4 +9,7 @@ android {
 
 dependencies {
     compile deps.support.appCompat
+
+    testCompile deps.test.junit
+    testCompile project(':libraries:robolectric-base')
 }
