@@ -25,11 +25,11 @@ final class JavaBinaryRule extends BuckRule {
             printer.println("\tmain_class = '${mMainClass}',")
         }
         if (!mExcludes.empty) {
-            printer.println("\tblacklist = [")
+            printer.println("\tblacklist = glob([")
             for (String exclude : mExcludes) {
                 printer.println("\t\t'${exclude}',")
             }
-            printer.println("\t],")
+            printer.println("\t]),")
         }
     }
 }
