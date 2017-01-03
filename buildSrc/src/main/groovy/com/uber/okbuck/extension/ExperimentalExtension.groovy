@@ -11,6 +11,11 @@ class ExperimentalExtension {
     boolean lint = false
 
     /**
+     * Whether infer rules are to be generated
+     */
+    boolean infer = false
+
+    /**
      * Whether retrolambda is enabled
      */
     boolean retrolambda = false

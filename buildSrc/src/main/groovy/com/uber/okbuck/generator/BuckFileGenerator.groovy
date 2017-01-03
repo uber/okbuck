@@ -10,6 +10,7 @@ import com.uber.okbuck.composer.android.AndroidLibraryRuleComposer
 import com.uber.okbuck.composer.android.AndroidManifestRuleComposer
 import com.uber.okbuck.composer.android.AndroidResourceRuleComposer
 import com.uber.okbuck.composer.android.AndroidTestRuleComposer
+import com.uber.okbuck.composer.android.InferRuleComposer
 import com.uber.okbuck.composer.android.ExopackageAndroidLibraryRuleComposer
 import com.uber.okbuck.composer.android.GenAidlRuleComposer
 import com.uber.okbuck.composer.android.KeystoreRuleComposer
@@ -112,8 +113,14 @@ final class BuckFileGenerator {
     }
 
     private static List<BuckRule> createRules(JavaLibTarget target) {
+        OkBuckExtension okbuck = target.rootProject.okbuck
+        ExperimentalExtension experimental = okbuck.experimental
         List<BuckRule> rules = []
         rules.add(JavaLibraryRuleComposer.compose(target))
+
+        if (experimental.infer) {
+            rules.add(InferRuleComposer.compose(target))
+        }
 
         if (target.test.sources) {
             rules.add(JavaTestRuleComposer.compose(target))
@@ -203,6 +210,10 @@ final class BuckFileGenerator {
         LintExtension lint = okbuck.lint
         if (experimental.lint && lint.include.contains('android_library')) {
             androidLibRules.add(LintRuleComposer.compose(target))
+        }
+
+        if (experimental.infer) {
+            rules.add(InferRuleComposer.compose(target))
         }
 
         rules.addAll(androidLibRules)
