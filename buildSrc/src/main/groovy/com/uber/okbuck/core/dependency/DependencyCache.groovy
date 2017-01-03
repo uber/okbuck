@@ -196,7 +196,7 @@ class DependencyCache {
         } else {
             def sourceJars = rootProject.fileTree(
                     dir: dependency.depFile.parentFile.parentFile.absolutePath,
-                    includes: ["**/${sourcesJarName}"]) as List
+                    includes: ["**/*-sources.jar"]) as List
             if (sourceJars.size() > 0) {
                 sourcesJar = sourceJars[0]
             }
