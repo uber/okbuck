@@ -35,7 +35,6 @@ import com.uber.okbuck.core.model.groovy.GroovyLibTarget
 import com.uber.okbuck.core.model.java.JavaAppTarget
 import com.uber.okbuck.core.model.java.JavaLibTarget
 import com.uber.okbuck.core.util.ProjectUtil
-import com.uber.okbuck.extension.ExperimentalExtension
 import com.uber.okbuck.extension.LintExtension
 import com.uber.okbuck.extension.OkBuckExtension
 import com.uber.okbuck.extension.TestExtension
@@ -199,9 +198,8 @@ final class BuckFileGenerator {
         }
 
         OkBuckExtension okbuck = target.rootProject.okbuck
-        ExperimentalExtension experimental = okbuck.experimental
         LintExtension lint = okbuck.lint
-        if (experimental.lint && lint.include.contains('android_library')) {
+        if (!lint.disabled) {
             androidLibRules.add(LintRuleComposer.compose(target))
         }
 

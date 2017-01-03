@@ -13,9 +13,9 @@ class LintExtension {
     String version
 
     /**
-     * List of rule types for which lint rules should be generated
+     * Set to {@code true} to disable generation of lint rules
      */
-    Set<String> include = ['android_library'] as Set
+    boolean disabled = false
 
     /**
      * JVM arguments when invoking lint

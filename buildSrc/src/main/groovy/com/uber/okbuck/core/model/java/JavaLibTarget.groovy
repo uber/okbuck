@@ -2,7 +2,6 @@ package com.uber.okbuck.core.model.java
 
 import com.uber.okbuck.core.model.base.Scope
 import com.uber.okbuck.core.util.RetrolambdaUtil
-import com.uber.okbuck.extension.ExperimentalExtension
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -58,9 +57,7 @@ class JavaLibTarget extends JavaTarget {
     }
 
     boolean getRetrolambda() {
-        ExperimentalExtension experimental = project.rootProject.okbuck.experimental
-        return experimental.retrolambda &&
-                project.plugins.hasPlugin('me.tatarka.retrolambda') &&
+        return project.plugins.hasPlugin('me.tatarka.retrolambda') &&
                 JavaVersion.toVersion(sourceCompatibility) > JavaVersion.VERSION_1_7
     }
 
