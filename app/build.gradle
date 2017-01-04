@@ -60,6 +60,7 @@ dependencies {
     compile deps.support.recyclerView
     compile deps.external.leakCanary
     compile deps.external.xlogAndroidIdle
+    compile deps.apt.autoValue
 
     compile project(':libraries:emptylibrary')
     devCompile project(path: ':dummylibrary', configuration: 'freeRelease')
