@@ -155,11 +155,6 @@ okbuck {
         robolectric = true
     }
 
-    experimental {
-        lint = true
-        retrolambda = true
-        parallel = true
-    }
     wrapper {
         watch += ["**/*.sq"]
     }
