@@ -21,6 +21,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Log.d("MainActivity", "MainActivity.onCreate() application:"
+                + getApplication().getClass().getName());
+
+
         mTvTest = (TextView) findViewById(R.id.mTvTest);
         mTvTest.setOnClickListener(new View.OnClickListener() {
             @Override
