@@ -121,7 +121,10 @@ class Scope {
                 }
 
                 Target target = TargetCache.getTargetForOutput(targetProject, artifactFile)
-                if (target.project != project) {
+                if (target == null) {
+                    throw new IllegalStateException("No such artifact: ${artifactFile} for ${targetProject} with " +
+                            "artifact id: ${dependency}")
+                } else if (target.project != project) {
                     targetDeps.add(target)
                 }
             } else {
