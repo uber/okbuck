@@ -35,7 +35,7 @@ class JavaLibTarget extends JavaTarget {
     }
 
     Set<String> getDepConfigNames() {
-        return APT_CONFIGS + ["compile", "testCompile"]
+        return APT_CONFIGS + PROVIDED_CONFIGS + ["compile", "testCompile"]
     }
 
     Set<Configuration> depConfigurations() {

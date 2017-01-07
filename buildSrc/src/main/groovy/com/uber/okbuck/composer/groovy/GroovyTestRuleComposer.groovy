@@ -19,8 +19,8 @@ final class GroovyTestRuleComposer extends JvmBuckRuleComposer {
         deps.addAll(targets(target.test.targetDeps))
 
         Set<String> providedDeps = []
-        providedDeps.addAll(external(target.apt.externalDeps))
-        providedDeps.addAll(targets(target.apt.targetDeps))
+        providedDeps.addAll(external(target.provided.externalDeps))
+        providedDeps.addAll(targets(target.provided.targetDeps))
         providedDeps.removeAll(deps)
 
         if (target.retrolambda) {

@@ -28,8 +28,8 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
         libraryDeps.addAll(external(target.main.externalDeps))
         libraryDeps.addAll(targets(target.main.targetDeps))
 
-        providedDeps.addAll(external(target.apt.externalDeps))
-        providedDeps.addAll(targets(target.apt.targetDeps))
+        providedDeps.addAll(external(target.provided.externalDeps))
+        providedDeps.addAll(targets(target.provided.targetDeps))
         providedDeps.removeAll(libraryDeps)
 
         if (target.retrolambda) {

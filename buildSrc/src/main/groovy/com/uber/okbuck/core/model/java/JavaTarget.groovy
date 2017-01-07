@@ -3,19 +3,16 @@ package com.uber.okbuck.core.model.java
 import com.android.builder.model.LintOptions
 import com.uber.okbuck.OkBuckGradlePlugin
 import com.uber.okbuck.core.model.base.Scope
-import com.uber.okbuck.core.model.base.Target
 import com.uber.okbuck.core.model.jvm.JvmTarget
 import com.uber.okbuck.core.util.LintUtil
-import org.apache.commons.io.IOUtils
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 
-import java.util.jar.JarEntry
-import java.util.jar.JarFile
-
 abstract class JavaTarget extends JvmTarget {
 
-    static final Set<String> APT_CONFIGS = ["apt", "provided", 'compileOnly', "annotationProcessor"]
+    static final Set<String> APT_CONFIGS = ["apt", "annotationProcessor"]
+    static final Set<String> PROVIDED_CONFIGS = ["provided", 'compileOnly']
+
 
     JavaTarget(Project project, String name) {
         super(project, name)
@@ -26,6 +23,13 @@ abstract class JavaTarget extends JvmTarget {
      */
     Scope getApt() {
         return new Scope(project, APT_CONFIGS)
+    }
+
+    /**
+     * Provided Scope
+     */
+    Scope getProvided() {
+        return new Scope(project, PROVIDED_CONFIGS)
     }
 
     /**
