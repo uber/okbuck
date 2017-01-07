@@ -12,8 +12,7 @@ final class AndroidResourceRuleComposer extends AndroidBuckRuleComposer {
     }
 
     static AndroidResourceRule compose(AndroidTarget target, AndroidTarget.ResBundle resBundle) {
-        List<String> resDeps = new ArrayList<>()
-
+        List<String> resDeps = []
         resDeps.addAll(external(target.main.externalDeps.findAll { String dep ->
             dep.endsWith(".aar")
         }))

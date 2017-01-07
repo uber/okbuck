@@ -28,8 +28,8 @@ final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
         testDeps.addAll(external(target.test.externalDeps))
         testDeps.addAll(targets(target.test.targetDeps))
 
-        providedDeps.addAll(external(target.apt.externalDeps))
-        providedDeps.addAll(targets(target.apt.targetDeps))
+        providedDeps.addAll(external(target.provided.externalDeps))
+        providedDeps.addAll(targets(target.provided.targetDeps))
         providedDeps.removeAll(testDeps)
 
         if (target.retrolambda) {
