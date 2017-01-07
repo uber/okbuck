@@ -29,7 +29,7 @@ final class JavaLibraryRuleComposer extends JavaBuckRuleComposer {
             providedDeps.add(RetrolambdaUtil.getRtStubJarRule())
         }
 
-        List<String> testTargets = [];
+        List<String> testTargets = []
         if (target.test.sources) {
             testTargets.add(":${test(target)}")
         }
