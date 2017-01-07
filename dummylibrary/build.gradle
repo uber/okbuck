@@ -37,7 +37,7 @@ dependencies {
     freeCompile project(path: ':libraries:common', configuration: 'freeDebug')
     paidCompile project(path: ':libraries:common', configuration: 'paidRelease')
 
-    provided deps.apt.daggerCompiler
+    annotationProcessor deps.apt.daggerCompiler
 
     testCompile deps.test.junit
 }

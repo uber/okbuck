@@ -10,7 +10,7 @@ import org.gradle.api.Project
 
 abstract class JavaTarget extends JvmTarget {
 
-    static final Set<String> APT_CONFIGS = ["apt", "annotationProcessor"]
+    static final Set<String> APT_CONFIGS = ["apt", "annotationProcessor", "compileOnly"]
     static final Set<String> PROVIDED_CONFIGS = ["provided", "compileOnly"]
 
 

@@ -20,9 +20,9 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
             List<String> aidlRuleNames,
             String appClass) {
 
-        List<String> libraryDeps = new ArrayList<>(deps);
-        List<String> libraryAptDeps = new ArrayList<>(aptDeps);
-        List<String> libraryAidlRuleNames = new ArrayList<>(aidlRuleNames);
+        List<String> libraryDeps = new ArrayList<>(deps)
+        List<String> libraryAptDeps = new ArrayList<>(aptDeps)
+        List<String> libraryAidlRuleNames = new ArrayList<>(aidlRuleNames)
         Set<String> providedDeps = []
 
         libraryDeps.addAll(external(target.main.externalDeps))
