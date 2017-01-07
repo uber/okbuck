@@ -193,10 +193,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
 
     private static void configureBuckProjects(Set<Project> buckProjects, Task setupOkbuck) {
         buckProjects.each { Project buckProject ->
-            ProjectType projectType = ProjectUtil.getType(buckProject)
-            if (projectType == ProjectType.ANDROID_LIB || projectType == ProjectType.ANDROID_APP) {
-                buckProject.configurations.maybeCreate(BUCK_LINT)
-            }
+            buckProject.configurations.maybeCreate(BUCK_LINT)
             Task okbuckProjectTask = buckProject.tasks.maybeCreate(OKBUCK)
             okbuckProjectTask.doLast {
                 BuckFileGenerator.generate(buckProject)
