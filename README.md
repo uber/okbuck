@@ -36,6 +36,10 @@ buildscript {
     }
 }
 
+repositories {
+    jcenter()
+}
+
 apply plugin: 'com.uber.okbuck'
 ```
 
