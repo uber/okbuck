@@ -19,15 +19,14 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
             List<String> aptDeps,
             List<String> aidlRuleNames,
             String appClass) {
-
         List<String> libraryDeps = new ArrayList<>(deps)
         List<String> libraryAptDeps = new ArrayList<>(aptDeps)
         List<String> libraryAidlRuleNames = new ArrayList<>(aidlRuleNames)
-        Set<String> providedDeps = []
 
         libraryDeps.addAll(external(target.main.externalDeps))
         libraryDeps.addAll(targets(target.main.targetDeps))
 
+        Set<String> providedDeps = []
         providedDeps.addAll(external(target.provided.externalDeps))
         providedDeps.addAll(targets(target.provided.targetDeps))
         providedDeps.removeAll(libraryDeps)
@@ -44,7 +43,7 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
             }
         }
 
-        List<String> testTargets = [];
+        List<String> testTargets = []
         if (target.robolectric && target.test.sources) {
             testTargets.add(":${test(target)}")
         }

@@ -14,7 +14,6 @@ final class AndroidManifestRuleComposer extends AndroidBuckRuleComposer {
 
     static AndroidManifestRule compose(AndroidAppTarget target, Scope manifestScope = target.main) {
         List<String> deps = []
-
         deps.addAll(external(manifestScope.externalDeps.findAll { String dep ->
             dep.endsWith("aar")
         }))
