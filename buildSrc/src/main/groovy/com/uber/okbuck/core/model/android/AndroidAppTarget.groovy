@@ -40,14 +40,14 @@ class AndroidAppTarget extends AndroidLibTarget {
         if (baseVariant.ndkCompile.abiFilters != null) {
             cpuFilters = baseVariant.ndkCompile.abiFilters
         } else {
-            cpuFilters = [] as Set
+            cpuFilters = [] as Set<String>
         }
 
         multidexEnabled = baseVariant.mergedFlavor.multiDexEnabled
-        primaryDexPatterns = getProp(okbuck.primaryDexPatterns, []) as Set
-        linearAllocHardLimit = getProp(okbuck.linearAllocHardLimit, DEFAULT_LINEARALLOC_LIMIT) as Integer
+        primaryDexPatterns = getProp(okbuck().primaryDexPatterns, []) as Set<String>
+        linearAllocHardLimit = getProp(okbuck().linearAllocHardLimit, DEFAULT_LINEARALLOC_LIMIT) as Integer
 
-        exoPackageDependencies = getProp(okbuck.appLibDependencies, []) as Set
+        exoPackageDependencies = getProp(okbuck().appLibDependencies, []) as Set<String>
 
         if (isTest) {
             placeholders.put('applicationId', applicationId - ".test" + applicationIdSuffix + ".test")
@@ -70,7 +70,7 @@ class AndroidAppTarget extends AndroidLibTarget {
     }
 
     ExoPackageScope getExopackage() {
-        if (getProp(okbuck.exopackage, false)) {
+        if (getProp(okbuck().exopackage, false)) {
             return new ExoPackageScope(project, main, exoPackageDependencies, manifest)
         } else {
             return null
@@ -83,7 +83,7 @@ class AndroidAppTarget extends AndroidLibTarget {
             mergedProguardConfig.parentFile.mkdirs()
             mergedProguardConfig.createNewFile()
 
-            Set<File> configs = [] as Set
+            Set<File> configs = [] as Set<File>
 
             // project proguard files
             configs.addAll(baseVariant.mergedFlavor.proguardFiles)
@@ -124,11 +124,11 @@ class AndroidAppTarget extends AndroidLibTarget {
     }
 
     List<Map<String, String>> getTransforms() {
-        return (List<Map<String, String>>) getProp(okbuck.transform.transforms, [])
+        return (List<Map<String, String>>) getProp(okbuck().transform.transforms, [])
     }
 
     String getTransformRunnerClass() {
-        return okbuck.transform.main
+        return okbuck().transform.main
     }
 
     static String getPackedProguardConfig(File file) {

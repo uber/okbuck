@@ -33,9 +33,9 @@ class ExternalDependency extends VersionlessDependency {
     String getCacheName(boolean useFullDepName = false) {
         if (useFullDepName) {
             if (group) {
-                return "${group}.${depFile.name}"
+                return "${group}.${depFile.name}" as String
             } else {
-                return "${name}.${depFile.name}"
+                return "${name}.${depFile.name}" as String
             }
 
         } else {

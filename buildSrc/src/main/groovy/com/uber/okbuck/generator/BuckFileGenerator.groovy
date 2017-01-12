@@ -208,11 +208,11 @@ final class BuckFileGenerator {
     }
 
     private static List<BuckRule> createRules(AndroidAppTarget target) {
-        List<BuckRule> rules = []
+        List<BuckRule> rules = [] as List<BuckRule>
         List<String> deps = [":${AndroidBuckRuleComposer.src(target)}"]
 
         Set<BuckRule> libRules = createRules((AndroidLibTarget) target,
-                target.exopackage ? target.exopackage.appClass : null)
+                target.exopackage ? target.exopackage.appClass : null) as Set<BuckRule>
         rules.addAll(libRules)
 
         libRules.each { BuckRule rule ->
