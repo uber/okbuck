@@ -34,28 +34,28 @@ import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 
 class OkBuckGradlePlugin implements Plugin<Project> {
 
-    static final String EXTERNAL_DEP_BUCK_FILE = "thirdparty/BUCK_FILE"
-    static final String OKBUCK = "okbuck"
-    static final String OKBUCK_CLEAN = 'okbuckClean'
-    static final String BUCK = "BUCK"
-    static final String EXPERIMENTAL = "experimental"
-    static final String INTELLIJ = "intellij"
-    static final String TEST = "test"
-    static final String WRAPPER = "wrapper"
-    static final String BUCK_WRAPPER = "buckWrapper"
-    static final String DEFAULT_CACHE_PATH = ".okbuck/cache"
-    static final String GROUP = "okbuck"
-    static final String BUCK_LINT = "buckLint"
-    static final String LINT = "lint"
-    static final String TRANSFORM = "transform"
-    static final String RETROLAMBDA = "retrolambda"
-    static final String CONFIGURATION_EXTERNAL = "externalOkbuck"
+    public static final String EXTERNAL_DEP_BUCK_FILE = "thirdparty/BUCK_FILE"
+    public static final String OKBUCK = "okbuck"
+    public static final String OKBUCK_CLEAN = 'okbuckClean'
+    public static final String BUCK = "BUCK"
+    public static final String EXPERIMENTAL = "experimental"
+    public static final String INTELLIJ = "intellij"
+    public static final String TEST = "test"
+    public static final String WRAPPER = "wrapper"
+    public static final String BUCK_WRAPPER = "buckWrapper"
+    public static final String DEFAULT_CACHE_PATH = ".okbuck/cache"
+    public static final String GROUP = "okbuck"
+    public static final String BUCK_LINT = "buckLint"
+    public static final String LINT = "lint"
+    public static final String TRANSFORM = "transform"
+    public static final String RETROLAMBDA = "retrolambda"
+    public static final String CONFIGURATION_EXTERNAL = "externalOkbuck"
 
     // Project level globals
-    DependencyCache depCache
-    DependencyCache lintDepCache
-    TargetCache targetCache
-    String retrolambdaCmd
+    public DependencyCache depCache
+    public DependencyCache lintDepCache
+    public TargetCache targetCache
+    public String retrolambdaCmd
 
     void apply(Project project) {
         // Create extensions
@@ -126,7 +126,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                         okbuckExt.buckProjects)
 
                 // Fetch Lint deps if needed
-                if (!lint.disabled) {
+                if (!lint.disabled && lint.version != null) {
                     LintUtil.fetchLintDeps(project, lint.version)
                 }
 
