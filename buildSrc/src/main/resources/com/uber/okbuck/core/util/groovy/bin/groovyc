@@ -28,7 +28,7 @@
 ## $Revision$
 ## $Date$
 ##
-## Groovy Version: template-groovy-version
+## Groovy Version: ${template-groovy-version}
 
 GROOVY_APP_NAME=GroovyC
 

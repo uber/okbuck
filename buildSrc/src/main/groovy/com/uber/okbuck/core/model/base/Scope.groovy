@@ -38,8 +38,8 @@ class Scope {
           DependencyCache depCache = ProjectUtil.getDependencyCache(project)) {
 
         this.project = project
-        sources = FileUtil.getAvailable(project, sourceDirs)
-        resourcesDir = FileUtil.getAvailableFile(project, resDir)
+        sources = FileUtil.getIfAvailable(project, sourceDirs)
+        resourcesDir = FileUtil.getIfAvailable(project, resDir)
         jvmArgs = jvmArguments
         this.depCache = depCache
 
