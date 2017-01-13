@@ -44,7 +44,7 @@ abstract class Target {
         rootProject = project.gradle.rootProject
     }
 
-    OkBuckExtension okbuck() {
+    OkBuckExtension getOkbuck() {
         return rootProject.okbuck
     }
 
@@ -68,7 +68,7 @@ abstract class Target {
     }
 
     Set<String> getExtraOpts(RuleType ruleType) {
-        def propertyMap = getProp(okbuck().extraBuckOpts, [:])
+        def propertyMap = getProp(okbuck.extraBuckOpts, [:])
 
         if (propertyMap.containsKey(ruleType.name().toLowerCase())) {
             return propertyMap.get(ruleType.name().toLowerCase())

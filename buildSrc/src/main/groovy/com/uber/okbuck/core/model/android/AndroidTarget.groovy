@@ -130,7 +130,7 @@ abstract class AndroidTarget extends JavaLibTarget {
     }
 
     boolean getRobolectric() {
-        return okbuck().test.robolectric
+        return okbuck.test.robolectric
     }
 
     @Override
