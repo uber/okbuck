@@ -28,24 +28,22 @@ public final class RobolectricUtil {
         project.getDependencies().add(runtimeCommon.getName(), TAGSOUP);
         runtimeDeps.add(runtimeCommon);
 
-        EnumSet.allOf(API.class).forEach(api -> {
-                    Configuration runtimeApi = project.getConfigurations().maybeCreate(
-                            ROBOLECTRIC_RUNTIME + "_" + api.name());
-                    project.getDependencies().add(runtimeApi.getName(), api.androidJar);
-                    project.getDependencies().add(runtimeApi.getName(), api.shadowsJar);
-                    runtimeDeps.add(runtimeApi);
-                }
-        );
+        for (API api : EnumSet.allOf(API.class)) {
+            Configuration runtimeApi = project.getConfigurations().maybeCreate(
+                    ROBOLECTRIC_RUNTIME + "_" + api.name());
+            project.getDependencies().add(runtimeApi.getName(), api.androidJar);
+            project.getDependencies().add(runtimeApi.getName(), api.shadowsJar);
+            runtimeDeps.add(runtimeApi);
+        }
 
-        runtimeDeps.forEach(configuration -> {
-                    new DependencyCache("robolectric" + configuration.getName().toUpperCase(),
-                            project,
-                            ROBOLECTRIC_CACHE,
-                            Collections.singleton(configuration),
-                            null,
-                            false);
-                }
-        );
+        for (Configuration configuration : runtimeDeps) {
+            new DependencyCache("robolectric" + configuration.getName().toUpperCase(),
+                    project,
+                    ROBOLECTRIC_CACHE,
+                    Collections.singleton(configuration),
+                    null,
+                    false);
+        }
     }
 
     @SuppressWarnings("unused")

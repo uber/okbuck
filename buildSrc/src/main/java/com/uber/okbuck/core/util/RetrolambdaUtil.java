@@ -12,7 +12,7 @@ import org.gradle.api.Project;
 import java.io.File;
 import java.util.Collections;
 
-class RetrolambdaUtil {
+public final class RetrolambdaUtil {
 
     private static final String RETROLAMBDA_DEPS_CONFIG = "okbuckRetrolambda";
     private static final String RETROLAMBDA_GROUP = "net.orfjackal.retrolambda";

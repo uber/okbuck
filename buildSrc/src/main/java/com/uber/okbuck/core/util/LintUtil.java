@@ -7,13 +7,13 @@ import org.apache.commons.io.FileUtils;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.ModuleVersionIdentifier;
 import org.gradle.api.artifacts.ResolvedArtifact;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.Collections;
-import java.util.Optional;
 
 public final class LintUtil {
 
@@ -28,18 +28,21 @@ public final class LintUtil {
 
     private LintUtil() {}
 
+    @Nullable
     public static String getDefaultLintVersion(Project project) {
-        Optional<ResolvedArtifact> lintArtifact = project.getBuildscript()
+        return project.getBuildscript()
                 .getConfigurations()
                 .getByName("classpath")
                 .getResolvedConfiguration()
                 .getResolvedArtifacts()
-                .stream()
+                .parallelStream()
                 .filter(LintUtil::findLint)
-                .findFirst();
-        return lintArtifact.map(r -> r.getModuleVersion().getId().getVersion()).orElse(null);
+                .findFirst()
+                .map(r -> r.getModuleVersion().getId().getVersion())
+                .orElse(null);
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public static void fetchLintDeps(Project project, String version) {
         // Invalidate lint deps when versions change
         File lintVersionFile = project.file(LINT_VERSION_FILE);
@@ -57,13 +60,14 @@ public final class LintUtil {
         project.getConfigurations().maybeCreate(LINT_DEPS_CONFIG);
         project.getDependencies().add(LINT_DEPS_CONFIG, LINT_GROUP + ":" + LINT_MODULE + ":" + version);
 
-        getLintDepsCache(project);
+        createLintDepsCache(project);
     }
 
     private static String getLintwConfigName(Project project, File config) {
         return FileUtil.getRelativePath(project.getRootDir(), config).replaceAll("/", "_");
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public static synchronized String getLintwConfigRule(Project project, File config) {
         File configFile = new File(LINT_DEPS_CACHE + "/" + getLintwConfigName(project, config));
         try {
@@ -81,7 +85,7 @@ public final class LintUtil {
         return "//" + LINT_DEPS_CACHE + ":" + getLintwConfigName(project, config);
     }
 
-    private static DependencyCache getLintDepsCache(Project project) {
+    private static void createLintDepsCache(Project project) {
         OkBuckGradlePlugin okBuckGradlePlugin = ProjectUtil.getPlugin(project);
         if (okBuckGradlePlugin.lintDepCache == null) {
             okBuckGradlePlugin.lintDepCache = new DependencyCache("lint",
@@ -90,7 +94,6 @@ public final class LintUtil {
                     Collections.singleton(project.getRootProject().getConfigurations().getByName(LINT_DEPS_CONFIG)),
                     LINT_DEPS_BUCK_FILE);
         }
-        return okBuckGradlePlugin.lintDepCache;
     }
 
     private static boolean findLint(ResolvedArtifact artifact) {

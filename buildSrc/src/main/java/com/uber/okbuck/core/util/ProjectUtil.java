@@ -19,9 +19,7 @@ import java.util.Map;
 
 public final class ProjectUtil {
 
-    private ProjectUtil() {
-        // no instance
-    }
+    private ProjectUtil() {}
 
     public static ProjectType getType(Project project) {
         PluginContainer plugins = project.getPlugins();

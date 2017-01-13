@@ -20,6 +20,7 @@ public final class GroovyUtil {
 
     private GroovyUtil() {}
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public static void setupGroovyHome(Project rootProject) {
         String groovyVersion = GroovySystem.getVersion();
 

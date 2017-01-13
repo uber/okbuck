@@ -1,6 +1,7 @@
 package com.uber.okbuck.core.util;
 
 import org.apache.commons.io.IOUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -16,6 +17,7 @@ import java.util.Map;
 
 final class ReplaceUtil {
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     static void copyResourceToProject(String resource, File destination, Map<String, String> templates) {
         try {
             InputStream inputStream = FileUtil.class.getResourceAsStream(resource);
@@ -25,6 +27,7 @@ final class ReplaceUtil {
 
             OutputStream outputStream = new FileOutputStream(destination);
             IOUtils.copy(replacingReader, outputStream, Charset.defaultCharset());
+            IOUtils.closeQuietly(inputStream);
             IOUtils.closeQuietly(outputStream);
         } catch (IOException e) {
             throw new IllegalStateException(e);
@@ -52,9 +55,10 @@ final class ReplaceUtil {
 
     private static final class TemplateReader extends Reader {
 
-        PushbackReader pushbackReader = null;
-        TemplateResolver templateResolver = null;
-        StringBuilder templateBuffer = new StringBuilder();
+        final PushbackReader pushbackReader;
+        final TemplateResolver templateResolver;
+        final StringBuilder templateBuffer = new StringBuilder();
+
         String template = null;
         int templateIndex = 0;
 
@@ -64,59 +68,57 @@ final class ReplaceUtil {
         }
 
         @Override
-        public int read(CharBuffer target) throws IOException {
+        public int read(@NotNull CharBuffer target) throws IOException {
             throw new RuntimeException("Operation Not Supported");
         }
 
         @Override
         public int read() throws IOException {
-            if (this.template != null) {
-                if (this.templateIndex < this.template.length()) {
-                    return this.template.charAt(this.templateIndex++);
+            if (template != null) {
+                if (templateIndex < template.length()) {
+                    return template.charAt(this.templateIndex++);
                 }
-                if (this.templateIndex == this.template.length()) {
-                    this.template = null;
-                    this.templateIndex = 0;
+                if (templateIndex == template.length()) {
+                    template = null;
+                    templateIndex = 0;
                 }
             }
 
-            int data = this.pushbackReader.read();
+            int data = pushbackReader.read();
             if (data != '$') { return data; }
 
-            data = this.pushbackReader.read();
+            data = pushbackReader.read();
             if (data != '{') {
-                this.pushbackReader.unread(data);
+                pushbackReader.unread(data);
                 return '$';
             }
-            this.templateBuffer.delete(0, this.templateBuffer.length());
+            templateBuffer.delete(0, templateBuffer.length());
 
-            data = this.pushbackReader.read();
+            data = pushbackReader.read();
             while (data != '}') {
-                this.templateBuffer.append((char) data);
-                data = this.pushbackReader.read();
+                templateBuffer.append((char) data);
+                data = pushbackReader.read();
             }
 
-            this.template = this.templateResolver
-                    .resolveTemplate(this.templateBuffer.toString());
+            template = templateResolver
+                    .resolveTemplate(templateBuffer.toString());
 
-            if (this.template == null) {
-                this.template = "${" + this.templateBuffer.toString() + "}";
+            if (template == null) {
+                template = "${" + templateBuffer.toString() + "}";
             }
-            if (this.template.length() == 0) {
+            if (template.length() == 0) {
                 return read();
             }
-            return this.template.charAt(this.templateIndex++);
-
-
+            return template.charAt(templateIndex++);
         }
 
         @Override
-        public int read(char cbuf[]) throws IOException {
+        public int read(@NotNull char cbuf[]) throws IOException {
             return read(cbuf, 0, cbuf.length);
         }
 
         @Override
-        public int read(char cbuf[], int off, int len) throws IOException {
+        public int read(@NotNull char cbuf[], int off, int len) throws IOException {
             int charsRead = 0;
             for (int i = 0; i < len; i++) {
                 int nextChar = read();
@@ -134,7 +136,7 @@ final class ReplaceUtil {
 
         @Override
         public void close() throws IOException {
-            this.pushbackReader.close();
+            pushbackReader.close();
         }
 
         @Override
@@ -144,7 +146,7 @@ final class ReplaceUtil {
 
         @Override
         public boolean ready() throws IOException {
-            return this.pushbackReader.ready();
+            return pushbackReader.ready();
         }
 
         @Override
