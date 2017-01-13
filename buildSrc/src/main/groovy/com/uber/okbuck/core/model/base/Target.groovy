@@ -27,7 +27,6 @@ abstract class Target {
     final String name
     final String identifier
     final String path
-    final OkBuckExtension okbuck
 
     /**
      * Constructor.
@@ -43,7 +42,10 @@ abstract class Target {
         path = identifier.replaceAll(':', '/')
 
         rootProject = project.gradle.rootProject
-        okbuck = rootProject.okbuck
+    }
+
+    OkBuckExtension getOkbuck() {
+        return rootProject.okbuck
     }
 
     protected Set<String> getAvailable(Collection<File> files) {
@@ -55,10 +57,24 @@ abstract class Target {
     }
 
     def getProp(Map map, defaultValue) {
-        return map.get("${identifier}${name}", map.get(identifier, defaultValue))
+        String nameKey = "${identifier}${name}" as String
+        if (map.containsKey(nameKey)) {
+            return map.get(nameKey)
+        } else if (map.containsKey(identifier)) {
+            return map.get(identifier)
+        } else {
+            return defaultValue
+        }
     }
 
     Set<String> getExtraOpts(RuleType ruleType) {
-        return getProp(okbuck.extraBuckOpts, [:]).get(ruleType.name().toLowerCase(), [])
+        def propertyMap = getProp(okbuck.extraBuckOpts, [:])
+
+        String ruleTypeKey = ruleType.name().toLowerCase()
+        if (propertyMap.containsKey(ruleTypeKey)) {
+            return propertyMap.get(ruleTypeKey)
+        } else {
+            return []
+        }
     }
 }

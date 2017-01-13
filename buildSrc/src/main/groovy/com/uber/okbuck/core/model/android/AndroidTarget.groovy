@@ -130,7 +130,7 @@ abstract class AndroidTarget extends JavaLibTarget {
     }
 
     boolean getRobolectric() {
-        return rootProject.okbuck.test.robolectric
+        return okbuck.test.robolectric
     }
 
     @Override
@@ -209,8 +209,8 @@ abstract class AndroidTarget extends JavaLibTarget {
 
         Set<File> keys = (resourceMap.keySet() + assetMap.keySet())
         Set<ResBundle> resBundles = keys.collect { key ->
-            new ResBundle(key.name, resourceMap.get(key, null), assetMap.get(key, null))
-        } as Set
+            new ResBundle(key.name, resourceMap.get(key), assetMap.get(key))
+        } as Set<ResBundle>
 
         // Add an empty resource bundle even if no res and assets folders exist since we use resource_union
         if (resBundles.empty) {
@@ -387,10 +387,21 @@ abstract class AndroidTarget extends JavaLibTarget {
 
     @Override
     def getProp(Map map, defaultValue) {
-        return map.get("${identifier}${name.capitalize()}" as String,
-                map.get("${identifier}${flavor.capitalize()}" as String,
-                        map.get("${identifier}${buildType.capitalize()}" as String,
-                                map.get(identifier, defaultValue))))
+        String nameKey = "${identifier}${name.capitalize()}" as String
+        String flavorKey = "${identifier}${flavor.capitalize()}" as String
+        String buildTypeKey = "${identifier}${buildType.capitalize()}" as String
+
+        if (map.containsKey(nameKey)) {
+            return map.get(nameKey)
+        } else if (map.containsKey(flavorKey)) {
+            return map.get(flavorKey)
+        } else if (map.containsKey(buildTypeKey)) {
+            return map.get(buildTypeKey)
+        } else if (map.containsKey(identifier)) {
+            return map.get(identifier)
+        } else {
+            return defaultValue
+        }
     }
 
     private static class GradleLogger implements ILogger {

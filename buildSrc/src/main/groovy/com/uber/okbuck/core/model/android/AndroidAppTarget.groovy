@@ -40,14 +40,14 @@ class AndroidAppTarget extends AndroidLibTarget {
         if (baseVariant.ndkCompile.abiFilters != null) {
             cpuFilters = baseVariant.ndkCompile.abiFilters
         } else {
-            cpuFilters = [] as Set
+            cpuFilters = [] as Set<String>
         }
 
         multidexEnabled = baseVariant.mergedFlavor.multiDexEnabled
-        primaryDexPatterns = getProp(okbuck.primaryDexPatterns, []) as Set
+        primaryDexPatterns = getProp(okbuck.primaryDexPatterns, []) as Set<String>
         linearAllocHardLimit = getProp(okbuck.linearAllocHardLimit, DEFAULT_LINEARALLOC_LIMIT) as Integer
 
-        exoPackageDependencies = getProp(okbuck.appLibDependencies, []) as Set
+        exoPackageDependencies = getProp(okbuck.appLibDependencies, []) as Set<String>
 
         if (isTest) {
             placeholders.put('applicationId', applicationId - ".test" + applicationIdSuffix + ".test")
@@ -83,7 +83,7 @@ class AndroidAppTarget extends AndroidLibTarget {
             mergedProguardConfig.parentFile.mkdirs()
             mergedProguardConfig.createNewFile()
 
-            Set<File> configs = [] as Set
+            Set<File> configs = [] as Set<File>
 
             // project proguard files
             configs.addAll(baseVariant.mergedFlavor.proguardFiles)

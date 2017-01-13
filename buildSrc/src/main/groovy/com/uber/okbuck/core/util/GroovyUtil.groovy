@@ -21,7 +21,7 @@ class GroovyUtil {
         }
         new DependencyCache("groovy",
                 rootProject,
-                "${GROOVY_HOME_LOCATION}/lib",
+                "${GROOVY_HOME_LOCATION}/lib" as String,
                 [groovyConfig] as Set,
                 null)
 

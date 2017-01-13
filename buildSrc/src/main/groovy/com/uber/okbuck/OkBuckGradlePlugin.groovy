@@ -180,7 +180,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     }
 
     private static Set<Configuration> configurations(Set<Project> projects) {
-        Set<Configuration> configurations = new HashSet()
+        Set<Configuration> configurations = new HashSet() as Set<Configuration>
         projects.each { Project p ->
             TargetCache.getTargets(p).values().each {
                 if (it instanceof JavaLibTarget) {

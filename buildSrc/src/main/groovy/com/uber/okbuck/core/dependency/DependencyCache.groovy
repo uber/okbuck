@@ -48,7 +48,7 @@ class DependencyCache {
         this.cacheDir = new File(rootProject.projectDir, cacheDirPath)
         this.cacheDir.mkdirs()
 
-        superConfiguration = createSuperConfiguration(rootProject, "${name}DepCache", configurations)
+        superConfiguration = createSuperConfiguration(rootProject, "${name}DepCache" as String, configurations)
 
         if (buckFile) {
             FileUtil.copyResourceToProject(buckFile, new File(cacheDir, "BUCK"))
