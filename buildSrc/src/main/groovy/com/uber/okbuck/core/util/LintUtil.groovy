@@ -77,7 +77,7 @@ class LintUtil {
     }
 
     static DependencyCache getLintDepsCache(Project project) {
-        OkBuckGradlePlugin okBuckGradlePlugin = project.rootProject.plugins.getPlugin(OkBuckGradlePlugin)
+        OkBuckGradlePlugin okBuckGradlePlugin = ProjectUtil.getPlugin(project)
         if (!okBuckGradlePlugin.lintDepCache) {
             okBuckGradlePlugin.lintDepCache = new DependencyCache("lint",
                     project.rootProject,

@@ -35,8 +35,7 @@ final class ProjectUtil {
     }
 
     static DependencyCache getDependencyCache(Project project) {
-        OkBuckGradlePlugin okBuckGradlePlugin = project.rootProject.plugins.getPlugin(OkBuckGradlePlugin)
-        return okBuckGradlePlugin.depCache
+        return getPlugin(project).depCache
     }
 
     static Map<String, Target> getTargets(Project project) {
@@ -47,8 +46,11 @@ final class ProjectUtil {
         return getTargetCache(targetProject).getTargetForOutput(targetProject, output)
     }
 
+    static OkBuckGradlePlugin getPlugin(Project project) {
+        return project.rootProject.plugins.getPlugin(OkBuckGradlePlugin)
+    }
+
     private static TargetCache getTargetCache(Project project) {
-        OkBuckGradlePlugin okBuckGradlePlugin = project.rootProject.plugins.getPlugin(OkBuckGradlePlugin)
-        return okBuckGradlePlugin.targetCache
+        return getPlugin(project).targetCache
     }
 }
