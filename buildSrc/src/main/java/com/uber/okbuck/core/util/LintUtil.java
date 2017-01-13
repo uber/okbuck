@@ -60,7 +60,7 @@ public final class LintUtil {
         project.getConfigurations().maybeCreate(LINT_DEPS_CONFIG);
         project.getDependencies().add(LINT_DEPS_CONFIG, LINT_GROUP + ":" + LINT_MODULE + ":" + version);
 
-        createLintDepsCache(project);
+        getLintDepsCache(project);
     }
 
     private static String getLintwConfigName(Project project, File config) {
@@ -85,7 +85,7 @@ public final class LintUtil {
         return "//" + LINT_DEPS_CACHE + ":" + getLintwConfigName(project, config);
     }
 
-    private static void createLintDepsCache(Project project) {
+    public static DependencyCache getLintDepsCache(Project project) {
         OkBuckGradlePlugin okBuckGradlePlugin = ProjectUtil.getPlugin(project);
         if (okBuckGradlePlugin.lintDepCache == null) {
             okBuckGradlePlugin.lintDepCache = new DependencyCache("lint",
@@ -94,6 +94,7 @@ public final class LintUtil {
                     Collections.singleton(project.getRootProject().getConfigurations().getByName(LINT_DEPS_CONFIG)),
                     LINT_DEPS_BUCK_FILE);
         }
+        return okBuckGradlePlugin.lintDepCache;
     }
 
     private static boolean findLint(ResolvedArtifact artifact) {
