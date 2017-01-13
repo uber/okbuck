@@ -31,7 +31,6 @@ import org.gradle.api.artifacts.repositories.ArtifactRepository
 import org.gradle.api.artifacts.repositories.FlatDirectoryArtifactRepository
 import org.gradle.api.artifacts.repositories.IvyArtifactRepository
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
-import org.gradle.api.logging.Logger
 
 class OkBuckGradlePlugin implements Plugin<Project> {
 
@@ -186,7 +185,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     private static Set<Configuration> configurations(Set<Project> projects) {
         Set<Configuration> configurations = new HashSet()
         projects.each { Project p ->
-            ProjectUtil.getTargetCache(p).getTargets(p).values().each {
+            ProjectUtil.getTargets(p).values().each {
                 if (it instanceof JavaLibTarget) {
                     configurations.addAll(it.depConfigurations())
                 }
