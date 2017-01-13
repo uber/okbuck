@@ -52,12 +52,13 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     static final String RETROLAMBDA = "retrolambda"
     static final String CONFIGURATION_EXTERNAL = "externalOkbuck"
 
-    static DependencyCache depCache
-    static Logger LOGGER
+    // Project level globals
+    DependencyCache depCache
+    DependencyCache lintDepCache
+    TargetCache targetCache
+    String retrolambdaCmd
 
     void apply(Project project) {
-        LOGGER = project.logger
-
         // Create extensions
         OkBuckExtension okbuckExt = project.extensions.create(OKBUCK, OkBuckExtension, project)
         WrapperExtension wrapper = okbuckExt.extensions.create(WRAPPER, WrapperExtension)
@@ -81,6 +82,9 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         okBuck.setGroup(GROUP)
         okBuck.setDescription("Generate BUCK files")
         okBuck.dependsOn(setupOkbuck)
+
+        // Create target cache
+        targetCache = new TargetCache()
 
         project.afterEvaluate {
             // Create clean task
@@ -182,7 +186,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     private static Set<Configuration> configurations(Set<Project> projects) {
         Set<Configuration> configurations = new HashSet()
         projects.each { Project p ->
-            TargetCache.getTargets(p).values().each {
+            ProjectUtil.getTargetCache(p).getTargets(p).values().each {
                 if (it instanceof JavaLibTarget) {
                     configurations.addAll(it.depConfigurations())
                 }

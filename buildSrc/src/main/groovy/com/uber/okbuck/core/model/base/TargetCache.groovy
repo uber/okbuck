@@ -12,12 +12,10 @@ import org.gradle.api.Project
 
 class TargetCache {
 
-    private static Map<Project, Map<String, Target>> store = [:]
-    private static Map<File, Target> outputToTarget = [:]
+    private final Map<Project, Map<String, Target>> store = [:]
+    private final Map<File, Target> outputToTarget = [:]
 
-    private TargetCache() {}
-
-    static Map<String, Target> getTargets(Project project) {
+    Map<String, Target> getTargets(Project project) {
         Map<String, Target> projectTargets = store.get(project)
         if (projectTargets == null) {
             ProjectType type = ProjectUtil.getType(project)
@@ -56,7 +54,7 @@ class TargetCache {
     }
 
     @SuppressWarnings("GrReassignedInClosureLocalVar")
-    static Target getTargetForOutput(Project targetProject, File output) {
+    Target getTargetForOutput(Project targetProject, File output) {
         Target result
         ProjectType type = ProjectUtil.getType(targetProject)
         switch (type) {

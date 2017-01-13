@@ -21,8 +21,6 @@ class LintUtil {
     static final String LINT_DEPS_RULE = "//${LINT_DEPS_CACHE}:okbuck_lint"
     static final String LINT_DEPS_BUCK_FILE = "lint/BUCK_FILE"
 
-    private static DependencyCache lintDepCache
-
     private LintUtil() {}
 
     static String getDefaultLintVersion(Project project) {
@@ -79,13 +77,14 @@ class LintUtil {
     }
 
     static DependencyCache getLintDepsCache(Project project) {
-        if (!lintDepCache) {
-            lintDepCache = new DependencyCache("lint",
+        OkBuckGradlePlugin okBuckGradlePlugin = project.rootProject.plugins.getPlugin(OkBuckGradlePlugin)
+        if (!okBuckGradlePlugin.lintDepCache) {
+            okBuckGradlePlugin.lintDepCache = new DependencyCache("lint",
                     project.rootProject,
                     LINT_DEPS_CACHE,
                     [project.rootProject.configurations.getByName(LINT_DEPS_CONFIG)] as Set,
                     LINT_DEPS_BUCK_FILE)
         }
-        return lintDepCache
+        return okBuckGradlePlugin.lintDepCache
     }
 }

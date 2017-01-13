@@ -1,10 +1,10 @@
 package com.uber.okbuck.core.model.base
 
-import com.uber.okbuck.OkBuckGradlePlugin
 import com.uber.okbuck.core.dependency.DependencyCache
 import com.uber.okbuck.core.dependency.ExternalDependency
 import com.uber.okbuck.core.dependency.VersionlessDependency
 import com.uber.okbuck.core.util.FileUtil
+import com.uber.okbuck.core.util.ProjectUtil
 import groovy.transform.EqualsAndHashCode
 import org.apache.commons.io.FilenameUtils
 import org.gradle.api.Project
@@ -35,7 +35,7 @@ class Scope {
           Set<File> sourceDirs = [],
           File resDir = null,
           List<String> jvmArguments = [],
-          DependencyCache depCache = OkBuckGradlePlugin.depCache) {
+          DependencyCache depCache = ProjectUtil.getDependencyCache(project)) {
 
         this.project = project
         sources = FileUtil.getAvailable(project, sourceDirs)
@@ -120,7 +120,7 @@ class Scope {
                     artifactFile = targetProject.configurations.getByName("default").allArtifacts.files.files[0]
                 }
 
-                Target target = TargetCache.getTargetForOutput(targetProject, artifactFile)
+                Target target = ProjectUtil.getTargetForOutput(targetProject, artifactFile)
                 if (target == null) {
                     throw new IllegalStateException("No such artifact: ${artifactFile} for ${targetProject} with " +
                             "artifact id: ${dependency}")

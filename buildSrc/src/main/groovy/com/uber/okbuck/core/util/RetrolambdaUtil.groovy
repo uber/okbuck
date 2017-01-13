@@ -15,8 +15,6 @@ class RetrolambdaUtil {
     static final String RT_STUB_JAR = "rt-stub.jar"
     static final String RETROLAMBDA_DEPS_BUCK_FILE = "retrolambda/BUCK_FILE"
 
-    private static String sRetrolambdaCmd
-
     private RetrolambdaUtil() {}
 
     static String getRtStubJarRule() {
@@ -50,13 +48,15 @@ class RetrolambdaUtil {
         FileUtil.copyResourceToProject(RETROLAMBDA_DEPS_BUCK_FILE, new File(retrolambdaDepCache.cacheDir, "BUCK"))
         FileUtil.copyResourceToProject("retrolambda/${RT_STUB_JAR}", new File(retrolambdaDepCache.cacheDir, RT_STUB_JAR))
 
-        sRetrolambdaCmd = "(read CLASSES_DIR && java -Dretrolambda.inputDir=\$CLASSES_DIR " +
+        OkBuckGradlePlugin okBuckGradlePlugin = project.rootProject.plugins.getPlugin(OkBuckGradlePlugin)
+        okBuckGradlePlugin.retrolambdaCmd = "(read CLASSES_DIR && java -Dretrolambda.inputDir=\$CLASSES_DIR " +
                 "-Dretrolambda.classpath=\"\${COMPILATION_BOOTCLASSPATH}\":\"\${COMPILATION_CLASSPATH}\":\"\${CLASSES_DIR}\"" +
                 "${extension.jvmArgs} -jar ${retrolambdaJar}) <<<"
     }
 
-    static String getRetrolambdaCmd() {
-        return sRetrolambdaCmd
+    static String getRetrolambdaCmd(Project project) {
+        OkBuckGradlePlugin okBuckGradlePlugin = project.rootProject.plugins.getPlugin(OkBuckGradlePlugin)
+        return okBuckGradlePlugin.retrolambdaCmd
     }
 
     static DependencyCache getRetrolambdaDepsCache(Project project) {
