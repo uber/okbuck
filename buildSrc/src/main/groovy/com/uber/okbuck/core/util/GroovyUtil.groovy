@@ -19,7 +19,7 @@ class GroovyUtil {
         rootProject.dependencies {
             "${GROOVY_DEPS_CONFIG}" "org.codehaus.groovy:groovy:${groovyVersion}"
         }
-        new DependencyCache("groovy" as String,
+        new DependencyCache("groovy",
                 rootProject,
                 "${GROOVY_HOME_LOCATION}/lib" as String,
                 [groovyConfig] as Set,
