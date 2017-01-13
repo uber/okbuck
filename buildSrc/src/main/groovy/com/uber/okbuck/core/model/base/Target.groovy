@@ -70,8 +70,9 @@ abstract class Target {
     Set<String> getExtraOpts(RuleType ruleType) {
         def propertyMap = getProp(okbuck.extraBuckOpts, [:])
 
-        if (propertyMap.containsKey(ruleType.name().toLowerCase())) {
-            return propertyMap.get(ruleType.name().toLowerCase())
+        String ruleTypeKey = ruleType.name().toLowerCase()
+        if (propertyMap.containsKey(ruleTypeKey)) {
+            return propertyMap.get(ruleTypeKey)
         } else {
             return []
         }
