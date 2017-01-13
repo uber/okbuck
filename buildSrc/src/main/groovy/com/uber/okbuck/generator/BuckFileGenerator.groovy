@@ -30,7 +30,6 @@ import com.uber.okbuck.core.model.android.AndroidLibTarget
 import com.uber.okbuck.core.model.android.AndroidTarget
 import com.uber.okbuck.core.model.base.ProjectType
 import com.uber.okbuck.core.model.base.Target
-import com.uber.okbuck.core.model.base.TargetCache
 import com.uber.okbuck.core.model.groovy.GroovyLibTarget
 import com.uber.okbuck.core.model.java.JavaAppTarget
 import com.uber.okbuck.core.model.java.JavaLibTarget
@@ -73,7 +72,7 @@ final class BuckFileGenerator {
     private static List<BuckRule> createRules(Project project, boolean espresso) {
         List<BuckRule> rules = []
         ProjectType projectType = ProjectUtil.getType(project)
-        TargetCache.getTargets(project).each { String name, Target target ->
+        ProjectUtil.getTargets(project).each { String name, Target target ->
             switch (projectType) {
                 case ProjectType.JAVA_LIB:
                     rules.addAll(createRules((JavaLibTarget) target))

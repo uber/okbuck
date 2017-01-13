@@ -406,10 +406,10 @@ abstract class AndroidTarget extends JavaLibTarget {
 
     private static class GradleLogger implements ILogger {
 
-        private final Logger mLogger;
+        private final Logger mLogger
 
         GradleLogger(Logger logger) {
-            mLogger = logger;
+            mLogger = logger
         }
 
         @Override

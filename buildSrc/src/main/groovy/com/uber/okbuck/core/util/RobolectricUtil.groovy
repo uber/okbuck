@@ -12,7 +12,7 @@ class RobolectricUtil {
     static final String ROBOLECTRIC_RUNTIME = "robolectricRuntime"
     static final String ROBOLECTRIC_CACHE = "${OkBuckGradlePlugin.DEFAULT_CACHE_PATH}/robolectric"
 
-    static enum API {
+    static final enum API {
 
         API_16('org.robolectric:android-all:4.1.2_r1-robolectric-0', 'org.robolectric:shadows-core:3.0:16'),
         API_17('org.robolectric:android-all:4.2.2_r1.2-robolectric-0', 'org.robolectric:shadows-core:3.0:17'),
@@ -20,8 +20,8 @@ class RobolectricUtil {
         API_19('org.robolectric:android-all:4.4_r1-robolectric-1', 'org.robolectric:shadows-core:3.0:19'),
         API_21('org.robolectric:android-all:5.0.0_r2-robolectric-1', 'org.robolectric:shadows-core:3.0:21'),
 
-        private final String androidJar;
-        private final String shadowsJar;
+        private final String androidJar
+        private final String shadowsJar
 
         API(String androidJar, String shadowsJar) {
             this.androidJar = androidJar

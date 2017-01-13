@@ -7,7 +7,7 @@ import com.uber.okbuck.rule.base.GenRule
 
 final class AndroidBinaryRuleComposer extends AndroidBuckRuleComposer {
 
-    private static Map<String, String> CPU_FILTER_MAP = [
+    private static final Map<String, String> CPU_FILTER_MAP = [
             "armeabi"    : "ARM",
             "armeabi-v7a": "ARMV7",
             "x86"        : "X86",

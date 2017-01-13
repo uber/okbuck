@@ -64,7 +64,7 @@ class JavaLibTarget extends JavaTarget {
     List<String> getPostprocessClassesCommands() {
         List<String> cmds = []
         if (retrolambda) {
-            cmds += RetrolambdaUtil.retrolambdaCmd
+            cmds += RetrolambdaUtil.getRetrolambdaCmd(project)
         }
         return cmds
     }

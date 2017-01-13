@@ -2,15 +2,11 @@ package com.uber.okbuck.core.util
 
 import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.LibraryPlugin
-import com.android.build.gradle.api.BaseVariant
-import com.uber.okbuck.core.model.android.AndroidAppTarget
-import com.uber.okbuck.core.model.android.AndroidLibTarget
+import com.uber.okbuck.OkBuckGradlePlugin
+import com.uber.okbuck.core.dependency.DependencyCache
 import com.uber.okbuck.core.model.base.ProjectType
 import com.uber.okbuck.core.model.base.Target
-import com.uber.okbuck.core.model.groovy.GroovyLibTarget
-import com.uber.okbuck.core.model.java.JavaAppTarget
-import com.uber.okbuck.core.model.java.JavaLibTarget
-import com.uber.okbuck.core.model.jvm.JvmTarget
+import com.uber.okbuck.core.model.base.TargetCache
 import org.gradle.api.Project
 import org.gradle.api.plugins.ApplicationPlugin
 import org.gradle.api.plugins.GroovyPlugin
@@ -36,5 +32,25 @@ final class ProjectUtil {
         } else {
             return ProjectType.UNKNOWN
         }
+    }
+
+    static DependencyCache getDependencyCache(Project project) {
+        return getPlugin(project).depCache
+    }
+
+    static Map<String, Target> getTargets(Project project) {
+        return getTargetCache(project).getTargets(project)
+    }
+
+    static Target getTargetForOutput(Project targetProject, File output) {
+        return getTargetCache(targetProject).getTargetForOutput(targetProject, output)
+    }
+
+    static OkBuckGradlePlugin getPlugin(Project project) {
+        return project.rootProject.plugins.getPlugin(OkBuckGradlePlugin)
+    }
+
+    private static TargetCache getTargetCache(Project project) {
+        return getPlugin(project).targetCache
     }
 }

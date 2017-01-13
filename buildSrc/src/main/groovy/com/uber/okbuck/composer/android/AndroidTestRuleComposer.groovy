@@ -19,9 +19,9 @@ final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
             List<String> aidlRuleNames,
             String appClass) {
 
-        List<String> testDeps = new ArrayList<>(deps);
-        List<String> testAptDeps = new ArrayList<>(aptDeps);
-        List<String> testAidlRuleNames = new ArrayList<>(aidlRuleNames);
+        List<String> testDeps = new ArrayList<>(deps)
+        List<String> testAptDeps = new ArrayList<>(aptDeps)
+        List<String> testAidlRuleNames = new ArrayList<>(aidlRuleNames)
         Set<String> providedDeps = []
 
         testDeps.add(":${src(target)}")
