@@ -1,7 +1,7 @@
 package com.uber.okbuck.wrapper;
 
 import com.google.common.collect.ImmutableMap;
-import com.uber.okbuck.core.util.ReplaceUtil;
+import com.uber.okbuck.core.util.FileUtil;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.Input;
@@ -44,7 +44,7 @@ public class BuckWrapperTask extends DefaultTask {
                 .put("template-source-roots", toWatchmanMatchers(sourceRoots))
                 .build();
 
-        ReplaceUtil.copyResourceToProject("wrapper/BUCKW_TEMPLATE", wrapper, templates);
+        FileUtil.copyResourceToProject("wrapper/BUCKW_TEMPLATE", wrapper, templates);
         wrapper.setExecutable(true);
     }
 

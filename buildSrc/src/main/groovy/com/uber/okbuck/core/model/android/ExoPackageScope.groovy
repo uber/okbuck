@@ -1,6 +1,5 @@
 package com.uber.okbuck.core.model.android
 
-import com.uber.okbuck.core.dependency.ExternalDependency
 import com.uber.okbuck.core.dependency.VersionlessDependency
 import com.uber.okbuck.core.model.base.Scope
 import com.uber.okbuck.core.model.base.Target
