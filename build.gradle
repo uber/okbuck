@@ -106,8 +106,8 @@ def addCommonConfigurationForAndroidModules(Project project, Task okbuckTask) {
 }
 
 okbuck {
-    buildToolVersion config.build.buildTools
-    target "android-${config.build.compileSdk}"
+    buildToolVersion = config.build.buildTools
+    target = "android-${config.build.compileSdk}"
 
     primaryDexPatterns = [
             'app': [
