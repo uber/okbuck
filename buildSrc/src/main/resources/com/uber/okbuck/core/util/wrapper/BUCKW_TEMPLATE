@@ -4,7 +4,7 @@
 ##
 ##  Buck wrapper script to invoke okbuck when needed, before running buck
 ##
-##  Created by OkBuck Gradle Plugin on : template-creation-time
+##  Created by OkBuck Gradle Plugin on : ${template-creation-time}
 ##
 #########################################################################
 
@@ -52,7 +52,7 @@ INSTALLED_WATCHMAN=`command -v watchman`
 
 DEFAULT_BUCK_REPO="https://github.com/facebook/buck.git"
 DEFAULT_BUCK_INSTALL_DIR="$HOME/.gradle/caches/okbuck/buck"
-CUSTOM_BUCK_REPO="template-custom-buck-repo"
+CUSTOM_BUCK_REPO="${template-custom-buck-repo}"
 CUSTOM_REMOTE_NAME="custom"
 OKBUCK_SUCCESS="$WORKING_DIR/build/okbuck.success"
 OKBUCK_DIR=".okbuck"
@@ -74,10 +74,10 @@ getToClean ( ) {
     "expression": ["allof",
         ["type", "f"],
         ["anyof",
-template-remove
+${template-remove}
         ],
         ["not",
-template-keep
+${template-keep}
         ]
     ],
     "fields": ["name"]
@@ -94,7 +94,7 @@ getChanges ( ) {
     "expression": ["allof",
         ["type", "f"],
         ["anyof",
-template-watch
+${template-watch}
         ]
     ],
     "fields": ["name"]
@@ -106,7 +106,7 @@ EOT`
     "expression": ["allof",
         ["type", "d"],
         ["anyof",
-template-source-roots
+${template-source-roots}
         ]
     ],
     "fields": ["new", "exists", "name"]

@@ -1,5 +1,6 @@
 package com.uber.okbuck.core.util;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.core.dependency.DependencyCache;
@@ -34,22 +35,22 @@ public final class RetrolambdaUtil {
     }
 
     public static void fetchRetrolambdaDeps(Project project, RetrolambdaExtension extension) {
-        if (extension.getVersion() == null) {
+        if (extension.version == null) {
             throw new IllegalStateException("Invalid retrolambda version");
         }
 
         project.getConfigurations().maybeCreate(RETROLAMBDA_DEPS_CONFIG);
         project.getDependencies().add(RETROLAMBDA_DEPS_CONFIG,
-                RETROLAMBDA_GROUP + ":" + RETROLAMBDA_MODULE + ":" + extension.getVersion()
+                RETROLAMBDA_GROUP + ":" + RETROLAMBDA_MODULE + ":" + extension.version
         );
 
         DependencyCache retrolambdaDepCache = getRetrolambdaDepsCache(project);
         Scope retrolambdaDepsScope = new Scope(
                 project,
                 Collections.singleton(RETROLAMBDA_DEPS_CONFIG),
-                Collections.emptySet(),
+                Collections.<File>emptySet(),
                 null,
-                Collections.emptyList(),
+                Collections.<String>emptyList(),
                 retrolambdaDepCache);
 
         String retrolambdaJar = retrolambdaDepsScope.getExternalDeps().iterator().next();
@@ -60,11 +61,11 @@ public final class RetrolambdaUtil {
                 new File(retrolambdaDepCache.getCacheDir(), RT_STUB_JAR));
 
         ImmutableList.Builder<String> builder = ImmutableList.<String>builder().add(RETROLAMBDA_CMD_TEMPLATE);
-        if (!StringUtils.isEmpty(extension.getJvmArgs())) {
-            builder = builder.add(extension.getJvmArgs());
+        if (!StringUtils.isEmpty(extension.jvmArgs)) {
+            builder = builder.add(extension.jvmArgs);
         }
         builder = builder.add("-jar").add(retrolambdaJar + ")").add("<<<");
-        ProjectUtil.getPlugin(project).retrolambdaCmd = String.join(" ", builder.build());
+        ProjectUtil.getPlugin(project).retrolambdaCmd = Joiner.on(" ").join(builder.build());
     }
 
     public static String getRetrolambdaCmd(Project project) {

@@ -34,8 +34,8 @@ apply plugin: 'com.uber.okbuck'
 ## 自定义配置
 ```gradle
 okbuck {
-    buildToolVersion "24.0.2"
-    target "android-24"
+    buildToolVersion = "24.0.2"
+    target = "android-24"
     linearAllocHardLimit = [
             app: 16 * 1024 * 1024
     ]

@@ -4,7 +4,7 @@
 ##
 ##  Buck wrapper script to invoke okbuck when needed, before running buck
 ##
-##  Created by OkBuck Gradle Plugin on : Sat Dec 17 19:25:56 PST 2016
+##  Created by OkBuck Gradle Plugin on : Fri Jan 13 16:41:05 PST 2017
 ##
 #########################################################################
 
@@ -74,8 +74,8 @@ getToClean ( ) {
     "expression": ["allof",
         ["type", "f"],
         ["anyof",
-            ["imatch", ".buckconfig.local", "wholename"],
-            ["imatch", "**/BUCK", "wholename"]
+            ["imatch", "**/BUCK", "wholename"],
+            ["imatch", ".buckconfig.local", "wholename"]
         ],
         ["not",
             ["imatch", ".okbuck/**/BUCK", "wholename"]
@@ -95,11 +95,11 @@ getChanges ( ) {
     "expression": ["allof",
         ["type", "f"],
         ["anyof",
+            ["imatch", "**/*.sq", "wholename"],
             ["imatch", "**/*.gradle", "wholename"],
-            ["imatch", "**/src/**/AndroidManifest.xml", "wholename"],
             ["imatch", "**/gradle-wrapper.properties", "wholename"],
             ["imatch", "**/lint.xml", "wholename"],
-            ["imatch", "**/*.sq", "wholename"]
+            ["imatch", "**/src/**/AndroidManifest.xml", "wholename"]
         ]
     ],
     "fields": ["name"]
