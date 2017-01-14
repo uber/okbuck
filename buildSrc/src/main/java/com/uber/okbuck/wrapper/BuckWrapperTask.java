@@ -52,6 +52,6 @@ public class BuckWrapperTask extends DefaultTask {
         return wildcardPatterns
                 .parallelStream()
                 .map(pattern -> "            [\"imatch\", \"" + pattern + "\", \"wholename\"]")
-                .collect(Collectors.joining(" "));
+                .collect(Collectors.joining(",\n"));
     }
 }
