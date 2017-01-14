@@ -22,7 +22,7 @@ public final class FileUtil {
 
     private FileUtil() {}
 
-    static String getRelativePath(File root, File f) {
+    public static String getRelativePath(File root, File f) {
         try {
             if (FileUtils.directoryContains(root, f)) {
                 return f.getAbsolutePath().substring(root.getAbsolutePath().length() + 1);
@@ -48,7 +48,7 @@ public final class FileUtil {
         }
     }
 
-    static void copyResourceToProject(String resource, File destination, Map<String, String> templates) {
+    public static void copyResourceToProject(String resource, File destination, Map<String, String> templates) {
         ReplaceUtil.copyResourceToProject(resource, destination, templates);
     }
 

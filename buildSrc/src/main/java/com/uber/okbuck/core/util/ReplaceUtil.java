@@ -15,10 +15,10 @@ import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.util.Map;
 
-public final class ReplaceUtil {
+final class ReplaceUtil {
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    public static void copyResourceToProject(String resource, File destination, Map<String, String> templates) {
+    static void copyResourceToProject(String resource, File destination, Map<String, String> templates) {
         try {
             InputStream inputStream = FileUtil.class.getResourceAsStream(resource);
             destination.getParentFile().mkdirs();

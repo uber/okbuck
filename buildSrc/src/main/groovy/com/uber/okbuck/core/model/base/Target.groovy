@@ -5,7 +5,6 @@ import com.uber.okbuck.extension.OkBuckExtension
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
 import org.gradle.api.Project
-import org.gradle.api.artifacts.Configuration
 
 /**
  * A target is roughly equivalent to what can be built with gradle via the various assemble tasks.
