@@ -1,10 +1,14 @@
-package com.uber.okbuck.rule.groovy
+package com.uber.okbuck.rule.groovy;
 
-import com.uber.okbuck.core.model.base.RuleType
+import com.uber.okbuck.core.model.base.RuleType;
 
-final class GroovyLibraryRule extends GroovyRule {
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
-    GroovyLibraryRule(
+public final class GroovyLibraryRule extends GroovyRule {
+
+    public GroovyLibraryRule(
             String name,
             List<String> visibility,
             List<String> deps,
@@ -17,9 +21,7 @@ final class GroovyLibraryRule extends GroovyRule {
             String targetCompatibility,
             List<String> javacOptions,
             Set<String> extraOpts) {
-
-        super(
-                RuleType.GROOVY_LIBRARY,
+        super(RuleType.GROOVY_LIBRARY,
                 name,
                 visibility,
                 deps,
@@ -31,8 +33,8 @@ final class GroovyLibraryRule extends GroovyRule {
                 sourceCompatibility,
                 targetCompatibility,
                 javacOptions,
-                null,
-                null,
-                extraOpts)
+                Collections.emptyList(),
+                Collections.emptyList(),
+                extraOpts);
     }
 }
