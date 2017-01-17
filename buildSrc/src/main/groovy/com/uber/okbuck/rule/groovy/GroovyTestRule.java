@@ -35,7 +35,7 @@ public final class GroovyTestRule extends GroovyRule {
                 targetCompatibility,
                 javacOptions,
                 testRunnerJvmArgs,
-                Arrays.asList("unit", "java"),
+                Arrays.asList("unit", "groovy"),
                 extraOpts);
     }
 }
