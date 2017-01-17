@@ -2,6 +2,7 @@ package com.uber.okbuck.rule.groovy
 
 import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.rule.base.BuckRule
+import org.apache.commons.lang.StringUtils
 
 abstract class GroovyRule extends BuckRule {
 
@@ -30,8 +31,8 @@ abstract class GroovyRule extends BuckRule {
             String targetCompatibility,
             List<String> javacOptions,
             List<String> testRunnerJvmArgs,
-            List<String> labels = null,
-            Set<String> extraOpts = []) {
+            List<String> labels,
+            Set<String> extraOpts) {
 
         super(ruleType, name, visibility, deps, extraOpts)
         mSrcSet = srcSet
@@ -57,7 +58,7 @@ abstract class GroovyRule extends BuckRule {
             printer.println("\t]),")
         }
 
-        if (mResourcesDir) {
+        if (!StringUtils.isEmpty(mResourcesDir)) {
             printer.println("\tresources = glob([")
             printer.println("\t\t'${mResourcesDir}/**',")
             printer.println("\t]),")

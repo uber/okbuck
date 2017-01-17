@@ -22,8 +22,8 @@ final class DotBuckConfigLocalGenerator {
             ProjectUtil.getType(project) == ProjectType.ANDROID_APP
         }.each { Project project ->
             ProjectUtil.getTargets(project).each { String name, Target target ->
-                aliases.put("${target.identifier.replaceAll(':', '-')}${name.capitalize()}",
-                        "//${target.path}:${AndroidBuckRuleComposer.bin((AndroidAppTarget) target)}")
+                aliases.put("${target.identifier.replaceAll(':', '-')}${name.capitalize()}" as String,
+                        "//${target.path}:${AndroidBuckRuleComposer.bin((AndroidAppTarget) target)}" as String)
             }
         }
 

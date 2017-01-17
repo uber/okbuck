@@ -1,10 +1,14 @@
-package com.uber.okbuck.rule.groovy
+package com.uber.okbuck.rule.groovy;
 
-import com.uber.okbuck.core.model.base.RuleType
+import com.uber.okbuck.core.model.base.RuleType;
 
-final class GroovyLibraryRule extends GroovyRule {
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 
-    GroovyLibraryRule(
+public final class GroovyTestRule extends GroovyRule {
+
+    public GroovyTestRule(
             String name,
             List<String> visibility,
             List<String> deps,
@@ -16,10 +20,9 @@ final class GroovyLibraryRule extends GroovyRule {
             String sourceCompatibility,
             String targetCompatibility,
             List<String> javacOptions,
+            List<String> testRunnerJvmArgs,
             Set<String> extraOpts) {
-
-        super(
-                RuleType.GROOVY_LIBRARY,
+        super(RuleType.GROOVY_TEST,
                 name,
                 visibility,
                 deps,
@@ -31,8 +34,8 @@ final class GroovyLibraryRule extends GroovyRule {
                 sourceCompatibility,
                 targetCompatibility,
                 javacOptions,
-                null,
-                null,
-                extraOpts)
+                testRunnerJvmArgs,
+                Arrays.asList("unit", "groovy"),
+                extraOpts);
     }
 }
