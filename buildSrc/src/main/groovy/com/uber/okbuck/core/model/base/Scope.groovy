@@ -60,18 +60,12 @@ class Scope {
         }
     }
 
-    Set<Target> getTargetAnnotationProcessorDeps() {
-        return targetDeps.findAll { Target target ->
-            target.getProp(project.rootProject.okbuck.annotationProcessors as Map, null) != null
-        }
-    }
-
     Set<String> getAnnotationProcessors() {
         return ((firstLevel.collect {
             depCache.getAnnotationProcessors(it)
-        } + getTargetAnnotationProcessorDeps().collect { Target target ->
-            target.getProp(project.rootProject.okbuck.annotationProcessors as Map, null) as Set<String>
-        }).flatten() as Set<String>).findAll { it != null && !it.empty }
+        } + targetDeps.collect { Target target ->
+            target.getProp(project.rootProject.okbuck.annotationProcessors as Map, []) as Set<String>
+        }).flatten() as Set<String>).findAll { !it.empty }
     }
 
     private void extractConfigurations(Collection<String> configurations) {

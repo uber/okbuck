@@ -10,9 +10,10 @@ final class AptRuleComposer extends JavaBuckRuleComposer {
     }
 
     static AptRule compose(JavaTarget target) {
-        Set<String> aptDeps = target.apt.externalDeps.findAll { String dep ->
+        Set<String> aptDeps = external(target.apt.externalDeps.findAll { String dep ->
             dep.endsWith(".jar")
-        }
-        return new AptRule(aptJar(target), external(aptDeps) as List)
+        })
+        aptDeps += targets(target.apt.targetDeps)
+        return new AptRule(aptJar(target), aptDeps as List)
     }
 }
