@@ -2,12 +2,15 @@ buildscript {
     apply from: rootProject.file('dependencies.gradle')
     repositories {
         jcenter()
+        maven { url "https://plugins.gradle.org/m2/" }
     }
     dependencies {
         classpath deps.build.androidPlugin
         classpath deps.build.butterKnifePlugin
         classpath deps.build.retrolambdaPlugin
         classpath deps.build.sqlDelightPlugin
+        classpath deps.build.providedPlugin
+        classpath deps.build.shadowJar
     }
 }
 
@@ -157,6 +160,10 @@ okbuck {
 
     wrapper {
         watch += ["**/*.sq"]
+    }
+
+    experimental {
+        transform = true
     }
 }
 

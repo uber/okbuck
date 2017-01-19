@@ -1,0 +1,35 @@
+apply plugin: "application"
+apply plugin: "nebula.provided-base"
+apply plugin: "com.github.johnrengelman.shadow"
+
+jar.manifest.attributes(
+        'Implementation-Title': 'Cli Transform',
+        'Implementation-Version': '1.0',
+        'Main-Class': 'com.ubercab.transform.CliTransform',
+        'X-Compile-Source-JDK': '1.7',
+        'X-Compile-Target-JDK': '1.7')
+
+mainClassName = "com.ubercab.transform.CliTransform"
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    provided deps.build.gradleCore
+    compile deps.support.annotations
+    compile deps.build.androidPluginApi
+    compile deps.build.commonsIo
+    testCompile deps.test.junit
+    testCompile deps.test.mockito
+    testCompile deps.test.assertj
+}
+
+shadowJar {
+    baseName = 'transform-cli'
+    classifier = null
+    version = null
+    dependencies {
+        exclude(dependency(deps.build.gradleCore))
+    }
+}
