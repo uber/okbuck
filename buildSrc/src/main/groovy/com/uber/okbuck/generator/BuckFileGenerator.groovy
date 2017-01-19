@@ -165,7 +165,6 @@ final class BuckFileGenerator {
             rules.add(aptRule)
             aptDeps.add(":${aptRule.name}")
         }
-        aptDeps.addAll(BuckRuleComposer.targets(target.apt.getTargetAnnotationProcessorDeps()))
 
         // Jni
         androidLibRules.addAll(target.jniLibs.collect { String jniLib ->
