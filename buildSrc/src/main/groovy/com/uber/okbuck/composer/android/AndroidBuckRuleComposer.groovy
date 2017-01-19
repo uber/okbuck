@@ -27,7 +27,7 @@ abstract class AndroidBuckRuleComposer extends JavaBuckRuleComposer {
     }
 
     static String aidl(AndroidTarget target, String aidlDir) {
-        return "${target.name}_${aidlDir.replaceAll('-', '_')}_aidls"
+        return "${target.name}_${aidlDir.replaceAll("[/-]", '_')}_aidls"
     }
 
     static String appLib(AndroidTarget target) {
