@@ -26,8 +26,8 @@ abstract class AndroidBuckRuleComposer extends JavaBuckRuleComposer {
         return "prebuilt_native_library_${target.name}_${jniLibDir.replaceAll("/", "_")}"
     }
 
-    static String aidl(AndroidTarget target) {
-        return "${target.name}_aidls"
+    static String aidl(AndroidTarget target, String aidlDir) {
+        return "${target.name}_${aidlDir.replaceAll("[/-]", '_')}_aidls"
     }
 
     static String appLib(AndroidTarget target) {
