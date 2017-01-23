@@ -42,6 +42,13 @@ def external = [
         xlogAndroidIdle: 'com.github.promeg:xlog-android-idle:2.1.1',
 ]
 
+def lint = [
+        lint      : "com.android.tools.lint:lint:25.1.0",
+        lintApi   : "com.android.tools.lint:lint-api:25.1.0",
+        lintChecks: "com.android.tools.lint:lint-checks:25.1.0",
+        lintTests : "com.android.tools.lint:lint-tests:25.1.0",
+]
+
 def support = [
         annotations : "com.android.support:support-annotations:${versions.supportVersion}",
         appCompat   : "com.android.support:appcompat-v7:${versions.supportVersion}",
@@ -67,6 +74,7 @@ ext.deps = [
         "apt"     : apt,
         "build"   : build,
         "external": external,
+        "lint"    : lint,
         "support" : support,
         "test"    : test,
         "versions": versions
