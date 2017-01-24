@@ -1,6 +1,5 @@
 package com.uber.okbuck.core.util;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.gradle.api.Project;
 import org.jetbrains.annotations.Nullable;
@@ -10,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -23,14 +23,12 @@ public final class FileUtil {
     private FileUtil() {}
 
     public static String getRelativePath(File root, File f) {
-        try {
-            if (FileUtils.directoryContains(root, f)) {
-                return f.getAbsolutePath().substring(root.getAbsolutePath().length() + 1);
-            } else {
-                throw new IllegalStateException(f + " must be located inside " + root);
-            }
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
+        Path fPath = f.toPath();
+        Path rootPath = root.toPath();
+        if (fPath.startsWith(rootPath)) {
+            return f.toPath().toString().substring(root.toPath().toString().length() + 1);
+        } else {
+            throw new IllegalStateException(f + " must be located inside " + root);
         }
     }
 

@@ -69,7 +69,7 @@ final class TrasformDependencyWriterRuleComposer extends AndroidBuckRuleComposer
             } else {
                 configFile.parentFile.mkdirs()
             }
-            Files.copy(config.toPath(), configFile.toPath())
+            Files.createSymbolicLink(configFile.toPath(), config.toPath())
         }
         return "//${TransformUtil.TRANSFORM_CACHE}:${path}"
     }

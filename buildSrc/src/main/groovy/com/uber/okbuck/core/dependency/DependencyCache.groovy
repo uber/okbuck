@@ -130,7 +130,7 @@ class DependencyCache {
 
             // Copy the file into the cache
             if (!cachedCopy.exists()) {
-                Files.copy(e.depFile.toPath(), cachedCopy.toPath())
+                Files.createSymbolicLink(cachedCopy.toPath(), e.depFile.toPath());
             }
             cachedCopies.add(cachedCopy)
 
@@ -204,7 +204,7 @@ class DependencyCache {
 
         File cachedCopy = new File(cacheDir, dependency.getSourceCacheName(useFullDepName))
         if (sourcesJar != null && sourcesJar.exists() && !cachedCopy.exists()) {
-            FileUtils.copyFile(sourcesJar, cachedCopy)
+            Files.createSymbolicLink(cachedCopy.toPath(), sourcesJar.toPath())
         }
         return cachedCopy
     }
