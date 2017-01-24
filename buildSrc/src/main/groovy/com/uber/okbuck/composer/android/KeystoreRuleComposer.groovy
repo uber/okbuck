@@ -2,7 +2,6 @@ package com.uber.okbuck.composer.android
 
 import com.uber.okbuck.core.model.android.AndroidAppTarget
 import com.uber.okbuck.core.util.FileUtil
-import org.apache.commons.io.FileUtils
 
 import java.nio.file.Files
 
@@ -26,7 +25,9 @@ final class KeystoreRuleComposer {
             String storeFilePropsName = "${target.name}.keystore.properties"
 
             File keyStoreCopy = new File(storeDir, storeFileName)
-            Files.createSymbolicLink(keyStoreCopy.toPath(), keystore.storeFile.toPath())
+            if (!keyStoreCopy.exists()) {
+                Files.createSymbolicLink(keyStoreCopy.toPath(), keystore.storeFile.toPath())
+            }
 
             PrintWriter writer = new PrintWriter(new FileOutputStream(new File(storeDir,
                     storeFilePropsName)))
