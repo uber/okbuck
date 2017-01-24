@@ -14,12 +14,9 @@ import com.android.utils.ILogger
 import com.uber.okbuck.core.model.base.Scope
 import com.uber.okbuck.core.model.java.JavaLibTarget
 import com.uber.okbuck.core.util.FileUtil
-import groovy.transform.ToString
 import groovy.util.slurpersupport.GPathResult
-import groovy.xml.StreamingMarkupBuilder
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
-import org.gradle.api.logging.Logger
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.testing.Test
 
@@ -29,6 +26,7 @@ import org.gradle.api.tasks.testing.Test
 abstract class AndroidTarget extends JavaLibTarget {
 
     static final String DEFAULT_RES_NAME = "main"
+    static final EmptyLogger EMPTY_LOGGER = new EmptyLogger()
 
     final String applicationId
     final String applicationIdSuffix
@@ -41,11 +39,11 @@ abstract class AndroidTarget extends JavaLibTarget {
 
     private String manifestPath
     private String packageName
-    private boolean mIsTest
+    boolean isTest
 
     AndroidTarget(Project project, String name, boolean isTest = false) {
         super(project, name)
-        mIsTest = isTest
+        this.isTest = isTest
 
         String suffix = ""
         if (baseVariant.mergedFlavor.applicationIdSuffix != null) {
@@ -57,8 +55,8 @@ abstract class AndroidTarget extends JavaLibTarget {
 
         applicationIdSuffix = suffix
         if (isTest) {
-            applicationId = baseVariant.applicationId - ".test" - applicationIdSuffix
-            applicationId = applicationId - applicationIdSuffix
+            String applicationIdString = baseVariant.applicationId - ".test" - applicationIdSuffix
+            applicationId = applicationIdString - applicationIdSuffix
         } else {
             applicationId = baseVariant.applicationId - applicationIdSuffix
         }
@@ -72,8 +70,7 @@ abstract class AndroidTarget extends JavaLibTarget {
 
         if (baseVariant.mergedFlavor.minSdkVersion == null ||
                 baseVariant.mergedFlavor.targetSdkVersion == null) {
-            minSdk = 1
-            targetSdk = 1
+            minSdk = targetSdk = 1
             throw new IllegalStateException("module `" + project.name +
                     "` must specify minSdkVersion and targetSdkVersion in build.gradle")
         } else {
@@ -153,7 +150,7 @@ abstract class AndroidTarget extends JavaLibTarget {
 
     List<String> getBuildConfigFields() {
         List<String> buildConfig = [
-                mIsTest ? "String APPLICATION_ID = \"${applicationId + applicationIdSuffix + ".test"}\""
+                isTest ? "String APPLICATION_ID = \"${applicationId + applicationIdSuffix + ".test"}\""
                         : "String APPLICATION_ID = \"${applicationId + applicationIdSuffix}\"",
                 "String BUILD_TYPE = \"${buildType}\"",
                 "String FLAVOR = \"${flavor}\"",
@@ -245,84 +242,62 @@ abstract class AndroidTarget extends JavaLibTarget {
         return manifestPath
     }
 
+    abstract String processManifestXml(GPathResult manifestXml)
+
     private void ensureManifest() {
-        Set<String> manifests = [] as Set
+        Set<String> manifests = getAvailable(baseVariant.sourceSets.collect { SourceProvider provider ->
+            provider.manifestFile
+        })
 
-        baseVariant.sourceSets.each { SourceProvider provider ->
-            manifests.addAll(getAvailable(Collections.singletonList(provider.manifestFile)))
-        }
-
+        // Nothing to merge
         if (manifests.empty) {
             return
         }
-
-        File mainManifest = project.file(manifests[0])
-
-        List<File> secondaryManifests = []
-        secondaryManifests.addAll(
-                manifests.collect {
-                    String manifestFile -> project.file(manifestFile)
-                })
-
-        secondaryManifests.remove(mainManifest)
 
         File mergedManifest = project.file("${project.buildDir}/okbuck/${name}/AndroidManifest.xml")
         mergedManifest.parentFile.mkdirs()
         mergedManifest.createNewFile()
 
-        MergingReport report = ManifestMerger2.newMerger(mainManifest, new GradleLogger(project.logger), mergeType)
-                .addFlavorAndBuildTypeManifests(secondaryManifests as File[])
-                .withFeatures(ManifestMerger2.Invoker.Feature.NO_PLACEHOLDER_REPLACEMENT) // needs to be handled by buck
-                .merge()
+        if (manifests.size() == 1) { // No need to merge
+            parseManifest(project.file(manifests[0]).text, mergedManifest)
+        } else {
+            File mainManifest = project.file(manifests[0])
+            List<File> secondaryManifests = []
+            secondaryManifests.addAll(
+                    manifests.collect {
+                        String manifestFile -> project.file(manifestFile)
+                    })
 
-        if (report.result.success) {
-            mergedManifest.text = report.getMergedDocument(MergingReport.MergedManifestKind.MERGED)
+            secondaryManifests.remove(mainManifest)
 
-            XmlSlurper slurper = new XmlSlurper()
-            GPathResult manifestXml = slurper.parse(project.file(mergedManifest))
+            MergingReport report =
+                    ManifestMerger2.newMerger(mainManifest, EMPTY_LOGGER, mergeType) // errors are reported later
+                            .addFlavorAndBuildTypeManifests(secondaryManifests as File[])
+                            .withFeatures(ManifestMerger2.Invoker.Feature.NO_PLACEHOLDER_REPLACEMENT) // handled by buck
+                            .merge()
 
-            packageName = manifestXml.@package
-            if (mIsTest) {
-                manifestXml.@package = applicationId + applicationIdSuffix + ".test"
+            if (report.result.success) {
+                parseManifest(report.getMergedDocument(MergingReport.MergedManifestKind.MERGED), mergedManifest)
             } else {
-                manifestXml.@package = applicationId + applicationIdSuffix
+                throw new IllegalStateException(report.loggingRecords.collect {
+                    "${it.severity}: ${it.message} at ${it.sourceLocation}"
+                }.join('\n'))
             }
-
-            if (versionCode) {
-                manifestXml.@'android:versionCode' = String.valueOf(versionCode)
-            }
-            if (versionName) {
-                manifestXml.@'android:versionName' = versionName
-            }
-            manifestXml.application.@'android:debuggable' = String.valueOf(debuggable)
-
-            def sdkNode = {
-                'uses-sdk'('android:minSdkVersion': String.valueOf(minSdk),
-                        'android:targetSdkVersion': String.valueOf(targetSdk)) {}
-            }
-            if (manifestXml.'uses-sdk'.size() == 0) {
-                manifestXml.appendNode(sdkNode)
-            } else {
-                manifestXml.'uses-sdk'.replaceNode(sdkNode)
-            }
-
-            def builder = new StreamingMarkupBuilder()
-            builder.setUseDoubleQuotes(true)
-            mergedManifest.text = (builder.bind {
-                mkp.yield manifestXml
-            } as String)
-                    .replaceAll("\\{http://schemas.android.com/apk/res/android\\}versionCode", "android:versionCode")
-                    .replaceAll("\\{http://schemas.android.com/apk/res/android\\}versionName", "android:versionName")
-                    .replaceAll("\\{http://schemas.android.com/apk/res/android\\}debuggable", "android:debuggable")
-                    .replaceAll('xmlns:android="http://schemas.android.com/apk/res/android"', "")
-                    .replaceAll("<manifest ", '<manifest xmlns:android="http://schemas.android.com/apk/res/android" ')
-        } else if (report.result.error) {
-            throw new IllegalStateException(report.loggingRecords.collect {
-                "${it.severity}: ${it.message} at ${it.sourceLocation}"
-            }.join('\n'))
         }
-
         manifestPath = FileUtil.getRelativePath(project.projectDir, mergedManifest)
+    }
+
+    private void parseManifest(String originalManifest, File mergedManifest) {
+        XmlSlurper slurper = new XmlSlurper()
+        GPathResult manifestXml = slurper.parseText(originalManifest)
+        packageName = manifestXml.@package
+
+        String processedManifest = processManifestXml(manifestXml)
+        if (processedManifest) {
+            mergedManifest.text = processedManifest
+        } else {
+            mergedManifest.text = originalManifest
+        }
     }
 
     static List<String> getJavaCompilerOptions(BaseVariant baseVariant) {
@@ -371,7 +346,6 @@ abstract class AndroidTarget extends JavaLibTarget {
         }
     }
 
-    @ToString(includeNames = true)
     static class ResBundle {
 
         String name
@@ -404,32 +378,26 @@ abstract class AndroidTarget extends JavaLibTarget {
         }
     }
 
-    private static class GradleLogger implements ILogger {
-
-        private final Logger mLogger
-
-        GradleLogger(Logger logger) {
-            mLogger = logger
-        }
+    private static class EmptyLogger implements ILogger {
 
         @Override
         void error(Throwable throwable, String s, Object... objects) {
-            mLogger.error(s, objects)
+            // ignore
         }
 
         @Override
         void warning(String s, Object... objects) {
-            mLogger.warn(s, objects)
+            // ignore
         }
 
         @Override
         void info(String s, Object... objects) {
-            mLogger.info(s, objects)
+            // ignore
         }
 
         @Override
         void verbose(String s, Object... objects) {
-            mLogger.debug(s, objects)
+            //ignore
         }
     }
 }

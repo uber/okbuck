@@ -6,6 +6,8 @@ import com.android.manifmerger.ManifestMerger2
 import com.uber.okbuck.core.model.base.Target
 import com.uber.okbuck.core.util.FileUtil
 import groovy.transform.ToString
+import groovy.util.slurpersupport.GPathResult
+import groovy.xml.StreamingMarkupBuilder
 import org.apache.commons.io.FilenameUtils
 import org.gradle.api.Project
 
@@ -67,6 +69,38 @@ class AndroidAppTarget extends AndroidLibTarget {
     @Override
     ManifestMerger2.MergeType getMergeType() {
         return ManifestMerger2.MergeType.APPLICATION
+    }
+
+    @Override
+    String processManifestXml(GPathResult manifestXml) {
+        if (isTest) {
+            manifestXml.@package = applicationId + applicationIdSuffix + ".test"
+        } else {
+            manifestXml.@package = applicationId + applicationIdSuffix
+        }
+
+        manifestXml.@'android:versionCode' = String.valueOf(versionCode)
+        manifestXml.@'android:versionName' = versionName
+        manifestXml.application.@'android:debuggable' = String.valueOf(debuggable)
+
+        def sdkNode = {
+            'uses-sdk'('android:minSdkVersion': String.valueOf(minSdk),
+                    'android:targetSdkVersion': String.valueOf(targetSdk)) {}
+        }
+        if (manifestXml.'uses-sdk'.size() == 0) {
+            manifestXml.appendNode(sdkNode)
+        } else {
+            manifestXml.'uses-sdk'.replaceNode(sdkNode)
+        }
+
+        def builder = new StreamingMarkupBuilder()
+        builder.setUseDoubleQuotes(true)
+        return (builder.bind {
+            mkp.yield manifestXml
+        } as String)
+                .replaceAll('\\{http://schemas.android.com/apk/res/android\\}', 'android:')
+                .replaceAll('xmlns:android="http://schemas.android.com/apk/res/android"', '')
+                .replaceFirst('<manifest ', '<manifest xmlns:android="http://schemas.android.com/apk/res/android" ')
     }
 
     ExoPackageScope getExopackage() {
