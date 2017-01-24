@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
@@ -23,10 +24,10 @@ public final class FileUtil {
     private FileUtil() {}
 
     public static String getRelativePath(File root, File f) {
-        Path fPath = f.toPath();
-        Path rootPath = root.toPath();
+        Path fPath = f.toPath().toAbsolutePath();
+        Path rootPath = root.toPath().toAbsolutePath();
         if (fPath.startsWith(rootPath)) {
-            return f.toPath().toString().substring(root.toPath().toString().length() + 1);
+            return fPath.toString().substring(rootPath.toString().length() + 1);
         } else {
             throw new IllegalStateException(f + " must be located inside " + root);
         }
@@ -64,5 +65,14 @@ public final class FileUtil {
     public static String getIfAvailable(Project project, File file) {
         Set<String> available = getIfAvailable(project, Collections.singleton(file));
         return available.isEmpty() ? null : available.iterator().next();
+    }
+
+    public static void createLink(File src, File target) {
+        target.delete();
+        try {
+            Files.createSymbolicLink(target.toPath(), src.toPath());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

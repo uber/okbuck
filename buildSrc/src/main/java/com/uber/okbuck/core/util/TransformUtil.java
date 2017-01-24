@@ -10,7 +10,7 @@ import java.util.Collections;
 public final class TransformUtil {
 
     private static final String CONFIGURATION_TRANSFORM = "transform";
-    private static final String TRANSFORM_CACHE = OkBuckGradlePlugin.DEFAULT_CACHE_PATH + "/transform";
+    public static final String TRANSFORM_CACHE = OkBuckGradlePlugin.DEFAULT_CACHE_PATH + "/transform";
     private static final String TRANSFORM_BUCK_FILE = "transform/BUCK_FILE";
 
     public static final String TRANSFORM_RULE = "//" + TRANSFORM_CACHE + ":okbuck_transform";

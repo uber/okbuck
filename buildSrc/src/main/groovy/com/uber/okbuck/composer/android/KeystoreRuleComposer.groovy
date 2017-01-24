@@ -25,9 +25,7 @@ final class KeystoreRuleComposer {
             String storeFilePropsName = "${target.name}.keystore.properties"
 
             File keyStoreCopy = new File(storeDir, storeFileName)
-            if (!keyStoreCopy.exists()) {
-                Files.createSymbolicLink(keyStoreCopy.toPath(), keystore.storeFile.toPath())
-            }
+            FileUtil.createLink(keystore.storeFile, keyStoreCopy)
 
             PrintWriter writer = new PrintWriter(new FileOutputStream(new File(storeDir,
                     storeFilePropsName)))
