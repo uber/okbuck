@@ -72,18 +72,7 @@ public final class LintUtil {
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public static synchronized String getLintwConfigRule(Project project, File config) {
         File configFile = new File(LINT_DEPS_CACHE + "/" + getLintwConfigName(project, config));
-        try {
-            if (!configFile.exists() || !FileUtils.contentEquals(configFile, config)) {
-                if (configFile.exists()) {
-                    configFile.delete();
-                } else {
-                    configFile.getParentFile().mkdirs();
-                }
-                Files.createSymbolicLink(configFile.toPath(), config.toPath());
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        FileUtil.createLink(config, configFile);
         return "//" + LINT_DEPS_CACHE + ":" + getLintwConfigName(project, config);
     }
 

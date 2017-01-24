@@ -130,7 +130,7 @@ class DependencyCache {
 
             // Copy the file into the cache
             if (!cachedCopy.exists()) {
-                Files.createSymbolicLink(cachedCopy.toPath(), e.depFile.toPath());
+                Files.createSymbolicLink(cachedCopy.toPath(), e.depFile.toPath())
             }
             cachedCopies.add(cachedCopy)
 
