@@ -79,7 +79,7 @@ public final class LintUtil {
                 } else {
                     configFile.getParentFile().mkdirs();
                 }
-                Files.copy(config.toPath(), configFile.toPath());
+                Files.createSymbolicLink(configFile.toPath(), config.toPath());
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
