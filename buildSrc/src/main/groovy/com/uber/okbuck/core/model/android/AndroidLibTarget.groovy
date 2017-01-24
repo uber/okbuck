@@ -2,6 +2,7 @@ package com.uber.okbuck.core.model.android
 
 import com.android.build.gradle.api.BaseVariant
 import com.android.manifmerger.ManifestMerger2
+import groovy.util.slurpersupport.GPathResult
 import org.gradle.api.Project
 
 /**
@@ -21,5 +22,10 @@ class AndroidLibTarget extends AndroidTarget {
     @Override
     ManifestMerger2.MergeType getMergeType() {
         return ManifestMerger2.MergeType.LIBRARY
+    }
+
+    @Override
+    String processManifestXml(GPathResult manifestXml) {
+        return null
     }
 }
