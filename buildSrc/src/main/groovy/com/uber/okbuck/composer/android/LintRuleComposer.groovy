@@ -9,15 +9,20 @@ import com.uber.okbuck.core.util.FileUtil
 import com.uber.okbuck.core.util.LintUtil
 import com.uber.okbuck.core.util.ProjectUtil
 import com.uber.okbuck.extension.LintExtension
+import com.uber.okbuck.rule.android.AndroidLibraryWrapperRule
+import com.uber.okbuck.rule.base.BuckRule
 import com.uber.okbuck.rule.base.GenRule
 
 final class LintRuleComposer extends JvmBuckRuleComposer {
+
+    private static final String BUCK_LINT_LIBRARIES = "buck_lint_libraries"
 
     private LintRuleComposer() {
         // no instance
     }
 
-    static GenRule compose(JavaTarget target) {
+    static List<BuckRule> compose(JavaTarget target) {
+        List<BuckRule> lintRules = []
         String lintConfigXml = ""
         if (target.lintOptions.lintConfig != null && target.lintOptions.lintConfig.exists()) {
             lintConfigXml = LintUtil.getLintwConfigRule(target.project, target.lintOptions.lintConfig)
@@ -57,12 +62,13 @@ final class LintRuleComposer extends JvmBuckRuleComposer {
         if (!target.main.sources.empty) {
             lintCmds.add("--classpath ${toLocation(":${src(target)}")}")
 
-            Set<String> lintLibraries = []
-            lintLibraries = lintLibraries + target.lintLibraries.externalDeps
-            lintLibraries = lintLibraries + target.lintLibraries.targetDeps
-            if (!lintLibraries.isEmpty()) {
-                String libraries = lintLibraries.join(':')
-                lintCmds.add("--libraries ${libraries}")
+            Set<String> lintLibraries = external(target.lintLibraries.externalDeps) +
+                    targets(target.lintLibraries.targetDeps)
+            if (lintLibraries) {
+                AndroidLibraryWrapperRule wrapperRule =
+                        new AndroidLibraryWrapperRule(BUCK_LINT_LIBRARIES, lintLibraries as List)
+                lintRules.add(wrapperRule)
+                lintCmds.add("--libraries ${toClasspath(":" + BUCK_LINT_LIBRARIES)}")
             }
         }
         if (target.lintOptions.abortOnError) {
@@ -122,10 +128,12 @@ final class LintRuleComposer extends JvmBuckRuleComposer {
             lintCmds.add(relativeManifestDir)
         }
 
-        return new GenRule(
+        lintRules.add(new GenRule(
                 lint(target),
                 inputs,
-                lintCmds)
+                lintCmds))
+
+        return lintRules
     }
 
     private static String lint(final JavaTarget target) {

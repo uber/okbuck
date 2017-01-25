@@ -3,10 +3,10 @@ package com.uber.okbuck.rule.java
 import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.rule.base.BuckRule
 
-final class AptRule extends BuckRule {
+final class JavaLibraryWrapperRule extends BuckRule {
 
-    AptRule(String name, List<String> annotationProcessorDeps) {
-        super(RuleType.JAVA_LIBRARY, name, [], annotationProcessorDeps)
+    JavaLibraryWrapperRule(String name, List<String> deps) {
+        super(RuleType.JAVA_LIBRARY, name, [], deps)
     }
 
     @Override

@@ -45,7 +45,7 @@ abstract class JavaTarget extends JvmTarget {
     }
 
     /**
-     * Lint Scope
+     * Lint libraries Scope
      */
     Scope getLintLibraries() {
         File res = null

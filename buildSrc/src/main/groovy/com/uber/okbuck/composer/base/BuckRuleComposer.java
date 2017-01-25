@@ -50,4 +50,8 @@ public abstract class BuckRuleComposer {
     public static String toLocation(final String target) {
         return "$(location " + target + ")";
     }
+
+    public static String toClasspath(final String target) {
+        return "$(classpath " + target + ")";
+    }
 }
