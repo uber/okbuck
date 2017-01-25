@@ -159,7 +159,7 @@ class DependencyCache {
                     return pathname.isFile() && (pathname.name.endsWith(".jar") || pathname.name.endsWith(".aar"))
                 }
             }) - cachedCopies).each { File f ->
-                f.delete()
+                Files.deleteIfExists(f.toPath())
             }
         }
     }

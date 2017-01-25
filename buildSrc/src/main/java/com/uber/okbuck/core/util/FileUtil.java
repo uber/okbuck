@@ -67,10 +67,14 @@ public final class FileUtil {
         return available.isEmpty() ? null : available.iterator().next();
     }
 
-    public static void createLink(File src, File target) {
-        target.delete();
+    public static void createLink(File target, File link) {
+        Path targetPath = target.toPath();
+        Path linkPath = link.toPath();
         try {
-            Files.createSymbolicLink(target.toPath().toAbsolutePath(), src.toPath().toAbsolutePath());
+            if (!Files.isSameFile(targetPath, linkPath)) {
+                Files.deleteIfExists(linkPath);
+                Files.createSymbolicLink(linkPath, targetPath);
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
