@@ -82,25 +82,7 @@ class AndroidAppTarget extends AndroidLibTarget {
         manifestXml.@'android:versionCode' = String.valueOf(versionCode)
         manifestXml.@'android:versionName' = versionName
         manifestXml.application.@'android:debuggable' = String.valueOf(debuggable)
-
-        def sdkNode = {
-            'uses-sdk'('android:minSdkVersion': String.valueOf(minSdk),
-                    'android:targetSdkVersion': String.valueOf(targetSdk)) {}
-        }
-        if (manifestXml.'uses-sdk'.size() == 0) {
-            manifestXml.appendNode(sdkNode)
-        } else {
-            manifestXml.'uses-sdk'.replaceNode(sdkNode)
-        }
-
-        def builder = new StreamingMarkupBuilder()
-        builder.setUseDoubleQuotes(true)
-        return (builder.bind {
-            mkp.yield manifestXml
-        } as String)
-                .replaceAll('\\{http://schemas.android.com/apk/res/android\\}', 'android:')
-                .replaceAll('xmlns:android="http://schemas.android.com/apk/res/android"', '')
-                .replaceFirst('<manifest ', '<manifest xmlns:android="http://schemas.android.com/apk/res/android" ')
+        return super.processManifestXml(manifestXml)
     }
 
     ExoPackageScope getExopackage() {

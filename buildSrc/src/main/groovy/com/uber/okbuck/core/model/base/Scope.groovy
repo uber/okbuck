@@ -81,11 +81,13 @@ class Scope {
         // get all first level external dependencies
         validConfigurations.collect {
             it.resolvedConfiguration.firstLevelModuleDependencies.each { ResolvedDependency resolvedDependency ->
-                ResolvedArtifact artifact = resolvedDependency.moduleArtifacts[0]
-                VersionlessDependency dependency = new VersionlessDependency(artifact.moduleVersion.id)
+                if (!resolvedDependency.moduleArtifacts.empty) {
+                    ResolvedArtifact artifact = resolvedDependency.moduleArtifacts[0]
+                    VersionlessDependency dependency = new VersionlessDependency(artifact.moduleVersion.id)
 
-                if (!depCache.getProject(dependency)) {
-                    firstLevel.add(dependency)
+                    if (!depCache.getProject(dependency)) {
+                        firstLevel.add(dependency)
+                    }
                 }
             }
         }

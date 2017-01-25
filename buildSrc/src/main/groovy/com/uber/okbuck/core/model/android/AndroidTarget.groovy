@@ -15,6 +15,7 @@ import com.uber.okbuck.core.model.base.Scope
 import com.uber.okbuck.core.model.java.JavaLibTarget
 import com.uber.okbuck.core.util.FileUtil
 import groovy.util.slurpersupport.GPathResult
+import groovy.xml.StreamingMarkupBuilder
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.tasks.compile.JavaCompile
@@ -242,7 +243,26 @@ abstract class AndroidTarget extends JavaLibTarget {
         return manifestPath
     }
 
-    abstract String processManifestXml(GPathResult manifestXml)
+    String processManifestXml(GPathResult manifestXml) {
+        def sdkNode = {
+            'uses-sdk'('android:minSdkVersion': String.valueOf(minSdk),
+                    'android:targetSdkVersion': String.valueOf(targetSdk)) {}
+        }
+        if (manifestXml.'uses-sdk'.size() == 0) {
+            manifestXml.appendNode(sdkNode)
+        } else {
+            manifestXml.'uses-sdk'.replaceNode(sdkNode)
+        }
+
+        def builder = new StreamingMarkupBuilder()
+        builder.setUseDoubleQuotes(true)
+        return (builder.bind {
+            mkp.yield manifestXml
+        } as String)
+                .replaceAll('\\{http://schemas.android.com/apk/res/android\\}', 'android:')
+                .replaceAll('xmlns:android="http://schemas.android.com/apk/res/android"', '')
+                .replaceFirst('<manifest ', '<manifest xmlns:android="http://schemas.android.com/apk/res/android" ')
+    }
 
     private void ensureManifest() {
         Set<String> manifests = getAvailable(baseVariant.sourceSets.collect { SourceProvider provider ->
@@ -293,11 +313,7 @@ abstract class AndroidTarget extends JavaLibTarget {
         packageName = manifestXml.@package
 
         String processedManifest = processManifestXml(manifestXml)
-        if (processedManifest) {
-            mergedManifest.text = processedManifest
-        } else {
-            mergedManifest.text = originalManifest
-        }
+        mergedManifest.text = processedManifest
     }
 
     static List<String> getJavaCompilerOptions(BaseVariant baseVariant) {
