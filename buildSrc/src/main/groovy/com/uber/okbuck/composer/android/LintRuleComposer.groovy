@@ -56,6 +56,14 @@ final class LintRuleComposer extends JvmBuckRuleComposer {
 
         if (!target.main.sources.empty) {
             lintCmds.add("--classpath ${toLocation(":${src(target)}")}")
+
+            Set<String> lintLibraries = []
+            lintLibraries = lintLibraries + target.lintLibraries.externalDeps
+            lintLibraries = lintLibraries + target.lintLibraries.targetDeps
+            if (!lintLibraries.isEmpty()) {
+                String libraries = lintLibraries.join(':')
+                lintCmds.add("--libraries ${libraries}")
+            }
         }
         if (target.lintOptions.abortOnError) {
             lintCmds.add("--exitcode")

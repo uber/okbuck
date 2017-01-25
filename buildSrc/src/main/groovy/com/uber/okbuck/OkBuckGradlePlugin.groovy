@@ -46,6 +46,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     public static final String DEFAULT_CACHE_PATH = ".okbuck/cache"
     public static final String GROUP = "okbuck"
     public static final String BUCK_LINT = "buckLint"
+    public static final String BUCK_LINT_LIBRARY = "buckLintLibrary"
     public static final String LINT = "lint"
     public static final String TRANSFORM = "transform"
     public static final String RETROLAMBDA = "retrolambda"
@@ -197,6 +198,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     private static void configureBuckProjects(Set<Project> buckProjects, Task setupOkbuck) {
         buckProjects.each { Project buckProject ->
             buckProject.configurations.maybeCreate(BUCK_LINT)
+            buckProject.configurations.maybeCreate(BUCK_LINT_LIBRARY)
             Task okbuckProjectTask = buckProject.tasks.maybeCreate(OKBUCK)
             okbuckProjectTask.doLast {
                 BuckFileGenerator.generate(buckProject)
