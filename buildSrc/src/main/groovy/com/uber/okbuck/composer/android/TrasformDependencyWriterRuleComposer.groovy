@@ -31,7 +31,7 @@ final class TrasformDependencyWriterRuleComposer extends AndroidBuckRuleComposer
 
         List<String> input = []
         if (configFile != null) {
-            input.add(getTransformConfigRuleForFile(target.project, new File(configFile)))
+            input.add(getTransformConfigRuleForFile(target.project, target.rootProject.file(configFile)))
         }
 
         String output = "\$OUT"
