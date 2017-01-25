@@ -23,9 +23,4 @@ class AndroidLibTarget extends AndroidTarget {
     ManifestMerger2.MergeType getMergeType() {
         return ManifestMerger2.MergeType.LIBRARY
     }
-
-    @Override
-    String processManifestXml(GPathResult manifestXml) {
-        return null
-    }
 }

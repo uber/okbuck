@@ -27,13 +27,11 @@ class ExoPackageScope extends Scope {
         GPathResult manifestXml = slurper.parse(project.file(manifest))
         try {
             appClass = manifestXml.application.@"android:name"
-            appClass = appClass.replaceAll('\\.', "/")
-        } catch (Exception ignored) {
-        }
+            appClass = appClass.replaceAll('\\.', "/").replaceAll('^/', '')
+        } catch (Exception ignored) {}
         if (appClass != null && !appClass.empty) {
             base.sources.each { String sourceDir ->
-                FileTree found = project.fileTree(dir: sourceDir, includes:
-                        ["${appClass}.java"])
+                FileTree found = project.fileTree(dir: sourceDir, includes: ["**/${appClass}.java"])
                 if (found.size() == 1) {
                     appClass = FileUtil.getRelativePath(project.projectDir, found[0])
                 }
