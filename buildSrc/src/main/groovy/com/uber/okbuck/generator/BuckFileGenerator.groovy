@@ -16,7 +16,6 @@ import com.uber.okbuck.composer.android.KeystoreRuleComposer
 import com.uber.okbuck.composer.android.LintRuleComposer
 import com.uber.okbuck.composer.android.PreBuiltNativeLibraryRuleComposer
 import com.uber.okbuck.composer.android.TrasformDependencyWriterRuleComposer
-import com.uber.okbuck.composer.base.BuckRuleComposer
 import com.uber.okbuck.composer.groovy.GroovyLibraryRuleComposer
 import com.uber.okbuck.composer.groovy.GroovyTestRuleComposer
 import com.uber.okbuck.composer.java.AptRuleComposer
@@ -44,7 +43,7 @@ import com.uber.okbuck.rule.android.ExopackageAndroidLibraryRule
 import com.uber.okbuck.rule.android.GenAidlRule
 import com.uber.okbuck.rule.base.BuckRule
 import com.uber.okbuck.rule.base.GenRule
-import com.uber.okbuck.rule.java.AptRule
+import com.uber.okbuck.rule.java.JavaLibraryWrapperRule
 import org.apache.commons.io.IOUtils
 import org.gradle.api.Project
 
@@ -161,7 +160,7 @@ final class BuckFileGenerator {
         // Apt
         List<String> aptDeps = []
         if (!target.annotationProcessors.empty && !target.apt.externalDeps.empty) {
-            AptRule aptRule = AptRuleComposer.compose(target)
+            JavaLibraryWrapperRule aptRule = AptRuleComposer.compose(target)
             rules.add(aptRule)
             aptDeps.add(":${aptRule.name}")
         }
@@ -198,7 +197,7 @@ final class BuckFileGenerator {
         OkBuckExtension okbuck = target.rootProject.okbuck
         LintExtension lint = okbuck.lint
         if (!lint.disabled) {
-            androidLibRules.add(LintRuleComposer.compose(target))
+            androidLibRules.addAll(LintRuleComposer.compose(target))
         }
 
         rules.addAll(androidLibRules)

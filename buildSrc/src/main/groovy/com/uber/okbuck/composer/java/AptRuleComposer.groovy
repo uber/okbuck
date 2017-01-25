@@ -1,7 +1,7 @@
 package com.uber.okbuck.composer.java
 
 import com.uber.okbuck.core.model.java.JavaTarget
-import com.uber.okbuck.rule.java.AptRule
+import com.uber.okbuck.rule.java.JavaLibraryWrapperRule
 
 final class AptRuleComposer extends JavaBuckRuleComposer {
 
@@ -9,11 +9,11 @@ final class AptRuleComposer extends JavaBuckRuleComposer {
         // no instance
     }
 
-    static AptRule compose(JavaTarget target) {
+    static JavaLibraryWrapperRule compose(JavaTarget target) {
         Set<String> aptDeps = external(target.apt.externalDeps.findAll { String dep ->
             dep.endsWith(".jar")
         })
         aptDeps += targets(target.apt.targetDeps)
-        return new AptRule(aptJar(target), aptDeps as List)
+        return new JavaLibraryWrapperRule(aptJar(target), aptDeps as List)
     }
 }
