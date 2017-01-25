@@ -1,0 +1,10 @@
+apply plugin: 'com.android.library'
+apply plugin: 'me.tatarka.retrolambda'
+
+dependencies {
+    buckLint project (':libraries:customLintLibrary')
+    compile deps.support.appCompat
+
+    testCompile deps.test.junit
+    testCompile project(':libraries:robolectric-base')
+}

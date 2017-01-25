@@ -1,0 +1,25 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile deps.lint.lintApi
+    compile deps.lint.lintChecks
+
+    testCompile deps.lint.lint
+    testCompile deps.lint.lintTests
+}
+
+jar {
+    manifest {
+        attributes 'Lint-Registry': 'com.uber.lint.LintRegistry'
+    }
+    exclude 'META-INF'
+}
+
+configurations.all {
+    exclude group: "org.bouncycastle"
+}

@@ -9,11 +9,14 @@ import org.junit.runner.RunWith;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
+import java.io.*;
+
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(BuckRobolectricTestRunner.class)
 @Config(sdk = 21, packageName = "com.uber.okbuck.example.empty")
-public class ExampleUnitTest {
+public class EmptyLibraryUnitTest {
 
     @Test
     public void addition_isCorrect() throws Exception {
