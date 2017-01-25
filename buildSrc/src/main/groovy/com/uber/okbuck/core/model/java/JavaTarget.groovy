@@ -5,6 +5,7 @@ import com.uber.okbuck.OkBuckGradlePlugin
 import com.uber.okbuck.core.model.base.Scope
 import com.uber.okbuck.core.model.jvm.JvmTarget
 import com.uber.okbuck.core.util.LintUtil
+import com.uber.okbuck.core.util.ProjectUtil
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 
@@ -41,6 +42,16 @@ abstract class JavaTarget extends JvmTarget {
         List<String> jvmArguments = []
         return new Scope(project, [OkBuckGradlePlugin.BUCK_LINT], sourceDirs, res, jvmArguments,
                 LintUtil.getLintDepsCache(project))
+    }
+
+    /**
+     * Lint Scope
+     */
+    Scope getLintLibraries() {
+        File res = null
+        Set<File> sourceDirs = []
+        List<String> jvmArguments = []
+        return new Scope(project, [OkBuckGradlePlugin.BUCK_LINT_LIBRARY], sourceDirs, res, jvmArguments, ProjectUtil.getDependencyCache(project))
     }
 
     LintOptions getLintOptions() {
