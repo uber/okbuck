@@ -68,13 +68,11 @@ public final class FileUtil {
     }
 
     public static void createLink(File target, File link) {
-        Path targetPath = target.toPath();
-        Path linkPath = link.toPath();
+        Path targetPath = target.toPath().toAbsolutePath();
+        Path linkPath = link.toPath().toAbsolutePath();
         try {
-            if (!Files.isSameFile(targetPath, linkPath)) {
-                Files.deleteIfExists(linkPath);
-                Files.createSymbolicLink(linkPath, targetPath);
-            }
+            Files.deleteIfExists(linkPath);
+            Files.createSymbolicLink(linkPath, targetPath);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
