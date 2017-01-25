@@ -29,7 +29,7 @@ public final class FileUtil {
         if (fPath.startsWith(rootPath)) {
             return fPath.toString().substring(rootPath.toString().length() + 1);
         } else {
-            throw new IllegalStateException(f + " must be located inside " + root);
+            throw new IllegalStateException(fPath + " must be located inside " + rootPath);
         }
     }
 
@@ -70,7 +70,7 @@ public final class FileUtil {
     public static void createLink(File src, File target) {
         target.delete();
         try {
-            Files.createSymbolicLink(target.toPath(), src.toPath());
+            Files.createSymbolicLink(target.toPath().toAbsolutePath(), src.toPath().toAbsolutePath());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
