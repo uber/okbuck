@@ -100,11 +100,18 @@ abstract class AndroidTarget extends JavaLibTarget {
 
     @Override
     Scope getTest() {
+        Set<File> testSrcDirs = [] as Set
+        if (unitTestVariant) {
+            testSrcDirs.addAll(unitTestVariant.sourceSets.collect { SourceProvider provider ->
+                provider.javaDirectories
+            }.flatten() as Set<File>)
+        }
+
         return new Scope(
                 project,
                 ["compile", "${buildType}Compile", "${flavor}Compile", "${name}Compile",
                  "testCompile", "${buildType}TestCompile", "${flavor}TestCompile", "${name}TestCompile"] as Set,
-                project.files("src/test/java") as Set<File>,
+                testSrcDirs,
                 project.file("src/test/resources"),
                 getJavaCompilerOptions(unitTestVariant))
     }
