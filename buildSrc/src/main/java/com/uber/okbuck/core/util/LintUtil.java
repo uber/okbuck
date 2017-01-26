@@ -14,7 +14,6 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.util.Collections;
 
 public final class LintUtil {
@@ -72,14 +71,18 @@ public final class LintUtil {
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public static synchronized String getLintwConfigRule(Project project, File config) {
         File configFile = new File(LINT_DEPS_CACHE + "/" + getLintwConfigName(project, config));
-        FileUtil.createLink(config, configFile);
+        try {
+            FileUtils.copyFile(config, configFile);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         return "//" + LINT_DEPS_CACHE + ":" + getLintwConfigName(project, config);
     }
 
     public static DependencyCache getLintDepsCache(Project project) {
         OkBuckGradlePlugin okBuckGradlePlugin = ProjectUtil.getPlugin(project);
         if (okBuckGradlePlugin.lintDepCache == null) {
-            OkBuckExtension okBuckExtension= project.getExtensions().getByType(OkBuckExtension.class);
+            OkBuckExtension okBuckExtension = project.getExtensions().getByType(OkBuckExtension.class);
             okBuckGradlePlugin.lintDepCache = new DependencyCache("lint",
                     project.getRootProject(),
                     LINT_DEPS_CACHE,
