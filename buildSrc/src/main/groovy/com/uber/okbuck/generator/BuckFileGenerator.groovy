@@ -185,7 +185,7 @@ final class BuckFileGenerator {
         ))
 
         // Test
-        if (target.robolectric && target.test.sources) {
+        if (target.robolectric && target.test.sources && !target.isTest) {
             androidLibRules.add(AndroidTestRuleComposer.compose(
                     target,
                     deps,
