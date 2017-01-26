@@ -26,7 +26,7 @@
             android:layout_marginTop="5dp"
             android:background="@android:color/transparent"
             android:singleLine="true"
-            android:text="@string/app_name"
+            android:text="@string/flavor_string"
             android:textColor="#000000"
             android:textSize="22sp" />
     </RelativeLayout>

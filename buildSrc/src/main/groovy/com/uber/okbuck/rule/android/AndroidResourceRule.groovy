@@ -2,17 +2,16 @@ package com.uber.okbuck.rule.android
 
 import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.rule.base.BuckRule
-import org.apache.commons.lang.StringUtils
 
 final class AndroidResourceRule extends BuckRule {
 
-    private final String mRes
     private final String mPackage
-    private final String mAssets
+    private final Set<String> mRes
+    private final Set<String> mAssets
     private final boolean mResourceUnion
 
     AndroidResourceRule(String name, List<String> visibility, List<String> deps, String packageName,
-                        String res, String assets, boolean resourceUnion) {
+                        Set<String> res, Set<String> assets, boolean resourceUnion) {
         super(RuleType.ANDROID_RESOURCE, name, visibility, deps)
         mRes = res
         mPackage = packageName
@@ -22,12 +21,20 @@ final class AndroidResourceRule extends BuckRule {
 
     @Override
     protected final void printContent(PrintStream printer) {
-        if (!StringUtils.isEmpty(mRes)) {
-            printer.println("\tres = '${mRes}',")
-        }
         printer.println("\tpackage = '${mPackage}',")
-        if (!StringUtils.isEmpty(mAssets)) {
-            printer.println("\tassets = '${mAssets}',")
+        if (mRes) {
+            printer.println("\tres = res_glob([")
+            mRes.each {
+                printer.println("\t\t('${it}', '**'),")
+            }
+            printer.println("\t]),")
+        }
+        if (mAssets) {
+            printer.println("\tassets = subdir_glob([")
+            mAssets.each {
+                printer.println("\t\t('${it}', '**'),")
+            }
+            printer.println("\t]),")
         }
         if (mResourceUnion) {
             printer.println("\tresource_union = True,")

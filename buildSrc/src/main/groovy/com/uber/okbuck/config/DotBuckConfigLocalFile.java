@@ -1,5 +1,7 @@
 package com.uber.okbuck.config;
 
+import com.uber.okbuck.OkBuckGradlePlugin;
+
 import org.apache.commons.lang.StringUtils;
 
 import java.io.PrintStream;
@@ -40,6 +42,10 @@ public final class DotBuckConfigLocalFile extends BuckConfigFile {
 
         printer.println("[project]");
         printer.print("\tignore = " + String.join(",", ignore));
+        printer.println();
+
+        printer.println("[buildfile]");
+        printer.print("\tincludes = //" + OkBuckGradlePlugin.OKBUCK_DEFS);
         printer.println();
 
         if (!StringUtils.isEmpty(groovyHome)) {

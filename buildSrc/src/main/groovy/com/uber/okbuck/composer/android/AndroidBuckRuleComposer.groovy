@@ -6,12 +6,12 @@ import com.uber.okbuck.core.model.android.AndroidTarget
 
 abstract class AndroidBuckRuleComposer extends JavaBuckRuleComposer {
 
-    static String res(AndroidTarget target, AndroidTarget.ResBundle bundle) {
-        return "//${target.path}:${resLocal(bundle)}"
+    static String res(AndroidTarget target) {
+        return "res_${target.name}"
     }
 
-    static String resLocal(AndroidTarget.ResBundle bundle) {
-        return "res_${bundle.name}"
+    static String resRule(AndroidTarget target) {
+        return "//${target.getPath()}:${res(target)}"
     }
 
     static String manifest(AndroidTarget target) {

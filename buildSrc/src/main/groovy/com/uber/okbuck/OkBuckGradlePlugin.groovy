@@ -5,6 +5,7 @@ import com.uber.okbuck.core.model.base.ProjectType
 import com.uber.okbuck.core.model.base.TargetCache
 import com.uber.okbuck.core.model.java.JavaLibTarget
 import com.uber.okbuck.core.task.OkBuckCleanTask
+import com.uber.okbuck.core.util.FileUtil
 import com.uber.okbuck.core.util.GroovyUtil
 import com.uber.okbuck.core.util.LintUtil
 import com.uber.okbuck.core.util.ProjectUtil
@@ -51,6 +52,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     public static final String TRANSFORM = "transform"
     public static final String RETROLAMBDA = "retrolambda"
     public static final String CONFIGURATION_EXTERNAL = "externalOkbuck"
+    public static final String OKBUCK_DEFS = ".okbuck/defs/DEFS"
 
     // Project level globals
     public DependencyCache depCache
@@ -178,6 +180,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
 
         // generate .buckconfig.local
         File dotBuckConfigLocal = project.file(".buckconfig.local")
+        FileUtil.copyResourceToProject("defs/OKBUCK_DEFS", project.file(OKBUCK_DEFS))
         PrintStream configPrinter = new PrintStream(dotBuckConfigLocal)
         DotBuckConfigLocalGenerator.generate(okbuckExt, groovyHome).print(configPrinter)
         IOUtils.closeQuietly(configPrinter)

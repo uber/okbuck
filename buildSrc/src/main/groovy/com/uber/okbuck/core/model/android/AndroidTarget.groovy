@@ -196,32 +196,16 @@ abstract class AndroidTarget extends JavaLibTarget {
         return baseVariant.buildType.name
     }
 
-    Set<ResBundle> getResources() {
-        Set<String> resources = [] as Set
-        Set<String> assets = [] as Set
+    Set<String> getResDirs() {
+        return getAvailable(baseVariant.sourceSets.collect { SourceProvider provider ->
+            provider.resDirectories
+        }.flatten() as Set<File>)
+    }
 
-        baseVariant.sourceSets.each { SourceProvider provider ->
-            resources.addAll(getAvailable(provider.resDirectories))
-            assets.addAll(getAvailable(provider.assetsDirectories))
-        }
-
-        Map<File, String> resourceMap = resources.collectEntries { String res ->
-            [project.file(res).parentFile, res]
-        }
-        Map<File, String> assetMap = assets.collectEntries { String asset ->
-            [project.file(asset).parentFile, asset]
-        }
-
-        Set<File> keys = (resourceMap.keySet() + assetMap.keySet())
-        Set<ResBundle> resBundles = keys.collect { key ->
-            new ResBundle(key.name, resourceMap.get(key), assetMap.get(key))
-        } as Set<ResBundle>
-
-        // Add an empty resource bundle even if no res and assets folders exist since we use resource_union
-        if (resBundles.empty) {
-            resBundles.add(new ResBundle(DEFAULT_RES_NAME, null, null))
-        }
-        return resBundles
+    Set<String> getAssetDirs() {
+        return getAvailable(baseVariant.sourceSets.collect { SourceProvider provider ->
+            provider.assetsDirectories
+        }.flatten() as Set<File>)
     }
 
     Set<String> getAidl() {
@@ -369,21 +353,8 @@ abstract class AndroidTarget extends JavaLibTarget {
         }
     }
 
-    static class ResBundle {
-
-        String name
-        String resDir
-        String assetsDir
-
-        ResBundle(String name, String resDir, String assetsDir) {
-            this.name = name
-            this.resDir = resDir
-            this.assetsDir = assetsDir
-        }
-    }
-
     @Override
-    def getProp(Map map, defaultValue) {
+    getProp(Map map, defaultValue) {
         String nameKey = "${identifier}${name.capitalize()}" as String
         String flavorKey = "${identifier}${flavor.capitalize()}" as String
         String buildTypeKey = "${identifier}${buildType.capitalize()}" as String
