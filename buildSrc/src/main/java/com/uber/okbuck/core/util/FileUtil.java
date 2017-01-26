@@ -9,7 +9,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
@@ -65,16 +64,5 @@ public final class FileUtil {
     public static String getIfAvailable(Project project, File file) {
         Set<String> available = getIfAvailable(project, Collections.singleton(file));
         return available.isEmpty() ? null : available.iterator().next();
-    }
-
-    public static void createLink(File target, File link) {
-        Path targetPath = target.toPath().toAbsolutePath();
-        Path linkPath = link.toPath().toAbsolutePath();
-        try {
-            Files.deleteIfExists(linkPath);
-            Files.createSymbolicLink(linkPath, targetPath);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 }
