@@ -4,12 +4,16 @@ import com.google.common.collect.ImmutableMap;
 import com.uber.okbuck.core.util.FileUtil;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -62,28 +66,51 @@ public class BuckWrapperTask extends DefaultTask {
         }
     }
 
-    private static String watchmanExpr(String wildcardPattern) {
-        String simplifiedPattern = wildcardPattern;
-        if (wildcardPattern.startsWith("**/")) {
-            simplifiedPattern = wildcardPattern.replaceAll("\\*\\*/", "");
-        }
-        String basename = FilenameUtils.getBaseName(simplifiedPattern);
-        String extension = FilenameUtils.getExtension(simplifiedPattern);
-        if (!simplifiedPattern.contains("/")) {
-            // simple file name with no path prefixes
-            if (basename.equals("*")) { // suffix
-                return "            [\"suffix\", \"" + extension + "\"]";
-            } else { // name
-                return "            [\"name\", \"" + simplifiedPattern + "\"]";
+    private static String toWatchmanMatchers(Set<String> wildcardPatterns) {
+        List<String> matches = new ArrayList<>();
+        List<String> suffixes = new ArrayList<>();
+        List<String> names = new ArrayList<>();
+
+        for (String wildcardPattern : wildcardPatterns) {
+            String simplifiedPattern = wildcardPattern;
+            if (wildcardPattern.startsWith("**/")) {
+                simplifiedPattern = wildcardPattern.replaceAll("\\*\\*/", "");
+            }
+            String basename = FilenameUtils.getBaseName(simplifiedPattern);
+            String extension = FilenameUtils.getExtension(simplifiedPattern);
+            if (!simplifiedPattern.contains("/")) {
+                // simple file name with no path prefixes
+                if (basename.equals("*")) { // suffix
+                    suffixes.add(extension);
+                } else { // name
+                    names.add(simplifiedPattern);
+                }
+            } else {
+                matches.add(wildcardPattern);
             }
         }
-        return "            [\"match\", \"" + wildcardPattern + "\", \"wholename\"]";
-    }
 
-    private static String toWatchmanMatchers(Set<String> wildcardPatterns) {
-        return wildcardPatterns
+        String match_exprs = matches
                 .parallelStream()
-                .map(BuckWrapperTask::watchmanExpr)
+                .map(match -> "            [\"match\", \"" + match + "\", \"wholename\"]")
+                .collect(Collectors.joining(",\n"));
+
+        String suffix_exprs = suffixes
+                .parallelStream()
+                .map(suffix -> "            [\"suffix\", \"" + suffix + "\"]")
+                .collect(Collectors.joining(",\n"));
+
+        String name_expr = names
+                .parallelStream()
+                .map(name -> "\"" + name + "\"")
+                .collect(Collectors.joining(", "));
+        if (!name_expr.isEmpty()) {
+            name_expr = "            [\"name\", [" + name_expr + "]]";
+        }
+
+        return Arrays.asList(suffix_exprs, name_expr, match_exprs)
+                .parallelStream()
+                .filter(StringUtils::isNotEmpty)
                 .collect(Collectors.joining(",\n"));
     }
 }
