@@ -2,6 +2,7 @@ package com.uber.okbuck.extension;
 
 import com.google.common.collect.Sets;
 
+import java.util.Collections;
 import java.util.Set;
 
 public class WrapperExtension {
@@ -19,7 +20,7 @@ public class WrapperExtension {
     /**
      * List of files to leave untouched when generating configuration.
      */
-    public Set<String> keep = Sets.newHashSet(".okbuck/**/BUCK");
+    public Set<String> keep = Collections.emptySet();
 
     /**
      * List of changed files to trigger okbuck runs on

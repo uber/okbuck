@@ -4,7 +4,7 @@
 ##
 ##  Buck wrapper script to invoke okbuck when needed, before running buck
 ##
-##  Created by OkBuck Gradle Plugin on : Fri Jan 13 16:41:05 PST 2017
+##  Created by OkBuck Gradle Plugin on : Fri Jan 27 01:29:40 PST 2017
 ##
 #########################################################################
 
@@ -69,16 +69,16 @@ removeWatch ( ) {
 getToClean ( ) {
     ensureWatch
 
-    watchman --output-encoding=json -j 2>&1 <<-EOT
+    watchman --output-encoding=json --no-pretty -j 2>&1 <<-EOT
 ["query", "$WORKING_DIR", {
     "expression": ["allof",
         ["type", "f"],
         ["anyof",
-            ["imatch", "**/BUCK", "wholename"],
-            ["imatch", ".buckconfig.local", "wholename"]
+            ["name", "BUCK"],
+            ["name", ".buckconfig.local"]
         ],
         ["not",
-            ["imatch", ".okbuck/**/BUCK", "wholename"]
+            ["dirname", ".okbuck"]
         ]
     ],
     "fields": ["name"]
@@ -89,31 +89,31 @@ EOT
 getChanges ( ) {
     ensureWatch
 
-    WATCHED_CHANGES=`watchman --output-encoding=json -j 2>&1 <<-EOT
+    WATCHED_CHANGES=`watchman --output-encoding=json --no-pretty -j 2>&1 <<-EOT
 ["query", "$WORKING_DIR", {
     "since": "n:okbuck_trig",
     "expression": ["allof",
         ["type", "f"],
         ["anyof",
-            ["imatch", "**/*.sq", "wholename"],
-            ["imatch", "**/*.gradle", "wholename"],
-            ["imatch", "**/gradle-wrapper.properties", "wholename"],
-            ["imatch", "**/lint.xml", "wholename"],
-            ["imatch", "**/src/**/AndroidManifest.xml", "wholename"]
+            ["suffix", "sq"],
+            ["suffix", "gradle"],
+            ["name", "gradle-wrapper.properties"],
+            ["name", "lint.xml"],
+            ["match", "**/src/**/AndroidManifest.xml", "wholename"]
         ]
     ],
     "fields": ["name"]
 }]
 EOT`
-    SOURCE_ROOTS=`watchman --output-encoding=json -j 2>&1 <<-EOT
+    SOURCE_ROOTS=`watchman --output-encoding=json --no-pretty -j 2>&1 <<-EOT
 ["query", ".", {
     "since": "n:okbuck_source_roots",
     "expression": ["allof",
         ["type", "d"],
         ["anyof",
-            ["imatch", "**/src/**/java", "wholename"],
-            ["imatch", "**/src/**/res", "wholename"],
-            ["imatch", "**/src/**/resources", "wholename"]
+            ["match", "**/src/**/java", "wholename"],
+            ["match", "**/src/**/res", "wholename"],
+            ["match", "**/src/**/resources", "wholename"]
         ]
     ],
     "fields": ["new", "exists", "name"]
