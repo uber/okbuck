@@ -1,4 +1,5 @@
 apply plugin: 'java'
+apply plugin: 'application'
 
 repositories {
     mavenCentral()
@@ -26,11 +27,6 @@ jar {
 }
 
 defaultTasks 'assemble'
-
-task install(type: Copy, dependsOn: build) {
-    from configurations.lintChecks
-    into System.getProperty('user.home') + '/.android/lint/'
-}
 
 configurations.all {
     exclude group: "org.bouncycastle"

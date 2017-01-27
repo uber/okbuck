@@ -3,6 +3,7 @@ apply plugin: 'me.tatarka.retrolambda'
 
 dependencies {
     buckLint project (':libraries:customLintLibrary')
+    compile project (':libraries:customLintLibrary')
     compile deps.support.appCompat
 
     testCompile deps.test.junit
