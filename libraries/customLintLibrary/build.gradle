@@ -27,7 +27,7 @@ jar {
 
 defaultTasks 'assemble'
 
-task lint(type: Copy, dependsOn: build) {
+task install(type: Copy, dependsOn: build) {
     from configurations.lintChecks
     into System.getProperty('user.home') + '/.android/lint/'
 }
