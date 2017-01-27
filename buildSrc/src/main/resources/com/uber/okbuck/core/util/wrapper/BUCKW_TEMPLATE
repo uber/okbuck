@@ -69,7 +69,7 @@ removeWatch ( ) {
 getToClean ( ) {
     ensureWatch
 
-    watchman --output-encoding=json -j 2>&1 <<-EOT
+    watchman --output-encoding=json --no-pretty -j 2>&1 <<-EOT
 ["query", "$WORKING_DIR", {
     "expression": ["allof",
         ["type", "f"],
@@ -88,7 +88,7 @@ EOT
 getChanges ( ) {
     ensureWatch
 
-    WATCHED_CHANGES=`watchman --output-encoding=json -j 2>&1 <<-EOT
+    WATCHED_CHANGES=`watchman --output-encoding=json --no-pretty -j 2>&1 <<-EOT
 ["query", "$WORKING_DIR", {
     "since": "n:okbuck_trig",
     "expression": ["allof",
@@ -100,7 +100,7 @@ ${template-watch}
     "fields": ["name"]
 }]
 EOT`
-    SOURCE_ROOTS=`watchman --output-encoding=json -j 2>&1 <<-EOT
+    SOURCE_ROOTS=`watchman --output-encoding=json --no-pretty -j 2>&1 <<-EOT
 ["query", ".", {
     "since": "n:okbuck_source_roots",
     "expression": ["allof",
