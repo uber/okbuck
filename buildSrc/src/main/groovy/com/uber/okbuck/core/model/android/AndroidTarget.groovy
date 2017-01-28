@@ -285,9 +285,9 @@ abstract class AndroidTarget extends JavaLibTarget {
         mergedManifest.parentFile.mkdirs()
         mergedManifest.createNewFile()
 
-        if (manifests.size() == 1) { // No need to merge
+        if (manifests.size() == 1 && mergeType == ManifestMerger2.MergeType.LIBRARY) { // No need to merge for libraries
             parseManifest(project.file(manifests[0]).text, mergedManifest)
-        } else {
+        } else { // always merge if more than one manifest or its an application
             File mainManifest = project.file(manifests[0])
             List<File> secondaryManifests = []
             secondaryManifests.addAll(
