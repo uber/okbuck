@@ -6,12 +6,12 @@ def versions = [
 ]
 
 def build = [
-        androidPlugin    : 'com.android.tools.build:gradle:2.3.0-beta2',
+        androidPlugin    : 'com.android.tools.build:gradle:2.3.0-beta3',
         butterKnifePlugin: "com.jakewharton:butterknife-gradle-plugin:${versions.butterKnifeVersion}",
         commonsIo        : 'commons-io:commons-io:2.5',
         commonsLang      : 'commons-lang:commons-lang:2.6',
         mavenArtifact    : 'org.apache.maven:maven-artifact:3.3.9',
-        retrolambdaPlugin: 'me.tatarka:gradle-retrolambda:3.4.0',
+        retrolambdaPlugin: 'me.tatarka:gradle-retrolambda:3.5.0',
         sqlDelightPlugin : 'com.squareup.sqldelight:gradle-plugin:0.5.1',
 ]
 
