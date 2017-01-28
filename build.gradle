@@ -19,7 +19,6 @@ allprojects { project ->
 }
 
 apply plugin: 'com.uber.okbuck'
-Task okbuckTask = project.tasks.getByName("okbuck")
 
 subprojects { project ->
     afterEvaluate {
@@ -27,7 +26,7 @@ subprojects { project ->
             addCommonConfigurationForJavaModules(project)
         } else if (project.plugins.hasPlugin('com.android.application')
                 || project.plugins.hasPlugin('com.android.library')) {
-            addCommonConfigurationForAndroidModules(project, okbuckTask)
+            addCommonConfigurationForAndroidModules(project)
         }
 
         project.tasks.withType(Test) { Test task ->
@@ -46,7 +45,7 @@ def addCommonConfigurationForJavaModules(Project project) {
     }
 }
 
-def addCommonConfigurationForAndroidModules(Project project, Task okbuckTask) {
+def addCommonConfigurationForAndroidModules(Project project) {
     project.android {
         compileSdkVersion config.build.compileSdk
         buildToolsVersion config.build.buildTools
@@ -98,6 +97,7 @@ def addCommonConfigurationForAndroidModules(Project project, Task okbuckTask) {
 
     if (project.plugins.hasPlugin('com.squareup.sqldelight')) {
         variants.all {
+            Task okbuckTask = project.tasks.getByName("okbuck")
             Task sqlDelightTask = project.tasks.getByName("generate${it.name.capitalize()}SqlDelightInterface")
             okbuckTask.dependsOn(sqlDelightTask)
             project.android.sourceSets."${it.name}".java.srcDirs += [sqlDelightTask.outputs.files[0] as String]
