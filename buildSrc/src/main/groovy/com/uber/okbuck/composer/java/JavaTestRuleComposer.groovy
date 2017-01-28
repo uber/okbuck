@@ -1,11 +1,12 @@
 package com.uber.okbuck.composer.java
 
+import com.uber.okbuck.composer.jvm.JvmBuckRuleComposer
 import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.core.model.java.JavaLibTarget
 import com.uber.okbuck.core.util.RetrolambdaUtil
 import com.uber.okbuck.rule.java.JavaTestRule
 
-final class JavaTestRuleComposer extends JavaBuckRuleComposer {
+final class JavaTestRuleComposer extends JvmBuckRuleComposer {
 
     private JavaTestRuleComposer() {
         // no instance
@@ -18,12 +19,12 @@ final class JavaTestRuleComposer extends JavaBuckRuleComposer {
         deps.addAll(targets(target.test.targetDeps))
 
         Set<String> aptDeps = [] as Set
-        aptDeps.addAll(external(target.apt.externalDeps))
-        aptDeps.addAll(targets(target.apt.targetDeps))
+        aptDeps.addAll(external(target.testApt.externalDeps))
+        aptDeps.addAll(targets(target.testApt.targetDeps))
 
         Set<String> providedDeps = []
-        providedDeps.addAll(external(target.provided.externalDeps))
-        providedDeps.addAll(targets(target.provided.targetDeps))
+        providedDeps.addAll(external(target.testProvided.externalDeps))
+        providedDeps.addAll(targets(target.testProvided.targetDeps))
         providedDeps.removeAll(deps)
 
         if (target.retrolambda) {
@@ -35,7 +36,7 @@ final class JavaTestRuleComposer extends JavaBuckRuleComposer {
                 ["PUBLIC"],
                 deps,
                 target.test.sources,
-                target.annotationProcessors,
+                target.testAnnotationProcessors,
                 aptDeps,
                 providedDeps,
                 target.test.resourcesDir,

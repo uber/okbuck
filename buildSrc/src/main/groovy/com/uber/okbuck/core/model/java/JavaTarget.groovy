@@ -8,29 +8,88 @@ import com.uber.okbuck.core.util.LintUtil
 import com.uber.okbuck.core.util.ProjectUtil
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.UnknownConfigurationException
 
 abstract class JavaTarget extends JvmTarget {
 
-    static final Set<String> APT_CONFIGS = ["apt", "annotationProcessor", "compileOnly"]
-    static final Set<String> PROVIDED_CONFIGS = ["provided", "compileOnly"]
+    protected static final String TEST_PREFIX = "test"
 
+    private static final List<String> JAVA_COMPILE_CONFIGS = ["compile"]
+    private static final List<String> JAVA_APT_CONFIGS = ["apt", "compileOnly"]
+    public static final List<String> JAVA_PROVIDED_CONFIGS = ["provided", "compileOnly"]
 
     JavaTarget(Project project, String name) {
         super(project, name)
+    }
+
+    protected static List<String> getCompileConfigs() {
+        return JAVA_COMPILE_CONFIGS
+    }
+
+    protected List<String> getAptConfigs() {
+        return JAVA_APT_CONFIGS
+    }
+
+    protected List<String> getProvidedConfigs() {
+        return JAVA_PROVIDED_CONFIGS
     }
 
     /**
      * Apt Scope
      */
     Scope getApt() {
-        return new Scope(project, APT_CONFIGS)
+        return new Scope(project, aptConfigs)
+    }
+
+    /**
+     * Test Apt Scope
+     */
+    Scope getTestApt() {
+        return new Scope(project, expand(aptConfigs, TEST_PREFIX))
     }
 
     /**
      * Provided Scope
      */
     Scope getProvided() {
-        return new Scope(project, PROVIDED_CONFIGS)
+        return new Scope(project, providedConfigs)
+    }
+
+    /**
+     * Test Provided Scope
+     */
+    Scope getTestProvided() {
+        return new Scope(project, expand(providedConfigs, TEST_PREFIX))
+    }
+
+    Set<String> getDepConfigNames() {
+        return compileConfigs + aptConfigs + providedConfigs +
+                expand(compileConfigs + aptConfigs + providedConfigs, TEST_PREFIX)
+    }
+
+    Set<Configuration> depConfigurations() {
+        Set<Configuration> configurations = new HashSet()
+        depConfigNames.each { String configName ->
+            try {
+                configurations.add(project.configurations.getByName(configName))
+            } catch (UnknownConfigurationException ignored) {
+            }
+        }
+        return configurations
+    }
+
+    /**
+     * Expands configuration names to java configuration conventions
+     */
+    protected Set<String> expand(List<String> configNames, String prefix = "", boolean includeParent = false) {
+        Set<String> expanded = configNames.collect {
+            "${prefix}${it.capitalize()}"
+        }
+        if (prefix && includeParent) {
+            expanded += expand(configNames)
+        }
+        return expanded
     }
 
     /**
@@ -71,6 +130,13 @@ abstract class JavaTarget extends JvmTarget {
      */
     Set<String> getAnnotationProcessors() {
         return apt.getAnnotationProcessors()
+    }
+
+    /**
+     * List of test annotation processor classes.
+     */
+    Set<String> getTestAnnotationProcessors() {
+        return testApt.getAnnotationProcessors()
     }
 
     protected static String javaVersion(JavaVersion version) {

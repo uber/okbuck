@@ -1,11 +1,12 @@
 package com.uber.okbuck.composer.java
 
+import com.uber.okbuck.composer.jvm.JvmBuckRuleComposer
 import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.core.model.java.JavaLibTarget
 import com.uber.okbuck.core.util.RetrolambdaUtil
 import com.uber.okbuck.rule.java.JavaLibraryRule
 
-final class JavaLibraryRuleComposer extends JavaBuckRuleComposer {
+final class JavaLibraryRuleComposer extends JvmBuckRuleComposer {
 
     private JavaLibraryRuleComposer() {
         // no instance

@@ -18,7 +18,6 @@ import com.uber.okbuck.composer.android.PreBuiltNativeLibraryRuleComposer
 import com.uber.okbuck.composer.android.TrasformDependencyWriterRuleComposer
 import com.uber.okbuck.composer.groovy.GroovyLibraryRuleComposer
 import com.uber.okbuck.composer.groovy.GroovyTestRuleComposer
-import com.uber.okbuck.composer.java.AptRuleComposer
 import com.uber.okbuck.composer.java.JavaBinaryRuleComposer
 import com.uber.okbuck.composer.java.JavaLibraryRuleComposer
 import com.uber.okbuck.composer.java.JavaTestRuleComposer
@@ -26,7 +25,6 @@ import com.uber.okbuck.config.BUCKFile
 import com.uber.okbuck.core.model.android.AndroidAppTarget
 import com.uber.okbuck.core.model.android.AndroidInstrumentationTarget
 import com.uber.okbuck.core.model.android.AndroidLibTarget
-import com.uber.okbuck.core.model.android.AndroidTarget
 import com.uber.okbuck.core.model.base.ProjectType
 import com.uber.okbuck.core.model.base.Target
 import com.uber.okbuck.core.model.groovy.GroovyLibTarget
@@ -86,13 +84,11 @@ final class BuckFileGenerator {
                     rules.addAll(createRules((AndroidLibTarget) target))
                     break
                 case ProjectType.ANDROID_APP:
-                    List<BuckRule> targetRules = createRules((AndroidAppTarget) target)
+                    AndroidAppTarget androidAppTarget = (AndroidAppTarget) target
+                    List<BuckRule> targetRules = createRules(androidAppTarget)
                     rules.addAll(targetRules)
-                    if (espresso && ((AndroidAppTarget) target).instrumentationTestVariant) {
-                        AndroidInstrumentationTarget instrumentationTarget =
-                                new AndroidInstrumentationTarget(target.project,
-                                        AndroidInstrumentationTarget.getInstrumentationTargetName(target.name))
-                        rules.addAll(createRules(instrumentationTarget, (AndroidAppTarget) target, targetRules))
+                    if (androidAppTarget.instrumentationTarget) {
+                        rules.addAll(createRules(androidAppTarget.instrumentationTarget, androidAppTarget, targetRules))
                     }
                     break
                 default:
@@ -155,14 +151,6 @@ final class BuckFileGenerator {
         // BuildConfig
         androidLibRules.add(AndroidBuildConfigRuleComposer.compose(target))
 
-        // Apt
-        List<String> aptDeps = []
-        if (!target.annotationProcessors.empty && !target.apt.externalDeps.empty) {
-            JavaLibraryWrapperRule aptRule = AptRuleComposer.compose(target)
-            rules.add(aptRule)
-            aptDeps.add(":${aptRule.name}")
-        }
-
         // Jni
         androidLibRules.addAll(target.jniLibs.collect { String jniLib ->
             PreBuiltNativeLibraryRuleComposer.compose(target, jniLib)
@@ -177,7 +165,6 @@ final class BuckFileGenerator {
         androidLibRules.add(AndroidLibraryRuleComposer.compose(
                 target,
                 deps,
-                aptDeps,
                 aidlRuleNames,
                 appClass
         ))
@@ -187,7 +174,6 @@ final class BuckFileGenerator {
             androidLibRules.add(AndroidTestRuleComposer.compose(
                     target,
                     deps,
-                    aptDeps,
                     aidlRuleNames,
                     appClass))
         }

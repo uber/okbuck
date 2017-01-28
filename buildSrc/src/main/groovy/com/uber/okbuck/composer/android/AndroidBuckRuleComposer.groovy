@@ -1,10 +1,10 @@
 package com.uber.okbuck.composer.android
 
-import com.uber.okbuck.composer.java.JavaBuckRuleComposer
+import com.uber.okbuck.composer.jvm.JvmBuckRuleComposer
 import com.uber.okbuck.core.model.android.AndroidAppTarget
 import com.uber.okbuck.core.model.android.AndroidTarget
 
-abstract class AndroidBuckRuleComposer extends JavaBuckRuleComposer {
+abstract class AndroidBuckRuleComposer extends JvmBuckRuleComposer {
 
     static String res(AndroidTarget target) {
         return "res_${target.name}"

@@ -16,7 +16,7 @@ public final class RobolectricUtil {
     private static final String JSON = "org.json:json:20080701";
     private static final String TAGSOUP = "org.ccil.cowan.tagsoup:tagsoup:1.2";
     private static final String ROBOLECTRIC_RUNTIME = "robolectricRuntime";
-    private static final String ROBOLECTRIC_CACHE = OkBuckGradlePlugin.DEFAULT_CACHE_PATH + "/robolectric";
+    public static final String ROBOLECTRIC_CACHE = OkBuckGradlePlugin.DEFAULT_CACHE_PATH + "/robolectric";
 
     private RobolectricUtil() {}
 

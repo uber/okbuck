@@ -26,8 +26,9 @@ import org.gradle.api.tasks.testing.Test
  */
 abstract class AndroidTarget extends JavaLibTarget {
 
-    static final String DEFAULT_RES_NAME = "main"
-    static final EmptyLogger EMPTY_LOGGER = new EmptyLogger()
+    private static final EmptyLogger EMPTY_LOGGER = new EmptyLogger()
+    private static final List<String> ANDROID_APT_CONFIGS = ["apt", "annotationProcessor"]
+    private static final List<String> ANDROID_PROVIDED_CONFIGS = ["provided"]
 
     final String applicationId
     final String applicationIdSuffix
@@ -85,6 +86,11 @@ abstract class AndroidTarget extends JavaLibTarget {
     protected abstract ManifestMerger2.MergeType getMergeType()
 
     @Override
+    Set<String> getDepConfigNames() {
+        return expand(compileConfigs + aptConfigs + providedConfigs, TEST_PREFIX, true)
+    }
+
+    @Override
     Scope getMain() {
         Set<File> srcDirs = baseVariant.sourceSets.collect { SourceProvider provider ->
             provider.javaDirectories
@@ -92,7 +98,7 @@ abstract class AndroidTarget extends JavaLibTarget {
 
         return new Scope(
                 project,
-                ["compile", "${buildType}Compile", "${flavor}Compile", "${name}Compile"] as Set,
+                expand(compileConfigs),
                 srcDirs,
                 null,
                 getJavaCompilerOptions(baseVariant))
@@ -109,24 +115,38 @@ abstract class AndroidTarget extends JavaLibTarget {
 
         return new Scope(
                 project,
-                ["compile", "${buildType}Compile", "${flavor}Compile", "${name}Compile",
-                 "testCompile", "${buildType}TestCompile", "${flavor}TestCompile", "${name}TestCompile"] as Set,
+                expand(compileConfigs, TEST_PREFIX, true),
                 testSrcDirs,
                 project.file("src/test/resources"),
                 getJavaCompilerOptions(unitTestVariant))
     }
 
     @Override
-    Set<String> getDepConfigNames() {
-        return super.getDepConfigNames() +
-                ["compile", "${buildType}Compile", "${flavor}Compile", "${name}Compile",
-                 "testCompile", "${buildType}TestCompile", "${flavor}TestCompile",
-                 "${name}TestCompile",
-                 "androidTestApt",
-                 "androidTestCompile",
-                 "androidTest${buildType.capitalize()}Compile",
-                 "androidTest${flavor.capitalize()}Compile",
-                 "androidTest${name}Compile"]
+    Scope getApt() {
+        return new Scope(
+                project,
+                expand(aptConfigs))
+    }
+
+    @Override
+    Scope getTestApt() {
+        return new Scope(
+                project,
+                expand(aptConfigs, TEST_PREFIX))
+    }
+
+    @Override
+    Scope getProvided() {
+        return new Scope(
+                project,
+                expand(providedConfigs))
+    }
+
+    @Override
+    Scope getTestProvided() {
+        return new Scope(
+                project,
+                expand(providedConfigs, TEST_PREFIX))
     }
 
     @Override
@@ -370,6 +390,35 @@ abstract class AndroidTarget extends JavaLibTarget {
         } else {
             return defaultValue
         }
+    }
+
+    @Override
+    protected List<String> getAptConfigs() {
+        return ANDROID_APT_CONFIGS
+    }
+
+    @Override
+    protected List<String> getProvidedConfigs() {
+        return ANDROID_PROVIDED_CONFIGS
+    }
+
+    /**
+     * Expands configuration names to android configuration conventions
+     */
+    @Override
+    protected Set<String> expand(List<String> configNames, String prefix = "", boolean includeParent = false) {
+        List<String> expansions = ["", buildType, flavor, name]
+        Set<String> expandedConfigs = configNames.collect { String configName ->
+            expansions.collect { String expansion ->
+                String expanded = [prefix, expansion.capitalize(), configName.capitalize()].join('')
+                expanded.substring(0, 1).toLowerCase() + expanded.substring(1)
+            }
+        }.flatten() as Set<String>
+
+        if (prefix && includeParent) {
+            expandedConfigs += expand(configNames)
+        }
+        return expandedConfigs
     }
 
     private static class EmptyLogger implements ILogger {

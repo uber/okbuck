@@ -15,21 +15,21 @@ final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
     static AndroidTestRule compose(
             AndroidLibTarget target,
             List<String> deps,
-            List<String> aptDeps,
-            List<String> aidlRuleNames,
+            final List<String> aidlRuleNames,
             String appClass) {
 
         List<String> testDeps = new ArrayList<>(deps)
-        List<String> testAptDeps = new ArrayList<>(aptDeps)
-        List<String> testAidlRuleNames = new ArrayList<>(aidlRuleNames)
-        Set<String> providedDeps = []
-
         testDeps.add(":${src(target)}")
         testDeps.addAll(external(target.test.externalDeps))
         testDeps.addAll(targets(target.test.targetDeps))
 
-        providedDeps.addAll(external(target.provided.externalDeps))
-        providedDeps.addAll(targets(target.provided.targetDeps))
+        List<String> testAptDeps = []
+        testAptDeps.addAll(external(target.testApt.externalDeps))
+        testAptDeps.addAll(targets(target.testApt.targetDeps))
+
+        Set<String> providedDeps = []
+        providedDeps.addAll(external(target.testProvided.externalDeps))
+        providedDeps.addAll(targets(target.testProvided.targetDeps))
         providedDeps.removeAll(testDeps)
 
         if (target.retrolambda) {
@@ -42,10 +42,10 @@ final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
                 testDeps,
                 target.test.sources,
                 target.manifest,
-                target.annotationProcessors as List,
+                target.testAnnotationProcessors as List,
                 testAptDeps,
                 providedDeps,
-                testAidlRuleNames,
+                aidlRuleNames,
                 appClass,
                 target.sourceCompatibility,
                 target.targetCompatibility,
