@@ -10,8 +10,8 @@ def merge_maps(**res_maps):
                 basename = os.path.basename(key)
                 new_key = '/'.join([dirname, path.replace('/', '_') + '_' + basename])
                 result[new_key] = res_map[key]
-
-            result[key] = res_map[key]
+            else:
+                result[key] = res_map[key]
 
     return result
 
