@@ -11,22 +11,26 @@ final class AndroidResourceRuleComposer extends AndroidBuckRuleComposer {
         // no instance
     }
 
-    static AndroidResourceRule compose(AndroidTarget target, AndroidTarget.ResBundle resBundle) {
+    static AndroidResourceRule compose(AndroidTarget target) {
         List<String> resDeps = []
         resDeps.addAll(external(target.main.externalDeps.findAll { String dep ->
             dep.endsWith(".aar")
         }))
 
-        target.main.targetDeps.each { Target targetDep ->
-            if (targetDep instanceof AndroidTarget) {
-                targetDep.resources.each { AndroidTarget.ResBundle bundle ->
-                    resDeps.add(res(targetDep as AndroidTarget, bundle))
-                }
-            }
-        }
+        resDeps.addAll(target.main.targetDeps.findAll { Target targetDep ->
+            targetDep instanceof AndroidTarget
+        }.collect { Target targetDep ->
+            resRule(targetDep as AndroidTarget)
+        })
 
         OkBuckExtension okbuck = target.rootProject.okbuck
-        return new AndroidResourceRule(resLocal(resBundle), ["PUBLIC"], resDeps,
-                target.package, resBundle.resDir, resBundle.assetsDir, okbuck.resourceUnion)
+        return new AndroidResourceRule(
+                res(target),
+                ["PUBLIC"],
+                resDeps,
+                target.package,
+                target.resDirs,
+                target.assetDirs,
+                okbuck.resourceUnion)
     }
 }

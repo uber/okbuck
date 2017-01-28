@@ -35,13 +35,11 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
             providedDeps.add(RetrolambdaUtil.getRtStubJarRule())
         }
 
-        target.main.targetDeps.each { Target targetDep ->
-            if (targetDep instanceof AndroidTarget) {
-                targetDep.resources.each { AndroidTarget.ResBundle bundle ->
-                    libraryDeps.add(res(targetDep as AndroidTarget, bundle))
-                }
-            }
-        }
+        libraryDeps.addAll(target.main.targetDeps.findAll { Target targetDep ->
+            targetDep instanceof AndroidTarget
+        }.collect { Target targetDep ->
+            resRule(targetDep as AndroidTarget)
+        })
 
         List<String> testTargets = []
         if (target.robolectric && target.test.sources) {

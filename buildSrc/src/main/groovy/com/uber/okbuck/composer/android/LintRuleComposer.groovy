@@ -114,11 +114,9 @@ final class LintRuleComposer extends JvmBuckRuleComposer {
             inputs.add(sourceDir)
         }
         if (target instanceof AndroidTarget) {
-            target.getResources().each { AndroidTarget.ResBundle bundle ->
-                if (bundle.resDir) {
-                    lintCmds.add("--resources ${bundle.resDir}")
-                    inputs.add(bundle.resDir)
-                }
+            target.resDirs.each { String resDir ->
+                lintCmds.add("--resources ${resDir}")
+                inputs.add(resDir)
             }
 
             // Project root is at okbuck generated manifest for this target

@@ -1,0 +1,31 @@
+import os
+
+
+def merge_maps(**res_maps):
+    result = {}
+    for path, res_map in res_maps.iteritems():
+        for key in res_map:
+            if key in result and result[key] != res_map[key]:
+                dirname = os.path.dirname(key)
+                basename = os.path.basename(key)
+                new_key = '/'.join([dirname, path.replace('/', '_') + '_' + basename])
+                result[new_key] = res_map[key]
+            else:
+                result[key] = res_map[key]
+
+    return result
+
+
+def res_glob(glob_specs):
+    """
+    Given a list of tuples, the form of (relative-sub-directory, glob-pattern),
+    return a dict of sub-directory relative paths to full paths. Useful for
+    defining res/asset globs of android_resource rules. This automatically handles
+    path name conflicts by prefixing such keys with the parent dir path.
+    """
+    results = {}
+
+    for dirpath, glob_pattern in glob_specs:
+        results[dirpath] = subdir_glob([(dirpath, glob_pattern)])
+
+    return merge_maps(**results)

@@ -150,9 +150,7 @@ final class BuckFileGenerator {
         androidLibRules.addAll(aidlRules)
 
         // Res
-        androidLibRules.addAll(target.resources.collect { AndroidTarget.ResBundle resBundle ->
-            AndroidResourceRuleComposer.compose(target, resBundle)
-        })
+        androidLibRules.add(AndroidResourceRuleComposer.compose(target))
 
         // BuildConfig
         androidLibRules.add(AndroidBuildConfigRuleComposer.compose(target))
