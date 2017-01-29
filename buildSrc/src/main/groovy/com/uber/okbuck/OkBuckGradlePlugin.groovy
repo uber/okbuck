@@ -1,9 +1,10 @@
 package com.uber.okbuck
 
 import com.uber.okbuck.core.dependency.DependencyCache
+import com.uber.okbuck.core.model.android.AndroidAppTarget
 import com.uber.okbuck.core.model.base.ProjectType
 import com.uber.okbuck.core.model.base.TargetCache
-import com.uber.okbuck.core.model.java.JavaLibTarget
+import com.uber.okbuck.core.model.java.JavaTarget
 import com.uber.okbuck.core.task.OkBuckCleanTask
 import com.uber.okbuck.core.util.FileUtil
 import com.uber.okbuck.core.util.GroovyUtil
@@ -190,8 +191,11 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         Set<Configuration> configurations = new HashSet() as Set<Configuration>
         projects.each { Project p ->
             ProjectUtil.getTargets(p).values().each {
-                if (it instanceof JavaLibTarget) {
+                if (it instanceof JavaTarget) {
                     configurations.addAll(it.depConfigurations())
+                }
+                if (it instanceof AndroidAppTarget && it.instrumentationTarget) {
+                    configurations.addAll(it.instrumentationTarget.depConfigurations())
                 }
             }
         }

@@ -5,9 +5,8 @@ import com.android.builder.model.SigningConfig
 import com.android.manifmerger.ManifestMerger2
 import com.uber.okbuck.core.model.base.Target
 import com.uber.okbuck.core.util.FileUtil
-import groovy.transform.ToString
+import com.uber.okbuck.extension.TestExtension
 import groovy.util.slurpersupport.GPathResult
-import groovy.xml.StreamingMarkupBuilder
 import org.apache.commons.io.FilenameUtils
 import org.gradle.api.Project
 
@@ -33,6 +32,7 @@ class AndroidAppTarget extends AndroidLibTarget {
 
     final Map<String, Object> placeholders = [:]
     final boolean includesVectorDrawables
+    final AndroidInstrumentationTarget instrumentationTarget
 
     AndroidAppTarget(Project project, String name, boolean isTest = false) {
         super(project, name, isTest)
@@ -59,6 +59,14 @@ class AndroidAppTarget extends AndroidLibTarget {
         placeholders.putAll(baseVariant.buildType.manifestPlaceholders)
         placeholders.putAll(baseVariant.mergedFlavor.manifestPlaceholders)
         includesVectorDrawables = project.android.defaultConfig.vectorDrawables.useSupportLibrary
+
+        TestExtension testExtension = rootProject.okbuck.test
+        if (testExtension.espresso && instrumentationTestVariant) {
+            instrumentationTarget = new AndroidInstrumentationTarget(project,
+                    AndroidInstrumentationTarget.getInstrumentationTargetName(name))
+        } else {
+            instrumentationTarget = null
+        }
     }
 
     @Override
@@ -172,7 +180,6 @@ class AndroidAppTarget extends AndroidLibTarget {
         }
     }
 
-    @ToString(includes = [])
     static class Keystore {
 
         final File storeFile

@@ -6,8 +6,6 @@ import com.uber.okbuck.core.model.java.JavaLibTarget;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.compile.JavaCompile;
 
-import java.util.Collections;
-
 public class GroovyLibTarget extends JavaLibTarget {
 
     public GroovyLibTarget(Project project, String name) {
@@ -18,7 +16,7 @@ public class GroovyLibTarget extends JavaLibTarget {
     public Scope getMain() {
         return new Scope(
                 getProject(),
-                Collections.singleton("compile"),
+                getCompileConfigs(),
                 getProject().files("src/main/java", "src/main/groovy").getFiles(),
                 getProject().file("src/main/resources"),
                 ((JavaCompile) getProject().getTasks().getByName("compileJava")).getOptions().getCompilerArgs());
@@ -28,7 +26,7 @@ public class GroovyLibTarget extends JavaLibTarget {
     public Scope getTest() {
         return new Scope(
                 getProject(),
-                Collections.singleton("testCompile"),
+                expand(getCompileConfigs(), TEST_PREFIX, true),
                 getProject().files("src/test/java", "src/test/groovy").getFiles(),
                 getProject().file("src/test/resources"),
                 ((JavaCompile) getProject().getTasks().getByName("compileTestJava")).getOptions().getCompilerArgs());

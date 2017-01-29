@@ -16,15 +16,15 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
     static AndroidLibraryRule compose(
             AndroidLibTarget target,
             List<String> deps,
-            List<String> aptDeps,
-            List<String> aidlRuleNames,
+            final List<String> aidlRuleNames,
             String appClass) {
         List<String> libraryDeps = new ArrayList<>(deps)
-        List<String> libraryAptDeps = new ArrayList<>(aptDeps)
-        List<String> libraryAidlRuleNames = new ArrayList<>(aidlRuleNames)
-
         libraryDeps.addAll(external(target.main.externalDeps))
         libraryDeps.addAll(targets(target.main.targetDeps))
+
+        List<String> libraryAptDeps = []
+        libraryAptDeps.addAll(external(target.apt.externalDeps))
+        libraryAptDeps.addAll(targets(target.apt.targetDeps))
 
         Set<String> providedDeps = []
         providedDeps.addAll(external(target.provided.externalDeps))
@@ -55,7 +55,7 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
                 target.annotationProcessors as List,
                 libraryAptDeps,
                 providedDeps,
-                libraryAidlRuleNames,
+                aidlRuleNames,
                 appClass,
                 target.sourceCompatibility,
                 target.targetCompatibility,
