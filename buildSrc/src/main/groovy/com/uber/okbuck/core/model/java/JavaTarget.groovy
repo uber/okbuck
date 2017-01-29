@@ -72,11 +72,13 @@ abstract class JavaTarget extends JvmTarget {
         Set<Configuration> configurations = new HashSet()
         depConfigNames.each { String configName ->
             try {
-                configurations.add(project.configurations.getByName(configName))
+                Configuration configuration = project.configurations.getByName(configName)
+                if (configuration.dependencies)
+                    configurations.add(project.configurations.getByName(configName))
             } catch (UnknownConfigurationException ignored) {
             }
         }
-        return configurations
+        return Scope.useful(configurations)
     }
 
     /**
