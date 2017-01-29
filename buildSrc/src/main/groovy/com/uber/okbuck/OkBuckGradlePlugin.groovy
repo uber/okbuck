@@ -9,6 +9,7 @@ import com.uber.okbuck.core.task.OkBuckCleanTask
 import com.uber.okbuck.core.util.FileUtil
 import com.uber.okbuck.core.util.GroovyUtil
 import com.uber.okbuck.core.util.LintUtil
+import com.uber.okbuck.core.util.ProguardUtil
 import com.uber.okbuck.core.util.ProjectUtil
 import com.uber.okbuck.core.util.RetrolambdaUtil
 import com.uber.okbuck.core.util.RobolectricUtil
@@ -183,7 +184,8 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         File dotBuckConfigLocal = project.file(".buckconfig.local")
         FileUtil.copyResourceToProject("defs/OKBUCK_DEFS", project.file(OKBUCK_DEFS))
         PrintStream configPrinter = new PrintStream(dotBuckConfigLocal)
-        DotBuckConfigLocalGenerator.generate(okbuckExt, groovyHome).print(configPrinter)
+        DotBuckConfigLocalGenerator.generate(okbuckExt, groovyHome,
+                ProguardUtil.getProguardJarPath(project)).print(configPrinter)
         IOUtils.closeQuietly(configPrinter)
     }
 

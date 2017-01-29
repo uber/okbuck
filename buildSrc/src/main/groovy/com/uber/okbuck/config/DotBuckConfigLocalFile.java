@@ -15,18 +15,21 @@ public final class DotBuckConfigLocalFile extends BuckConfigFile {
     private final String target;
     private final List<String> ignore;
     private final String groovyHome;
+    private final String proguardJar;
 
     public DotBuckConfigLocalFile(
             Map<String, String> aliases,
             String buildToolVersion,
             String target,
             List<String> ignore,
-            String groovyHome) {
+            String groovyHome,
+            String proguardJar) {
         this.aliases = aliases;
         this.buildToolVersion = buildToolVersion;
         this.target = target;
         this.ignore = ignore;
         this.groovyHome = groovyHome;
+        this.proguardJar = proguardJar;
     }
 
     @Override
@@ -51,6 +54,12 @@ public final class DotBuckConfigLocalFile extends BuckConfigFile {
         if (!StringUtils.isEmpty(groovyHome)) {
             printer.println("[groovy]");
             printer.print("\tgroovy_home = " + groovyHome);
+            printer.println();
+        }
+
+        if (!StringUtils.isEmpty(proguardJar)) {
+            printer.println("[tools]");
+            printer.print("\tproguard = " + proguardJar);
             printer.println();
         }
     }

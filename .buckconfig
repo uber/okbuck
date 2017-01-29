@@ -17,9 +17,6 @@
     jdk_type = JavaSDK
     default_android_manifest_path = src/main/AndroidManifest.xml
 
-[tools]
-  proguard = tools/proguard.jar
-
 [log]
   max_traces = 5
   compress_traces = true
