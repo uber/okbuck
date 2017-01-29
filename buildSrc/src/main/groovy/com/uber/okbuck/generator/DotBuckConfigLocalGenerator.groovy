@@ -16,7 +16,10 @@ final class DotBuckConfigLocalGenerator {
     /**
      * generate {@link DotBuckConfigLocalFile}
      */
-    static DotBuckConfigLocalFile generate(OkBuckExtension okbuck, String groovyHome, String proguardJar) {
+    static DotBuckConfigLocalFile generate(OkBuckExtension okbuck,
+                                           String groovyHome,
+                                           String proguardJar,
+                                           Set<String> defs) {
         Map<String, String> aliases = [:]
         okbuck.buckProjects.findAll { Project project ->
             ProjectUtil.getType(project) == ProjectType.ANDROID_APP
@@ -32,6 +35,7 @@ final class DotBuckConfigLocalGenerator {
                 okbuck.target,
                 [".git", "**/.svn"],
                 groovyHome,
-                proguardJar)
+                proguardJar,
+                defs)
     }
 }

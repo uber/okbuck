@@ -1,21 +1,21 @@
 [project]
-    glob_handler = watchman
-    allow_symlinks = forbid
-    ide = intellij
-    ignore = .git, .idea, .gradle, local.properties, **/.DS_Store, **/*.iml
-    temp_files = ^#.*#$, .*~$, .*\.swp$
-    parallel_parsing = true
-    build_file_search_method = watchman
+  glob_handler = watchman
+  allow_symlinks = forbid
+  ide = intellij
+  ignore = .git, .idea, .gradle, local.properties, **/.DS_Store, **/*.iml
+  temp_files = ^#.*#$, .*~$, .*.swp$
+  parallel_parsing = true
+  build_file_search_method = watchman
 
 [httpserver]
-    port = 0
+  port = 0
 
 [intellij]
-    android_module_sdk_name = Android API 24 Platform
-    android_module_sdk_type = AndroidSDK
-    jdk_name = 1.8
-    jdk_type = JavaSDK
-    default_android_manifest_path = src/main/AndroidManifest.xml
+  android_module_sdk_name = Android API 24 Platform
+  android_module_sdk_type = AndroidSDK
+  jdk_name = 1.8
+  jdk_type = JavaSDK
+  default_android_manifest_path = src/main/AndroidManifest.xml
 
 [log]
   max_traces = 5

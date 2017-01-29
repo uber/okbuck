@@ -1,12 +1,11 @@
 package com.uber.okbuck.config;
 
-import com.uber.okbuck.OkBuckGradlePlugin;
-
 import org.apache.commons.lang.StringUtils;
 
 import java.io.PrintStream;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public final class DotBuckConfigLocalFile extends BuckConfigFile {
 
@@ -16,6 +15,7 @@ public final class DotBuckConfigLocalFile extends BuckConfigFile {
     private final List<String> ignore;
     private final String groovyHome;
     private final String proguardJar;
+    private final Set<String> defs;
 
     public DotBuckConfigLocalFile(
             Map<String, String> aliases,
@@ -23,13 +23,15 @@ public final class DotBuckConfigLocalFile extends BuckConfigFile {
             String target,
             List<String> ignore,
             String groovyHome,
-            String proguardJar) {
+            String proguardJar,
+            Set<String> defs) {
         this.aliases = aliases;
         this.buildToolVersion = buildToolVersion;
         this.target = target;
         this.ignore = ignore;
         this.groovyHome = groovyHome;
         this.proguardJar = proguardJar;
+        this.defs = defs;
     }
 
     @Override
@@ -44,12 +46,14 @@ public final class DotBuckConfigLocalFile extends BuckConfigFile {
         printer.println();
 
         printer.println("[project]");
-        printer.print("\tignore = " + String.join(",", ignore));
+        printer.print("\tignore = " + String.join(", ", ignore));
         printer.println();
 
-        printer.println("[buildfile]");
-        printer.print("\tincludes = //" + OkBuckGradlePlugin.OKBUCK_DEFS);
-        printer.println();
+        if (!defs.isEmpty()) {
+            printer.println("[buildfile]");
+            printer.print("\tincludes = " + String.join(" ", defs));
+            printer.println();
+        }
 
         if (!StringUtils.isEmpty(groovyHome)) {
             printer.println("[groovy]");
