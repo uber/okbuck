@@ -69,7 +69,7 @@ class Scope {
     }
 
     private void extractConfigurations(Collection<String> configurations) {
-        List<Configuration> validConfigurations = []
+        Set<Configuration> validConfigurations = []
         configurations.each { String configName ->
             try {
                 Configuration configuration = project.configurations.getByName(configName)
@@ -77,6 +77,7 @@ class Scope {
             } catch (UnknownConfigurationException ignored) {
             }
         }
+        validConfigurations = useful(validConfigurations)
 
         // get all first level external dependencies
         validConfigurations.collect {
@@ -141,6 +142,12 @@ class Scope {
                         "inside ${project.rootProject.projectDir}")
             }
             external.add(ExternalDependency.fromLocal(localDep))
+        }
+    }
+
+    static Set<Configuration> useful(Set<Configuration> configurations) {
+        return configurations.findAll { Configuration configuration ->
+            !configuration.dependencies.empty || !configurations.containsAll(configuration.extendsFrom)
         }
     }
 }
