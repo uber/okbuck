@@ -120,14 +120,14 @@ abstract class AndroidRule extends BuckRule {
                 printer.println("\t\t'${processor}',")
             }
             printer.println("\t],")
-        }
 
-        if (!mAptDeps.empty) {
-            printer.println("\tannotation_processor_deps = [")
-            for (String dep : mAptDeps.sort()) {
-                printer.println("\t\t'${dep}',")
+            if (!mAptDeps.empty) {
+                printer.println("\tannotation_processor_deps = [")
+                for (String dep : mAptDeps.sort()) {
+                    printer.println("\t\t'${dep}',")
+                }
+                printer.println("\t],")
             }
-            printer.println("\t],")
         }
 
         if (!mProvidedDeps.empty) {

@@ -163,6 +163,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                 if (hasGroovyLib) {
                     GroovyUtil.setupGroovyHome(project)
                 }
+
                 generate(project,
                         okbuckExt,
                         hasGroovyLib ? GroovyUtil.GROOVY_HOME_LOCATION : null)
@@ -180,12 +181,20 @@ class OkBuckGradlePlugin implements Plugin<Project> {
             dotBuckConfig.createNewFile()
         }
 
+        // Setup defs
+        FileUtil.copyResourceToProject("defs/OKBUCK_DEFS", project.file(OKBUCK_DEFS))
+        Set<String> defs = okbuckExt.extraDefs.collect {
+            "//${FileUtil.getRelativePath(project.rootDir, it)}"
+        }
+        defs.add("//${OKBUCK_DEFS}")
+
         // generate .buckconfig.local
         File dotBuckConfigLocal = project.file(".buckconfig.local")
-        FileUtil.copyResourceToProject("defs/OKBUCK_DEFS", project.file(OKBUCK_DEFS))
         PrintStream configPrinter = new PrintStream(dotBuckConfigLocal)
-        DotBuckConfigLocalGenerator.generate(okbuckExt, groovyHome,
-                ProguardUtil.getProguardJarPath(project)).print(configPrinter)
+        DotBuckConfigLocalGenerator.generate(okbuckExt,
+                groovyHome,
+                ProguardUtil.getProguardJarPath(project),
+                defs).print(configPrinter)
         IOUtils.closeQuietly(configPrinter)
     }
 

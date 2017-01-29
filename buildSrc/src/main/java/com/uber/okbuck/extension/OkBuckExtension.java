@@ -2,7 +2,9 @@ package com.uber.okbuck.extension;
 
 import org.gradle.api.Project;
 
+import java.io.File;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -55,6 +57,9 @@ public class OkBuckExtension {
      * Extra buck options
      */
     public Map<String, Map<String, List<String>>> extraBuckOpts = new HashMap<>();
+
+    /** Extra buck defs **/
+    public Set<File> extraDefs = new HashSet<>();
 
     /**
      * Whether to turn on buck's resource_union to reflect gradle's resource merging behavior
