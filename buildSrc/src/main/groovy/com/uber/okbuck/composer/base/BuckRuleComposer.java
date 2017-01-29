@@ -1,6 +1,8 @@
 package com.uber.okbuck.composer.base;
 
+import com.uber.okbuck.core.model.android.AndroidTarget;
 import com.uber.okbuck.core.model.base.Target;
+import com.uber.okbuck.core.model.java.JavaLibTarget;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -18,6 +20,12 @@ public abstract class BuckRuleComposer {
                 .collect(Collectors.toSet());
     }
 
+    public static Set<String> externalApt(final Set<String> deps) {
+        return external(deps).parallelStream()
+                .filter(dep -> dep.endsWith(".jar"))
+                .collect(Collectors.toSet());
+    }
+
     public static String external(final String dep) {
         String ext = dep;
         int ind = FilenameUtils.indexOfLastSeparator(dep);
@@ -29,6 +37,13 @@ public abstract class BuckRuleComposer {
 
     public static Set<String> targets(final Set<Target> deps) {
         return deps.parallelStream()
+                .map(BuckRuleComposer::targets)
+                .collect(Collectors.toSet());
+    }
+
+    public static Set<String> targetsApt(final Set<Target> deps) {
+        return deps.parallelStream()
+                .filter(target -> target.getClass().equals(JavaLibTarget.class))
                 .map(BuckRuleComposer::targets)
                 .collect(Collectors.toSet());
     }
