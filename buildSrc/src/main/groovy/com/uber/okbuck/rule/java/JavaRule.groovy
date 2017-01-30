@@ -84,14 +84,14 @@ abstract class JavaRule extends BuckRule {
                 printer.println("\t\t'${processor}',")
             }
             printer.println("\t],")
+        }
 
-            if (!mAnnotationProcessorDeps.empty) {
-                printer.println("\tannotation_processor_deps = [")
-                for (String dep : mAnnotationProcessorDeps.sort()) {
-                    printer.println("\t\t'${dep}',")
-                }
-                printer.println("\t],")
+        if (!mAnnotationProcessorDeps.empty) {
+            printer.println("\tannotation_processor_deps = [")
+            for (String dep : mAnnotationProcessorDeps.sort()) {
+                printer.println("\t\t'${dep}',")
             }
+            printer.println("\t],")
         }
 
         if (!mProvidedDeps.empty) {
