@@ -19,7 +19,7 @@ final class JavaLibraryRuleComposer extends JvmBuckRuleComposer {
 
         Set<String> aptDeps = [] as Set
         aptDeps.addAll(externalApt(target.apt.externalDeps))
-        aptDeps.addAll(targetsApt(target.apt.targetDeps))
+        aptDeps.addAll(targets(target.apt.targetDeps))
 
         Set<String> providedDeps = []
         providedDeps.addAll(external(target.provided.externalDeps))
