@@ -41,6 +41,13 @@ public abstract class BuckRuleComposer {
                 .collect(Collectors.toSet());
     }
 
+    public static Set<String> targetsApt(final Set<Target> deps) {
+        return deps.parallelStream()
+                .filter(target -> target.getClass().equals(JavaLibTarget.class))
+                .map(BuckRuleComposer::targets)
+                .collect(Collectors.toSet());
+    }
+
     public static String targets(final Target dep) {
         return String.format("//%s:src_%s", dep.getPath(), dep.getName());
     }

@@ -24,7 +24,7 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
 
         List<String> libraryAptDeps = []
         libraryAptDeps.addAll(externalApt(target.apt.externalDeps))
-        libraryAptDeps.addAll(targets(target.apt.targetDeps))
+        libraryAptDeps.addAll(targetsApt(target.apt.targetDeps))
 
         Set<String> providedDeps = []
         providedDeps.addAll(external(target.provided.externalDeps))

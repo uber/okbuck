@@ -39,7 +39,7 @@ abstract class JavaTarget extends JvmTarget {
      * Apt Scope
      */
     Scope getApt() {
-        return new Scope(project, aptConfigs)
+        return new Scope(project, expand(aptConfigs))
     }
 
     /**
@@ -53,7 +53,7 @@ abstract class JavaTarget extends JvmTarget {
      * Provided Scope
      */
     Scope getProvided() {
-        return new Scope(project, providedConfigs)
+        return new Scope(project, expand(providedConfigs))
     }
 
     /**
@@ -85,9 +85,15 @@ abstract class JavaTarget extends JvmTarget {
      * Expands configuration names to java configuration conventions
      */
     protected Set<String> expand(List<String> configNames, String prefix = "", boolean includeParent = false) {
-        Set<String> expanded = configNames.collect {
-            "${prefix}${it.capitalize()}"
+        Set<String> expanded
+        if (prefix) {
+            expanded = configNames.collect {
+                "${prefix}${it.capitalize()}"
+            }
+        } else {
+            expanded = configNames
         }
+
         if (prefix && includeParent) {
             expanded += expand(configNames)
         }

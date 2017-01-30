@@ -122,34 +122,6 @@ abstract class AndroidTarget extends JavaLibTarget {
     }
 
     @Override
-    Scope getApt() {
-        return new Scope(
-                project,
-                expand(aptConfigs))
-    }
-
-    @Override
-    Scope getTestApt() {
-        return new Scope(
-                project,
-                expand(aptConfigs, TEST_PREFIX))
-    }
-
-    @Override
-    Scope getProvided() {
-        return new Scope(
-                project,
-                expand(providedConfigs))
-    }
-
-    @Override
-    Scope getTestProvided() {
-        return new Scope(
-                project,
-                expand(providedConfigs, TEST_PREFIX))
-    }
-
-    @Override
     LintOptions getLintOptions() {
         return project.android.lintOptions
     }
