@@ -1,4 +1,4 @@
-package com.ubercab.transform.loader;
+package com.uber.transform.loader;
 
 import com.android.annotations.NonNull;
 

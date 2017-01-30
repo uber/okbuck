@@ -1,6 +1,6 @@
-package com.ubercab.transform;
+package com.uber.transform;
 
-import com.ubercab.transform.runner.TransformRunner;
+import com.uber.transform.runner.TransformRunner;
 
 import org.junit.Before;
 import org.junit.Test;

@@ -1,4 +1,4 @@
-package com.ubercab.transform.builder;
+package com.uber.transform.builder;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;

@@ -16,7 +16,6 @@ def build = [
         retrolambdaPlugin: 'me.tatarka:gradle-retrolambda:3.5.0',
         sqlDelightPlugin : 'com.squareup.sqldelight:gradle-plugin:0.5.1',
         gradleCore       : "org.gradle:gradle-core:2.14.1",
-        providedPlugin   : 'com.netflix.nebula:gradle-extra-configurations-plugin:3.0.3',
         shadowJar        : "com.github.jengelman.gradle.plugins:shadow:1.2.4",
 ]
 

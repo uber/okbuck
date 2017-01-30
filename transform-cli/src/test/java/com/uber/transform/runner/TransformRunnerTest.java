@@ -1,4 +1,4 @@
-package com.ubercab.transform.runner;
+package com.uber.transform.runner;
 
 import com.android.annotations.NonNull;
 import com.android.build.api.transform.Transform;

@@ -1,4 +1,4 @@
-package com.ubercab.transform.utils;
+package com.uber.transform.utils;
 
 import org.apache.commons.io.FileUtils;
 

@@ -9,7 +9,6 @@ buildscript {
         classpath deps.build.butterKnifePlugin
         classpath deps.build.retrolambdaPlugin
         classpath deps.build.sqlDelightPlugin
-        classpath deps.build.providedPlugin
         classpath deps.build.shadowJar
     }
 }

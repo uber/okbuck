@@ -11,7 +11,7 @@ final class TrasformDependencyWriterRuleComposer extends AndroidBuckRuleComposer
 
     static final String OPT_TRANSFORM_CLASS = "transform"
     static final String OPT_CONFIG_FILE = "configFile"
-    static final String RUNNER_MAIN_CLASS = "com.ubercab.transform.CliTransform"
+    static final String RUNNER_MAIN_CLASS = "com.uber.transform.CliTransform"
 
     private TrasformDependencyWriterRuleComposer() {}
 
@@ -33,17 +33,23 @@ final class TrasformDependencyWriterRuleComposer extends AndroidBuckRuleComposer
         String output = "\$OUT"
         List<String> cmds = [
                 "echo \"#!/bin/bash\" > ${output};",
-                "echo \"set -e\" >> ${output};",
+                "echo \"set -ex\" >> ${output};",
 
-                "echo \"export IN_JARS_DIR=\\\$1\" >> ${output};",
-                "echo \"export OUT_JARS_DIR=\\\$2\" >> ${output};",
-                "echo \"export ANDROID_BOOTCLASSPATH=\\\$3\" >> ${output};",
+                "echo \"java " +
 
-                configFile != null ? "echo \"export CONFIG_FILE=\$SRCS\" >> ${output};" : "",
-                transformClass != null ? "echo \"export TRANSFORM_CLASS=${transformClass}\" >> ${output};" : "",
+                        "-Din_jars_dir=\"\\\$1\" " +
+                        "-Dout_jars_dir=\"\\\$2\" " +
+                        "-Dandroid_bootclasspath=\"\\\$3\" " +
 
-                "echo \"java -cp \$(location ${TransformUtil.TRANSFORM_RULE}) ${RUNNER_MAIN_CLASS}\" >> ${output};",
+                        (configFile != null ? "-Dconfig_file=\"\$SRCS\" " : "") +
+                        (transformClass != null ? "-Dtransform_class=\"${transformClass}\" " : "") +
+
+                        " -cp \$(location ${TransformUtil.TRANSFORM_RULE}) ${RUNNER_MAIN_CLASS}\" >> ${output};",
+
                 "chmod +x ${output}"]
+
+        System.out.println("Generating rule for transform: ")
+        System.out.println(cmds)
 
         return new GenRule(getTransformRuleName(target, options), input, cmds, true)
     }

@@ -1,4 +1,4 @@
-package com.ubercab.transform.runner;
+package com.uber.transform.runner;
 
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
@@ -8,9 +8,9 @@ import com.android.build.api.transform.Transform;
 import com.android.build.api.transform.TransformInput;
 import com.android.build.api.transform.TransformInvocation;
 import com.android.build.api.transform.TransformOutputProvider;
-import com.ubercab.transform.builder.JarsTransformOutputProvider;
-import com.ubercab.transform.builder.TransformInputBuilder;
-import com.ubercab.transform.builder.TransformInvocationBuilder;
+import com.uber.transform.builder.JarsTransformOutputProvider;
+import com.uber.transform.builder.TransformInputBuilder;
+import com.uber.transform.builder.TransformInvocationBuilder;
 
 import org.apache.commons.io.FileUtils;
 

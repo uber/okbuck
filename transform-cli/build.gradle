@@ -1,5 +1,4 @@
 apply plugin: "application"
-apply plugin: "nebula.provided-base"
 apply plugin: "com.github.johnrengelman.shadow"
 
 jar.manifest.attributes(
@@ -16,7 +15,7 @@ repositories {
 }
 
 dependencies {
-    provided deps.build.gradleCore
+    compileOnly gradleApi()
     compile deps.support.annotations
     compile deps.build.androidPluginApi
     compile deps.build.commonsIo
