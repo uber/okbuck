@@ -29,6 +29,6 @@ shadowJar {
     classifier = null
     version = null
     dependencies {
-        exclude(dependency(deps.build.gradleCore))
+        exclude(dependency("org.gradle:gradle:+"))
     }
 }

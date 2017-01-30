@@ -51,13 +51,12 @@ okbuck {
         remove = ['.buckconfig.local', "**/BUCK"]
         keep = [".okbuck/**/BUCK"]
     }
-    
 
     transform {
         transforms = [
                 'appDebug' : [
                         [transform : "<FULL_QUALIFIED_CLASS_NAME_FOR_TRANSFORM_CLASS>",
-                         configFile: "<OPTIONAL_CONFIGURATION_FILE>"]
+                         configFile : "<OPTIONAL_CONFIGURATION_FILE>"]
                 ],
         ]
     }
