@@ -160,10 +160,6 @@ okbuck {
     wrapper {
         watch += ["**/*.sq"]
     }
-
-    experimental {
-        transform = true
-    }
 }
 
 gradle.buildFinished {

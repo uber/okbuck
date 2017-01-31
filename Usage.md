@@ -60,6 +60,10 @@ okbuck {
                 ],
         ]
     }
+    
+    experimental {
+        transform = true
+    }
 }
 
 dependencies {
