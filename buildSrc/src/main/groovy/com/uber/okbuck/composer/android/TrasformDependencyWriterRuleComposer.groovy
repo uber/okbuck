@@ -11,7 +11,7 @@ final class TrasformDependencyWriterRuleComposer extends AndroidBuckRuleComposer
 
     static final String OPT_TRANSFORM_CLASS = "transform"
     static final String OPT_CONFIG_FILE = "configFile"
-    static final String RUNNER_MAIN_CLASS = "com.uber.transform.CliTransform"
+    static final String RUNNER_MAIN_CLASS = "com.uber.okbuck.transform.CliTransform"
 
     private TrasformDependencyWriterRuleComposer() {}
 

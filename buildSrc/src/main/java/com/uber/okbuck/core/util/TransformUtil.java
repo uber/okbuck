@@ -15,7 +15,7 @@ public final class TransformUtil {
     private static final String CONFIGURATION_TRANSFORM = "transform";
     private static final String TRANSFORM_FOLDER = "transform/";
     private static final String TRANSFORM_BUCK_FILE = "BUCK_FILE";
-    private static final String TRANSFORM_JAR = "transform-cli.jar";
+    private static final String TRANSFORM_JAR = "transform-cli-1.0.0.jar";
 
     public static final String TRANSFORM_RULE = "//" + TRANSFORM_CACHE + ":okbuck_transform";
 

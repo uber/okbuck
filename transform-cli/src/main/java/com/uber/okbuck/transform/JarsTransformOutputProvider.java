@@ -1,11 +1,8 @@
-package com.uber.transform.builder;
+package com.uber.okbuck.transform;
 
-import com.android.annotations.NonNull;
 import com.android.build.api.transform.Format;
 import com.android.build.api.transform.QualifiedContent;
 import com.android.build.api.transform.TransformOutputProvider;
-
-import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,34 +15,33 @@ import java.util.Set;
  */
 public class JarsTransformOutputProvider implements TransformOutputProvider {
 
-    @NonNull private final File outputFolder;
-    @NonNull private final String[] outputFolderParts;
+    private final File outputFolder;
+    private final String[] outputFolderParts;
 
     /**
      * Constructor.
      */
-    public JarsTransformOutputProvider(@NonNull File outputFolder) {
+    JarsTransformOutputProvider(File outputFolder) {
         this.outputFolder = outputFolder;
         this.outputFolderParts = outputFolder.getAbsolutePath().split(File.separator);
     }
 
     @Override
     public void deleteAll() throws IOException {
-        FileUtils.deleteDirectory(outputFolder);
+        FileUtil.deleteDirectory(outputFolder);
         outputFolder.mkdirs();
     }
 
     @Override
-    @NonNull
     public File getContentLocation(
-            @NonNull String name,
-            @NonNull Set<QualifiedContent.ContentType> types,
-            @NonNull Set<? super QualifiedContent.Scope> scopes,
-            @NonNull Format format) {
+            String name,
+            Set<QualifiedContent.ContentType> types,
+            Set<? super QualifiedContent.Scope> scopes,
+            Format format) {
 
         //Just a temp directory not to be used, to make the transform happy.
         if (format == Format.DIRECTORY) {
-            return FileUtils.getTempDirectory();
+            return new File(System.getProperty("java.io.tmpdir"));
         }
 
         /**
@@ -68,7 +64,6 @@ public class JarsTransformOutputProvider implements TransformOutputProvider {
          * /java_classes_preprocess_out_bin_prodDebug/buck-out/gen/.okbuck/cache/__app.rxscreenshotdetector-release
          * .aar#aar_prebuilt_jar__/classes.jar
          */
-
         String[] nameParts = name.split(File.separator);
         LinkedList<String> baseFolderParts = new LinkedList(Arrays.asList(nameParts));
         for (int i = 0; i < outputFolderParts.length; i++) {

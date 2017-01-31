@@ -1,6 +1,4 @@
-package com.uber.transform.builder;
-
-import android.support.annotation.NonNull;
+package com.uber.okbuck.transform;
 
 import com.android.build.api.transform.DirectoryInput;
 import com.android.build.api.transform.JarInput;
@@ -18,17 +16,17 @@ import java.util.Set;
 /**
  * A builder for {@link TransformInput}.
  */
-public class TransformInputBuilder {
+class TransformInputBuilder {
 
-    @NonNull private static final String DOT_JAR = ".jar";
+    private static final String DOT_JAR = ".jar";
 
-    @NonNull private final LinkedList<JarInput> jarInputs;
-    @NonNull private final LinkedList<DirectoryInput> directoryInputs;
+    private final LinkedList<JarInput> jarInputs;
+    private final LinkedList<DirectoryInput> directoryInputs;
 
     /**
      * Constructor.
      */
-    public TransformInputBuilder() {
+    TransformInputBuilder() {
         this.jarInputs = new LinkedList<>();
         this.directoryInputs = new LinkedList<>();
     }
@@ -39,8 +37,7 @@ public class TransformInputBuilder {
      * @param file the file of the jar input.
      * @return this instance of the builder.
      */
-    @NonNull
-    public TransformInputBuilder addJarInput(@NonNull File file) {
+    TransformInputBuilder addJarInput(File file) {
         if (file.exists()) {
             this.jarInputs.add(new FileJarInput(file));
             System.out.println("Adding dependency jar: " + file.getAbsolutePath());
@@ -56,8 +53,7 @@ public class TransformInputBuilder {
      * @param folder the folder of the jars input.
      * @return this instance of the builder.
      */
-    @NonNull
-    public TransformInputBuilder addJarInputFolder(@NonNull File folder) {
+    TransformInputBuilder addJarInputFolder(File folder) {
         File[] listFiles = folder.listFiles();
         if (listFiles != null) {
             for (File file : listFiles) {
@@ -80,8 +76,7 @@ public class TransformInputBuilder {
      * @param filePaths the paths of the jars.
      * @return this instance of the builder.
      */
-    @NonNull
-    public TransformInputBuilder addJarInput(@NonNull String... filePaths) {
+    TransformInputBuilder addJarInput(String... filePaths) {
         return addJarInput(Arrays.asList(filePaths));
     }
 
@@ -91,8 +86,7 @@ public class TransformInputBuilder {
      * @param filePaths the paths of the jars.
      * @return this instance of the builder.
      */
-    @NonNull
-    public TransformInputBuilder addJarInput(@NonNull List<String> filePaths) {
+    TransformInputBuilder addJarInput(List<String> filePaths) {
         for (String filePath : filePaths) {
             addJarInput(new File(filePath));
         }
@@ -105,8 +99,7 @@ public class TransformInputBuilder {
      * @param file the file of the directory input.
      * @return this instance of the builder.
      */
-    @NonNull
-    public TransformInputBuilder addDirectoryInput(@NonNull File file) {
+    TransformInputBuilder addDirectoryInput(File file) {
         if (!file.exists()) {
             throw new IllegalArgumentException("Specified directory input doesn't exist: " + file.getAbsolutePath());
         }
@@ -119,8 +112,7 @@ public class TransformInputBuilder {
      *
      * @return a new {@link TransformInput} with the specified jar and directories.
      */
-    @NonNull
-    public TransformInput build() {
+    TransformInput build() {
         return new TransformInput() {
             @Override
             public Collection<JarInput> getJarInputs() {
@@ -139,14 +131,13 @@ public class TransformInputBuilder {
      */
     private static class FileJarInput implements JarInput {
 
-        @NonNull private final File file;
+        private final File file;
 
-        public FileJarInput(@NonNull File file) {
+        FileJarInput(File file) {
             this.file = file;
         }
 
         @Override
-        @NonNull
         public File getFile() {
             return file;
         }
@@ -177,14 +168,14 @@ public class TransformInputBuilder {
      */
     private static class FileDirectoryInput implements DirectoryInput {
 
-        @NonNull private final File file;
+        private final File file;
 
-        public FileDirectoryInput(@NonNull File file) {
+        FileDirectoryInput(File file) {
             this.file = file;
         }
 
         @Override
-        @NonNull
+
         public File getFile() {
             return file;
         }

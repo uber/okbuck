@@ -1,7 +1,4 @@
-package com.uber.transform.builder;
-
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+package com.uber.okbuck.transform;
 
 import com.android.build.api.transform.Context;
 import com.android.build.api.transform.SecondaryInput;
@@ -18,16 +15,16 @@ import java.util.LinkedList;
 /**
  * A builder for {@link TransformInvocation}.
  */
-public class TransformInvocationBuilder {
+class TransformInvocationBuilder {
 
-    @NonNull private final LinkedList<TransformInput> inputs;
-    @NonNull private final LinkedList<TransformInput> referencedInputs;
-    @Nullable private TransformOutputProvider outputProvider;
+    private final LinkedList<TransformInput> inputs;
+    private final LinkedList<TransformInput> referencedInputs;
+    private TransformOutputProvider outputProvider;
 
     /**
      * Constructor.
      */
-    public TransformInvocationBuilder() {
+    TransformInvocationBuilder() {
         this.inputs = new LinkedList<>();
         this.referencedInputs = new LinkedList<>();
     }
@@ -38,8 +35,8 @@ public class TransformInvocationBuilder {
      * @param transformInput the input to add.
      * @return this instance of the builder
      */
-    @NonNull
-    public TransformInvocationBuilder addInput(@NonNull TransformInput transformInput) {
+
+    TransformInvocationBuilder addInput(TransformInput transformInput) {
         this.inputs.add(transformInput);
         return this;
     }
@@ -50,8 +47,8 @@ public class TransformInvocationBuilder {
      * @param transformInput the input to add.
      * @return this instance of the builder
      */
-    @NonNull
-    public TransformInvocationBuilder addReferencedInput(@NonNull TransformInput transformInput) {
+
+    TransformInvocationBuilder addReferencedInput(TransformInput transformInput) {
         this.referencedInputs.add(transformInput);
         return this;
     }
@@ -62,8 +59,8 @@ public class TransformInvocationBuilder {
      * @param outputProvider the output provider.
      * @return this instance of the builder
      */
-    @NonNull
-    public TransformInvocationBuilder setOutputProvider(@NonNull TransformOutputProvider outputProvider) {
+
+    TransformInvocationBuilder setOutputProvider(TransformOutputProvider outputProvider) {
         this.outputProvider = outputProvider;
         return this;
     }
@@ -73,8 +70,8 @@ public class TransformInvocationBuilder {
      *
      * @return a new {@link TransformInvocation} with the specified inputs.
      */
-    @NonNull
-    public TransformInvocation build() {
+
+    TransformInvocation build() {
         if (outputProvider == null) {
             throw new IllegalArgumentException("Output provider needs to be specified.");
         }
@@ -86,38 +83,37 @@ public class TransformInvocationBuilder {
      */
     private static class CustomTransformInvocation implements TransformInvocation, Context {
 
-        @NonNull
         private final Collection<TransformInput> inputs;
-        @NonNull
+
         private final Collection<TransformInput> referencedInputs;
-        @NonNull
+
         private final TransformOutputProvider transformOutputProvider;
 
-        public CustomTransformInvocation(
-                @NonNull Collection<TransformInput> inputs,
-                @NonNull Collection<TransformInput> referencedInputs,
-                @NonNull TransformOutputProvider transformOutputProvider) {
+        CustomTransformInvocation(
+                Collection<TransformInput> inputs,
+                Collection<TransformInput> referencedInputs,
+                TransformOutputProvider transformOutputProvider) {
             this.inputs = inputs;
             this.referencedInputs = referencedInputs;
             this.transformOutputProvider = transformOutputProvider;
         }
 
         @Override
-        @NonNull
+
+        public Context getContext() {
+            return this;
+        }
+
+        @Override
+
         public Collection<TransformInput> getInputs() {
             return inputs;
         }
 
         @Override
-        @NonNull
+
         public Collection<TransformInput> getReferencedInputs() {
             return referencedInputs;
-        }
-
-        @Override
-        @NonNull
-        public TransformOutputProvider getOutputProvider() {
-            return transformOutputProvider;
         }
 
         @Override
@@ -126,9 +122,9 @@ public class TransformInvocationBuilder {
         }
 
         @Override
-        @NonNull
-        public Context getContext() {
-            return this;
+
+        public TransformOutputProvider getOutputProvider() {
+            return transformOutputProvider;
         }
 
         @Override

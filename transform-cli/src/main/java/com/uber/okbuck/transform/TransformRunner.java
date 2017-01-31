@@ -1,32 +1,22 @@
-package com.uber.transform.runner;
+package com.uber.okbuck.transform;
 
-import android.support.annotation.Nullable;
-import android.support.annotation.VisibleForTesting;
-
-import com.android.annotations.NonNull;
 import com.android.build.api.transform.Transform;
 import com.android.build.api.transform.TransformInput;
 import com.android.build.api.transform.TransformInvocation;
 import com.android.build.api.transform.TransformOutputProvider;
-import com.uber.transform.builder.JarsTransformOutputProvider;
-import com.uber.transform.builder.TransformInputBuilder;
-import com.uber.transform.builder.TransformInvocationBuilder;
-
-import org.apache.commons.io.FileUtils;
 
 import java.io.File;
-import java.io.IOException;
 
 /**
  * Transform runner that instantiates the transform class and starts the transform invocation.
  */
-public class TransformRunner {
+class TransformRunner {
 
-    @NonNull private final File inputJarsDir;
-    @NonNull private final File outputJarsDir;
-    @Nullable private final File configFile;
-    @NonNull private final String[] androidClassPath;
-    @NonNull private final Class<Transform> transformClass;
+    private final File inputJarsDir;
+    private final File outputJarsDir;
+    private final File configFile;
+    private final String[] androidClassPath;
+    private final Class<Transform> transformClass;
 
     /**
      * Constructor.
@@ -37,13 +27,12 @@ public class TransformRunner {
      * @param androidClassPath android classpath.
      * @param transformClass   class for the transform.
      */
-    public TransformRunner(
-            @Nullable String configFilePath,
-            @NonNull String inJarsDir,
-            @NonNull String outJarsDir,
-            @NonNull String[] androidClassPath,
-            @NonNull Class<Transform> transformClass) {
-
+    TransformRunner(
+            String configFilePath,
+            String inJarsDir,
+            String outJarsDir,
+            String[] androidClassPath,
+            Class<Transform> transformClass) {
         this.androidClassPath = androidClassPath;
         this.transformClass = transformClass;
 
@@ -64,7 +53,7 @@ public class TransformRunner {
         }
     }
 
-    @NonNull
+
     private static File getFile(String path, String errorMsg, boolean isFolder) {
         File file = new File(path);
         if (!file.exists() || isFolder != file.isDirectory()) {
@@ -80,8 +69,7 @@ public class TransformRunner {
      *
      * @throws Exception for any exception happened during the transform process.
      */
-    public void runTransform() throws Exception {
-
+    void runTransform() throws Exception {
         Transform transform = configFile != null
                 ? transformClass.getConstructor(File.class).newInstance(configFile)
                 : transformClass.newInstance();
@@ -92,17 +80,12 @@ public class TransformRunner {
         runTransform(transform, transformOutputProvider);
     }
 
-    @VisibleForTesting
-    final void runTransform(
-            @NonNull Transform transform,
-            @NonNull TransformOutputProvider outputProvider) throws Exception {
+    private void runTransform(
+            Transform transform,
+            TransformOutputProvider outputProvider) throws Exception {
 
         //Cleaning output directory.
-        try {
-            FileUtils.deleteDirectory(outputJarsDir);
-        } catch (IOException ignored) {
-            //Do nothing.
-        }
+        FileUtil.deleteDirectory(outputJarsDir);
         outputJarsDir.mkdirs();
 
         //Preparing Transform invocation.
