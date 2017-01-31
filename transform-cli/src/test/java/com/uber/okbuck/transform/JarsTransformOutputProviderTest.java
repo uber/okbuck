@@ -1,6 +1,7 @@
-package com.uber.transform.builder;
+package com.uber.okbuck.transform;
 
 import com.android.build.api.transform.Format;
+import com.uber.okbuck.transform.JarsTransformOutputProvider;
 
 import org.assertj.core.util.Files;
 import org.junit.Before;

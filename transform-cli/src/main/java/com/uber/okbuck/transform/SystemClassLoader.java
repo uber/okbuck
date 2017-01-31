@@ -1,6 +1,4 @@
-package com.uber.transform.loader;
-
-import com.android.annotations.NonNull;
+package com.uber.okbuck.transform;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -12,15 +10,15 @@ import java.net.URLClassLoader;
  * Extend the support for the system class loader to load additional dependencies at runtime. Note that internally
  * it works using {@link ClassLoader#getSystemClassLoader()}, making accessible the `addURL` method through reflection.
  */
-public class SystemClassLoader {
+class SystemClassLoader {
 
-    @NonNull private final URLClassLoader systemClassLoader;
-    @NonNull private final Method addUrlMethod;
+    private final URLClassLoader systemClassLoader;
+    private final Method addUrlMethod;
 
     /**
      * Constructor.
      */
-    public SystemClassLoader() {
+    SystemClassLoader() {
         try {
             this.systemClassLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
             this.addUrlMethod = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
@@ -35,7 +33,7 @@ public class SystemClassLoader {
      *
      * @param jarFilePath the path of a jar file.
      */
-    public void loadJarFile(@NonNull String jarFilePath) {
+    private void loadJarFile(String jarFilePath) {
         try {
             File file = new File(jarFilePath);
             if (!file.exists()) {
@@ -54,7 +52,7 @@ public class SystemClassLoader {
      *
      * @param jarFilePaths the paths of a jar file.
      */
-    public void loadJarFiles(@NonNull String[] jarFilePaths) {
+    void loadJarFiles(String[] jarFilePaths) {
         for (String jarFilePath : jarFilePaths) {
             this.loadJarFile(jarFilePath);
         }

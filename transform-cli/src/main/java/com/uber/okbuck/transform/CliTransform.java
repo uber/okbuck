@@ -1,9 +1,6 @@
-package com.uber.transform;
+package com.uber.okbuck.transform;
 
-import com.android.annotations.NonNull;
 import com.android.build.api.transform.Transform;
-import com.uber.transform.loader.SystemClassLoader;
-import com.uber.transform.runner.TransformRunner;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -15,13 +12,13 @@ import java.io.IOException;
  */
 public class CliTransform {
 
-    @NonNull private static final String PROPERTY_IN_JARS_DIR = "okbuck.inJarsDir";
-    @NonNull private static final String PROPERTY_OUT_JARS_DIR = "okbuck.outJarsDir";
-    @NonNull private static final String PROPERTY_CONFIG_FILE = "okbuck.configFile";
-    @NonNull private static final String PROPERTY_ANDROID_BOOTCLASSPATH = "okbuck.androidBootClasspath";
-    @NonNull private static final String PROPERTY_TRANSFORM_DEPENDENCIES_FILE = "okbuck.transformJarsFile";
-    @NonNull private static final String PROPERTY_TRANSFORM_CLASS = "okbuck.transformClass";
-    @NonNull private static final String DEPENDENCIES_SEPARATOR = ":";
+    private static final String PROPERTY_IN_JARS_DIR = "okbuck.inJarsDir";
+    private static final String PROPERTY_OUT_JARS_DIR = "okbuck.outJarsDir";
+    private static final String PROPERTY_CONFIG_FILE = "okbuck.configFile";
+    private static final String PROPERTY_ANDROID_BOOTCLASSPATH = "okbuck.androidBootClasspath";
+    private static final String PROPERTY_TRANSFORM_DEPENDENCIES_FILE = "okbuck.transformJarsFile";
+    private static final String PROPERTY_TRANSFORM_CLASS = "okbuck.transformClass";
+    private static final String DEPENDENCIES_SEPARATOR = ":";
 
     private CliTransform() { }
 
@@ -30,16 +27,16 @@ public class CliTransform {
      *
      * @param args arguments.
      */
-    public static void main(@NonNull String[] args) {
+    public static void main(String[] args) {
         if (args.length != 0) {
-            StringBuilder sb = new StringBuilder();
-            sb.append("No argument is expected. All parameters should be passed through java system properties.\n");
-            sb.append(PROPERTY_IN_JARS_DIR + " : jars input directory\n");
-            sb.append(PROPERTY_OUT_JARS_DIR + " : jars output directory\n");
-            sb.append(PROPERTY_CONFIG_FILE + " : configuration file\n");
-            sb.append(PROPERTY_ANDROID_BOOTCLASSPATH + " : android classpath\n");
-            sb.append(PROPERTY_TRANSFORM_DEPENDENCIES_FILE + " : transform dependencies [optional]\n");
-            sb.append(PROPERTY_TRANSFORM_CLASS + " : full qualified name for transform class\n");
+            StringBuilder sb = new StringBuilder()
+                    .append("No argument is expected. All parameters should be passed through java system properties.\n")
+                    .append(PROPERTY_IN_JARS_DIR + " : jars input directory\n")
+                    .append(PROPERTY_OUT_JARS_DIR + " : jars output directory\n")
+                    .append(PROPERTY_CONFIG_FILE + " : configuration file\n")
+                    .append(PROPERTY_ANDROID_BOOTCLASSPATH + " : android classpath\n")
+                    .append(PROPERTY_TRANSFORM_DEPENDENCIES_FILE + " : transform dependencies [optional]\n")
+                    .append(PROPERTY_TRANSFORM_CLASS + " : full qualified name for transform class\n");
             throw new IllegalArgumentException(sb.toString());
         }
 
@@ -94,7 +91,7 @@ public class CliTransform {
      *
      * @param provider a provider for the transform runner.
      */
-    static void main(@NonNull TransformRunnerProvider provider) {
+    static void main(TransformRunnerProvider provider) {
         try {
             provider.provide().runTransform();
         } catch (Exception e) {
@@ -109,7 +106,6 @@ public class CliTransform {
      * @param property the property with the file path to read.
      * @return an array with all the dependency jars.
      */
-    @NonNull
     static String[] readDependenciesFileFromSystemPropertyVar(String property) {
         String envVarFilePath = System.getProperty(property);
         if (envVarFilePath != null && envVarFilePath.length() > 0) {
@@ -135,8 +131,7 @@ public class CliTransform {
      * @param property the property with the dependencies.
      * @return an array with all the dependency jars.
      */
-    @NonNull
-    static String[] readDependenciesFromSystemPropertyVar(@NonNull String property) {
+    static String[] readDependenciesFromSystemPropertyVar(String property) {
         String depsEnvVar = System.getProperty(property);
         return depsEnvVar != null && depsEnvVar.length() > 0
                 ? depsEnvVar.split(DEPENDENCIES_SEPARATOR)

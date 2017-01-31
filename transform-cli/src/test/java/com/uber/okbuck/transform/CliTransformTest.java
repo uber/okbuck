@@ -1,6 +1,7 @@
-package com.uber.transform;
+package com.uber.okbuck.transform;
 
-import com.uber.transform.runner.TransformRunner;
+import com.uber.okbuck.transform.CliTransform;
+import com.uber.okbuck.transform.TransformRunner;
 
 import org.junit.Before;
 import org.junit.Test;
