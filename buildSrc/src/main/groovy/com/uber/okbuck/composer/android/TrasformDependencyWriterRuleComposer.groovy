@@ -37,12 +37,12 @@ final class TrasformDependencyWriterRuleComposer extends AndroidBuckRuleComposer
 
                 "echo \"java " +
 
-                        "-Din_jars_dir=\"\\\$1\" " +
-                        "-Dout_jars_dir=\"\\\$2\" " +
-                        "-Dandroid_bootclasspath=\"\\\$3\" " +
+                        "-Dokbuck.inJarsDir=\"\\\$1\" " +
+                        "-Dokbuck.outJarsDir=\"\\\$2\" " +
+                        "-Dokbuck.androidBootClasspath=\"\\\$3\" " +
 
-                        (configFile != null ? "-Dconfig_file=\"\$SRCS\" " : "") +
-                        (transformClass != null ? "-Dtransform_class=\"${transformClass}\" " : "") +
+                        (configFile != null ? "-Dokbuck.configFile=\"\$SRCS\" " : "") +
+                        (transformClass != null ? "-Dokbuck.transformClass=\"${transformClass}\" " : "") +
 
                         " -cp \$(location ${TransformUtil.TRANSFORM_RULE}) ${RUNNER_MAIN_CLASS}\" >> ${output};",
 

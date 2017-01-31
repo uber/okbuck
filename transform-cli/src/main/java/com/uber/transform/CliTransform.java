@@ -15,12 +15,12 @@ import java.io.IOException;
  */
 public class CliTransform {
 
-    @NonNull private static final String PROPERTY_IN_JARS_DIR = "in_jars_dir";
-    @NonNull private static final String PROPERTY_OUT_JARS_DIR = "out_jars_dir";
-    @NonNull private static final String PROPERTY_CONFIG_FILE = "config_file";
-    @NonNull private static final String PROPERTY_ANDROID_BOOTCLASSPATH = "android_bootclasspath";
-    @NonNull private static final String PROPERTY_TRANSFORM_DEPENDENCIES_FILE = "transform_jars_file";
-    @NonNull private static final String PROPERTY_TRANSFORM_CLASS = "transform_class";
+    @NonNull private static final String PROPERTY_IN_JARS_DIR = "okbuck.inJarsDir";
+    @NonNull private static final String PROPERTY_OUT_JARS_DIR = "okbuck.outJarsDir";
+    @NonNull private static final String PROPERTY_CONFIG_FILE = "okbuck.configFile";
+    @NonNull private static final String PROPERTY_ANDROID_BOOTCLASSPATH = "okbuck.androidBootClasspath";
+    @NonNull private static final String PROPERTY_TRANSFORM_DEPENDENCIES_FILE = "okbuck.transformJarsFile";
+    @NonNull private static final String PROPERTY_TRANSFORM_CLASS = "okbuck.transformClass";
     @NonNull private static final String DEPENDENCIES_SEPARATOR = ":";
 
     private CliTransform() { }
