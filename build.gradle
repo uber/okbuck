@@ -146,7 +146,7 @@ okbuck {
                     'libraries/common:paidRelease',
             ]
     ]
-    buckProjects = project.subprojects.findAll { it.name != "plugin" }
+    buckProjects = project.subprojects.findAll { it.name != "plugin" && it.name != "transform-cli" }
 
     intellij {
         sources = true
