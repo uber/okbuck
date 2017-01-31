@@ -1,18 +1,21 @@
 def versions = [
-        butterKnifeVersion: '8.4.0',
-        daggerVersion     : '2.8',
-        leakCanaryVersion : '1.5',
-        supportVersion    : '25.0.0',
+        butterKnifeVersion   : '8.4.0',
+        daggerVersion        : '2.8',
+        leakCanaryVersion    : '1.5',
+        supportVersion       : '25.0.1',
+        androidPluginVersion : '2.3.0-beta3',
 ]
 
 def build = [
-        androidPlugin    : 'com.android.tools.build:gradle:2.3.0-beta3',
+        androidPlugin    : "com.android.tools.build:gradle:${versions.androidPluginVersion}",
+        androidPluginApi : "com.android.tools.build:gradle-api:${versions.androidPluginVersion}",
         butterKnifePlugin: "com.jakewharton:butterknife-gradle-plugin:${versions.butterKnifeVersion}",
         commonsIo        : 'commons-io:commons-io:2.5',
         commonsLang      : 'commons-lang:commons-lang:2.6',
         mavenArtifact    : 'org.apache.maven:maven-artifact:3.3.9',
         retrolambdaPlugin: 'me.tatarka:gradle-retrolambda:3.5.0',
         sqlDelightPlugin : 'com.squareup.sqldelight:gradle-plugin:0.5.1',
+        shadowJar        : "com.github.jengelman.gradle.plugins:shadow:1.2.4",
 ]
 
 def buildConfig = [
@@ -64,6 +67,7 @@ def test = [
         junit         : 'junit:junit:4.12',
         mockito       : 'org.mockito:mockito-core:1.10.19',
         robolectric   : 'org.robolectric:robolectric:3.0',
+        assertj       : 'org.assertj:assertj-core:3.6.1'
 ]
 
 ext.config = [

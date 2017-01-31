@@ -2,12 +2,14 @@ buildscript {
     apply from: rootProject.file('dependencies.gradle')
     repositories {
         jcenter()
+        maven { url "https://plugins.gradle.org/m2/" }
     }
     dependencies {
         classpath deps.build.androidPlugin
         classpath deps.build.butterKnifePlugin
         classpath deps.build.retrolambdaPlugin
         classpath deps.build.sqlDelightPlugin
+        classpath deps.build.shadowJar
     }
 }
 
@@ -144,7 +146,7 @@ okbuck {
                     'libraries/common:paidRelease',
             ]
     ]
-    buckProjects = project.subprojects.findAll { it.name != "plugin" }
+    buckProjects = project.subprojects.findAll { it.name != "plugin" && it.name != "transform-cli" }
 
     intellij {
         sources = true

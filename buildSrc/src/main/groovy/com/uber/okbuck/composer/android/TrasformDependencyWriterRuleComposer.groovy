@@ -7,13 +7,11 @@ import com.uber.okbuck.rule.base.GenRule
 import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
 
-import java.nio.file.Files
-
 final class TrasformDependencyWriterRuleComposer extends AndroidBuckRuleComposer {
 
-    static final String OPT_TRANSFORM_PROVIDER_CLASS = "provider"
     static final String OPT_TRANSFORM_CLASS = "transform"
     static final String OPT_CONFIG_FILE = "configFile"
+    static final String RUNNER_MAIN_CLASS = "com.uber.transform.CliTransform"
 
     private TrasformDependencyWriterRuleComposer() {}
 
@@ -24,8 +22,6 @@ final class TrasformDependencyWriterRuleComposer extends AndroidBuckRuleComposer
     }
 
     static GenRule compose(AndroidAppTarget target, Map<String, String> options) {
-        String runnerMainClass = target.transformRunnerClass
-        String providerClass = options.get(OPT_TRANSFORM_PROVIDER_CLASS)
         String transformClass = options.get(OPT_TRANSFORM_CLASS)
         String configFile = options.get(OPT_CONFIG_FILE)
 
@@ -37,27 +33,29 @@ final class TrasformDependencyWriterRuleComposer extends AndroidBuckRuleComposer
         String output = "\$OUT"
         List<String> cmds = [
                 "echo \"#!/bin/bash\" > ${output};",
-                "echo \"set -e\" >> ${output};",
+                "echo \"set -ex\" >> ${output};",
 
-                "echo \"export IN_JARS_DIR=\\\$1\" >> ${output};",
-                "echo \"export OUT_JARS_DIR=\\\$2\" >> ${output};",
-                "echo \"export ANDROID_BOOTCLASSPATH=\\\$3\" >> ${output};",
+                "echo \"java " +
 
-                configFile != null ? "echo \"export CONFIG_FILE=\$SRCS\" >> ${output};" : "",
-                providerClass != null ? "echo \"export TRANSFORM_PROVIDER_CLASS=${providerClass}\" >> ${output};" : "",
-                transformClass != null ? "echo \"export TRANSFORM_CLASS=${transformClass}\" >> ${output};" : "",
+                        "-Dokbuck.inJarsDir=\"\\\$1\" " +
+                        "-Dokbuck.outJarsDir=\"\\\$2\" " +
+                        "-Dokbuck.androidBootClasspath=\"\\\$3\" " +
 
-                "echo \"java -cp \$(location ${TransformUtil.TRANSFORM_RULE}) ${runnerMainClass}\" >> ${output};",
+                        (configFile != null ? "-Dokbuck.configFile=\"\$SRCS\" " : "") +
+                        (transformClass != null ? "-Dokbuck.transformClass=\"${transformClass}\" " : "") +
+
+                        " -cp \$(location ${TransformUtil.TRANSFORM_RULE}) ${RUNNER_MAIN_CLASS}\" >> ${output};",
+
                 "chmod +x ${output}"]
+
+        System.out.println("Generating rule for transform: ")
+        System.out.println(cmds)
 
         return new GenRule(getTransformRuleName(target, options), input, cmds, true)
     }
 
     static getTransformRuleName(AndroidAppTarget target, Map<String, String> options) {
-        String providerClass = options.get(OPT_TRANSFORM_PROVIDER_CLASS)
-        String transformClass = options.get(OPT_TRANSFORM_CLASS)
-        String name = providerClass != null ? providerClass : transformClass
-        return transform(name, target)
+        return transform(options.get(OPT_TRANSFORM_CLASS), target)
     }
 
     static String getTransformConfigRuleForFile(Project project, File config) {
