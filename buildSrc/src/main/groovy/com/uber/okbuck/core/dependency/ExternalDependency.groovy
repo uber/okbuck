@@ -14,7 +14,7 @@ class ExternalDependency extends VersionlessDependency {
     final DefaultArtifactVersion version
     final File depFile
 
-    ExternalDependency(ModuleVersionIdentifier identifier, File depFile) {
+    ExternalDependency(ModuleVersionIdentifier identifier, File depFile, String artifactType, String artifactClassifier) {
         super(identifier)
         if (identifier.version) {
             version = new DefaultArtifactVersion(identifier.version)
@@ -23,6 +23,10 @@ class ExternalDependency extends VersionlessDependency {
         }
 
         this.depFile = depFile
+
+        if (artifactType == "jar") {
+            this.classifier = artifactClassifier
+        }
     }
 
     @Override
@@ -53,6 +57,6 @@ class ExternalDependency extends VersionlessDependency {
                 baseName,
                 baseName,
                 LOCAL_DEP_VERSION)
-        return new ExternalDependency(identifier, localDep)
+        return new ExternalDependency(identifier, localDep, null, null)
     }
 }

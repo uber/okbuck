@@ -10,6 +10,8 @@ class VersionlessDependency {
     final String group
     final String name
 
+    String classifier
+
     VersionlessDependency(ModuleVersionIdentifier identifier) {
         group = identifier.group
         name = identifier.name
@@ -17,6 +19,9 @@ class VersionlessDependency {
 
     @Override
     String toString() {
+        if (classifier) {
+            return "${this.group}:${this.name}-${this.classifier}"
+        }
         return "${this.group}:${this.name}"
     }
 
