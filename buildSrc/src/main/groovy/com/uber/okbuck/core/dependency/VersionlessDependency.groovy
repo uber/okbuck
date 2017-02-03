@@ -11,12 +11,10 @@ class VersionlessDependency {
     final String name
     final String classifier
 
-    VersionlessDependency(ModuleVersionIdentifier identifier, String artifactType, String artifactClassifier) {
+    VersionlessDependency(ModuleVersionIdentifier identifier, String artifactClassifier) {
         group = identifier.group
         name = identifier.name
-        if (artifactType == "jar") {
-            classifier = artifactClassifier
-        }
+        classifier = artifactClassifier
     }
 
     @Override

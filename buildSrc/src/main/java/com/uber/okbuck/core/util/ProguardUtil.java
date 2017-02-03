@@ -33,7 +33,7 @@ public final class ProguardUtil {
         String proguardJarPath = null;
         try {
             proguardJarPath = proguardCache.get(new VersionlessDependency(
-                    VersionlessDependency.getDepIdentifier(PROGUARD_GROUP, PROGUARD_MODULE), null, null));
+                    VersionlessDependency.getDepIdentifier(PROGUARD_GROUP, PROGUARD_MODULE), null));
         } catch (IllegalStateException ignored) {}
         return proguardJarPath;
     }
