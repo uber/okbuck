@@ -84,7 +84,7 @@ class Scope {
             it.resolvedConfiguration.firstLevelModuleDependencies.each { ResolvedDependency resolvedDependency ->
                 if (!resolvedDependency.moduleArtifacts.empty) {
                     ResolvedArtifact artifact = resolvedDependency.moduleArtifacts[0]
-                    VersionlessDependency dependency = new VersionlessDependency(artifact.moduleVersion.id)
+                    VersionlessDependency dependency = new VersionlessDependency(artifact.moduleVersion.id, artifact.type, artifact.classifier)
 
                     if (!depCache.getProject(dependency)) {
                         firstLevel.add(dependency)
@@ -104,7 +104,7 @@ class Scope {
 
         Set<File> resolvedFiles = [] as Set
         artifacts.each { ResolvedArtifact artifact ->
-            VersionlessDependency dependency = new VersionlessDependency(artifact.moduleVersion.id)
+            VersionlessDependency dependency = new VersionlessDependency(artifact.moduleVersion.id, artifact.type, artifact.classifier)
 
             Project targetProject = depCache.getProject(dependency)
             if (targetProject) {
