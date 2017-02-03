@@ -9,7 +9,7 @@ class ProjectDependency extends VersionlessDependency {
 
     ProjectDependency(Project project) {
         super(getDepIdentifier(project.group,
-                project.hasProperty("archiveBaseName") ? project.archiveBaseName : project.name), null, null)
+                project.hasProperty("archiveBaseName") ? project.archiveBaseName : project.name), null)
         this.project = project
     }
 

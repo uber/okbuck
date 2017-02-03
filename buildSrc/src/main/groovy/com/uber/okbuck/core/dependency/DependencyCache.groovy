@@ -98,7 +98,7 @@ class DependencyCache {
         }
 
         superConfiguration.resolvedConfiguration.resolvedArtifacts.each { ResolvedArtifact artifact ->
-            ExternalDependency dependency = new ExternalDependency(artifact.moduleVersion.id, artifact.file, artifact.type, artifact.classifier)
+            ExternalDependency dependency = new ExternalDependency(artifact.moduleVersion.id, artifact.file, artifact.classifier)
             if (!projectDeps.containsKey(dependency)) {
                 externalDeps.put(dependency, dependency)
             }
