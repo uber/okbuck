@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.Collections;
 
 public final class LintUtil {
@@ -49,10 +49,10 @@ public final class LintUtil {
         File lintVersionFile = project.file(LINT_VERSION_FILE);
         try {
             if (!lintVersionFile.exists()
-                    || !FileUtils.readFileToString(lintVersionFile, Charset.defaultCharset()).equals(version)) {
+                    || !FileUtils.readFileToString(lintVersionFile).equals(version)) {
                 FileUtils.deleteDirectory(lintVersionFile.getParentFile());
                 lintVersionFile.getParentFile().mkdirs();
-                FileUtils.write(lintVersionFile, version, Charset.defaultCharset());
+                Files.write(lintVersionFile.toPath(), Collections.singleton(version));
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

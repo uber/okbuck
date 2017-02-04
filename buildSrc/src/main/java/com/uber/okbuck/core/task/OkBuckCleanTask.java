@@ -2,12 +2,14 @@ package com.uber.okbuck.core.task;
 
 import com.google.common.collect.ImmutableMap;
 
-import org.apache.commons.io.FileUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.stream.StreamSupport;
@@ -34,6 +36,13 @@ public class OkBuckCleanTask extends DefaultTask {
                 .iterator();
         Iterable<File> iterable = () -> iterator;
         StreamSupport.stream(iterable.spliterator(), true)
-                .forEach(FileUtils::deleteQuietly);
+                .map(File::toPath)
+                .forEach(OkBuckCleanTask::deleteQuietly);
+    }
+
+    private static void deleteQuietly(Path p) {
+        try {
+            Files.delete(p);
+        } catch (IOException ignored) {}
     }
 }

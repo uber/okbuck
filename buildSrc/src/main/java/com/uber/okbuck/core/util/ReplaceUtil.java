@@ -12,7 +12,6 @@ import java.io.OutputStream;
 import java.io.PushbackReader;
 import java.io.Reader;
 import java.nio.CharBuffer;
-import java.nio.charset.Charset;
 import java.util.Map;
 
 final class ReplaceUtil {
@@ -26,7 +25,7 @@ final class ReplaceUtil {
             TemplateReader replacingReader = new TemplateReader(reader, new TemplateMapResolver(templates));
 
             OutputStream outputStream = new FileOutputStream(destination);
-            IOUtils.copy(replacingReader, outputStream, Charset.defaultCharset());
+            IOUtils.copy(replacingReader, outputStream);
             IOUtils.closeQuietly(inputStream);
             IOUtils.closeQuietly(outputStream);
         } catch (IOException e) {
