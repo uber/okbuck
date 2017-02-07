@@ -27,6 +27,9 @@ class ExternalDependency extends VersionlessDependency {
 
     @Override
     String toString() {
+        if (classifier) {
+            return "${this.group}:${this.name}:${this.version}-${this.classifier} -> ${this.depFile.toString()}"
+        }
         return "${this.group}:${this.name}:${this.version} -> ${this.depFile.toString()}"
     }
 

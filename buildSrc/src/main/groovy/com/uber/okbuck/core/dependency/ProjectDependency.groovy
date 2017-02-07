@@ -2,7 +2,6 @@ package com.uber.okbuck.core.dependency
 
 import org.gradle.api.Project
 
-
 class ProjectDependency extends VersionlessDependency {
 
     final Project project
@@ -15,6 +14,9 @@ class ProjectDependency extends VersionlessDependency {
 
     @Override
     String toString() {
-        return "${this.group}:${this.name} -> ${this.project}"
+        if (classifier) {
+            return "ProjectDependency - ${this.group}:${this.name}-${this.classifier} -> ${this.project}"
+        }
+        return "ProjectDependency - ${this.group}:${this.name} -> ${this.project}"
     }
 }
