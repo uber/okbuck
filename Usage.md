@@ -42,7 +42,7 @@ okbuck {
     buckProjects = project.subprojects
     extraBuckOpts = [
         'appDebug': [ 
-            "binary": ["trim_resource_ids = True"]
+            "android_binary": ["trim_resource_ids = True"]
         ]
     ]
 
