@@ -9,14 +9,23 @@ class VersionlessDependency {
 
     final String group
     final String name
+    final String classifier
 
-    VersionlessDependency(ModuleVersionIdentifier identifier) {
+    VersionlessDependency(ModuleVersionIdentifier identifier, String classifier) {
         group = identifier.group
         name = identifier.name
+        this.classifier = classifier
+    }
+
+    VersionlessDependency withoutClassifier(){
+        return new VersionlessDependency(getDepIdentifier(group, name), null)
     }
 
     @Override
     String toString() {
+        if (classifier) {
+            return "${this.group}:${this.name}-${this.classifier}"
+        }
         return "${this.group}:${this.name}"
     }
 

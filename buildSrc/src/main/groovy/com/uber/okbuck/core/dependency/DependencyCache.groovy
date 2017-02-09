@@ -98,8 +98,9 @@ class DependencyCache {
         }
 
         superConfiguration.resolvedConfiguration.resolvedArtifacts.each { ResolvedArtifact artifact ->
-            ExternalDependency dependency = new ExternalDependency(artifact.moduleVersion.id, artifact.file)
-            if (!projectDeps.containsKey(dependency)) {
+            ExternalDependency dependency = new ExternalDependency(artifact.moduleVersion.id, artifact.file,
+                    artifact.classifier)
+            if (!projectDeps.containsKey(dependency.withoutClassifier())) {
                 externalDeps.put(dependency, dependency)
             }
             resolvedFiles.add(artifact.file)
@@ -166,7 +167,7 @@ class DependencyCache {
     }
 
     Project getProject(VersionlessDependency dependency) {
-        ProjectDependency targetDependency = projectDeps.get(dependency)
+        ProjectDependency targetDependency = projectDeps.get(dependency.withoutClassifier())
         if (targetDependency) {
             return targetDependency.project
         } else {
