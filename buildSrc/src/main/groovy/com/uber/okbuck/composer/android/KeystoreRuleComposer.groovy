@@ -4,6 +4,7 @@ import com.uber.okbuck.core.model.android.AndroidAppTarget
 import com.uber.okbuck.core.util.FileUtil
 
 import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 
 final class KeystoreRuleComposer {
 
@@ -25,7 +26,7 @@ final class KeystoreRuleComposer {
             String storeFilePropsName = "${target.name}.keystore.properties"
 
             File keyStoreCopy = new File(storeDir, storeFileName)
-            Files.copy(keystore.storeFile.toPath(), keyStoreCopy.toPath())
+            Files.copy(keystore.storeFile.toPath(), keyStoreCopy.toPath(), StandardCopyOption.REPLACE_EXISTING)
 
             PrintWriter writer = new PrintWriter(new FileOutputStream(new File(storeDir,
                     storeFilePropsName)))
