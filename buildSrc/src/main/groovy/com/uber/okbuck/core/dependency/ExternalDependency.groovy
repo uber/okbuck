@@ -5,7 +5,6 @@ import org.apache.maven.artifact.versioning.DefaultArtifactVersion
 import org.gradle.api.artifacts.ModuleIdentifier
 import org.gradle.api.artifacts.ModuleVersionIdentifier
 
-
 class ExternalDependency extends VersionlessDependency {
 
     static final String LOCAL_DEP_VERSION = "1.0.0"

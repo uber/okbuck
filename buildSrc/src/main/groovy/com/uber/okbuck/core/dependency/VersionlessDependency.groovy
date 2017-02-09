@@ -14,11 +14,11 @@ class VersionlessDependency {
     VersionlessDependency(ModuleVersionIdentifier identifier, String artifactClassifier) {
         group = identifier.group
         name = identifier.name
-        if (classifier) {
-            classifier = artifactClassifier
-        } else {
-            classifier = "debug"
-        }
+        classifier = artifactClassifier
+    }
+
+    VersionlessDependency withoutClassifier(){
+        return new VersionlessDependency(getDepIdentifier(group, name), null)
     }
 
     @Override
