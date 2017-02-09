@@ -13,6 +13,7 @@ import java.nio.file.FileSystem
 import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.StandardCopyOption
 import java.util.jar.JarEntry
 import java.util.jar.JarFile
 
@@ -217,7 +218,7 @@ class DependencyCache {
         FileSystem zipFile = FileSystems.newFileSystem(aar.toPath(), null)
         Path packagedLintJar = zipFile.getPath("lint.jar")
         if (Files.exists(packagedLintJar)) {
-            Files.copy(packagedLintJar, lintJar.toPath())
+            Files.copy(packagedLintJar, lintJar.toPath(), StandardCopyOption.REPLACE_EXISTING)
             return lintJar
         } else {
             return null
