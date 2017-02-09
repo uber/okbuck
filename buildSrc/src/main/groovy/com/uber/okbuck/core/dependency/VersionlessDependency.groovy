@@ -11,10 +11,10 @@ class VersionlessDependency {
     final String name
     final String classifier
 
-    VersionlessDependency(ModuleVersionIdentifier identifier, String artifactClassifier) {
+    VersionlessDependency(ModuleVersionIdentifier identifier, String classifier) {
         group = identifier.group
         name = identifier.name
-        classifier = artifactClassifier
+        this.classifier = classifier
     }
 
     VersionlessDependency withoutClassifier(){
