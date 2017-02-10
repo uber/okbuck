@@ -5,7 +5,6 @@ import org.apache.maven.artifact.versioning.DefaultArtifactVersion
 import org.gradle.api.artifacts.ModuleIdentifier
 import org.gradle.api.artifacts.ModuleVersionIdentifier
 
-
 class ExternalDependency extends VersionlessDependency {
 
     static final String LOCAL_DEP_VERSION = "1.0.0"
@@ -14,8 +13,8 @@ class ExternalDependency extends VersionlessDependency {
     final DefaultArtifactVersion version
     final File depFile
 
-    ExternalDependency(ModuleVersionIdentifier identifier, File depFile) {
-        super(identifier)
+    ExternalDependency(ModuleVersionIdentifier identifier, File depFile, String classifier) {
+        super(identifier, classifier)
         if (identifier.version) {
             version = new DefaultArtifactVersion(identifier.version)
         } else {
@@ -27,6 +26,9 @@ class ExternalDependency extends VersionlessDependency {
 
     @Override
     String toString() {
+        if (classifier) {
+            return "${this.group}:${this.name}:${this.version}-${this.classifier} -> ${this.depFile.toString()}"
+        }
         return "${this.group}:${this.name}:${this.version} -> ${this.depFile.toString()}"
     }
 
@@ -37,7 +39,6 @@ class ExternalDependency extends VersionlessDependency {
             } else {
                 return "${name}.${depFile.name}" as String
             }
-
         } else {
             return depFile.name
         }
@@ -53,6 +54,6 @@ class ExternalDependency extends VersionlessDependency {
                 baseName,
                 baseName,
                 LOCAL_DEP_VERSION)
-        return new ExternalDependency(identifier, localDep)
+        return new ExternalDependency(identifier, localDep, null)
     }
 }

@@ -13,6 +13,7 @@ import java.nio.file.FileSystem
 import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.StandardCopyOption
 import java.util.jar.JarEntry
 import java.util.jar.JarFile
 
@@ -97,8 +98,9 @@ class DependencyCache {
         }
 
         superConfiguration.resolvedConfiguration.resolvedArtifacts.each { ResolvedArtifact artifact ->
-            ExternalDependency dependency = new ExternalDependency(artifact.moduleVersion.id, artifact.file)
-            if (!projectDeps.containsKey(dependency)) {
+            ExternalDependency dependency = new ExternalDependency(artifact.moduleVersion.id, artifact.file,
+                    artifact.classifier)
+            if (!projectDeps.containsKey(dependency.withoutClassifier())) {
                 externalDeps.put(dependency, dependency)
             }
             resolvedFiles.add(artifact.file)
@@ -165,7 +167,7 @@ class DependencyCache {
     }
 
     Project getProject(VersionlessDependency dependency) {
-        ProjectDependency targetDependency = projectDeps.get(dependency)
+        ProjectDependency targetDependency = projectDeps.get(dependency.withoutClassifier())
         if (targetDependency) {
             return targetDependency.project
         } else {
@@ -217,7 +219,7 @@ class DependencyCache {
         FileSystem zipFile = FileSystems.newFileSystem(aar.toPath(), null)
         Path packagedLintJar = zipFile.getPath("lint.jar")
         if (Files.exists(packagedLintJar)) {
-            Files.copy(packagedLintJar, lintJar.toPath())
+            Files.copy(packagedLintJar, lintJar.toPath(), StandardCopyOption.REPLACE_EXISTING)
             return lintJar
         } else {
             return null

@@ -31,7 +31,11 @@ public abstract class JvmTarget extends Target {
      * List of test jvm args
      */
     public List<String> getTestRunnerJvmArgs() {
-        Test testTask = getProject().getTasks().withType(Test.class).getByName("test");
-        return testTask != null ? testTask.getAllJvmArgs() : Collections.<String>emptyList();
+        try {
+            Test testTask = getProject().getTasks().withType(Test.class).getByName("test");
+            return testTask != null ? testTask.getAllJvmArgs() : Collections.<String>emptyList();
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
     }
 }

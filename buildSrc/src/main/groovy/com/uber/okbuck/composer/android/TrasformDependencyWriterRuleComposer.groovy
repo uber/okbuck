@@ -4,8 +4,10 @@ import com.uber.okbuck.core.model.android.AndroidAppTarget
 import com.uber.okbuck.core.util.FileUtil
 import com.uber.okbuck.core.util.TransformUtil
 import com.uber.okbuck.rule.base.GenRule
-import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
+
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 
 final class TrasformDependencyWriterRuleComposer extends AndroidBuckRuleComposer {
 
@@ -61,7 +63,7 @@ final class TrasformDependencyWriterRuleComposer extends AndroidBuckRuleComposer
     static String getTransformConfigRuleForFile(Project project, File config) {
         String path = getTransformFilePathForFile(project, config)
         File configFile = new File("${TransformUtil.TRANSFORM_CACHE}/${path}")
-        FileUtils.copyFile(config, configFile)
+        Files.copy(config.toPath(), configFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
         return "//${TransformUtil.TRANSFORM_CACHE}:${path}"
     }
 

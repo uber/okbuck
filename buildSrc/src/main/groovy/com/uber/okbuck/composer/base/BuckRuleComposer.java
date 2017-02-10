@@ -1,6 +1,5 @@
 package com.uber.okbuck.composer.base;
 
-import com.uber.okbuck.core.model.android.AndroidTarget;
 import com.uber.okbuck.core.model.base.Target;
 import com.uber.okbuck.core.model.java.JavaLibTarget;
 
