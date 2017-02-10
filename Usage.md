@@ -49,7 +49,6 @@ okbuck {
     wrapper {
         repo = 'https://github.com/facebook/buck.git'
         remove = ['.buckconfig.local', "**/BUCK"]
-        keep = [".okbuck/**/BUCK"]
     }
 
     transform {
@@ -84,7 +83,7 @@ please read the [Exopackage wiki](https://github.com/uber/okbuck/wiki/Exopackage
 +  `wrapper` is used to configure creation of the buck wrapper script.
  - `repo` - The git url of any custom buck fork. Default is none.
  - `remove` - List of file patterns to clean up by wrapper before running `okbuck`. Default is `['.buckconfig.local', '**/BUCK']`
- - `keep` - List of file patterns to not clean up by the wrapper before running `okbuck`. This may be useful if you made manual modifications to some buck files and would like to keep them intact while regenerating the configuration for other projects. Default is `['.okbuck/**/BUCK']`.
+ - `keep` - List of file patterns to not clean up by the wrapper before running `okbuck`. This may be useful if you made manual modifications to some buck files and would like to keep them intact while regenerating the configuration for other projects. Default is all `BUCK` files inside `.okbuck`.
 + The keys used to configure various options can be for 
  - All buildTypes and flavors i.e `app`
  - All buildTypes of a particular flavor i.e 'appDemo'
