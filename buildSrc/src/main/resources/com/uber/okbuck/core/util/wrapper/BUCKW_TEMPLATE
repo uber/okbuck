@@ -76,9 +76,9 @@ getToClean ( ) {
         ["anyof",
 ${template-remove}
         ],
-        ["not",
+        ["not", ["anyof",
 ${template-keep}
-        ]
+        ]]
     ],
     "fields": ["name"]
 }]

@@ -4,7 +4,7 @@
 ##
 ##  Buck wrapper script to invoke okbuck when needed, before running buck
 ##
-##  Created by OkBuck Gradle Plugin on : Fri Jan 27 13:52:56 PST 2017
+##  Created by OkBuck Gradle Plugin on : Thu Feb 09 22:37:21 PST 2017
 ##
 #########################################################################
 
@@ -76,9 +76,9 @@ getToClean ( ) {
         ["anyof",
             ["name", ["BUCK", ".buckconfig.local"]]
         ],
-        ["not",
+        ["not", ["anyof",
             ["dirname", ".okbuck"]
-        ]
+        ]]
     ],
     "fields": ["name"]
 }]
@@ -142,7 +142,7 @@ runOkBuck ( ) {
     fi
 
     rm -f $OKBUCK_SUCCESS
-    ( $WORKING_DIR/gradlew -p $WORKING_DIR okbuck -Dokbuck.wrapper=true $EXTRA_OKBUCK_ARGS -Pandroid.enableImprovedDependenciesResolution=true &&
+    ( $WORKING_DIR/gradlew -p $WORKING_DIR okbuck -Dokbuck.wrapper=true $EXTRA_OKBUCK_ARGS &&
     updateOkBuckSuccess && success "PROCEEDING WITH BUCK" ) || die "OKBUCK FAILED"
 }
 
