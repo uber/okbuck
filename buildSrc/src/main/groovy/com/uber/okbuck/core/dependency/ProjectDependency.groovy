@@ -15,8 +15,8 @@ class ProjectDependency extends VersionlessDependency {
     @Override
     String toString() {
         if (classifier) {
-            return "ProjectDependency - ${this.group}:${this.name}-${this.classifier} -> ${this.project}"
+            return "${this.group}:${this.name}-${this.classifier} -> ${this.project}"
         }
-        return "ProjectDependency - ${this.group}:${this.name} -> ${this.project}"
+        return "${this.group}:${this.name} -> ${this.project}"
     }
 }
