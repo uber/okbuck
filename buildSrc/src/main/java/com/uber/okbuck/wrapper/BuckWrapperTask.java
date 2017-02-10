@@ -46,7 +46,7 @@ public class BuckWrapperTask extends DefaultTask {
         if (keepExpr.isEmpty()) {
             keepExpr = OKBUCK_DIRNAME;
         } else {
-            keepExpr = OKBUCK_DIRNAME + "\n" + keepExpr;
+            keepExpr = OKBUCK_DIRNAME + ",\n" + keepExpr;
         }
         Map<String, String> templates = ImmutableMap.<String, String>builder()
                 .put("template-creation-time", new Date().toString())
