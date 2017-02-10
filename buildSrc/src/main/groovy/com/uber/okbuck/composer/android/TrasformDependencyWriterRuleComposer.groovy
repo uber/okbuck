@@ -50,9 +50,6 @@ final class TrasformDependencyWriterRuleComposer extends AndroidBuckRuleComposer
 
                 "chmod +x ${output}"]
 
-        System.out.println("Generating rule for transform: ")
-        System.out.println(cmds)
-
         return new GenRule(getTransformRuleName(target, options), input, cmds, true)
     }
 
