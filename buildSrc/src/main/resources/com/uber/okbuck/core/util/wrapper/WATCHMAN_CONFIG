@@ -3,7 +3,6 @@
         "buck-out",
         ".buckd",
         ".idea",
-        ".okbuck",
         "build",
         ".gradle",
         ".swp",
