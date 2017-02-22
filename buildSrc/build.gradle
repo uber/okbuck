@@ -30,6 +30,7 @@ dependencies {
     compile deps.build.androidPlugin
     compile deps.build.commonsIo
     compile deps.build.commonsLang
+    compile deps.build.kotlinPlugin
     compile deps.build.mavenArtifact
 
     testCompile deps.test.junit

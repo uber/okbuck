@@ -17,6 +17,7 @@ abstract class JavaRule extends BuckRule {
     private final Set<String> mProvidedDeps
     private final List<String> mTestTargets
     private final List<String> mLabels
+    private final String mSourceExtension
 
     JavaRule(
             RuleType ruleType,
@@ -50,6 +51,7 @@ abstract class JavaRule extends BuckRule {
         mProvidedDeps = providedDeps
         mTestTargets = testTargets
         mLabels = labels
+        mSourceExtension = ruleType.getSourceExtension();
     }
 
     @Override
@@ -57,7 +59,7 @@ abstract class JavaRule extends BuckRule {
         if (!mSrcSet.empty) {
             printer.println("\tsrcs = glob([")
             for (String src : mSrcSet) {
-                printer.println("\t\t'${src}/**/*.java',")
+                printer.println("\t\t'${src}/**/*.${mSourceExtension}',")
             }
             printer.println("\t]),")
         }

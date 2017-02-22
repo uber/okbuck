@@ -18,6 +18,8 @@ final class DotBuckConfigLocalGenerator {
      */
     static DotBuckConfigLocalFile generate(OkBuckExtension okbuck,
                                            String groovyHome,
+                                           String kotlinCompiler,
+                                           String kotlinRuntime,
                                            String proguardJar,
                                            Set<String> defs) {
         Map<String, String> aliases = [:]
@@ -35,6 +37,8 @@ final class DotBuckConfigLocalGenerator {
                 okbuck.target,
                 [".git", "**/.svn"],
                 groovyHome,
+                kotlinCompiler,
+                kotlinRuntime,
                 proguardJar,
                 defs)
     }
