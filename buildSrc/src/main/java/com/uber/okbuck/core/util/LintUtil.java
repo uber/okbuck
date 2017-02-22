@@ -37,7 +37,10 @@ public final class LintUtil {
                 .getResolvedConfiguration()
                 .getResolvedArtifacts()
                 .parallelStream()
-                .filter(LintUtil::findLint)
+                .filter(resolvedArtifact -> {
+                    ModuleVersionIdentifier identifier = resolvedArtifact.getModuleVersion().getId();
+                    return (LINT_GROUP.equals(identifier.getGroup()) && LINT_MODULE.equals(identifier.getName()));
+                })
                 .findFirst()
                 .map(r -> r.getModuleVersion().getId().getVersion())
                 .orElse(null);
@@ -96,10 +99,5 @@ public final class LintUtil {
                     okBuckExtension.buckProjects);
         }
         return okBuckGradlePlugin.lintDepCache;
-    }
-
-    private static boolean findLint(ResolvedArtifact artifact) {
-        ModuleVersionIdentifier identifier = artifact.getModuleVersion().getId();
-        return (LINT_GROUP.equals(identifier.getGroup()) && LINT_MODULE.equals(identifier.getName()));
     }
 }

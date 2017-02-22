@@ -33,7 +33,11 @@ public final class KotlinUtil {
                 .getResolvedConfiguration()
                 .getResolvedArtifacts()
                 .parallelStream()
-                .filter(KotlinUtil::findKotlin)
+                .filter(resolvedArtifact -> {
+                    ModuleVersionIdentifier identifier = resolvedArtifact.getModuleVersion().getId();
+                    return (KOTLIN_GROUP.equals(identifier.getGroup()) &&
+                            KOTLIN_COMPILER_MODULE.equals(identifier.getName()));
+                })
                 .findFirst()
                 .map(r -> r.getModuleVersion().getId().getVersion())
                 .orElse(null);
@@ -66,10 +70,5 @@ public final class KotlinUtil {
         String kotlinRuntime = String.format("%s/lib/%s-%s.jar", KOTLIN_HOME_LOCATION, KOTLIN_RUNTIME_MODULE,
                 kotlinVersion);
         return Pair.of(kotlinCompiler, kotlinRuntime);
-    }
-
-    private static boolean findKotlin(ResolvedArtifact artifact) {
-        ModuleVersionIdentifier identifier = artifact.getModuleVersion().getId();
-        return (KOTLIN_GROUP.equals(identifier.getGroup()) && KOTLIN_COMPILER_MODULE.equals(identifier.getName()));
     }
 }
