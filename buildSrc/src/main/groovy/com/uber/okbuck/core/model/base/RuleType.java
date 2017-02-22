@@ -15,6 +15,22 @@ public enum RuleType {
     JAVA_BINARY,
     JAVA_LIBRARY,
     JAVA_TEST,
+    KOTLIN_LIBRARY("kt"),
+    KOTLIN_TEST("kt"),
     PREBUILT_NATIVE_LIBRARY,
-    ROBOLECTRIC_TEST
+    ROBOLECTRIC_TEST;
+
+    private final String sourceExtension;
+
+    RuleType() {
+        this("java");
+    }
+
+    RuleType(String sourceExtension) {
+        this.sourceExtension = sourceExtension;
+    }
+
+    public String getSourceExtension() {
+        return sourceExtension;
+    }
 }

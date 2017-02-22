@@ -4,10 +4,8 @@ import com.uber.okbuck.core.model.base.RuleType
 
 final class AndroidTestRule extends AndroidRule {
 
-    /**
-     * @srcTargets , used for SqlDelight support(or other case), genrule's output will be used as src, pass empty set if not present
-     * @param appClass , if exopackage is enabled, pass the detected app class, otherwise, pass null
-     * */
+    private static final List<String> ANDROID_TEST_LABELS = ['unit', 'android', 'robolectric']
+
     AndroidTestRule(
             String name,
             List<String> visibility,
@@ -50,7 +48,7 @@ final class AndroidTestRule extends AndroidRule {
                 mResourcesDir,
                 runtimeDependency,
                 null,
-                ['unit', 'android', 'robolectric'],
+                ANDROID_TEST_LABELS,
                 extraOpts)
     }
 }

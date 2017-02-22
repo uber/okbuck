@@ -2,7 +2,7 @@ package com.uber.okbuck.rule.java
 
 import com.uber.okbuck.core.model.base.RuleType
 
-final class JavaLibraryRule extends JavaRule {
+class JavaLibraryRule extends JavaRule {
 
     JavaLibraryRule(
             String name,
@@ -18,10 +18,11 @@ final class JavaLibraryRule extends JavaRule {
             List<String> postprocessClassesCommands,
             List<String> options,
             List<String> testTargets,
-            Set<String> extraOpts) {
+            Set<String> extraOpts,
+            RuleType ruleType = RuleType.JAVA_LIBRARY) {
 
         super(
-                RuleType.JAVA_LIBRARY,
+                ruleType,
                 name,
                 visibility,
                 deps,

@@ -1,6 +1,7 @@
 def versions = [
         butterKnifeVersion   : '8.4.0',
         daggerVersion        : '2.8',
+        kotlinVersion        : '1.0.6',
         leakCanaryVersion    : '1.5',
         supportVersion       : '25.0.1',
         androidPluginVersion : '2.3.0-beta3',
@@ -12,6 +13,7 @@ def build = [
         butterKnifePlugin: "com.jakewharton:butterknife-gradle-plugin:${versions.butterKnifeVersion}",
         commonsIo        : 'commons-io:commons-io:2.5',
         commonsLang      : 'commons-lang:commons-lang:2.6',
+        kotlinPlugin     : "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlinVersion}",
         mavenArtifact    : 'org.apache.maven:maven-artifact:3.3.9',
         retrolambdaPlugin: 'me.tatarka:gradle-retrolambda:3.5.0',
         sqlDelightPlugin : 'com.squareup.sqldelight:gradle-plugin:0.5.1',
@@ -37,6 +39,7 @@ def external = [
         butterKnife    : "com.jakewharton:butterknife:${versions.butterKnifeVersion}",
         dagger         : "com.google.dagger:dagger:${versions.daggerVersion}",
         gson           : 'com.google.code.gson:gson:2.8.0',
+        kotlinStdlib   : "org.jetbrains.kotlin:kotlin-stdlib:${versions.kotlinVersion}",
         leakCanary     : "com.squareup.leakcanary:leakcanary-android:${versions.leakCanaryVersion}",
         rxandroid      : 'io.reactivex:rxandroid:1.2.1',
         rxjava         : 'io.reactivex:rxjava:1.1.8',
@@ -65,6 +68,7 @@ def test = [
         espressoCore  : 'com.android.support.test.espresso:espresso-core:2.2.2',
         espressoRunner: 'com.android.support.test:runner:0.5',
         junit         : 'junit:junit:4.12',
+        kotlinTest    : "org.jetbrains.kotlin:kotlin-test-junit:${versions.kotlinVersion}",
         mockito       : 'org.mockito:mockito-core:1.10.19',
         robolectric   : 'org.robolectric:robolectric:3.0',
         assertj       : 'org.assertj:assertj-core:3.6.1'

@@ -21,6 +21,8 @@ import com.uber.okbuck.composer.groovy.GroovyTestRuleComposer
 import com.uber.okbuck.composer.java.JavaBinaryRuleComposer
 import com.uber.okbuck.composer.java.JavaLibraryRuleComposer
 import com.uber.okbuck.composer.java.JavaTestRuleComposer
+import com.uber.okbuck.composer.kotlin.KotlinLibraryRuleComposer
+import com.uber.okbuck.composer.kotlin.KotlinTestRuleComposer
 import com.uber.okbuck.config.BUCKFile
 import com.uber.okbuck.core.model.android.AndroidAppTarget
 import com.uber.okbuck.core.model.android.AndroidInstrumentationTarget
@@ -30,6 +32,7 @@ import com.uber.okbuck.core.model.base.Target
 import com.uber.okbuck.core.model.groovy.GroovyLibTarget
 import com.uber.okbuck.core.model.java.JavaAppTarget
 import com.uber.okbuck.core.model.java.JavaLibTarget
+import com.uber.okbuck.core.model.kotlin.KotlinLibTarget
 import com.uber.okbuck.core.util.ProjectUtil
 import com.uber.okbuck.extension.LintExtension
 import com.uber.okbuck.extension.OkBuckExtension
@@ -79,6 +82,9 @@ final class BuckFileGenerator {
                 case ProjectType.GROOVY_LIB:
                     rules.addAll(createRules((GroovyLibTarget) target))
                     break
+                case ProjectType.KOTLIN_LIB:
+                    rules.addAll(createRules((KotlinLibTarget) target))
+                    break
                 case ProjectType.ANDROID_LIB:
                     rules.addAll(createRules((AndroidLibTarget) target))
                     break
@@ -126,6 +132,16 @@ final class BuckFileGenerator {
 
         if (target.test.sources) {
             rules.add(GroovyTestRuleComposer.compose(target))
+        }
+        return rules
+    }
+
+    private static List<BuckRule> createRules(KotlinLibTarget target) {
+        List<BuckRule> rules = []
+        rules.add(KotlinLibraryRuleComposer.compose(target))
+
+        if (target.test.sources) {
+            rules.add(KotlinTestRuleComposer.compose(target))
         }
         return rules
     }

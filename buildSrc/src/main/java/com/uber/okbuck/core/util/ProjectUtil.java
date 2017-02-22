@@ -13,6 +13,7 @@ import org.gradle.api.plugins.ApplicationPlugin;
 import org.gradle.api.plugins.GroovyPlugin;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.PluginContainer;
+import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper;
 
 import java.io.File;
 import java.util.Map;
@@ -29,6 +30,8 @@ public final class ProjectUtil {
             return ProjectType.ANDROID_LIB;
         } else if (plugins.hasPlugin(GroovyPlugin.class)) {
             return ProjectType.GROOVY_LIB;
+        } else if (plugins.hasPlugin(KotlinPluginWrapper.class)) {
+            return ProjectType.KOTLIN_LIB;
         } else if (plugins.hasPlugin(ApplicationPlugin.class)) {
             return ProjectType.JAVA_APP;
         } else if (plugins.hasPlugin(JavaPlugin.class)) {

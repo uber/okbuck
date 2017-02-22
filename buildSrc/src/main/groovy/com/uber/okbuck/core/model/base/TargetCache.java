@@ -10,6 +10,7 @@ import com.uber.okbuck.core.model.groovy.GroovyLibTarget;
 import com.uber.okbuck.core.model.java.JavaAppTarget;
 import com.uber.okbuck.core.model.java.JavaLibTarget;
 import com.uber.okbuck.core.model.jvm.JvmTarget;
+import com.uber.okbuck.core.model.kotlin.KotlinLibTarget;
 import com.uber.okbuck.core.util.ProjectUtil;
 
 import org.gradle.api.Project;
@@ -52,15 +53,19 @@ public class TargetCache {
                     break;
                 case GROOVY_LIB:
                     projectTargets = Collections.singletonMap(JvmTarget.MAIN,
-                            (Target) new GroovyLibTarget(project, JvmTarget.MAIN));
+                            new GroovyLibTarget(project, JvmTarget.MAIN));
+                    break;
+                case KOTLIN_LIB:
+                    projectTargets = Collections.singletonMap(JvmTarget.MAIN,
+                            new KotlinLibTarget(project, JvmTarget.MAIN));
                     break;
                 case JAVA_APP:
                     projectTargets = Collections.singletonMap(JvmTarget.MAIN,
-                            (Target) new JavaAppTarget(project, JvmTarget.MAIN));
+                            new JavaAppTarget(project, JvmTarget.MAIN));
                     break;
                 case JAVA_LIB:
                     projectTargets = Collections.singletonMap(JvmTarget.MAIN,
-                            (Target) new JavaLibTarget(project, JvmTarget.MAIN));
+                            new JavaLibTarget(project, JvmTarget.MAIN));
                     break;
                 default:
                     projectTargets = Collections.emptyMap();

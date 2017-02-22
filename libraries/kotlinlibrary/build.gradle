@@ -1,0 +1,7 @@
+apply plugin: 'kotlin'
+
+dependencies {
+  compile deps.external.kotlinStdlib
+  testCompile deps.test.junit
+  testCompile deps.test.kotlinTest
+}

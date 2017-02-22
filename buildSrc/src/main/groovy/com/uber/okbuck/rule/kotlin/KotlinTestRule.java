@@ -1,16 +1,17 @@
-package com.uber.okbuck.rule.groovy;
+package com.uber.okbuck.rule.kotlin;
 
 import com.uber.okbuck.core.model.base.RuleType;
+import com.uber.okbuck.rule.java.JavaTestRule;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-public final class GroovyTestRule extends GroovyRule {
+public final class KotlinTestRule extends JavaTestRule {
 
-    private static final List<String> GROOVY_TEST_LABELS = Arrays.asList("unit", "groovy");
+    private static final List<String> KOTLIN_TEST_LABELS = Arrays.asList("unit", "kotlin");
 
-    public GroovyTestRule(
+    public KotlinTestRule(
             String name,
             List<String> visibility,
             List<String> deps,
@@ -21,11 +22,10 @@ public final class GroovyTestRule extends GroovyRule {
             String resourcesDir,
             String sourceCompatibility,
             String targetCompatibility,
-            List<String> javacOptions,
-            List<String> testRunnerJvmArgs,
-            Set<String> extraOpts) {
-        super(RuleType.GROOVY_TEST,
-                name,
+            List<String> postprocessClassesCommands,
+            List<String> options,
+            List<String> testRunnerJvmArgs, Set<String> extraOpts) {
+        super(name,
                 visibility,
                 deps,
                 srcSet,
@@ -35,9 +35,11 @@ public final class GroovyTestRule extends GroovyRule {
                 resourcesDir,
                 sourceCompatibility,
                 targetCompatibility,
-                javacOptions,
+                postprocessClassesCommands,
+                options,
                 testRunnerJvmArgs,
-                GROOVY_TEST_LABELS,
-                extraOpts);
+                extraOpts,
+                RuleType.KOTLIN_TEST,
+                KOTLIN_TEST_LABELS);
     }
 }
