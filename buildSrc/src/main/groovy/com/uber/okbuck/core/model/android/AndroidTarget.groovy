@@ -13,6 +13,7 @@ import com.android.manifmerger.MergingReport
 import com.android.utils.ILogger
 import com.uber.okbuck.core.model.base.Scope
 import com.uber.okbuck.core.model.java.JavaLibTarget
+import com.uber.okbuck.core.model.jvm.TestOptions
 import com.uber.okbuck.core.util.FileUtil
 import groovy.util.slurpersupport.GPathResult
 import groovy.xml.StreamingMarkupBuilder
@@ -141,11 +142,14 @@ abstract class AndroidTarget extends JavaLibTarget {
     }
 
     @Override
-    List<String> getTestRunnerJvmArgs() {
+    TestOptions getTestOptions() {
         Test testTask = project.tasks.withType(Test).find {
             it.name == "${VariantType.UNIT_TEST.prefix}${name.capitalize()}${VariantType.UNIT_TEST.suffix}" as String
         }
-        return testTask != null ? testTask.allJvmArgs : []
+        List<String> jvmArgs = testTask != null ? testTask.getAllJvmArgs() : Collections.<String>emptyList()
+        Map<String, Object> env = testTask != null ? testTask.getEnvironment() : Collections.emptyMap()
+        env.keySet().removeAll(System.getenv().keySet())
+        return new TestOptions(jvmArgs, env)
     }
 
     List<String> getBuildConfigFields() {

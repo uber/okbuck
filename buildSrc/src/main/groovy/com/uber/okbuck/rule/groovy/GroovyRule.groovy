@@ -1,6 +1,7 @@
 package com.uber.okbuck.rule.groovy
 
 import com.uber.okbuck.core.model.base.RuleType
+import com.uber.okbuck.core.model.jvm.TestOptions
 import com.uber.okbuck.rule.base.BuckRule
 import org.apache.commons.lang.StringUtils
 
@@ -13,7 +14,7 @@ abstract class GroovyRule extends BuckRule {
     private final String mSourceCompatibility
     private final String mTargetCompatibility
     private final List<String> mJavacOptions
-    private final List<String> mTestRunnerJvmArgs
+    private final TestOptions mTestOptions
     private final Set<String> mProvidedDeps
     private final List<String> mLabels
 
@@ -30,7 +31,7 @@ abstract class GroovyRule extends BuckRule {
             String sourceCompatibility,
             String targetCompatibility,
             List<String> javacOptions,
-            List<String> testRunnerJvmArgs,
+            TestOptions testOptions,
             List<String> labels,
             Set<String> extraOpts) {
 
@@ -42,7 +43,7 @@ abstract class GroovyRule extends BuckRule {
         mTargetCompatibility = targetCompatibility
         mResourcesDir = resourcesDir
         mJavacOptions = javacOptions
-        mTestRunnerJvmArgs = testRunnerJvmArgs
+        mTestOptions = testOptions
         mProvidedDeps = providedDeps
         mLabels = labels
     }
@@ -107,12 +108,20 @@ abstract class GroovyRule extends BuckRule {
             printer.println("\t],")
         }
 
-        if (mTestRunnerJvmArgs) {
+        if (mTestOptions.jvmArgs) {
             printer.println("\tvm_args = [")
-            mTestRunnerJvmArgs.each { String arg ->
+            mTestOptions.jvmArgs.each { String arg ->
                 printer.println("\t\t'${arg}',")
             }
             printer.println("\t],")
+        }
+
+        if (mTestOptions.env) {
+            printer.println("\tenv = {")
+            mTestOptions.env.each { String key, Object value ->
+                printer.println("\t\t'${key}': '${value.toString()}',")
+            }
+            printer.println("\t},")
         }
     }
 }

@@ -44,7 +44,7 @@ final class JavaTestRuleComposer extends JvmBuckRuleComposer {
                 target.targetCompatibility,
                 target.postprocessClassesCommands,
                 target.test.jvmArgs,
-                target.testRunnerJvmArgs,
+                target.testOptions,
                 target.getExtraOpts(RuleType.JAVA_TEST))
     }
 }

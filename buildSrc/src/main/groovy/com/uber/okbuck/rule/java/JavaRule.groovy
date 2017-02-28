@@ -1,6 +1,7 @@
 package com.uber.okbuck.rule.java
 
 import com.uber.okbuck.core.model.base.RuleType
+import com.uber.okbuck.core.model.jvm.TestOptions
 import com.uber.okbuck.rule.base.BuckRule
 
 abstract class JavaRule extends BuckRule {
@@ -13,7 +14,7 @@ abstract class JavaRule extends BuckRule {
     private final String mTargetCompatibility
     private final List<String> mPostprocessClassesCommands
     private final List<String> mOptions
-    private final List<String> mTestRunnerJvmArgs
+    private final TestOptions mTestOptions
     private final Set<String> mProvidedDeps
     private final List<String> mTestTargets
     private final List<String> mLabels
@@ -33,7 +34,7 @@ abstract class JavaRule extends BuckRule {
             String targetCompatibility,
             List<String> postprocessClassesCommands,
             List<String> options,
-            List<String> testRunnerJvmArgs,
+            TestOptions testOptions,
             List<String> testTargets,
             List<String> labels = null,
             Set<String> extraOpts = []) {
@@ -47,7 +48,7 @@ abstract class JavaRule extends BuckRule {
         mResourcesDir = resourcesDir
         mPostprocessClassesCommands = postprocessClassesCommands
         mOptions = options
-        mTestRunnerJvmArgs = testRunnerJvmArgs
+        mTestOptions = testOptions
         mProvidedDeps = providedDeps
         mTestTargets = testTargets
         mLabels = labels
@@ -131,12 +132,20 @@ abstract class JavaRule extends BuckRule {
             printer.println("\t],")
         }
 
-        if (mTestRunnerJvmArgs) {
+        if (mTestOptions.jvmArgs) {
             printer.println("\tvm_args = [")
-            mTestRunnerJvmArgs.each { String arg ->
+            mTestOptions.jvmArgs.each { String arg ->
                 printer.println("\t\t'${arg}',")
             }
             printer.println("\t],")
+        }
+
+        if (mTestOptions.env) {
+            printer.println("\tenv = {")
+            mTestOptions.env.each { String key, Object value ->
+                printer.println("\t\t'${key}': '${value.toString()}',")
+            }
+            printer.println("\t},")
         }
     }
 }

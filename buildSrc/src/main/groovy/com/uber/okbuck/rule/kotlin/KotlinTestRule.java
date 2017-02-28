@@ -1,6 +1,7 @@
 package com.uber.okbuck.rule.kotlin;
 
 import com.uber.okbuck.core.model.base.RuleType;
+import com.uber.okbuck.core.model.jvm.TestOptions;
 import com.uber.okbuck.rule.java.JavaTestRule;
 
 import java.util.Arrays;
@@ -24,7 +25,8 @@ public final class KotlinTestRule extends JavaTestRule {
             String targetCompatibility,
             List<String> postprocessClassesCommands,
             List<String> options,
-            List<String> testRunnerJvmArgs, Set<String> extraOpts) {
+            TestOptions testOptions,
+            Set<String> extraOpts) {
         super(name,
                 visibility,
                 deps,
@@ -37,7 +39,7 @@ public final class KotlinTestRule extends JavaTestRule {
                 targetCompatibility,
                 postprocessClassesCommands,
                 options,
-                testRunnerJvmArgs,
+                testOptions,
                 extraOpts,
                 RuleType.KOTLIN_TEST,
                 KOTLIN_TEST_LABELS);

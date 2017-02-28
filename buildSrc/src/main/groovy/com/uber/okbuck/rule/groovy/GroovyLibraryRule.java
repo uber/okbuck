@@ -1,6 +1,7 @@
 package com.uber.okbuck.rule.groovy;
 
 import com.uber.okbuck.core.model.base.RuleType;
+import com.uber.okbuck.core.model.jvm.TestOptions;
 
 import java.util.Collections;
 import java.util.List;
@@ -33,7 +34,7 @@ public final class GroovyLibraryRule extends GroovyRule {
                 sourceCompatibility,
                 targetCompatibility,
                 javacOptions,
-                Collections.emptyList(),
+                TestOptions.EMPTY,
                 Collections.emptyList(),
                 extraOpts);
     }

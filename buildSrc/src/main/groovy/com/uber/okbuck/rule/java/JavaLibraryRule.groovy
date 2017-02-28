@@ -1,6 +1,7 @@
 package com.uber.okbuck.rule.java
 
 import com.uber.okbuck.core.model.base.RuleType
+import com.uber.okbuck.core.model.jvm.TestOptions
 
 class JavaLibraryRule extends JavaRule {
 
@@ -35,7 +36,7 @@ class JavaLibraryRule extends JavaRule {
                 targetCompatibility,
                 postprocessClassesCommands,
                 options,
-                null,
+                TestOptions.EMPTY,
                 testTargets,
                 null,
                 extraOpts)
