@@ -39,7 +39,7 @@ final class GroovyTestRuleComposer extends JvmBuckRuleComposer {
                 target.sourceCompatibility,
                 target.targetCompatibility,
                 target.test.jvmArgs,
-                target.testRunnerJvmArgs,
+                target.testOptions,
                 target.getExtraOpts(RuleType.GROOVY_TEST))
     }
 }

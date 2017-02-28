@@ -1,6 +1,7 @@
 package com.uber.okbuck.rule.android
 
 import com.uber.okbuck.core.model.base.RuleType
+import com.uber.okbuck.core.model.jvm.TestOptions
 
 final class AndroidLibraryRule extends AndroidRule {
 
@@ -44,7 +45,7 @@ final class AndroidLibraryRule extends AndroidRule {
                 targetCompatibility,
                 postprocessClassesCommands,
                 options,
-                null,
+                TestOptions.EMPTY,
                 generateR2,
                 null,
                 null,

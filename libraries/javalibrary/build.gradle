@@ -10,3 +10,7 @@ dependencies {
 
     testCompile deps.test.junit
 }
+
+test {
+    environment "TEST_ENV", "true"
+}

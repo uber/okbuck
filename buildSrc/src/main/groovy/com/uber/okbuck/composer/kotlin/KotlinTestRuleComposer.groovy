@@ -36,7 +36,7 @@ final class KotlinTestRuleComposer extends JvmBuckRuleComposer {
                 target.targetCompatibility,
                 Collections.emptyList(),
                 target.test.jvmArgs,
-                target.testRunnerJvmArgs,
+                target.testOptions,
                 target.getExtraOpts(RuleType.KOTLIN_TEST))
     }
 }
