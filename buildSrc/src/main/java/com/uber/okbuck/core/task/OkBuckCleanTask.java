@@ -1,8 +1,10 @@
 package com.uber.okbuck.core.task;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Sets;
+import com.uber.okbuck.OkBuckGradlePlugin;
 
 import org.gradle.api.DefaultTask;
+import org.gradle.api.Project;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
 
@@ -10,34 +12,62 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.StreamSupport;
+import java.util.stream.Collectors;
 
 /**
- * A task to cleanup generated configuration files
+ * A task to cleanup stale BUCK files
  */
-@SuppressWarnings({"WeakerAccess", "CanBeFinal", "unused", "ResultOfMethodCallIgnored"})
+@SuppressWarnings({"WeakerAccess", "CanBeFinal", "unused", "ResultOfMethodCallIgnored", "NewApi"})
 public class OkBuckCleanTask extends DefaultTask {
 
     @Input
-    public String dir;
-
-    @Input
-    public Set<String> includes;
-
-    @Input
-    public Set<String> excludes;
+    public Set<Project> projects = new HashSet<>();
 
     @TaskAction
-    void clean() {
-        Iterator<File> iterator = getProject().fileTree(
-                ImmutableMap.of("dir", dir, "includes", includes, "excludes", excludes))
-                .iterator();
-        Iterable<File> iterable = () -> iterator;
-        StreamSupport.stream(iterable.spliterator(), true)
-                .map(File::toPath)
+    void clean() throws IOException {
+        Project rootProject = getProject();
+        Path rootProjectPath = rootProject.getProjectDir().toPath();
+
+        File okbuckState = rootProject.file(OkBuckGradlePlugin.OKBUCK_STATE);
+
+        // Get last project paths
+        Set<String> lastProjectPaths;
+        if (okbuckState.exists()) {
+            lastProjectPaths = Files.lines(okbuckState.toPath())
+                    .map(String::trim)
+                    .filter(s -> s != null && s.length() > 0)
+                    .collect(Collectors.toSet());
+        } else {
+            lastProjectPaths = new HashSet<>();
+            okbuckState.getParentFile().mkdirs();
+            okbuckState.createNewFile();
+        }
+
+        // Get current project relative paths
+        Set<String> currentProjectPaths =
+                projects.stream()
+                        .map(project -> rootProjectPath
+                                .relativize(project.getProjectDir().toPath()).toString()
+                        )
+                        .collect(Collectors.toSet());
+
+        // Delete stale project's BUCK file
+        Sets.difference(lastProjectPaths, currentProjectPaths)
+                .stream()
+                .map(p -> rootProjectPath.resolve(p).resolve("BUCK"))
+                .collect(Collectors.toSet())
                 .forEach(OkBuckCleanTask::deleteQuietly);
+
+        // Save generated project's BUCK file path
+        Files.write(
+                okbuckState.toPath(),
+                currentProjectPaths
+                        .stream()
+                        .sorted()
+                        .collect(Collectors.toList())
+        );
     }
 
     private static void deleteQuietly(Path p) {

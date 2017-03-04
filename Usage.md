@@ -41,14 +41,13 @@ okbuck {
     ]
     buckProjects = project.subprojects
     extraBuckOpts = [
-        'appDebug': [ 
+        'appDebug': [
             "android_binary": ["trim_resource_ids = True"]
         ]
     ]
 
     wrapper {
         repo = 'https://github.com/facebook/buck.git'
-        remove = ['.buckconfig.local', "**/BUCK"]
     }
 
     transform {
@@ -59,7 +58,7 @@ okbuck {
                 ],
         ]
     }
-    
+
     experimental {
         transform = true
     }
@@ -75,16 +74,14 @@ dependencies {
 +  `linearAllocHardLimit` and `primaryDexPatterns` are used to configure options used by buck for multidex apps. For more details about multidex configuration, please read the
 [Multidex wiki](https://github.com/uber/okbuck/wiki/Multidex-Configuration-Guide).
 +  `exopackage` and `appLibDependencies` are used for
-configuring buck's exopackage mode. For more details about exopackage configuration, 
+configuring buck's exopackage mode. For more details about exopackage configuration,
 please read the [Exopackage wiki](https://github.com/uber/okbuck/wiki/Exopackage-Configuration-Guide), if you don't need exopackage, you can ignore these parameters
 + `annotationProcessors` is used to depend on annotation processors declared locally as another gradle module in the same project.
 +  `buckProjects` is a set of projects to generate buck files for. Default is all sub projects.
 +  `extraBuckOpts` provides a hook to add additional configuration options for buck [android_binary](https://buckbuild.com/rule/android_binary.html) rules
 +  `wrapper` is used to configure creation of the buck wrapper script.
  - `repo` - The git url of any custom buck fork. Default is none.
- - `remove` - List of file patterns to clean up by wrapper before running `okbuck`. Default is `['.buckconfig.local', '**/BUCK']`
- - `keep` - List of file patterns to not clean up by the wrapper before running `okbuck`. This may be useful if you made manual modifications to some buck files and would like to keep them intact while regenerating the configuration for other projects. Default is all `BUCK` files inside `.okbuck`.
-+ The keys used to configure various options can be for 
++ The keys used to configure various options can be for
  - All buildTypes and flavors i.e `app`
  - All buildTypes of a particular flavor i.e 'appDemo'
  - All flavors of a particular buildType i.e 'appDebug'

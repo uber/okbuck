@@ -20,16 +20,19 @@ public abstract class JvmTarget extends Target {
 
     /**
      * Main Scope
+     * @return main scope
      */
     public abstract Scope getMain();
 
     /**
      * Test Scope
+     * @return test scope
      */
     public abstract Scope getTest();
 
     /**
      * The test options
+     * @return The test options
      */
     public TestOptions getTestOptions() {
         try {

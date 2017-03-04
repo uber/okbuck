@@ -18,19 +18,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@SuppressWarnings({"WeakerAccess", "CanBeFinal", "unused", "ResultOfMethodCallIgnored"})
+@SuppressWarnings({"WeakerAccess", "CanBeFinal", "unused", "ResultOfMethodCallIgnored", "NewApi"})
 public class BuckWrapperTask extends DefaultTask {
 
     private static String OKBUCK_DIRNAME = "            [\"dirname\", \".okbuck\"]";
 
     @Input
     public String repo;
-
-    @Input
-    public Set<String> remove;
-
-    @Input
-    public Set<String> keep;
 
     @Input
     public Set<String> watch;
@@ -42,17 +36,9 @@ public class BuckWrapperTask extends DefaultTask {
 
     @TaskAction
     void installWrapper() {
-        String keepExpr = toWatchmanMatchers(keep);
-        if (keepExpr.isEmpty()) {
-            keepExpr = OKBUCK_DIRNAME;
-        } else {
-            keepExpr = OKBUCK_DIRNAME + ",\n" + keepExpr;
-        }
         Map<String, String> templates = ImmutableMap.<String, String>builder()
                 .put("template-creation-time", new Date().toString())
                 .put("template-custom-buck-repo", repo)
-                .put("template-remove", toWatchmanMatchers(remove))
-                .put("template-keep", keepExpr)
                 .put("template-watch", toWatchmanMatchers(watch))
                 .put("template-source-roots", toWatchmanMatchers(sourceRoots))
                 .build();
