@@ -39,13 +39,16 @@ import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 
 // Dependency Tree
 //
-//                okbuck
-//          /                \
-//         /             okbuckClean
-//        /        /          |          \
+//                 okbuck
+//            /               \
+//           /                v
+//          /             okbuckClean
+//         /        /          |          \
+//        /        v           v          v
 //       /     :p1:okbuck   :p2:okbuck   :p3:okbuck     ...
 //      |        /           /               /
-//      setupOkbuck
+//      v       v           v               v
+//                setupOkbuck
 //
 
 class OkBuckGradlePlugin implements Plugin<Project> {

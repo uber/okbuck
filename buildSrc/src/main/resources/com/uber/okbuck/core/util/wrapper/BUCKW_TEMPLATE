@@ -101,8 +101,10 @@ runOkBuck ( ) {
     info "RUNNING OKBUCK..."
     echo
 
+    EXTRA_OKBUCK_ARGS=""
+
     rm -f $OKBUCK_SUCCESS
-    ( $WORKING_DIR/gradlew -p $WORKING_DIR okbuck -Dokbuck.wrapper=true &&
+    ( $WORKING_DIR/gradlew -p $WORKING_DIR okbuck -Dokbuck.wrapper=true $EXTRA_OKBUCK_ARGS &&
     updateOkBuckSuccess && success "PROCEEDING WITH BUCK" ) || die "OKBUCK FAILED"
 }
 
