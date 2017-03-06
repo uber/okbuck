@@ -4,7 +4,7 @@
 ##
 ##  Buck wrapper script to invoke okbuck when needed, before running buck
 ##
-##  Created by OkBuck Gradle Plugin on : Sat Mar 04 02:05:18 PST 2017
+##  Created by OkBuck Gradle Plugin on : Mon Mar 06 13:56:01 PST 2017
 ##
 #########################################################################
 
@@ -105,8 +105,6 @@ updateOkBuckSuccess ( ) {
 runOkBuck ( ) {
     info "RUNNING OKBUCK..."
     echo
-
-    EXTRA_OKBUCK_ARGS=""
 
     rm -f $OKBUCK_SUCCESS
     ( $WORKING_DIR/gradlew -p $WORKING_DIR okbuck -Dokbuck.wrapper=true $EXTRA_OKBUCK_ARGS &&
