@@ -12,7 +12,7 @@ public final class TransformUtil {
 
     public static final String TRANSFORM_CACHE = OkBuckGradlePlugin.DEFAULT_CACHE_PATH + "/transform";
 
-    private static final String CONFIGURATION_TRANSFORM = "transform";
+    public static final String CONFIGURATION_TRANSFORM = "transform";
     private static final String TRANSFORM_FOLDER = "transform/";
     private static final String TRANSFORM_BUCK_FILE = "BUCK_FILE";
     private static final String TRANSFORM_JAR = "transform-cli-1.0.0.jar";
