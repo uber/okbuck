@@ -18,7 +18,7 @@ import java.util.zip.ZipFile
  */
 class AndroidAppTarget extends AndroidLibTarget {
 
-    private static final int DEFAULT_LINEARALLOC_LIMIT = 7194304
+    private static final int DEFAULT_LINEARALLOC_LIMIT = 16777216 // 16 MB
 
     final boolean multidexEnabled
     final Keystore keystore
