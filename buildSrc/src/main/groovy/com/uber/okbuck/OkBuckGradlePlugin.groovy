@@ -63,6 +63,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     public static final String WRAPPER = "wrapper"
     public static final String BUCK_WRAPPER = "buckWrapper"
     public static final String DEFAULT_CACHE_PATH = ".okbuck/cache"
+    public static final String EXTRA_DEP_CACHE_PATH = ".okbuck/cache/extra"
     public static final String GROUP = "okbuck"
     public static final String BUCK_LINT = "buckLint"
     public static final String BUCK_LINT_LIBRARY = "buckLintLibrary"
@@ -156,6 +157,13 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                 // Fetch robolectric deps if needed
                 if (test.robolectric) {
                     RobolectricUtil.download(project)
+                }
+
+                // Create extra dependency caches if needed
+                okbuckExt.extraDepCaches.each { String cacheName ->
+                    Configuration extraConfiguration = project.configurations.maybeCreate("${cacheName}ExtraDepCache")
+                    new DependencyCache(cacheName, project, "${EXTRA_DEP_CACHE_PATH}/${cacheName}",
+                            Collections.singleton(extraConfiguration))
                 }
             }
 
