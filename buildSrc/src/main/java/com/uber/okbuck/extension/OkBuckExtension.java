@@ -66,6 +66,13 @@ public class OkBuckExtension {
      */
     public boolean resourceUnion = true;
 
+    /**
+     * Additional dependency caches.
+     * Every entry will create a new configuration "entryDepCache"
+     * that can be used to fetch and cache dependencies.
+     */
+    public Set<String> extraDepCaches = new HashSet<>();
+
     public OkBuckExtension(Project project) {
         buckProjects = project.getSubprojects();
     }

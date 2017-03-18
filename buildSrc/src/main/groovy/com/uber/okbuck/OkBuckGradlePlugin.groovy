@@ -157,6 +157,13 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                 if (test.robolectric) {
                     RobolectricUtil.download(project)
                 }
+
+                // Create extra dependency caches if needed
+                okbuckExt.extraDepCaches.each { String cacheName ->
+                    Configuration extraConfiguration = project.configurations.maybeCreate("${cacheName}DepCache")
+                    new DependencyCache(cacheName, project, "${DEFAULT_CACHE_PATH}/${cacheName}",
+                            Collections.singleton(extraConfiguration))
+                }
             }
 
             // Configure okbuck task
