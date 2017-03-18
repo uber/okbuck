@@ -119,10 +119,8 @@ class OkBuckGradlePlugin implements Plugin<Project> {
             buckWrapper.setDescription("Create buck wrapper")
 
             // Create extra dependency caches if needed
-            okbuckExt.extraDepCaches.each { String cacheName ->
-                Configuration extraConfiguration = project.configurations.maybeCreate("${cacheName}ExtraDepCache")
-                new DependencyCache(cacheName, project, "${EXTRA_DEP_CACHE_PATH}/${cacheName}",
-                        Collections.singleton(extraConfiguration))
+            Map<String, Configuration> extraConfigurations = okbuckExt.extraDepCaches.collectEntries { String cacheName ->
+                [cacheName, project.configurations.maybeCreate("${cacheName}ExtraDepCache")]
             }
 
             // Configure setup task
@@ -164,6 +162,11 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                 // Fetch robolectric deps if needed
                 if (test.robolectric) {
                     RobolectricUtil.download(project)
+                }
+
+                extraConfigurations.each { String cacheName, Configuration extraConfiguration ->
+                    new DependencyCache(cacheName, project, "${EXTRA_DEP_CACHE_PATH}/${cacheName}",
+                        Collections.singleton(extraConfiguration))
                 }
             }
 
