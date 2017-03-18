@@ -63,6 +63,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     public static final String WRAPPER = "wrapper"
     public static final String BUCK_WRAPPER = "buckWrapper"
     public static final String DEFAULT_CACHE_PATH = ".okbuck/cache"
+    public static final String EXTRA_DEP_CACHE_PATH = ".okbuck/cache/extra"
     public static final String GROUP = "okbuck"
     public static final String BUCK_LINT = "buckLint"
     public static final String BUCK_LINT_LIBRARY = "buckLintLibrary"
@@ -161,7 +162,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                 // Create extra dependency caches if needed
                 okbuckExt.extraDepCaches.each { String cacheName ->
                     Configuration extraConfiguration = project.configurations.maybeCreate("${cacheName}DepCache")
-                    new DependencyCache(cacheName, project, "${DEFAULT_CACHE_PATH}/${cacheName}",
+                    new DependencyCache(cacheName, project, "${EXTRA_DEP_CACHE_PATH}/${cacheName}",
                             Collections.singleton(extraConfiguration))
                 }
             }
