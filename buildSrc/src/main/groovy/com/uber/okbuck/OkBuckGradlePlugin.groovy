@@ -120,7 +120,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
 
             // Create extra dependency caches if needed
             Map<String, Configuration> extraConfigurations = okbuckExt.extraDepCaches.collectEntries { String cacheName ->
-                [cacheName, project.configurations.maybeCreate("${cacheName}ExtraDepCache")]
+                [cacheName, project.configurations.maybeCreate("${cacheName}ExtraDepCache"), EXTERNAL_DEP_BUCK_FILE]
             }
 
             // Configure setup task
