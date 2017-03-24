@@ -54,7 +54,7 @@ final class BuckFileGenerator {
     /**
      * generate {@code BUCKFile}
      */
-    static Map<Project, BUCKFile> generate(Project project) {
+    static void generate(Project project) {
         OkBuckExtension okbuck = project.rootProject.okbuck
 
         TestExtension test = okbuck.test
