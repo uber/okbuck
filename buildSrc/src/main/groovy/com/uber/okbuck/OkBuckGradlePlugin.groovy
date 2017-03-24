@@ -205,7 +205,9 @@ class OkBuckGradlePlugin implements Plugin<Project> {
             okBuck.dependsOn(okBuckClean)
 
             // Configure buck projects
-            configureBuckProjects(okbuckExt.buckProjects, setupOkbuck, okBuckClean)
+            configureBuckProjects(okbuckExt.buckProjects.findAll { it.buildFile.exists() },
+                    setupOkbuck,
+                    okBuckClean)
         }
     }
 
