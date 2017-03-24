@@ -2,6 +2,8 @@ package com.uber.okbuck.core.task;
 
 import com.google.common.collect.Sets;
 import com.uber.okbuck.OkBuckGradlePlugin;
+import com.uber.okbuck.core.model.base.ProjectType;
+import com.uber.okbuck.core.util.ProjectUtil;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
@@ -48,6 +50,7 @@ public class OkBuckCleanTask extends DefaultTask {
         // Get current project relative paths
         Set<String> currentProjectPaths =
                 projects.stream()
+                        .filter(project -> ProjectUtil.getType(project) != ProjectType.UNKNOWN)
                         .map(project -> rootProjectPath
                                 .relativize(project.getProjectDir().toPath()).toString()
                         )
