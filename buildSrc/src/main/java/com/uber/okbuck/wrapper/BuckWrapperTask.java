@@ -1,6 +1,7 @@
 package com.uber.okbuck.wrapper;
 
 import com.google.common.collect.ImmutableMap;
+
 import com.uber.okbuck.core.util.FileUtil;
 
 import org.apache.commons.io.FilenameUtils;
@@ -21,8 +22,6 @@ import java.util.stream.Collectors;
 @SuppressWarnings({"WeakerAccess", "CanBeFinal", "unused", "ResultOfMethodCallIgnored", "NewApi"})
 public class BuckWrapperTask extends DefaultTask {
 
-    private static String OKBUCK_DIRNAME = "            [\"dirname\", \".okbuck\"]";
-
     @Input
     public String repo;
 
@@ -31,6 +30,9 @@ public class BuckWrapperTask extends DefaultTask {
 
     @Input
     public Set<String> sourceRoots;
+
+    @Input
+    public Set<String> ignoredDirs;
 
     private final File wrapper = getProject().file("buckw");
 
@@ -41,6 +43,7 @@ public class BuckWrapperTask extends DefaultTask {
                 .put("template-custom-buck-repo", repo)
                 .put("template-watch", toWatchmanMatchers(watch))
                 .put("template-source-roots", toWatchmanMatchers(sourceRoots))
+                .put("template-ignored-dirs", toWatchmanIgnoredDirs(ignoredDirs))
                 .build();
 
         FileUtil.copyResourceToProject("wrapper/BUCKW_TEMPLATE", wrapper, templates);
@@ -50,6 +53,19 @@ public class BuckWrapperTask extends DefaultTask {
         if (!watchmanConfig.exists()) {
             FileUtil.copyResourceToProject("wrapper/WATCHMAN_CONFIG", getProject().file(".watchmanconfig"));
         }
+    }
+
+    private static String toWatchmanIgnoredDirs(Set<String> ignoredDirs) {
+        if (ignoredDirs.isEmpty()) {
+            return "";
+        }
+
+        String ignore_exprs = ignoredDirs
+                .parallelStream()
+                .map(ignoredDir -> "            [\"dirname\", \"" + ignoredDir + "\"]")
+                .collect(Collectors.joining(",\n"));
+
+        return "        [\"not\",\n" + ignore_exprs + "\n        ]";
     }
 
     private static String toWatchmanMatchers(Set<String> wildcardPatterns) {
