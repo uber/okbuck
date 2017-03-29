@@ -60,12 +60,12 @@ public class BuckWrapperTask extends DefaultTask {
             return "";
         }
 
-        String ignore_exprs = ignoredDirs
+        String ignoreExprs = ignoredDirs
                 .parallelStream()
                 .map(ignoredDir -> "            [\"dirname\", \"" + ignoredDir + "\"]")
                 .collect(Collectors.joining(",\n"));
 
-        return "        [\"not\",\n" + ignore_exprs + "\n        ]";
+        return "        [\"not\",\n" + ignoreExprs + "\n        ]";
     }
 
     private static String toWatchmanMatchers(Set<String> wildcardPatterns) {
@@ -92,25 +92,25 @@ public class BuckWrapperTask extends DefaultTask {
             }
         }
 
-        String match_exprs = matches
+        String matchExprs = matches
                 .parallelStream()
                 .map(match -> "            [\"match\", \"" + match + "\", \"wholename\"]")
                 .collect(Collectors.joining(",\n"));
 
-        String suffix_exprs = suffixes
+        String suffixExprs = suffixes
                 .parallelStream()
                 .map(suffix -> "            [\"suffix\", \"" + suffix + "\"]")
                 .collect(Collectors.joining(",\n"));
 
-        String name_expr = names
+        String nameExpr = names
                 .parallelStream()
                 .map(name -> "\"" + name + "\"")
                 .collect(Collectors.joining(", "));
-        if (!name_expr.isEmpty()) {
-            name_expr = "            [\"name\", [" + name_expr + "]]";
+        if (!nameExpr.isEmpty()) {
+            nameExpr = "            [\"name\", [" + nameExpr + "]]";
         }
 
-        return Arrays.asList(suffix_exprs, name_expr, match_exprs)
+        return Arrays.asList(suffixExprs, nameExpr, matchExprs)
                 .parallelStream()
                 .filter(StringUtils::isNotEmpty)
                 .collect(Collectors.joining(",\n"));
