@@ -150,7 +150,7 @@ setupBuckBinary ( ) {
             if [[ -z "$REMOTE_EXISTS" ]]; then
                 git remote add $CUSTOM_REMOTE_NAME $CUSTOM_BUCK_REPO
             fi
-            cd $WORKING_DIR
+            cd -
         fi
 
         BUCK_BINARY="$BUCK_HOME/bin/buck"

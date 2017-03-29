@@ -4,7 +4,7 @@
 ##
 ##  Buck wrapper script to invoke okbuck when needed, before running buck
 ##
-##  Created by OkBuck Gradle Plugin on : Wed Mar 29 15:03:12 PDT 2017
+##  Created by OkBuck Gradle Plugin on : Wed Mar 29 16:37:26 PDT 2017
 ##
 #########################################################################
 
@@ -159,7 +159,7 @@ setupBuckBinary ( ) {
             if [[ -z "$REMOTE_EXISTS" ]]; then
                 git remote add $CUSTOM_REMOTE_NAME $CUSTOM_BUCK_REPO
             fi
-            cd $WORKING_DIR
+            cd -
         fi
 
         BUCK_BINARY="$BUCK_HOME/bin/buck"
