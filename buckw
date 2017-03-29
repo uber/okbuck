@@ -4,7 +4,7 @@
 ##
 ##  Buck wrapper script to invoke okbuck when needed, before running buck
 ##
-##  Created by OkBuck Gradle Plugin on : Mon Mar 06 13:56:01 PST 2017
+##  Created by OkBuck Gradle Plugin on : Wed Mar 29 15:03:12 PDT 2017
 ##
 #########################################################################
 
@@ -55,7 +55,7 @@ DEFAULT_BUCK_INSTALL_DIR="$HOME/.gradle/caches/okbuck/buck"
 CUSTOM_BUCK_REPO=""
 CUSTOM_REMOTE_NAME="custom"
 OKBUCK_SUCCESS="$WORKING_DIR/build/okbuck.success"
-OKBUCK_DIR=".okbuck"
+OKBUCK_DIR="$WORKING_DIR/.okbuck"
 MAX_DISPLAY_CHANGES=10
 
 ensureWatch ( ) {
@@ -75,13 +75,16 @@ getChanges ( ) {
             ["suffix", "gradle"],
             ["name", ["gradle-wrapper.properties", "lint.xml"]],
             ["match", "**/src/**/AndroidManifest.xml", "wholename"]
+        ],
+        ["not",
+            ["dirname", ".okbuck"]
         ]
     ],
     "fields": ["name"]
 }]
 EOT`
     SOURCE_ROOTS=`watchman --output-encoding=json --no-pretty -j 2>&1 <<-EOT
-["query", ".", {
+["query", "$WORKING_DIR", {
     "since": "n:okbuck_source_roots",
     "expression": ["allof",
         ["type", "d"],
@@ -89,6 +92,9 @@ EOT`
             ["match", "**/src/**/java", "wholename"],
             ["match", "**/src/**/res", "wholename"],
             ["match", "**/src/**/resources", "wholename"]
+        ],
+        ["not",
+            ["dirname", ".okbuck"]
         ]
     ],
     "fields": ["new", "exists", "name"]
