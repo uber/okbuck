@@ -73,7 +73,7 @@ public final class LintUtil {
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public static synchronized String getLintwConfigRule(Project project, File config) {
-        File configFile = new File(LINT_DEPS_CACHE + "/" + getLintwConfigName(project, config));
+        File configFile = project.getRootProject().file(LINT_DEPS_CACHE + "/" + getLintwConfigName(project, config));
         try {
             FileUtils.copyFile(config, configFile);
         } catch (IOException e) {

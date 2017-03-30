@@ -55,7 +55,7 @@ DEFAULT_BUCK_INSTALL_DIR="$HOME/.gradle/caches/okbuck/buck"
 CUSTOM_BUCK_REPO="${template-custom-buck-repo}"
 CUSTOM_REMOTE_NAME="custom"
 OKBUCK_SUCCESS="$WORKING_DIR/build/okbuck.success"
-OKBUCK_DIR=".okbuck"
+OKBUCK_DIR="$WORKING_DIR/.okbuck"
 MAX_DISPLAY_CHANGES=10
 
 ensureWatch ( ) {
@@ -72,19 +72,21 @@ getChanges ( ) {
         ["type", "f"],
         ["anyof",
 ${template-watch}
-        ]
+        ],
+${template-ignored-dirs}
     ],
     "fields": ["name"]
 }]
 EOT`
     SOURCE_ROOTS=`watchman --output-encoding=json --no-pretty -j 2>&1 <<-EOT
-["query", ".", {
+["query", "$WORKING_DIR", {
     "since": "n:okbuck_source_roots",
     "expression": ["allof",
         ["type", "d"],
         ["anyof",
 ${template-source-roots}
-        ]
+        ],
+${template-ignored-dirs}
     ],
     "fields": ["new", "exists", "name"]
 }]
@@ -148,7 +150,7 @@ setupBuckBinary ( ) {
             if [[ -z "$REMOTE_EXISTS" ]]; then
                 git remote add $CUSTOM_REMOTE_NAME $CUSTOM_BUCK_REPO
             fi
-            cd $WORKING_DIR
+            cd -
         fi
 
         BUCK_BINARY="$BUCK_HOME/bin/buck"

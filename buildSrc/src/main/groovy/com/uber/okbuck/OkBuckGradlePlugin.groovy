@@ -114,6 +114,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                 repo = wrapper.repo
                 watch = wrapper.watch
                 sourceRoots = wrapper.sourceRoots
+                ignoredDirs = wrapper.ignoredDirs
             })
             buckWrapper.setGroup(GROUP)
             buckWrapper.setDescription("Create buck wrapper")

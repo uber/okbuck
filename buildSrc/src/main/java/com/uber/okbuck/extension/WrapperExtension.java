@@ -38,4 +38,9 @@ public class WrapperExtension {
             "**/src/**/java",
             "**/src/**/res",
             "**/src/**/resources");
+
+    /**
+     * List of directories to ignore when querying for changes that should trigger okbuck runs
+     */
+    public Set<String> ignoredDirs = Sets.newHashSet(".okbuck");
 }

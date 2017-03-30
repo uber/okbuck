@@ -1,6 +1,7 @@
 package com.uber.okbuck.wrapper;
 
 import com.google.common.collect.ImmutableMap;
+
 import com.uber.okbuck.core.util.FileUtil;
 
 import org.apache.commons.io.FilenameUtils;
@@ -21,8 +22,6 @@ import java.util.stream.Collectors;
 @SuppressWarnings({"WeakerAccess", "CanBeFinal", "unused", "ResultOfMethodCallIgnored", "NewApi"})
 public class BuckWrapperTask extends DefaultTask {
 
-    private static String OKBUCK_DIRNAME = "            [\"dirname\", \".okbuck\"]";
-
     @Input
     public String repo;
 
@@ -31,6 +30,9 @@ public class BuckWrapperTask extends DefaultTask {
 
     @Input
     public Set<String> sourceRoots;
+
+    @Input
+    public Set<String> ignoredDirs;
 
     private final File wrapper = getProject().file("buckw");
 
@@ -41,6 +43,7 @@ public class BuckWrapperTask extends DefaultTask {
                 .put("template-custom-buck-repo", repo)
                 .put("template-watch", toWatchmanMatchers(watch))
                 .put("template-source-roots", toWatchmanMatchers(sourceRoots))
+                .put("template-ignored-dirs", toWatchmanIgnoredDirs(ignoredDirs))
                 .build();
 
         FileUtil.copyResourceToProject("wrapper/BUCKW_TEMPLATE", wrapper, templates);
@@ -50,6 +53,19 @@ public class BuckWrapperTask extends DefaultTask {
         if (!watchmanConfig.exists()) {
             FileUtil.copyResourceToProject("wrapper/WATCHMAN_CONFIG", getProject().file(".watchmanconfig"));
         }
+    }
+
+    private static String toWatchmanIgnoredDirs(Set<String> ignoredDirs) {
+        if (ignoredDirs.isEmpty()) {
+            return "";
+        }
+
+        String ignoreExprs = ignoredDirs
+                .parallelStream()
+                .map(ignoredDir -> "            [\"dirname\", \"" + ignoredDir + "\"]")
+                .collect(Collectors.joining(",\n"));
+
+        return "        [\"not\",\n" + ignoreExprs + "\n        ]";
     }
 
     private static String toWatchmanMatchers(Set<String> wildcardPatterns) {
@@ -76,25 +92,25 @@ public class BuckWrapperTask extends DefaultTask {
             }
         }
 
-        String match_exprs = matches
+        String matchExprs = matches
                 .parallelStream()
                 .map(match -> "            [\"match\", \"" + match + "\", \"wholename\"]")
                 .collect(Collectors.joining(",\n"));
 
-        String suffix_exprs = suffixes
+        String suffixExprs = suffixes
                 .parallelStream()
                 .map(suffix -> "            [\"suffix\", \"" + suffix + "\"]")
                 .collect(Collectors.joining(",\n"));
 
-        String name_expr = names
+        String nameExpr = names
                 .parallelStream()
                 .map(name -> "\"" + name + "\"")
                 .collect(Collectors.joining(", "));
-        if (!name_expr.isEmpty()) {
-            name_expr = "            [\"name\", [" + name_expr + "]]";
+        if (!nameExpr.isEmpty()) {
+            nameExpr = "            [\"name\", [" + nameExpr + "]]";
         }
 
-        return Arrays.asList(suffix_exprs, name_expr, match_exprs)
+        return Arrays.asList(suffixExprs, nameExpr, matchExprs)
                 .parallelStream()
                 .filter(StringUtils::isNotEmpty)
                 .collect(Collectors.joining(",\n"));

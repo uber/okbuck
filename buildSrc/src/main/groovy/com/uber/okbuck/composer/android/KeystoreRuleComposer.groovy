@@ -15,7 +15,7 @@ final class KeystoreRuleComposer {
     static String compose(AndroidAppTarget target) {
         AndroidAppTarget.Keystore keystore = target.keystore
         if (keystore != null) {
-            File storeDir = new File(".okbuck/keystore/${target.identifier.replaceAll(':', '_')}")
+            File storeDir = target.rootProject.file(".okbuck/keystore/${target.identifier.replaceAll(':', '_')}")
             storeDir.mkdirs()
 
             File tmp = File.createTempFile("okbuck", "keystore")
