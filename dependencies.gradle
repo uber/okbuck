@@ -4,7 +4,7 @@ def versions = [
         kotlinVersion        : '1.0.6',
         leakCanaryVersion    : '1.5',
         supportVersion       : '25.0.1',
-        androidPluginVersion : '2.3.0-beta3',
+        androidPluginVersion : '2.3.0',
 ]
 
 def build = [
