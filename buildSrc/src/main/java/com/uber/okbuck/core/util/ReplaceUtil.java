@@ -18,18 +18,14 @@ final class ReplaceUtil {
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     static void copyResourceToProject(String resource, File destination, Map<String, String> templates) {
-        try {
-            InputStream inputStream = FileUtil.class.getResourceAsStream(resource);
-            destination.getParentFile().mkdirs();
-            InputStreamReader reader = new InputStreamReader(inputStream);
-            TemplateReader replacingReader = new TemplateReader(reader, new TemplateMapResolver(templates));
-
-            OutputStream outputStream = new FileOutputStream(destination);
+        destination.getParentFile().mkdirs();
+        try (InputStream inputStream = FileUtil.class.getResourceAsStream(resource);
+             InputStreamReader reader = new InputStreamReader(inputStream);
+             TemplateReader replacingReader = new TemplateReader(reader, new TemplateMapResolver(templates));
+             OutputStream outputStream = new FileOutputStream(destination)){
             IOUtils.copy(replacingReader, outputStream);
-            IOUtils.closeQuietly(inputStream);
-            IOUtils.closeQuietly(outputStream);
         } catch (IOException e) {
-            throw new IllegalStateException(e);
+            throw new RuntimeException(e);
         }
     }
 
