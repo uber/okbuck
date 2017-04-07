@@ -15,7 +15,7 @@ public abstract class BuckRuleComposer {
 
     public static Set<String> external(final Set<String> deps) {
         return deps.parallelStream()
-                .map(BuckRuleComposer::external)
+                .map(BuckRuleComposer::fileRule)
                 .collect(Collectors.toSet());
     }
 
@@ -25,11 +25,14 @@ public abstract class BuckRuleComposer {
                 .collect(Collectors.toSet());
     }
 
-    public static String external(final String dep) {
-        String ext = dep;
-        int ind = FilenameUtils.indexOfLastSeparator(dep);
+    public static String fileRule(final String file) {
+        if (file == null) {
+            return null;
+        }
+        String ext = file;
+        int ind = FilenameUtils.indexOfLastSeparator(file);
         if (ind >= 0) {
-            ext = new StringBuilder(dep).replace(ind, ind + 1, ":").toString();
+            ext = new StringBuilder(file).replace(ind, ind + 1, ":").toString();
         }
         return "//" + ext;
     }

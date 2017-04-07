@@ -22,6 +22,6 @@ final class AndroidManifestRuleComposer extends AndroidBuckRuleComposer {
             targetDep instanceof AndroidLibTarget
         }))
 
-        return new AndroidManifestRule(manifest(target), ["PUBLIC"], deps, target.manifest)
+        return new AndroidManifestRule(manifest(target), ["PUBLIC"], deps, fileRule(target.manifest))
     }
 }

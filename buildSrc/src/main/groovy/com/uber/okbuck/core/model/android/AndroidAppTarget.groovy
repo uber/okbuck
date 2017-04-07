@@ -3,6 +3,7 @@ package com.uber.okbuck.core.model.android
 import com.android.build.gradle.api.BaseVariant
 import com.android.builder.model.SigningConfig
 import com.android.manifmerger.ManifestMerger2
+import com.uber.okbuck.OkBuckGradlePlugin
 import com.uber.okbuck.core.model.base.Target
 import com.uber.okbuck.core.util.FileUtil
 import com.uber.okbuck.extension.TestExtension
@@ -103,7 +104,7 @@ class AndroidAppTarget extends AndroidLibTarget {
 
     String getProguardConfig() {
         if (minifyEnabled) {
-            File mergedProguardConfig = project.file("${project.buildDir}/okbuck/${name}/proguard.pro")
+            File mergedProguardConfig =  getGenPath("proguard.pro")
             mergedProguardConfig.parentFile.mkdirs()
             mergedProguardConfig.createNewFile()
 
@@ -141,7 +142,7 @@ class AndroidAppTarget extends AndroidLibTarget {
             }
 
             mergedProguardConfig.text = mergedConfig
-            return FileUtil.getRelativePath(project.projectDir, mergedProguardConfig)
+            return FileUtil.getRelativePath(project.rootDir, mergedProguardConfig)
         } else {
             return null
         }
@@ -170,7 +171,11 @@ class AndroidAppTarget extends AndroidLibTarget {
         }
 
         if (config != null) {
-            return new Keystore(config.storeFile, config.keyAlias, config.storePassword, config.keyPassword)
+            return new Keystore(config.storeFile,
+                    config.keyAlias,
+                    config.storePassword,
+                    config.keyPassword,
+                    getGenPath())
         } else {
             return null
         }
@@ -182,12 +187,14 @@ class AndroidAppTarget extends AndroidLibTarget {
         final String alias
         final String storePassword
         final String keyPassword
+        final File path
 
-        Keystore(File storeFile, String alias, String storePassword, String keyPassword) {
+        Keystore(File storeFile, String alias, String storePassword, String keyPassword, File path) {
             this.storeFile = storeFile
             this.alias = alias
             this.storePassword = storePassword
             this.keyPassword = keyPassword
+            this.path = path
         }
     }
 }

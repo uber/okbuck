@@ -51,7 +51,7 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
                 ["PUBLIC"],
                 libraryDeps,
                 target.main.sources,
-                target.manifest,
+                fileRule(target.manifest),
                 target.annotationProcessors as List,
                 libraryAptDeps,
                 providedDeps,

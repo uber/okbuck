@@ -73,6 +73,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     public static final String CONFIGURATION_EXTERNAL = "externalOkbuck"
     public static final String OKBUCK_DEFS = ".okbuck/defs/DEFS"
     public static final String OKBUCK_STATE = ".okbuck/state/STATE"
+    public static final String OKBUCK_GEN = ".okbuck/gen"
 
     // Project level globals
     public DependencyCache depCache

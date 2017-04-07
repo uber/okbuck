@@ -41,7 +41,7 @@ final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
                 ["PUBLIC"],
                 testDeps,
                 target.test.sources,
-                target.manifest,
+                fileRule(target.manifest),
                 target.testAnnotationProcessors as List,
                 testAptDeps,
                 providedDeps,

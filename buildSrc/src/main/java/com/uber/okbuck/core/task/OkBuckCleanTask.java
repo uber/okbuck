@@ -5,6 +5,7 @@ import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.core.model.base.ProjectType;
 import com.uber.okbuck.core.util.ProjectUtil;
 
+import org.apache.commons.io.FileUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.Input;
@@ -56,10 +57,18 @@ public class OkBuckCleanTask extends DefaultTask {
                         )
                         .collect(Collectors.toSet());
 
+        Sets.SetView<String> difference = Sets.difference(lastProjectPaths, currentProjectPaths);
+
         // Delete stale project's BUCK file
-        Sets.difference(lastProjectPaths, currentProjectPaths)
+        difference
                 .parallelStream()
                 .map(p -> rootProjectPath.resolve(p).resolve(OkBuckGradlePlugin.BUCK))
+                .forEach(OkBuckCleanTask::deleteQuietly);
+
+        // Delete gen folders
+        difference
+                .parallelStream()
+                .map(p -> rootProjectPath.resolve(OkBuckGradlePlugin.OKBUCK_GEN).resolve(p))
                 .forEach(OkBuckCleanTask::deleteQuietly);
 
         // Save generated project's BUCK file path
@@ -74,7 +83,12 @@ public class OkBuckCleanTask extends DefaultTask {
 
     private static void deleteQuietly(Path p) {
         try {
-            Files.delete(p);
+            File f = p.toFile();
+            if (f.isDirectory()) {
+                FileUtils.deleteDirectory(f);
+            } else {
+                Files.delete(p);
+            }
         } catch (IOException ignored) {}
     }
 }

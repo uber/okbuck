@@ -38,7 +38,7 @@ abstract class Target {
         this.name = name
 
         identifier = project.path.replaceFirst(':', '')
-        path = identifier.replaceAll(':', '/')
+        path = identifier.replaceAll(':', File.separator)
 
         rootProject = project.gradle.rootProject
     }
