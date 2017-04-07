@@ -47,7 +47,7 @@ final class LintRuleComposer extends JvmBuckRuleComposer {
         if (customLintRules) {
             lintCmds.add("export ANDROID_LINT_JARS=\"${toLocation(customLintRules)}\";")
         }
-        lintCmds += ["mkdir -p \$OUT;", "exec java", "-Djava.awt.headless=true"]
+        lintCmds += ["mkdir -p \$OUT;", "RUN_IN=`dirname ${toLocation(fileRule(target.manifest))}`;", "exec java", "-Djava.awt.headless=true"]
 
         LintExtension lintExtension = target.rootProject.okbuck.lint
         if (lintExtension.jvmArgs) {
@@ -119,7 +119,7 @@ final class LintRuleComposer extends JvmBuckRuleComposer {
             }
 
             // Project root is at okbuck generated manifest for this target
-            lintCmds.add(toLocation(fileRule(target.manifest)))
+            lintCmds.add('$RUN_IN')
         }
 
         lintRules.add(new GenRule(

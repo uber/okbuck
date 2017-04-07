@@ -4,6 +4,7 @@
         ".buckd",
         ".idea",
         "build",
+        ".okbuck/gen",
         ".gradle",
         ".swp",
     ],
