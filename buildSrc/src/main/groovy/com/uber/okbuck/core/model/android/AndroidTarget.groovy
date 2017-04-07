@@ -86,7 +86,7 @@ abstract class AndroidTarget extends JavaLibTarget {
         }
 
         // Create gen dir
-        genDir = [OkBuckGradlePlugin.OKBUCK_GEN, path, name].join(File.separator)
+        genDir = Paths.get(OkBuckGradlePlugin.OKBUCK_GEN, path, name).toString()
         FileUtil.copyResourceToProject("gen/BUCK_FILE",
                 new File(rootProject.file(genDir), OkBuckGradlePlugin.BUCK))
     }

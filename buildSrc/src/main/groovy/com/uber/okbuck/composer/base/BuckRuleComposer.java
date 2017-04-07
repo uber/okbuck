@@ -25,16 +25,18 @@ public abstract class BuckRuleComposer {
                 .collect(Collectors.toSet());
     }
 
-    public static String fileRule(final String file) {
-        if (file == null) {
+    public static String fileRule(final String filePath) {
+        if (filePath == null) {
             return null;
         }
-        String ext = file;
-        int ind = FilenameUtils.indexOfLastSeparator(file);
+
+        StringBuilder ext = new StringBuilder("//");
+        ext.append(filePath);
+        int ind = FilenameUtils.indexOfLastSeparator(filePath) + 2;
         if (ind >= 0) {
-            ext = new StringBuilder(file).replace(ind, ind + 1, ":").toString();
+            ext = ext.replace(ind, ind + 1, ":");
         }
-        return "//" + ext;
+        return ext.toString();
     }
 
     public static Set<String> targets(final Set<Target> deps) {
