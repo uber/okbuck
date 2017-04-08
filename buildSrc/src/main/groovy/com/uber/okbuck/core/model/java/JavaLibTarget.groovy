@@ -18,7 +18,7 @@ class JavaLibTarget extends JavaTarget {
     Scope getMain() {
         return new Scope(project,
                 compileConfigs,
-                project.files("src/main/java") as Set,
+                project.sourceSets.main.java.srcDirs as Set,
                 project.file("src/main/resources"),
                 project.compileJava.options.compilerArgs as List)
     }
@@ -27,7 +27,7 @@ class JavaLibTarget extends JavaTarget {
     Scope getTest() {
         return new Scope(project,
                 expand(compileConfigs, TEST_PREFIX, true),
-                project.files("src/test/java") as Set,
+                project.sourceSets.test.java.srcDirs as Set,
                 project.file("src/test/resources"),
                 project.compileTestJava.options.compilerArgs as List)
     }
