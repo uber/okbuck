@@ -24,7 +24,7 @@ class ExoPackageScope extends Scope {
         String appClass = null
         XmlSlurper slurper = new XmlSlurper()
         slurper.DTDHandler = null
-        GPathResult manifestXml = slurper.parse(project.file(manifest))
+        GPathResult manifestXml = slurper.parse(project.rootProject.file(manifest))
         try {
             appClass = manifestXml.application.@"android:name"
             appClass = appClass.replaceAll('\\.', "/").replaceAll('^/', '')

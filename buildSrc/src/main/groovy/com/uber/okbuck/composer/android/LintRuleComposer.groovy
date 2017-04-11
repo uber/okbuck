@@ -5,7 +5,6 @@ import com.uber.okbuck.core.model.android.AndroidTarget
 import com.uber.okbuck.core.model.base.ProjectType
 import com.uber.okbuck.core.model.base.Target
 import com.uber.okbuck.core.model.java.JavaTarget
-import com.uber.okbuck.core.util.FileUtil
 import com.uber.okbuck.core.util.LintUtil
 import com.uber.okbuck.core.util.ProjectUtil
 import com.uber.okbuck.extension.LintExtension
@@ -48,7 +47,7 @@ final class LintRuleComposer extends JvmBuckRuleComposer {
         if (customLintRules) {
             lintCmds.add("export ANDROID_LINT_JARS=\"${toLocation(customLintRules)}\";")
         }
-        lintCmds += ["mkdir -p \$OUT;", "exec java", "-Djava.awt.headless=true"]
+        lintCmds += ["mkdir -p \$OUT;", "RUN_IN=`dirname ${toLocation(fileRule(target.manifest))}`;", "exec java", "-Djava.awt.headless=true"]
 
         LintExtension lintExtension = target.rootProject.okbuck.lint
         if (lintExtension.jvmArgs) {
@@ -120,10 +119,7 @@ final class LintRuleComposer extends JvmBuckRuleComposer {
             }
 
             // Project root is at okbuck generated manifest for this target
-            String relativeManifestDir = FileUtil.getRelativePath(target.project.projectDir,
-                    target.project.file(target.manifest).parentFile)
-            inputs.add(relativeManifestDir)
-            lintCmds.add(relativeManifestDir)
+            lintCmds.add('$RUN_IN')
         }
 
         lintRules.add(new GenRule(

@@ -10,7 +10,10 @@ final class GenAidlRuleComposer extends AndroidBuckRuleComposer {
     }
 
     static GenAidlRule compose(AndroidTarget target, String aidlDir) {
-        return new GenAidlRule(aidl(target, aidlDir), aidlDir, "${target.path}/${aidlDir}", target.manifest,
+        return new GenAidlRule(aidl(target, aidlDir),
+                aidlDir,
+                "${target.path}/${aidlDir}",
+                fileRule(target.manifest),
                 targets(target.main.targetDeps))
     }
 }
