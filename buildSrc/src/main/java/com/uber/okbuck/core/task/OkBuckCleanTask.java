@@ -82,8 +82,11 @@ public class OkBuckCleanTask extends DefaultTask {
     }
 
     private static void deleteQuietly(Path p) {
+        File f = p.toFile();
+        if (!f.exists()) {
+            return;
+        }
         try {
-            File f = p.toFile();
             if (f.isDirectory()) {
                 FileUtils.deleteDirectory(f);
             } else {
