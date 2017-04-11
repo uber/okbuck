@@ -16,12 +16,12 @@ final class AndroidManifestRuleComposer extends AndroidBuckRuleComposer {
         List<String> deps = []
         deps.addAll(external(manifestScope.externalDeps.findAll { String dep ->
             dep.endsWith("aar")
-        }))
+        }, target))
 
         deps.addAll(targets(manifestScope.targetDeps.findAll { Target targetDep ->
             targetDep instanceof AndroidLibTarget
         }))
 
-        return new AndroidManifestRule(manifest(target), ["PUBLIC"], deps, fileRule(target.manifest))
+        return new AndroidManifestRule(manifest(target), ["PUBLIC"], deps, fileRule(target.manifest, target))
     }
 }

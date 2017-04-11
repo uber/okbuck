@@ -14,11 +14,11 @@ final class KotlinLibraryRuleComposer extends JvmBuckRuleComposer {
 
     static JavaLibraryRule compose(KotlinLibTarget target) {
         List<String> deps = []
-        deps.addAll(external(target.main.externalDeps))
+        deps.addAll(external(target.main.externalDeps, target))
         deps.addAll(targets(target.main.targetDeps))
 
         Set<String> providedDeps = []
-        providedDeps.addAll(external(target.provided.externalDeps))
+        providedDeps.addAll(external(target.provided.externalDeps, target))
         providedDeps.addAll(targets(target.provided.targetDeps))
         providedDeps.removeAll(deps)
 

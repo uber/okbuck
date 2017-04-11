@@ -15,7 +15,7 @@ final class AndroidResourceRuleComposer extends AndroidBuckRuleComposer {
         List<String> resDeps = []
         resDeps.addAll(external(target.main.externalDeps.findAll { String dep ->
             dep.endsWith(".aar")
-        }))
+        }, target))
 
         resDeps.addAll(target.main.targetDeps.findAll { Target targetDep ->
             targetDep instanceof AndroidTarget

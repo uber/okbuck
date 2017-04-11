@@ -92,6 +92,9 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         RetrolambdaExtension retrolambda = okbuckExt.extensions.create(RETROLAMBDA, RetrolambdaExtension)
         okbuckExt.extensions.create(TRANSFORM, TransformExtension)
 
+        project.ext.buckRootDirectory = System.getProperty("okbuck.buckRoot") != null ?
+                            new File(System.getProperty("okbuck.buckRoot")) : project.getRootDir();
+
         // Create configurations
         project.configurations.maybeCreate(TransformUtil.CONFIGURATION_TRANSFORM)
         Configuration externalOkbuck = project.configurations.maybeCreate(CONFIGURATION_EXTERNAL)

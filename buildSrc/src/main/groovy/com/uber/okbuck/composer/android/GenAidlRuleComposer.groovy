@@ -13,7 +13,7 @@ final class GenAidlRuleComposer extends AndroidBuckRuleComposer {
         return new GenAidlRule(aidl(target, aidlDir),
                 aidlDir,
                 "${target.path}/${aidlDir}",
-                fileRule(target.manifest),
+                fileRule(target.manifest, target),
                 targets(target.main.targetDeps))
     }
 }

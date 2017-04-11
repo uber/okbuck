@@ -15,20 +15,20 @@ final class JavaTestRuleComposer extends JvmBuckRuleComposer {
     static JavaTestRule compose(JavaLibTarget target) {
         List<String> deps = []
         deps.add(":${src(target)}")
-        deps.addAll(external(target.test.externalDeps))
+        deps.addAll(external(target.test.externalDeps, target))
         deps.addAll(targets(target.test.targetDeps))
 
         Set<String> aptDeps = [] as Set
-        aptDeps.addAll(external(target.testApt.externalDeps))
+        aptDeps.addAll(external(target.testApt.externalDeps, target))
         aptDeps.addAll(targets(target.testApt.targetDeps))
 
         Set<String> providedDeps = []
-        providedDeps.addAll(external(target.testProvided.externalDeps))
+        providedDeps.addAll(external(target.testProvided.externalDeps, target))
         providedDeps.addAll(targets(target.testProvided.targetDeps))
         providedDeps.removeAll(deps)
 
         if (target.retrolambda) {
-            providedDeps.add(RetrolambdaUtil.getRtStubJarRule())
+            providedDeps.add(RetrolambdaUtil.getRtStubJarRule(target))
         }
 
         new JavaTestRule(

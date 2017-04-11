@@ -11,7 +11,7 @@ abstract class AndroidBuckRuleComposer extends JvmBuckRuleComposer {
     }
 
     static String resRule(AndroidTarget target) {
-        return "//${target.getPath()}:${res(target)}"
+        return "${rootPrefix(target)}${target.getPath()}:${res(target)}"
     }
 
     static String manifest(AndroidTarget target) {

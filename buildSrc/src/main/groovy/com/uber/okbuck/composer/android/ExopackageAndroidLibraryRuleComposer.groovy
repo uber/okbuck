@@ -12,7 +12,7 @@ final class ExopackageAndroidLibraryRuleComposer extends AndroidBuckRuleComposer
 
     static ExopackageAndroidLibraryRule compose(AndroidAppTarget target) {
         List<String> deps = []
-        deps.addAll(external(target.exopackage.externalDeps))
+        deps.addAll(external(target.exopackage.externalDeps, target))
         deps.addAll(targets(target.exopackage.targetDeps))
         deps.add(":${buildConfig(target)}")
 

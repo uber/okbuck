@@ -20,20 +20,20 @@ final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
 
         List<String> testDeps = new ArrayList<>(deps)
         testDeps.add(":${src(target)}")
-        testDeps.addAll(external(target.test.externalDeps))
+        testDeps.addAll(external(target.test.externalDeps, target))
         testDeps.addAll(targets(target.test.targetDeps))
 
         List<String> testAptDeps = []
-        testAptDeps.addAll(external(target.testApt.externalDeps))
+        testAptDeps.addAll(external(target.testApt.externalDeps, target))
         testAptDeps.addAll(targets(target.testApt.targetDeps))
 
         Set<String> providedDeps = []
-        providedDeps.addAll(external(target.testProvided.externalDeps))
+        providedDeps.addAll(external(target.testProvided.externalDeps, target))
         providedDeps.addAll(targets(target.testProvided.targetDeps))
         providedDeps.removeAll(testDeps)
 
         if (target.retrolambda) {
-            providedDeps.add(RetrolambdaUtil.getRtStubJarRule())
+            providedDeps.add(RetrolambdaUtil.getRtStubJarRule(target))
         }
 
         return new AndroidTestRule(
@@ -41,7 +41,7 @@ final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
                 ["PUBLIC"],
                 testDeps,
                 target.test.sources,
-                fileRule(target.manifest),
+                fileRule(target.manifest, target),
                 target.testAnnotationProcessors as List,
                 testAptDeps,
                 providedDeps,
