@@ -75,7 +75,7 @@ class TransformRunner {
                 : transformClass.newInstance();
 
         TransformOutputProvider transformOutputProvider =
-                new JarsTransformOutputProvider(outputJarsDir);
+                new JarsTransformOutputProvider(outputJarsDir, inputJarsDir);
 
         runTransform(transform, transformOutputProvider);
     }

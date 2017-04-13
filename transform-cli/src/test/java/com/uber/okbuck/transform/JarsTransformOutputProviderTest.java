@@ -1,7 +1,6 @@
 package com.uber.okbuck.transform;
 
 import com.android.build.api.transform.Format;
-import com.uber.okbuck.transform.JarsTransformOutputProvider;
 
 import org.assertj.core.util.Files;
 import org.junit.Before;
@@ -17,6 +16,9 @@ public class JarsTransformOutputProviderTest {
             "buck-out/bin/app/java_classes_preprocess_in_bin_prodDebug/buck-out/gen/.okbuck/cache/"
                     + "__app.rxscreenshotdetector-release.aar#aar_prebuilt_jar__/classes.jar";
 
+    private static final String INPUT =
+            "buck-out/bin/app/java_classes_preprocess_it_bin_prodDebug/";
+
     private static final String OUTPUT =
             "buck-out/bin/app/java_classes_preprocess_out_bin_prodDebug/";
 
@@ -26,6 +28,7 @@ public class JarsTransformOutputProviderTest {
 
     private File inputJarFile;
     private File outputJarFile;
+    private File inputFolder;
     private File outputFolder;
     private JarsTransformOutputProvider provider;
 
@@ -34,8 +37,9 @@ public class JarsTransformOutputProviderTest {
         File baseFolder = Files.newTemporaryFolder();
         this.inputJarFile = new File(baseFolder, NAME);
         this.outputJarFile = new File(baseFolder, EXPECTED_OUTPUT_JAR);
+        this.inputFolder = new File(baseFolder, INPUT);
         this.outputFolder = new File(baseFolder, OUTPUT);
-        this.provider = new JarsTransformOutputProvider(outputFolder);
+        this.provider = new JarsTransformOutputProvider(outputFolder, inputFolder);
     }
 
     @Test
