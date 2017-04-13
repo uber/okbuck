@@ -5,7 +5,6 @@ import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.core.model.base.ProjectType;
 import com.uber.okbuck.core.util.ProjectUtil;
 
-import org.apache.commons.io.FileUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.Input;
@@ -13,8 +12,11 @@ import org.gradle.api.tasks.TaskAction;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -82,16 +84,20 @@ public class OkBuckCleanTask extends DefaultTask {
     }
 
     private static void deleteQuietly(Path p) {
-        File f = p.toFile();
-        if (!f.exists()) {
-            return;
-        }
         try {
-            if (f.isDirectory()) {
-                FileUtils.deleteDirectory(f);
-            } else {
-                Files.delete(p);
-            }
+            Files.walkFileTree(p, new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    Files.delete(file);
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                    Files.delete(dir);
+                    return FileVisitResult.CONTINUE;
+                }
+            });
         } catch (IOException ignored) {}
     }
 }
