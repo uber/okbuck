@@ -87,6 +87,9 @@ public class JarsTransformOutputProvider implements TransformOutputProvider {
         }
         // If just the filename was passed.
         else {
+            if (!name.endsWith(".jar")) {
+                name += ".jar";
+            }
             file = new File(outputFolder, name);
         }
         return file;
