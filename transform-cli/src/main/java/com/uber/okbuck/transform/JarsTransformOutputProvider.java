@@ -16,13 +16,15 @@ import java.util.Set;
 public class JarsTransformOutputProvider implements TransformOutputProvider {
 
     private final File outputFolder;
+    private final File inputFolder;
     private final String[] outputFolderParts;
 
     /**
      * Constructor.
      */
-    JarsTransformOutputProvider(File outputFolder) {
+    JarsTransformOutputProvider(File outputFolder, File inputFolder) {
         this.outputFolder = outputFolder;
+        this.inputFolder = inputFolder;
         this.outputFolderParts = outputFolder.getAbsolutePath().split(File.separator);
     }
 
@@ -39,7 +41,7 @@ public class JarsTransformOutputProvider implements TransformOutputProvider {
             Set<? super QualifiedContent.Scope> scopes,
             Format format) {
 
-        //Just a temp directory not to be used, to make the transform happy.
+        // Just a temp directory not to be used, to make the transform happy.
         if (format == Format.DIRECTORY) {
             return new File(System.getProperty("java.io.tmpdir"));
         }
@@ -64,18 +66,32 @@ public class JarsTransformOutputProvider implements TransformOutputProvider {
          * /java_classes_preprocess_out_bin_prodDebug/buck-out/gen/.okbuck/cache/__app.rxscreenshotdetector-release
          * .aar#aar_prebuilt_jar__/classes.jar
          */
-        String[] nameParts = name.split(File.separator);
-        LinkedList<String> baseFolderParts = new LinkedList(Arrays.asList(nameParts));
-        for (int i = 0; i < outputFolderParts.length; i++) {
-            baseFolderParts.removeFirst();
-        }
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < baseFolderParts.size(); i++) {
-            sb.append(baseFolderParts.get(i));
-            if (i != baseFolderParts.size() - 1) {
-                sb.append(File.separator);
+
+
+        // If the full absolute path was in name.
+        File file;
+        if (name.startsWith(inputFolder.getAbsolutePath())) {
+            String[] nameParts = name.split(File.separator);
+            LinkedList<String> baseFolderParts = new LinkedList(Arrays.asList(nameParts));
+            for (int i = 0; i < outputFolderParts.length; i++) {
+                baseFolderParts.removeFirst();
             }
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < baseFolderParts.size(); i++) {
+                sb.append(baseFolderParts.get(i));
+                if (i != baseFolderParts.size() - 1) {
+                    sb.append(File.separator);
+                }
+            }
+            file = new File(outputFolder, sb.toString());
         }
-        return new File(outputFolder, sb.toString());
+        // If just the filename was passed.
+        else {
+            if (!name.endsWith(".jar")) {
+                name += ".jar";
+            }
+            file = new File(outputFolder, name);
+        }
+        return file;
     }
 }

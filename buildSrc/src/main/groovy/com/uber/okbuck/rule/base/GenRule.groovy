@@ -13,16 +13,9 @@ final class GenRule extends BuckRule {
     GenRule(String name,
             List<String> inputs,
             List<String> bashCmds,
-            executable) {
-        this(name, inputs, bashCmds, false, "${name}_out", executable)
-    }
-
-    GenRule(String name,
-            List<String> inputs,
-            List<String> bashCmds,
             boolean globSrcs = false,
             String output = "${name}_out",
-            executable = false) {
+            boolean executable = false) {
         super(RuleType.GENRULE, name)
         this.inputs = inputs
         this.bashCmds = bashCmds
