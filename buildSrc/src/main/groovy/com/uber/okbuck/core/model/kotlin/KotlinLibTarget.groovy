@@ -17,7 +17,7 @@ class KotlinLibTarget extends JavaLibTarget {
     Scope getMain() {
         return new Scope(project,
                 compileConfigs,
-                project.files("src/main/kotlin") as Set,
+                (project.sourceSets.main.java.srcDirs as Set) + (project.sourceSets.main.kotlin.srcDirs as Set),
                 project.file("src/main/resources"),
                 Collections.emptyList())
     }
@@ -26,7 +26,7 @@ class KotlinLibTarget extends JavaLibTarget {
     Scope getTest() {
         return new Scope(project,
                 expand(compileConfigs, TEST_PREFIX, true),
-                project.files("src/test/kotlin") as Set,
+                (project.sourceSets.test.java.srcDirs as Set) + (project.sourceSets.test.kotlin.srcDirs as Set),
                 project.file("src/test/resources"),
                 Collections.emptyList())
     }
