@@ -2,7 +2,6 @@ package com.uber.okbuck.core.dependency
 
 import com.uber.okbuck.core.util.FileUtil
 import groovy.transform.Synchronized
-import org.apache.commons.io.FileUtils
 import org.apache.commons.io.IOUtils
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -18,6 +17,9 @@ import java.util.jar.JarEntry
 import java.util.jar.JarFile
 
 class DependencyCache {
+
+    // These are used by conventions such as gradleApi() and localGroovy() and are whitelisted
+    private static final Set<String> WHITELIST_LOCAL_PATTERNS = ['generated-gradle-jars/gradle-api-', 'wrapper/dists']
 
     final Project rootProject
     final File cacheDir
@@ -148,7 +150,10 @@ class DependencyCache {
 
             // Fetch Sources
             if (fetchSources) {
-                cachedCopies.add(fetchSourcesFor(e))
+                File sources = fetchSourcesFor(e)
+                if (sources != null) {
+                    cachedCopies.add(sources)
+                }
             }
         }
 
@@ -175,12 +180,18 @@ class DependencyCache {
         }
     }
 
+    boolean isWhiteListed(File depFile) {
+        return WHITELIST_LOCAL_PATTERNS.find { depFile.absolutePath.contains(it) } != null
+    }
+
     private static Configuration createSuperConfiguration(Project project,
                                                           String superConfigName,
                                                           Set<Configuration> configurations) {
         Configuration superConfiguration = project.configurations.maybeCreate(superConfigName)
         configurations.each {
-            superConfiguration.dependencies.addAll(it.dependencies as Set)
+            superConfiguration.dependencies.addAll(it.incoming.dependencies.findAll {
+                !(it instanceof org.gradle.api.artifacts.ProjectDependency)
+            })
         }
         return superConfiguration
     }
@@ -190,27 +201,33 @@ class DependencyCache {
     }
 
     private File fetchSourcesFor(ExternalDependency dependency) {
-        String sourcesJarName = dependency.getSourceCacheName(false)
-
-        File sourcesJar = null
-        if (FileUtils.directoryContains(rootProject.projectDir, dependency.depFile)) {
-            sourcesJar = new File(dependency.depFile.parentFile, sourcesJarName)
-        } else {
-            def sourceJars = rootProject.fileTree(
-                    dir: dependency.depFile.parentFile.parentFile.absolutePath,
-                    includes: ["**/${sourcesJarName}"]) as List
-            if (sourceJars.size() == 1) {
-                sourcesJar = sourceJars[0]
-            } else if(sourceJars.size() > 1) {
-                throw new IllegalStateException("Found multiple source jars: ${sourceJars} for ${dependency}")
-            }
+        // We do not have sources for these dependencies
+        if (isWhiteListed(dependency.depFile)) {
+            return null
         }
 
         File cachedCopy = new File(cacheDir, dependency.getSourceCacheName(useFullDepName))
-        if (sourcesJar != null && sourcesJar.exists() && !cachedCopy.exists()) {
-            Files.createSymbolicLink(cachedCopy.toPath(), sourcesJar.toPath())
+
+        if (!cachedCopy.exists()) {
+            String sourcesJarName = dependency.getSourceCacheName(false)
+            File sourcesJar = new File(dependency.depFile.parentFile, sourcesJarName)
+
+             if (!sourcesJar.exists()) {
+                def sourceJars = rootProject.fileTree(
+                        dir: dependency.depFile.parentFile.parentFile.absolutePath,
+                        includes: ["**/${sourcesJarName}"]) as List
+                if (sourceJars.size() == 1) {
+                    sourcesJar = sourceJars[0]
+                } else if (sourceJars.size() > 1) {
+                    throw new IllegalStateException("Found multiple source jars: ${sourceJars} for ${dependency}")
+                }
+            }
+            if (sourcesJar.exists()) {
+                Files.createSymbolicLink(cachedCopy.toPath(), sourcesJar.toPath())
+            }
         }
-        return cachedCopy
+
+        return cachedCopy.exists() ? cachedCopy : null
     }
 
     static File getPackagedLintJarFrom(File aar) {
