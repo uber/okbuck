@@ -4,7 +4,7 @@
 ##
 ##  Buck wrapper script to invoke okbuck when needed, before running buck
 ##
-##  Created by OkBuck Gradle Plugin on : Wed Mar 29 16:37:26 PDT 2017
+##  Created by OkBuck Gradle Plugin on : Wed Apr 19 21:13:00 PDT 2017
 ##
 #########################################################################
 
@@ -191,6 +191,15 @@ setupBuckRun ( ) {
     setupBuckBinary
 }
 
+# Handle parameters and flags
+handleParams ( ) {
+    # Go directly to kill. Do not run okbuck.
+    if [[ "kill" == $1 ]]; then
+        SKIP_OKBUCK=true
+    fi
+}
+
+handleParams "$@"
 setupBuckRun
 
 # Invoke buck binary with arguments
