@@ -127,6 +127,9 @@ class OkBuckGradlePlugin implements Plugin<Project> {
 
             // Configure setup task
             setupOkbuck.doLast {
+                // Cleanup gen folder
+                FileUtil.deleteQuietly(project.projectDir.toPath().resolve(OKBUCK_GEN))
+
                 addSubProjectRepos(project as Project, okbuckExt.buckProjects as Set<Project>)
                 Set<Configuration> projectConfigurations = configurations(okbuckExt.buckProjects)
                 projectConfigurations.addAll([externalOkbuck])
@@ -197,9 +200,6 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                         kotlinDeps ? kotlinDeps.left: null,
                         kotlinDeps ? kotlinDeps.right: null)
             }
-
-            // Cleanup gen folder
-            FileUtil.deleteQuietly(project.projectDir.toPath().resolve(OKBUCK_GEN))
 
             // Create clean task
             Task okBuckClean = project.tasks.create(OKBUCK_CLEAN, OkBuckCleanTask, {
