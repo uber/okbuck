@@ -125,6 +125,12 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                 [cacheName, project.configurations.maybeCreate("${cacheName}ExtraDepCache")]
             }
 
+            setupOkbuck.doFirst {
+                if (!System.getProperty("okbuck.wrapper", "false").toBoolean()) {
+                    throw new IllegalArgumentException("Okbuck cannot be invoked without 'okbuck.wrapper' set to true. Use buckw instead")
+                }
+            }
+
             // Configure setup task
             setupOkbuck.doLast {
                 // Cleanup gen folder
