@@ -2,6 +2,7 @@ package com.uber.okbuck.wrapper;
 
 import com.google.common.collect.ImmutableMap;
 
+import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.core.util.FileUtil;
 
 import org.apache.commons.io.FilenameUtils;
@@ -53,6 +54,14 @@ public class BuckWrapperTask extends DefaultTask {
         if (!watchmanConfig.exists()) {
             FileUtil.copyResourceToProject("wrapper/WATCHMAN_CONFIG", getProject().file(".watchmanconfig"));
         }
+    }
+
+    @Override public String getDescription() {
+        return "Create buck wrapper";
+    }
+
+    @Override public String getGroup() {
+        return OkBuckGradlePlugin.GROUP;
     }
 
     private static String toWatchmanIgnoredDirs(Set<String> ignoredDirs) {
