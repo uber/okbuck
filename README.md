@@ -12,7 +12,7 @@ OkBuck is a gradle plugin that lets developers utilize the [Buck](https://buckbu
 brew update
 
 # Required to build and use buck
-brew install android-ndk ant
+brew install ant caskroom/cask/android-sdk
 
 # Optional, but recommended for faster development
 brew install watchman
