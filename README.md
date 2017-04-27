@@ -7,18 +7,7 @@ OkBuck is a gradle plugin that lets developers utilize the [Buck](https://buckbu
 [Wiki](https://github.com/uber/okbuck/wiki), [中文版](https://github.com/uber/okbuck/blob/master/README-zh.md)
 
 ## Installation
-### Mac OS X
-```bash
-brew update
-
-# Required to build and use buck
-brew install android-ndk ant
-
-# Optional, but recommended for faster development
-brew install watchman
-```
-
-### Linux
+These are needed to build with buck
 Installation instructions for: [Android NDK](https://developer.android.com/ndk/downloads/index.html), [Ant](http://ant.apache.org/), [Watchman](https://facebook.github.io/watchman/docs/install.html)
 
 ### Configuration
