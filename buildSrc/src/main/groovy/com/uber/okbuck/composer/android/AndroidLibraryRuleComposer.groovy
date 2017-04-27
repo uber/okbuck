@@ -19,20 +19,20 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
             final List<String> aidlRuleNames,
             String appClass) {
         List<String> libraryDeps = new ArrayList<>(deps)
-        libraryDeps.addAll(external(target.main.externalDeps))
+        libraryDeps.addAll(external(target.main.externalDeps, target))
         libraryDeps.addAll(targets(target.main.targetDeps))
 
         List<String> libraryAptDeps = []
-        libraryAptDeps.addAll(externalApt(target.apt.externalDeps))
+        libraryAptDeps.addAll(externalApt(target.apt.externalDeps, target))
         libraryAptDeps.addAll(targetsApt(target.apt.targetDeps))
 
         Set<String> providedDeps = []
-        providedDeps.addAll(external(target.provided.externalDeps))
+        providedDeps.addAll(external(target.provided.externalDeps, target))
         providedDeps.addAll(targets(target.provided.targetDeps))
         providedDeps.removeAll(libraryDeps)
 
         if (target.retrolambda) {
-            providedDeps.add(RetrolambdaUtil.getRtStubJarRule())
+            providedDeps.add(RetrolambdaUtil.getRtStubJarRule(target))
         }
 
         libraryDeps.addAll(target.main.targetDeps.findAll { Target targetDep ->
@@ -51,7 +51,7 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
                 ["PUBLIC"],
                 libraryDeps,
                 target.main.sources,
-                fileRule(target.manifest),
+                fileRule(target.manifest, target),
                 target.annotationProcessors as List,
                 libraryAptDeps,
                 providedDeps,

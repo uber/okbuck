@@ -28,7 +28,7 @@ final class KeystoreRuleComposer extends BuckRuleComposer {
             writer.println("key.alias.password=${keystore.keyPassword}")
             writer.close()
 
-            return fileRule(FileUtil.getRelativePath(target.rootProject.projectDir, keyStoreGen))
+            return fileRule(FileUtil.getRelativePath(target.rootProject.projectDir, keyStoreGen), target)
         } else {
             throw new IllegalStateException("${target.name} of ${target.path} has no signing config set!")
         }

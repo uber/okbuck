@@ -2,9 +2,12 @@ package com.uber.okbuck.core.util;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
+
 import com.uber.okbuck.OkBuckGradlePlugin;
+import com.uber.okbuck.composer.base.BuckRuleComposer;
 import com.uber.okbuck.core.dependency.DependencyCache;
 import com.uber.okbuck.core.model.base.Scope;
+import com.uber.okbuck.core.model.base.Target;
 import com.uber.okbuck.extension.RetrolambdaExtension;
 
 import org.apache.commons.lang.StringUtils;
@@ -30,8 +33,8 @@ public final class RetrolambdaUtil {
 
     private RetrolambdaUtil() {}
 
-    public static String getRtStubJarRule() {
-        return "//" + RETROLAMDBA_CACHE + ":" + RT_STUB_JAR;
+    public static String getRtStubJarRule(final Target target) {
+        return BuckRuleComposer.rootPrefix(target) + RETROLAMDBA_CACHE + ":" + RT_STUB_JAR;
     }
 
     public static void fetchRetrolambdaDeps(Project project, RetrolambdaExtension extension) {
@@ -64,7 +67,7 @@ public final class RetrolambdaUtil {
         if (!StringUtils.isEmpty(extension.jvmArgs)) {
             builder = builder.add(extension.jvmArgs);
         }
-        builder = builder.add("-jar").add(retrolambdaJar + ")").add("<<<");
+        builder = builder.add("-jar").add(BuckRuleComposer.relativeRoot(project) + retrolambdaJar + ")").add("<<<");
         ProjectUtil.getPlugin(project).retrolambdaCmd = Joiner.on(" ").join(builder.build());
     }
 

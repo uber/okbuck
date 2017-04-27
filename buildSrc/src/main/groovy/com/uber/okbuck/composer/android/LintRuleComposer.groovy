@@ -24,7 +24,7 @@ final class LintRuleComposer extends JvmBuckRuleComposer {
         List<BuckRule> lintRules = []
         String lintConfigXml = ""
         if (target.lintOptions.lintConfig != null && target.lintOptions.lintConfig.exists()) {
-            lintConfigXml = LintUtil.getLintwConfigRule(target.project, target.lintOptions.lintConfig)
+            lintConfigXml = LintUtil.getLintwConfigRule(target, target.lintOptions.lintConfig)
         }
 
         List<Target> customLintTargets = target.lint.targetDeps.findAll {
@@ -32,11 +32,11 @@ final class LintRuleComposer extends JvmBuckRuleComposer {
         } as List
 
         List<String> customLintRules = []
-        customLintRules.addAll(external(target.main.packagedLintJars))
+        customLintRules.addAll(external(target.main.packagedLintJars, target))
         customLintRules.addAll(targets(customLintTargets as Set))
 
         List<String> lintDeps = []
-        lintDeps.addAll(LintUtil.LINT_DEPS_RULE)
+        lintDeps.addAll(LintUtil.getLintDepsRule(target))
         customLintTargets.each {
             if (ProjectUtil.getType(it.project) == ProjectType.JAVA_APP) {
                 lintDeps.add(binTargets(it))
@@ -47,7 +47,7 @@ final class LintRuleComposer extends JvmBuckRuleComposer {
         if (customLintRules) {
             lintCmds.add("export ANDROID_LINT_JARS=\"${toLocation(customLintRules)}\";")
         }
-        lintCmds += ["mkdir -p \$OUT;", "RUN_IN=`dirname ${toLocation(fileRule(target.manifest))}`;", "exec java", "-Djava.awt.headless=true"]
+        lintCmds += ["mkdir -p \$OUT;", "RUN_IN=`dirname ${toLocation(fileRule(target.manifest, target))}`;", "exec java", "-Djava.awt.headless=true"]
 
         LintExtension lintExtension = target.rootProject.okbuck.lint
         if (lintExtension.jvmArgs) {
@@ -61,7 +61,7 @@ final class LintRuleComposer extends JvmBuckRuleComposer {
         if (!target.main.sources.empty) {
             lintCmds.add("--classpath ${toLocation(":${src(target)}")}")
 
-            Set<String> lintLibraries = external(target.lintLibraries.externalDeps) +
+            Set<String> lintLibraries = external(target.lintLibraries.externalDeps, target) +
                     targets(target.lintLibraries.targetDeps)
             if (lintLibraries) {
                 AndroidLibraryWrapperRule wrapperRule =

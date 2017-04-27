@@ -60,4 +60,8 @@ public final class ProjectUtil {
     private static TargetCache getTargetCache(Project project) {
         return getPlugin(project).targetCache;
     }
+
+    public static Object getExtProperty(Project project, String propname) {
+        return project.getRootProject().getExtensions().getExtraProperties().get(propname);
+    }
 }

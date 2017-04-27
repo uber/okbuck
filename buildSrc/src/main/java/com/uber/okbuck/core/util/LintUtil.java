@@ -1,7 +1,9 @@
 package com.uber.okbuck.core.util;
 
 import com.uber.okbuck.OkBuckGradlePlugin;
+import com.uber.okbuck.composer.base.BuckRuleComposer;
 import com.uber.okbuck.core.dependency.DependencyCache;
+import com.uber.okbuck.core.model.base.Target;
 import com.uber.okbuck.extension.OkBuckExtension;
 
 import org.apache.commons.io.FileUtils;
@@ -24,8 +26,6 @@ public final class LintUtil {
     private static final String LINT_DEPS_CACHE = OkBuckGradlePlugin.DEFAULT_CACHE_PATH + "/lint";
     private static final String LINT_VERSION_FILE = LINT_DEPS_CACHE + "/.lintVersion";
     private static final String LINT_DEPS_BUCK_FILE = "lint/BUCK_FILE";
-
-    public static final String LINT_DEPS_RULE = "//" + LINT_DEPS_CACHE + ":okbuck_lint";
 
     private LintUtil() {}
 
@@ -67,19 +67,19 @@ public final class LintUtil {
         getLintDepsCache(project);
     }
 
-    private static String getLintwConfigName(Project project, File config) {
-        return FileUtil.getRelativePath(project.getRootDir(), config).replaceAll("/", "_");
+    private static String getLintwConfigName(Target target, File config) {
+        return FileUtil.getRelativePath(target.getRootProject().getRootDir(), config).replaceAll("/", "_");
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    public static synchronized String getLintwConfigRule(Project project, File config) {
-        File configFile = project.getRootProject().file(LINT_DEPS_CACHE + "/" + getLintwConfigName(project, config));
+    public static synchronized String getLintwConfigRule(Target target, File config) {
+        File configFile = target.getRootProject().file(LINT_DEPS_CACHE + "/" + getLintwConfigName(target, config));
         try {
             FileUtils.copyFile(config, configFile);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return "//" + LINT_DEPS_CACHE + ":" + getLintwConfigName(project, config);
+        return BuckRuleComposer.rootPrefix(target) + LINT_DEPS_CACHE + ":" + getLintwConfigName(target, config);
     }
 
     public static DependencyCache getLintDepsCache(Project project) {
@@ -99,5 +99,9 @@ public final class LintUtil {
                     okBuckExtension.buckProjects);
         }
         return okBuckGradlePlugin.lintDepCache;
+    }
+
+    public static String getLintDepsRule(Target target) {
+        return BuckRuleComposer.rootPrefix(target) + LINT_DEPS_CACHE + ":okbuck_lint";
     }
 }
