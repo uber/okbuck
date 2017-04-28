@@ -2,15 +2,12 @@ package com.uber.okbuck
 
 import com.uber.okbuck.core.dependency.DependencyCache
 import com.uber.okbuck.core.model.android.AndroidAppTarget
-import com.uber.okbuck.core.model.base.ProjectType
 import com.uber.okbuck.core.model.base.TargetCache
 import com.uber.okbuck.core.model.java.JavaTarget
 import com.uber.okbuck.core.task.OkBuckCleanTask
+import com.uber.okbuck.core.task.OkBuckTask
 import com.uber.okbuck.core.util.FileUtil
-import com.uber.okbuck.core.util.GroovyUtil
-import com.uber.okbuck.core.util.KotlinUtil
 import com.uber.okbuck.core.util.LintUtil
-import com.uber.okbuck.core.util.ProguardUtil
 import com.uber.okbuck.core.util.ProjectUtil
 import com.uber.okbuck.core.util.RetrolambdaUtil
 import com.uber.okbuck.core.util.RobolectricUtil
@@ -24,10 +21,7 @@ import com.uber.okbuck.extension.TestExtension
 import com.uber.okbuck.extension.TransformExtension
 import com.uber.okbuck.extension.WrapperExtension
 import com.uber.okbuck.generator.BuckFileGenerator
-import com.uber.okbuck.generator.DotBuckConfigLocalGenerator
 import com.uber.okbuck.wrapper.BuckWrapperTask
-import org.apache.commons.io.IOUtils
-import org.apache.commons.lang3.tuple.Pair
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -101,9 +95,9 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         setupOkbuck.setGroup(GROUP)
         setupOkbuck.setDescription("Setup okbuck cache and dependencies")
 
-        Task okBuck = project.task(OKBUCK)
-        okBuck.setGroup(GROUP)
-        okBuck.setDescription("Generate BUCK files")
+        Task okBuck = project.tasks.create(OKBUCK, OkBuckTask, {
+            okBuckExtension = okbuckExt
+        })
         okBuck.dependsOn(setupOkbuck)
 
         // Create target cache
@@ -179,32 +173,6 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                 }
             }
 
-            // Configure okbuck task
-            okBuck.doLast {
-                // Fetch Groovy support deps if needed
-                boolean hasGroovyLib = okbuckExt.buckProjects.find {
-                    ProjectUtil.getType(it) == ProjectType.GROOVY_LIB
-                } != null
-                if (hasGroovyLib) {
-                    GroovyUtil.setupGroovyHome(project)
-                }
-
-                // Fetch Kotlin support deps if needed
-                boolean hasKotlinLib = okbuckExt.buckProjects.find {
-                    ProjectUtil.getType(it) == ProjectType.KOTLIN_LIB
-                } != null
-                Pair<String, String> kotlinDeps = null
-                if (hasKotlinLib) {
-                    kotlinDeps = KotlinUtil.setupKotlinHome(project)
-                }
-
-                generate(project,
-                        okbuckExt,
-                        hasGroovyLib ? GroovyUtil.GROOVY_HOME_LOCATION : null,
-                        kotlinDeps ? kotlinDeps.left: null,
-                        kotlinDeps ? kotlinDeps.right: null)
-            }
-
             // Create clean task
             Task okBuckClean = project.tasks.create(OKBUCK_CLEAN, OkBuckCleanTask, {
                 projects = okbuckExt.buckProjects
@@ -216,33 +184,6 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                     setupOkbuck,
                     okBuckClean)
         }
-    }
-
-    private static void generate(Project project, OkBuckExtension okbuckExt, String groovyHome,
-                                 String kotlinCompiler, String KotlinRuntime) {
-        // generate empty .buckconfig if it does not exist
-        File dotBuckConfig = project.file(".buckconfig")
-        if (!dotBuckConfig.exists()) {
-            dotBuckConfig.createNewFile()
-        }
-
-        // Setup defs
-        FileUtil.copyResourceToProject("defs/OKBUCK_DEFS", project.file(OKBUCK_DEFS))
-        Set<String> defs = okbuckExt.extraDefs.collect {
-            "//${FileUtil.getRelativePath(project.rootDir, it)}"
-        }
-        defs.add("//${OKBUCK_DEFS}")
-
-        // generate .buckconfig.local
-        File dotBuckConfigLocal = project.file(".buckconfig.local")
-        PrintStream configPrinter = new PrintStream(dotBuckConfigLocal)
-        DotBuckConfigLocalGenerator.generate(okbuckExt,
-                groovyHome,
-                kotlinCompiler,
-                KotlinRuntime,
-                ProguardUtil.getProguardJarPath(project),
-                defs).print(configPrinter)
-        IOUtils.closeQuietly(configPrinter)
     }
 
     private static Set<Configuration> configurations(Set<Project> projects) {
