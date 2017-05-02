@@ -38,15 +38,12 @@ public final class FileUtil {
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public static void copyResourceToProject(String resource, File destination) {
-        try {
-            InputStream inputStream = FileUtil.class.getResourceAsStream(resource);
-            destination.getParentFile().mkdirs();
-            OutputStream outputStream = new FileOutputStream(destination);
+        destination.getParentFile().mkdirs();
+        try (InputStream inputStream = FileUtil.class.getResourceAsStream(resource);
+                OutputStream outputStream = new FileOutputStream(destination)) {
             IOUtils.copy(inputStream, outputStream);
-            IOUtils.closeQuietly(inputStream);
-            IOUtils.closeQuietly(outputStream);
         } catch (IOException e) {
-            throw new IllegalStateException(e);
+            throw new RuntimeException(e);
         }
     }
 
