@@ -55,7 +55,7 @@ public final class FileUtil {
         if (files == null || files.isEmpty()) {
             return Collections.emptySet();
         }
-        return files.parallelStream()
+        return files.stream()
                 .filter(f -> Objects.nonNull(f) && f.exists())
                 .map(f -> getRelativePath(project.getProjectDir(), f))
                 .collect(Collectors.toCollection(LinkedHashSet::new));

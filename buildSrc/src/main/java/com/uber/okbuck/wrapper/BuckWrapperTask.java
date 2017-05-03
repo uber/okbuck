@@ -1,7 +1,6 @@
 package com.uber.okbuck.wrapper;
 
 import com.google.common.collect.ImmutableMap;
-
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.core.util.FileUtil;
 
@@ -13,12 +12,12 @@ import org.gradle.api.tasks.TaskAction;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @SuppressWarnings({"WeakerAccess", "CanBeFinal", "unused", "ResultOfMethodCallIgnored", "NewApi"})
 public class BuckWrapperTask extends DefaultTask {
@@ -70,7 +69,7 @@ public class BuckWrapperTask extends DefaultTask {
         }
 
         String ignoreExprs = ignoredDirs
-                .parallelStream()
+                .stream()
                 .map(ignoredDir -> "            [\"dirname\", \"" + ignoredDir + "\"]")
                 .collect(Collectors.joining(",\n"));
 
@@ -102,25 +101,24 @@ public class BuckWrapperTask extends DefaultTask {
         }
 
         String matchExprs = matches
-                .parallelStream()
+                .stream()
                 .map(match -> "            [\"match\", \"" + match + "\", \"wholename\"]")
                 .collect(Collectors.joining(",\n"));
 
         String suffixExprs = suffixes
-                .parallelStream()
+                .stream()
                 .map(suffix -> "            [\"suffix\", \"" + suffix + "\"]")
                 .collect(Collectors.joining(",\n"));
 
         String nameExpr = names
-                .parallelStream()
+                .stream()
                 .map(name -> "\"" + name + "\"")
                 .collect(Collectors.joining(", "));
         if (!nameExpr.isEmpty()) {
             nameExpr = "            [\"name\", [" + nameExpr + "]]";
         }
 
-        return Arrays.asList(suffixExprs, nameExpr, matchExprs)
-                .parallelStream()
+        return Stream.of(suffixExprs, nameExpr, matchExprs)
                 .filter(StringUtils::isNotEmpty)
                 .collect(Collectors.joining(",\n"));
     }
