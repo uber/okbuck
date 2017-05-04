@@ -22,7 +22,7 @@ final class AndroidResourceRule extends BuckRule {
     @Override
     protected final void printContent(PrintStream printer) {
         printer.println("\tpackage = '${mPackage}',")
-        if (mRes) {
+        if (mRes || mResourceUnion) {
             printer.println("\tres = res_glob([")
             mRes.each {
                 printer.println("\t\t('${it}', '**'),")
