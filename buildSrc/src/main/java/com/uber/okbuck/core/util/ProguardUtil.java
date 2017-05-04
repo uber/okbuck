@@ -45,7 +45,7 @@ public final class ProguardUtil {
                 .getByName("classpath")
                 .getResolvedConfiguration()
                 .getResolvedArtifacts()
-                .parallelStream()
+                .stream()
                 .filter(ProguardUtil::findProguard)
                 .findFirst()
                 .map(r -> r.getModuleVersion().getId().getVersion())

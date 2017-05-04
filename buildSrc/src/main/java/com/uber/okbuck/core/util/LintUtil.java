@@ -36,7 +36,7 @@ public final class LintUtil {
                 .getByName("classpath")
                 .getResolvedConfiguration()
                 .getResolvedArtifacts()
-                .parallelStream()
+                .stream()
                 .filter(resolvedArtifact -> {
                     ModuleVersionIdentifier identifier = resolvedArtifact.getModuleVersion().getId();
                     return (LINT_GROUP.equals(identifier.getGroup()) && LINT_MODULE.equals(identifier.getName()));

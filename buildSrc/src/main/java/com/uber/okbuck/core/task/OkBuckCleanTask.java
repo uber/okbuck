@@ -61,7 +61,7 @@ public class OkBuckCleanTask extends DefaultTask {
 
         // Delete stale project's BUCK file
         difference
-                .parallelStream()
+                .stream()
                 .map(p -> rootProjectPath.resolve(p).resolve(OkBuckGradlePlugin.BUCK))
                 .forEach(FileUtil::deleteQuietly);
 

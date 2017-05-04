@@ -32,7 +32,7 @@ public final class KotlinUtil {
                 .getByName("classpath")
                 .getResolvedConfiguration()
                 .getResolvedArtifacts()
-                .parallelStream()
+                .stream()
                 .filter(resolvedArtifact -> {
                     ModuleVersionIdentifier identifier = resolvedArtifact.getModuleVersion().getId();
                     return (KOTLIN_GROUP.equals(identifier.getGroup()) &&
