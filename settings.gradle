@@ -1,6 +1,7 @@
 include 'app'
 include 'another-app'
 include 'dummylibrary'
+include 'libraries:emptyResourceLibrary'
 include 'libraries:common'
 include 'libraries:customLintLibrary'
 include 'libraries:emptylibrary'
