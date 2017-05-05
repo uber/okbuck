@@ -8,7 +8,6 @@ import com.uber.okbuck.core.util.KotlinUtil;
 import com.uber.okbuck.core.util.ProguardUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.extension.OkBuckExtension;
-import com.uber.okbuck.generator.DotBuckConfigLocalGenerator;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.gradle.api.DefaultTask;
@@ -19,7 +18,6 @@ import org.gradle.api.tasks.TaskAction;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -73,13 +71,8 @@ public class OkBuckTask extends DefaultTask {
     return getProject().file(".buckconfig");
   }
 
-  @OutputFile
-  public File dotBuckConfigLocal() {
-    return getProject().file(".buckconfig.local");
-  }
-
   private void generate(OkBuckExtension okbuckExt, String groovyHome,
-                        String kotlinCompiler, String KotlinRuntime) {
+                        String kotlinCompiler, String kotlinRuntime) {
     // generate empty .buckconfig if it does not exist
     if (!dotBuckConfig().exists()) {
       try {
@@ -96,17 +89,18 @@ public class OkBuckTask extends DefaultTask {
             .collect(Collectors.toSet());
     defs.add("//" + OKBUCK_DEFS);
 
-    // generate .buckconfig.local
-    try (
-    PrintStream configPrinter = new PrintStream(dotBuckConfigLocal())) {
-      DotBuckConfigLocalGenerator.generate(okbuckExt,
-              groovyHome,
-              kotlinCompiler,
-              KotlinRuntime,
-              ProguardUtil.getProguardJarPath(getProject()),
-              defs).print(configPrinter);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+
+    DotBuckConfigLocalTask dotBuckConfigLocalTask = getProject().getTasks().create("dotBuckConfigTask",
+            DotBuckConfigLocalTask.class, task -> {
+              task.okbuck = okbuckExt;
+              task.defs = defs;
+              task.groovyHome = groovyHome;
+              task.kotlinCompiler = kotlinCompiler;
+              task.kotlinRuntime = kotlinRuntime;
+              task.proguardJar = ProguardUtil.getProguardJarPath(getProject());
+            });
+
+    dotBuckConfigLocalTask.execute();
+
   }
 }
