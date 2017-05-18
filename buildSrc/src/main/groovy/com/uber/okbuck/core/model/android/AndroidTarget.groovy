@@ -240,14 +240,16 @@ abstract class AndroidTarget extends JavaLibTarget {
     }
 
     String processManifestXml(GPathResult manifestXml) {
-        def sdkNode = {
-            'uses-sdk'('android:minSdkVersion': String.valueOf(minSdk),
-                    'android:targetSdkVersion': String.valueOf(targetSdk)) {}
-        }
         if (manifestXml.'uses-sdk'.size() == 0) {
-            manifestXml.appendNode(sdkNode)
+            manifestXml.appendNode {
+                'uses-sdk'('android:minSdkVersion': String.valueOf(minSdk), 'android:targetSdkVersion': String.valueOf(targetSdk)) {}
+            }
         } else {
-            manifestXml.'uses-sdk'.replaceNode(sdkNode)
+            def overrideLibrary = manifestXml.'uses-sdk'.@'tools:overrideLibrary'
+            manifestXml.'uses-sdk'.replaceNode {
+                'uses-sdk'('android:minSdkVersion': String.valueOf(minSdk), 'android:targetSdkVersion': String.valueOf(targetSdk),
+                    'xmlns:tools':'http://schemas.android.com/tools', 'tools:overrideLibrary': overrideLibrary) {}
+            }
         }
 
         def builder = new StreamingMarkupBuilder()
