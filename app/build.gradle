@@ -64,6 +64,7 @@ dependencies {
 
     compile project(':libraries:emptyResourceLibrary')
     compile project(':libraries:emptylibrary')
+    compile project(':libraries:kotlinandroidlibrary')
     devCompile project(path: ':dummylibrary', configuration: 'freeRelease')
     prodCompile project(path: ':dummylibrary', configuration: 'paidRelease')
     demoCompile project(path: ':dummylibrary', configuration: 'paidRelease')

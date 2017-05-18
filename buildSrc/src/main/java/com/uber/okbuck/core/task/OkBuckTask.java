@@ -37,13 +37,17 @@ public class OkBuckTask extends DefaultTask {
   @TaskAction
   void okbuck() {
     // Fetch Groovy support deps if needed
-    boolean hasGroovyLib = okBuckExtension.buckProjects.parallelStream().anyMatch(project -> ProjectUtil.getType(project) == ProjectType.GROOVY_LIB);
+    boolean hasGroovyLib = okBuckExtension.buckProjects.stream()
+        .map(ProjectUtil::getType)
+        .anyMatch(type -> type == ProjectType.GROOVY_LIB);
     if (hasGroovyLib) {
       GroovyUtil.setupGroovyHome(getProject());
     }
 
     // Fetch Kotlin support deps if needed
-    boolean hasKotlinLib = okBuckExtension.buckProjects.parallelStream().anyMatch(project -> ProjectUtil.getType(project) == ProjectType.KOTLIN_LIB);
+    boolean hasKotlinLib = okBuckExtension.buckProjects.stream()
+        .map(ProjectUtil::getType)
+        .anyMatch(type -> type == ProjectType.KOTLIN_LIB || type == ProjectType.KOTLIN_ANDROID_LIB);
     Pair<String, String> kotlinDeps = null;
     if (hasKotlinLib) {
       kotlinDeps = KotlinUtil.setupKotlinHome(getProject());

@@ -39,6 +39,7 @@ public class TargetCache {
                         projectTargets.put(v.getName(), new AndroidAppTarget(project, v.getName()));
                     }
                     break;
+                case KOTLIN_ANDROID_LIB:
                 case ANDROID_LIB:
                     projectTargets = new HashMap<>();
                     for (BaseVariant v : project.getExtensions()
@@ -83,6 +84,7 @@ public class TargetCache {
         ProjectType type = ProjectUtil.getType(targetProject);
         switch (type) {
             case ANDROID_LIB:
+            case KOTLIN_ANDROID_LIB:
                 result = outputToTarget.get(output);
                 break;
             case GROOVY_LIB:
@@ -91,7 +93,7 @@ public class TargetCache {
                 result = getTargets(targetProject).values().iterator().next();
                 break;
             default:
-                result = null;
+                throw new IllegalStateException(type + " not handled");
         }
         return result;
     }
