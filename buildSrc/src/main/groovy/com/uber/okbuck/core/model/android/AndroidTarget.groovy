@@ -244,11 +244,15 @@ abstract class AndroidTarget extends JavaLibTarget {
             manifestXml.appendNode {
                 'uses-sdk'('android:minSdkVersion': String.valueOf(minSdk), 'android:targetSdkVersion': String.valueOf(targetSdk)) {}
             }
-        } else {
+        } else if (manifestXml.'uses-sdk'.@'tools:overrideLibrary'.size() > 0) {
             def overrideLibrary = manifestXml.'uses-sdk'.@'tools:overrideLibrary'
             manifestXml.'uses-sdk'.replaceNode {
                 'uses-sdk'('android:minSdkVersion': String.valueOf(minSdk), 'android:targetSdkVersion': String.valueOf(targetSdk),
                     'xmlns:tools':'http://schemas.android.com/tools', 'tools:overrideLibrary': overrideLibrary) {}
+            }
+        } else {
+            manifestXml.'uses-sdk'.replaceNode {
+                'uses-sdk'('android:minSdkVersion': String.valueOf(minSdk), 'android:targetSdkVersion': String.valueOf(targetSdk)) {}
             }
         }
 
