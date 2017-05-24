@@ -16,11 +16,13 @@ import com.uber.okbuck.core.model.base.Scope
 import com.uber.okbuck.core.model.java.JavaLibTarget
 import com.uber.okbuck.core.model.jvm.TestOptions
 import com.uber.okbuck.core.util.FileUtil
+import groovy.lang.Closure
 import groovy.util.slurpersupport.GPathResult
 import groovy.xml.StreamingMarkupBuilder
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.tasks.compile.JavaCompile
+import org.gradle.api.tasks.testing.Test
 import org.gradle.api.tasks.testing.Test
 
 import java.nio.file.Paths
@@ -240,10 +242,7 @@ abstract class AndroidTarget extends JavaLibTarget {
     }
 
     String processManifestXml(GPathResult manifestXml) {
-        def sdkNode = {
-            'uses-sdk'('android:minSdkVersion': String.valueOf(minSdk),
-                    'android:targetSdkVersion': String.valueOf(targetSdk)) {}
-        }
+        def sdkNode = getSdkNode(manifestXml, minSdk, targetSdk)
         if (manifestXml.'uses-sdk'.size() == 0) {
             manifestXml.appendNode(sdkNode)
         } else {
@@ -330,6 +329,16 @@ abstract class AndroidTarget extends JavaLibTarget {
                 options.remove(index + 1)
                 options.remove(index)
             }
+        }
+    }
+
+    private static Closure getSdkNode(GPathResult manifestXml, int minSdk, int targetSdk) {
+        def sdkAttributes = manifestXml.'uses-sdk'.'**'*.attributes()[0] ?: [:]
+        sdkAttributes['{http://schemas.android.com/apk/res/android}minSdkVersion'] = String.valueOf(minSdk)
+        sdkAttributes['{http://schemas.android.com/apk/res/android}targetSdkVersion'] = String.valueOf(targetSdk)
+
+        return {
+            'uses-sdk'(sdkAttributes) {}
         }
     }
 
