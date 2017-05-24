@@ -86,6 +86,12 @@ public class OkBuckExtension {
     @Input
     public Set<String> extraDepCaches = new HashSet<>();
 
+    /**
+    * Forces okbuck to fail if the project is using dynamic or snapshot dependencies
+    */
+    @Input
+    public boolean failOnChangingDependencies = false;
+
     public OkBuckExtension(Project project) {
         buckProjects = project.getSubprojects();
     }

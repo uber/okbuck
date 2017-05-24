@@ -6,6 +6,7 @@ import org.apache.commons.io.IOUtils
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ComponentSelection
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.ResolvedArtifact
 import org.gradle.plugins.ide.internal.IdeDependenciesExtractor
 
@@ -195,15 +196,31 @@ class DependencyCache {
             })
         }
 
+        superConfiguration.dependencies.each { Dependency dependency ->
+            String version = dependency.version
+            if (version && (version.contains("+"))) {
+                err(project, "${dependency.group}:${dependency.name}:${version} : " +
+                        "Please do not use dynamic version dependencies. They can cause hard to reproduce builds")
+            }
+        }
+
         superConfiguration.resolutionStrategy.componentSelection.all { ComponentSelection selection ->
             String version = selection.candidate.version
-            if (version.contains("-SNAPSHOT") || version.contains("+")) {
-                throw new IllegalStateException("Please do not use snapshot/dynamic version dependencies. They can " +
-                        "cause hard to reproduce builds")
+            if (version.contains("-SNAPSHOT")) {
+                err(project, "${selection.candidate.displayName} : " +
+                        "Please do not use snapshot version dependencies. They can cause hard to reproduce builds")
             }
         }
 
         return superConfiguration
+    }
+
+    private static err(Project project, String message) {
+        if (project.okbuck.failOnChangingDependencies) {
+            throw new IllegalStateException(message)
+        } else {
+            println "\n${message}\n"
+        }
     }
 
     String getLintJar(VersionlessDependency dependency) {
