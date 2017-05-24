@@ -11,7 +11,7 @@ These are needed to build with buck
 Installation instructions for: [Android NDK](https://developer.android.com/ndk/downloads/index.html), [Ant](http://ant.apache.org/), [Watchman](https://facebook.github.io/watchman/docs/install.html)
 
 ### Configuration
-Set the `ANDROID_NDK` environment variable to point to your android ndk installation
+Set the `ANDROID_NDK_HOME` environment variable to point to your android ndk installation
 
 In root project `build.gradle` file:
 
