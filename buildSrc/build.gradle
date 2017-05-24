@@ -47,7 +47,7 @@ task sourcesJar(type: Jar) {
     classifier = 'sources'
 }
 
-def publishVersion = '0.20.7'
+def publishVersion = '0.20.8'
 group = 'com.uber'
 version = publishVersion
 def siteUrl = 'https://github.com/uber/okbuck'
