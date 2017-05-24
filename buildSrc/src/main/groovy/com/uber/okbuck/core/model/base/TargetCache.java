@@ -88,6 +88,7 @@ public class TargetCache {
             case GROOVY_LIB:
             case JAVA_APP:
             case JAVA_LIB:
+            case KOTLIN_LIB:
                 result = getTargets(targetProject).values().iterator().next();
                 break;
             default:
