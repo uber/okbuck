@@ -4,6 +4,7 @@ import com.uber.okbuck.core.util.FileUtil
 import groovy.transform.Synchronized
 import org.apache.commons.io.IOUtils
 import org.gradle.api.Project
+import org.gradle.api.artifacts.ComponentSelection
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ResolvedArtifact
 import org.gradle.plugins.ide.internal.IdeDependenciesExtractor
@@ -193,6 +194,15 @@ class DependencyCache {
                 !(it instanceof org.gradle.api.artifacts.ProjectDependency)
             })
         }
+
+        superConfiguration.resolutionStrategy.componentSelection.all { ComponentSelection selection ->
+            String version = selection.candidate.version
+            if (version.contains("-SNAPSHOT") || version.contains("+")) {
+                throw new IllegalStateException("Please do not use snapshot/dynamic version dependencies. They can " +
+                        "cause hard to reproduce builds")
+            }
+        }
+
         return superConfiguration
     }
 
