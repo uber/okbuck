@@ -312,7 +312,7 @@ abstract class AndroidTarget extends JavaLibTarget {
 
     private void parseManifest(String originalManifest, File mergedManifest) {
         XmlSlurper slurper = new XmlSlurper()
-        GPathResult manifestXml = slurper.parseText(originalManifest).declareNamespace(android: 'http://schemas.android.com/apk/res/android')
+        GPathResult manifestXml = slurper.parseText(originalManifest)
         packageName = manifestXml.@package
 
         String processedManifest = processManifestXml(manifestXml)
