@@ -240,20 +240,11 @@ abstract class AndroidTarget extends JavaLibTarget {
     }
 
     String processManifestXml(GPathResult manifestXml) {
+        def sdkNode = getSdkNode(manifestXml)
         if (manifestXml.'uses-sdk'.size() == 0) {
-            manifestXml.appendNode {
-                'uses-sdk'('android:minSdkVersion': String.valueOf(minSdk), 'android:targetSdkVersion': String.valueOf(targetSdk)) {}
-            }
-        } else if (manifestXml.'uses-sdk'.@'tools:overrideLibrary'.size() > 0) {
-            def overrideLibrary = manifestXml.'uses-sdk'.@'tools:overrideLibrary'
-            manifestXml.'uses-sdk'.replaceNode {
-                'uses-sdk'('android:minSdkVersion': String.valueOf(minSdk), 'android:targetSdkVersion': String.valueOf(targetSdk),
-                    'xmlns:tools':'http://schemas.android.com/tools', 'tools:overrideLibrary': overrideLibrary) {}
-            }
+            manifestXml.appendNode(sdkNode)
         } else {
-            manifestXml.'uses-sdk'.replaceNode {
-                'uses-sdk'('android:minSdkVersion': String.valueOf(minSdk), 'android:targetSdkVersion': String.valueOf(targetSdk)) {}
-            }
+            manifestXml.'uses-sdk'.replaceNode(sdkNode)
         }
 
         def builder = new StreamingMarkupBuilder()
@@ -264,6 +255,16 @@ abstract class AndroidTarget extends JavaLibTarget {
                 .replaceAll('\\{http://schemas.android.com/apk/res/android\\}', 'android:')
                 .replaceAll('xmlns:android="http://schemas.android.com/apk/res/android"', '')
                 .replaceFirst('<manifest ', '<manifest xmlns:android="http://schemas.android.com/apk/res/android" ')
+    }
+
+    private groovy.lang.Closure getSdkNode(GPathResult manifestXml) {
+        def sdkAttributes = manifestXml.'uses-sdk'.'**'*.attributes()[0] ?: [:]
+        sdkAttributes['{http://schemas.android.com/apk/res/android}minSdkVersion'] = String.valueOf(minSdk)
+        sdkAttributes['{http://schemas.android.com/apk/res/android}targetSdkVersion'] = String.valueOf(targetSdk)
+
+        return {
+            'uses-sdk'(sdkAttributes) {}
+        }
     }
 
     private void ensureManifest() {
@@ -311,7 +312,7 @@ abstract class AndroidTarget extends JavaLibTarget {
 
     private void parseManifest(String originalManifest, File mergedManifest) {
         XmlSlurper slurper = new XmlSlurper()
-        GPathResult manifestXml = slurper.parseText(originalManifest)
+        GPathResult manifestXml = slurper.parseText(originalManifest).declareNamespace(android: 'http://schemas.android.com/apk/res/android')
         packageName = manifestXml.@package
 
         String processedManifest = processManifestXml(manifestXml)
