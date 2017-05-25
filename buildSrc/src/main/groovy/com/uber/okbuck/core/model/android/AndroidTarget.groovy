@@ -248,18 +248,12 @@ abstract class AndroidTarget extends JavaLibTarget {
         } else {
             manifestXml.'uses-sdk'.replaceNode(sdkNode)
         }
-        
+
         def builder = new StreamingMarkupBuilder()
         builder.setUseDoubleQuotes(true)
         return (builder.bind {
-            mkp.declareNamespace(android:'http://schemas.android.com/apk/res/android')
-            if (manifestXml.lookupNamespace("tools")) {
-                mkp.declareNamespace(tools:'http://schemas.android.com/tools')
-            }
             mkp.yield manifestXml
         } as String)
-                .replaceAll('\\{http://schemas.android.com/apk/res/android\\}', 'android:')
-                .replaceAll('\\{http://schemas.android.com/tools\\}', 'tools:')
     }
 
     private void ensureManifest() {
@@ -306,7 +300,7 @@ abstract class AndroidTarget extends JavaLibTarget {
     }
 
     private void parseManifest(String originalManifest, File mergedManifest) {
-        XmlSlurper slurper = new XmlSlurper()
+        XmlSlurper slurper = new XmlSlurper(false, false)
         GPathResult manifestXml = slurper.parseText(originalManifest)
         packageName = manifestXml.@package
 
@@ -337,8 +331,8 @@ abstract class AndroidTarget extends JavaLibTarget {
 
     private static Closure getSdkNode(GPathResult manifestXml, int minSdk, int targetSdk) {
         def sdkAttributes = manifestXml.'uses-sdk'.'**'*.attributes()[0] ?: [:]
-        sdkAttributes['{http://schemas.android.com/apk/res/android}minSdkVersion'] = String.valueOf(minSdk)
-        sdkAttributes['{http://schemas.android.com/apk/res/android}targetSdkVersion'] = String.valueOf(targetSdk)
+        sdkAttributes['android:minSdkVersion'] = String.valueOf(minSdk)
+        sdkAttributes['android:targetSdkVersion'] = String.valueOf(targetSdk)
 
         return {
             'uses-sdk'(sdkAttributes) {}
