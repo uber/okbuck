@@ -177,11 +177,11 @@ abstract class AndroidTarget extends JavaLibTarget {
 
         Map<String, ClassField> extraBuildConfig = [:]
 
-        baseVariant.buildType.buildConfigFields.collect { String key, ClassField classField ->
+        baseVariant.mergedFlavor.buildConfigFields.collect { String key, ClassField classField ->
             extraBuildConfig.put(key, classField)
         }
 
-        baseVariant.mergedFlavor.buildConfigFields.collect { String key, ClassField classField ->
+        baseVariant.buildType.buildConfigFields.collect { String key, ClassField classField ->
             extraBuildConfig.put(key, classField)
         }
 
