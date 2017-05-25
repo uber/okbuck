@@ -252,9 +252,11 @@ abstract class AndroidTarget extends JavaLibTarget {
         def builder = new StreamingMarkupBuilder()
         builder.setUseDoubleQuotes(true)
         return (builder.bind {
+            mkp.declareNamespace(tools:'http://schemas.android.com/tools')
             mkp.yield manifestXml
         } as String)
                 .replaceAll('\\{http://schemas.android.com/apk/res/android\\}', 'android:')
+                .replaceAll('\\{http://schemas.android.com/tools\\}', 'tools:')
                 .replaceAll('xmlns:android="http://schemas.android.com/apk/res/android"', '')
                 .replaceFirst('<manifest ', '<manifest xmlns:android="http://schemas.android.com/apk/res/android" ')
     }
