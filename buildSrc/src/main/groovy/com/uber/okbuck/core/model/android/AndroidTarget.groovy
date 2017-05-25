@@ -16,17 +16,14 @@ import com.uber.okbuck.core.model.base.Scope
 import com.uber.okbuck.core.model.java.JavaLibTarget
 import com.uber.okbuck.core.model.jvm.TestOptions
 import com.uber.okbuck.core.util.FileUtil
-import groovy.lang.Closure
 import groovy.util.slurpersupport.GPathResult
 import groovy.xml.StreamingMarkupBuilder
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.testing.Test
-import org.gradle.api.tasks.testing.Test
 
 import java.nio.file.Paths
-
 /**
  * An Android target
  */
@@ -254,6 +251,8 @@ abstract class AndroidTarget extends JavaLibTarget {
         return (builder.bind {
             mkp.yield manifestXml
         } as String)
+            .replaceAll('xmlns:android="http://schemas.android.com/apk/res/android"', '')
+            .replaceFirst('<manifest ', '<manifest xmlns:android="http://schemas.android.com/apk/res/android" ')
     }
 
     private void ensureManifest() {
