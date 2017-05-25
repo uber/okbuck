@@ -16,17 +16,14 @@ import com.uber.okbuck.core.model.base.Scope
 import com.uber.okbuck.core.model.java.JavaLibTarget
 import com.uber.okbuck.core.model.jvm.TestOptions
 import com.uber.okbuck.core.util.FileUtil
-import groovy.lang.Closure
 import groovy.util.slurpersupport.GPathResult
 import groovy.xml.StreamingMarkupBuilder
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.testing.Test
-import org.gradle.api.tasks.testing.Test
 
 import java.nio.file.Paths
-
 /**
  * An Android target
  */
@@ -254,9 +251,8 @@ abstract class AndroidTarget extends JavaLibTarget {
         return (builder.bind {
             mkp.yield manifestXml
         } as String)
-                .replaceAll('\\{http://schemas.android.com/apk/res/android\\}', 'android:')
-                .replaceAll('xmlns:android="http://schemas.android.com/apk/res/android"', '')
-                .replaceFirst('<manifest ', '<manifest xmlns:android="http://schemas.android.com/apk/res/android" ')
+            .replaceAll('xmlns:android="http://schemas.android.com/apk/res/android"', '')
+            .replaceFirst('<manifest ', '<manifest xmlns:android="http://schemas.android.com/apk/res/android" ')
     }
 
     private void ensureManifest() {
@@ -303,7 +299,7 @@ abstract class AndroidTarget extends JavaLibTarget {
     }
 
     private void parseManifest(String originalManifest, File mergedManifest) {
-        XmlSlurper slurper = new XmlSlurper()
+        XmlSlurper slurper = new XmlSlurper(false, false)
         GPathResult manifestXml = slurper.parseText(originalManifest)
         packageName = manifestXml.@package
 
@@ -334,8 +330,8 @@ abstract class AndroidTarget extends JavaLibTarget {
 
     private static Closure getSdkNode(GPathResult manifestXml, int minSdk, int targetSdk) {
         def sdkAttributes = manifestXml.'uses-sdk'.'**'*.attributes()[0] ?: [:]
-        sdkAttributes['{http://schemas.android.com/apk/res/android}minSdkVersion'] = String.valueOf(minSdk)
-        sdkAttributes['{http://schemas.android.com/apk/res/android}targetSdkVersion'] = String.valueOf(targetSdk)
+        sdkAttributes['android:minSdkVersion'] = String.valueOf(minSdk)
+        sdkAttributes['android:targetSdkVersion'] = String.valueOf(targetSdk)
 
         return {
             'uses-sdk'(sdkAttributes) {}
