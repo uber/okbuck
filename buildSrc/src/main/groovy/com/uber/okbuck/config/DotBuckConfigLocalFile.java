@@ -14,8 +14,7 @@ public final class DotBuckConfigLocalFile extends BuckConfigFile {
     private final String target;
     private final List<String> ignore;
     private final String groovyHome;
-    private final String kotlinCompiler;
-    private final String kotlinRuntime;
+    private final String kotlinHome;
     private final String proguardJar;
     private final Set<String> defs;
 
@@ -25,8 +24,7 @@ public final class DotBuckConfigLocalFile extends BuckConfigFile {
             String target,
             List<String> ignore,
             String groovyHome,
-            String kotlinCompiler,
-            String kotlinRuntime,
+            String kotlinHome,
             String proguardJar,
             Set<String> defs) {
         this.aliases = aliases;
@@ -34,8 +32,7 @@ public final class DotBuckConfigLocalFile extends BuckConfigFile {
         this.target = target;
         this.ignore = ignore;
         this.groovyHome = groovyHome;
-        this.kotlinCompiler = kotlinCompiler;
-        this.kotlinRuntime = kotlinRuntime;
+        this.kotlinHome = kotlinHome;
         this.proguardJar = proguardJar;
         this.defs = defs;
     }
@@ -67,10 +64,9 @@ public final class DotBuckConfigLocalFile extends BuckConfigFile {
             printer.println();
         }
 
-        if (!StringUtils.isEmpty(kotlinCompiler) && !StringUtils.isEmpty(kotlinRuntime)) {
+        if (!StringUtils.isEmpty(kotlinHome)) {
             printer.println("[kotlin]");
-            printer.println("\tcompiler = " + kotlinCompiler);
-            printer.println("\truntime_jar = " + kotlinRuntime);
+            printer.println("\tkotlin_home = " + kotlinHome);
             printer.println();
         }
 

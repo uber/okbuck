@@ -44,15 +44,13 @@ public class OkBuckTask extends DefaultTask {
 
     // Fetch Kotlin support deps if needed
     boolean hasKotlinLib = okBuckExtension.buckProjects.parallelStream().anyMatch(project -> ProjectUtil.getType(project) == ProjectType.KOTLIN_LIB);
-    Pair<String, String> kotlinDeps = null;
     if (hasKotlinLib) {
-      kotlinDeps = KotlinUtil.setupKotlinHome(getProject());
+      KotlinUtil.setupKotlinHome(getProject());
     }
 
     generate(okBuckExtension,
             hasGroovyLib ? GroovyUtil.GROOVY_HOME_LOCATION : null,
-            kotlinDeps != null ? kotlinDeps.getLeft(): null,
-            kotlinDeps != null ? kotlinDeps.getRight(): null);
+            hasKotlinLib ? KotlinUtil.KOTLIN_HOME_LOCATION : null);
   }
 
   @Override public String getGroup() {
@@ -78,8 +76,7 @@ public class OkBuckTask extends DefaultTask {
     return getProject().file(".buckconfig.local");
   }
 
-  private void generate(OkBuckExtension okbuckExt, String groovyHome,
-                        String kotlinCompiler, String KotlinRuntime) {
+  private void generate(OkBuckExtension okbuckExt, String groovyHome, String kotlinHome) {
     // generate empty .buckconfig if it does not exist
     if (!dotBuckConfig().exists()) {
       try {
@@ -101,8 +98,7 @@ public class OkBuckTask extends DefaultTask {
     PrintStream configPrinter = new PrintStream(dotBuckConfigLocal())) {
       DotBuckConfigLocalGenerator.generate(okbuckExt,
               groovyHome,
-              kotlinCompiler,
-              KotlinRuntime,
+              kotlinHome,
               ProguardUtil.getProguardJarPath(getProject()),
               defs).print(configPrinter);
     } catch (IOException e) {
