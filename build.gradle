@@ -167,6 +167,23 @@ okbuck {
     lint {
         version = deps.versions.androidTools
     }
+
+    experimental {
+        transform = true
+    }
+
+    transform {
+        transforms = [
+                'appProd': [
+                        [transform: "com.uber.okbuck.transform.DummyTransform"]
+                ]
+
+        ]
+    }
+
+    dependencies {
+        transform project(':dummy-transform')
+    }
 }
 
 gradle.buildFinished {
