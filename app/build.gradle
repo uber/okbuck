@@ -62,7 +62,6 @@ dependencies {
     compile deps.external.xlogAndroidIdle
     compile deps.apt.autoValue
 
-    compile project(':libraries:emptyResourceLibrary')
     compile project(':libraries:emptylibrary')
     devCompile project(path: ':dummylibrary', configuration: 'freeRelease')
     prodCompile project(path: ':dummylibrary', configuration: 'paidRelease')

@@ -1,6 +1,0 @@
-apply plugin: 'com.android.library'
-
-dependencies {
-    compile project(':libraries:emptylibrary')
-    compile deps.support.appCompat
-}
