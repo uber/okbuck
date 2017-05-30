@@ -7,7 +7,8 @@ import com.uber.okbuck.core.dependency.DependencyCache;
 import com.uber.okbuck.core.model.base.ProjectType;
 import com.uber.okbuck.core.model.base.Target;
 import com.uber.okbuck.core.model.base.TargetCache;
-
+import java.io.File;
+import java.util.Map;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.ApplicationPlugin;
 import org.gradle.api.plugins.GroovyPlugin;
@@ -15,16 +16,20 @@ import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.PluginContainer;
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper;
 
-import java.io.File;
-import java.util.Map;
-
 public final class ProjectUtil {
 
     private ProjectUtil() {}
 
     public static ProjectType getType(Project project) {
         PluginContainer plugins = project.getPlugins();
-        if (plugins.hasPlugin(AppPlugin.class)) {
+        if (plugins.hasPlugin("kotlin-android")) {
+            if (plugins.hasPlugin(AppPlugin.class)) {
+                throw new IllegalStateException("Kotlin app not supported yet.");
+            } else if (plugins.hasPlugin(LibraryPlugin.class)) {
+                return ProjectType.KOTLIN_ANDROID_LIB;
+            }
+            throw new IllegalStateException("Kotlin android plugin not handled");
+        } else if (plugins.hasPlugin(AppPlugin.class)) {
             return ProjectType.ANDROID_APP;
         } else if (plugins.hasPlugin(LibraryPlugin.class)) {
             return ProjectType.ANDROID_LIB;

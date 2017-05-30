@@ -25,6 +25,7 @@ abstract class AndroidRule extends BuckRule {
     private final String mRuntimeDependency
     private final List<String> mTestTargets
     private final List<String> mLabels
+    private final String mSourceExtension
 
     /**
      * @srcTargets , used for SqlDelight support(or other case), genrule's output will be used as src, pass empty set if not present
@@ -74,6 +75,7 @@ abstract class AndroidRule extends BuckRule {
         mRuntimeDependency = runtimeDependency
         mTestTargets = testTargets
         mLabels = labels
+        mSourceExtension = ruleType.sourceExtension
     }
 
     @Override
@@ -81,7 +83,7 @@ abstract class AndroidRule extends BuckRule {
         if (!mSrcSet.empty) {
             printer.println("\tsrcs = glob([")
             for (String src : mSrcSet) {
-                printer.println("\t\t'${src}/**/*.java',")
+                printer.println("\t\t'${src}/**/*.${mSourceExtension}',")
             }
 
             if (!StringUtils.isEmpty(mAppClass)) {
@@ -149,6 +151,10 @@ abstract class AndroidRule extends BuckRule {
 
         printer.println("\tsource = '${mSourceCompatibility}',")
         printer.println("\ttarget = '${mTargetCompatibility}',")
+
+        if (mSourceExtension == "kt") {
+            printer.println("\tlanguage = 'KOTLIN',")
+        }
 
         if (!mOptions.empty) {
             printer.println("\textra_arguments = [")

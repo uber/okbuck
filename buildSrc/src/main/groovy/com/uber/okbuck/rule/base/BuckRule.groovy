@@ -13,7 +13,8 @@ abstract class BuckRule {
     BuckRule(RuleType ruleType, String name, List<String> visibility = [], List<String> deps = [],
              Set<String> extraBuckOpts = []) {
         this.name = name
-        mRuleType = ruleType.name().toLowerCase()
+        // TODO clean this up, the rule name generation is a bit hacky
+        mRuleType = ruleType == RuleType.KOTLIN_ANDROID_LIBRARY ? "android_library" : ruleType.name().toLowerCase()
         mVisibility = new LinkedHashSet(visibility)
         mDeps = new LinkedHashSet(deps) // de-dup dependencies
         mExtraBuckOpts = extraBuckOpts

@@ -22,6 +22,7 @@ import com.github.piasy.rxscreenshotdetector.RxScreenshotDetector;
 import com.uber.okbuck.example.sqldelightmodel.GithubRepo;
 import com.uber.okbuck.example.sqldelightmodel.GithubUser;
 import com.promegu.xlog.base.XLog;
+import com.uber.okbuck.kotlin.KotlinDataClass;
 import javax.inject.Inject;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
@@ -98,6 +99,8 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, user.login(), Toast.LENGTH_SHORT).show();
         GithubRepo repo = GithubRepo.create(100, "OkBuck", "auto buck");
         Toast.makeText(this, repo.name() + ": " + repo.description(), Toast.LENGTH_SHORT).show();
+
+        new KotlinDataClass("foo", R.string.foo);
     }
 
     @Override
