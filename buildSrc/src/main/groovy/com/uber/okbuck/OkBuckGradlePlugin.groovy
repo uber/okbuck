@@ -141,8 +141,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                         true,
                         true,
                         intellij.sources,
-                        !lint.disabled,
-                        okbuckExt.buckProjects)
+                        !lint.disabled)
 
                 // Fetch Lint deps if needed
                 if (!lint.disabled && lint.version != null) {

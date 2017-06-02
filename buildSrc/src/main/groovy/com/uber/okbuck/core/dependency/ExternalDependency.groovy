@@ -2,8 +2,6 @@ package com.uber.okbuck.core.dependency
 
 import org.apache.commons.io.FilenameUtils
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion
-import org.gradle.api.artifacts.ModuleIdentifier
-import org.gradle.api.artifacts.ModuleVersionIdentifier
 
 class ExternalDependency extends VersionlessDependency {
 
@@ -13,12 +11,16 @@ class ExternalDependency extends VersionlessDependency {
     final DefaultArtifactVersion version
     final File depFile
 
-    ExternalDependency(ModuleVersionIdentifier identifier, File depFile, String classifier) {
-        super(identifier, classifier)
-        if (identifier.version) {
-            version = new DefaultArtifactVersion(identifier.version)
+    ExternalDependency(String group, String name, String version, File depFile) {
+        this(group, name, version, depFile, false)
+    }
+
+    private ExternalDependency(String group, String name, String version, File depFile, boolean isLocal) {
+        super(group, name, isLocal)
+        if (version) {
+            this.version = new DefaultArtifactVersion(version)
         } else {
-            version = new DefaultArtifactVersion(LOCAL_DEP_VERSION)
+            this.version = new DefaultArtifactVersion(LOCAL_DEP_VERSION)
         }
 
         this.depFile = depFile
@@ -26,9 +28,6 @@ class ExternalDependency extends VersionlessDependency {
 
     @Override
     String toString() {
-        if (classifier) {
-            return "${this.group}:${this.name}:${this.version}-${this.classifier} -> ${this.depFile.toString()}"
-        }
         return "${this.group}:${this.name}:${this.version} -> ${this.depFile.toString()}"
     }
 
@@ -50,10 +49,6 @@ class ExternalDependency extends VersionlessDependency {
 
     static ExternalDependency fromLocal(File localDep) {
         String baseName = FilenameUtils.getBaseName(localDep.name)
-        ModuleVersionIdentifier identifier = getDepIdentifier(
-                baseName,
-                baseName,
-                LOCAL_DEP_VERSION)
-        return new ExternalDependency(identifier, localDep, null)
+        return new ExternalDependency(baseName, baseName, LOCAL_DEP_VERSION, localDep, true)
     }
 }
