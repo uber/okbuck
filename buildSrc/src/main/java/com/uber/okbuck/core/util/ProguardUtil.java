@@ -32,8 +32,7 @@ public final class ProguardUtil {
                 Collections.singleton(proguardConfiguration));
         String proguardJarPath = null;
         try {
-            proguardJarPath = proguardCache.get(new VersionlessDependency(
-                    VersionlessDependency.getDepIdentifier(PROGUARD_GROUP, PROGUARD_MODULE), null));
+            proguardJarPath = proguardCache.get(new VersionlessDependency(PROGUARD_GROUP, PROGUARD_MODULE));
         } catch (IllegalStateException ignored) {}
         return proguardJarPath;
     }

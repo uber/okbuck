@@ -95,8 +95,7 @@ public final class LintUtil {
                     true,
                     false,
                     false,
-                    false,
-                    okBuckExtension.buckProjects);
+                    false);
         }
         return okBuckGradlePlugin.lintDepCache;
     }

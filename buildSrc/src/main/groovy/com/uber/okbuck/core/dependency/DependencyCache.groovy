@@ -7,7 +7,9 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.ComponentSelection
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.Dependency
-import org.gradle.api.artifacts.ResolvedArtifact
+import org.gradle.api.artifacts.component.ComponentIdentifier
+import org.gradle.api.artifacts.component.ModuleComponentIdentifier
+import org.gradle.api.artifacts.result.ResolvedArtifactResult
 import org.gradle.plugins.ide.internal.IdeDependenciesExtractor
 
 import java.nio.file.FileSystem
@@ -35,7 +37,6 @@ class DependencyCache {
     private final Map<VersionlessDependency, Set<String>> annotationProcessors = [:]
 
     private final Map<VersionlessDependency, ExternalDependency> externalDeps = [:]
-    private final Map<VersionlessDependency, ProjectDependency> projectDeps = [:]
 
     DependencyCache(
             String name,
@@ -46,8 +47,7 @@ class DependencyCache {
             boolean cleanup = true,
             boolean useFullDepName = false,
             boolean fetchSources = false,
-            boolean extractLintJars = false,
-            Set<Project> depProjects = null) {
+            boolean extractLintJars = false) {
 
         this.rootProject = rootProject
         this.cacheDir = new File(rootProject.projectDir, cacheDirPath)
@@ -62,11 +62,12 @@ class DependencyCache {
         this.useFullDepName = useFullDepName
         this.fetchSources = fetchSources
         this.extractLintJars = extractLintJars
-        build(cleanup, depProjects)
+        build(cleanup)
     }
 
     String get(VersionlessDependency dependency) {
-        ExternalDependency externalDependency = externalDeps.get(dependency)
+        ExternalDependency externalDependency = dependency.isLocal ?
+                (ExternalDependency) dependency : externalDeps.get(dependency)
         if (externalDependency == null) {
             throw new IllegalStateException("Could not find dependency path for ${dependency}")
         }
@@ -91,22 +92,22 @@ class DependencyCache {
         }
     }
 
-    private void build(boolean cleanup, Set<Project> depProjects) {
+    private void build(boolean cleanup) {
         Set<File> resolvedFiles = [] as Set
 
-        if (depProjects) {
-            depProjects.each { Project project ->
-                ProjectDependency dependency = new ProjectDependency(project)
-                projectDeps.put(dependency, dependency)
+        superConfiguration.incoming.artifacts.each { ResolvedArtifactResult artifact ->
+            ComponentIdentifier identifier = artifact.id.componentIdentifier
+            ExternalDependency dependency
+            if (identifier instanceof ModuleComponentIdentifier) {
+                dependency = new ExternalDependency(
+                        identifier.group,
+                        identifier.module,
+                        identifier.version,
+                        artifact.file)
+            } else {
+                dependency = ExternalDependency.fromLocal(artifact.file)
             }
-        }
-
-        superConfiguration.resolvedConfiguration.resolvedArtifacts.each { ResolvedArtifact artifact ->
-            ExternalDependency dependency = new ExternalDependency(artifact.moduleVersion.id, artifact.file,
-                    artifact.classifier)
-            if (!projectDeps.containsKey(dependency.withoutClassifier())) {
-                externalDeps.put(dependency, dependency)
-            }
+            externalDeps.put(dependency, dependency)
             resolvedFiles.add(artifact.file)
         }
 
@@ -173,16 +174,7 @@ class DependencyCache {
         }
     }
 
-    Project getProject(VersionlessDependency dependency) {
-        ProjectDependency targetDependency = projectDeps.get(dependency.withoutClassifier())
-        if (targetDependency) {
-            return targetDependency.project
-        } else {
-            return null
-        }
-    }
-
-    boolean isWhiteListed(File depFile) {
+    static boolean isWhiteListed(File depFile) {
         return WHITELIST_LOCAL_PATTERNS.find { depFile.absolutePath.contains(it) } != null
     }
 
