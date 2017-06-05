@@ -7,8 +7,6 @@ import com.uber.okbuck.extension.OkBuckExtension;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.artifacts.ModuleVersionIdentifier;
-import org.gradle.api.artifacts.ResolvedArtifact;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -31,19 +29,7 @@ public final class LintUtil {
 
     @Nullable
     public static String getDefaultLintVersion(Project project) {
-        return project.getBuildscript()
-                .getConfigurations()
-                .getByName("classpath")
-                .getResolvedConfiguration()
-                .getResolvedArtifacts()
-                .stream()
-                .filter(resolvedArtifact -> {
-                    ModuleVersionIdentifier identifier = resolvedArtifact.getModuleVersion().getId();
-                    return (LINT_GROUP.equals(identifier.getGroup()) && LINT_MODULE.equals(identifier.getName()));
-                })
-                .findFirst()
-                .map(r -> r.getModuleVersion().getId().getVersion())
-                .orElse(null);
+        return ProjectUtil.findVersionInClasspath(project, LINT_GROUP, LINT_MODULE);
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")

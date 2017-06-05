@@ -9,6 +9,7 @@ import com.uber.okbuck.core.model.base.Target;
 import com.uber.okbuck.core.model.base.TargetCache;
 
 import org.gradle.api.Project;
+import org.gradle.api.artifacts.component.ModuleComponentIdentifier;
 import org.gradle.api.plugins.ApplicationPlugin;
 import org.gradle.api.plugins.GroovyPlugin;
 import org.gradle.api.plugins.JavaPlugin;
@@ -59,5 +60,24 @@ public final class ProjectUtil {
 
     private static TargetCache getTargetCache(Project project) {
         return getPlugin(project).targetCache;
+    }
+
+    static String findVersionInClasspath(Project project, String group, String module) {
+        return project.getBuildscript()
+                .getConfigurations()
+                .getByName("classpath")
+                .getIncoming()
+                .getArtifacts()
+                .getArtifacts()
+                .stream()
+                .filter(resolvedArtifactResult -> {
+                    ModuleComponentIdentifier identifier =
+                            (ModuleComponentIdentifier) resolvedArtifactResult.getId().getComponentIdentifier();
+                    return (group.equals(identifier.getGroup()) &&
+                            module.equals(identifier.getModule()));
+                })
+                .findFirst()
+                .map(r -> ((ModuleComponentIdentifier) r.getId().getComponentIdentifier()).getVersion())
+                .orElse(null);
     }
 }
