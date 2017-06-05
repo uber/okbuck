@@ -53,6 +53,19 @@ version = publishVersion
 def siteUrl = 'https://github.com/uber/okbuck'
 def gitUrl = 'https://github.com/uber/okbuck.git'
 
+def getReleaseRepositoryUrl() {
+  return hasProperty('RELEASE_REPOSITORY_URL') ? RELEASE_REPOSITORY_URL
+      : "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+}
+
+def getRepositoryUsername() {
+  return hasProperty('NEXUS_USERNAME') ? NEXUS_USERNAME : ""
+}
+
+def getRepositoryPassword() {
+  return hasProperty('NEXUS_PASSWORD') ? NEXUS_PASSWORD : ""
+}
+
 publishing {
     publications {
         mavenJava(MavenPublication) {
@@ -63,6 +76,16 @@ publishing {
 
             artifactId 'okbuck'
         }
+    }
+    repositories {
+      maven {
+        name 'release'
+        url getReleaseRepositoryUrl()
+        credentials {
+          username getRepositoryUsername()
+          password getRepositoryPassword()
+        }
+      }
     }
 }
 
