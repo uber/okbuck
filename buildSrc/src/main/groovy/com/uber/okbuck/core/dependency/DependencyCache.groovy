@@ -92,6 +92,40 @@ class DependencyCache {
         }
     }
 
+    String getLintJar(VersionlessDependency dependency) {
+        return lintJars.get(dependency)
+    }
+
+    private File fetchSourcesFor(ExternalDependency dependency) {
+        // We do not have sources for these dependencies
+        if (isWhiteListed(dependency.depFile)) {
+            return null
+        }
+
+        File cachedCopy = new File(cacheDir, dependency.getSourceCacheName(useFullDepName))
+
+        if (!cachedCopy.exists()) {
+            String sourcesJarName = dependency.getSourceCacheName(false)
+            File sourcesJar = new File(dependency.depFile.parentFile, sourcesJarName)
+
+            if (!sourcesJar.exists()) {
+                def sourceJars = rootProject.fileTree(
+                        dir: dependency.depFile.parentFile.parentFile.absolutePath,
+                        includes: ["**/${sourcesJarName}"]) as List
+                if (sourceJars.size() == 1) {
+                    sourcesJar = sourceJars[0]
+                } else if (sourceJars.size() > 1) {
+                    throw new IllegalStateException("Found multiple source jars: ${sourceJars} for ${dependency}")
+                }
+            }
+            if (sourcesJar.exists()) {
+                Files.createSymbolicLink(cachedCopy.toPath(), sourcesJar.toPath())
+            }
+        }
+
+        return cachedCopy.exists() ? cachedCopy : null
+    }
+
     private void build(boolean cleanup) {
         Set<File> resolvedFiles = [] as Set
 
@@ -178,6 +212,41 @@ class DependencyCache {
         return WHITELIST_LOCAL_PATTERNS.find { depFile.absolutePath.contains(it) } != null
     }
 
+    static File getPackagedLintJarFrom(File aar) {
+        File lintJar = new File(aar.parentFile, aar.name.replaceFirst(/\.aar$/, '-lint.jar'))
+        if (lintJar.exists()) {
+            return lintJar
+        }
+        FileSystem zipFile = FileSystems.newFileSystem(aar.toPath(), null)
+        Path packagedLintJar = zipFile.getPath("lint.jar")
+        if (Files.exists(packagedLintJar)) {
+            Files.copy(packagedLintJar, lintJar.toPath(), StandardCopyOption.REPLACE_EXISTING)
+            return lintJar
+        } else {
+            return null
+        }
+    }
+
+    static File getAnnotationProcessorsFile(File jar) {
+        File processors = new File(jar.parentFile, jar.name.replaceFirst(/\.jar$/, '.processors'))
+        if (processors.exists()) {
+            return processors
+        }
+
+        JarFile jarFile = new JarFile(jar)
+        JarEntry jarEntry = (JarEntry) jarFile.getEntry("META-INF/services/javax.annotation.processing.Processor")
+        if (jarEntry) {
+            List<String> processorClasses = IOUtils.toString(jarFile.getInputStream(jarEntry))
+                    .trim().split("\\n").findAll { String entry ->
+                !entry.startsWith('#') && !entry.trim().empty // filter out comments and empty lines
+            }
+            processors.text = processorClasses.join('\n')
+        } else {
+            processors.createNewFile()
+        }
+        return processors
+    }
+
     private static Configuration createSuperConfiguration(Project project,
                                                           String superConfigName,
                                                           Set<Configuration> configurations) {
@@ -213,74 +282,5 @@ class DependencyCache {
         } else {
             println "\n${message}\n"
         }
-    }
-
-    String getLintJar(VersionlessDependency dependency) {
-        return lintJars.get(dependency)
-    }
-
-    private File fetchSourcesFor(ExternalDependency dependency) {
-        // We do not have sources for these dependencies
-        if (isWhiteListed(dependency.depFile)) {
-            return null
-        }
-
-        File cachedCopy = new File(cacheDir, dependency.getSourceCacheName(useFullDepName))
-
-        if (!cachedCopy.exists()) {
-            String sourcesJarName = dependency.getSourceCacheName(false)
-            File sourcesJar = new File(dependency.depFile.parentFile, sourcesJarName)
-
-             if (!sourcesJar.exists()) {
-                def sourceJars = rootProject.fileTree(
-                        dir: dependency.depFile.parentFile.parentFile.absolutePath,
-                        includes: ["**/${sourcesJarName}"]) as List
-                if (sourceJars.size() == 1) {
-                    sourcesJar = sourceJars[0]
-                } else if (sourceJars.size() > 1) {
-                    throw new IllegalStateException("Found multiple source jars: ${sourceJars} for ${dependency}")
-                }
-            }
-            if (sourcesJar.exists()) {
-                Files.createSymbolicLink(cachedCopy.toPath(), sourcesJar.toPath())
-            }
-        }
-
-        return cachedCopy.exists() ? cachedCopy : null
-    }
-
-    static File getPackagedLintJarFrom(File aar) {
-        File lintJar = new File(aar.parentFile, aar.name.replaceFirst(/\.aar$/, '-lint.jar'))
-        if (lintJar.exists()) {
-            return lintJar
-        }
-        FileSystem zipFile = FileSystems.newFileSystem(aar.toPath(), null)
-        Path packagedLintJar = zipFile.getPath("lint.jar")
-        if (Files.exists(packagedLintJar)) {
-            Files.copy(packagedLintJar, lintJar.toPath(), StandardCopyOption.REPLACE_EXISTING)
-            return lintJar
-        } else {
-            return null
-        }
-    }
-
-    static File getAnnotationProcessorsFile(File jar) {
-        File processors = new File(jar.parentFile, jar.name.replaceFirst(/\.jar$/, '.processors'))
-        if (processors.exists()) {
-            return processors
-        }
-
-        JarFile jarFile = new JarFile(jar)
-        JarEntry jarEntry = (JarEntry) jarFile.getEntry("META-INF/services/javax.annotation.processing.Processor")
-        if (jarEntry) {
-            List<String> processorClasses = IOUtils.toString(jarFile.getInputStream(jarEntry))
-                    .trim().split("\\n").findAll { String entry ->
-                !entry.startsWith('#') && !entry.trim().empty // filter out comments and empty lines
-            }
-            processors.text = processorClasses.join('\n')
-        } else {
-            processors.createNewFile()
-        }
-        return processors
     }
 }
