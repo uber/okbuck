@@ -40,6 +40,10 @@ subprojects { project ->
     }
 }
 
+task wrapper(type: Wrapper) {
+  gradleVersion = '4.0'
+}
+
 def addCommonConfigurationForJavaModules(Project project) {
     if (project.plugins.hasPlugin('me.tatarka.retrolambda')) {
         project.sourceCompatibility = JavaVersion.VERSION_1_8
