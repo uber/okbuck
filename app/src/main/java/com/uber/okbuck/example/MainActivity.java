@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -66,6 +67,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mUnbinder = ButterKnife.bind(this);
+
+        View view = findViewById(android.R.id.content);
+        if (view != null) {
+            view.setOnClickListener(v -> Log.d("TAG", "Hello, lambda! My view is: " + v));
+        }
 
         DummyComponent component = DaggerDummyComponent.builder().build();
         component.inject(this);

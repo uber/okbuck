@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <TextView
+    <android.support.v7.widget.AppCompatTextView
         android:id="@+id/mTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -14,7 +14,7 @@
         android:textColor="#000000"
         android:textSize="25sp" />
 
-    <TextView
+    <com.uber.okbuck.example.CustomView
         android:id="@+id/mTextView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
