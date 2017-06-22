@@ -1,5 +1,8 @@
 package com.uber.okbuck.core.task;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableMap;
+
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.core.model.base.ProjectType;
 import com.uber.okbuck.core.util.FileUtil;
@@ -87,7 +90,12 @@ public class OkBuckTask extends DefaultTask {
     }
 
     // Setup defs
-    FileUtil.copyResourceToProject("defs/OKBUCK_DEFS", okbuckDefs());
+    FileUtil.copyResourceToProject("defs/OKBUCK_DEFS_TEMPLATE", okbuckDefs(),
+            ImmutableMap.of("template-resource-excludes", Joiner.on(", ")
+                    .join(okBuckExtension.excludeResources
+                            .stream()
+                            .map(s -> "'" + s + "'")
+                            .collect(Collectors.toSet()))));
     Set<String> defs = okbuckExt.extraDefs.stream()
             .map(it -> "//" + FileUtil.getRelativePath(getProject().getRootDir(), it))
             .collect(Collectors.toSet());
