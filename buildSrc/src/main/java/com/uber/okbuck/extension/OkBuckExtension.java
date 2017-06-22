@@ -79,6 +79,12 @@ public class OkBuckExtension {
     public boolean resourceUnion = true;
 
     /**
+     * List of exclude patterns for resources to be processed by aapt
+     */
+    @Input
+    public Set<String> excludeResources = new HashSet<>();
+
+    /**
      * Additional dependency caches.
      * Every entry will create a new configuration "entryDepCache"
      * that can be used to fetch and cache dependencies.

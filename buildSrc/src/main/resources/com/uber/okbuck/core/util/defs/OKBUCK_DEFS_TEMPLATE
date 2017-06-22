@@ -26,6 +26,7 @@ def res_glob(glob_specs):
     results = {}
 
     for dirpath, glob_pattern in glob_specs:
-        results[dirpath] = subdir_glob([(dirpath, glob_pattern)])
+        results[dirpath] = subdir_glob([(dirpath, glob_pattern)], 
+        excludes=[${template-resource-excludes}])
 
     return merge_maps(**results)
