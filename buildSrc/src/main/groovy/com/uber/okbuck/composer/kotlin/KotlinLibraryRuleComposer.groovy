@@ -4,7 +4,6 @@ import com.uber.okbuck.composer.jvm.JvmBuckRuleComposer
 import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.core.model.kotlin.KotlinLibTarget
 import com.uber.okbuck.rule.java.JavaLibraryRule
-import com.uber.okbuck.rule.kotlin.KotlinLibraryRule
 
 final class KotlinLibraryRuleComposer extends JvmBuckRuleComposer {
 
@@ -27,7 +26,7 @@ final class KotlinLibraryRuleComposer extends JvmBuckRuleComposer {
             testTargets.add(":${test(target)}")
         }
 
-        new KotlinLibraryRule(
+        new JavaLibraryRule(
                 src(target),
                 ["PUBLIC"],
                 deps,
@@ -41,6 +40,7 @@ final class KotlinLibraryRuleComposer extends JvmBuckRuleComposer {
                 Collections.emptyList(),
                 target.main.jvmArgs,
                 testTargets,
-                target.getExtraOpts(RuleType.KOTLIN_LIBRARY))
+                target.getExtraOpts(RuleType.KOTLIN_LIBRARY),
+                RuleType.KOTLIN_LIBRARY)
     }
 }

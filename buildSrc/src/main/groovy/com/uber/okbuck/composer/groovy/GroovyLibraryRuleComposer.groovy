@@ -4,7 +4,7 @@ import com.uber.okbuck.composer.jvm.JvmBuckRuleComposer
 import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.core.model.groovy.GroovyLibTarget
 import com.uber.okbuck.core.util.RetrolambdaUtil
-import com.uber.okbuck.rule.groovy.GroovyLibraryRule
+import com.uber.okbuck.rule.java.JavaLibraryRule
 
 final class GroovyLibraryRuleComposer extends JvmBuckRuleComposer {
 
@@ -12,7 +12,7 @@ final class GroovyLibraryRuleComposer extends JvmBuckRuleComposer {
         // no instance
     }
 
-    static GroovyLibraryRule compose(GroovyLibTarget target) {
+    static JavaLibraryRule compose(GroovyLibTarget target) {
         List<String> deps = []
         deps.addAll(external(target.main.externalDeps))
         deps.addAll(targets(target.main.targetDeps))
@@ -26,18 +26,26 @@ final class GroovyLibraryRuleComposer extends JvmBuckRuleComposer {
             providedDeps.add(RetrolambdaUtil.getRtStubJarRule())
         }
 
-        new GroovyLibraryRule(
+        List<String> testTargets = []
+        if (target.test.sources) {
+            testTargets.add(":${test(target)}")
+        }
+
+        new JavaLibraryRule(
                 src(target),
                 ["PUBLIC"],
                 deps,
                 target.main.sources,
-                [] as Set,
-                [] as Set,
+                Collections.emptySet(),
+                Collections.emptySet(),
                 providedDeps,
                 target.main.resourcesDir,
                 target.sourceCompatibility,
                 target.targetCompatibility,
+                Collections.emptyList(),
                 target.main.jvmArgs,
-                target.getExtraOpts(RuleType.GROOVY_LIBRARY))
+                testTargets,
+                target.getExtraOpts(RuleType.GROOVY_LIBRARY),
+                RuleType.GROOVY_LIBRARY)
     }
 }

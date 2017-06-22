@@ -18,7 +18,8 @@ abstract class JavaRule extends BuckRule {
     private final Set<String> mProvidedDeps
     private final List<String> mTestTargets
     private final List<String> mLabels
-    private final String mSourceExtension
+    private final Set<String> mExcludes
+    private final Set<String> mSourceExtensions
 
     JavaRule(
             RuleType ruleType,
@@ -37,7 +38,8 @@ abstract class JavaRule extends BuckRule {
             TestOptions testOptions,
             List<String> testTargets,
             List<String> labels = null,
-            Set<String> extraOpts = []) {
+            Set<String> extraOpts = [],
+            Set<String> excludes = []) {
 
         super(ruleType, name, visibility, deps, extraOpts)
         mSrcSet = srcSet
@@ -52,15 +54,25 @@ abstract class JavaRule extends BuckRule {
         mProvidedDeps = providedDeps
         mTestTargets = testTargets
         mLabels = labels
-        mSourceExtension = ruleType.getSourceExtension();
+        mExcludes = excludes
+        mSourceExtensions = ruleType.getSourceExtensions()
     }
 
     @Override
-    protected final void printContent(PrintStream printer) {
+    protected void printContent(PrintStream printer) {
         if (!mSrcSet.empty) {
             printer.println("\tsrcs = glob([")
             for (String src : mSrcSet) {
-                printer.println("\t\t'${src}/**/*.${mSourceExtension}',")
+                for (String ext: mSourceExtensions) {
+                    printer.println("\t\t'${src}/**/*.${ext}',")
+                }
+            }
+
+            if (!mExcludes.empty) {
+                printer.println("\t], excludes = [")
+                for (String exclude : mExcludes) {
+                    printer.println("\t\t'${exclude}',")
+                }
             }
             printer.println("\t]),")
         }
