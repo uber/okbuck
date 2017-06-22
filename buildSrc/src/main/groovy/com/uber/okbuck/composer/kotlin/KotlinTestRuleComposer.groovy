@@ -4,7 +4,6 @@ import com.uber.okbuck.composer.jvm.JvmBuckRuleComposer
 import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.core.model.kotlin.KotlinLibTarget
 import com.uber.okbuck.rule.java.JavaTestRule
-import com.uber.okbuck.rule.kotlin.KotlinTestRule
 
 final class KotlinTestRuleComposer extends JvmBuckRuleComposer {
 
@@ -23,7 +22,7 @@ final class KotlinTestRuleComposer extends JvmBuckRuleComposer {
         providedDeps.addAll(targets(target.testProvided.targetDeps))
         providedDeps.removeAll(deps)
 
-        new KotlinTestRule(
+        new JavaTestRule(
                 test(target),
                 ["PUBLIC"],
                 deps,
@@ -37,6 +36,8 @@ final class KotlinTestRuleComposer extends JvmBuckRuleComposer {
                 Collections.emptyList(),
                 target.test.jvmArgs,
                 target.testOptions,
-                target.getExtraOpts(RuleType.KOTLIN_TEST))
+                target.getExtraOpts(RuleType.KOTLIN_TEST),
+                RuleType.KOTLIN_TEST,
+                Arrays.asList("unit", "kotlin"))
     }
 }
