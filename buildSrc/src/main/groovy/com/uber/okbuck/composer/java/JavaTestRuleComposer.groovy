@@ -12,7 +12,8 @@ final class JavaTestRuleComposer extends JvmBuckRuleComposer {
         // no instance
     }
 
-    static JavaTestRule compose(JavaLibTarget target) {
+    static JavaTestRule compose(JavaLibTarget target,
+                                RuleType ruleType = RuleType.JAVA_TEST) {
         List<String> deps = []
         deps.add(":${src(target)}")
         deps.addAll(external(target.test.externalDeps))
@@ -45,6 +46,6 @@ final class JavaTestRuleComposer extends JvmBuckRuleComposer {
                 target.postprocessClassesCommands,
                 target.test.jvmArgs,
                 target.testOptions,
-                target.getExtraOpts(RuleType.JAVA_TEST))
+                target.getExtraOpts(ruleType))
     }
 }
