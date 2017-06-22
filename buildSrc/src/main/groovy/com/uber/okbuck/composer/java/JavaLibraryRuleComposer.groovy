@@ -12,7 +12,8 @@ final class JavaLibraryRuleComposer extends JvmBuckRuleComposer {
         // no instance
     }
 
-    static JavaLibraryRule compose(JavaLibTarget target) {
+    static JavaLibraryRule compose(JavaLibTarget target,
+                                   RuleType ruleType = RuleType.JAVA_LIBRARY) {
         List<String> deps = []
         deps.addAll(external(target.main.externalDeps))
         deps.addAll(targets(target.main.targetDeps))
@@ -49,6 +50,6 @@ final class JavaLibraryRuleComposer extends JvmBuckRuleComposer {
                 target.postprocessClassesCommands,
                 target.main.jvmArgs,
                 testTargets,
-                target.getExtraOpts(RuleType.JAVA_LIBRARY))
+                target.getExtraOpts(ruleType))
     }
 }

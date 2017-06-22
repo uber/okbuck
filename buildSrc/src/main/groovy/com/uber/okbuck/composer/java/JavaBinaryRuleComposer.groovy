@@ -13,8 +13,8 @@ final class JavaBinaryRuleComposer extends JvmBuckRuleComposer {
     }
 
     static JavaBinaryRule compose(JavaAppTarget target) {
-        return new JavaBinaryRule(bin(target), ["PUBLIC"], [":${src(target)}"], target.mainClass, target.excludes,
-                target.getExtraOpts(RuleType.JAVA_BINARY))
+        return new JavaBinaryRule(bin(target), ["PUBLIC"], [":${src(target)}"], target.mainClass,
+                target.excludes, target.getExtraOpts(RuleType.JAVA_BINARY))
     }
 
     private static String bin(final JavaTarget target) {
