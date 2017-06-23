@@ -19,9 +19,9 @@ public enum RuleType {
     JAVA_LIBRARY,
     JAVA_TEST,
     KOTLIN_ANDROID_LIBRARY("java", "kt"),
-    KOTLIN_LIBRARY("kt"),
+    KOTLIN_LIBRARY("java", "kt"),
     KOTLIN_ROBOLECTRIC_TEST("java", "kt"),
-    KOTLIN_TEST("kt"),
+    KOTLIN_TEST("java", "kt"),
     PREBUILT_NATIVE_LIBRARY,
     ROBOLECTRIC_TEST;
 
