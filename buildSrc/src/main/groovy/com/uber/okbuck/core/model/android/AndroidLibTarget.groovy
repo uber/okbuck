@@ -2,7 +2,6 @@ package com.uber.okbuck.core.model.android
 
 import com.android.build.gradle.api.BaseVariant
 import com.android.manifmerger.ManifestMerger2
-import groovy.util.slurpersupport.GPathResult
 import org.gradle.api.Project
 
 /**

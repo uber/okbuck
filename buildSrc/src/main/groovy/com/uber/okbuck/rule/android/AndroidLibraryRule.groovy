@@ -10,6 +10,7 @@ final class AndroidLibraryRule extends AndroidRule {
      * @param appClass , if exopackage is enabled, pass the detected app class, otherwise, pass null
      * */
     AndroidLibraryRule(
+            RuleType ruleType,
             String name,
             List<String> visibility,
             List<String> deps,
@@ -29,7 +30,7 @@ final class AndroidLibraryRule extends AndroidRule {
             Set<String> extraOpts) {
 
         super(
-                RuleType.ANDROID_LIBRARY,
+                ruleType,
                 name,
                 visibility,
                 deps,

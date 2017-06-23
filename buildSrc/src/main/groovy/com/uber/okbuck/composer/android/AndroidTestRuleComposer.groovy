@@ -37,6 +37,7 @@ final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
         }
 
         return new AndroidTestRule(
+                target.testRuleType,
                 test(target),
                 ["PUBLIC"],
                 testDeps,

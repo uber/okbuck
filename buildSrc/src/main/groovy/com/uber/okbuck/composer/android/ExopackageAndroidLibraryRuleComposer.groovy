@@ -17,6 +17,7 @@ final class ExopackageAndroidLibraryRuleComposer extends AndroidBuckRuleComposer
         deps.add(":${buildConfig(target)}")
 
         return new ExopackageAndroidLibraryRule(
+                target.ruleType,
                 appLib(target),
                 target.exopackage.appClass,
                 ["PUBLIC"],

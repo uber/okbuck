@@ -8,6 +8,7 @@ final class AndroidTestRule extends AndroidRule {
     private static final List<String> ANDROID_TEST_LABELS = ['unit', 'android', 'robolectric']
 
     AndroidTestRule(
+            RuleType ruleType,
             String name,
             List<String> visibility,
             List<String> deps,
@@ -28,7 +29,7 @@ final class AndroidTestRule extends AndroidRule {
             Set<String> extraOpts) {
 
         super(
-                RuleType.ROBOLECTRIC_TEST,
+                ruleType,
                 name,
                 visibility,
                 deps,
