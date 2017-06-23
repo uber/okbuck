@@ -417,7 +417,7 @@ abstract class AndroidTarget extends JavaLibTarget {
 
     RuleType getRuleType() {
         if (isKotlin) {
-            return RuleType.ANDROID_LIBRARY_WITH_KOTLIN
+            return RuleType.KOTLIN_ANDROID_LIBRARY
         } else {
             return RuleType.ANDROID_LIBRARY
         }
@@ -425,7 +425,7 @@ abstract class AndroidTarget extends JavaLibTarget {
 
     RuleType getTestRuleType() {
         if (isKotlin) {
-            return RuleType.ROBOLECTRIC_TEST_WITH_KOTLIN
+            return RuleType.KOTLIN_ROBOLECTRIC_TEST
         } else {
             return RuleType.ROBOLECTRIC_TEST
         }

@@ -9,7 +9,6 @@ public enum RuleType {
     ANDROID_INSTRUMENTATION_APK,
     ANDROID_INSTRUMENTATION_TEST,
     ANDROID_LIBRARY,
-    ANDROID_LIBRARY_WITH_KOTLIN("java", "kt"),
     ANDROID_MANIFEST,
     ANDROID_RESOURCE,
     GEN_AIDL,
@@ -19,11 +18,12 @@ public enum RuleType {
     JAVA_BINARY,
     JAVA_LIBRARY,
     JAVA_TEST,
-    KOTLIN_LIBRARY("java", "kt"),
-    KOTLIN_TEST("java", "kt"),
+    KOTLIN_ANDROID_LIBRARY("java", "kt"),
+    KOTLIN_LIBRARY("kt"),
+    KOTLIN_ROBOLECTRIC_TEST("java", "kt"),
+    KOTLIN_TEST("kt"),
     PREBUILT_NATIVE_LIBRARY,
-    ROBOLECTRIC_TEST,
-    ROBOLECTRIC_TEST_WITH_KOTLIN("java", "kt");
+    ROBOLECTRIC_TEST;
 
     private final List<String> sourceExtensions;
 
@@ -42,10 +42,10 @@ public enum RuleType {
     public String getBuckName() {
         RuleType buckType = this;
         switch (this) {
-            case ANDROID_LIBRARY_WITH_KOTLIN:
+            case KOTLIN_ANDROID_LIBRARY:
                 buckType = ANDROID_LIBRARY;
                 break;
-            case ROBOLECTRIC_TEST_WITH_KOTLIN:
+            case KOTLIN_ROBOLECTRIC_TEST:
                 buckType = ROBOLECTRIC_TEST;
                 break;
             default:
