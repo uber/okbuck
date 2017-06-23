@@ -3,10 +3,8 @@ package com.uber.okbuck.core.model.android
 import com.android.build.gradle.api.ApplicationVariant
 import com.android.build.gradle.api.BaseVariant
 import com.android.builder.core.VariantType
-import com.android.builder.model.SourceProvider
 import com.uber.okbuck.core.model.base.Scope
 import org.gradle.api.Project
-
 /**
  * An Android instrumentation target
  */
@@ -40,9 +38,7 @@ class AndroidInstrumentationTarget extends AndroidAppTarget {
         return new Scope(
                 project,
                 expand(compileConfigs, ANDROID_TEST_PREFIX, true),
-                baseVariant.sourceSets.collect { SourceProvider provider ->
-                    provider.javaDirectories
-                }.flatten() as Set<File>,
+                getSources(baseVariant),
                 null,
                 getJavaCompilerOptions(baseVariant))
     }
@@ -57,9 +53,7 @@ class AndroidInstrumentationTarget extends AndroidAppTarget {
                 project,
                 expand(compileConfigs, ANDROID_TEST_PREFIX)
                         + ["androidTest${getMainTargetName(name).capitalize()}Compile"],
-                baseVariant.sourceSets.collect { SourceProvider provider ->
-                    provider.javaDirectories
-                }.flatten() as Set<File>,
+                getSources(baseVariant),
                 null,
                 getJavaCompilerOptions(instrumentationTestVariant))
     }
