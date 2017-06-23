@@ -4,6 +4,7 @@ buildscript {
         jcenter()
         google()
         maven { url "https://plugins.gradle.org/m2/" }
+        maven { url "https://dl.bintray.com/kotlin/kotlin-dev/"}
     }
     dependencies {
         classpath deps.build.androidPlugin
@@ -20,6 +21,7 @@ allprojects { project ->
     repositories {
         jcenter()
         google()
+        maven { url "https://dl.bintray.com/kotlin/kotlin-dev/"}
     }
 }
 
@@ -38,10 +40,6 @@ subprojects { project ->
             task.jvmArgs << "-Djava.awt.headless=true"
         }
     }
-}
-
-task wrapper(type: Wrapper) {
-  gradleVersion = '4.0'
 }
 
 def addCommonConfigurationForJavaModules(Project project) {

@@ -20,7 +20,7 @@ public final class KotlinUtil {
 
     private static final String KOTLIN_DEPS_CONFIG = "okbuck_kotlin_deps";
     private static final String KOTLIN_GROUP = "org.jetbrains.kotlin";
-    private static final String KOTLIN_COMPILER_MODULE = "kotlin-compiler";
+    private static final String KOTLIN_COMPILER_MODULE = "kotlin-compiler-embeddable";
     private static final String KOTLIN_GRADLE_MODULE = "kotlin-gradle-plugin";
     private static final String KOTLIN_STDLIB_MODULE = "kotlin-stdlib";
     public static final String KOTLIN_HOME_LOCATION = OkBuckGradlePlugin.DEFAULT_CACHE_PATH + "/kotlin_home";
@@ -42,24 +42,24 @@ public final class KotlinUtil {
                 null);
 
         removeVersions(Paths.get(KOTLIN_HOME_LOCATION),
-                KOTLIN_COMPILER_MODULE,
-                KOTLIN_STDLIB_MODULE);
+                KOTLIN_COMPILER_MODULE, "kotlin-compiler");
+        removeVersions(Paths.get(KOTLIN_HOME_LOCATION),
+                KOTLIN_STDLIB_MODULE, KOTLIN_STDLIB_MODULE);
     }
 
-    private static void removeVersions(Path dir, String... toRename) {
-        for (String rename : toRename) {
-            try {
-                Files.walkFileTree(dir, new SimpleFileVisitor<Path>() {
-                    @Override
-                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                        String fileName = file.getFileName().toString();
-                        if (fileName.startsWith(rename)) {
-                            Files.move(file, file.getParent().resolve(rename + ".jar"));
-                        }
-                        return FileVisitResult.CONTINUE;
+    private static void removeVersions(Path dir, String toRename, String renamed) {
+        try {
+            Files.walkFileTree(dir, new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws
+                        IOException {
+                    String fileName = file.getFileName().toString();
+                    if (fileName.startsWith(toRename)) {
+                        Files.move(file, file.getParent().resolve(renamed + ".jar"));
                     }
-                });
-            } catch (IOException ignored) {}
-        }
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        } catch (IOException ignored) {}
     }
 }

@@ -56,8 +56,8 @@ abstract class AndroidRule extends JavaRule {
     protected final void printContent(PrintStream printer) {
         super.printContent(printer)
 
-        if (mRuleType == RuleType.ANDROID_LIBRARY_WITH_KOTLIN ||
-            mRuleType == RuleType.ROBOLECTRIC_TEST_WITH_KOTLIN) {
+        if (mRuleType == RuleType.KOTLIN_ANDROID_LIBRARY ||
+            mRuleType == RuleType.KOTLIN_ROBOLECTRIC_TEST) {
             printer.println("\tlanguage = 'kotlin',")
         }
 
