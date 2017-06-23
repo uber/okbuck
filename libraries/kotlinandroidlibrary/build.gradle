@@ -1,0 +1,8 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+
+dependencies {
+  compile deps.external.kotlinStdlib
+  testCompile deps.test.junit
+  testCompile deps.test.kotlinTest
+}

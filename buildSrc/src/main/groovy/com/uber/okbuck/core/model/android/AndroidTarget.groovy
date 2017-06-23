@@ -23,10 +23,9 @@ import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.testing.Test
-import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
+import org.jetbrains.kotlin.gradle.plugin.KotlinAndroidPluginWrapper
 
 import java.nio.file.Paths
-
 /**
  * An Android target
  */
@@ -45,6 +44,7 @@ abstract class AndroidTarget extends JavaLibTarget {
     final boolean debuggable
     final boolean generateR2
     final String genDir
+    final boolean isKotlin
 
     private String manifestPath
     private String packageName
@@ -91,6 +91,9 @@ abstract class AndroidTarget extends JavaLibTarget {
         genDir = Paths.get(OkBuckGradlePlugin.OKBUCK_GEN, path, name).toString()
         FileUtil.copyResourceToProject("gen/BUCK_FILE",
                 new File(rootProject.file(genDir), OkBuckGradlePlugin.BUCK))
+
+        // Check if kotlin
+        isKotlin = project.plugins.hasPlugin(KotlinAndroidPluginWrapper.class)
     }
 
     protected abstract BaseVariant getBaseVariant()
@@ -104,14 +107,10 @@ abstract class AndroidTarget extends JavaLibTarget {
 
     @Override
     Scope getMain() {
-        Set<File> srcDirs = baseVariant.sourceSets.collect { SourceProvider provider ->
-            provider.javaDirectories
-        }.flatten() as Set<File>
-
         return new Scope(
                 project,
                 expand(compileConfigs),
-                srcDirs,
+                getSources(baseVariant),
                 null,
                 getJavaCompilerOptions(baseVariant))
     }
@@ -120,9 +119,7 @@ abstract class AndroidTarget extends JavaLibTarget {
     Scope getTest() {
         Set<File> testSrcDirs = [] as Set
         if (unitTestVariant) {
-            testSrcDirs.addAll(unitTestVariant.sourceSets.collect { SourceProvider provider ->
-                provider.javaDirectories
-            }.flatten() as Set<File>)
+            testSrcDirs = getSources(unitTestVariant)
         }
 
         return new Scope(
@@ -419,7 +416,7 @@ abstract class AndroidTarget extends JavaLibTarget {
     }
 
     RuleType getRuleType() {
-        if (project.plugins.hasPlugin(KotlinPluginWrapper.class)) {
+        if (isKotlin) {
             return RuleType.ANDROID_LIBRARY_WITH_KOTLIN
         } else {
             return RuleType.ANDROID_LIBRARY
@@ -427,11 +424,27 @@ abstract class AndroidTarget extends JavaLibTarget {
     }
 
     RuleType getTestRuleType() {
-        if (project.plugins.hasPlugin(KotlinPluginWrapper.class)) {
+        if (isKotlin) {
             return RuleType.ROBOLECTRIC_TEST_WITH_KOTLIN
         } else {
             return RuleType.ROBOLECTRIC_TEST
         }
+    }
+
+    Set<File> getSources(BaseVariant variant) {
+        Set<File> srcs = new HashSet<>()
+        srcs.addAll(variant.sourceSets.collect { SourceProvider provider ->
+            provider.javaDirectories
+        }.flatten() as Set<File>)
+
+        if (isKotlin) {
+            srcs += srcs.findAll {
+                it.name == "java"
+            }.collect {
+                new File(it.absolutePath.replaceFirst("/java\$", "/kotlin"))
+            }
+        }
+        return srcs
     }
 
     private static class EmptyLogger implements ILogger {

@@ -7,6 +7,7 @@ import org.apache.commons.lang.StringUtils
 
 abstract class AndroidRule extends JavaRule {
 
+    private final RuleType mRuleType
     private final String mManifest
     private final String mRobolectricManifest
     private final List<String> mAidlRuleNames
@@ -43,6 +44,7 @@ abstract class AndroidRule extends JavaRule {
                 !StringUtils.isEmpty(appClass)
                         ? Collections.singleton(appClass) : Collections.emptySet())
 
+        mRuleType = ruleType
         mManifest = manifest
         mRobolectricManifest = robolectricManifest
         mAidlRuleNames = aidlRuleNames
@@ -53,6 +55,11 @@ abstract class AndroidRule extends JavaRule {
     @Override
     protected final void printContent(PrintStream printer) {
         super.printContent(printer)
+
+        if (mRuleType == RuleType.ANDROID_LIBRARY_WITH_KOTLIN ||
+            mRuleType == RuleType.ROBOLECTRIC_TEST_WITH_KOTLIN) {
+            printer.println("\tlanguage = 'kotlin',")
+        }
 
         if (!StringUtils.isEmpty(mManifest)) {
             printer.println("\tmanifest = '${mManifest}',")
