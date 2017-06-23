@@ -20,6 +20,7 @@ import com.uber.okbuck.example.dummylibrary.DummyAndroidClass;
 import com.uber.okbuck.example.javalib.DummyJavaClass;
 import com.uber.okbuck.example.sqldelightmodel.GithubRepo;
 import com.uber.okbuck.example.sqldelightmodel.GithubUser;
+import com.uber.okbuck.java.Pojo;
 import com.uber.okbuck.kotlin.KotlinDataClass;
 
 import javax.inject.Inject;
@@ -103,7 +104,8 @@ public class MainActivity extends AppCompatActivity {
         GithubRepo repo = GithubRepo.create(100, "OkBuck", "auto buck");
         Toast.makeText(this, repo.name() + ": " + repo.description(), Toast.LENGTH_SHORT).show();
 
-        new KotlinDataClass("foo", R.string.foo);
+        KotlinDataClass data = new KotlinDataClass("foo", R.string.foo);
+        Pojo pojo = new Pojo();
     }
 
     @Override
