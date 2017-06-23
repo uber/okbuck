@@ -8,6 +8,7 @@ class JavaTestRule extends JavaRule {
     private static final List<String> JAVA_TEST_LABELS = ['unit', 'java']
 
     JavaTestRule(
+            RuleType ruleType,
             String name,
             List<String> visibility,
             List<String> deps,
@@ -22,7 +23,6 @@ class JavaTestRule extends JavaRule {
             List<String> options,
             TestOptions testOptions,
             Set<String> extraOpts,
-            RuleType ruleType = RuleType.JAVA_TEST,
             List<String> testLabels = JAVA_TEST_LABELS) {
         super(
                 ruleType,

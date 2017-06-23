@@ -33,6 +33,7 @@ final class JavaTestRuleComposer extends JvmBuckRuleComposer {
         }
 
         new JavaTestRule(
+                ruleType,
                 test(target),
                 ["PUBLIC"],
                 deps,

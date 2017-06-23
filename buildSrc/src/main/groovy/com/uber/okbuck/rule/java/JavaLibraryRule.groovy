@@ -6,6 +6,7 @@ import com.uber.okbuck.core.model.jvm.TestOptions
 class JavaLibraryRule extends JavaRule {
 
     JavaLibraryRule(
+            RuleType ruleType,
             String name,
             List<String> visibility,
             List<String> deps,
@@ -19,8 +20,7 @@ class JavaLibraryRule extends JavaRule {
             List<String> postprocessClassesCommands,
             List<String> options,
             List<String> testTargets,
-            Set<String> extraOpts,
-            RuleType ruleType = RuleType.JAVA_LIBRARY) {
+            Set<String> extraOpts) {
 
         super(
                 ruleType,

@@ -37,6 +37,7 @@ final class JavaLibraryRuleComposer extends JvmBuckRuleComposer {
         }
 
         new JavaLibraryRule(
+                ruleType,
                 src(target),
                 ["PUBLIC"],
                 deps,
