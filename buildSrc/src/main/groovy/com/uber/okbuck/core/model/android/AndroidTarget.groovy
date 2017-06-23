@@ -12,6 +12,7 @@ import com.android.manifmerger.ManifestMerger2
 import com.android.manifmerger.MergingReport
 import com.android.utils.ILogger
 import com.uber.okbuck.OkBuckGradlePlugin
+import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.core.model.base.Scope
 import com.uber.okbuck.core.model.java.JavaLibTarget
 import com.uber.okbuck.core.model.jvm.TestOptions
@@ -22,8 +23,10 @@ import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.testing.Test
+import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
 
 import java.nio.file.Paths
+
 /**
  * An Android target
  */
@@ -413,6 +416,22 @@ abstract class AndroidTarget extends JavaLibTarget {
 
     File getGenPath(String... paths) {
         return rootProject.file(Paths.get(genDir, paths).toFile())
+    }
+
+    RuleType getRuleType() {
+        if (project.plugins.hasPlugin(KotlinPluginWrapper.class)) {
+            return RuleType.ANDROID_LIBRARY_WITH_KOTLIN
+        } else {
+            return RuleType.ANDROID_LIBRARY
+        }
+    }
+
+    RuleType getTestRuleType() {
+        if (project.plugins.hasPlugin(KotlinPluginWrapper.class)) {
+            return RuleType.ROBOLECTRIC_TEST_WITH_KOTLIN
+        } else {
+            return RuleType.ROBOLECTRIC_TEST
+        }
     }
 
     private static class EmptyLogger implements ILogger {

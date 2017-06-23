@@ -11,7 +11,9 @@ final class ExopackageAndroidLibraryRule extends BuckRule {
     private final List<String> mPostprocessClassesCommands
     private final List<String> mOptions
 
-    ExopackageAndroidLibraryRule(String name,
+    ExopackageAndroidLibraryRule(
+                                 RuleType ruleType,
+                                 String name,
                                  String appClass,
                                  List<String> visibility,
                                  List<String> deps,
@@ -20,7 +22,7 @@ final class ExopackageAndroidLibraryRule extends BuckRule {
                                  List<String> postprocessClassesCommands,
                                  List<String> options,
                                  Set<String> extraOpts) {
-        super(RuleType.ANDROID_LIBRARY, name, visibility, deps, extraOpts)
+        super(ruleType, name, visibility, deps, extraOpts)
         mAppClass = appClass
         mSourceCompatibility = sourceCompatibility
         mTargetCompatibility = targetCompatibility

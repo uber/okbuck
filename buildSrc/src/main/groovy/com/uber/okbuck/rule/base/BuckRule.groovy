@@ -13,7 +13,7 @@ abstract class BuckRule {
     BuckRule(RuleType ruleType, String name, List<String> visibility = [], List<String> deps = [],
              Set<String> extraBuckOpts = []) {
         this.name = name
-        mRuleType = ruleType.name().toLowerCase()
+        mRuleType = ruleType.getBuckName()
         mVisibility = new LinkedHashSet(visibility)
         mDeps = new LinkedHashSet(deps) // de-dup dependencies
         mExtraBuckOpts = extraBuckOpts

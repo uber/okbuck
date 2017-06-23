@@ -3,7 +3,6 @@ package com.uber.okbuck.core.model.android
 import com.android.build.gradle.api.BaseVariant
 import com.android.builder.model.SigningConfig
 import com.android.manifmerger.ManifestMerger2
-import com.uber.okbuck.OkBuckGradlePlugin
 import com.uber.okbuck.core.model.base.Target
 import com.uber.okbuck.core.util.FileUtil
 import com.uber.okbuck.extension.TestExtension

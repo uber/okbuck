@@ -38,4 +38,19 @@ public enum RuleType {
     public List<String> getSourceExtensions() {
         return sourceExtensions;
     }
+
+    public String getBuckName() {
+        RuleType buckType = this;
+        switch (this) {
+            case ANDROID_LIBRARY_WITH_KOTLIN:
+                buckType = ANDROID_LIBRARY;
+                break;
+            case ROBOLECTRIC_TEST_WITH_KOTLIN:
+                buckType = ROBOLECTRIC_TEST;
+                break;
+            default:
+                break;
+        }
+        return buckType.name().toLowerCase();
+    }
 }

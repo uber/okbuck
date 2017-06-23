@@ -47,6 +47,7 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
         }
 
         return new AndroidLibraryRule(
+                target.ruleType,
                 src(target),
                 ["PUBLIC"],
                 libraryDeps,
