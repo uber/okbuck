@@ -82,6 +82,7 @@ abstract class AndroidRule extends JavaRule {
         }
 
         if (mRuntimeDependency) {
+            printer.println("\tforce_final_resource_ids = False,")
             printer.println("\trobolectric_runtime_dependency = '${mRuntimeDependency}',")
         }
     }

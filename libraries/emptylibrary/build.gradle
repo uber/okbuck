@@ -12,5 +12,5 @@ dependencies {
     buckLintLibrary deps.support.appCompat
 
     testCompile deps.test.junit
-    testCompile project(':libraries:robolectric-base')
+    testCompile deps.test.robolectric
 }

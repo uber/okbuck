@@ -28,9 +28,10 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 @XLog
 public class MainActivity extends AppCompatActivity {
@@ -80,12 +81,12 @@ public class MainActivity extends AppCompatActivity {
 
         Log.d("test", "1 + 2 = " + new Calc(new CalcMonitor(this)).add(1, 2));
 
-        RxScreenshotDetector.start(getApplicationContext())
+        RxScreenshotDetector.start(this)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<String>() {
+                .subscribe(new Observer<String>() {
                     @Override
-                    public void onCompleted() {
+                    public void onComplete() {
 
                     }
 
@@ -97,6 +98,11 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onNext(String path) {
                         mTextView.setText(mTextView.getText() + "\nScreenshot: " + path);
+                    }
+
+                    @Override
+                    public void onSubscribe(Disposable disposable) {
+
                     }
                 });
         GithubUser user = GithubUser.create(100, "OkBuck");
