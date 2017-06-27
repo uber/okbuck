@@ -62,4 +62,8 @@ public final class KotlinUtil {
             });
         } catch (IOException ignored) {}
     }
+
+    public static boolean hasKotlinPluginInClasspath(Project project) {
+        return ProjectUtil.findVersionInClasspath(project, KOTLIN_GROUP, KOTLIN_GRADLE_MODULE) != null;
+    }
 }

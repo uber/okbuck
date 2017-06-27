@@ -13,7 +13,6 @@ import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.extension.OkBuckExtension;
 import com.uber.okbuck.generator.DotBuckConfigLocalGenerator;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.specs.Specs;
 import org.gradle.api.tasks.Nested;
@@ -46,7 +45,7 @@ public class OkBuckTask extends DefaultTask {
     }
 
     // Fetch Kotlin support deps if needed
-    boolean hasKotlinLib = okBuckExtension.buckProjects.parallelStream().anyMatch(project -> ProjectUtil.getType(project) == ProjectType.KOTLIN_LIB);
+    boolean hasKotlinLib = KotlinUtil.hasKotlinPluginInClasspath(getProject());
     if (hasKotlinLib) {
       KotlinUtil.setupKotlinHome(getProject());
     }
