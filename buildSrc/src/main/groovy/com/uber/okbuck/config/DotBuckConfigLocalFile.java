@@ -12,7 +12,6 @@ public final class DotBuckConfigLocalFile extends BuckConfigFile {
     private final Map<String, String> aliases;
     private final String buildToolVersion;
     private final String target;
-    private final List<String> ignore;
     private final String groovyHome;
     private final String kotlinHome;
     private final String proguardJar;
@@ -22,7 +21,6 @@ public final class DotBuckConfigLocalFile extends BuckConfigFile {
             Map<String, String> aliases,
             String buildToolVersion,
             String target,
-            List<String> ignore,
             String groovyHome,
             String kotlinHome,
             String proguardJar,
@@ -30,7 +28,6 @@ public final class DotBuckConfigLocalFile extends BuckConfigFile {
         this.aliases = aliases;
         this.buildToolVersion = buildToolVersion;
         this.target = target;
-        this.ignore = ignore;
         this.groovyHome = groovyHome;
         this.kotlinHome = kotlinHome;
         this.proguardJar = proguardJar;
@@ -46,10 +43,6 @@ public final class DotBuckConfigLocalFile extends BuckConfigFile {
         printer.println("[android]");
         printer.println("\tbuild_tools_version = " + buildToolVersion);
         printer.println("\ttarget = " + target);
-        printer.println();
-
-        printer.println("[project]");
-        printer.println("\tignore = " + String.join(", ", ignore));
         printer.println();
 
         if (!defs.isEmpty()) {

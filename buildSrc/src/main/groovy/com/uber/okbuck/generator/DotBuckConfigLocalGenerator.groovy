@@ -34,7 +34,6 @@ final class DotBuckConfigLocalGenerator {
         return new DotBuckConfigLocalFile(aliases,
                 okbuck.buildToolVersion,
                 okbuck.target,
-                [".git", "**/.svn"],
                 groovyHome,
                 kotlinHome,
                 proguardJar,
