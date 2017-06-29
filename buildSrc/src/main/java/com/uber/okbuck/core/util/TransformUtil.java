@@ -1,12 +1,19 @@
 package com.uber.okbuck.core.util;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableMap;
 import com.uber.okbuck.OkBuckGradlePlugin;
+import com.uber.okbuck.composer.base.BuckRuleComposer;
 import com.uber.okbuck.core.dependency.DependencyCache;
+import com.uber.okbuck.core.model.base.Scope;
 
 import org.gradle.api.Project;
+import org.gradle.api.artifacts.Configuration;
 
 import java.io.File;
 import java.util.Collections;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public final class TransformUtil {
 
@@ -22,14 +29,32 @@ public final class TransformUtil {
     private TransformUtil() { }
 
     public static void fetchTransformDeps(Project project) {
+        Set<Configuration> transformConfigurations =
+                Collections.singleton(project.getConfigurations().getByName(CONFIGURATION_TRANSFORM));
         DependencyCache dependencyCache = new DependencyCache("transform",
                 project.getRootProject(),
                 TRANSFORM_CACHE,
-                Collections.singleton(project.getConfigurations().getByName(CONFIGURATION_TRANSFORM)),
+                transformConfigurations,
                 TRANSFORM_FOLDER + TRANSFORM_BUCK_FILE);
 
+        Scope transformScope = new Scope(
+                project,
+                Collections.singleton(CONFIGURATION_TRANSFORM),
+                Collections.emptySet(),
+                null,
+                Collections.emptyList(),
+                dependencyCache);
+
+        Set<String> targetDeps = BuckRuleComposer.targets(transformScope.getTargetDeps())
+                .stream()
+                .map(s -> "'" + s + "'")
+                .collect(Collectors.toSet());
+        String allTargetDeps = Joiner.on(", ").join(targetDeps);
+
         FileUtil.copyResourceToProject(
-                TRANSFORM_FOLDER + TRANSFORM_BUCK_FILE, new File(dependencyCache.getCacheDir(), "BUCK"));
+                TRANSFORM_FOLDER + TRANSFORM_BUCK_FILE,
+                new File(dependencyCache.getCacheDir(), "BUCK"),
+                ImmutableMap.of("template-target-deps", allTargetDeps));
         FileUtil.copyResourceToProject(
                 TRANSFORM_FOLDER + TRANSFORM_JAR, new File(dependencyCache.getCacheDir(), TRANSFORM_JAR));
     }
