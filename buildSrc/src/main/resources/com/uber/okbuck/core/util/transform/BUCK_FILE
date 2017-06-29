@@ -22,7 +22,7 @@ for jar in jars:
 
 java_binary(
   name='okbuck_transform',
-  deps=map(lambda x: ":" + x, jars),
+  deps=map(lambda x: ":" + x, jars) + [${template-target-deps}],
   blacklist=[
     'META-INF',
   ],
