@@ -91,7 +91,8 @@ final class BuckFileGenerator {
                     }
                     break
                 default:
-                    throw new IllegalArgumentException("ProjectType not handled: $projectType")
+                    throw new IllegalArgumentException("Okbuck does not support ${project} type projects yet. Please " +
+                            "use the extension option okbuck.buckProjects to exclude ${project}.")
             }
         }
 
