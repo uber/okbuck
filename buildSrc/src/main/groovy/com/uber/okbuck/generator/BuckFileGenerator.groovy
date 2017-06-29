@@ -52,20 +52,17 @@ final class BuckFileGenerator {
      * generate {@code BUCKFile}
      */
     static void generate(Project project) {
-        OkBuckExtension okbuck = project.rootProject.okbuck
-
-        TestExtension test = okbuck.test
-        List<BuckRule> rules = createRules(project, test.espresso)
+        List<BuckRule> rules = createRules(project)
 
         if (rules) {
             BUCKFile buckFile = new BUCKFile(rules)
-            PrintStream buckPrinter = new PrintStream(project.file(OkBuckGradlePlugin.BUCK))
-            buckFile.print(buckPrinter)
-            IOUtils.closeQuietly(buckPrinter)
+            new PrintStream(project.file(OkBuckGradlePlugin.BUCK)).withStream { stream ->
+                buckFile.print(stream)
+            }
         }
     }
 
-    private static List<BuckRule> createRules(Project project, boolean espresso) {
+    private static List<BuckRule> createRules(Project project) {
         List<BuckRule> rules = []
         ProjectType projectType = ProjectUtil.getType(project)
         ProjectUtil.getTargets(project).each { String name, Target target ->
@@ -94,7 +91,7 @@ final class BuckFileGenerator {
                     }
                     break
                 default:
-                    break
+                    throw new IllegalArgumentException("ProjectType not handled: $projectType")
             }
         }
 
