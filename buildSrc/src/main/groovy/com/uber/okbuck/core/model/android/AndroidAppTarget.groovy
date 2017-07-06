@@ -125,7 +125,7 @@ class AndroidAppTarget extends AndroidLibTarget {
             configs.findAll { File config ->
                 config.exists()
             }.each { File config ->
-                mergedConfig += "\n##---- ${config} ----##\n"
+                mergedConfig += "\n##---- ${FileUtil.getRelativePath(project.rootDir, config)} ----##\n"
                 mergedConfig += config.text
             }
 
