@@ -4,7 +4,7 @@
 ##
 ##  Buck wrapper script to invoke okbuck when needed, before running buck
 ##
-##  Created by OkBuck Gradle Plugin on : Wed Apr 19 21:13:00 PDT 2017
+##  Created by OkBuck Gradle Plugin on : Mon Jul 10 10:22:56 PDT 2017
 ##
 #########################################################################
 
@@ -160,6 +160,26 @@ setupBuckBinary ( ) {
                 git remote add $CUSTOM_REMOTE_NAME $CUSTOM_BUCK_REPO
             fi
             cd -
+        fi
+
+        # Check for current buck version
+        BUCK_VERSION=$(cat .buckversion)
+        if [[ ! -z "$BUCK_VERSION" ]]; then
+            pushd "$BUCK_HOME" >/dev/null
+            CURRENT_BUCK_VERSION=$(git rev-parse HEAD)
+            if [[ "$BUCK_VERSION" != "$CURRENT_BUCK_VERSION" ]]; then
+                info "BUCK VERSION IS AT $CURRENT_BUCK_VERSION , BUT IT SHOULD BE $BUCK_VERSION. UPDATING BUCK"
+                git clean -fdx --quiet && git reset --hard --quiet && git fetch --all && git checkout "$BUCK_VERSION" --quiet
+            fi
+            popd >/dev/null
+        fi
+
+        # Build buck if needed
+        if [[ ! -f "$BUCK_HOME/build/successful-build" ]]; then
+            echo "Buck does not appear to have been built -- building Buck!"
+            pushd "$BUCK_HOME" >/dev/null
+            mkdir -p build && ant > build/ant.log && success "BUCK BUILT SUCCESFULLY" || die "FAILED TO BUILD BUCK"
+            popd >/dev/null
         fi
 
         BUCK_BINARY="$BUCK_HOME/bin/buck"
