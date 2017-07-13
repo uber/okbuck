@@ -8,7 +8,7 @@
 ##
 #########################################################################
 
-WORKING_DIR=$(pwd)
+WORKING_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 red=`tput setab 1 2>/dev/null || true`
 yellow=`tput setab 3 2>/dev/null || true`
