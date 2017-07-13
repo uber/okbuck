@@ -4,11 +4,11 @@
 ##
 ##  Buck wrapper script to invoke okbuck when needed, before running buck
 ##
-##  Created by OkBuck Gradle Plugin on : Mon Jul 10 10:22:56 PDT 2017
+##  Created by OkBuck Gradle Plugin on : Thu Jul 13 10:40:45 PDT 2017
 ##
 #########################################################################
 
-WORKING_DIR=$(pwd)
+WORKING_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 red=`tput setab 1 2>/dev/null || true`
 yellow=`tput setab 3 2>/dev/null || true`
