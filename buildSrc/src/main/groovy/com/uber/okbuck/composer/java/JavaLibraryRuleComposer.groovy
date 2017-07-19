@@ -2,7 +2,6 @@ package com.uber.okbuck.composer.java
 
 import com.uber.okbuck.composer.jvm.JvmBuckRuleComposer
 import com.uber.okbuck.core.model.base.RuleType
-import com.uber.okbuck.core.model.java.JavaAppTarget
 import com.uber.okbuck.core.model.java.JavaLibTarget
 import com.uber.okbuck.core.model.java.JavaTarget
 import com.uber.okbuck.core.util.RetrolambdaUtil

@@ -16,7 +16,6 @@ import com.uber.okbuck.composer.android.KeystoreRuleComposer
 import com.uber.okbuck.composer.android.LintRuleComposer
 import com.uber.okbuck.composer.android.PreBuiltNativeLibraryRuleComposer
 import com.uber.okbuck.composer.android.TrasformDependencyWriterRuleComposer
-import com.uber.okbuck.composer.java.JavaBinaryRuleComposer
 import com.uber.okbuck.composer.java.JavaLibraryRuleComposer
 import com.uber.okbuck.composer.java.JavaTestRuleComposer
 import com.uber.okbuck.config.BUCKFile
@@ -27,7 +26,6 @@ import com.uber.okbuck.core.model.base.ProjectType
 import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.core.model.base.Target
 import com.uber.okbuck.core.model.groovy.GroovyLibTarget
-import com.uber.okbuck.core.model.java.JavaAppTarget
 import com.uber.okbuck.core.model.java.JavaLibTarget
 import com.uber.okbuck.core.model.kotlin.KotlinLibTarget
 import com.uber.okbuck.core.model.scala.ScalaLibTarget

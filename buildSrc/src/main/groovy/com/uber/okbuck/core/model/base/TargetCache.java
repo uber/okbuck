@@ -8,7 +8,6 @@ import com.google.common.base.Converter;
 import com.uber.okbuck.core.model.android.AndroidAppTarget;
 import com.uber.okbuck.core.model.android.AndroidLibTarget;
 import com.uber.okbuck.core.model.groovy.GroovyLibTarget;
-import com.uber.okbuck.core.model.java.JavaAppTarget;
 import com.uber.okbuck.core.model.java.JavaLibTarget;
 import com.uber.okbuck.core.model.jvm.JvmTarget;
 import com.uber.okbuck.core.model.kotlin.KotlinLibTarget;
