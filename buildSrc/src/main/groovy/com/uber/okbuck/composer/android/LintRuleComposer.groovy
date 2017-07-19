@@ -4,6 +4,7 @@ import com.uber.okbuck.composer.jvm.JvmBuckRuleComposer
 import com.uber.okbuck.core.model.android.AndroidTarget
 import com.uber.okbuck.core.model.base.ProjectType
 import com.uber.okbuck.core.model.base.Target
+import com.uber.okbuck.core.model.java.JavaLibTarget
 import com.uber.okbuck.core.model.java.JavaTarget
 import com.uber.okbuck.core.util.LintUtil
 import com.uber.okbuck.core.util.ProjectUtil
@@ -38,7 +39,7 @@ final class LintRuleComposer extends JvmBuckRuleComposer {
         List<String> lintDeps = []
         lintDeps.addAll(LintUtil.LINT_DEPS_RULE)
         customLintTargets.each {
-            if (ProjectUtil.getType(it.project) == ProjectType.JAVA_APP) {
+            if (it instanceof JavaLibTarget && it.hasApplication()) {
                 lintDeps.add(binTargets(it))
             }
         }

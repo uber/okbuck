@@ -75,10 +75,6 @@ public class TargetCache {
                     projectTargets = Collections.singletonMap(JvmTarget.MAIN,
                             new ScalaLibTarget(project, JvmTarget.MAIN));
                     break;
-                case JAVA_APP:
-                    projectTargets = Collections.singletonMap(JvmTarget.MAIN,
-                            new JavaAppTarget(project, JvmTarget.MAIN));
-                    break;
                 case JAVA_LIB:
                     projectTargets = Collections.singletonMap(JvmTarget.MAIN,
                             new JavaLibTarget(project, JvmTarget.MAIN));
@@ -106,9 +102,9 @@ public class TargetCache {
                 }
                 break;
             case GROOVY_LIB:
-            case JAVA_APP:
             case JAVA_LIB:
             case KOTLIN_LIB:
+            case SCALA_LIB:
                 result = getTargets(targetProject).values().iterator().next();
                 break;
             default:

@@ -36,8 +36,6 @@ public final class ProjectUtil {
             return ProjectType.KOTLIN_LIB;
         } else if (plugins.hasPlugin(ScalaPlugin.class)) {
             return ProjectType.SCALA_LIB;
-        } else if (plugins.hasPlugin(ApplicationPlugin.class)) {
-            return ProjectType.JAVA_APP;
         } else if (plugins.hasPlugin(JavaPlugin.class)) {
             return ProjectType.JAVA_LIB;
         } else {
