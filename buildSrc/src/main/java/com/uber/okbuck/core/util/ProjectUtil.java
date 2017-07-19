@@ -14,6 +14,7 @@ import org.gradle.api.plugins.ApplicationPlugin;
 import org.gradle.api.plugins.GroovyPlugin;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.PluginContainer;
+import org.gradle.api.plugins.scala.ScalaPlugin;
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper;
 
 import java.io.File;
@@ -33,6 +34,8 @@ public final class ProjectUtil {
             return ProjectType.GROOVY_LIB;
         } else if (plugins.hasPlugin(KotlinPluginWrapper.class)) {
             return ProjectType.KOTLIN_LIB;
+        } else if (plugins.hasPlugin(ScalaPlugin.class)) {
+            return ProjectType.SCALA_LIB;
         } else if (plugins.hasPlugin(ApplicationPlugin.class)) {
             return ProjectType.JAVA_APP;
         } else if (plugins.hasPlugin(JavaPlugin.class)) {

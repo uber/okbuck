@@ -10,7 +10,9 @@ import com.uber.okbuck.core.util.GroovyUtil;
 import com.uber.okbuck.core.util.KotlinUtil;
 import com.uber.okbuck.core.util.ProguardUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
+import com.uber.okbuck.core.util.ScalaUtil;
 import com.uber.okbuck.extension.OkBuckExtension;
+import com.uber.okbuck.extension.ScalaExtension;
 import com.uber.okbuck.generator.DotBuckConfigLocalGenerator;
 
 import org.gradle.api.DefaultTask;
@@ -31,6 +33,8 @@ public class OkBuckTask extends DefaultTask {
 
   @Nested public OkBuckExtension okBuckExtension;
 
+  @Nested public ScalaExtension scalaExtension;
+
   public OkBuckTask() {
     // Never up to date; this task isn't safe to run incrementally.
     getOutputs().upToDateWhen(Specs.satisfyNone());
@@ -39,7 +43,8 @@ public class OkBuckTask extends DefaultTask {
   @TaskAction
   void okbuck() {
     // Fetch Groovy support deps if needed
-    boolean hasGroovyLib = okBuckExtension.buckProjects.parallelStream().anyMatch(project -> ProjectUtil.getType(project) == ProjectType.GROOVY_LIB);
+    boolean hasGroovyLib = okBuckExtension.buckProjects.parallelStream().anyMatch(
+            project -> ProjectUtil.getType(project) == ProjectType.GROOVY_LIB);
     if (hasGroovyLib) {
       GroovyUtil.setupGroovyHome(getProject());
     }
@@ -50,9 +55,17 @@ public class OkBuckTask extends DefaultTask {
       KotlinUtil.setupKotlinHome(getProject());
     }
 
+    // Fetch Scala support deps if needed
+    boolean hasScalaLib = okBuckExtension.buckProjects.parallelStream().anyMatch(
+            project -> ProjectUtil.getType(project) == ProjectType.SCALA_LIB);
+    if (hasScalaLib) {
+      ScalaUtil.setupScalaHome(getProject(), scalaExtension.version);
+    }
+
     generate(okBuckExtension,
             hasGroovyLib ? GroovyUtil.GROOVY_HOME_LOCATION : null,
-            hasKotlinLib ? KotlinUtil.KOTLIN_HOME_LOCATION : null);
+            hasKotlinLib ? KotlinUtil.KOTLIN_HOME_LOCATION : null,
+            hasScalaLib ? ScalaUtil.SCALA_HOME_LOCATION : null);
   }
 
   @Override public String getGroup() {
@@ -78,7 +91,8 @@ public class OkBuckTask extends DefaultTask {
     return getProject().file(".buckconfig.local");
   }
 
-  private void generate(OkBuckExtension okbuckExt, String groovyHome, String kotlinHome) {
+  private void generate(OkBuckExtension okbuckExt, String groovyHome, String kotlinHome,
+          String scalaHome) {
     // generate empty .buckconfig if it does not exist
     if (!dotBuckConfig().exists()) {
       try {
@@ -106,6 +120,7 @@ public class OkBuckTask extends DefaultTask {
       DotBuckConfigLocalGenerator.generate(okbuckExt,
               groovyHome,
               kotlinHome,
+              scalaHome,
               ProguardUtil.getProguardJarPath(getProject()),
               defs).print(configPrinter);
     } catch (IOException e) {

@@ -12,6 +12,7 @@ import com.uber.okbuck.core.model.java.JavaAppTarget;
 import com.uber.okbuck.core.model.java.JavaLibTarget;
 import com.uber.okbuck.core.model.jvm.JvmTarget;
 import com.uber.okbuck.core.model.kotlin.KotlinLibTarget;
+import com.uber.okbuck.core.model.scala.ScalaLibTarget;
 import com.uber.okbuck.core.util.ProjectUtil;
 
 import org.apache.commons.io.FilenameUtils;
@@ -69,6 +70,10 @@ public class TargetCache {
                 case KOTLIN_LIB:
                     projectTargets = Collections.singletonMap(JvmTarget.MAIN,
                             new KotlinLibTarget(project, JvmTarget.MAIN));
+                    break;
+                case SCALA_LIB:
+                    projectTargets = Collections.singletonMap(JvmTarget.MAIN,
+                            new ScalaLibTarget(project, JvmTarget.MAIN));
                     break;
                 case JAVA_APP:
                     projectTargets = Collections.singletonMap(JvmTarget.MAIN,

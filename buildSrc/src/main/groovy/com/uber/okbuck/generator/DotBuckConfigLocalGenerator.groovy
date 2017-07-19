@@ -19,6 +19,7 @@ final class DotBuckConfigLocalGenerator {
     static DotBuckConfigLocalFile generate(OkBuckExtension okbuck,
                                            String groovyHome,
                                            String kotlinHome,
+                                           String scalaHome,
                                            String proguardJar,
                                            Set<String> defs) {
         Map<String, String> aliases = [:]
@@ -36,6 +37,7 @@ final class DotBuckConfigLocalGenerator {
                 okbuck.target,
                 groovyHome,
                 kotlinHome,
+                scalaHome,
                 proguardJar,
                 defs)
     }

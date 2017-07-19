@@ -17,6 +17,7 @@ import com.uber.okbuck.extension.IntellijExtension
 import com.uber.okbuck.extension.LintExtension
 import com.uber.okbuck.extension.OkBuckExtension
 import com.uber.okbuck.extension.RetrolambdaExtension
+import com.uber.okbuck.extension.ScalaExtension
 import com.uber.okbuck.extension.TestExtension
 import com.uber.okbuck.extension.TransformExtension
 import com.uber.okbuck.extension.WrapperExtension
@@ -64,6 +65,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     public static final String LINT = "lint"
     public static final String TRANSFORM = "transform"
     public static final String RETROLAMBDA = "retrolambda"
+    public static final String SCALA = "scala"
     public static final String CONFIGURATION_EXTERNAL = "externalOkbuck"
     public static final String OKBUCK_DEFS = ".okbuck/defs/DEFS"
     public static final String OKBUCK_STATE = ".okbuck/state/STATE"
@@ -84,6 +86,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         IntellijExtension intellij = okbuckExt.extensions.create(INTELLIJ, IntellijExtension)
         LintExtension lint = okbuckExt.extensions.create(LINT, LintExtension, project)
         RetrolambdaExtension retrolambda = okbuckExt.extensions.create(RETROLAMBDA, RetrolambdaExtension)
+        ScalaExtension scala = okbuckExt.extensions.create(SCALA, ScalaExtension)
         okbuckExt.extensions.create(TRANSFORM, TransformExtension)
 
         // Create configurations
@@ -97,6 +100,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
 
         Task okBuck = project.tasks.create(OKBUCK, OkBuckTask, {
             okBuckExtension = okbuckExt
+            scalaExtension = scala
         })
         okBuck.dependsOn(setupOkbuck)
 

@@ -7,5 +7,6 @@ public enum ProjectType {
     JAVA_APP,
     JAVA_LIB,
     KOTLIN_LIB,
+    SCALA_LIB,
     UNKNOWN
 }
