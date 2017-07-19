@@ -22,7 +22,7 @@ before_script:
 
 script:
   - SKIP_OKBUCK= ./buckw --version
-  - ./buckw targets --type android_binary java_test groovy_test robolectric_test kotlin_library kotlin_test | xargs ./buckw build
+  - ./buckw targets --type android_binary java_test groovy_test robolectric_test kotlin_test scala_test | xargs ./buckw build
   - ./buckw targets --type genrule | grep -v lintErrorLibrary | xargs ./buckw build
   - ./buckw build //libraries/lintErrorLibrary:lint_debug;
     if [ $? -eq 0 ]; then

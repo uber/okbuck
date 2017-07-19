@@ -6,6 +6,7 @@ import com.uber.okbuck.rule.base.BuckRule
 
 abstract class JavaRule extends BuckRule {
 
+    private final RuleType mRuleType
     private final Set<String> mSrcSet
     private final Set<String> mAnnotationProcessors
     private final Set<String> mAnnotationProcessorDeps
@@ -42,6 +43,7 @@ abstract class JavaRule extends BuckRule {
             Set<String> excludes = []) {
 
         super(ruleType, name, visibility, deps, extraOpts)
+        mRuleType = ruleType
         mSrcSet = srcSet
         mAnnotationProcessors = annotationProcessors
         mAnnotationProcessorDeps = aptDeps
@@ -63,7 +65,7 @@ abstract class JavaRule extends BuckRule {
         if (!mSrcSet.empty) {
             printer.println("\tsrcs = glob([")
             for (String src : mSrcSet) {
-                for (String ext: mSourceExtensions) {
+                for (String ext : mSourceExtensions) {
                     printer.println("\t\t'${src}/**/*.${ext}',")
                 }
             }
@@ -117,8 +119,11 @@ abstract class JavaRule extends BuckRule {
             printer.println("\t],")
         }
 
-        printer.println("\tsource = '${mSourceCompatibility}',")
-        printer.println("\ttarget = '${mTargetCompatibility}',")
+        // Scala does not like these yet
+        if (!(mRuleType == RuleType.SCALA_LIBRARY || mRuleType == RuleType.SCALA_TEST)) {
+            printer.println("\tsource = '${mSourceCompatibility}',")
+            printer.println("\ttarget = '${mTargetCompatibility}',")
+        }
 
         if (!mOptions.empty) {
             printer.println("\textra_arguments = [")

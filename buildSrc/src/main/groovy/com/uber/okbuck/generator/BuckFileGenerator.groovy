@@ -30,6 +30,7 @@ import com.uber.okbuck.core.model.groovy.GroovyLibTarget
 import com.uber.okbuck.core.model.java.JavaAppTarget
 import com.uber.okbuck.core.model.java.JavaLibTarget
 import com.uber.okbuck.core.model.kotlin.KotlinLibTarget
+import com.uber.okbuck.core.model.scala.ScalaLibTarget
 import com.uber.okbuck.core.util.ProjectUtil
 import com.uber.okbuck.extension.LintExtension
 import com.uber.okbuck.extension.OkBuckExtension
@@ -78,6 +79,9 @@ final class BuckFileGenerator {
                     break
                 case ProjectType.KOTLIN_LIB:
                     rules.addAll(createRules((KotlinLibTarget) target))
+                    break
+                case ProjectType.SCALA_LIB:
+                    rules.addAll(createRules((ScalaLibTarget) target))
                     break
                 case ProjectType.ANDROID_LIB:
                     rules.addAll(createRules((AndroidLibTarget) target))
@@ -137,6 +141,16 @@ final class BuckFileGenerator {
 
         if (target.test.sources) {
             rules.add(JavaTestRuleComposer.compose(target, RuleType.KOTLIN_TEST))
+        }
+        return rules
+    }
+
+    private static List<BuckRule> createRules(ScalaLibTarget target) {
+        List<BuckRule> rules = []
+        rules.add(JavaLibraryRuleComposer.compose(target, RuleType.SCALA_LIBRARY))
+
+        if (target.test.sources) {
+            rules.add(JavaTestRuleComposer.compose(target, RuleType.SCALA_TEST))
         }
         return rules
     }

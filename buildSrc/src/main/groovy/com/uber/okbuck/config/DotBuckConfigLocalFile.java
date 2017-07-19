@@ -14,6 +14,7 @@ public final class DotBuckConfigLocalFile extends BuckConfigFile {
     private final String target;
     private final String groovyHome;
     private final String kotlinHome;
+    private final String scalaHome;
     private final String proguardJar;
     private final Set<String> defs;
 
@@ -23,6 +24,7 @@ public final class DotBuckConfigLocalFile extends BuckConfigFile {
             String target,
             String groovyHome,
             String kotlinHome,
+            String scalaHome,
             String proguardJar,
             Set<String> defs) {
         this.aliases = aliases;
@@ -30,6 +32,7 @@ public final class DotBuckConfigLocalFile extends BuckConfigFile {
         this.target = target;
         this.groovyHome = groovyHome;
         this.kotlinHome = kotlinHome;
+        this.scalaHome = scalaHome;
         this.proguardJar = proguardJar;
         this.defs = defs;
     }
@@ -60,6 +63,13 @@ public final class DotBuckConfigLocalFile extends BuckConfigFile {
         if (!StringUtils.isEmpty(kotlinHome)) {
             printer.println("[kotlin]");
             printer.println("\tkotlin_home = " + kotlinHome);
+            printer.println();
+        }
+
+        if (!StringUtils.isEmpty(scalaHome)) {
+            printer.println("[scala]");
+            printer.println("\tcompiler = //" + scalaHome + ":scala-compiler");
+            printer.println("\tlibrary = //" + scalaHome + ":scala-library");
             printer.println();
         }
 

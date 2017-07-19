@@ -1,0 +1,8 @@
+plugins {
+    id "scala"
+}
+
+dependencies {
+    testCompile "org.scalatest:scalatest_2.11:3.0.3"
+    testCompile 'junit:junit:4.12'
+}

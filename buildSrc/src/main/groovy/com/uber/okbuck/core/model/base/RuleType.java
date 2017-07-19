@@ -22,6 +22,8 @@ public enum RuleType {
     KOTLIN_LIBRARY("java", "kt"),
     KOTLIN_ROBOLECTRIC_TEST("java", "kt"),
     KOTLIN_TEST("java", "kt"),
+    SCALA_LIBRARY("java", "scala"),
+    SCALA_TEST("java", "scala"),
     PREBUILT_NATIVE_LIBRARY,
     ROBOLECTRIC_TEST;
 
