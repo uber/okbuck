@@ -16,7 +16,6 @@ import com.uber.okbuck.composer.android.KeystoreRuleComposer
 import com.uber.okbuck.composer.android.LintRuleComposer
 import com.uber.okbuck.composer.android.PreBuiltNativeLibraryRuleComposer
 import com.uber.okbuck.composer.android.TrasformDependencyWriterRuleComposer
-import com.uber.okbuck.composer.java.JavaBinaryRuleComposer
 import com.uber.okbuck.composer.java.JavaLibraryRuleComposer
 import com.uber.okbuck.composer.java.JavaTestRuleComposer
 import com.uber.okbuck.config.BUCKFile
@@ -27,7 +26,6 @@ import com.uber.okbuck.core.model.base.ProjectType
 import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.core.model.base.Target
 import com.uber.okbuck.core.model.groovy.GroovyLibTarget
-import com.uber.okbuck.core.model.java.JavaAppTarget
 import com.uber.okbuck.core.model.java.JavaLibTarget
 import com.uber.okbuck.core.model.kotlin.KotlinLibTarget
 import com.uber.okbuck.core.model.scala.ScalaLibTarget
@@ -71,9 +69,6 @@ final class BuckFileGenerator {
                 case ProjectType.JAVA_LIB:
                     rules.addAll(createRules((JavaLibTarget) target))
                     break
-                case ProjectType.JAVA_APP:
-                    rules.addAll(createRules((JavaAppTarget) target))
-                    break
                 case ProjectType.GROOVY_LIB:
                     rules.addAll(createRules((GroovyLibTarget) target))
                     break
@@ -110,7 +105,7 @@ final class BuckFileGenerator {
 
     private static List<BuckRule> createRules(JavaLibTarget target) {
         List<BuckRule> rules = []
-        rules.add(JavaLibraryRuleComposer.compose(target))
+        rules.addAll(JavaLibraryRuleComposer.compose(target))
 
         if (target.test.sources) {
             rules.add(JavaTestRuleComposer.compose(target))
@@ -118,16 +113,9 @@ final class BuckFileGenerator {
         return rules
     }
 
-    private static List<BuckRule> createRules(JavaAppTarget target) {
-        List<BuckRule> rules = []
-        rules.addAll(createRules((JavaLibTarget) target))
-        rules.add(JavaBinaryRuleComposer.compose(target))
-        return rules
-    }
-
     private static List<BuckRule> createRules(GroovyLibTarget target) {
         List<BuckRule> rules = []
-        rules.add(JavaLibraryRuleComposer.compose(target, RuleType.GROOVY_LIBRARY))
+        rules.addAll(JavaLibraryRuleComposer.compose(target, RuleType.GROOVY_LIBRARY))
 
         if (target.test.sources) {
             rules.add(JavaTestRuleComposer.compose(target, RuleType.GROOVY_TEST))
@@ -137,7 +125,7 @@ final class BuckFileGenerator {
 
     private static List<BuckRule> createRules(KotlinLibTarget target) {
         List<BuckRule> rules = []
-        rules.add(JavaLibraryRuleComposer.compose(target, RuleType.KOTLIN_LIBRARY))
+        rules.addAll(JavaLibraryRuleComposer.compose(target, RuleType.KOTLIN_LIBRARY))
 
         if (target.test.sources) {
             rules.add(JavaTestRuleComposer.compose(target, RuleType.KOTLIN_TEST))
@@ -147,7 +135,7 @@ final class BuckFileGenerator {
 
     private static List<BuckRule> createRules(ScalaLibTarget target) {
         List<BuckRule> rules = []
-        rules.add(JavaLibraryRuleComposer.compose(target, RuleType.SCALA_LIBRARY))
+        rules.addAll(JavaLibraryRuleComposer.compose(target, RuleType.SCALA_LIBRARY))
 
         if (target.test.sources) {
             rules.add(JavaTestRuleComposer.compose(target, RuleType.SCALA_TEST))

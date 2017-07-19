@@ -4,6 +4,9 @@ import com.uber.okbuck.core.model.base.Scope
 import com.uber.okbuck.core.util.RetrolambdaUtil
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
+import org.gradle.api.plugins.ApplicationPlugin
+import org.gradle.jvm.tasks.Jar
+import org.jetbrains.annotations.Nullable
 
 /**
  * A java library target
@@ -51,5 +54,19 @@ class JavaLibTarget extends JavaTarget {
             cmds += RetrolambdaUtil.getRetrolambdaCmd(project)
         }
         return cmds
+    }
+
+    boolean hasApplication() {
+        return project.plugins.hasPlugin(ApplicationPlugin)
+    }
+
+    @Nullable
+    String getMainClass() {
+        Object mainClass = getProject().getProperties().get("mainClassName")
+        return mainClass == null ? null : mainClass.toString()
+    }
+
+    Set<String> getExcludes() {
+        return ((Jar) getProject().getTasks().getByName("jar")).getExcludes()
     }
 }

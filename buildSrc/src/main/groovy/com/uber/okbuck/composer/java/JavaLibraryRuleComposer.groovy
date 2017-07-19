@@ -3,7 +3,10 @@ package com.uber.okbuck.composer.java
 import com.uber.okbuck.composer.jvm.JvmBuckRuleComposer
 import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.core.model.java.JavaLibTarget
+import com.uber.okbuck.core.model.java.JavaTarget
 import com.uber.okbuck.core.util.RetrolambdaUtil
+import com.uber.okbuck.rule.base.BuckRule
+import com.uber.okbuck.rule.java.JavaBinaryRule
 import com.uber.okbuck.rule.java.JavaLibraryRule
 
 final class JavaLibraryRuleComposer extends JvmBuckRuleComposer {
@@ -12,8 +15,8 @@ final class JavaLibraryRuleComposer extends JvmBuckRuleComposer {
         // no instance
     }
 
-    static JavaLibraryRule compose(JavaLibTarget target,
-                                   RuleType ruleType = RuleType.JAVA_LIBRARY) {
+    static List<BuckRule> compose(JavaLibTarget target,
+                                  RuleType ruleType = RuleType.JAVA_LIBRARY) {
         List<String> deps = []
         deps.addAll(external(target.main.externalDeps))
         deps.addAll(targets(target.main.targetDeps))
@@ -36,7 +39,8 @@ final class JavaLibraryRuleComposer extends JvmBuckRuleComposer {
             testTargets.add(":${test(target)}")
         }
 
-        new JavaLibraryRule(
+        List<BuckRule> rules = []
+        rules.add(new JavaLibraryRule(
                 ruleType,
                 src(target),
                 ["PUBLIC"],
@@ -52,5 +56,13 @@ final class JavaLibraryRuleComposer extends JvmBuckRuleComposer {
                 target.main.jvmArgs,
                 testTargets,
                 target.getExtraOpts(ruleType))
+        )
+
+        if (target.hasApplication()) {
+            rules.add(new JavaBinaryRule(bin(target), ["PUBLIC"], [":${src(target)}"], target.mainClass,
+                    target.excludes, target.getExtraOpts(RuleType.JAVA_BINARY)))
+        }
+
+        return rules
     }
 }

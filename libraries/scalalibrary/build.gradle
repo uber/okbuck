@@ -1,8 +1,11 @@
 plugins {
     id "scala"
+    id "application"
 }
 
 dependencies {
     testCompile "org.scalatest:scalatest_2.11:3.0.3"
     testCompile 'junit:junit:4.12'
 }
+
+mainClassName = "com.uber.okbuck.scala.example.Hello"
