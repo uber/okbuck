@@ -8,7 +8,6 @@ import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.util.Collections;
 
 public final class ScalaUtil {
@@ -25,17 +24,13 @@ public final class ScalaUtil {
         rootProject.getDependencies().add(SCALA_DEPS_CONFIG, "org.scala-lang:scala-compiler:" + scalaVersion);
         new DependencyCache("scala",
                 rootProject,
-                SCALA_HOME_LOCATION + "/lib",
+                SCALA_HOME_LOCATION,
                 Collections.singleton(scalaConfig),
                 null);
 
         File scalaHome = new File(SCALA_HOME_LOCATION);
 
-        File scalac = new File(scalaHome, "bin/scalac");
-        FileUtil.copyResourceToProject("scala/bin/scalac", new File(scalaHome, "bin/scalac"));
-        scalac.setExecutable(true);
-
-        FileUtil.copyResourceToProject("scala/lib/BUCK_FILE", new File(scalaHome, "lib/BUCK"),
+        FileUtil.copyResourceToProject("scala/BUCK_FILE", new File(scalaHome, "BUCK"),
                 ImmutableMap.of("template-scala-version", scalaVersion));
     }
 }

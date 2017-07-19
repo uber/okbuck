@@ -68,8 +68,8 @@ public final class DotBuckConfigLocalFile extends BuckConfigFile {
 
         if (!StringUtils.isEmpty(scalaHome)) {
             printer.println("[scala]");
-            printer.println("\tcompiler = " + scalaHome + "/bin/scalac");
-            printer.println("\tlibrary = //" + scalaHome + "/lib:scala-library");
+            printer.println("\tcompiler = //" + scalaHome + ":scala-compiler");
+            printer.println("\tlibrary = //" + scalaHome + ":scala-library");
             printer.println();
         }
 
