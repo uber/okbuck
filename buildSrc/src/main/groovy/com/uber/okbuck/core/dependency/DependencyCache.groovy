@@ -2,6 +2,7 @@ package com.uber.okbuck.core.dependency
 
 import com.uber.okbuck.core.util.FileUtil
 import groovy.transform.Synchronized
+import org.apache.commons.io.FileUtils
 import org.apache.commons.io.IOUtils
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ComponentSelection
@@ -109,13 +110,21 @@ class DependencyCache {
             File sourcesJar = new File(dependency.depFile.parentFile, sourcesJarName)
 
             if (!sourcesJar.exists()) {
-                def sourceJars = rootProject.fileTree(
-                        dir: dependency.depFile.parentFile.parentFile.absolutePath,
-                        includes: ["**/${sourcesJarName}"]) as List
-                if (sourceJars.size() == 1) {
-                    sourcesJar = sourceJars[0]
-                } else if (sourceJars.size() > 1) {
-                    throw new IllegalStateException("Found multiple source jars: ${sourceJars} for ${dependency}")
+                if (FileUtils.directoryContains(rootProject.projectDir, dependency.depFile)) {
+                    // Jas is in the project directory, try to use sources jar right next to the jar itself.
+                    sourcesJar = new File(dependency.depFile.parentFile, sourcesJarName)
+                } else {
+                    // Jar is not in the project directory.
+                    // Most likely it's in Gradle/Maven cache directory, try to find sources jar in "jar/../..".
+                    def sourceJars = rootProject.fileTree(
+                            dir: dependency.depFile.parentFile.parentFile.absolutePath,
+                            includes: ["**/${sourcesJarName}"]) as List
+
+                    if (sourceJars.size() == 1) {
+                        sourcesJar = sourceJars[0]
+                    } else if (sourceJars.size() > 1) {
+                        throw new IllegalStateException("Found multiple source jars: ${sourceJars} for ${dependency}")
+                    }
                 }
             }
             if (sourcesJar.exists()) {
