@@ -50,7 +50,7 @@ repositories {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile(name: 'rxscreenshotdetector-release', ext: 'aar')
+    compile(name: 'rxscreenshotdetector-1.2.0', ext: 'aar')
     compile deps.external.rxjava
     compile deps.external.rxandroid
     compile deps.external.rxPermissions
