@@ -109,13 +109,20 @@ class DependencyCache {
             File sourcesJar = new File(dependency.depFile.parentFile, sourcesJarName)
 
             if (!sourcesJar.exists()) {
-                def sourceJars = rootProject.fileTree(
-                        dir: dependency.depFile.parentFile.parentFile.absolutePath,
-                        includes: ["**/${sourcesJarName}"]) as List
-                if (sourceJars.size() == 1) {
-                    sourcesJar = sourceJars[0]
-                } else if (sourceJars.size() > 1) {
-                    throw new IllegalStateException("Found multiple source jars: ${sourceJars} for ${dependency}")
+                if (dependency.isLocal) {
+                    // Try to use sources jar right next to the jar itself.
+                    sourcesJar = new File(dependency.depFile.parentFile, sourcesJarName)
+                } else {
+                    // Most likely jar is in Gradle/Maven cache directory, try to find sources jar in "jar/../..".
+                    def sourceJars = rootProject.fileTree(
+                            dir: dependency.depFile.parentFile.parentFile.absolutePath,
+                            includes: ["**/${sourcesJarName}"]) as List
+
+                    if (sourceJars.size() == 1) {
+                        sourcesJar = sourceJars[0]
+                    } else if (sourceJars.size() > 1) {
+                        throw new IllegalStateException("Found multiple source jars: ${sourceJars} for ${dependency}")
+                    }
                 }
             }
             if (sourcesJar.exists()) {
