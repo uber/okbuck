@@ -4,7 +4,7 @@
 ##
 ##  Buck wrapper script to invoke okbuck when needed, before running buck
 ##
-##  Created by OkBuck Gradle Plugin on : Fri Jul 14 10:17:41 PDT 2017
+##  Created by OkBuck Gradle Plugin on : Tue Jul 25 11:59:58 PDT 2017
 ##
 #########################################################################
 
@@ -163,7 +163,7 @@ setupBuckBinary ( ) {
         fi
 
         # Check for current buck version
-        BUCK_VERSION=$(cat .buckversion)
+        BUCK_VERSION=$(cat $WORKING_DIR/.buckversion)
         if [[ ! -z "$BUCK_VERSION" ]]; then
             pushd "$BUCK_HOME" >/dev/null
             CURRENT_BUCK_VERSION=$(git rev-parse HEAD)

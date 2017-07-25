@@ -154,7 +154,7 @@ setupBuckBinary ( ) {
         fi
 
         # Check for current buck version
-        BUCK_VERSION=$(cat .buckversion)
+        BUCK_VERSION=$(cat $WORKING_DIR/.buckversion)
         if [[ ! -z "$BUCK_VERSION" ]]; then
             pushd "$BUCK_HOME" >/dev/null
             CURRENT_BUCK_VERSION=$(git rev-parse HEAD)
