@@ -12,6 +12,7 @@ abstract class AndroidRule extends JavaRule {
     private final String mManifest
     private final String mRobolectricManifest
     private final List<String> mAidlRuleNames
+    private final List<String> mExtraKotlincArgs
     private final boolean mGenerateR2
     private final String mRuntimeDependency
 
@@ -27,6 +28,7 @@ abstract class AndroidRule extends JavaRule {
             List<String> aptDeps,
             Set<String> providedDeps,
             List<String> aidlRuleNames,
+            List<String> extraKotlincArgs,
             String appClass,
             String sourceCompatibility,
             String targetCompatibility,
@@ -49,6 +51,7 @@ abstract class AndroidRule extends JavaRule {
         mManifest = manifest
         mRobolectricManifest = robolectricManifest
         mAidlRuleNames = aidlRuleNames
+        mExtraKotlincArgs = extraKotlincArgs
         mGenerateR2 = generateR2
         mRuntimeDependency = runtimeDependency
     }
@@ -60,6 +63,14 @@ abstract class AndroidRule extends JavaRule {
         if (mRuleType == RuleType.KOTLIN_ANDROID_LIBRARY ||
             mRuleType == RuleType.KOTLIN_ROBOLECTRIC_TEST) {
             printer.println("\tlanguage = 'kotlin',")
+        }
+
+        if (mExtraKotlincArgs) {
+            printer.println("\textra_kotlinc_arguments = [")
+            mExtraKotlincArgs.each { String argument ->
+                printer.println("\t\t'${argument}',")
+            }
+            printer.println("\t],")
         }
 
         if (!StringUtils.isEmpty(mManifest)) {

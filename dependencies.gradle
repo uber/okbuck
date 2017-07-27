@@ -42,6 +42,7 @@ def external = [
         dagger         : "com.google.dagger:dagger:${versions.daggerVersion}",
         gson           : 'com.google.code.gson:gson:2.8.1',
         kotlinStdlib   : "org.jetbrains.kotlin:kotlin-stdlib:${versions.kotlinVersion}",
+        kotlinExtension: "org.jetbrains.kotlin:kotlin-android-extensions:${versions.kotlinVersion}",
         leakCanary     : "com.squareup.leakcanary:leakcanary-android:${versions.leakCanaryVersion}",
         rxandroid      : 'io.reactivex.rxjava2:rxandroid:2.0.1',
         rxjava         : 'io.reactivex.rxjava2:rxjava:2.1.1',

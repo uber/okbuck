@@ -1,8 +1,17 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
 
 dependencies {
   compile deps.external.kotlinStdlib
   testCompile deps.test.junit
   testCompile deps.test.kotlinTest
+}
+
+android {
+  buildTypes {
+    custom {
+      sourceSets.custom.res.srcDirs = ["src/custom_res"]
+    }
+  }
 }
