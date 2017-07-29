@@ -7,10 +7,10 @@ import com.uber.okbuck.core.dependency.DependencyCache;
 import com.uber.okbuck.core.model.base.ProjectType;
 import com.uber.okbuck.core.model.base.Target;
 import com.uber.okbuck.core.model.base.TargetCache;
+import com.uber.okbuck.extension.OkBuckExtension;
 
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier;
-import org.gradle.api.plugins.ApplicationPlugin;
 import org.gradle.api.plugins.GroovyPlugin;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.PluginContainer;
@@ -53,6 +53,10 @@ public final class ProjectUtil {
 
     public static Target getTargetForOutput(Project targetProject, File output) {
         return getTargetCache(targetProject).getTargetForOutput(targetProject, output);
+    }
+
+    public static OkBuckExtension getExtension(Project project) {
+        return project.getRootProject().getExtensions().getByType(OkBuckExtension.class);
     }
 
     static OkBuckGradlePlugin getPlugin(Project project) {

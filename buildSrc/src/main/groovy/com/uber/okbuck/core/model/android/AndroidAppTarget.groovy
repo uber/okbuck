@@ -7,11 +7,7 @@ import com.uber.okbuck.core.model.base.Target
 import com.uber.okbuck.core.util.FileUtil
 import com.uber.okbuck.extension.TestExtension
 import groovy.util.slurpersupport.GPathResult
-import org.apache.commons.io.FilenameUtils
 import org.gradle.api.Project
-
-import java.util.zip.ZipEntry
-import java.util.zip.ZipFile
 
 /**
  * An Android app target
@@ -103,7 +99,7 @@ class AndroidAppTarget extends AndroidLibTarget {
 
     String getProguardConfig() {
         if (minifyEnabled) {
-            File mergedProguardConfig =  getGenPath("proguard.pro")
+            File mergedProguardConfig = getGenPath("proguard.pro")
             mergedProguardConfig.parentFile.mkdirs()
             mergedProguardConfig.createNewFile()
 
@@ -130,14 +126,9 @@ class AndroidAppTarget extends AndroidLibTarget {
             }
 
             // Consumer proguard files of compiled aar dependencies
-            main.externalDeps.findAll { String dep ->
-                dep.endsWith(".aar")
-            }.each { String dep ->
-                String config = getPackedProguardConfig(rootProject.file(dep))
-                if (!config.empty) {
-                    mergedConfig += "\n##---- ${FilenameUtils.getBaseName(dep)} ----##\n"
-                    mergedConfig += config
-                }
+            main.getPackagedProguardConfigs().each { File dep ->
+                mergedConfig += "\n##---- ${dep.name} ----##\n"
+                mergedConfig += dep.text
             }
 
             mergedProguardConfig.text = mergedConfig
@@ -149,18 +140,6 @@ class AndroidAppTarget extends AndroidLibTarget {
 
     List<Map<String, String>> getTransforms() {
         return (List<Map<String, String>>) getProp(okbuck.transform.transforms, [])
-    }
-
-    static String getPackedProguardConfig(File file) {
-        ZipFile zipFile = new ZipFile(file)
-        ZipEntry proguardEntry = zipFile.entries().find {
-            !it.directory && it.name == "proguard.txt"
-        } as ZipEntry
-        if (proguardEntry != null) {
-            return zipFile.getInputStream(proguardEntry).text
-        } else {
-            return ''
-        }
     }
 
     private Keystore extractKeystore() {

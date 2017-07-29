@@ -101,11 +101,6 @@ abstract class AndroidTarget extends JavaLibTarget {
     protected abstract ManifestMerger2.MergeType getMergeType()
 
     @Override
-    Set<String> getDepConfigNames() {
-        return expand(compileConfigs + aptConfigs + providedConfigs, TEST_PREFIX, true)
-    }
-
-    @Override
     Scope getMain() {
         return new Scope(
                 project,

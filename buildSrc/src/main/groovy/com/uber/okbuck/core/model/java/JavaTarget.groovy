@@ -8,8 +8,6 @@ import com.uber.okbuck.core.util.LintUtil
 import com.uber.okbuck.core.util.ProjectUtil
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
-import org.gradle.api.artifacts.Configuration
-import org.gradle.api.artifacts.UnknownConfigurationException
 
 abstract class JavaTarget extends JvmTarget {
 
@@ -61,24 +59,6 @@ abstract class JavaTarget extends JvmTarget {
      */
     Scope getTestProvided() {
         return new Scope(project, expand(providedConfigs, TEST_PREFIX))
-    }
-
-    Set<String> getDepConfigNames() {
-        return compileConfigs + aptConfigs + providedConfigs +
-                expand(compileConfigs + aptConfigs + providedConfigs, TEST_PREFIX)
-    }
-
-    Set<Configuration> depConfigurations() {
-        Set<Configuration> configurations = new HashSet()
-        depConfigNames.each { String configName ->
-            try {
-                Configuration configuration = project.configurations.getByName(configName)
-                if (configuration.dependencies)
-                    configurations.add(project.configurations.getByName(configName))
-            } catch (UnknownConfigurationException ignored) {
-            }
-        }
-        return Scope.useful(configurations)
     }
 
     /**

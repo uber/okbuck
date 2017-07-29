@@ -1,293 +1,258 @@
 package com.uber.okbuck.core.dependency
 
+import com.uber.okbuck.OkBuckGradlePlugin
+import com.uber.okbuck.core.model.base.Store
 import com.uber.okbuck.core.util.FileUtil
-import groovy.transform.Synchronized
 import org.apache.commons.io.IOUtils
 import org.gradle.api.Project
-import org.gradle.api.artifacts.ComponentSelection
 import org.gradle.api.artifacts.Configuration
-import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.component.ComponentIdentifier
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier
+import org.gradle.api.artifacts.component.ProjectComponentIdentifier
 import org.gradle.api.artifacts.result.ResolvedArtifactResult
-import org.gradle.plugins.ide.internal.IdeDependenciesExtractor
 
 import java.nio.file.FileSystem
 import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
+import java.util.concurrent.ConcurrentHashMap
 import java.util.jar.JarEntry
 import java.util.jar.JarFile
 
 class DependencyCache {
 
-    // These are used by conventions such as gradleApi() and localGroovy() and are whitelisted
-    private static final Set<String> WHITELIST_LOCAL_PATTERNS = ['generated-gradle-jars/gradle-api-', 'wrapper/dists']
+    private final File cacheDir
+    private final Project rootProject
+    private final boolean fetchSources
+    private final Store lintJars
+    private final Store processors
+    private final Store proguardConfigs
+    private final Store sources
 
-    final Project rootProject
-    final File cacheDir
+    private final Set<File> created = new HashSet<>()
+    private final Set<ExternalDependency> requested = ConcurrentHashMap.newKeySet()
 
-    final boolean useFullDepName
-    final boolean fetchSources
-    final boolean extractLintJars
+    DependencyCache(Project project, File cacheDir) {
+        this.rootProject = project.rootProject
+        this.cacheDir = cacheDir
+        this.fetchSources = rootProject.okbuck.intellij.sources
 
-    private final Configuration superConfiguration
-    private final Map<VersionlessDependency, String> lintJars = [:]
-    private final Map<VersionlessDependency, Set<String>> annotationProcessors = [:]
-
-    private final Map<VersionlessDependency, ExternalDependency> externalDeps = [:]
-
-    DependencyCache(
-            String name,
-            Project rootProject,
-            String cacheDirPath,
-            Set<Configuration> configurations,
-            String buckFile = null,
-            boolean cleanup = true,
-            boolean useFullDepName = false,
-            boolean fetchSources = false,
-            boolean extractLintJars = false) {
-
-        this.rootProject = rootProject
-        this.cacheDir = new File(rootProject.projectDir, cacheDirPath)
-        this.cacheDir.mkdirs()
-
-        superConfiguration = createSuperConfiguration(rootProject, "${name}DepCache" as String, configurations)
-
-        if (buckFile) {
-            FileUtil.copyResourceToProject(buckFile, new File(cacheDir, "BUCK"))
-        }
-
-        this.useFullDepName = useFullDepName
-        this.fetchSources = fetchSources
-        this.extractLintJars = extractLintJars
-        build(cleanup)
+        sources = new Store(new File("${OkBuckGradlePlugin.OKBUCK_STATE_DIR}/SOURCES"))
+        processors = new Store(new File("${OkBuckGradlePlugin.OKBUCK_STATE_DIR}/PROCESSORS"))
+        lintJars = new Store(new File("${OkBuckGradlePlugin.OKBUCK_STATE_DIR}/LINT_JARS"))
+        proguardConfigs = new Store(new File("${OkBuckGradlePlugin.OKBUCK_STATE_DIR}/PROGUARD_CONFIGS"))
     }
 
-    String get(VersionlessDependency dependency) {
-        ExternalDependency externalDependency = dependency.isLocal ?
-                (ExternalDependency) dependency : externalDeps.get(dependency)
-        if (externalDependency == null) {
-            throw new IllegalStateException("Could not find dependency path for ${dependency}")
-        }
-
-        File cachedCopy = new File(cacheDir, externalDependency.getCacheName(useFullDepName))
-        return FileUtil.getRelativePath(rootProject.projectDir, cachedCopy)
+    void finalizeDeps() {
+        sources.persist()
+        processors.persist()
+        lintJars.persist()
+        proguardConfigs.persist()
+        cleanup()
     }
 
-    @Synchronized
-    Set<String> getAnnotationProcessors(VersionlessDependency dependency) {
-        ExternalDependency greatest = externalDeps.get(dependency)
-        if (greatest.depFile.name.endsWith(".jar")) {
-            Set<String> processors = annotationProcessors.get(greatest)
-            if (!processors) {
-                File cachedCopy = new File(cacheDir, greatest.getCacheName(useFullDepName))
-                processors = getAnnotationProcessorsFile(cachedCopy).text.split('\n')
-                annotationProcessors.put(greatest, processors)
+    void cleanup() {
+        requested.each {
+            DependencyUtils.validate(rootProject, it)
+        }
+        (cacheDir.listFiles(new FileFilter() {
+
+            @Override
+            boolean accept(File pathname) {
+                return pathname.isFile() && (pathname.name.endsWith(".jar")
+                        || pathname.name.endsWith(".aar")
+                        || pathname.name.endsWith(".pro"))
             }
-            return processors
-        } else {
-            return []
+        }) - created).each { File f ->
+            Files.deleteIfExists(f.toPath())
         }
     }
 
-    String getLintJar(VersionlessDependency dependency) {
-        return lintJars.get(dependency)
+    String get(ExternalDependency dependency, boolean resolveOnly = false) {
+        File cachedCopy = new File(cacheDir, dependency.getCacheName(!resolveOnly))
+        String key = FileUtil.getRelativePath(rootProject.projectDir, cachedCopy)
+        createLink(Paths.get(key), dependency.depFile.toPath())
+
+        if (!resolveOnly && fetchSources) {
+            getSources(dependency)
+        }
+        requested.add(dependency)
+
+        return key
     }
 
-    private File fetchSourcesFor(ExternalDependency dependency) {
-        // We do not have sources for these dependencies
-        if (isWhiteListed(dependency.depFile)) {
-            return null
-        }
+    /**
+     * Gets the sources jar path for a dependency if it exists.
+     *
+     * @param dependency The dependency.
+     */
+    void getSources(ExternalDependency dependency) {
+        String key = dependency.cacheName
+        String sourcesJarPath = sources.get(key)
+        if (sourcesJarPath == null || !Files.exists(Paths.get(sourcesJarPath))) {
+            sourcesJarPath = ""
+            if (!DependencyUtils.isWhiteListed(dependency.depFile)) {
+                String sourcesJarName = dependency.getSourceCacheName(false)
+                File sourcesJar = new File(dependency.depFile.parentFile, sourcesJarName)
 
-        File cachedCopy = new File(cacheDir, dependency.getSourceCacheName(useFullDepName))
+                if (!Files.exists(sourcesJar.toPath())) {
+                    if (!dependency.isLocal) {
+                        // Most likely jar is in Gradle/Maven cache directory, try to find sources jar in "jar/../..".
+                        def sourceJars = rootProject.fileTree(
+                                dir: dependency.depFile.parentFile.parentFile.absolutePath,
+                                includes: ["**/${sourcesJarName}"]) as List
 
-        if (!cachedCopy.exists()) {
-            String sourcesJarName = dependency.getSourceCacheName(false)
-            File sourcesJar = new File(dependency.depFile.parentFile, sourcesJarName)
-
-            if (!sourcesJar.exists()) {
-                if (dependency.isLocal) {
-                    // Try to use sources jar right next to the jar itself.
-                    sourcesJar = new File(dependency.depFile.parentFile, sourcesJarName)
-                } else {
-                    // Most likely jar is in Gradle/Maven cache directory, try to find sources jar in "jar/../..".
-                    def sourceJars = rootProject.fileTree(
-                            dir: dependency.depFile.parentFile.parentFile.absolutePath,
-                            includes: ["**/${sourcesJarName}"]) as List
-
-                    if (sourceJars.size() == 1) {
-                        sourcesJar = sourceJars[0]
-                    } else if (sourceJars.size() > 1) {
-                        throw new IllegalStateException("Found multiple source jars: ${sourceJars} for ${dependency}")
+                        if (sourceJars.size() == 1) {
+                            sourcesJarPath = sourceJars[0].absolutePath
+                        } else if (sourceJars.size() > 1) {
+                            throw new IllegalStateException("Found multiple source jars: ${sourceJars} for ${dependency}")
+                        }
                     }
                 }
             }
-            if (sourcesJar.exists()) {
-                Files.createSymbolicLink(cachedCopy.toPath(), sourcesJar.toPath())
-            }
+            sources.set(key, sourcesJarPath)
         }
-
-        return cachedCopy.exists() ? cachedCopy : null
+        if (sourcesJarPath) {
+            createLink(new File(cacheDir, dependency.getSourceCacheName(true)).toPath(), Paths.get(sourcesJarPath))
+        }
     }
 
-    private void build(boolean cleanup) {
-        Set<File> resolvedFiles = [] as Set
-
-        superConfiguration.incoming.artifacts.each { ResolvedArtifactResult artifact ->
-            ComponentIdentifier identifier = artifact.id.componentIdentifier
-            ExternalDependency dependency
-            if (identifier instanceof ModuleComponentIdentifier) {
-                dependency = new ExternalDependency(
-                        identifier.group,
-                        identifier.module,
-                        identifier.version,
-                        artifact.file)
+    /**
+     * Get the list of annotation processor classes provided by a dependency.
+     *
+     * @param dependency The dependency
+     * @return The list of annotation processor classes available in the manifest
+     */
+    List<String> getAnnotationProcessors(ExternalDependency dependency) {
+        String key = dependency.cacheName
+        String processorsList = processors.get(key)
+        if (processorsList == null) {
+            JarFile jarFile = new JarFile(dependency.depFile)
+            JarEntry jarEntry = (JarEntry) jarFile.getEntry("META-INF/services/javax.annotation.processing.Processor")
+            if (jarEntry) {
+                List<String> processorClasses = IOUtils.toString(jarFile.getInputStream(jarEntry))
+                        .trim().split("\\n").findAll { String entry ->
+                    !entry.startsWith('#') && !entry.trim().empty // filter out comments and empty lines
+                }
+                processorsList = processorClasses.join(",")
             } else {
-                dependency = ExternalDependency.fromLocal(artifact.file)
+                processorsList = ""
             }
-            externalDeps.put(dependency, dependency)
-            resolvedFiles.add(artifact.file)
+            processors.set(key, processorsList)
         }
 
-        superConfiguration.files.findAll { File resolved ->
-            !resolvedFiles.contains(resolved)
-        }.each { File localDep ->
-            ExternalDependency localDependency = ExternalDependency.fromLocal(localDep)
-            externalDeps.put(localDependency, localDependency)
-        }
-
-        resolvedFiles = null
-
-        // Download sources if enabled
-        if (fetchSources) {
-            new IdeDependenciesExtractor().extractRepoFileDependencies(
-                    rootProject.dependencies,
-                    [superConfiguration],
-                    [],
-                    true,
-                    false)
-        }
-
-        Set<File> cachedCopies = [] as Set
-
-        externalDeps.each { _, ExternalDependency e ->
-            File cachedCopy = new File(cacheDir, e.getCacheName(useFullDepName))
-
-            // Copy the file into the cache
-            if (!cachedCopy.exists()) {
-                Files.createSymbolicLink(cachedCopy.toPath(), e.depFile.toPath())
-            }
-            cachedCopies.add(cachedCopy)
-
-            // Extract Lint Jars
-            if (extractLintJars && cachedCopy.name.endsWith(".aar")) {
-                File lintJar = getPackagedLintJarFrom(cachedCopy)
-                if (lintJar != null) {
-                    String lintJarPath = FileUtil.getRelativePath(rootProject.projectDir, lintJar)
-                    lintJars.put(e, lintJarPath)
-                    cachedCopies.add(lintJar)
-                }
-            }
-
-            // Fetch Sources
-            if (fetchSources) {
-                File sources = fetchSourcesFor(e)
-                if (sources != null) {
-                    cachedCopies.add(sources)
-                }
-            }
-        }
-
-        // cleanup
-        if (cleanup) {
-            (cacheDir.listFiles(new FileFilter() {
-
-                @Override
-                boolean accept(File pathname) {
-                    return pathname.isFile() && (pathname.name.endsWith(".jar") || pathname.name.endsWith(".aar"))
-                }
-            }) - cachedCopies).each { File f ->
-                Files.deleteIfExists(f.toPath())
-            }
+        if (processorsList == "") {
+            return Collections.emptyList()
+        } else {
+            return processorsList.split(",")
         }
     }
 
-    static boolean isWhiteListed(File depFile) {
-        return WHITELIST_LOCAL_PATTERNS.find { depFile.absolutePath.contains(it) } != null
+    /**
+     * Get the packaged lint jar of an aar dependency if any.
+     *
+     * @param dependency The depenency
+     * @return path to the lint jar in the cache.
+     */
+    String getLintJar(ExternalDependency dependency) {
+        return getAarEntry(dependency, lintJars, "lint.jar", "-lint.jar")
     }
 
-    static File getPackagedLintJarFrom(File aar) {
-        File lintJar = new File(aar.parentFile, aar.name.replaceFirst(/\.aar$/, '-lint.jar'))
-        if (lintJar.exists()) {
-            return lintJar
-        }
-        FileSystem zipFile = FileSystems.newFileSystem(aar.toPath(), null)
-        Path packagedLintJar = zipFile.getPath("lint.jar")
-        if (Files.exists(packagedLintJar)) {
-            Files.copy(packagedLintJar, lintJar.toPath(), StandardCopyOption.REPLACE_EXISTING)
-            return lintJar
+    /**
+     * Get the packaged proguard config of an aar dependency if any.
+     *
+     * @param dependency The depenency
+     * @return path to the proguard config in the cache.
+     */
+    File getProguardConfig(ExternalDependency dependency) {
+        String entry = getAarEntry(dependency, proguardConfigs, "proguard.txt", "-proguard.pro")
+        if (entry) {
+            return new File(entry)
         } else {
             return null
         }
     }
 
-    static File getAnnotationProcessorsFile(File jar) {
-        File processors = new File(jar.parentFile, jar.name.replaceFirst(/\.jar$/, '.processors'))
-        if (processors.exists()) {
-            return processors
-        }
-
-        JarFile jarFile = new JarFile(jar)
-        JarEntry jarEntry = (JarEntry) jarFile.getEntry("META-INF/services/javax.annotation.processing.Processor")
-        if (jarEntry) {
-            List<String> processorClasses = IOUtils.toString(jarFile.getInputStream(jarEntry))
-                    .trim().split("\\n").findAll { String entry ->
-                !entry.startsWith('#') && !entry.trim().empty // filter out comments and empty lines
-            }
-            processors.text = processorClasses.join('\n')
-        } else {
-            processors.createNewFile()
-        }
-        return processors
+    void build(Configuration configuration) {
+        build(Collections.singleton(configuration))
     }
 
-    private static Configuration createSuperConfiguration(Project project,
-                                                          String superConfigName,
-                                                          Set<Configuration> configurations) {
-        Configuration superConfiguration = project.configurations.maybeCreate(superConfigName)
-        configurations.each {
-            superConfiguration.dependencies.addAll(it.incoming.dependencies.findAll {
-                !(it instanceof org.gradle.api.artifacts.ProjectDependency)
-            })
-        }
-
-        superConfiguration.dependencies.each { Dependency dependency ->
-            String version = dependency.version
-            if (version && (version.contains("+"))) {
-                err(project, "${dependency.group}:${dependency.name}:${version} : " +
-                        "Please do not use dynamic version dependencies. They can cause hard to reproduce builds")
+    /**
+     * Use this method to populate dependency caches of tools/languages etc. This is not meant to be used across
+     * multiple threads/gradle task executions which can run in parallel. This method is fully synchronous.
+     *
+     * @param configurations The set of configurations to materialize into the dependency cache
+     */
+    void build(Set<Configuration> configurations) {
+        configurations.each { Configuration configuration ->
+            configuration.incoming.artifacts.each { ResolvedArtifactResult artifact ->
+                ComponentIdentifier identifier = artifact.id.componentIdentifier
+                if (identifier instanceof ProjectComponentIdentifier) {
+                    return
+                }
+                ExternalDependency dependency
+                if (identifier instanceof ModuleComponentIdentifier) {
+                    dependency = new ExternalDependency(
+                            identifier.group,
+                            identifier.module,
+                            identifier.version,
+                            artifact.file)
+                } else {
+                    dependency = ExternalDependency.fromLocal(artifact.file)
+                }
+                get(dependency, true)
             }
         }
-
-        superConfiguration.resolutionStrategy.componentSelection.all { ComponentSelection selection ->
-            String version = selection.candidate.version
-            if (version.contains("-SNAPSHOT")) {
-                err(project, "${selection.candidate.displayName} : " +
-                        "Please do not use snapshot version dependencies. They can cause hard to reproduce builds")
-            }
-        }
-
-        return superConfiguration
+        cleanup()
     }
 
-    private static err(Project project, String message) {
-        if (project.okbuck.failOnChangingDependencies) {
-            throw new IllegalStateException(message)
+    void createLink(Path link, Path target) {
+        created.add(link.toAbsolutePath().toFile())
+        if (!Files.exists(link) && Files.exists(target)) {
+            try {
+                Files.createSymbolicLink(link, target)
+            } catch (IOException ignored) { }
+        }
+    }
+
+    private String getAarEntry(ExternalDependency dependency, Store store, String entry, String suffix) {
+        if (!dependency.depFile.name.endsWith(".aar")) {
+            return null
+        }
+
+        String key = dependency.cacheName
+        String entryPath = store.get(key)
+        if (entryPath == null || !Files.exists(Paths.get(entryPath))) {
+            entryPath = ""
+            File cachedCopy = new File(cacheDir, key)
+            File packagedEntry = getPackagedFile(cachedCopy, entry, suffix)
+            if (packagedEntry != null) {
+                entryPath = FileUtil.getRelativePath(rootProject.projectDir, packagedEntry)
+            }
+            store.set(key, entryPath)
+        }
+        if (entryPath) {
+            created.add(new File(rootProject.projectDir, entryPath))
+        }
+
+        return entryPath
+    }
+
+    private static File getPackagedFile(File aar, String entry, String suffix) {
+        File packagedFile = new File(aar.parentFile, aar.name.replaceFirst(/\.aar$/, suffix))
+        if (Files.exists(packagedFile.toPath())) {
+            return packagedFile
+        }
+
+        FileSystem zipFile = FileSystems.newFileSystem(aar.toPath(), null)
+        Path packagedPath = zipFile.getPath(entry)
+        if (Files.exists(packagedPath)) {
+            Files.copy(packagedPath, packagedFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
+            return packagedFile
         } else {
-            println "\n${message}\n"
+            return null
         }
     }
 }

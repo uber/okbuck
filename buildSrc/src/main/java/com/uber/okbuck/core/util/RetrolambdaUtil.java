@@ -4,6 +4,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.core.dependency.DependencyCache;
+import com.uber.okbuck.core.dependency.DependencyUtils;
 import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.extension.RetrolambdaExtension;
 
@@ -55,11 +56,6 @@ public final class RetrolambdaUtil {
 
         String retrolambdaJar = retrolambdaDepsScope.getExternalDeps().iterator().next();
 
-        FileUtil.copyResourceToProject(RETROLAMBDA_DEPS_BUCK_FILE,
-                new File(retrolambdaDepCache.getCacheDir(), "BUCK"));
-        FileUtil.copyResourceToProject("retrolambda/" + RT_STUB_JAR,
-                new File(retrolambdaDepCache.getCacheDir(), RT_STUB_JAR));
-
         ImmutableList.Builder<String> builder = ImmutableList.<String>builder().add(RETROLAMBDA_CMD_TEMPLATE);
         if (!StringUtils.isEmpty(extension.jvmArgs)) {
             builder = builder.add(extension.jvmArgs);
@@ -73,10 +69,12 @@ public final class RetrolambdaUtil {
     }
 
     private static DependencyCache getRetrolambdaDepsCache(Project project) {
-        return new DependencyCache("retrolambda",
-                project.getRootProject(),
-                RETROLAMDBA_CACHE,
-                Collections.singleton(project.getConfigurations().getByName(RETROLAMBDA_DEPS_CONFIG)),
-                RETROLAMBDA_DEPS_BUCK_FILE);
+        File cacheDir = DependencyUtils.createCacheDir(project, RETROLAMDBA_CACHE, RETROLAMBDA_DEPS_BUCK_FILE);
+        DependencyCache dependencyCache = new DependencyCache(project, cacheDir);
+        dependencyCache.build(project.getConfigurations().getByName(RETROLAMBDA_DEPS_CONFIG));
+
+        FileUtil.copyResourceToProject("retrolambda/" + RT_STUB_JAR, new File(cacheDir, RT_STUB_JAR));
+
+        return dependencyCache;
     }
 }

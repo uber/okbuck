@@ -2,6 +2,7 @@ package com.uber.okbuck.core.util;
 
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.core.dependency.DependencyCache;
+import com.uber.okbuck.core.dependency.DependencyUtils;
 
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
@@ -38,13 +39,10 @@ public final class RobolectricUtil {
             runtimeDeps.add(runtimeApi);
         }
 
+        DependencyCache dependencyCache = new DependencyCache(project,
+                DependencyUtils.createCacheDir(project, ROBOLECTRIC_CACHE));
         for (Configuration configuration : runtimeDeps) {
-            new DependencyCache("robolectric" + configuration.getName().toUpperCase(),
-                    project,
-                    ROBOLECTRIC_CACHE,
-                    Collections.singleton(configuration),
-                    null,
-                    false);
+            dependencyCache.build(configuration);
         }
     }
 

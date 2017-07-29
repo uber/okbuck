@@ -3,12 +3,12 @@ package com.uber.okbuck.core.util;
 import com.google.common.collect.ImmutableMap;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.core.dependency.DependencyCache;
+import com.uber.okbuck.core.dependency.DependencyUtils;
 
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 
 import java.io.File;
-import java.util.Collections;
 
 import groovy.lang.GroovySystem;
 
@@ -21,16 +21,13 @@ public final class GroovyUtil {
     private GroovyUtil() {}
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    public static void setupGroovyHome(Project rootProject) {
+    public static void setupGroovyHome(Project project) {
         String groovyVersion = GroovySystem.getVersion();
 
-        Configuration groovyConfig = rootProject.getConfigurations().maybeCreate(GROOVY_DEPS_CONFIG);
-        rootProject.getDependencies().add(GROOVY_DEPS_CONFIG, "org.codehaus.groovy:groovy:" + groovyVersion);
-        new DependencyCache("groovy",
-                rootProject,
-                GROOVY_HOME_LOCATION + "/lib",
-                Collections.singleton(groovyConfig),
-                null);
+        Configuration groovyConfig = project.getConfigurations().maybeCreate(GROOVY_DEPS_CONFIG);
+        project.getDependencies().add(GROOVY_DEPS_CONFIG, "org.codehaus.groovy:groovy:" + groovyVersion);
+        new DependencyCache(project, DependencyUtils.createCacheDir(project, GROOVY_HOME_LOCATION + "/lib"))
+                .build(groovyConfig);
 
         File groovyHome = new File(GROOVY_HOME_LOCATION);
 

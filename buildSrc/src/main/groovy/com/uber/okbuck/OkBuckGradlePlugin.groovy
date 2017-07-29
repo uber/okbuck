@@ -1,14 +1,12 @@
 package com.uber.okbuck
 
 import com.uber.okbuck.core.dependency.DependencyCache
-import com.uber.okbuck.core.model.android.AndroidAppTarget
+import com.uber.okbuck.core.dependency.DependencyUtils
 import com.uber.okbuck.core.model.base.TargetCache
-import com.uber.okbuck.core.model.java.JavaTarget
 import com.uber.okbuck.core.task.OkBuckCleanTask
 import com.uber.okbuck.core.task.OkBuckTask
 import com.uber.okbuck.core.util.FileUtil
 import com.uber.okbuck.core.util.LintUtil
-import com.uber.okbuck.core.util.ProjectUtil
 import com.uber.okbuck.core.util.RetrolambdaUtil
 import com.uber.okbuck.core.util.RobolectricUtil
 import com.uber.okbuck.core.util.TransformUtil
@@ -27,10 +25,8 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
-import org.gradle.api.artifacts.repositories.ArtifactRepository
-import org.gradle.api.artifacts.repositories.FlatDirectoryArtifactRepository
-import org.gradle.api.artifacts.repositories.IvyArtifactRepository
-import org.gradle.api.artifacts.repositories.MavenArtifactRepository
+
+import java.nio.file.Paths
 
 // Dependency Tree
 //
@@ -68,7 +64,9 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     public static final String SCALA = "scala"
     public static final String CONFIGURATION_EXTERNAL = "externalOkbuck"
     public static final String OKBUCK_DEFS = ".okbuck/defs/DEFS"
-    public static final String OKBUCK_STATE = ".okbuck/state/STATE"
+
+    public static final String OKBUCK_STATE_DIR = ".okbuck/state"
+    public static final String OKBUCK_STATE = "${OKBUCK_STATE_DIR}/STATE"
     public static final String OKBUCK_GEN = ".okbuck/gen"
 
     // Project level globals
@@ -83,10 +81,11 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         WrapperExtension wrapper = okbuckExt.extensions.create(WRAPPER, WrapperExtension)
         ExperimentalExtension experimental = okbuckExt.extensions.create(EXPERIMENTAL, ExperimentalExtension)
         TestExtension test = okbuckExt.extensions.create(TEST, TestExtension)
-        IntellijExtension intellij = okbuckExt.extensions.create(INTELLIJ, IntellijExtension)
         LintExtension lint = okbuckExt.extensions.create(LINT, LintExtension, project)
         RetrolambdaExtension retrolambda = okbuckExt.extensions.create(RETROLAMBDA, RetrolambdaExtension)
         ScalaExtension scala = okbuckExt.extensions.create(SCALA, ScalaExtension)
+
+        okbuckExt.extensions.create(INTELLIJ, IntellijExtension)
         okbuckExt.extensions.create(TRANSFORM, TransformExtension)
 
         // Create configurations
@@ -132,20 +131,12 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                 // Cleanup gen folder
                 FileUtil.deleteQuietly(project.projectDir.toPath().resolve(OKBUCK_GEN))
 
-                addSubProjectRepos(project as Project, okbuckExt.buckProjects as Set<Project>)
-                Set<Configuration> projectConfigurations = configurations(okbuckExt.buckProjects)
-                projectConfigurations.addAll([externalOkbuck])
+                okbuckExt.buckProjects.each {
+                    targetCache.getTargets(it)
+                }
 
-                depCache = new DependencyCache(
-                        "external",
-                        project,
-                        DEFAULT_CACHE_PATH,
-                        projectConfigurations,
-                        EXTERNAL_DEP_BUCK_FILE,
-                        true,
-                        true,
-                        intellij.sources,
-                        !lint.disabled)
+                File cacheDir = DependencyUtils.createCacheDir(project, DEFAULT_CACHE_PATH, EXTERNAL_DEP_BUCK_FILE)
+                depCache = new DependencyCache(project, cacheDir)
 
                 // Fetch Lint deps if needed
                 if (!lint.disabled && lint.version != null) {
@@ -171,8 +162,10 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                 }
 
                 extraConfigurations.each { String cacheName, Configuration extraConfiguration ->
-                    new DependencyCache(cacheName, project, "${EXTRA_DEP_CACHE_PATH}/${cacheName}",
-                        Collections.singleton(extraConfiguration), EXTERNAL_DEP_BUCK_FILE)
+                    new DependencyCache(project,
+                            DependencyUtils.createCacheDir(
+                                    project, "${EXTRA_DEP_CACHE_PATH}/${cacheName}", EXTERNAL_DEP_BUCK_FILE))
+                            .build(extraConfiguration)
                 }
             }
 
@@ -183,61 +176,16 @@ class OkBuckGradlePlugin implements Plugin<Project> {
             okBuck.dependsOn(okBuckClean)
 
             // Configure buck projects
-            configureBuckProjects(okbuckExt.buckProjects.findAll { it.buildFile.exists() },
-                    setupOkbuck,
-                    okBuckClean)
-        }
-    }
-
-    private static Set<Configuration> configurations(Set<Project> projects) {
-        Set<Configuration> configurations = new HashSet() as Set<Configuration>
-        projects.each { Project p ->
-            ProjectUtil.getTargets(p).values().each {
-                if (it instanceof JavaTarget) {
-                    configurations.addAll(it.depConfigurations())
+            okbuckExt.buckProjects.findAll { it.buildFile.exists() }.each { Project buckProject ->
+                buckProject.configurations.maybeCreate(BUCK_LINT)
+                buckProject.configurations.maybeCreate(BUCK_LINT_LIBRARY)
+                Task okbuckProjectTask = buckProject.tasks.maybeCreate(OKBUCK)
+                okbuckProjectTask.doLast {
+                    BuckFileGenerator.generate(buckProject)
                 }
-                if (it instanceof AndroidAppTarget && it.instrumentationTarget) {
-                    configurations.addAll(it.instrumentationTarget.depConfigurations())
-                }
+                okbuckProjectTask.dependsOn(setupOkbuck)
+                okBuckClean.dependsOn(okbuckProjectTask)
             }
         }
-        return configurations
-    }
-
-    private static void configureBuckProjects(Set<Project> buckProjects, Task depends, Task dependent) {
-        buckProjects.each { Project buckProject ->
-            buckProject.configurations.maybeCreate(BUCK_LINT)
-            buckProject.configurations.maybeCreate(BUCK_LINT_LIBRARY)
-            Task okbuckProjectTask = buckProject.tasks.maybeCreate(OKBUCK)
-            okbuckProjectTask.doLast {
-                BuckFileGenerator.generate(buckProject)
-            }
-            okbuckProjectTask.dependsOn(depends)
-            dependent.dependsOn(okbuckProjectTask)
-        }
-    }
-
-    /**
-     * This is required to let the root project super configuration resolve
-     * all recursively copied configurations.
-     */
-    private static void addSubProjectRepos(Project rootProject, Set<Project> subProjects) {
-        Map<Object, ArtifactRepository> reduced = [:]
-
-        subProjects.each { Project subProject ->
-            subProject.repositories.asMap.values().each {
-                if (it instanceof MavenArtifactRepository) {
-                    reduced.put(it.url, it)
-                } else if (it instanceof IvyArtifactRepository) {
-                    reduced.put(it.url, it)
-                } else if (it instanceof FlatDirectoryArtifactRepository) {
-                    reduced.put(it.dirs, it)
-                } else {
-                    rootProject.repositories.add(it)
-                }
-            }
-        }
-
-        rootProject.repositories.addAll(reduced.values())
     }
 }

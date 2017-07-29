@@ -43,11 +43,6 @@ class AndroidInstrumentationTarget extends AndroidAppTarget {
                 getJavaCompilerOptions(baseVariant))
     }
 
-    @Override
-    Set<String> getDepConfigNames() {
-        return expand(compileConfigs + aptConfigs + providedConfigs, ANDROID_TEST_PREFIX)
-    }
-
     Scope getInstrumentation() {
         return new Scope(
                 project,

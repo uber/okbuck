@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.base.BuckRuleComposer;
 import com.uber.okbuck.core.dependency.DependencyCache;
+import com.uber.okbuck.core.dependency.DependencyUtils;
 import com.uber.okbuck.core.model.base.Scope;
 
 import org.gradle.api.Project;
@@ -31,11 +32,10 @@ public final class TransformUtil {
     public static void fetchTransformDeps(Project project) {
         Set<Configuration> transformConfigurations =
                 Collections.singleton(project.getConfigurations().getByName(CONFIGURATION_TRANSFORM));
-        DependencyCache dependencyCache = new DependencyCache("transform",
-                project.getRootProject(),
-                TRANSFORM_CACHE,
-                transformConfigurations,
-                TRANSFORM_FOLDER + TRANSFORM_BUCK_FILE);
+
+        File cacheDir = DependencyUtils.createCacheDir(project, TRANSFORM_CACHE);
+        DependencyCache dependencyCache = new DependencyCache(project, cacheDir);
+        dependencyCache.build(transformConfigurations);
 
         Scope transformScope = new Scope(
                 project,
@@ -53,9 +53,8 @@ public final class TransformUtil {
 
         FileUtil.copyResourceToProject(
                 TRANSFORM_FOLDER + TRANSFORM_BUCK_FILE,
-                new File(dependencyCache.getCacheDir(), "BUCK"),
+                new File(cacheDir, "BUCK"),
                 ImmutableMap.of("template-target-deps", allTargetDeps));
-        FileUtil.copyResourceToProject(
-                TRANSFORM_FOLDER + TRANSFORM_JAR, new File(dependencyCache.getCacheDir(), TRANSFORM_JAR));
+        FileUtil.copyResourceToProject(TRANSFORM_FOLDER + TRANSFORM_JAR, new File(cacheDir, TRANSFORM_JAR));
     }
 }
