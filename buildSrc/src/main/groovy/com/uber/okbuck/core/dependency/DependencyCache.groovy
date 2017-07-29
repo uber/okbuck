@@ -249,7 +249,9 @@ class DependencyCache {
         FileSystem zipFile = FileSystems.newFileSystem(aar.toPath(), null)
         Path packagedPath = zipFile.getPath(entry)
         if (Files.exists(packagedPath)) {
-            Files.copy(packagedPath, packagedFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
+            try {
+                Files.copy(packagedPath, packagedFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
+            } catch (IOException ignored) { }
             return packagedFile
         } else {
             return null
