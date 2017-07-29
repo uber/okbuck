@@ -119,7 +119,7 @@ abstract class AndroidTarget extends JavaLibTarget {
 
         return new Scope(
                 project,
-                expand(compileConfigs, TEST_PREFIX, true),
+                expand(compileConfigs, TEST_PREFIX),
                 testSrcDirs,
                 project.file("src/test/resources"),
                 getJavaCompilerOptions(unitTestVariant))
@@ -391,7 +391,7 @@ abstract class AndroidTarget extends JavaLibTarget {
      * Expands configuration names to android configuration conventions
      */
     @Override
-    protected Set<String> expand(List<String> configNames, String prefix = "", boolean includeParent = false) {
+    protected Set<String> expand(List<String> configNames, String prefix = "") {
         List<String> expansions = ["", buildType, flavor, name]
         Set<String> expandedConfigs = configNames.collect { String configName ->
             expansions.collect { String expansion ->
@@ -399,10 +399,6 @@ abstract class AndroidTarget extends JavaLibTarget {
                 expanded.substring(0, 1).toLowerCase() + expanded.substring(1)
             }
         }.flatten() as Set<String>
-
-        if (prefix && includeParent) {
-            expandedConfigs += expand(configNames)
-        }
         return expandedConfigs
     }
 

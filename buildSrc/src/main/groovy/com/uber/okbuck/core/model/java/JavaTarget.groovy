@@ -64,7 +64,7 @@ abstract class JavaTarget extends JvmTarget {
     /**
      * Expands configuration names to java configuration conventions
      */
-    protected Set<String> expand(List<String> configNames, String prefix = "", boolean includeParent = false) {
+    protected Set<String> expand(List<String> configNames, String prefix = "") {
         Set<String> expanded
         if (prefix) {
             expanded = configNames.collect {
@@ -72,10 +72,6 @@ abstract class JavaTarget extends JvmTarget {
             }
         } else {
             expanded = configNames
-        }
-
-        if (prefix && includeParent) {
-            expanded += expand(configNames)
         }
         return expanded
     }

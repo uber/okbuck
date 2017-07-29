@@ -25,7 +25,7 @@ class KotlinLibTarget extends JavaLibTarget {
     @Override
     Scope getTest() {
         return new Scope(project,
-                expand(compileConfigs, TEST_PREFIX, true),
+                expand(compileConfigs, TEST_PREFIX),
                 (project.sourceSets.test.java.srcDirs as Set) + (project.sourceSets.test.kotlin.srcDirs as Set),
                 project.file("src/test/resources"),
                 Collections.emptyList())
