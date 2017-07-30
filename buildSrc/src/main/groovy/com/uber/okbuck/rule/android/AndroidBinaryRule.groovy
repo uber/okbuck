@@ -1,5 +1,6 @@
 package com.uber.okbuck.rule.android
 
+import com.uber.okbuck.core.io.Printer
 import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.rule.base.BuckRule
 
@@ -43,7 +44,7 @@ final class AndroidBinaryRule extends BuckRule {
     }
 
     @Override
-    protected final void printContent(PrintStream printer) {
+    protected final void printContent(Printer printer) {
         printer.println("\tmanifest = '${mManifest}',")
         printer.println("\tkeystore = '${mKeystore}',")
         if (mExopackage) {

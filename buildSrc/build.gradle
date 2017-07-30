@@ -33,6 +33,7 @@ dependencies {
     compile deps.build.commonsLang
     compile deps.build.kotlinPlugin
     compile deps.build.mavenArtifact
+    compile deps.build.okio
 
     testCompile deps.test.junit
 }

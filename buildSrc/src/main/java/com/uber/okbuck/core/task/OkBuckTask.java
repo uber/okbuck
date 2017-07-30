@@ -4,6 +4,9 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 
 import com.uber.okbuck.OkBuckGradlePlugin;
+import com.uber.okbuck.config.BUCKFile;
+import com.uber.okbuck.core.io.FilePrinter;
+import com.uber.okbuck.core.io.Printer;
 import com.uber.okbuck.core.model.base.ProjectType;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.GroovyUtil;
@@ -22,6 +25,7 @@ import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Set;
@@ -117,15 +121,16 @@ public class OkBuckTask extends DefaultTask {
     defs.add("//" + OKBUCK_DEFS);
 
     // generate .buckconfig.local
-    try (
-    PrintStream configPrinter = new PrintStream(dotBuckConfigLocal())) {
+    try {
+      Printer printer = new FilePrinter(dotBuckConfigLocal());
       DotBuckConfigLocalGenerator.generate(okbuckExt,
               groovyHome,
               kotlinHome,
               scalaHome,
               ProguardUtil.getProguardJarPath(getProject()),
-              defs).print(configPrinter);
-    } catch (IOException e) {
+              defs).print(printer);
+      printer.flush();
+    } catch (FileNotFoundException e) {
       throw new RuntimeException(e);
     }
   }

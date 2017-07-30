@@ -19,6 +19,8 @@ import com.uber.okbuck.composer.android.TrasformDependencyWriterRuleComposer
 import com.uber.okbuck.composer.java.JavaLibraryRuleComposer
 import com.uber.okbuck.composer.java.JavaTestRuleComposer
 import com.uber.okbuck.config.BUCKFile
+import com.uber.okbuck.core.io.FilePrinter
+import com.uber.okbuck.core.io.Printer
 import com.uber.okbuck.core.model.android.AndroidAppTarget
 import com.uber.okbuck.core.model.android.AndroidInstrumentationTarget
 import com.uber.okbuck.core.model.android.AndroidLibTarget
@@ -53,8 +55,12 @@ final class BuckFileGenerator {
 
         if (rules) {
             BUCKFile buckFile = new BUCKFile(rules)
-            new PrintStream(project.file(OkBuckGradlePlugin.BUCK)).withStream { stream ->
-                buckFile.print(stream)
+            try {
+                Printer printer = new FilePrinter(project.file(OkBuckGradlePlugin.BUCK))
+                buckFile.print(printer)
+                printer.flush()
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e)
             }
         }
     }

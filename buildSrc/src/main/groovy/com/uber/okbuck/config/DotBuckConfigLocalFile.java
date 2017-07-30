@@ -1,9 +1,9 @@
 package com.uber.okbuck.config;
 
+import com.uber.okbuck.core.io.Printer;
+
 import org.apache.commons.lang.StringUtils;
 
-import java.io.PrintStream;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -38,7 +38,7 @@ public final class DotBuckConfigLocalFile extends BuckConfigFile {
     }
 
     @Override
-    public final void print(PrintStream printer) {
+    public final void print(Printer printer) {
         printer.println("[alias]");
         aliases.forEach((alias, target) -> printer.println("\t" + alias + " = " + target));
         printer.println();

@@ -15,6 +15,7 @@ def build = [
         commonsLang      : 'commons-lang:commons-lang:2.6',
         kotlinPlugin     : "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlinVersion}",
         mavenArtifact    : 'org.apache.maven:maven-artifact:3.3.9',
+        okio             : "com.squareup.okio:okio:1.13.0",
         retrolambdaPlugin: 'me.tatarka:gradle-retrolambda:3.6.1',
         sqlDelightPlugin : 'com.squareup.sqldelight:gradle-plugin:0.6.1',
         shadowJar        : "com.github.jengelman.gradle.plugins:shadow:2.0.1",

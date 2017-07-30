@@ -1,5 +1,6 @@
 package com.uber.okbuck.rule.java
 
+import com.uber.okbuck.core.io.Printer
 import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.rule.base.BuckRule
 
@@ -20,7 +21,7 @@ final class JavaBinaryRule extends BuckRule {
     }
 
     @Override
-    protected final void printContent(PrintStream printer) {
+    protected final void printContent(Printer printer) {
         if (mMainClass) {
             printer.println("\tmain_class = '${mMainClass}',")
         }

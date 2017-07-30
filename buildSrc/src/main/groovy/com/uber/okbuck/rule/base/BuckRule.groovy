@@ -1,5 +1,6 @@
 package com.uber.okbuck.rule.base
 
+import com.uber.okbuck.core.io.Printer
 import com.uber.okbuck.core.model.base.RuleType
 
 abstract class BuckRule {
@@ -22,7 +23,7 @@ abstract class BuckRule {
     /**
      * Print this rule into the printer.
      */
-    void print(PrintStream printer) {
+    void print(Printer printer) {
         printer.println("${mRuleType}(")
 
         if (name != null) {
@@ -55,5 +56,5 @@ abstract class BuckRule {
      *
      * @param printer The printer.
      */
-    protected abstract void printContent(PrintStream printer)
+    protected abstract void printContent(Printer printer)
 }

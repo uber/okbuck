@@ -1,8 +1,8 @@
 package com.uber.okbuck.config;
 
+import com.uber.okbuck.core.io.Printer;
 import com.uber.okbuck.rule.base.BuckRule;
 
-import java.io.PrintStream;
 import java.util.List;
 
 public final class BUCKFile extends BuckConfigFile {
@@ -14,7 +14,7 @@ public final class BUCKFile extends BuckConfigFile {
     }
 
     @Override
-    public final void print(PrintStream printer) {
+    public final void print(Printer printer) {
         for (BuckRule rule : rules) {
             rule.print(printer);
         }

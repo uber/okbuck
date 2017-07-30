@@ -1,5 +1,6 @@
 package com.uber.okbuck.rule.android
 
+import com.uber.okbuck.core.io.Printer
 import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.core.model.jvm.TestOptions
 import com.uber.okbuck.rule.java.JavaRule
@@ -53,7 +54,7 @@ abstract class AndroidRule extends JavaRule {
     }
 
     @Override
-    protected final void printContent(PrintStream printer) {
+    protected final void printContent(Printer printer) {
         super.printContent(printer)
 
         if (mRuleType == RuleType.KOTLIN_ANDROID_LIBRARY ||
