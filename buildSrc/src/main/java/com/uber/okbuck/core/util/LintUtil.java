@@ -2,6 +2,7 @@ package com.uber.okbuck.core.util;
 
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.core.dependency.DependencyCache;
+import com.uber.okbuck.core.dependency.DependencyUtils;
 import com.uber.okbuck.extension.OkBuckExtension;
 
 import org.apache.commons.io.FileUtils;
@@ -71,17 +72,11 @@ public final class LintUtil {
     public static DependencyCache getLintDepsCache(Project project) {
         OkBuckGradlePlugin okBuckGradlePlugin = ProjectUtil.getPlugin(project);
         if (okBuckGradlePlugin.lintDepCache == null) {
-            OkBuckExtension okBuckExtension = project.getExtensions().getByType(OkBuckExtension.class);
-            okBuckGradlePlugin.lintDepCache = new DependencyCache("lint",
-                    project.getRootProject(),
-                    LINT_DEPS_CACHE,
-                    Collections.<Configuration>singleton(project.getRootProject().getConfigurations().getByName
-                            (LINT_DEPS_CONFIG)),
-                    LINT_DEPS_BUCK_FILE,
-                    true,
-                    false,
-                    false,
-                    false);
+            okBuckGradlePlugin.lintDepCache = new DependencyCache(project,
+                    DependencyUtils.createCacheDir(project, LINT_DEPS_CACHE, LINT_DEPS_BUCK_FILE));
+
+            okBuckGradlePlugin.lintDepCache
+                    .build(project.getRootProject().getConfigurations().getByName(LINT_DEPS_CONFIG));
         }
         return okBuckGradlePlugin.lintDepCache;
     }

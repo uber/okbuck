@@ -2,6 +2,7 @@ package com.uber.okbuck.core.util;
 
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.core.dependency.DependencyCache;
+import com.uber.okbuck.core.dependency.DependencyUtils;
 
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
@@ -28,18 +29,14 @@ public final class KotlinUtil {
     private KotlinUtil() {}
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    public static void setupKotlinHome(Project rootProject) {
-        String kotlinVersion = ProjectUtil.findVersionInClasspath(rootProject, KOTLIN_GROUP, KOTLIN_GRADLE_MODULE);
-        Configuration kotlinConfig = rootProject.getConfigurations().maybeCreate(KOTLIN_DEPS_CONFIG);
-        DependencyHandler handler = rootProject.getDependencies();
+    public static void setupKotlinHome(Project project) {
+        String kotlinVersion = ProjectUtil.findVersionInClasspath(project, KOTLIN_GROUP, KOTLIN_GRADLE_MODULE);
+        Configuration kotlinConfig = project.getConfigurations().maybeCreate(KOTLIN_DEPS_CONFIG);
+        DependencyHandler handler = project.getDependencies();
         handler.add(KOTLIN_DEPS_CONFIG, String.format("%s:%s:%s", KOTLIN_GROUP, KOTLIN_COMPILER_MODULE, kotlinVersion));
         handler.add(KOTLIN_DEPS_CONFIG, String.format("%s:%s:%s", KOTLIN_GROUP, KOTLIN_STDLIB_MODULE, kotlinVersion));
 
-        new DependencyCache("kotlin",
-                rootProject,
-                KOTLIN_HOME_LOCATION,
-                Collections.singleton(kotlinConfig),
-                null);
+        new DependencyCache(project, DependencyUtils.createCacheDir(project, KOTLIN_HOME_LOCATION)).build(kotlinConfig);
 
         removeVersions(Paths.get(KOTLIN_HOME_LOCATION),
                 KOTLIN_COMPILER_MODULE, "kotlin-compiler");

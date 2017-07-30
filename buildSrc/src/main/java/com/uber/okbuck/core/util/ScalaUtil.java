@@ -3,6 +3,7 @@ package com.uber.okbuck.core.util;
 import com.google.common.collect.ImmutableMap;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.core.dependency.DependencyCache;
+import com.uber.okbuck.core.dependency.DependencyUtils;
 
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
@@ -22,11 +23,8 @@ public final class ScalaUtil {
     public static void setupScalaHome(Project rootProject, String scalaVersion) {
         Configuration scalaConfig = rootProject.getConfigurations().maybeCreate(SCALA_DEPS_CONFIG);
         rootProject.getDependencies().add(SCALA_DEPS_CONFIG, "org.scala-lang:scala-compiler:" + scalaVersion);
-        new DependencyCache("scala",
-                rootProject,
-                SCALA_HOME_LOCATION,
-                Collections.singleton(scalaConfig),
-                null);
+        new DependencyCache(rootProject, DependencyUtils.createCacheDir(rootProject, SCALA_HOME_LOCATION))
+                .build(scalaConfig);
 
         File scalaHome = new File(SCALA_HOME_LOCATION);
 

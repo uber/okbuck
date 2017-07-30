@@ -20,7 +20,9 @@ final class KeystoreRuleComposer extends BuckRuleComposer {
         AndroidAppTarget.Keystore keystore = target.keystore
         if (keystore != null) {
             File keyStoreGen = new File(keystore.path, STORE_FILE)
-            Files.copy(keystore.storeFile.toPath(), keyStoreGen.toPath(), StandardCopyOption.REPLACE_EXISTING)
+            try {
+                Files.copy(keystore.storeFile.toPath(), keyStoreGen.toPath(), StandardCopyOption.REPLACE_EXISTING)
+            } catch (IOException ignored) { }
 
             PrintWriter writer = new PrintWriter(new FileOutputStream(new File(keystore.path, STORE_FILE_PROPS)))
             writer.println("key.alias=${keystore.alias}")

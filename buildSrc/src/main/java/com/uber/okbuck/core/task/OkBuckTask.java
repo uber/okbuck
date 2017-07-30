@@ -66,6 +66,8 @@ public class OkBuckTask extends DefaultTask {
             hasGroovyLib ? GroovyUtil.GROOVY_HOME_LOCATION : null,
             hasKotlinLib ? KotlinUtil.KOTLIN_HOME_LOCATION : null,
             hasScalaLib ? ScalaUtil.SCALA_HOME_LOCATION : null);
+
+    ProjectUtil.getDependencyCache(getProject()).finalizeDeps();
   }
 
   @Override public String getGroup() {

@@ -8,8 +8,6 @@ import com.uber.okbuck.core.util.LintUtil
 import com.uber.okbuck.core.util.ProjectUtil
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
-import org.gradle.api.artifacts.Configuration
-import org.gradle.api.artifacts.UnknownConfigurationException
 
 abstract class JavaTarget extends JvmTarget {
 
@@ -63,28 +61,10 @@ abstract class JavaTarget extends JvmTarget {
         return new Scope(project, expand(providedConfigs, TEST_PREFIX))
     }
 
-    Set<String> getDepConfigNames() {
-        return compileConfigs + aptConfigs + providedConfigs +
-                expand(compileConfigs + aptConfigs + providedConfigs, TEST_PREFIX)
-    }
-
-    Set<Configuration> depConfigurations() {
-        Set<Configuration> configurations = new HashSet()
-        depConfigNames.each { String configName ->
-            try {
-                Configuration configuration = project.configurations.getByName(configName)
-                if (configuration.dependencies)
-                    configurations.add(project.configurations.getByName(configName))
-            } catch (UnknownConfigurationException ignored) {
-            }
-        }
-        return Scope.useful(configurations)
-    }
-
     /**
      * Expands configuration names to java configuration conventions
      */
-    protected Set<String> expand(List<String> configNames, String prefix = "", boolean includeParent = false) {
+    protected Set<String> expand(List<String> configNames, String prefix = "") {
         Set<String> expanded
         if (prefix) {
             expanded = configNames.collect {
@@ -92,10 +72,6 @@ abstract class JavaTarget extends JvmTarget {
             }
         } else {
             expanded = configNames
-        }
-
-        if (prefix && includeParent) {
-            expanded += expand(configNames)
         }
         return expanded
     }

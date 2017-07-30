@@ -61,7 +61,9 @@ final class TrasformDependencyWriterRuleComposer extends AndroidBuckRuleComposer
     static String getTransformConfigRuleForFile(Project project, File config) {
         String path = getTransformFilePathForFile(project, config)
         File configFile = new File(project.rootDir, "${TransformUtil.TRANSFORM_CACHE}/${path}")
-        Files.copy(config.toPath(), configFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
+        try {
+            Files.copy(config.toPath(), configFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
+        } catch (IOException ignored) { }
         return "//${TransformUtil.TRANSFORM_CACHE}:${path}"
     }
 

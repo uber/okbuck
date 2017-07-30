@@ -32,7 +32,6 @@ import com.uber.okbuck.core.model.scala.ScalaLibTarget
 import com.uber.okbuck.core.util.ProjectUtil
 import com.uber.okbuck.extension.LintExtension
 import com.uber.okbuck.extension.OkBuckExtension
-import com.uber.okbuck.extension.TestExtension
 import com.uber.okbuck.rule.android.AndroidLibraryRule
 import com.uber.okbuck.rule.android.AndroidManifestRule
 import com.uber.okbuck.rule.android.AndroidResourceRule
@@ -40,7 +39,6 @@ import com.uber.okbuck.rule.android.ExopackageAndroidLibraryRule
 import com.uber.okbuck.rule.android.GenAidlRule
 import com.uber.okbuck.rule.base.BuckRule
 import com.uber.okbuck.rule.base.GenRule
-import org.apache.commons.io.IOUtils
 import org.gradle.api.Project
 
 final class BuckFileGenerator {
