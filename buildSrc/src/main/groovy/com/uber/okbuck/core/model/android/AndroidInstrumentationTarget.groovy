@@ -37,7 +37,7 @@ class AndroidInstrumentationTarget extends AndroidAppTarget {
     Scope getMain() {
         return new Scope(
                 project,
-                expand(compileConfigs, ANDROID_TEST_PREFIX),
+                expand(compileConfigs, ANDROID_TEST_PREFIX) + expand(compileConfigs),
                 getSources(baseVariant),
                 null,
                 getJavaCompilerOptions(baseVariant))
