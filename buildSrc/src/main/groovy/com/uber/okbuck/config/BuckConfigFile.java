@@ -1,6 +1,6 @@
 package com.uber.okbuck.config;
 
-import java.io.PrintStream;
+import com.uber.okbuck.core.io.Printer;
 
 public abstract class BuckConfigFile {
 
@@ -8,5 +8,5 @@ public abstract class BuckConfigFile {
      * Print this file's content into the printer.
      * @param printer The print stream to use.
      */
-    public abstract void print(PrintStream printer);
+    public abstract void print(Printer printer);
 }

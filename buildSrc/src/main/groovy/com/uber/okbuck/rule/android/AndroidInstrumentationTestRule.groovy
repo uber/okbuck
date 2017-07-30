@@ -1,5 +1,6 @@
 package com.uber.okbuck.rule.android
 
+import com.uber.okbuck.core.io.Printer
 import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.rule.base.BuckRule
 
@@ -13,7 +14,7 @@ final class AndroidInstrumentationTestRule extends BuckRule {
     }
 
     @Override
-    protected final void printContent(PrintStream printer) {
+    protected final void printContent(Printer printer) {
         printer.println("\tapk = ':${mInstrumentationApkRuleName}',")
         printer.println("\tlabels = ['ui', 'android', 'device', 'espresso', 'instrumentation'],")
     }

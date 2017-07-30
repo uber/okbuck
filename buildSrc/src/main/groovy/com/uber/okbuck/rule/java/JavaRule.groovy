@@ -1,5 +1,6 @@
 package com.uber.okbuck.rule.java
 
+import com.uber.okbuck.core.io.Printer
 import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.core.model.jvm.TestOptions
 import com.uber.okbuck.rule.base.BuckRule
@@ -61,7 +62,7 @@ abstract class JavaRule extends BuckRule {
     }
 
     @Override
-    protected void printContent(PrintStream printer) {
+    protected void printContent(Printer printer) {
         if (!mSrcSet.empty) {
             printer.println("\tsrcs = glob([")
             for (String src : mSrcSet) {

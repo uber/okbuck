@@ -1,5 +1,6 @@
 package com.uber.okbuck.rule.java
 
+import com.uber.okbuck.core.io.Printer
 import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.rule.base.BuckRule
 
@@ -10,5 +11,5 @@ final class JavaLibraryWrapperRule extends BuckRule {
     }
 
     @Override
-    protected void printContent(PrintStream printStream) {}
+    protected void printContent(Printer printStream) {}
 }

@@ -1,5 +1,6 @@
 package com.uber.okbuck.rule.base
 
+import com.uber.okbuck.core.io.Printer
 import com.uber.okbuck.core.model.base.RuleType
 
 final class GenRule extends BuckRule {
@@ -25,7 +26,7 @@ final class GenRule extends BuckRule {
     }
 
     @Override
-    final void printContent(PrintStream printer) {
+    final void printContent(Printer printer) {
         if (!inputs.empty) {
             printer.println(globSrcs ? "\tsrcs = glob([" : "\tsrcs = [")
             for (String input : inputs) {

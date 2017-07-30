@@ -1,5 +1,6 @@
 package com.uber.okbuck.rule.android
 
+import com.uber.okbuck.core.io.Printer
 import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.rule.base.BuckRule
 
@@ -19,7 +20,7 @@ final class GenAidlRule extends BuckRule {
     }
 
     @Override
-    final void print(PrintStream printer) {
+    final void print(Printer printer) {
         printer.println("import re")
         printer.println("gen_${name} = []")
         printer.println("for aidl_file in glob(['${mAidlFilePath}/**/*.aidl']):")
@@ -48,5 +49,5 @@ final class GenAidlRule extends BuckRule {
     }
 
     @Override
-    protected void printContent(PrintStream printer) {}
+    protected void printContent(Printer printer) {}
 }
