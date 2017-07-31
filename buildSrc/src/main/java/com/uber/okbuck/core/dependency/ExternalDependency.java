@@ -12,7 +12,7 @@ import java.io.File;
  */
 public final class ExternalDependency {
 
-    private static final String LOCAL_DEP_VERSION = "1.0.0";
+    private static final String LOCAL_DEP_VERSION = "-local";
     private static final String SOURCES_JAR = "-sources.jar";
 
     public final boolean isLocal;
