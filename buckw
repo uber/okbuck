@@ -178,7 +178,7 @@ setupBuckBinary ( ) {
         if [[ ! -f "$BUCK_HOME/build/successful-build" ]]; then
             echo "Buck does not appear to have been built -- building Buck!"
             pushd "$BUCK_HOME" >/dev/null
-            mkdir -p build && ant > build/ant.log && success "BUCK BUILT SUCCESFULLY" || die "FAILED TO BUILD BUCK"
+            mkdir -p build && ant > build/ant.log && success "BUCK BUILT SUCCESSFULLY" || die "FAILED TO BUILD BUCK"
             popd >/dev/null
         fi
 
