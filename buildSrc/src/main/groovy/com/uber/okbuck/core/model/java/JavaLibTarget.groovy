@@ -29,7 +29,7 @@ class JavaLibTarget extends JavaTarget {
     @Override
     Scope getTest() {
         return new Scope(project,
-                expand(compileConfigs, TEST_PREFIX),
+                expand(compileConfigs, TEST_PREFIX, true),
                 project.sourceSets.test.java.srcDirs as Set,
                 project.file("src/test/resources"),
                 project.compileTestJava.options.compilerArgs as List)

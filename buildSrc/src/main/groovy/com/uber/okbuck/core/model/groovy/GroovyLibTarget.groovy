@@ -25,7 +25,7 @@ class GroovyLibTarget extends JavaLibTarget {
     Scope getTest() {
         return new Scope(
                 getProject(),
-                expand(getCompileConfigs(), TEST_PREFIX),
+                expand(getCompileConfigs(), TEST_PREFIX, true),
                 (project.sourceSets.test.java.srcDirs as Set) + (project.sourceSets.test.groovy.srcDirs as Set),
                 getProject().file("src/test/resources"),
                 ((JavaCompile) getProject().getTasks().getByName("compileTestJava")).getOptions().getCompilerArgs())
