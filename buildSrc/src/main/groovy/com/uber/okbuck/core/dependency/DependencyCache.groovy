@@ -82,7 +82,7 @@ class DependencyCache {
 
     String get(ExternalDependency externalDependency, boolean resolveOnly = false) {
         ExternalDependency dependency =
-                forcedDeps.get(externalDependency.group + ":" + externalDependency.name, externalDependency)
+                forcedDeps.getOrDefault(externalDependency.group + ":" + externalDependency.name, externalDependency)
 
         File cachedCopy = new File(cacheDir, dependency.getCacheName(!resolveOnly))
         String key = FileUtil.getRelativePath(rootProject.projectDir, cachedCopy)
