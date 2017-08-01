@@ -399,6 +399,9 @@ abstract class AndroidTarget extends JavaLibTarget {
                 expanded.substring(0, 1).toLowerCase() + expanded.substring(1)
             }
         }.flatten() as Set<String>
+        if (prefix) {
+            expandedConfigs += expand(configNames)
+        }
         return expandedConfigs
     }
 
