@@ -19,5 +19,8 @@ android {
 
 dependencies {
     compile deps.support.appCompat
+    compile deps.external.rxjava
     compile project(':libraries:parcelable')
+
+    testCompile deps.test.junit
 }
