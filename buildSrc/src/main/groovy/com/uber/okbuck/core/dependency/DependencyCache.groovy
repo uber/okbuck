@@ -1,6 +1,7 @@
 package com.uber.okbuck.core.dependency
 
 import com.uber.okbuck.OkBuckGradlePlugin
+import com.uber.okbuck.core.model.base.Scope
 import com.uber.okbuck.core.model.base.Store
 import com.uber.okbuck.core.util.FileUtil
 import org.apache.commons.io.IOUtils
@@ -34,7 +35,9 @@ class DependencyCache {
     private final Set<File> created = new HashSet<>()
     private final Set<ExternalDependency> requested = ConcurrentHashMap.newKeySet()
 
-    DependencyCache(Project project, File cacheDir) {
+    private final Map<String, ExternalDependency> forcedDeps = new HashMap<>()
+
+    DependencyCache(Project project, File cacheDir, String forcedConfiguration = null) {
         this.rootProject = project.rootProject
         this.cacheDir = cacheDir
         this.fetchSources = rootProject.okbuck.intellij.sources
@@ -43,6 +46,13 @@ class DependencyCache {
         processors = new Store(new File("${OkBuckGradlePlugin.OKBUCK_STATE_DIR}/PROCESSORS"))
         lintJars = new Store(new File("${OkBuckGradlePlugin.OKBUCK_STATE_DIR}/LINT_JARS"))
         proguardConfigs = new Store(new File("${OkBuckGradlePlugin.OKBUCK_STATE_DIR}/PROGUARD_CONFIGS"))
+
+        if (forcedConfiguration) {
+            new Scope(project, Collections.singleton(forcedConfiguration)).external.each {
+                get(it)
+                forcedDeps.put(it.group + ":" + it.name, it)
+            }
+        }
     }
 
     void finalizeDeps() {
@@ -70,7 +80,10 @@ class DependencyCache {
         }
     }
 
-    String get(ExternalDependency dependency, boolean resolveOnly = false) {
+    String get(ExternalDependency externalDependency, boolean resolveOnly = false) {
+        ExternalDependency dependency =
+                forcedDeps.get(externalDependency.group + ":" + externalDependency.name, externalDependency)
+
         File cachedCopy = new File(cacheDir, dependency.getCacheName(!resolveOnly))
         String key = FileUtil.getRelativePath(rootProject.projectDir, cachedCopy)
         createLink(Paths.get(key), dependency.depFile.toPath())

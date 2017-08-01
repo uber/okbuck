@@ -27,7 +27,7 @@ class Scope {
     DependencyCache depCache
 
     protected final Project project
-    protected final Set<ExternalDependency> external = [] as Set
+    final Set<ExternalDependency> external = [] as Set
 
     Scope(Project project,
           Collection<String> configurations,
