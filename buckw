@@ -4,7 +4,7 @@
 ##
 ##  Buck wrapper script to invoke okbuck when needed, before running buck
 ##
-##  Created by OkBuck Gradle Plugin on : Tue Jul 25 11:59:58 PDT 2017
+##  Created by OkBuck Gradle Plugin on : Tue Aug 01 08:25:16 PDT 2017
 ##
 #########################################################################
 
@@ -149,7 +149,7 @@ setupBuckBinary ( ) {
         # Install buck from source if not already available
         if [[ ! -d "$BUCK_HOME" ]]; then
             warn "BUCK NOT FOUND IN '$BUCK_HOME'. INSTALLING BUCK..."
-            git clone $DEFAULT_BUCK_REPO $BUCK_HOME
+            git clone $DEFAULT_BUCK_REPO $BUCK_HOME || die "FAILED TO CLONE $DEFAULT_BUCK_REPO"
         fi
 
         # Add custom buck remote
@@ -157,7 +157,7 @@ setupBuckBinary ( ) {
             cd $BUCK_HOME
             REMOTE_EXISTS=$(git remote -v | grep "$CUSTOM_REMOTE_NAME")
             if [[ -z "$REMOTE_EXISTS" ]]; then
-                git remote add $CUSTOM_REMOTE_NAME $CUSTOM_BUCK_REPO
+                git remote add $CUSTOM_REMOTE_NAME $CUSTOM_BUCK_REPO || die "FAILED TO ADD REMOTE $CUSTOM_BUCK_REPO"
             fi
             cd -
         fi
@@ -169,7 +169,7 @@ setupBuckBinary ( ) {
             CURRENT_BUCK_VERSION=$(git rev-parse HEAD)
             if [[ "$BUCK_VERSION" != "$CURRENT_BUCK_VERSION" ]]; then
                 info "BUCK VERSION IS AT $CURRENT_BUCK_VERSION , BUT IT SHOULD BE $BUCK_VERSION. UPDATING BUCK"
-                git clean -fdx --quiet && git reset --hard --quiet && git fetch --all && git checkout "$BUCK_VERSION" --quiet
+                git clean -fdx --quiet && git reset --hard --quiet && git fetch --all && git checkout "$BUCK_VERSION" --quiet && success "UPDATED BUCK TO $BUCK_VERSION" || die "FAILED TO UPDATE BUCK TO $BUCK_VERSION"
             fi
             popd >/dev/null
         fi
