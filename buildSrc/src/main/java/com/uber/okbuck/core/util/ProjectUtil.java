@@ -55,10 +55,6 @@ public final class ProjectUtil {
         return getTargetCache(targetProject).getTargetForOutput(targetProject, output);
     }
 
-    public static OkBuckExtension getExtension(Project project) {
-        return project.getRootProject().getExtensions().getByType(OkBuckExtension.class);
-    }
-
     static OkBuckGradlePlugin getPlugin(Project project) {
         return project.getRootProject().getPlugins().getPlugin(OkBuckGradlePlugin.class);
     }

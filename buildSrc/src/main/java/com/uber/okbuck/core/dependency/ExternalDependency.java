@@ -41,11 +41,11 @@ public final class ExternalDependency {
 
     @Override
     public int hashCode() {
-        int result = version != null ? version.hashCode() : 0;
+        int result = (isLocal ? 1 : 0);
+        result = 31 * result + (version != null ? version.hashCode() : 0);
         result = 31 * result + (depFile != null ? depFile.hashCode() : 0);
         result = 31 * result + (group != null ? group.hashCode() : 0);
         result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (isLocal ? 1 : 0);
         return result;
     }
 

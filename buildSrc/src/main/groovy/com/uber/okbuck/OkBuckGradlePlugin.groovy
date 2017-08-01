@@ -26,8 +26,6 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
 
-import java.nio.file.Paths
-
 // Dependency Tree
 //
 //                 okbuck
@@ -62,7 +60,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     public static final String TRANSFORM = "transform"
     public static final String RETROLAMBDA = "retrolambda"
     public static final String SCALA = "scala"
-    public static final String CONFIGURATION_EXTERNAL = "externalOkbuck"
+    public static final String FORCED_OKBUCK = "forcedOkbuck"
     public static final String OKBUCK_DEFS = ".okbuck/defs/DEFS"
 
     public static final String OKBUCK_STATE_DIR = ".okbuck/state"
@@ -90,7 +88,8 @@ class OkBuckGradlePlugin implements Plugin<Project> {
 
         // Create configurations
         project.configurations.maybeCreate(TransformUtil.CONFIGURATION_TRANSFORM)
-        Configuration externalOkbuck = project.configurations.maybeCreate(CONFIGURATION_EXTERNAL)
+        Configuration forced = project.configurations.maybeCreate(FORCED_OKBUCK)
+        forced.transitive = false
 
         // Create tasks
         Task setupOkbuck = project.task('setupOkbuck')
@@ -136,7 +135,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                 }
 
                 File cacheDir = DependencyUtils.createCacheDir(project, DEFAULT_CACHE_PATH, EXTERNAL_DEP_BUCK_FILE)
-                depCache = new DependencyCache(project, cacheDir)
+                depCache = new DependencyCache(project, cacheDir, FORCED_OKBUCK)
 
                 // Fetch Lint deps if needed
                 if (!lint.disabled && lint.version != null) {
