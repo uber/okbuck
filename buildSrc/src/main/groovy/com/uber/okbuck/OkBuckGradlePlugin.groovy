@@ -89,7 +89,6 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         // Create configurations
         project.configurations.maybeCreate(TransformUtil.CONFIGURATION_TRANSFORM)
         Configuration forced = project.configurations.maybeCreate(FORCED_OKBUCK)
-        forced.transitive = false
 
         // Create tasks
         Task setupOkbuck = project.task('setupOkbuck')

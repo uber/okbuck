@@ -35,7 +35,7 @@ class DependencyCache {
     private final Set<File> created = new HashSet<>()
     private final Set<ExternalDependency> requested = ConcurrentHashMap.newKeySet()
 
-    private final Map<String, ExternalDependency> forcedDeps = new HashMap<>()
+    private final Map<ExternalDependency.VersionlessDependency, ExternalDependency> forcedDeps = new HashMap<>()
 
     DependencyCache(Project project, File cacheDir, String forcedConfiguration = null) {
         this.rootProject = project.rootProject
@@ -50,7 +50,7 @@ class DependencyCache {
         if (forcedConfiguration) {
             new Scope(project, Collections.singleton(forcedConfiguration)).external.each {
                 get(it)
-                forcedDeps.put(it.group + ":" + it.name, it)
+                forcedDeps.put(it.versionless, it)
             }
         }
     }
@@ -81,9 +81,7 @@ class DependencyCache {
     }
 
     String get(ExternalDependency externalDependency, boolean resolveOnly = false) {
-        ExternalDependency dependency =
-                forcedDeps.getOrDefault(externalDependency.group + ":" + externalDependency.name, externalDependency)
-
+        ExternalDependency dependency = forcedDeps.getOrDefault(externalDependency.versionless, externalDependency)
         File cachedCopy = new File(cacheDir, dependency.getCacheName(!resolveOnly))
         String key = FileUtil.getRelativePath(rootProject.projectDir, cachedCopy)
         createLink(Paths.get(key), dependency.depFile.toPath())
@@ -99,9 +97,10 @@ class DependencyCache {
     /**
      * Gets the sources jar path for a dependency if it exists.
      *
-     * @param dependency The dependency.
+     * @param externalDependency The dependency.
      */
-    void getSources(ExternalDependency dependency) {
+    void getSources(ExternalDependency externalDependency) {
+        ExternalDependency dependency = forcedDeps.getOrDefault(externalDependency.versionless, externalDependency)
         String key = dependency.cacheName
         String sourcesJarPath = sources.get(key)
         if (sourcesJarPath == null || !Files.exists(Paths.get(sourcesJarPath))) {
@@ -135,10 +134,11 @@ class DependencyCache {
     /**
      * Get the list of annotation processor classes provided by a dependency.
      *
-     * @param dependency The dependency
+     * @param externalDependency The dependency
      * @return The list of annotation processor classes available in the manifest
      */
-    List<String> getAnnotationProcessors(ExternalDependency dependency) {
+    List<String> getAnnotationProcessors(ExternalDependency externalDependency) {
+        ExternalDependency dependency = forcedDeps.getOrDefault(externalDependency.versionless, externalDependency)
         String key = dependency.cacheName
         String processorsList = processors.get(key)
         if (processorsList == null) {
@@ -166,20 +166,22 @@ class DependencyCache {
     /**
      * Get the packaged lint jar of an aar dependency if any.
      *
-     * @param dependency The depenency
+     * @param externalDependency The depenency
      * @return path to the lint jar in the cache.
      */
-    String getLintJar(ExternalDependency dependency) {
+    String getLintJar(ExternalDependency externalDependency) {
+        ExternalDependency dependency = forcedDeps.getOrDefault(externalDependency.versionless, externalDependency)
         return getAarEntry(dependency, lintJars, "lint.jar", "-lint.jar")
     }
 
     /**
      * Get the packaged proguard config of an aar dependency if any.
      *
-     * @param dependency The depenency
+     * @param externalDependency The depenency
      * @return path to the proguard config in the cache.
      */
-    File getProguardConfig(ExternalDependency dependency) {
+    File getProguardConfig(ExternalDependency externalDependency) {
+        ExternalDependency dependency = forcedDeps.getOrDefault(externalDependency.versionless, externalDependency)
         String entry = getAarEntry(dependency, proguardConfigs, "proguard.txt", "-proguard.pro")
         if (entry) {
             return new File(entry)

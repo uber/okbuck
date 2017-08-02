@@ -20,6 +20,7 @@ public final class ExternalDependency {
     public final File depFile;
     public final String group;
     public final String name;
+    public final VersionlessDependency versionless;
 
     public ExternalDependency(String group, String name, String version, File depFile) {
         this(group, name, version, depFile, false);
@@ -32,20 +33,16 @@ public final class ExternalDependency {
 
         ExternalDependency that = (ExternalDependency) o;
 
-        if (isLocal != that.isLocal) { return false; }
-        if (version != null ? !version.equals(that.version) : that.version != null) { return false; }
-        if (depFile != null ? !depFile.equals(that.depFile) : that.depFile != null) { return false; }
-        if (group != null ? !group.equals(that.group) : that.group != null) { return false; }
-        return name != null ? name.equals(that.name) : that.name == null;
+        if (!version.equals(that.version)) { return false; }
+        if (!group.equals(that.group)) { return false; }
+        return name.equals(that.name);
     }
 
     @Override
     public int hashCode() {
-        int result = (isLocal ? 1 : 0);
-        result = 31 * result + (version != null ? version.hashCode() : 0);
-        result = 31 * result + (depFile != null ? depFile.hashCode() : 0);
-        result = 31 * result + (group != null ? group.hashCode() : 0);
-        result = 31 * result + (name != null ? name.hashCode() : 0);
+        int result = version.hashCode();
+        result = 31 * result + group.hashCode();
+        result = 31 * result + name.hashCode();
         return result;
     }
 
@@ -86,10 +83,28 @@ public final class ExternalDependency {
         }
 
         this.depFile = depFile;
+        this.versionless = new VersionlessDependency(group, name);
     }
 
     public static ExternalDependency fromLocal(File localDep) {
         String baseName = FilenameUtils.getBaseName(localDep.getName());
         return new ExternalDependency(baseName, baseName, LOCAL_DEP_VERSION, localDep, true);
+    }
+
+    public static class VersionlessDependency {
+        private final String group;
+        private final String name;
+
+        VersionlessDependency(String group, String name) {
+            this.group = group;
+            this.name = name;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = group.hashCode();
+            result = 31 * result + name.hashCode();
+            return result;
+        }
     }
 }
