@@ -13,9 +13,11 @@ final class DependencyUtils {
     private DependencyUtils() {}
 
     static Set<Configuration> useful(Set<Configuration> configurations) {
-        return configurations.findAll { Configuration configuration ->
-            !configuration.dependencies.empty || !configurations.containsAll(configuration.extendsFrom)
+        Set<Configuration> useful = configurations.findAll { Configuration configuration ->
+            !configuration.dependencies.empty
         }
+        useful.removeAll(useful.collect { it.extendsFrom }.flatten())
+        return useful
     }
 
     static File createCacheDir(Project project, String cacheDirPath, String buckFile = null) {

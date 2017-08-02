@@ -92,12 +92,24 @@ public final class ExternalDependency {
     }
 
     public static class VersionlessDependency {
+
         private final String group;
         private final String name;
 
         VersionlessDependency(String group, String name) {
             this.group = group;
             this.name = name;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) { return true; }
+            if (o == null || getClass() != o.getClass()) { return false; }
+
+            VersionlessDependency that = (VersionlessDependency) o;
+
+            if (!group.equals(that.group)) { return false; }
+            return name.equals(that.name);
         }
 
         @Override
