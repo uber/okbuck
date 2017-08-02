@@ -37,7 +37,7 @@ public final class TransformUtil {
         DependencyCache dependencyCache = new DependencyCache(project, cacheDir);
         dependencyCache.build(transformConfigurations);
 
-        Scope transformScope = new Scope(
+        Scope transformScope = Scope.from(
                 project,
                 Collections.singleton(CONFIGURATION_TRANSFORM),
                 Collections.emptySet(),

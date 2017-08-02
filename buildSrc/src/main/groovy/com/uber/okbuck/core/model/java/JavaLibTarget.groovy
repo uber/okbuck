@@ -19,7 +19,7 @@ class JavaLibTarget extends JavaTarget {
 
     @Override
     Scope getMain() {
-        return new Scope(project,
+        return Scope.from(project,
                 compileConfigs,
                 project.sourceSets.main.java.srcDirs as Set,
                 project.file("src/main/resources"),
@@ -28,7 +28,7 @@ class JavaLibTarget extends JavaTarget {
 
     @Override
     Scope getTest() {
-        return new Scope(project,
+        return Scope.from(project,
                 expand(compileConfigs, TEST_PREFIX, true),
                 project.sourceSets.test.java.srcDirs as Set,
                 project.file("src/test/resources"),

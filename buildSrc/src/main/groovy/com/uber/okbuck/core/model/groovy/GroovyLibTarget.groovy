@@ -13,7 +13,7 @@ class GroovyLibTarget extends JavaLibTarget {
 
     @Override
     Scope getMain() {
-        return new Scope(
+        return Scope.from(
                 getProject(),
                 getCompileConfigs(),
                 (project.sourceSets.main.java.srcDirs as Set) + (project.sourceSets.main.groovy.srcDirs as Set),
@@ -23,7 +23,7 @@ class GroovyLibTarget extends JavaLibTarget {
 
     @Override
     Scope getTest() {
-        return new Scope(
+        return Scope.from(
                 getProject(),
                 expand(getCompileConfigs(), TEST_PREFIX, true),
                 (project.sourceSets.test.java.srcDirs as Set) + (project.sourceSets.test.groovy.srcDirs as Set),

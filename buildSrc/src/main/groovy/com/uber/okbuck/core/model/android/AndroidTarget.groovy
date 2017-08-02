@@ -32,8 +32,8 @@ import java.nio.file.Paths
 abstract class AndroidTarget extends JavaLibTarget {
 
     private static final EmptyLogger EMPTY_LOGGER = new EmptyLogger()
-    private static final List<String> ANDROID_APT_CONFIGS = ["apt", "annotationProcessor"]
-    private static final List<String> ANDROID_PROVIDED_CONFIGS = ["provided"]
+    private static final Set<String> ANDROID_APT_CONFIGS = ["apt", "annotationProcessor"]
+    private static final Set<String> ANDROID_PROVIDED_CONFIGS = ["provided"]
 
     final String applicationId
     final String applicationIdSuffix
@@ -102,7 +102,7 @@ abstract class AndroidTarget extends JavaLibTarget {
 
     @Override
     Scope getMain() {
-        return new Scope(
+        return Scope.from(
                 project,
                 expand(compileConfigs),
                 getSources(baseVariant),
@@ -117,7 +117,7 @@ abstract class AndroidTarget extends JavaLibTarget {
             testSrcDirs = getSources(unitTestVariant)
         }
 
-        return new Scope(
+        return Scope.from(
                 project,
                 expand(compileConfigs, TEST_PREFIX, true),
                 testSrcDirs,
@@ -378,12 +378,12 @@ abstract class AndroidTarget extends JavaLibTarget {
     }
 
     @Override
-    protected List<String> getAptConfigs() {
+    protected Set<String> getAptConfigs() {
         return ANDROID_APT_CONFIGS
     }
 
     @Override
-    protected List<String> getProvidedConfigs() {
+    protected Set<String> getProvidedConfigs() {
         return ANDROID_PROVIDED_CONFIGS
     }
 
@@ -391,7 +391,7 @@ abstract class AndroidTarget extends JavaLibTarget {
      * Expands configuration names to android configuration conventions
      */
     @Override
-    protected Set<String> expand(List<String> configNames, String prefix = "", boolean includeParent = false) {
+    protected Set<String> expand(Set<String> configNames, String prefix = "", boolean includeParent = false) {
         List<String> expansions = ["", buildType, flavor, name]
         Set<String> expandedConfigs = configNames.collect { String configName ->
             expansions.collect { String expansion ->

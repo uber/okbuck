@@ -46,9 +46,9 @@ public final class RetrolambdaUtil {
         );
 
         DependencyCache retrolambdaDepCache = getRetrolambdaDepsCache(project);
-        Scope retrolambdaDepsScope = new Scope(
+        Scope retrolambdaDepsScope = Scope.from(
                 project,
-                Collections.singletonList(RETROLAMBDA_DEPS_CONFIG),
+                Collections.singleton(RETROLAMBDA_DEPS_CONFIG),
                 Collections.<File>emptySet(),
                 null,
                 Collections.<String>emptyList(),

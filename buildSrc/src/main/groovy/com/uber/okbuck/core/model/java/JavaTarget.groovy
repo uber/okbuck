@@ -13,23 +13,23 @@ abstract class JavaTarget extends JvmTarget {
 
     protected static final String TEST_PREFIX = "test"
 
-    private static final List<String> JAVA_COMPILE_CONFIGS = ["compile"]
-    private static final List<String> JAVA_APT_CONFIGS = ["apt", "compileOnly"]
-    public static final List<String> JAVA_PROVIDED_CONFIGS = ["provided", "compileOnly"]
+    private static final Set<String> JAVA_COMPILE_CONFIGS = ["compile"]
+    private static final Set<String> JAVA_APT_CONFIGS = ["apt", "compileOnly"]
+    public static final Set<String> JAVA_PROVIDED_CONFIGS = ["provided", "compileOnly"]
 
     JavaTarget(Project project, String name) {
         super(project, name)
     }
 
-    protected static List<String> getCompileConfigs() {
+    protected static Set<String> getCompileConfigs() {
         return JAVA_COMPILE_CONFIGS
     }
 
-    protected List<String> getAptConfigs() {
+    protected Set<String> getAptConfigs() {
         return JAVA_APT_CONFIGS
     }
 
-    protected List<String> getProvidedConfigs() {
+    protected Set<String> getProvidedConfigs() {
         return JAVA_PROVIDED_CONFIGS
     }
 
@@ -37,34 +37,34 @@ abstract class JavaTarget extends JvmTarget {
      * Apt Scope
      */
     Scope getApt() {
-        return new Scope(project, expand(aptConfigs))
+        return Scope.from(project, expand(aptConfigs))
     }
 
     /**
      * Test Apt Scope
      */
     Scope getTestApt() {
-        return new Scope(project, expand(aptConfigs, TEST_PREFIX))
+        return Scope.from(project, expand(aptConfigs, TEST_PREFIX))
     }
 
     /**
      * Provided Scope
      */
     Scope getProvided() {
-        return new Scope(project, expand(providedConfigs))
+        return Scope.from(project, expand(providedConfigs))
     }
 
     /**
      * Test Provided Scope
      */
     Scope getTestProvided() {
-        return new Scope(project, expand(providedConfigs, TEST_PREFIX))
+        return Scope.from(project, expand(providedConfigs, TEST_PREFIX))
     }
 
     /**
      * Expands configuration names to java configuration conventions
      */
-    protected Set<String> expand(List<String> configNames, String prefix = "", boolean includeParent = false) {
+    protected Set<String> expand(Set<String> configNames, String prefix = "", boolean includeParent = false) {
         Set<String> expanded
         if (prefix) {
             expanded = configNames.collect {
@@ -88,7 +88,11 @@ abstract class JavaTarget extends JvmTarget {
         File res = null
         Set<File> sourceDirs = []
         List<String> jvmArguments = []
-        return new Scope(project, [OkBuckGradlePlugin.BUCK_LINT], sourceDirs, res, jvmArguments,
+        return Scope.from(project,
+                Collections.singleton(OkBuckGradlePlugin.BUCK_LINT),
+                sourceDirs,
+                res,
+                jvmArguments,
                 LintUtil.getLintDepsCache(project))
     }
 
@@ -99,7 +103,13 @@ abstract class JavaTarget extends JvmTarget {
         File res = null
         Set<File> sourceDirs = []
         List<String> jvmArguments = []
-        return new Scope(project, [OkBuckGradlePlugin.BUCK_LINT_LIBRARY], sourceDirs, res, jvmArguments, ProjectUtil.getDependencyCache(project))
+        return Scope.from(project,
+                Collections.singleton(OkBuckGradlePlugin.BUCK_LINT_LIBRARY),
+                sourceDirs,
+                res,
+                jvmArguments,
+                ProjectUtil
+                .getDependencyCache(project))
     }
 
     LintOptions getLintOptions() {

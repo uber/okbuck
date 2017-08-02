@@ -1,8 +1,11 @@
 package com.uber.okbuck.core.model.base
 
+import com.google.common.collect.MultimapBuilder
+import com.google.common.collect.SortedSetMultimap
 import com.uber.okbuck.core.dependency.DependencyCache
 import com.uber.okbuck.core.dependency.DependencyUtils
 import com.uber.okbuck.core.dependency.ExternalDependency
+import com.uber.okbuck.core.dependency.ExternalDependency.VersionlessDependency
 import com.uber.okbuck.core.util.FileUtil
 import com.uber.okbuck.core.util.ProjectUtil
 import groovy.transform.EqualsAndHashCode
@@ -29,12 +32,12 @@ class Scope {
     protected final Project project
     final Set<ExternalDependency> external = [] as Set
 
-    Scope(Project project,
-          Collection<String> configurations,
-          Set<File> sourceDirs = [],
-          File resDir = null,
-          List<String> jvmArguments = [],
-          DependencyCache depCache = ProjectUtil.getDependencyCache(project)) {
+    protected Scope(Project project,
+                    Set<String> configurations,
+                    Set<File> sourceDirs = [],
+                    File resDir = null,
+                    List<String> jvmArguments = [],
+                    DependencyCache depCache = ProjectUtil.getDependencyCache(project)) {
 
         this.project = project
         sources = FileUtil.getIfAvailable(project, sourceDirs)
@@ -43,6 +46,37 @@ class Scope {
         this.depCache = depCache
 
         extractConfigurations(configurations)
+    }
+
+    static Scope from(Project project,
+                      Set<String> configurations,
+                      Set<File> sourceDirs = [],
+                      File resDir = null,
+                      List<String> jvmArguments = [],
+                      DependencyCache depCache = ProjectUtil.getDependencyCache(project)) {
+
+        Map<String, Scope> projectScopes
+        Scope projectScope
+
+        Map<Project, Map<String, Scope>> scopes = ProjectUtil.getScopes(project)
+        synchronized (scopes) {
+            projectScopes = scopes.get(project)
+            if (projectScopes == null) {
+                projectScopes = new HashMap<>()
+                scopes.put(project, projectScopes)
+            }
+        }
+
+        String key = configurations.toSorted().join("_")
+        synchronized (projectScopes) {
+            projectScope = projectScopes.get(key)
+            if (projectScope == null) {
+                projectScope = new Scope(project, configurations, sourceDirs, resDir, jvmArguments, depCache)
+                projectScopes.put(key, projectScope)
+            }
+        }
+
+        return projectScope
     }
 
     Set<String> getExternalDeps() {
@@ -77,15 +111,21 @@ class Scope {
         }
     }
 
-    private void extractConfigurations(Collection<String> configurations) {
-        Set<Configuration> validConfigurations = []
+    private void extractConfigurations(Set<String> configurations) {
+        Set<Configuration> validConfigurations = new HashSet<>()
         configurations.each { String configName ->
             try {
-                Configuration configuration = project.configurations.getByName(configName)
-                validConfigurations.add(configuration)
-            } catch (UnknownConfigurationException ignored) { }
+                validConfigurations.add(project.configurations.getByName(configName))
+            } catch (UnknownConfigurationException ignored) {
+            }
         }
         validConfigurations = DependencyUtils.useful(validConfigurations)
+        boolean resolveDups = validConfigurations.size() > 1
+
+        SortedSetMultimap<VersionlessDependency, ExternalDependency> greatest
+        if (resolveDups) {
+            greatest = MultimapBuilder.hashKeys().treeSetValues().build()
+        }
 
         // Download sources if needed
         if (project.rootProject.okbuck.intellij.sources) {
@@ -101,12 +141,17 @@ class Scope {
             if (identifier instanceof ProjectComponentIdentifier) {
                 targetDeps.add(ProjectUtil.getTargetForOutput(project.project(identifier.projectPath), artifact.file))
             } else if (identifier instanceof ModuleComponentIdentifier && identifier.version) {
-                external.add(new ExternalDependency(
+                ExternalDependency externalDependency = new ExternalDependency(
                         identifier.group,
                         identifier.module,
                         identifier.version,
                         artifact.file
-                ))
+                )
+                if (resolveDups) {
+                    greatest.put(externalDependency.versionless, externalDependency)
+                } else {
+                    external.add(externalDependency)
+                }
             } else {
                 if (!FilenameUtils.directoryContains(project.rootProject.projectDir.absolutePath,
                         artifact.file.absolutePath) && !DependencyUtils.isWhiteListed(artifact.file)) {
@@ -115,6 +160,12 @@ class Scope {
                             "${artifact.file} inside ${project.rootProject.projectDir}")
                 }
                 external.add(ExternalDependency.fromLocal(artifact.file))
+            }
+        }
+
+        if (resolveDups) {
+            greatest.keySet().each {
+                external.add(greatest.get(it).first())
             }
         }
     }
