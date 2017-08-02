@@ -48,7 +48,7 @@ class DependencyCache {
         proguardConfigs = new Store(new File("${OkBuckGradlePlugin.OKBUCK_STATE_DIR}/PROGUARD_CONFIGS"))
 
         if (forcedConfiguration) {
-            new Scope(project, Collections.singleton(forcedConfiguration)).external.each {
+            Scope.from(project, Collections.singleton(forcedConfiguration)).external.each {
                 get(it)
                 forcedDeps.put(it.versionless, it)
             }

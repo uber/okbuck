@@ -25,17 +25,17 @@ class AndroidInstrumentationTarget extends AndroidAppTarget {
 
     @Override
     Scope getApt() {
-        return new Scope(project, expand(aptConfigs, ANDROID_TEST_PREFIX))
+        return Scope.from(project, expand(aptConfigs, ANDROID_TEST_PREFIX))
     }
 
     @Override
     Scope getProvided() {
-        return new Scope(project, expand(providedConfigs, ANDROID_TEST_PREFIX))
+        return Scope.from(project, expand(providedConfigs, ANDROID_TEST_PREFIX))
     }
 
     @Override
     Scope getMain() {
-        return new Scope(
+        return Scope.from(
                 project,
                 expand(compileConfigs, ANDROID_TEST_PREFIX, true),
                 getSources(baseVariant),
@@ -44,7 +44,7 @@ class AndroidInstrumentationTarget extends AndroidAppTarget {
     }
 
     Scope getInstrumentation() {
-        return new Scope(
+        return Scope.from(
                 project,
                 expand(compileConfigs, ANDROID_TEST_PREFIX)
                         + ["androidTest${getMainTargetName(name).capitalize()}Compile"],

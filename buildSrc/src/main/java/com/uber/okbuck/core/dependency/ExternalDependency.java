@@ -3,6 +3,7 @@ package com.uber.okbuck.core.dependency;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
@@ -10,7 +11,7 @@ import java.io.File;
  * Represents a pre packaged dependency from an external
  * source like gradle/maven cache or the filesystem
  */
-public final class ExternalDependency {
+public final class ExternalDependency implements Comparable<ExternalDependency> {
 
     private static final String LOCAL_DEP_VERSION = "1.0.0-LOCAL";
     private static final String SOURCES_JAR = "-sources.jar";
@@ -44,6 +45,11 @@ public final class ExternalDependency {
         result = 31 * result + group.hashCode();
         result = 31 * result + name.hashCode();
         return result;
+    }
+
+    @Override
+    public int compareTo(@NotNull ExternalDependency o) {
+        return version.compareTo(o.version);
     }
 
     @Override

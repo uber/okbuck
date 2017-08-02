@@ -2,6 +2,7 @@ package com.uber.okbuck
 
 import com.uber.okbuck.core.dependency.DependencyCache
 import com.uber.okbuck.core.dependency.DependencyUtils
+import com.uber.okbuck.core.model.base.Scope
 import com.uber.okbuck.core.model.base.TargetCache
 import com.uber.okbuck.core.task.OkBuckCleanTask
 import com.uber.okbuck.core.task.OkBuckTask
@@ -72,6 +73,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     public DependencyCache lintDepCache
     public TargetCache targetCache
     public String retrolambdaCmd
+    public final Map<Project, Map<String, Scope>> scopes = new HashMap<>()
 
     void apply(Project project) {
         // Create extensions
