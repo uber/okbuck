@@ -94,6 +94,7 @@ abstract class JavaRule extends BuckRule {
             printer.println("\t]),")
 
             printer.println("\tresources_root = '${mResourcesDir}',")
+            printer.println("\tunbundled_resources_root = '${mResourcesDir}',")
         }
 
         if (!mAnnotationProcessors.empty) {

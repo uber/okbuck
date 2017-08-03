@@ -11,6 +11,8 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -52,6 +54,13 @@ public class BuckWrapperTask extends DefaultTask {
         File watchmanConfig = getProject().file(".watchmanconfig");
         if (!watchmanConfig.exists()) {
             FileUtil.copyResourceToProject("wrapper/WATCHMAN_CONFIG", getProject().file(".watchmanconfig"));
+        }
+
+        File buckVersion = getProject().file(".buckversion");
+        if (!buckVersion.exists()) {
+            try {
+                Files.write(buckVersion.toPath(), OkBuckGradlePlugin.DEFAULT_BUCK_VERSION.getBytes());
+            } catch (IOException ignored) { }
         }
     }
 
