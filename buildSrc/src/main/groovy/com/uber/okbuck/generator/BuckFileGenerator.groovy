@@ -197,7 +197,7 @@ final class BuckFileGenerator {
         OkBuckExtension okbuck = target.rootProject.okbuck
         LintExtension lint = okbuck.lint
         if (!lint.disabled) {
-            androidLibRules.addAll(LintRuleComposer.compose(target))
+            androidLibRules.add(LintRuleComposer.compose(target))
         }
 
         rules.addAll(androidLibRules)
