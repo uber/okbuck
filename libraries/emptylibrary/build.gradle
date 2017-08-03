@@ -9,7 +9,6 @@ android {
 
 dependencies {
     compile deps.support.appCompat
-    buckLintLibrary deps.support.appCompat
 
     testCompile deps.test.junit
     testCompile deps.test.robolectric

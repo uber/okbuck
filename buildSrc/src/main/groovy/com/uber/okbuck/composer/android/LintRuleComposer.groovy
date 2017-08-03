@@ -7,7 +7,6 @@ import com.uber.okbuck.core.model.java.JavaLibTarget
 import com.uber.okbuck.core.model.java.JavaTarget
 import com.uber.okbuck.core.util.LintUtil
 import com.uber.okbuck.extension.LintExtension
-import com.uber.okbuck.rule.android.AndroidLibraryWrapperRule
 import com.uber.okbuck.rule.base.BuckRule
 import com.uber.okbuck.rule.base.GenRule
 
@@ -19,8 +18,7 @@ final class LintRuleComposer extends JvmBuckRuleComposer {
         // no instance
     }
 
-    static List<BuckRule> compose(JavaTarget target) {
-        List<BuckRule> lintRules = []
+    static GenRule compose(JavaTarget target) {
         String lintConfigXml = ""
         if (target.lintOptions.lintConfig != null && target.lintOptions.lintConfig.exists()) {
             lintConfigXml = LintUtil.getLintwConfigRule(target.project, target.lintOptions.lintConfig)
@@ -59,15 +57,7 @@ final class LintRuleComposer extends JvmBuckRuleComposer {
 
         if (!target.main.sources.empty) {
             lintCmds.add("--classpath ${toLocation(":${src(target)}")}")
-
-            Set<String> lintLibraries = external(target.lintLibraries.externalDeps) +
-                    targets(target.lintLibraries.targetDeps)
-            if (lintLibraries) {
-                AndroidLibraryWrapperRule wrapperRule =
-                        new AndroidLibraryWrapperRule(BUCK_LINT_LIBRARIES, lintLibraries as List)
-                lintRules.add(wrapperRule)
-                lintCmds.add("--libraries ${toClasspath(":" + BUCK_LINT_LIBRARIES)}")
-            }
+            lintCmds.add("--libraries ${toClasspath(":${src(target)}")}")
         }
         if (target.lintOptions.abortOnError) {
             lintCmds.add("--exitcode")
@@ -78,6 +68,7 @@ final class LintRuleComposer extends JvmBuckRuleComposer {
         if (target.lintOptions.quiet) {
             lintCmds.add("--quiet")
         }
+
         if (target.lintOptions.checkAllWarnings) {
             lintCmds.add("-Wall")
         }
@@ -121,12 +112,10 @@ final class LintRuleComposer extends JvmBuckRuleComposer {
             lintCmds.add('$RUN_IN')
         }
 
-        lintRules.add(new GenRule(
+        return new GenRule(
                 lint(target),
                 inputs,
-                lintCmds))
-
-        return lintRules
+                lintCmds)
     }
 
     private static String lint(final JavaTarget target) {

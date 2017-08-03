@@ -96,22 +96,6 @@ abstract class JavaTarget extends JvmTarget {
                 LintUtil.getLintDepsCache(project))
     }
 
-    /**
-     * Lint libraries Scope
-     */
-    Scope getLintLibraries() {
-        File res = null
-        Set<File> sourceDirs = []
-        List<String> jvmArguments = []
-        return Scope.from(project,
-                Collections.singleton(OkBuckGradlePlugin.BUCK_LINT_LIBRARY),
-                sourceDirs,
-                res,
-                jvmArguments,
-                ProjectUtil
-                .getDependencyCache(project))
-    }
-
     LintOptions getLintOptions() {
         return null
     }
