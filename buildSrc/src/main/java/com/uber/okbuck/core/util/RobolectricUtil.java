@@ -1,5 +1,6 @@
 package com.uber.okbuck.core.util;
 
+import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.core.dependency.DependencyCache;
 import com.uber.okbuck.core.dependency.DependencyUtils;
@@ -7,10 +8,7 @@ import com.uber.okbuck.core.dependency.DependencyUtils;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.EnumSet;
-import java.util.List;
 
 public final class RobolectricUtil {
 
@@ -22,7 +20,7 @@ public final class RobolectricUtil {
     private RobolectricUtil() {}
 
     public static void download(Project project) {
-        List<Configuration> runtimeDeps = new ArrayList<>();
+        ImmutableSet.Builder<Configuration> runtimeDeps = ImmutableSet.builder();
 
         Configuration runtimeCommon = project.getConfigurations().maybeCreate(ROBOLECTRIC_RUNTIME + "_common");
         project.getDependencies().add(runtimeCommon.getName(), JSON);
@@ -41,7 +39,7 @@ public final class RobolectricUtil {
 
         DependencyCache dependencyCache = new DependencyCache(project,
                 DependencyUtils.createCacheDir(project, ROBOLECTRIC_CACHE));
-        for (Configuration configuration : runtimeDeps) {
+        for (Configuration configuration : runtimeDeps.build()) {
             dependencyCache.build(configuration);
         }
     }

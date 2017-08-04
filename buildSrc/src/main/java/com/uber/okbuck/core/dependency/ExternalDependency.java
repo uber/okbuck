@@ -97,7 +97,7 @@ public final class ExternalDependency implements Comparable<ExternalDependency> 
         return new ExternalDependency(baseName, baseName, LOCAL_DEP_VERSION, localDep, true);
     }
 
-    public static class VersionlessDependency {
+    public static final class VersionlessDependency {
 
         private final String group;
         private final String name;

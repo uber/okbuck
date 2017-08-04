@@ -198,13 +198,13 @@ abstract class AndroidTarget extends JavaLibTarget {
     Set<String> getResDirs() {
         return getAvailable(baseVariant.sourceSets.collect { SourceProvider provider ->
             provider.resDirectories
-        }.flatten() as Set<File>)
+        }.flatten() as Set<String>)
     }
 
     Set<String> getAssetDirs() {
         return getAvailable(baseVariant.sourceSets.collect { SourceProvider provider ->
             provider.assetsDirectories
-        }.flatten() as Set<File>)
+        }.flatten() as Set<String>)
     }
 
     Set<String> getAidl() {

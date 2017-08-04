@@ -1,6 +1,7 @@
 package com.uber.okbuck.extension;
 
 public class TestExtension {
+
     /**
      * Enable generation of robolectric test rules.
      */
