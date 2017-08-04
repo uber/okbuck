@@ -68,7 +68,9 @@ public class OkBuckExtension {
     @Input
     public Map<String, Map<String, List<String>>> extraBuckOpts = new HashMap<>();
 
-    /** Extra buck defs **/
+    /**
+     * Extra buck defs
+     **/
     @Input
     public Set<File> extraDefs = new HashSet<>();
 
@@ -93,8 +95,8 @@ public class OkBuckExtension {
     public Set<String> extraDepCaches = new HashSet<>();
 
     /**
-    * Forces okbuck to fail if the project is using dynamic or snapshot dependencies
-    */
+     * Forces okbuck to fail if the project is using dynamic or snapshot dependencies
+     */
     @Input
     public boolean failOnChangingDependencies = false;
 

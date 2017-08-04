@@ -9,7 +9,6 @@ import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 
 import java.io.File;
-import java.util.Collections;
 
 public final class ScalaUtil {
 

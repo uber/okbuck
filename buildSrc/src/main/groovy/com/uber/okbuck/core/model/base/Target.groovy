@@ -48,11 +48,7 @@ abstract class Target {
     }
 
     protected Set<String> getAvailable(Collection<File> files) {
-        return files.findAll { File file ->
-            file.exists()
-        }.collect { File file ->
-            FileUtil.getRelativePath(project.projectDir, file)
-        }
+        return FileUtil.available(project, files)
     }
 
     def getProp(Map map, defaultValue) {

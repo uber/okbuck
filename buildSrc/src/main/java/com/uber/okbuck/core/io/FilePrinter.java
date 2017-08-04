@@ -7,7 +7,7 @@ import java.io.IOException;
 import okio.BufferedSink;
 import okio.Okio;
 
-public class FilePrinter implements Printer {
+public final class FilePrinter implements Printer {
 
     private final BufferedSink sink;
 
@@ -27,11 +27,7 @@ public class FilePrinter implements Printer {
 
     @Override
     public void println() {
-        try {
-            sink.writeUtf8(System.lineSeparator());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        println(System.lineSeparator());
     }
 
     @Override

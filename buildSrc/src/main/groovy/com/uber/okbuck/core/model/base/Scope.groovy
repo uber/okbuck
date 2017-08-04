@@ -1,5 +1,7 @@
 package com.uber.okbuck.core.model.base
 
+import com.google.common.collect.ImmutableList
+import com.google.common.collect.ImmutableSet
 import com.google.common.collect.MultimapBuilder
 import com.google.common.collect.SortedSetMultimap
 import com.uber.okbuck.core.dependency.DependencyCache
@@ -9,6 +11,7 @@ import com.uber.okbuck.core.dependency.ExternalDependency.VersionlessDependency
 import com.uber.okbuck.core.util.FileUtil
 import com.uber.okbuck.core.util.ProjectUtil
 import groovy.transform.EqualsAndHashCode
+import jdk.nashorn.internal.ir.annotations.Immutable
 import org.apache.commons.io.FilenameUtils
 import org.apache.commons.lang3.StringUtils
 import org.gradle.api.Project
@@ -18,6 +21,7 @@ import org.gradle.api.artifacts.component.ComponentIdentifier
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 import org.gradle.api.artifacts.component.ProjectComponentIdentifier
 import org.gradle.api.artifacts.result.ResolvedArtifactResult
+import org.jetbrains.annotations.Nullable
 
 @EqualsAndHashCode
 class Scope {
@@ -34,14 +38,14 @@ class Scope {
 
     protected Scope(Project project,
                     Set<String> configurations,
-                    Set<File> sourceDirs = [],
-                    File resDir = null,
-                    List<String> jvmArguments = [],
+                    Set<File> sourceDirs,
+                    @Nullable File resDir,
+                    List<String> jvmArguments,
                     DependencyCache depCache = ProjectUtil.getDependencyCache(project)) {
 
         this.project = project
-        sources = FileUtil.getIfAvailable(project, sourceDirs)
-        resourcesDir = FileUtil.getIfAvailable(project, resDir)
+        sources = FileUtil.available(project, sourceDirs)
+        resourcesDir = resDir ? FileUtil.available(project, ImmutableSet.of(resDir))[0] : null
         jvmArgs = jvmArguments
         this.depCache = depCache
 
@@ -50,9 +54,9 @@ class Scope {
 
     static Scope from(Project project,
                       Set<String> configurations,
-                      Set<File> sourceDirs = [],
-                      File resDir = null,
-                      List<String> jvmArguments = [],
+                      Set<File> sourceDirs = ImmutableSet.of(),
+                      @Nullable File resDir = null,
+                      List<String> jvmArguments = ImmutableList.of(),
                       DependencyCache depCache = ProjectUtil.getDependencyCache(project)) {
 
         Map<String, Scope> projectScopes

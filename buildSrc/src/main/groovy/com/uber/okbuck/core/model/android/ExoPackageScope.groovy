@@ -1,5 +1,7 @@
 package com.uber.okbuck.core.model.android
 
+import com.google.common.collect.ImmutableList
+import com.google.common.collect.ImmutableSet
 import com.uber.okbuck.core.dependency.ExternalDependency
 import com.uber.okbuck.core.model.base.Scope
 import com.uber.okbuck.core.model.base.Target
@@ -14,7 +16,7 @@ class ExoPackageScope extends Scope {
     private final String manifest
 
     ExoPackageScope(Project project, Scope base, Set<String> exoPackageDependencies, String manifest) {
-        super(project, Collections.emptySet())
+        super(project, ImmutableSet.of(), ImmutableSet.of(), null, ImmutableList.of())
         this.base = base
         this.manifest = manifest
         extractDependencies(base, exoPackageDependencies)

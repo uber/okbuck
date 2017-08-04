@@ -1,7 +1,9 @@
 package com.uber.okbuck.core.util;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.base.BuckRuleComposer;
 import com.uber.okbuck.core.dependency.DependencyCache;
@@ -31,7 +33,7 @@ public final class TransformUtil {
 
     public static void fetchTransformDeps(Project project) {
         Set<Configuration> transformConfigurations =
-                Collections.singleton(project.getConfigurations().getByName(CONFIGURATION_TRANSFORM));
+                ImmutableSet.of(project.getConfigurations().getByName(CONFIGURATION_TRANSFORM));
 
         File cacheDir = DependencyUtils.createCacheDir(project, TRANSFORM_CACHE);
         DependencyCache dependencyCache = new DependencyCache(project, cacheDir);
@@ -40,15 +42,15 @@ public final class TransformUtil {
         Scope transformScope = Scope.from(
                 project,
                 Collections.singleton(CONFIGURATION_TRANSFORM),
-                Collections.emptySet(),
+                ImmutableSet.of(),
                 null,
-                Collections.emptyList(),
+                ImmutableList.of(),
                 dependencyCache);
 
         Set<String> targetDeps = BuckRuleComposer.targets(transformScope.getTargetDeps())
                 .stream()
                 .map(s -> "'" + s + "'")
-                .collect(Collectors.toSet());
+                .collect(MoreCollectors.toImmutableSet());
         String allTargetDeps = Joiner.on(", ").join(targetDeps);
 
         FileUtil.copyResourceToProject(
