@@ -40,8 +40,9 @@ public final class RobolectricUtil {
         DependencyCache dependencyCache = new DependencyCache(project,
                 DependencyUtils.createCacheDir(project, ROBOLECTRIC_CACHE));
         for (Configuration configuration : runtimeDeps.build()) {
-            dependencyCache.build(configuration);
+            dependencyCache.build(configuration, false);
         }
+        dependencyCache.cleanup();
     }
 
     @SuppressWarnings("unused")

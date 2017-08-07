@@ -24,8 +24,7 @@ public final class Store {
 
     private final Set<String> accessed;
     private final File storeFile;
-
-    public final Properties props;
+    private final Properties props;
 
     public Store(File storeFile) {
         this.storeFile = storeFile;
