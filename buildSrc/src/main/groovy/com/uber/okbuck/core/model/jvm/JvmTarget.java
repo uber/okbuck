@@ -37,7 +37,7 @@ public abstract class JvmTarget extends Target {
     public TestOptions getTestOptions() {
         try {
             Test testTask = getProject().getTasks().withType(Test.class).getByName("test");
-            List<String> jvmArgs = testTask != null ? testTask.getAllJvmArgs() : Collections.<String>emptyList();
+            List<String> jvmArgs = testTask != null ? testTask.getAllJvmArgs() : Collections.emptyList();
             Map<String, Object> env = testTask != null ? testTask.getEnvironment() : Collections.emptyMap();
             env.keySet().removeAll(System.getenv().keySet());
             return new TestOptions(jvmArgs, env);

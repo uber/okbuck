@@ -16,7 +16,6 @@ import org.gradle.api.artifacts.Configuration;
 import java.io.File;
 import java.util.Collections;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public final class TransformUtil {
 

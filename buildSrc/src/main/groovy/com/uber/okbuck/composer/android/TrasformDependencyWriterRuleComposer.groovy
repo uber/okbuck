@@ -50,7 +50,7 @@ final class TrasformDependencyWriterRuleComposer extends AndroidBuckRuleComposer
 
                 "chmod +x ${output}"]
 
-        String name = getTransformRuleName(target, options);
+        String name = getTransformRuleName(target, options)
         return new GenRule(name, input, cmds, false, "${name}_out", true)
     }
 

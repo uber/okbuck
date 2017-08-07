@@ -6,7 +6,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -49,6 +48,7 @@ public final class Store {
         props.setProperty(key, val);
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public void persist() {
         if (props.isEmpty()) {
             FileUtil.deleteQuietly(storeFile.toPath());

@@ -3,11 +3,9 @@ package com.uber.okbuck.core.util;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.core.dependency.DependencyCache;
 import com.uber.okbuck.core.dependency.DependencyUtils;
-import com.uber.okbuck.extension.OkBuckExtension;
 
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.Project;
-import org.gradle.api.artifacts.Configuration;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -39,7 +37,7 @@ public final class LintUtil {
         File lintVersionFile = project.file(LINT_VERSION_FILE);
         try {
             if (!lintVersionFile.exists()
-                    || !FileUtils.readFileToString(lintVersionFile).equals(version)) {
+                    || !version.equals(new String(Files.readAllBytes(lintVersionFile.toPath())))) {
                 FileUtils.deleteDirectory(lintVersionFile.getParentFile());
                 lintVersionFile.getParentFile().mkdirs();
                 Files.write(lintVersionFile.toPath(), Collections.singleton(version));

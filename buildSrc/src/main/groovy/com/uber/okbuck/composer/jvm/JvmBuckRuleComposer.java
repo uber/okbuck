@@ -1,7 +1,6 @@
 package com.uber.okbuck.composer.jvm;
 
 import com.uber.okbuck.composer.base.BuckRuleComposer;
-import com.uber.okbuck.core.model.java.JavaTarget;
 import com.uber.okbuck.core.model.jvm.JvmTarget;
 
 public class JvmBuckRuleComposer extends BuckRuleComposer {

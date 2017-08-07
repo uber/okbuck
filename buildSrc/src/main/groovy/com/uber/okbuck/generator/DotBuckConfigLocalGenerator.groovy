@@ -8,6 +8,7 @@ import com.uber.okbuck.core.model.base.Target
 import com.uber.okbuck.core.util.ProjectUtil
 import com.uber.okbuck.extension.OkBuckExtension
 import org.gradle.api.Project
+import org.jetbrains.annotations.Nullable
 
 final class DotBuckConfigLocalGenerator {
 
@@ -17,10 +18,10 @@ final class DotBuckConfigLocalGenerator {
      * generate {@link DotBuckConfigLocalFile}
      */
     static DotBuckConfigLocalFile generate(OkBuckExtension okbuck,
-                                           String groovyHome,
-                                           String kotlinHome,
-                                           String scalaHome,
-                                           String proguardJar,
+                                           @Nullable String groovyHome,
+                                           @Nullable String kotlinHome,
+                                           @Nullable String scalaHome,
+                                           @Nullable String proguardJar,
                                            Set<String> defs) {
         Map<String, String> aliases = [:]
         okbuck.buckProjects.findAll { Project project ->
