@@ -49,7 +49,7 @@ public final class ProguardUtil {
                                 PROGUARD_GROUP,
                                 PROGUARD_MODULE,
                                 proguardVersion,
-                                artifactResult.get().getFile()), true);
+                                artifactResult.get().getFile()), true, false);
             }
         } catch (IllegalStateException ignored) {}
         return proguardJarPath;

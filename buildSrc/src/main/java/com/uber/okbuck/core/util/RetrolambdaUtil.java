@@ -71,7 +71,7 @@ public final class RetrolambdaUtil {
     private static DependencyCache getRetrolambdaDepsCache(Project project) {
         File cacheDir = DependencyUtils.createCacheDir(project, RETROLAMDBA_CACHE, RETROLAMBDA_DEPS_BUCK_FILE);
         DependencyCache dependencyCache = new DependencyCache(project, cacheDir);
-        dependencyCache.build(project.getConfigurations().getByName(RETROLAMBDA_DEPS_CONFIG));
+        dependencyCache.build(project.getConfigurations().getByName(RETROLAMBDA_DEPS_CONFIG), true, true);
 
         FileUtil.copyResourceToProject("retrolambda/" + RT_STUB_JAR, new File(cacheDir, RT_STUB_JAR));
 
