@@ -90,9 +90,9 @@ class DependencyCache {
         }
     }
 
-    String get(ExternalDependency externalDependency, boolean resolveOnly = false) {
+    String get(ExternalDependency externalDependency, boolean resolveOnly = false, boolean useFullDepname = true) {
         ExternalDependency dependency = forcedDeps.getOrDefault(externalDependency.versionless, externalDependency)
-        File cachedCopy = new File(cacheDir, dependency.getCacheName(!resolveOnly))
+        File cachedCopy = new File(cacheDir, dependency.getCacheName(useFullDepname))
         String key = FileUtil.getRelativePath(rootProject.projectDir, cachedCopy)
         links.put(cachedCopy, dependency.depFile)
 
@@ -200,8 +200,8 @@ class DependencyCache {
         }
     }
 
-    void build(Configuration configuration, boolean cleanupDeps = true) {
-        build(Collections.singleton(configuration), cleanupDeps)
+    void build(Configuration configuration, boolean cleanupDeps = true, boolean useFullDepname = false) {
+        build(Collections.singleton(configuration), cleanupDeps, useFullDepname)
     }
 
     /**
@@ -210,7 +210,7 @@ class DependencyCache {
      *
      * @param configurations The set of configurations to materialize into the dependency cache
      */
-    void build(Set<Configuration> configurations, boolean cleanupDeps = true) {
+    void build(Set<Configuration> configurations, boolean cleanupDeps = true, boolean useFullDepname = false) {
         configurations.each { Configuration configuration ->
             configuration.incoming.artifacts.each { ResolvedArtifactResult artifact ->
                 ComponentIdentifier identifier = artifact.id.componentIdentifier
@@ -227,7 +227,7 @@ class DependencyCache {
                 } else {
                     dependency = ExternalDependency.fromLocal(artifact.file)
                 }
-                get(dependency, true)
+                get(dependency, true, useFullDepname)
             }
         }
 
