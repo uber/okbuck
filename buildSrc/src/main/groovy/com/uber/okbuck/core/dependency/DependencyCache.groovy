@@ -18,7 +18,6 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
-import java.util.concurrent.ConcurrentHashMap
 import java.util.jar.JarEntry
 import java.util.jar.JarFile
 
@@ -32,9 +31,9 @@ class DependencyCache {
     private final Store proguardConfigs
     private final Store sources
 
-    private final Set<File> created = new HashSet<>()
-    private final Set<ExternalDependency> requested = ConcurrentHashMap.newKeySet()
-
+    private final Set<File> copies = new HashSet<>()
+    private final Set<ExternalDependency> requested = new HashSet<>()
+    private final Map<File, File> links = new HashMap<>()
     private final Map<ExternalDependency.VersionlessDependency, ExternalDependency> forcedDeps = new HashMap<>()
 
     DependencyCache(Project project, File cacheDir, String forcedConfiguration = null) {
@@ -64,19 +63,30 @@ class DependencyCache {
     }
 
     void cleanup() {
-        requested.each {
-            DependencyUtils.validate(rootProject, it)
+        requested.each { ExternalDependency dependency ->
+            DependencyUtils.validate(rootProject, dependency)
         }
-        (cacheDir.listFiles(new FileFilter() {
 
+        Set<File> existing = cacheDir.listFiles(new FileFilter() {
             @Override
             boolean accept(File pathname) {
                 return pathname.isFile() && (pathname.name.endsWith(".jar")
                         || pathname.name.endsWith(".aar")
                         || pathname.name.endsWith(".pro"))
             }
-        }) - created).each { File f ->
-            Files.deleteIfExists(f.toPath())
+        })
+
+        Set<File> toCreate = links.keySet()
+
+        (existing - (toCreate + copies)).each { Files.deleteIfExists(it.toPath()) }
+
+        links.keySet().removeAll(existing)
+        links.each { File link, File target ->
+            if (target.exists()) {
+                try {
+                    Files.createSymbolicLink(link.toPath(), target.toPath())
+                } catch (IOException ignored) { }
+            }
         }
     }
 
@@ -84,7 +94,7 @@ class DependencyCache {
         ExternalDependency dependency = forcedDeps.getOrDefault(externalDependency.versionless, externalDependency)
         File cachedCopy = new File(cacheDir, dependency.getCacheName(!resolveOnly))
         String key = FileUtil.getRelativePath(rootProject.projectDir, cachedCopy)
-        createLink(Paths.get(key), dependency.depFile.toPath())
+        links.put(cachedCopy, dependency.depFile)
 
         if (!resolveOnly && fetchSources) {
             getSources(dependency)
@@ -127,7 +137,7 @@ class DependencyCache {
             sources.set(key, sourcesJarPath)
         }
         if (sourcesJarPath) {
-            createLink(new File(cacheDir, dependency.getSourceCacheName(true)).toPath(), Paths.get(sourcesJarPath))
+            links.put(new File(cacheDir, dependency.getSourceCacheName(true)), new File(sourcesJarPath))
         }
     }
 
@@ -190,8 +200,8 @@ class DependencyCache {
         }
     }
 
-    void build(Configuration configuration) {
-        build(Collections.singleton(configuration))
+    void build(Configuration configuration, boolean cleanupDeps = true) {
+        build(Collections.singleton(configuration), cleanupDeps)
     }
 
     /**
@@ -200,7 +210,7 @@ class DependencyCache {
      *
      * @param configurations The set of configurations to materialize into the dependency cache
      */
-    void build(Set<Configuration> configurations) {
+    void build(Set<Configuration> configurations, boolean cleanupDeps = true) {
         configurations.each { Configuration configuration ->
             configuration.incoming.artifacts.each { ResolvedArtifactResult artifact ->
                 ComponentIdentifier identifier = artifact.id.componentIdentifier
@@ -220,15 +230,9 @@ class DependencyCache {
                 get(dependency, true)
             }
         }
-        cleanup()
-    }
 
-    void createLink(Path link, Path target) {
-        created.add(link.toAbsolutePath().toFile())
-        if (!Files.exists(link) && Files.exists(target)) {
-            try {
-                Files.createSymbolicLink(link, target)
-            } catch (IOException ignored) { }
+        if (cleanupDeps) {
+            cleanup()
         }
     }
 
@@ -241,22 +245,21 @@ class DependencyCache {
         String entryPath = store.get(key)
         if (entryPath == null || !Files.exists(Paths.get(entryPath))) {
             entryPath = ""
-            File cachedCopy = new File(cacheDir, key)
-            File packagedEntry = getPackagedFile(cachedCopy, entry, suffix)
+            File packagedEntry = getPackagedFile(dependency.depFile, new File(cacheDir, key), entry, suffix)
             if (packagedEntry != null) {
                 entryPath = FileUtil.getRelativePath(rootProject.projectDir, packagedEntry)
             }
             store.set(key, entryPath)
         }
         if (entryPath) {
-            created.add(new File(rootProject.projectDir, entryPath))
+            copies.add(new File(rootProject.projectDir, entryPath))
         }
 
         return entryPath
     }
 
-    private static File getPackagedFile(File aar, String entry, String suffix) {
-        File packagedFile = new File(aar.parentFile, aar.name.replaceFirst(/\.aar$/, suffix))
+    private static File getPackagedFile(File aar, File destination, String entry, String suffix) {
+        File packagedFile = new File(destination.parentFile, destination.name.replaceFirst(/\.aar$/, suffix))
         if (Files.exists(packagedFile.toPath())) {
             return packagedFile
         }
