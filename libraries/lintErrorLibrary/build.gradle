@@ -1,7 +1,12 @@
 apply plugin: 'com.android.library'
 apply plugin: 'me.tatarka.retrolambda'
 
+configurations {
+    lintChecks
+}
+
 dependencies {
     buckLint project (':libraries:customLintLibrary')
+    lintChecks project (':libraries:customLintLibrary')
     compile deps.support.appCompat
 }

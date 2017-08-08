@@ -51,7 +51,7 @@ def external = [
 
 def lint = [
         lint      : "com.android.tools.lint:lint:25.1.0",
-        lintApi   : "com.android.tools.lint:lint-api:25.1.0",
+        lintApi   : "com.android.tools.lint:lint-api:25.2.2",
         lintChecks: "com.android.tools.lint:lint-checks:25.1.0",
         lintTests : "com.android.tools.lint:lint-tests:25.1.0",
 ]

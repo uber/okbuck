@@ -5,20 +5,28 @@ repositories {
     mavenCentral()
 }
 
+configurations {
+    lintChecks
+}
+
 dependencies {
     compile deps.lint.lintApi
-    compile deps.lint.lintChecks
+    lintChecks files(jar)
 
     testCompile deps.lint.lint
     testCompile deps.lint.lintTests
 }
 
 jar {
+    baseName 'com.uber.lint'
+    version '1.0'
     manifest {
         attributes 'Lint-Registry': 'com.uber.lint.LintRegistry'
     }
     exclude 'META-INF'
 }
+
+defaultTasks 'assemble'
 
 configurations.all {
     exclude group: "org.bouncycastle"
