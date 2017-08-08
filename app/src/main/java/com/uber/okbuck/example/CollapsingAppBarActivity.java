@@ -94,11 +94,11 @@ public class CollapsingAppBarActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(ViewHolder holder, final int position) {
-            holder.mTextView.setText(String.valueOf(position));
+            holder.mTextView.setText(String.valueOf(holder.getAdapterPosition()));
             holder.mLlContainer.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(mContext, "Click: " + position, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContext, "Click: " + holder.getAdapterPosition(), Toast.LENGTH_SHORT).show();
                     mAction.onClick();
                 }
             });
