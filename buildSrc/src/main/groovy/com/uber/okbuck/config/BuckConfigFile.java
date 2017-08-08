@@ -2,7 +2,7 @@ package com.uber.okbuck.config;
 
 import com.uber.okbuck.core.io.Printer;
 
-public abstract class BuckConfigFile {
+abstract class BuckConfigFile {
 
     /**
      * Print this file's content into the printer.

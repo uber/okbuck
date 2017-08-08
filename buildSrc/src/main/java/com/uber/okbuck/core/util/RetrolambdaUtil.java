@@ -49,9 +49,9 @@ public final class RetrolambdaUtil {
         Scope retrolambdaDepsScope = Scope.from(
                 project,
                 Collections.singleton(RETROLAMBDA_DEPS_CONFIG),
-                Collections.<File>emptySet(),
+                Collections.emptySet(),
                 null,
-                Collections.<String>emptyList(),
+                Collections.emptyList(),
                 retrolambdaDepCache);
 
         String retrolambdaJar = retrolambdaDepsScope.getExternalDeps().iterator().next();

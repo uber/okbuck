@@ -77,6 +77,14 @@ abstract class AndroidTarget extends JavaLibTarget {
         // Butterknife support
         generateR2 = project.plugins.hasPlugin('com.jakewharton.butterknife')
 
+        // Create gen dir
+        genDir = Paths.get(OkBuckGradlePlugin.OKBUCK_GEN, path, name).toString()
+        FileUtil.copyResourceToProject("gen/BUCK_FILE",
+                new File(rootProject.file(genDir), OkBuckGradlePlugin.BUCK))
+
+        // Check if kotlin
+        isKotlin = project.plugins.hasPlugin(KotlinAndroidPluginWrapper.class)
+
         if (baseVariant.mergedFlavor.minSdkVersion == null ||
                 baseVariant.mergedFlavor.targetSdkVersion == null) {
             minSdk = targetSdk = 1
@@ -86,14 +94,6 @@ abstract class AndroidTarget extends JavaLibTarget {
             minSdk = baseVariant.mergedFlavor.minSdkVersion.apiLevel
             targetSdk = baseVariant.mergedFlavor.targetSdkVersion.apiLevel
         }
-
-        // Create gen dir
-        genDir = Paths.get(OkBuckGradlePlugin.OKBUCK_GEN, path, name).toString()
-        FileUtil.copyResourceToProject("gen/BUCK_FILE",
-                new File(rootProject.file(genDir), OkBuckGradlePlugin.BUCK))
-
-        // Check if kotlin
-        isKotlin = project.plugins.hasPlugin(KotlinAndroidPluginWrapper.class)
     }
 
     protected abstract BaseVariant getBaseVariant()

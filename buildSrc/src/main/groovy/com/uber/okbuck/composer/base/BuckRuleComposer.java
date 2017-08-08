@@ -4,6 +4,7 @@ import com.uber.okbuck.core.model.base.Target;
 import com.uber.okbuck.core.model.java.JavaLibTarget;
 
 import org.apache.commons.io.FilenameUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Set;
@@ -25,6 +26,7 @@ public abstract class BuckRuleComposer {
                 .collect(Collectors.toSet());
     }
 
+    @Nullable
     public static String fileRule(final String filePath) {
         if (filePath == null) {
             return null;
@@ -52,7 +54,7 @@ public abstract class BuckRuleComposer {
                 .collect(Collectors.toSet());
     }
 
-    public static String targets(final Target dep) {
+    private static String targets(final Target dep) {
         return String.format("//%s:src_%s", dep.getPath(), dep.getName());
     }
 

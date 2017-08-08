@@ -15,6 +15,7 @@ import org.gradle.api.plugins.GroovyPlugin;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.PluginContainer;
 import org.gradle.api.plugins.scala.ScalaPlugin;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper;
 
 import java.io.File;
@@ -51,6 +52,7 @@ public final class ProjectUtil {
         return getTargetCache(project).getTargets(project);
     }
 
+    @Nullable
     public static Target getTargetForOutput(Project targetProject, File output) {
         return getTargetCache(targetProject).getTargetForOutput(targetProject, output);
     }
@@ -67,6 +69,7 @@ public final class ProjectUtil {
         return getPlugin(project).targetCache;
     }
 
+    @Nullable
     static String findVersionInClasspath(Project project, String group, String module) {
         return project.getBuildscript()
                 .getConfigurations()

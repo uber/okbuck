@@ -119,6 +119,6 @@ final class LintRuleComposer extends JvmBuckRuleComposer {
     }
 
     private static String lint(final JavaTarget target) {
-        return "lint_" + target.getName();
+        return "lint_" + target.getName()
     }
 }
