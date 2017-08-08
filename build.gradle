@@ -163,6 +163,10 @@ okbuck {
     wrapper {
         watch += ["**/*.sq"]
     }
+
+    lint {
+        version = "26.0.0-alpha9"
+    }
 }
 
 gradle.buildFinished {
