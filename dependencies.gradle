@@ -1,4 +1,5 @@
 def versions = [
+        androidTools         : '26.0.0-alpha9',
         butterKnifeVersion   : '8.6.0',
         daggerVersion        : '2.11',
         kotlinVersion        : '1.1.3',
@@ -50,10 +51,10 @@ def external = [
 ]
 
 def lint = [
-        lint      : "com.android.tools.lint:lint:25.1.0",
-        lintApi   : "com.android.tools.lint:lint-api:25.1.0",
-        lintChecks: "com.android.tools.lint:lint-checks:25.1.0",
-        lintTests : "com.android.tools.lint:lint-tests:25.1.0",
+        lint      : "com.android.tools.lint:lint:${versions.androidTools}",
+        lintApi   : "com.android.tools.lint:lint-api:${versions.androidTools}",
+        lintChecks: "com.android.tools.lint:lint-checks:${versions.androidTools}",
+        lintTests : "com.android.tools.lint:lint-tests:${versions.androidTools}",
 ]
 
 def support = [

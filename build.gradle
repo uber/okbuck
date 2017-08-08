@@ -165,7 +165,7 @@ okbuck {
     }
 
     lint {
-        version = "26.0.0-alpha9"
+        version = deps.versions.androidTools
     }
 }
 
