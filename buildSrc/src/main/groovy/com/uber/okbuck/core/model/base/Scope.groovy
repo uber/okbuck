@@ -141,6 +141,9 @@ class Scope {
         }.flatten() as Set<ResolvedArtifactResult>
 
         artifacts.each { ResolvedArtifactResult artifact ->
+            if (!DependencyUtils.isConsumable(artifact.file)) {
+                return
+            }
             ComponentIdentifier identifier = artifact.id.componentIdentifier
             if (identifier instanceof ProjectComponentIdentifier) {
                 targetDeps.add(ProjectUtil.getTargetForOutput(project.project(identifier.projectPath), artifact.file))

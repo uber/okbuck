@@ -214,7 +214,7 @@ class DependencyCache {
         configurations.each { Configuration configuration ->
             configuration.incoming.artifacts.each { ResolvedArtifactResult artifact ->
                 ComponentIdentifier identifier = artifact.id.componentIdentifier
-                if (identifier instanceof ProjectComponentIdentifier) {
+                if (identifier instanceof ProjectComponentIdentifier || !DependencyUtils.isConsumable(artifact.file)) {
                     return
                 }
                 ExternalDependency dependency

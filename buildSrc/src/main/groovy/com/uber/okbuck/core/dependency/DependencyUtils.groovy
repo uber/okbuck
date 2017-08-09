@@ -43,6 +43,10 @@ final class DependencyUtils {
         return WHITELIST_LOCAL_PATTERNS.find { depFile.absolutePath.contains(it) } != null
     }
 
+    static boolean isConsumable(File file) {
+        return file.name.endsWith(".jar") || file.name.endsWith(".aar")
+    }
+
     static void validate(Project project, ExternalDependency dependency) {
         String version = dependency.version.toString()
         if (version.contains("+") || version.contains("-SNAPSHOT")) {
