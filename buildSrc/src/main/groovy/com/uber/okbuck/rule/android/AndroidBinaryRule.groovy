@@ -75,7 +75,6 @@ final class AndroidBinaryRule extends BuckRule {
             printer.println("\t],")
         }
         if (mMinifyEnabled) {
-            printer.println("\tpackage_type = 'release',")
             printer.println("\tandroid_sdk_proguard_config = 'none',")
             printer.println("\tproguard_config = '${mProguardConfig}',")
         }
