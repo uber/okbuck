@@ -63,24 +63,22 @@ class DependencyCache {
     }
 
     void cleanup() {
-        requested.each { ExternalDependency dependency ->
-            DependencyUtils.validate(rootProject, dependency)
+        String changingDeps = requested.findAll { ExternalDependency dependency ->
+            String version = dependency.version.toString()
+            return version.contains("+") || version.contains("-SNAPSHOT")
+        }.collect { ExternalDependency dependency ->
+            dependency.cacheName
+        }.join("\n")
+
+        if (changingDeps) {
+            String message = "Please do not use changing dependencies. They can cause hard to reproduce builds.\n${changingDeps}"
+            if (rootProject.okbuck.failOnChangingDependencies) {
+                throw new IllegalStateException(message)
+            } else {
+                println "\n${message}\n"
+            }
         }
 
-        Set<File> existing = cacheDir.listFiles(new FileFilter() {
-            @Override
-            boolean accept(File pathname) {
-                return pathname.isFile() && (pathname.name.endsWith(".jar")
-                        || pathname.name.endsWith(".aar")
-                        || pathname.name.endsWith(".pro"))
-            }
-        })
-
-        Set<File> toCreate = links.keySet()
-
-        (existing - (toCreate + copies)).each { Files.deleteIfExists(it.toPath()) }
-
-        links.keySet().removeAll(existing)
         links.each { File link, File target ->
             if (target.exists()) {
                 try {
@@ -88,6 +86,15 @@ class DependencyCache {
                 } catch (IOException ignored) { }
             }
         }
+
+        (cacheDir.listFiles(new FileFilter() {
+            @Override
+            boolean accept(File pathname) {
+                return pathname.isFile() && (pathname.name.endsWith(".jar")
+                        || pathname.name.endsWith(".aar")
+                        || pathname.name.endsWith(".pro"))
+            }
+        })- (links.keySet() + copies)).each { Files.deleteIfExists(it.toPath()) }
     }
 
     String get(ExternalDependency externalDependency, boolean resolveOnly = false, boolean useFullDepname = true) {
@@ -218,7 +225,7 @@ class DependencyCache {
                     return
                 }
                 ExternalDependency dependency
-                if (identifier instanceof ModuleComponentIdentifier) {
+                if (identifier instanceof ModuleComponentIdentifier && identifier.version) {
                     dependency = new ExternalDependency(
                             identifier.group,
                             identifier.module,

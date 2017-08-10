@@ -46,18 +46,4 @@ final class DependencyUtils {
     static boolean isConsumable(File file) {
         return file.name.endsWith(".jar") || file.name.endsWith(".aar")
     }
-
-    static void validate(Project project, ExternalDependency dependency) {
-        String version = dependency.version.toString()
-        if (version.contains("+") || version.contains("-SNAPSHOT")) {
-            String message =
-                    "${dependency.cacheName} : Please do not use changing dependencies. They can cause hard " +
-                            "to reproduce builds"
-            if (project.rootProject.okbuck.failOnChangingDependencies) {
-                throw new IllegalStateException(message)
-            } else {
-                println "\n${message}\n"
-            }
-        }
-    }
 }
