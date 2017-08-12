@@ -6,16 +6,15 @@ import com.uber.okbuck.core.model.base.Scope
 import com.uber.okbuck.core.model.base.TargetCache
 import com.uber.okbuck.core.task.OkBuckCleanTask
 import com.uber.okbuck.core.task.OkBuckTask
+import com.uber.okbuck.core.util.D8Util
 import com.uber.okbuck.core.util.FileUtil
 import com.uber.okbuck.core.util.LintUtil
-import com.uber.okbuck.core.util.RetrolambdaUtil
 import com.uber.okbuck.core.util.RobolectricUtil
 import com.uber.okbuck.core.util.TransformUtil
 import com.uber.okbuck.extension.ExperimentalExtension
 import com.uber.okbuck.extension.IntellijExtension
 import com.uber.okbuck.extension.LintExtension
 import com.uber.okbuck.extension.OkBuckExtension
-import com.uber.okbuck.extension.RetrolambdaExtension
 import com.uber.okbuck.extension.ScalaExtension
 import com.uber.okbuck.extension.TestExtension
 import com.uber.okbuck.extension.TransformExtension
@@ -60,7 +59,6 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     public static final String BUCK_LINT = "buckLint"
     public static final String LINT = "lint"
     public static final String TRANSFORM = "transform"
-    public static final String RETROLAMBDA = "retrolambda"
     public static final String SCALA = "scala"
     public static final String FORCED_OKBUCK = "forcedOkbuck"
     public static final String OKBUCK_DEFS = ".okbuck/defs/DEFS"
@@ -75,7 +73,6 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     public DependencyCache depCache
     public DependencyCache lintDepCache
     public TargetCache targetCache
-    public String retrolambdaCmd
     public final Map<Project, Map<String, Scope>> scopes = new ConcurrentHashMap<>()
 
     void apply(Project project) {
@@ -85,7 +82,6 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         ExperimentalExtension experimental = okbuckExt.extensions.create(EXPERIMENTAL, ExperimentalExtension)
         TestExtension test = okbuckExt.extensions.create(TEST, TestExtension)
         LintExtension lint = okbuckExt.extensions.create(LINT, LintExtension, project)
-        RetrolambdaExtension retrolambda = okbuckExt.extensions.create(RETROLAMBDA, RetrolambdaExtension)
         ScalaExtension scala = okbuckExt.extensions.create(SCALA, ScalaExtension)
 
         okbuckExt.extensions.create(INTELLIJ, IntellijExtension)
@@ -151,13 +147,8 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                     TransformUtil.fetchTransformDeps(project)
                 }
 
-                // Fetch Retrolambda deps if needed
-                boolean hasRetrolambda = okbuckExt.buckProjects.find {
-                    it.plugins.hasPlugin('me.tatarka.retrolambda')
-                } != null
-                if (hasRetrolambda) {
-                    RetrolambdaUtil.fetchRetrolambdaDeps(project, retrolambda)
-                }
+                // Setup d8 deps
+                D8Util.copyDeps()
 
                 // Fetch robolectric deps if needed
                 if (test.robolectric) {

@@ -20,7 +20,6 @@ final class ExopackageAndroidLibraryRuleComposer extends AndroidBuckRuleComposer
         AndroidRule androidRule = new AndroidRule()
                 .sourceCompatibility(target.sourceCompatibility)
                 .targetCompatibility(target.targetCompatibility)
-                .postprocessClassesCommands(target.postprocessClassesCommands)
                 .options(target.main.jvmArgs)
 
         if (target.ruleType == RuleType.KOTLIN_ANDROID_LIBRARY) {

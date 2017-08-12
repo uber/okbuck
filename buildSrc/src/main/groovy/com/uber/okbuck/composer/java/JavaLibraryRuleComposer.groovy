@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableSet
 import com.uber.okbuck.composer.jvm.JvmBuckRuleComposer
 import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.core.model.java.JavaLibTarget
-import com.uber.okbuck.core.util.RetrolambdaUtil
 import com.uber.okbuck.template.core.Rule
 import com.uber.okbuck.template.java.JavaBinaryRule
 import com.uber.okbuck.template.java.JavaRule
@@ -30,10 +29,6 @@ final class JavaLibraryRuleComposer extends JvmBuckRuleComposer {
         providedDeps.addAll(targets(target.provided.targetDeps))
         providedDeps.removeAll(deps)
 
-        if (target.retrolambda) {
-            providedDeps.add(RetrolambdaUtil.getRtStubJarRule())
-        }
-
         List<String> testTargets = []
         if (target.test.sources) {
             testTargets.add(":${test(target)}")
@@ -49,7 +44,6 @@ final class JavaLibraryRuleComposer extends JvmBuckRuleComposer {
                 .resourcesDir(target.main.resourcesDir)
                 .sourceCompatibility(target.sourceCompatibility)
                 .targetCompatibility(target.targetCompatibility)
-                .postprocessClassesCommands(target.postprocessClassesCommands)
                 .testTargets(testTargets)
                 .options(target.main.jvmArgs)
                 .ruleType(ruleType.buckName)

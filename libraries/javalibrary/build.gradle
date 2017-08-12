@@ -1,5 +1,4 @@
 apply plugin: 'java'
-apply plugin: 'me.tatarka.retrolambda'
 
 dependencies {
     compile deps.external.gson

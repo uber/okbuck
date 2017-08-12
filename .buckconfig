@@ -20,7 +20,6 @@
 
 [log]
     max_traces = 25
-    buckconfig_local_warning_enabled = false
 
 [java]
     jar_spool_mode = direct_to_jar
