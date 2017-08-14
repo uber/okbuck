@@ -7,12 +7,9 @@ import com.uber.okbuck.core.model.java.JavaLibTarget
 import com.uber.okbuck.core.model.java.JavaTarget
 import com.uber.okbuck.core.util.LintUtil
 import com.uber.okbuck.extension.LintExtension
-import com.uber.okbuck.rule.base.BuckRule
 import com.uber.okbuck.rule.base.GenRule
 
 final class LintRuleComposer extends JvmBuckRuleComposer {
-
-    private static final String BUCK_LINT_LIBRARIES = "buck_lint_libraries"
 
     private LintRuleComposer() {
         // no instance
@@ -44,7 +41,17 @@ final class LintRuleComposer extends JvmBuckRuleComposer {
         if (customLintRules) {
             lintCmds.add("export ANDROID_LINT_JARS=\"${toLocation(customLintRules)}\";")
         }
-        lintCmds += ["mkdir -p \$OUT;", "RUN_IN=`dirname ${toLocation(fileRule(target.manifest))}`;", "exec java", "-Djava.awt.headless=true"]
+        lintCmds += ["mkdir -p \$OUT;", "RUN_IN=`dirname ${toLocation(fileRule(target.manifest))}`;"]
+
+        // Workaround till https://issuetracker.google.com/issues/64683008 is addressed
+        if (!target.main.sources.empty) {
+            lintCmds += [
+                    "CP_FILE=`sed \"s/@//\" <<< ${toClasspathFile(":${src(target)}")}`;",
+                    "sed -i.bak -e \"s|${target.rootProject.projectDir.absolutePath}/||g\" -e \"s|\\'||g\" \$CP_FILE;"
+            ]
+        }
+
+        lintCmds += ["exec java", "-Djava.awt.headless=true", "-Dcom.android.tools.lint.workdir=${target.rootProject.projectDir.absolutePath}"]
 
         LintExtension lintExtension = target.rootProject.okbuck.lint
         if (lintExtension.jvmArgs) {
@@ -57,7 +64,7 @@ final class LintRuleComposer extends JvmBuckRuleComposer {
 
         if (!target.main.sources.empty) {
             lintCmds.add("--classpath ${toLocation(":${src(target)}")}")
-            lintCmds.add("--libraries ${toClasspath(":${src(target)}")}")
+            lintCmds.add("--libraries `cat \$CP_FILE`")
         }
         if (target.lintOptions.abortOnError) {
             lintCmds.add("--exitcode")
