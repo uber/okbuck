@@ -75,4 +75,8 @@ public abstract class BuckRuleComposer {
     public static String toClasspath(final String target) {
         return "$(classpath " + target + ")";
     }
+
+    public static String toClasspathFile(final String target) {
+        return "$(@classpath " + target + ")";
+    }
 }
