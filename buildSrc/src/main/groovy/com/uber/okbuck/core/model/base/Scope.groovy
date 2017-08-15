@@ -123,9 +123,18 @@ class Scope {
 
         LOG.info("Resolving configurations of {} : {}", project, configurations)
 
+        def artifactType = org.gradle.api.attributes.Attribute.of('artifactType', String)
         Set<ResolvedArtifactResult> artifacts = configurations.collect {
-            it.incoming.artifacts.artifacts
+            it.incoming.artifactView {
+                attributes { it.attribute(artifactType, 'aar') }
+            }.artifacts.artifacts +
+            it.incoming.artifactView {
+                attributes { it.attribute(artifactType, 'jar') }
+            }.artifacts.artifacts
         }.flatten() as Set<ResolvedArtifactResult>
+        artifacts = artifacts.findAll {
+            !it.file.name.endsWith("classes.jar")
+        }
 
         artifacts.each { ResolvedArtifactResult artifact ->
             if (!DependencyUtils.isConsumable(artifact.file)) {
@@ -133,7 +142,7 @@ class Scope {
             }
             ComponentIdentifier identifier = artifact.id.componentIdentifier
             if (identifier instanceof ProjectComponentIdentifier) {
-                targetDeps.add(ProjectUtil.getTargetForOutput(project.project(identifier.projectPath), artifact.file))
+                // targetDeps.add(ProjectUtil.getTargetForOutput(project.project(identifier.projectPath), artifact.file))
             } else if (identifier instanceof ModuleComponentIdentifier && identifier.version) {
                 ExternalDependency externalDependency = new ExternalDependency(
                         identifier.group,
@@ -146,6 +155,8 @@ class Scope {
                 } else {
                     external.add(externalDependency)
                 }
+                println artifact.id.componentIdentifier
+                println artifact.file
             } else {
                 if (!FilenameUtils.directoryContains(project.rootProject.projectDir.absolutePath,
                         artifact.file.absolutePath) && !DependencyUtils.isWhiteListed(artifact.file)) {

@@ -6,6 +6,8 @@ android {
         buildConfigField "String", "DUMMY_CONFIG", "\"default\""
     }
 
+    flavorDimensions "default"
+
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
@@ -29,13 +31,12 @@ android {
 }
 
 dependencies {
-    compile project(':libraries:javalibrary')
-    compile(deps.external.sqlite) {
+    api project(':libraries:javalibrary')
+    api(deps.external.sqlite) {
         exclude module: 'support-annotations'
     }
 
-    freeCompile project(path: ':libraries:common', configuration: 'freeDebug')
-    paidCompile project(path: ':libraries:common', configuration: 'paidRelease')
+    api project(path: ':libraries:common')
 
     annotationProcessor deps.apt.daggerCompiler
 

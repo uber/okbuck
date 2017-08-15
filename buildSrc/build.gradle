@@ -10,6 +10,7 @@ apply from: "../dependencies.gradle"
 repositories {
     jcenter()
     google()
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
 }
 
 jar {

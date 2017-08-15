@@ -2,11 +2,12 @@ apply plugin: 'com.android.library'
 apply plugin: 'me.tatarka.retrolambda'
 
 android {
+    flavorDimensions "default"
+    
     defaultConfig {
         buildConfigField "String", "COMMON_CONFIG", "\"default\""
     }
 
-    publishNonDefault true
     productFlavors {
         free {
             buildConfigField "String", "COMMON_CONFIG", "\"free\""
@@ -18,6 +19,6 @@ android {
 }
 
 dependencies {
-    compile deps.support.appCompat
-    compile project(':libraries:parcelable')
+    api deps.support.appCompat
+    api project(':libraries:parcelable')
 }

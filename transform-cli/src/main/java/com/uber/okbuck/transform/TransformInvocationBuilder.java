@@ -7,6 +7,7 @@ import com.android.build.api.transform.TransformInvocation;
 import com.android.build.api.transform.TransformOutputProvider;
 
 import org.gradle.api.logging.LoggingManager;
+import org.gradle.workers.WorkerExecutor;
 
 import java.io.File;
 import java.util.Collection;
@@ -144,6 +145,16 @@ class TransformInvocationBuilder {
 
         @Override
         public String getPath() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public String getVariantName() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public WorkerExecutor getWorkerExecutor() {
             throw new UnsupportedOperationException();
         }
     }

@@ -13,6 +13,8 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
+    flavorDimensions "default"
+
     productFlavors {
         dev {
             buildConfigField "boolean", "CAN_JUMP", "true"
@@ -49,39 +51,37 @@ repositories {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile(name: 'rxscreenshotdetector-1.2.0', ext: 'aar')
-    compile deps.external.rxjava
-    compile deps.external.rxandroid
-    compile deps.external.rxPermissions
-    compile deps.support.multidex
-    compile deps.external.butterKnife
-    compile deps.support.design
-    compile deps.support.recyclerView
-    compile deps.external.leakCanary
-    compile deps.external.xlogAndroidIdle
-    compile deps.apt.autoValue
+    api fileTree(dir: 'libs', include: ['*.jar'])
+    // api(name: 'rxscreenshotdetector-1.2.0', ext: 'aar')
+    api deps.external.rxjava
+    api deps.external.rxandroid
+    api deps.external.rxPermissions
+    api deps.support.multidex
+    api deps.external.butterKnife
+    api deps.support.design
+    api deps.support.recyclerView
+    api deps.external.leakCanary
+    api deps.external.xlogAndroidIdle
+    api deps.apt.autoValue
 
-    compile project(':libraries:emptylibrary')
-    compile project(':libraries:kotlinandroidlibrary')
-    devCompile project(path: ':dummylibrary', configuration: 'freeRelease')
-    prodCompile project(path: ':dummylibrary', configuration: 'paidRelease')
-    demoCompile project(path: ':dummylibrary', configuration: 'paidRelease')
+    api project(':libraries:emptylibrary')
+    api project(':libraries:kotlinandroidlibrary')
+    api project(':dummylibrary')
 
     annotationProcessor deps.apt.autoValue
     annotationProcessor deps.apt.butterKnifeCompiler
     annotationProcessor deps.apt.daggerCompiler
     annotationProcessor deps.apt.autoValueGson
 
-    testCompile project(path: ':dummylibrary', configuration: 'freeDebug')
-    testCompile deps.test.junit
-    testCompile deps.test.mockito
-    testCompile deps.support.annotations
+    testImplementation project(path: ':dummylibrary', configuration: 'freeDebug')
+    testImplementation deps.test.junit
+    testImplementation deps.test.mockito
+    testImplementation deps.support.annotations
 
-    androidTestCompile(deps.test.espressoCore) {
+    androidTestImplementation(deps.test.espressoCore) {
         exclude group: 'com.android.support', module: 'support-annotations'
     }
-    androidTestCompile(deps.test.espressoRunner) {
+    androidTestImplementation(deps.test.espressoRunner) {
         exclude group: 'com.android.support', module: 'support-annotations'
     }
 }

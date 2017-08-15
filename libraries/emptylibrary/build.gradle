@@ -8,8 +8,9 @@ android {
 }
 
 dependencies {
-    compile deps.support.appCompat
+    api deps.support.appCompat
+    api project(":libraries:parcelable")
 
-    testCompile deps.test.junit
-    testCompile deps.test.robolectric
+    testImplementation deps.test.junit
+    testImplementation deps.test.robolectric
 }

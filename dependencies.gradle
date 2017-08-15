@@ -1,11 +1,11 @@
 def versions = [
-        androidTools         : '26.0.0-rc1',
-        butterKnifeVersion   : '8.6.0',
+        androidTools         : '26.0.0',
+        butterKnifeVersion   : '9.0.0-SNAPSHOT',
         daggerVersion        : '2.11',
         kotlinVersion        : '1.1.50',
         leakCanaryVersion    : '1.5.1',
         supportVersion       : '26.0.1',
-        androidPluginVersion : '2.3.2',
+        androidPluginVersion : '3.0.0',
 ]
 
 def build = [
@@ -25,7 +25,6 @@ def build = [
 
 def buildConfig = [
         compileSdk: 26,
-        buildTools: '26.0.2',
         minSdk    : 16,
         targetSdk : 26,
 ]

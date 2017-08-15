@@ -17,7 +17,10 @@ final class DependencyUtils {
         Set<Configuration> useful = new HashSet<>()
         configurations.each { String configName ->
             try {
-                useful.add(project.configurations.getByName(configName))
+                def conf = project.configurations.getByName(configName)
+                if (conf.isCanBeResolved()) {
+                    useful.add(conf)
+                }
             } catch (UnknownConfigurationException ignored) {}
         }
 

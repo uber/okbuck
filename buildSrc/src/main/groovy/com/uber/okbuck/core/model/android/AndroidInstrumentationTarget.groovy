@@ -11,8 +11,6 @@ import org.gradle.api.Project
  */
 class AndroidInstrumentationTarget extends AndroidAppTarget {
 
-    static final String ANDROID_TEST_PREFIX = VariantType.ANDROID_TEST.prefix
-
     AndroidInstrumentationTarget(Project project, String name) {
         super(project, name, true)
     }
@@ -26,19 +24,19 @@ class AndroidInstrumentationTarget extends AndroidAppTarget {
 
     @Override
     Scope getApt() {
-        return Scope.from(project, expand(aptConfigs, ANDROID_TEST_PREFIX))
+        return Scope.from(project, expand(aptConfigs, VariantType.ANDROID_TEST.prefix))
     }
 
     @Override
     Scope getProvided() {
-        return Scope.from(project, expand(providedConfigs, ANDROID_TEST_PREFIX))
+        return Scope.from(project, expand(providedConfigs, VariantType.ANDROID_TEST.prefix))
     }
 
     @Override
     Scope getMain() {
         return Scope.from(
                 project,
-                expand(compileConfigs, ANDROID_TEST_PREFIX, true),
+                expand(compileConfigs, VariantType.ANDROID_TEST.prefix),
                 getSources(baseVariant),
                 null,
                 getJavaCompilerOptions(baseVariant))
@@ -52,7 +50,7 @@ class AndroidInstrumentationTarget extends AndroidAppTarget {
     Scope getInstrumentation() {
         return Scope.from(
                 project,
-                expand(compileConfigs, ANDROID_TEST_PREFIX)
+                expand(compileConfigs, VariantType.ANDROID_TEST.prefix)
                         + ["androidTest${getMainTargetName(name).capitalize()}Compile"],
                 getSources(baseVariant),
                 null,
