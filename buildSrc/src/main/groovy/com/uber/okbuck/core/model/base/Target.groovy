@@ -1,5 +1,7 @@
 package com.uber.okbuck.core.model.base
 
+import com.google.common.collect.ImmutableMap
+import com.google.common.collect.ImmutableSet
 import com.uber.okbuck.core.util.FileUtil
 import com.uber.okbuck.extension.OkBuckExtension
 import groovy.transform.EqualsAndHashCode
@@ -51,7 +53,7 @@ abstract class Target {
         return FileUtil.available(project, files)
     }
 
-    def getProp(Map map, defaultValue) {
+    protected <T> T getProp(Map<String, T> map, T defaultValue) {
         String nameKey = "${identifier}${name}" as String
         if (map.containsKey(nameKey)) {
             return map.get(nameKey)
@@ -63,13 +65,8 @@ abstract class Target {
     }
 
     Set<String> getExtraOpts(RuleType ruleType) {
-        def propertyMap = getProp(okbuck.extraBuckOpts, [:])
-
-        String ruleTypeKey = ruleType.name().toLowerCase()
-        if (propertyMap.containsKey(ruleTypeKey)) {
-            return propertyMap.get(ruleTypeKey)
-        } else {
-            return []
-        }
+        Map<String, Set<String>> propertyMap = getProp(okbuck.extraBuckOpts, ImmutableMap.of())
+        return propertyMap.isEmpty() ? ImmutableSet.of()
+                : propertyMap.computeIfAbsent(ruleType.name().toLowerCase(), { ImmutableSet.of() })
     }
 }

@@ -29,7 +29,7 @@ public class OkBuckExtension {
      * Annotation processor classes of project dependencies
      */
     @Input
-    public Map<String, String> annotationProcessors = new HashMap<>();
+    public Map<String, Set<String>> annotationProcessors = new HashMap<>();
 
     /**
      * LinearAllocHardLimit used for multi-dex support.
@@ -41,7 +41,7 @@ public class OkBuckExtension {
      * Primary dex class patterns.
      */
     @Input
-    public Map<String, List<String>> primaryDexPatterns = new HashMap<>();
+    public Map<String, Set<String>> primaryDexPatterns = new HashMap<>();
 
     /**
      * Whether to enable exopackage.
@@ -53,7 +53,7 @@ public class OkBuckExtension {
      * Exopackage lib dependencies.
      */
     @Input
-    public Map<String, List<String>> appLibDependencies = new HashMap<>();
+    public Map<String, Set<String>> appLibDependencies = new HashMap<>();
 
     /**
      * Set of projects to generate buck configs for. Default is all subprojects of root project.
@@ -66,7 +66,7 @@ public class OkBuckExtension {
      * Extra buck options
      */
     @Input
-    public Map<String, Map<String, List<String>>> extraBuckOpts = new HashMap<>();
+    public Map<String, Map<String, Set<String>>> extraBuckOpts = new HashMap<>();
 
     /**
      * Extra buck defs

@@ -11,6 +11,7 @@ import com.android.builder.model.SourceProvider
 import com.android.manifmerger.ManifestMerger2
 import com.android.manifmerger.MergingReport
 import com.android.utils.ILogger
+import com.google.common.collect.ImmutableSet
 import com.uber.okbuck.OkBuckGradlePlugin
 import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.core.model.base.Scope
@@ -112,15 +113,10 @@ abstract class AndroidTarget extends JavaLibTarget {
 
     @Override
     Scope getTest() {
-        Set<File> testSrcDirs = [] as Set
-        if (unitTestVariant) {
-            testSrcDirs = getSources(unitTestVariant)
-        }
-
         return Scope.from(
                 project,
                 expand(compileConfigs, TEST_PREFIX, true),
-                testSrcDirs,
+                unitTestVariant ? getSources(unitTestVariant): ImmutableSet.of(),
                 project.file("src/test/resources"),
                 getJavaCompilerOptions(unitTestVariant))
     }
@@ -345,7 +341,7 @@ abstract class AndroidTarget extends JavaLibTarget {
         if (baseVariant instanceof TestedVariant) {
             TestVariant testVariant = ((TestedVariant) baseVariant).testVariant
             if (testVariant != null) {
-                Set<String> manifests = [] as Set
+                Set<String> manifests = new HashSet<>()
                 testVariant.sourceSets.each { SourceProvider provider ->
                     manifests.addAll(getAvailable(Collections.singletonList(provider.manifestFile)))
                 }
@@ -359,7 +355,7 @@ abstract class AndroidTarget extends JavaLibTarget {
     }
 
     @Override
-    getProp(Map map, defaultValue) {
+    <T> T getProp(Map<String, T> map, T defaultValue) {
         String nameKey = "${identifier}${name.capitalize()}" as String
         String flavorKey = "${identifier}${flavor.capitalize()}" as String
         String buildTypeKey = "${identifier}${buildType.capitalize()}" as String

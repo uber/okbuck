@@ -3,9 +3,12 @@ package com.uber.okbuck.core.model.android
 import com.android.build.gradle.api.BaseVariant
 import com.android.builder.model.SigningConfig
 import com.android.manifmerger.ManifestMerger2
+import com.google.common.collect.ImmutableList
+import com.google.common.collect.ImmutableSet
 import com.uber.okbuck.core.model.base.Target
 import com.uber.okbuck.core.util.FileUtil
 import com.uber.okbuck.extension.TestExtension
+import com.uber.okbuck.extension.TransformExtension
 import groovy.util.slurpersupport.GPathResult
 import org.gradle.api.Project
 
@@ -35,17 +38,13 @@ class AndroidAppTarget extends AndroidLibTarget {
 
         minifyEnabled = baseVariant.buildType.minifyEnabled
         keystore = extractKeystore()
-        if (baseVariant.ndkCompile.abiFilters != null) {
-            cpuFilters = baseVariant.ndkCompile.abiFilters
-        } else {
-            cpuFilters = [] as Set<String>
-        }
+
+        cpuFilters = baseVariant.ndkCompile.abiFilters ?: ImmutableSet.of()
 
         multidexEnabled = baseVariant.mergedFlavor.multiDexEnabled
-        primaryDexPatterns = getProp(okbuck.primaryDexPatterns, []) as Set<String>
-        linearAllocHardLimit = getProp(okbuck.linearAllocHardLimit, DEFAULT_LINEARALLOC_LIMIT) as Integer
-
-        exoPackageDependencies = getProp(okbuck.appLibDependencies, []) as Set<String>
+        primaryDexPatterns = getProp(okbuck.primaryDexPatterns, ImmutableSet.of())
+        linearAllocHardLimit = getProp(okbuck.linearAllocHardLimit, DEFAULT_LINEARALLOC_LIMIT)
+        exoPackageDependencies = getProp(okbuck.appLibDependencies, ImmutableSet.of())
 
         if (isTest) {
             placeholders.put('applicationId', applicationId - ".test" + applicationIdSuffix + ".test")
@@ -139,7 +138,8 @@ class AndroidAppTarget extends AndroidLibTarget {
     }
 
     List<Map<String, String>> getTransforms() {
-        return (List<Map<String, String>>) getProp(okbuck.transform.transforms, [])
+        TransformExtension transform = okbuck.transform
+        return getProp(transform.transforms, ImmutableList.of())
     }
 
     private Keystore extractKeystore() {

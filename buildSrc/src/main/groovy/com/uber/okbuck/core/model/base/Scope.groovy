@@ -10,6 +10,7 @@ import com.uber.okbuck.core.dependency.ExternalDependency
 import com.uber.okbuck.core.dependency.ExternalDependency.VersionlessDependency
 import com.uber.okbuck.core.util.FileUtil
 import com.uber.okbuck.core.util.ProjectUtil
+import com.uber.okbuck.extension.OkBuckExtension
 import groovy.transform.EqualsAndHashCode
 import org.apache.commons.io.FilenameUtils
 import org.apache.commons.lang3.StringUtils
@@ -32,13 +33,13 @@ class Scope {
 
     final String resourcesDir
     final Set<String> sources
-    final Set<Target> targetDeps = [] as Set
+    final Set<Target> targetDeps = new HashSet<>()
 
     List<String> jvmArgs
     DependencyCache depCache
 
     protected final Project project
-    final Set<ExternalDependency> external = [] as Set
+    final Set<ExternalDependency> external = new HashSet<>()
 
     protected Scope(Project project,
                     Set<Configuration> configurations,
@@ -90,7 +91,8 @@ class Scope {
         return ((external.collect {
             depCache.getAnnotationProcessors(it)
         } + targetDeps.collect { Target target ->
-            target.getProp(project.rootProject.okbuck.annotationProcessors as Map, []) as Set<String>
+            OkBuckExtension okBuckExtension = project.rootProject.okbuck
+            target.getProp(okBuckExtension.annotationProcessors, ImmutableSet.of())
         }).flatten() as Set<String>).findAll { !it.empty }
     }
 

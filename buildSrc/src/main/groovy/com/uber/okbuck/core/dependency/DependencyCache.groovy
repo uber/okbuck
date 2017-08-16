@@ -1,5 +1,6 @@
 package com.uber.okbuck.core.dependency
 
+import com.google.common.collect.ImmutableSet
 import com.uber.okbuck.OkBuckGradlePlugin
 import com.uber.okbuck.core.model.base.Scope
 import com.uber.okbuck.core.model.base.Store
@@ -176,7 +177,7 @@ class DependencyCache {
      * @param externalDependency The dependency
      * @return The list of annotation processor classes available in the manifest
      */
-    List<String> getAnnotationProcessors(ExternalDependency externalDependency) {
+    Set<String> getAnnotationProcessors(ExternalDependency externalDependency) {
         ExternalDependency dependency = forcedDeps.getOrDefault(externalDependency.versionless, externalDependency)
         String key = dependency.cacheName
         String processorsList = processors.get(key)
@@ -195,11 +196,7 @@ class DependencyCache {
             processors.set(key, processorsList)
         }
 
-        if (processorsList == "") {
-            return Collections.emptyList()
-        } else {
-            return processorsList.split(",")
-        }
+        return processorsList ? ImmutableSet.copyOf(processorsList.split(",")) : ImmutableSet.of()
     }
 
     /**
