@@ -21,6 +21,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
+import java.util.concurrent.ConcurrentHashMap
 import java.util.jar.JarEntry
 import java.util.jar.JarFile
 
@@ -36,9 +37,9 @@ class DependencyCache {
     private final Store proguardConfigs
     private final Store sources
 
-    private final Set<File> copies = new HashSet<>()
-    private final Set<ExternalDependency> requested = new HashSet<>()
-    private final Map<File, File> links = new HashMap<>()
+    private final Set<File> copies = ConcurrentHashMap.newKeySet()
+    private final Set<ExternalDependency> requested = ConcurrentHashMap.newKeySet()
+    private final Map<File, File> links = new ConcurrentHashMap<>()
     private final Map<ExternalDependency.VersionlessDependency, ExternalDependency> forcedDeps = new HashMap<>()
 
     DependencyCache(Project project, File cacheDir, String forcedConfiguration = null) {
