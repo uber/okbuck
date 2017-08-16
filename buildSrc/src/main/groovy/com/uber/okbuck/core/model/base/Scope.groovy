@@ -11,7 +11,6 @@ import com.uber.okbuck.core.dependency.ExternalDependency.VersionlessDependency
 import com.uber.okbuck.core.util.FileUtil
 import com.uber.okbuck.core.util.ProjectUtil
 import groovy.transform.EqualsAndHashCode
-import jdk.nashorn.internal.ir.annotations.Immutable
 import org.apache.commons.io.FilenameUtils
 import org.apache.commons.lang3.StringUtils
 import org.gradle.api.Project
@@ -22,9 +21,13 @@ import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 import org.gradle.api.artifacts.component.ProjectComponentIdentifier
 import org.gradle.api.artifacts.result.ResolvedArtifactResult
 import org.jetbrains.annotations.Nullable
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 @EqualsAndHashCode
 class Scope {
+
+    private static final Logger LOG = LoggerFactory.getLogger(Scope)
 
     final String resourcesDir
     final Set<String> sources
@@ -37,7 +40,7 @@ class Scope {
     final Set<ExternalDependency> external = [] as Set
 
     protected Scope(Project project,
-                    Set<String> configurations,
+                    Set<Configuration> configurations,
                     Set<File> sourceDirs,
                     @Nullable File resDir,
                     List<String> jvmArguments,
@@ -71,11 +74,12 @@ class Scope {
             }
         }
 
-        String key = configurations.toSorted().join("_")
         synchronized (projectScopes) {
+            Set<Configuration> useful = DependencyUtils.useful(project, configurations)
+            String key = useful.collect{ it.name }.toSorted().join("_")
             projectScope = projectScopes.get(key)
             if (projectScope == null) {
-                projectScope = new Scope(project, configurations, sourceDirs, resDir, jvmArguments, depCache)
+                projectScope = new Scope(project, useful, sourceDirs, resDir, jvmArguments, depCache)
                 projectScopes.put(key, projectScope)
             }
         }
@@ -115,16 +119,12 @@ class Scope {
         }
     }
 
-    private void extractConfigurations(Set<String> configurations) {
-        Set<Configuration> validConfigurations = new HashSet<>()
-        configurations.each { String configName ->
-            try {
-                validConfigurations.add(project.configurations.getByName(configName))
-            } catch (UnknownConfigurationException ignored) {
-            }
+    private void extractConfigurations(Set<Configuration> configurations) {
+        if (configurations.size() == 0) {
+            return
         }
-        validConfigurations = DependencyUtils.useful(validConfigurations)
-        boolean resolveDups = validConfigurations.size() > 1
+
+        boolean resolveDups = configurations.size() > 1
 
         SortedSetMultimap<VersionlessDependency, ExternalDependency> greatest
         if (resolveDups) {
@@ -133,10 +133,12 @@ class Scope {
 
         // Download sources if needed
         if (project.rootProject.okbuck.intellij.sources) {
-            DependencyUtils.downloadSourceJars(project, validConfigurations)
+            DependencyUtils.downloadSourceJars(project, configurations)
         }
 
-        Set<ResolvedArtifactResult> artifacts = validConfigurations.collect {
+        LOG.info("Resolving configurations of ${project} : ${configurations.collect { it.name }.join(", ")}")
+
+        Set<ResolvedArtifactResult> artifacts = configurations.collect {
             it.incoming.artifacts.artifacts
         }.flatten() as Set<ResolvedArtifactResult>
 

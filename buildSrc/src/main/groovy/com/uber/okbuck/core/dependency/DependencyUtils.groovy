@@ -3,6 +3,7 @@ package com.uber.okbuck.core.dependency
 import com.uber.okbuck.core.util.FileUtil
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.UnknownConfigurationException
 import org.gradle.plugins.ide.internal.IdeDependenciesExtractor
 
 final class DependencyUtils {
@@ -12,8 +13,15 @@ final class DependencyUtils {
 
     private DependencyUtils() {}
 
-    static Set<Configuration> useful(Set<Configuration> configurations) {
-        Set<Configuration> useful = configurations.findAll { Configuration configuration ->
+    static Set<Configuration> useful(Project project, Set<String> configurations) {
+        Set<Configuration> useful = new HashSet<>()
+        configurations.each { String configName ->
+            try {
+                useful.add(project.configurations.getByName(configName))
+            } catch (UnknownConfigurationException ignored) {}
+        }
+
+        useful.findAll { Configuration configuration ->
             !configuration.dependencies.empty
         }
         useful.removeAll(useful.collect { it.extendsFrom }.flatten())

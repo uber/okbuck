@@ -25,7 +25,7 @@ import java.util.jar.JarFile
 
 class DependencyCache {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DependencyCache.simpleName)
+    private static final Logger LOG = LoggerFactory.getLogger(DependencyCache)
 
     private final File cacheDir
     private final Project rootProject
