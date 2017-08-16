@@ -15,7 +15,6 @@ import org.apache.commons.io.FilenameUtils
 import org.apache.commons.lang3.StringUtils
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
-import org.gradle.api.artifacts.UnknownConfigurationException
 import org.gradle.api.artifacts.component.ComponentIdentifier
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 import org.gradle.api.artifacts.component.ProjectComponentIdentifier
@@ -136,7 +135,7 @@ class Scope {
             DependencyUtils.downloadSourceJars(project, configurations)
         }
 
-        LOG.info("Resolving configurations of ${project} : ${configurations.collect { it.name }.join(", ")}")
+        LOG.info("Resolving configurations of {} : {}", project, configurations)
 
         Set<ResolvedArtifactResult> artifacts = configurations.collect {
             it.incoming.artifacts.artifacts

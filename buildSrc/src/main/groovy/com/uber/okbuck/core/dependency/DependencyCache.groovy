@@ -84,40 +84,48 @@ class DependencyCache {
             }
         }
 
-        (cacheDir.listFiles(new FileFilter() {
+        Set<File> stale = cacheDir.listFiles(new FileFilter() {
 
             @Override
             boolean accept(File pathname) {
-                return pathname.isFile() && (pathname.name.endsWith(".jar")
-                        || pathname.name.endsWith(".aar")
-                        || pathname.name.endsWith(".pro"))
+                return pathname.isFile() &&
+                        !links.keySet().contains(pathname) &&
+                        !copies.contains(pathname) &&
+                        (pathname.name.endsWith(".jar")
+                                || pathname.name.endsWith(".aar")
+                                || pathname.name.endsWith(".pro"))
             }
-        }) - (copies)).each {
-            LOG.info("Deleting stale cache entry ${it}")
+        })
+
+        stale.each {
+            LOG.info("Deleting stale cache entry {}", it)
             Files.deleteIfExists(it.toPath())
         }
 
         links.each { File link, File target ->
+            if (link.exists()) {
+                return
+            }
             try {
-                LOG.info("Creating symlink ${link} -> ${target}")
+                LOG.info("Creating symlink {} -> {}", link, target)
                 Files.createSymbolicLink(link.toPath(), target.toPath())
             } catch (IOException ignored) {
-                LOG.info("Could not create symlink ${link} -> ${target}")
+                LOG.info("Could not create symlink {} -> {}", link, target)
             }
         }
     }
 
     String get(ExternalDependency externalDependency, boolean resolveOnly = false, boolean useFullDepname = true) {
-        LOG.info("Requested dependency ${externalDependency}")
+        LOG.info("Requested dependency {}", externalDependency)
         ExternalDependency dependency = forcedDeps.getOrDefault(externalDependency.versionless, externalDependency)
-        LOG.info("Picked dependency ${dependency}")
+        LOG.info("Picked dependency {}", dependency)
 
         File cachedCopy = new File(cacheDir, dependency.getCacheName(useFullDepname))
         String key = FileUtil.getRelativePath(rootProject.projectDir, cachedCopy)
         links.put(cachedCopy, dependency.depFile)
 
         if (!resolveOnly && fetchSources) {
-            LOG.info("Fetching sources for ${dependency}")
+            LOG.info("Fetching sources for {}", dependency)
             getSources(dependency)
         }
         requested.add(dependency)
@@ -291,7 +299,7 @@ class DependencyCache {
             try {
                 Files.copy(packagedPath, packagedFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
             } catch (IOException ignored) {
-                LOG.info("Could not create copy ${packagedFile}")
+                LOG.info("Could not create copy {}", packagedFile)
             }
             return packagedFile
         } else {
