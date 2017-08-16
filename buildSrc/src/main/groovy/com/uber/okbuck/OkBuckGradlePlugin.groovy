@@ -27,6 +27,8 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
 
+import java.util.concurrent.ConcurrentHashMap
+
 // Dependency Tree
 //
 //                 okbuck
@@ -74,7 +76,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     public DependencyCache lintDepCache
     public TargetCache targetCache
     public String retrolambdaCmd
-    public final Map<Project, Map<String, Scope>> scopes = new HashMap<>()
+    public final Map<Project, Map<String, Scope>> scopes = new ConcurrentHashMap<>()
 
     void apply(Project project) {
         // Create extensions

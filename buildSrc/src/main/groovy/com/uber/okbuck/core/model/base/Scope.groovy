@@ -23,6 +23,8 @@ import org.jetbrains.annotations.Nullable
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+import java.util.concurrent.ConcurrentHashMap
+
 @EqualsAndHashCode
 class Scope {
 
@@ -60,30 +62,12 @@ class Scope {
                       @Nullable File resDir = null,
                       List<String> jvmArguments = ImmutableList.of(),
                       DependencyCache depCache = ProjectUtil.getDependencyCache(project)) {
-
-        Map<String, Scope> projectScopes
-        Scope projectScope
-
-        Map<Project, Map<String, Scope>> scopes = ProjectUtil.getScopes(project)
-        synchronized (scopes) {
-            projectScopes = scopes.get(project)
-            if (projectScopes == null) {
-                projectScopes = new HashMap<>()
-                scopes.put(project, projectScopes)
-            }
-        }
-
-        synchronized (projectScopes) {
-            Set<Configuration> useful = DependencyUtils.useful(project, configurations)
-            String key = useful.collect{ it.name }.toSorted().join("_")
-            projectScope = projectScopes.get(key)
-            if (projectScope == null) {
-                projectScope = new Scope(project, useful, sourceDirs, resDir, jvmArguments, depCache)
-                projectScopes.put(key, projectScope)
-            }
-        }
-
-        return projectScope
+        Set<Configuration> useful = DependencyUtils.useful(project, configurations)
+        String key = useful.collect { it.name }.toSorted().join("_")
+        return ProjectUtil.getScopes(project)
+                .computeIfAbsent(project, { new ConcurrentHashMap<>() })
+                .computeIfAbsent(key,
+                { new Scope(project, useful, sourceDirs, resDir, jvmArguments, depCache) })
     }
 
     Set<String> getExternalDeps() {
