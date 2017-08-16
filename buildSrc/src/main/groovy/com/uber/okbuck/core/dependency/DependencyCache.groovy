@@ -11,6 +11,8 @@ import org.gradle.api.artifacts.component.ComponentIdentifier
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 import org.gradle.api.artifacts.component.ProjectComponentIdentifier
 import org.gradle.api.artifacts.result.ResolvedArtifactResult
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 import java.nio.file.FileSystem
 import java.nio.file.FileSystems
@@ -22,6 +24,8 @@ import java.util.jar.JarEntry
 import java.util.jar.JarFile
 
 class DependencyCache {
+
+    private static final Logger LOG = LoggerFactory.getLogger(DependencyCache.simpleName)
 
     private final File cacheDir
     private final Project rootProject
@@ -55,6 +59,7 @@ class DependencyCache {
     }
 
     void finalizeDeps() {
+        LOG.info("Finalizing Dependency Cache")
         sources.persist()
         processors.persist()
         lintJars.persist()
@@ -75,35 +80,44 @@ class DependencyCache {
             if (rootProject.okbuck.failOnChangingDependencies) {
                 throw new IllegalStateException(message)
             } else {
-                println "\n${message}\n"
-            }
-        }
-
-        links.each { File link, File target ->
-            if (target.exists()) {
-                try {
-                    Files.createSymbolicLink(link.toPath(), target.toPath())
-                } catch (IOException ignored) { }
+                LOG.warn(message)
             }
         }
 
         (cacheDir.listFiles(new FileFilter() {
+
             @Override
             boolean accept(File pathname) {
                 return pathname.isFile() && (pathname.name.endsWith(".jar")
                         || pathname.name.endsWith(".aar")
                         || pathname.name.endsWith(".pro"))
             }
-        })- (links.keySet() + copies)).each { Files.deleteIfExists(it.toPath()) }
+        }) - (copies)).each {
+            LOG.info("Deleting stale cache entry ${it}")
+            Files.deleteIfExists(it.toPath())
+        }
+
+        links.each { File link, File target ->
+            try {
+                LOG.info("Creating symlink ${link} -> ${target}")
+                Files.createSymbolicLink(link.toPath(), target.toPath())
+            } catch (IOException ignored) {
+                LOG.info("Could not create symlink ${link} -> ${target}")
+            }
+        }
     }
 
     String get(ExternalDependency externalDependency, boolean resolveOnly = false, boolean useFullDepname = true) {
+        LOG.info("Requested dependency ${externalDependency}")
         ExternalDependency dependency = forcedDeps.getOrDefault(externalDependency.versionless, externalDependency)
+        LOG.info("Picked dependency ${dependency}")
+
         File cachedCopy = new File(cacheDir, dependency.getCacheName(useFullDepname))
         String key = FileUtil.getRelativePath(rootProject.projectDir, cachedCopy)
         links.put(cachedCopy, dependency.depFile)
 
         if (!resolveOnly && fetchSources) {
+            LOG.info("Fetching sources for ${dependency}")
             getSources(dependency)
         }
         requested.add(dependency)
@@ -276,7 +290,9 @@ class DependencyCache {
         if (Files.exists(packagedPath)) {
             try {
                 Files.copy(packagedPath, packagedFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
-            } catch (IOException ignored) { }
+            } catch (IOException ignored) {
+                LOG.info("Could not create copy ${packagedFile}")
+            }
             return packagedFile
         } else {
             return null
