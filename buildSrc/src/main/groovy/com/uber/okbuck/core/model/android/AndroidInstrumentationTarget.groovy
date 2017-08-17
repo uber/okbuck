@@ -3,6 +3,7 @@ package com.uber.okbuck.core.model.android
 import com.android.build.gradle.api.ApplicationVariant
 import com.android.build.gradle.api.BaseVariant
 import com.android.builder.core.VariantType
+import com.google.common.collect.ImmutableSet
 import com.uber.okbuck.core.model.base.Scope
 import org.gradle.api.Project
 /**
@@ -41,6 +42,11 @@ class AndroidInstrumentationTarget extends AndroidAppTarget {
                 getSources(baseVariant),
                 null,
                 getJavaCompilerOptions(baseVariant))
+    }
+
+    @Override
+    Scope getTest() {
+        return Scope.from(project, ImmutableSet.of())
     }
 
     Scope getInstrumentation() {
