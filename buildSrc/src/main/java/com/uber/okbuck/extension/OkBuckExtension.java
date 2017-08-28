@@ -56,6 +56,12 @@ public class OkBuckExtension {
     public Map<String, Set<String>> appLibDependencies = new HashMap<>();
 
     /**
+     * Proguard mapping file applied via applymapping
+     */
+    @Input
+    public Map<String, File> proguardMappingFile = new HashMap<>();
+
+    /**
      * Set of projects to generate buck configs for. Default is all subprojects of root project.
      */
     @SuppressWarnings("CanBeFinal")
