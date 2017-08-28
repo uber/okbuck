@@ -11,11 +11,17 @@ import com.uber.okbuck.extension.TestExtension
 import com.uber.okbuck.extension.TransformExtension
 import groovy.util.slurpersupport.GPathResult
 import org.gradle.api.Project
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+
+import java.nio.file.Files
 
 /**
  * An Android app target
  */
 class AndroidAppTarget extends AndroidLibTarget {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AndroidAppTarget)
 
     private static final int DEFAULT_LINEARALLOC_LIMIT = 16777216 // 16 MB
 
@@ -26,6 +32,7 @@ class AndroidAppTarget extends AndroidLibTarget {
     final int linearAllocHardLimit
     final Set<String> primaryDexPatterns
     final Set<String> exoPackageDependencies
+    final File proguardMappingFile
 
     final boolean minifyEnabled
 
@@ -45,6 +52,7 @@ class AndroidAppTarget extends AndroidLibTarget {
         primaryDexPatterns = getProp(okbuck.primaryDexPatterns, ImmutableSet.of())
         linearAllocHardLimit = getProp(okbuck.linearAllocHardLimit, DEFAULT_LINEARALLOC_LIMIT)
         exoPackageDependencies = getProp(okbuck.appLibDependencies, ImmutableSet.of())
+        proguardMappingFile = getProp(okbuck.proguardMappingFile, null)
 
         if (isTest) {
             placeholders.put('applicationId', applicationId - ".test" + applicationIdSuffix + ".test")
@@ -131,6 +139,18 @@ class AndroidAppTarget extends AndroidLibTarget {
             }
 
             mergedProguardConfig.text = mergedConfig
+
+            // Copy over any mapping files if specified
+            if (proguardMappingFile) {
+                File genProguardMappingFile = getGenPath(proguardMappingFile.name)
+                try {
+                    LOG.info("Creating symlink {} -> {}", genProguardMappingFile, proguardMappingFile)
+                    Files.createSymbolicLink(genProguardMappingFile.toPath(), proguardMappingFile.toPath())
+                } catch (IOException ignored) {
+                    LOG.info("Could not create symlink {} -> {}", genProguardMappingFile, proguardMappingFile)
+                }
+            }
+
             return FileUtil.getRelativePath(project.rootDir, mergedProguardConfig)
         } else {
             return null
