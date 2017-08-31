@@ -27,6 +27,8 @@ import org.gradle.api.tasks.testing.Test
 import org.jetbrains.kotlin.gradle.plugin.KotlinAndroidPluginWrapper
 
 import java.nio.file.Paths
+
+import static com.uber.okbuck.core.util.KotlinUtil.KOTLIN_ANDROID_EXTENSIONS_MODULE
 /**
  * An Android target
  */
@@ -46,6 +48,7 @@ abstract class AndroidTarget extends JavaLibTarget {
     final boolean generateR2
     final String genDir
     final boolean isKotlin
+    final boolean hasKotlinAndroidExtensions
 
     private String manifestPath
     private String packageName
@@ -85,6 +88,7 @@ abstract class AndroidTarget extends JavaLibTarget {
 
         // Check if kotlin
         isKotlin = project.plugins.hasPlugin(KotlinAndroidPluginWrapper.class)
+        hasKotlinAndroidExtensions = project.plugins.hasPlugin(KOTLIN_ANDROID_EXTENSIONS_MODULE)
 
         if (baseVariant.mergedFlavor.minSdkVersion == null ||
                 baseVariant.mergedFlavor.targetSdkVersion == null) {
@@ -195,6 +199,19 @@ abstract class AndroidTarget extends JavaLibTarget {
         return getAvailable(baseVariant.sourceSets.collect { SourceProvider provider ->
             provider.resDirectories
         }.flatten() as Set<String>)
+    }
+
+    /**
+     * Returns a map of each resource directory to its corresponding variant
+     */
+    Map<String, String> getResVariantDirs() {
+        Map<String, String> variantDirs = new HashMap<>()
+        for (SourceProvider provider : baseVariant.sourceSets) {
+            for (String dir : getAvailable(provider.resDirectories)) {
+                variantDirs.put(dir, provider.name)
+            }
+        }
+        return variantDirs
     }
 
     Set<String> getAssetDirs() {

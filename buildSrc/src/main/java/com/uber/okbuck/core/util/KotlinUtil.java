@@ -23,6 +23,7 @@ public final class KotlinUtil {
     private static final String KOTLIN_COMPILER_MODULE = "kotlin-compiler-embeddable";
     private static final String KOTLIN_GRADLE_MODULE = "kotlin-gradle-plugin";
     private static final String KOTLIN_STDLIB_MODULE = "kotlin-stdlib";
+    public static final String KOTLIN_ANDROID_EXTENSIONS_MODULE = "kotlin-android-extensions";
     public static final String KOTLIN_HOME_LOCATION = OkBuckGradlePlugin.DEFAULT_CACHE_PATH + "/kotlin_home";
 
     private KotlinUtil() {}
@@ -34,6 +35,7 @@ public final class KotlinUtil {
         DependencyHandler handler = project.getDependencies();
         handler.add(KOTLIN_DEPS_CONFIG, String.format("%s:%s:%s", KOTLIN_GROUP, KOTLIN_COMPILER_MODULE, kotlinVersion));
         handler.add(KOTLIN_DEPS_CONFIG, String.format("%s:%s:%s", KOTLIN_GROUP, KOTLIN_STDLIB_MODULE, kotlinVersion));
+        handler.add(KOTLIN_DEPS_CONFIG, String.format("%s:%s:%s", KOTLIN_GROUP, KOTLIN_ANDROID_EXTENSIONS_MODULE, kotlinVersion));
 
         new DependencyCache(project, DependencyUtils.createCacheDir(project, KOTLIN_HOME_LOCATION)).build(kotlinConfig);
 
@@ -41,6 +43,8 @@ public final class KotlinUtil {
                 KOTLIN_COMPILER_MODULE, "kotlin-compiler");
         removeVersions(Paths.get(KOTLIN_HOME_LOCATION),
                 KOTLIN_STDLIB_MODULE, KOTLIN_STDLIB_MODULE);
+        removeVersions(Paths.get(KOTLIN_HOME_LOCATION),
+                KOTLIN_ANDROID_EXTENSIONS_MODULE, KOTLIN_ANDROID_EXTENSIONS_MODULE);
     }
 
     private static void removeVersions(Path dir, String toRename, String renamed) {

@@ -47,6 +47,7 @@ final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
                 testAptDeps,
                 providedDeps,
                 aidlRuleNames,
+                target.kotlincArguments,
                 appClass,
                 target.sourceCompatibility,
                 target.targetCompatibility,

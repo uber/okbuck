@@ -57,6 +57,7 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
                 libraryAptDeps,
                 providedDeps,
                 aidlRuleNames,
+                target.kotlincArguments,
                 appClass,
                 target.sourceCompatibility,
                 target.targetCompatibility,
