@@ -41,17 +41,21 @@ final class LintRuleComposer extends JvmBuckRuleComposer {
         if (customLintRules) {
             lintCmds.add("export ANDROID_LINT_JARS=\"${toLocation(customLintRules)}\";")
         }
-        lintCmds += ["mkdir -p \$OUT;", "RUN_IN=`dirname ${toLocation(fileRule(target.manifest))}`;"]
+        lintCmds += [
+                "mkdir -p \$OUT;",
+                "RUN_IN=`dirname ${toLocation(fileRule(target.manifest))}`;",
+                "PROJECT_ROOT=`echo \$RUN_IN | sed \"s|buck-out.*||\"`;"
+        ]
 
         // Workaround till https://issuetracker.google.com/issues/64683008 is addressed
         if (!target.main.sources.empty) {
             lintCmds += [
                     "CP_FILE=`sed \"s/@//\" <<< ${toClasspathFile(":${src(target)}")}`;",
-                    "sed -i.bak -e \"s|${target.rootProject.projectDir.absolutePath}/||g\" -e \"s|\\'||g\" \$CP_FILE;"
+                    "sed -i.bak -e \"s|\$PROJECT_ROOT||g\" -e \"s|\\'||g\" \$CP_FILE;"
             ]
         }
 
-        lintCmds += ["exec java", "-Djava.awt.headless=true", "-Dcom.android.tools.lint.workdir=${target.rootProject.projectDir.absolutePath}"]
+        lintCmds += ["exec java", "-Djava.awt.headless=true", "-Dcom.android.tools.lint.workdir=\$PROJECT_ROOT"]
 
         LintExtension lintExtension = target.rootProject.okbuck.lint
         if (lintExtension.jvmArgs) {

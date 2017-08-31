@@ -439,19 +439,21 @@ abstract class AndroidTarget extends JavaLibTarget {
     }
 
     Set<File> getSources(BaseVariant variant) {
-        Set<File> srcs = new HashSet<>()
-        srcs.addAll(variant.sourceSets.collect { SourceProvider provider ->
+        ImmutableSet.Builder srcs = new ImmutableSet.Builder()
+
+        Set<File> javaSrcs = variant.sourceSets.collect { SourceProvider provider ->
             provider.javaDirectories
-        }.flatten() as Set<File>)
+        }.flatten() as Set<File>
+        srcs.addAll(javaSrcs)
 
         if (isKotlin) {
-            srcs += srcs.findAll {
+            srcs.addAll(javaSrcs.findAll {
                 it.name == "java"
             }.collect {
                 new File(it.absolutePath.replaceFirst("/java\$", "/kotlin"))
-            }
+            })
         }
-        return srcs
+        return srcs.build()
     }
 
     private static class EmptyLogger implements ILogger {
