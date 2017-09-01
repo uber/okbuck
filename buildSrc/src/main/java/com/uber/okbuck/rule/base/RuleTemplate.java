@@ -40,8 +40,7 @@ public abstract class RuleTemplate extends DefaultRockerTemplate {
             this.visibility = ninjaContext.visibility;
             this.deps = ninjaContext.deps;
             this.extraBuckOpts = ninjaContext.extraBuckOpts;
-        }
-        else {
+        } else {
             throw new IllegalArgumentException("Unable to associate (context was not an instance of " +
                     RuleTemplate.class.getCanonicalName() + ")");
         }
