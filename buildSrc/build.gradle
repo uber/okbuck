@@ -12,6 +12,10 @@ repositories {
     google()
 }
 
+jar {
+    exclude('**/*.rocker.raw')
+}
+
 tasks.withType(GroovyCompile) {
     sourceCompatibility = '1.8'
     targetCompatibility = '1.8'
@@ -22,7 +26,7 @@ tasks.withType(JavaCompile) {
     targetCompatibility = '1.8'
 }
 
-sourceSets.main.java.srcDirs = ["src/main/java/com/uber/okbuck/rule/base"]
+sourceSets.main.java.srcDirs = ["src/main/rocker"]
 sourceSets.main.groovy.srcDirs = ["src/main/java", "src/main/groovy"]
 sourceSets.main.rocker.srcDirs = ["src/main/rocker", "src/main/java"]
 
@@ -44,8 +48,8 @@ dependencies {
 rocker {
     discardLogicWhitespace true
     optimize true
-    extendsClass "com.uber.okbuck.rule.base.RuleTemplate"
-    extendsModelClass "com.uber.okbuck.rule.base.Rule"
+    extendsClass "com.uber.okbuck.template.core.RuleTemplate"
+    extendsModelClass "com.uber.okbuck.template.core.Rule"
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {

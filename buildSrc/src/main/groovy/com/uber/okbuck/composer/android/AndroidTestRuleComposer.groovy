@@ -1,18 +1,22 @@
 package com.uber.okbuck.composer.android
 
+import com.google.common.collect.ImmutableSet
 import com.uber.okbuck.core.model.android.AndroidLibTarget
 import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.core.util.RetrolambdaUtil
 import com.uber.okbuck.core.util.RobolectricUtil
-import com.uber.okbuck.rule.android.AndroidTestRule
+import com.uber.okbuck.template.android.AndroidRule
+import com.uber.okbuck.template.core.Rule
 
 final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
+
+    private static final Set<String> ANDROID_TEST_LABELS = ImmutableSet.of('unit', 'android', 'robolectric')
 
     private AndroidTestRuleComposer() {
         // no instance
     }
 
-    static AndroidTestRule compose(
+    static Rule compose(
             AndroidLibTarget target,
             List<String> deps,
             final List<String> aidlRuleNames,
@@ -36,26 +40,36 @@ final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
             providedDeps.add(RetrolambdaUtil.getRtStubJarRule())
         }
 
-        return new AndroidTestRule(
-                target.testRuleType,
-                test(target),
-                ["PUBLIC"],
-                testDeps,
-                target.test.sources,
-                fileRule(target.manifest),
-                target.testAnnotationProcessors as List,
-                testAptDeps,
-                providedDeps,
-                aidlRuleNames,
-                target.kotlincArguments,
-                appClass,
-                target.sourceCompatibility,
-                target.targetCompatibility,
-                target.postprocessClassesCommands,
-                target.test.jvmArgs,
-                target.testOptions,
-                target.test.resourcesDir,
-                RobolectricUtil.ROBOLECTRIC_CACHE,
-                target.getExtraOpts(RuleType.ROBOLECTRIC_TEST))
+        AndroidRule androidRule = new AndroidRule()
+                .srcs(target.test.sources)
+                .exts(target.testRuleType.sourceExtensions)
+                .annotationProcessors(target.testAnnotationProcessors)
+                .aptDeps(testAptDeps)
+                .providedDeps(providedDeps)
+                .resourcesDir(target.test.resourcesDir)
+                .sourceCompatibility(target.sourceCompatibility)
+                .targetCompatibility(target.targetCompatibility)
+                .postprocessClassesCommands(target.postprocessClassesCommands)
+                .exportedDeps(aidlRuleNames)
+                .excludes(appClass != null ? ImmutableSet.of(appClass) : ImmutableSet.of())
+                .options(target.main.jvmArgs)
+                .jvmArgs(target.testOptions.jvmArgs)
+                .env(target.testOptions.env)
+                .robolectricManifest(fileRule(target.manifest))
+                .runtimeDependency(RobolectricUtil.ROBOLECTRIC_CACHE)
+
+        if (target.testRuleType == RuleType.KOTLIN_ROBOLECTRIC_TEST) {
+            androidRule = androidRule
+                    .language("kotlin")
+                    .extraKotlincArgs(target.kotlincArguments)
+        }
+
+        return androidRule
+                .ruleType(target.testRuleType.buckName)
+                .defaultVisibility()
+                .deps(testDeps)
+                .name(test(target))
+                .labels(ANDROID_TEST_LABELS)
+                .extraBuckOpts(target.getExtraOpts(RuleType.ROBOLECTRIC_TEST))
     }
 }

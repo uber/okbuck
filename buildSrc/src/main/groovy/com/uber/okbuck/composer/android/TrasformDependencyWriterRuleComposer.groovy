@@ -1,9 +1,11 @@
 package com.uber.okbuck.composer.android
 
 import com.uber.okbuck.core.model.android.AndroidAppTarget
+import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.core.util.FileUtil
 import com.uber.okbuck.core.util.TransformUtil
-import com.uber.okbuck.rule.base.GenRule
+import com.uber.okbuck.template.base.GenRule
+import com.uber.okbuck.template.core.Rule
 import org.gradle.api.Project
 
 import java.nio.file.Files
@@ -17,13 +19,13 @@ final class TrasformDependencyWriterRuleComposer extends AndroidBuckRuleComposer
 
     private TrasformDependencyWriterRuleComposer() {}
 
-    static List<GenRule> compose(AndroidAppTarget target) {
+    static List<Rule> compose(AndroidAppTarget target) {
         return target.transforms.collect { Map<String, String> options ->
             compose(target, options)
         }
     }
 
-    static GenRule compose(AndroidAppTarget target, Map<String, String> options) {
+    static Rule compose(AndroidAppTarget target, Map<String, String> options) {
         String transformClass = options.get(OPT_TRANSFORM_CLASS)
         String configFile = options.get(OPT_CONFIG_FILE)
 
@@ -51,7 +53,15 @@ final class TrasformDependencyWriterRuleComposer extends AndroidBuckRuleComposer
                 "chmod +x ${output}"]
 
         String name = getTransformRuleName(target, options)
-        return new GenRule(name, input, cmds, false, "${name}_out", true)
+
+        return new GenRule()
+                .inputs(input)
+                .output("${name}_out")
+                .bashCmds(cmds)
+                .globSrcs(false)
+                .executable(true)
+                .name(name)
+                .ruleType(RuleType.GENRULE.buckName)
     }
 
     static getTransformRuleName(AndroidAppTarget target, Map<String, String> options) {
@@ -63,7 +73,8 @@ final class TrasformDependencyWriterRuleComposer extends AndroidBuckRuleComposer
         File configFile = new File(project.rootDir, "${TransformUtil.TRANSFORM_CACHE}/${path}")
         try {
             Files.copy(config.toPath(), configFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
-        } catch (IOException ignored) { }
+        } catch (IOException ignored) {
+        }
         return "//${TransformUtil.TRANSFORM_CACHE}:${path}"
     }
 

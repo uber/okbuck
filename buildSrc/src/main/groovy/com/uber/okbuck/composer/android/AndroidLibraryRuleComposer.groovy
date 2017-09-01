@@ -1,11 +1,13 @@
 package com.uber.okbuck.composer.android
 
+import com.google.common.collect.ImmutableSet
 import com.uber.okbuck.core.model.android.AndroidLibTarget
 import com.uber.okbuck.core.model.android.AndroidTarget
 import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.core.model.base.Target
 import com.uber.okbuck.core.util.RetrolambdaUtil
-import com.uber.okbuck.rule.android.AndroidLibraryRule
+import com.uber.okbuck.template.android.AndroidRule
+import com.uber.okbuck.template.core.Rule
 
 final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
 
@@ -13,7 +15,7 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
         // no instance
     }
 
-    static AndroidLibraryRule compose(
+    static Rule compose(
             AndroidLibTarget target,
             List<String> deps,
             final List<String> aidlRuleNames,
@@ -46,25 +48,34 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
             testTargets.add(":${test(target)}")
         }
 
-        return new AndroidLibraryRule(
-                target.ruleType,
-                src(target),
-                ["PUBLIC"],
-                libraryDeps,
-                target.main.sources,
-                fileRule(target.manifest),
-                target.annotationProcessors as List,
-                libraryAptDeps,
-                providedDeps,
-                aidlRuleNames,
-                target.kotlincArguments,
-                appClass,
-                target.sourceCompatibility,
-                target.targetCompatibility,
-                target.postprocessClassesCommands,
-                target.main.jvmArgs,
-                target.generateR2,
-                testTargets,
-                target.getExtraOpts(RuleType.ANDROID_LIBRARY))
+        AndroidRule androidRule = new AndroidRule()
+                .srcs(target.main.sources)
+                .exts(target.ruleType.sourceExtensions)
+                .manifest(fileRule(target.manifest))
+                .annotationProcessors(target.annotationProcessors)
+                .aptDeps(libraryAptDeps)
+                .providedDeps(providedDeps)
+                .resourcesDir(target.main.resourcesDir)
+                .sourceCompatibility(target.sourceCompatibility)
+                .targetCompatibility(target.targetCompatibility)
+                .postprocessClassesCommands(target.postprocessClassesCommands)
+                .testTargets(testTargets)
+                .exportedDeps(aidlRuleNames)
+                .excludes(appClass != null ? ImmutableSet.of(appClass) : ImmutableSet.of())
+                .generateR2(target.generateR2)
+                .options(target.main.jvmArgs)
+
+        if (target.ruleType == RuleType.KOTLIN_ANDROID_LIBRARY) {
+            androidRule = androidRule
+                    .language("kotlin")
+                    .extraKotlincArgs(target.kotlincArguments)
+        }
+
+        return androidRule
+                .ruleType(target.ruleType.buckName)
+                .defaultVisibility()
+                .deps(libraryDeps)
+                .name(src(target))
+                .extraBuckOpts(target.getExtraOpts(RuleType.ANDROID_LIBRARY))
     }
 }

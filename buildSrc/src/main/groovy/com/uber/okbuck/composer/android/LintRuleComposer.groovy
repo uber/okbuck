@@ -2,12 +2,14 @@ package com.uber.okbuck.composer.android
 
 import com.uber.okbuck.composer.jvm.JvmBuckRuleComposer
 import com.uber.okbuck.core.model.android.AndroidTarget
+import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.core.model.base.Target
 import com.uber.okbuck.core.model.java.JavaLibTarget
 import com.uber.okbuck.core.model.java.JavaTarget
 import com.uber.okbuck.core.util.LintUtil
 import com.uber.okbuck.extension.LintExtension
-import com.uber.okbuck.rule.base.GenRule
+import com.uber.okbuck.template.base.GenRule
+import com.uber.okbuck.template.core.Rule
 
 final class LintRuleComposer extends JvmBuckRuleComposer {
 
@@ -15,7 +17,7 @@ final class LintRuleComposer extends JvmBuckRuleComposer {
         // no instance
     }
 
-    static GenRule compose(JavaTarget target) {
+    static Rule compose(JavaTarget target) {
         String lintConfigXml = ""
         if (target.lintOptions.lintConfig != null && target.lintOptions.lintConfig.exists()) {
             lintConfigXml = LintUtil.getLintwConfigRule(target.project, target.lintOptions.lintConfig)
@@ -123,10 +125,14 @@ final class LintRuleComposer extends JvmBuckRuleComposer {
             lintCmds.add('$RUN_IN')
         }
 
-        return new GenRule(
-                lint(target),
-                inputs,
-                lintCmds)
+        String name = lint(target)
+
+        return new GenRule()
+                .inputs(inputs)
+                .bashCmds(lintCmds)
+                .output("${name}_out")
+                .ruleType(RuleType.GENRULE.buckName)
+                .name(name)
     }
 
     private static String lint(final JavaTarget target) {

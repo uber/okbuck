@@ -1,0 +1,4 @@
+@args (String skeleton)
+@com.uber.okbuck.template.base.BuckRule.template() -> {
+    skeleton = '@skeleton',
+}

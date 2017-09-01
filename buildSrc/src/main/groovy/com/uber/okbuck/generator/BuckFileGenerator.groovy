@@ -19,8 +19,6 @@ import com.uber.okbuck.composer.android.TrasformDependencyWriterRuleComposer
 import com.uber.okbuck.composer.java.JavaLibraryRuleComposer
 import com.uber.okbuck.composer.java.JavaTestRuleComposer
 import com.uber.okbuck.config.BUCKFile
-import com.uber.okbuck.core.io.FilePrinter
-import com.uber.okbuck.core.io.Printer
 import com.uber.okbuck.core.model.android.AndroidAppTarget
 import com.uber.okbuck.core.model.android.AndroidInstrumentationTarget
 import com.uber.okbuck.core.model.android.AndroidLibTarget
@@ -34,13 +32,9 @@ import com.uber.okbuck.core.model.scala.ScalaLibTarget
 import com.uber.okbuck.core.util.ProjectUtil
 import com.uber.okbuck.extension.LintExtension
 import com.uber.okbuck.extension.OkBuckExtension
-import com.uber.okbuck.rule.android.AndroidLibraryRule
-import com.uber.okbuck.rule.android.AndroidManifestRule
-import com.uber.okbuck.rule.android.AndroidResourceRule
-import com.uber.okbuck.rule.android.ExopackageAndroidLibraryRule
-import com.uber.okbuck.rule.android.GenAidlRule
-import com.uber.okbuck.rule.base.BuckRule
-import com.uber.okbuck.rule.base.GenRule
+import com.uber.okbuck.template.android.AndroidRule
+import com.uber.okbuck.template.android.ResourceRule
+import com.uber.okbuck.template.core.Rule
 import org.gradle.api.Project
 
 final class BuckFileGenerator {
@@ -51,22 +45,20 @@ final class BuckFileGenerator {
      * generate {@code BUCKFile}
      */
     static void generate(Project project) {
-        List<BuckRule> rules = createRules(project)
+        List<Rule> rules = createRules(project)
 
         if (rules) {
-            BUCKFile buckFile = new BUCKFile(rules)
+            BUCKFile buckFile = new BUCKFile(rules, project.file(OkBuckGradlePlugin.BUCK))
             try {
-                Printer printer = new FilePrinter(project.file(OkBuckGradlePlugin.BUCK))
-                buckFile.print(printer)
-                printer.flush()
+                buckFile.print()
             } catch (FileNotFoundException e) {
                 throw new RuntimeException(e)
             }
         }
     }
 
-    private static List<BuckRule> createRules(Project project) {
-        List<BuckRule> rules = []
+    private static List<Rule> createRules(Project project) {
+        List<Rule> rules = []
         ProjectType projectType = ProjectUtil.getType(project)
         ProjectUtil.getTargets(project).each { String name, Target target ->
             switch (projectType) {
@@ -87,7 +79,7 @@ final class BuckFileGenerator {
                     break
                 case ProjectType.ANDROID_APP:
                     AndroidAppTarget androidAppTarget = (AndroidAppTarget) target
-                    List<BuckRule> targetRules = createRules(androidAppTarget)
+                    List<Rule> targetRules = createRules(androidAppTarget)
                     rules.addAll(targetRules)
                     if (androidAppTarget.instrumentationTarget) {
                         rules.addAll(createRules(androidAppTarget.instrumentationTarget, androidAppTarget, targetRules))
@@ -101,14 +93,14 @@ final class BuckFileGenerator {
 
         // de-dup rules by name
         rules = rules.unique { rule ->
-            rule.name
+            rule.name()
         }
 
         return rules
     }
 
-    private static List<BuckRule> createRules(JavaLibTarget target) {
-        List<BuckRule> rules = []
+    private static List<Rule> createRules(JavaLibTarget target) {
+        List<Rule> rules = []
         rules.addAll(JavaLibraryRuleComposer.compose(target))
 
         if (target.test.sources) {
@@ -117,8 +109,8 @@ final class BuckFileGenerator {
         return rules
     }
 
-    private static List<BuckRule> createRules(GroovyLibTarget target) {
-        List<BuckRule> rules = []
+    private static List<Rule> createRules(GroovyLibTarget target) {
+        List<Rule> rules = []
         rules.addAll(JavaLibraryRuleComposer.compose(target, RuleType.GROOVY_LIBRARY))
 
         if (target.test.sources) {
@@ -127,8 +119,8 @@ final class BuckFileGenerator {
         return rules
     }
 
-    private static List<BuckRule> createRules(KotlinLibTarget target) {
-        List<BuckRule> rules = []
+    private static List<Rule> createRules(KotlinLibTarget target) {
+        List<Rule> rules = []
         rules.addAll(JavaLibraryRuleComposer.compose(target, RuleType.KOTLIN_LIBRARY))
 
         if (target.test.sources) {
@@ -137,8 +129,8 @@ final class BuckFileGenerator {
         return rules
     }
 
-    private static List<BuckRule> createRules(ScalaLibTarget target) {
-        List<BuckRule> rules = []
+    private static List<Rule> createRules(ScalaLibTarget target) {
+        List<Rule> rules = []
         rules.addAll(JavaLibraryRuleComposer.compose(target, RuleType.SCALA_LIBRARY))
 
         if (target.test.sources) {
@@ -147,17 +139,17 @@ final class BuckFileGenerator {
         return rules
     }
 
-    private static List<BuckRule> createRules(AndroidLibTarget target, String appClass = null,
-                                              List<String> extraDeps = []) {
-        List<BuckRule> rules = []
-        List<BuckRule> androidLibRules = []
+    private static List<Rule> createRules(AndroidLibTarget target, String appClass = null,
+                                          List<String> extraDeps = []) {
+        List<Rule> rules = []
+        List<Rule> androidLibRules = []
 
         // Aidl
-        List<BuckRule> aidlRules = target.aidl.collect { String aidlDir ->
+        List<Rule> aidlRules = target.aidl.collect { String aidlDir ->
             GenAidlRuleComposer.compose(target, aidlDir)
         }
-        List<String> aidlRuleNames = aidlRules.collect { GenAidlRule rule ->
-            ":${rule.name}"
+        List<String> aidlRuleNames = aidlRules.collect { Rule rule ->
+            ":${rule.name()}"
         }
         androidLibRules.addAll(aidlRules)
 
@@ -172,8 +164,8 @@ final class BuckFileGenerator {
             PreBuiltNativeLibraryRuleComposer.compose(target, jniLib)
         })
 
-        List<String> deps = androidLibRules.collect { BuckRule rule ->
-            ":${rule.name}"
+        List<String> deps = androidLibRules.collect { Rule rule ->
+            ":${rule.name()}"
         } as List<String>
         deps.addAll(extraDeps)
 
@@ -204,50 +196,48 @@ final class BuckFileGenerator {
         return rules
     }
 
-    private static List<BuckRule> createRules(AndroidAppTarget target) {
-        List<BuckRule> rules = [] as List<BuckRule>
+    private static List<Rule> createRules(AndroidAppTarget target) {
+        List<Rule> rules = []
         List<String> deps = [":${AndroidBuckRuleComposer.src(target)}"]
 
-        Set<BuckRule> libRules = createRules((AndroidLibTarget) target,
-                target.exopackage ? target.exopackage.appClass : null) as Set<BuckRule>
+        Set<Rule> libRules = createRules((AndroidLibTarget) target,
+                target.exopackage ? target.exopackage.appClass : null)
         rules.addAll(libRules)
 
-        libRules.each { BuckRule rule ->
-            if (rule instanceof AndroidResourceRule && rule.name != null) {
-                deps.add(":${rule.name}")
+        libRules.each { Rule rule ->
+            if (rule instanceof ResourceRule && rule.name() != null) {
+                deps.add(":${rule.name()}")
             }
         }
 
-        AndroidManifestRule manifestRule = AndroidManifestRuleComposer.compose(target)
+        Rule manifestRule = AndroidManifestRuleComposer.compose(target)
         rules.add(manifestRule)
 
         String keystoreRuleName = KeystoreRuleComposer.compose(target)
 
         if (target.exopackage) {
-            ExopackageAndroidLibraryRule exoPackageRule =
-                    ExopackageAndroidLibraryRuleComposer.compose(
-                            target)
+            Rule exoPackageRule = ExopackageAndroidLibraryRuleComposer.compose(target)
             rules.add(exoPackageRule)
-            deps.add(":${exoPackageRule.name}")
+            deps.add(":${exoPackageRule.name()}")
         }
 
-        List<GenRule> transformGenRules = TrasformDependencyWriterRuleComposer.compose(target)
+        List<Rule> transformGenRules = TrasformDependencyWriterRuleComposer.compose(target)
         rules.addAll(transformGenRules)
 
         rules.add(AndroidBinaryRuleComposer.compose(
-                target, deps, ":${manifestRule.name}", keystoreRuleName, transformGenRules))
+                target, deps, ":${manifestRule.name()}", keystoreRuleName, transformGenRules))
 
         return rules
     }
 
-    private static List<BuckRule> createRules(AndroidInstrumentationTarget target, AndroidAppTarget mainApkTarget,
-                                              List<BuckRule> mainApkTargetRules) {
-        List<BuckRule> rules = []
+    private static List<Rule> createRules(AndroidInstrumentationTarget target, AndroidAppTarget mainApkTarget,
+                                          List<Rule> mainApkTargetRules) {
+        List<Rule> rules = []
 
-        Set<BuckRule> libRules = createRules((AndroidLibTarget) target, null, filterAndroidDepRules(mainApkTargetRules))
+        Set<Rule> libRules = createRules((AndroidLibTarget) target, null, filterAndroidDepRules(mainApkTargetRules))
         rules.addAll(libRules)
 
-        AndroidManifestRule manifestRule = AndroidManifestRuleComposer.compose(target, target.instrumentation)
+        Rule manifestRule = AndroidManifestRuleComposer.compose(target, target.instrumentation)
         rules.add(manifestRule)
 
         rules.add(AndroidInstrumentationApkRuleComposer.compose(filterAndroidDepRules(rules), ":${manifestRule.name}", mainApkTarget))
@@ -255,11 +245,11 @@ final class BuckFileGenerator {
         return rules
     }
 
-    private static List<String> filterAndroidDepRules(List<BuckRule> rules) {
-        return rules.findAll { BuckRule rule ->
-            rule instanceof AndroidLibraryRule || rule instanceof AndroidResourceRule
+    private static List<String> filterAndroidDepRules(List<Rule> rules) {
+        return rules.findAll { Rule rule ->
+            rule instanceof AndroidRule || rule instanceof ResourceRule
         }.collect {
-            ":${it.name}"
+            ":${it.name()}"
         }
     }
 }

@@ -1,0 +1,5 @@
+@args (String instrumentationApkRuleName)
+@com.uber.okbuck.template.base.BuckRule.template() -> {
+    apk = ':@instrumentationApkRuleName',
+    labels = ['ui', 'android', 'device', 'espresso', 'instrumentation'],
+}

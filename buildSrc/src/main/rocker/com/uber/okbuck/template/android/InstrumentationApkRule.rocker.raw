@@ -1,0 +1,5 @@
+@args (String manifest, String mainApkRuleName)
+@com.uber.okbuck.template.base.BuckRule.template() -> {
+    manifest = '@manifest',
+    apk = ':@mainApkRuleName',
+}
