@@ -5,11 +5,7 @@ import com.uber.okbuck.core.model.base.RuleType
 
 final class GenRule extends BuckRule {
 
-    private final Set<String> inputs
-    private final Set<String> bashCmds
-    private final boolean globSrcs
-    private final String output
-    private final boolean executable
+    private final Rule genrule
 
     GenRule(String name,
             List<String> inputs,
@@ -18,31 +14,21 @@ final class GenRule extends BuckRule {
             String output = "${name}_out",
             boolean executable = false) {
         super(RuleType.GENRULE, name)
-        this.inputs = inputs
-        this.bashCmds = bashCmds
-        this.globSrcs = globSrcs
-        this.output = output
-        this.executable = executable
+        genrule = new template.base.GenRule()
+                .inputs(inputs)
+                .bashCmds(bashCmds.collect { it as String })
+                .globSrcs(globSrcs)
+                .output(output)
+                .executable(executable)
+                .ruleType(RuleType.GENRULE.name().toLowerCase())
+                .name(name)
     }
 
     @Override
-    final void printContent(Printer printer) {
-        if (!inputs.empty) {
-            printer.println(globSrcs ? "\tsrcs = glob([" : "\tsrcs = [")
-            for (String input : inputs) {
-                printer.println("\t\t'${input}',")
-            }
-            printer.println(globSrcs ? "\t])," : "\t],")
-        }
-
-        printer.println("\tout = '${output}',")
-        if (executable) {
-            printer.println("\texecutable = True,")
-        }
-        printer.println("\tbash = '' \\")
-        bashCmds.each {
-            printer.println("\t'${it} ' \\")
-        }
-        printer.println("\t'',")
+    void print(Printer printer) {
+        printer.println(genrule.render().toString())
     }
+
+    @Override
+    void printContent(Printer printer) {}
 }
