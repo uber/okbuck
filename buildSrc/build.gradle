@@ -2,6 +2,7 @@ plugins {
     id "groovy"
     id "maven-publish"
     id "com.jfrog.bintray" version "1.7"
+    id "com.fizzed.rocker" version "0.22.0"
 }
 
 apply from: "../dependencies.gradle"
@@ -21,8 +22,9 @@ tasks.withType(JavaCompile) {
     targetCompatibility = '1.8'
 }
 
-sourceSets.main.java.srcDirs = []
+sourceSets.main.java.srcDirs = ["src/main/java/com/uber/okbuck/rule/base"]
 sourceSets.main.groovy.srcDirs = ["src/main/java", "src/main/groovy"]
+sourceSets.main.rocker.srcDirs = ["src/main/rocker", "src/main/java"]
 
 dependencies {
     compile gradleApi()
@@ -34,8 +36,16 @@ dependencies {
     compile deps.build.kotlinPlugin
     compile deps.build.mavenArtifact
     compile deps.build.okio
+    compile deps.build.rockerRuntime
 
     testCompile deps.test.junit
+}
+
+rocker {
+    discardLogicWhitespace true
+    optimize true
+    extendsClass "com.uber.okbuck.rule.base.RuleTemplate"
+    extendsModelClass "com.uber.okbuck.rule.base.Rule"
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {

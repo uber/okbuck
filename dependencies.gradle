@@ -18,6 +18,7 @@ def build = [
         mavenArtifact    : 'org.apache.maven:maven-artifact:3.3.9',
         okio             : "com.squareup.okio:okio:1.13.0",
         retrolambdaPlugin: 'me.tatarka:gradle-retrolambda:3.7.0',
+        rockerRuntime    : 'com.fizzed:rocker-runtime:0.22.0',
         sqlDelightPlugin : 'com.squareup.sqldelight:gradle-plugin:0.6.1',
         shadowJar        : "com.github.jengelman.gradle.plugins:shadow:2.0.1",
 ]

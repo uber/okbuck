@@ -1,0 +1,29 @@
+@import java.util.Collection
+@args (Collection<String> inputs, Collection<String> bashCmds, boolean globSrcs, String output, boolean executable)
+@content => {
+@if (!inputs.isEmpty()) {
+@if (globSrcs) {
+    srcs = glob([
+} else {
+    srcs = [
+}
+    @for (input : inputs) {
+        '@input',
+    }
+@if (globSrcs) {
+    ]),
+} else {
+    ],
+}
+}
+    out = '@output',
+@if (executable) {
+    executable = True,
+}
+    bash = '' \
+@for (bashCmd : bashCmds) {
+    '@bashCmd ' \
+}
+    '',
+}
+@template.base.BuckRule.template(content)

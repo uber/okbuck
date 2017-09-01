@@ -1,0 +1,22 @@
+@args (RockerContent content)
+@(ruleType)(
+    name = '@name',
+@content
+@for (extraBuckOpt : extraBuckOpts) {
+    @extraBuckOpt,
+}
+@if (!deps.isEmpty()) {
+    deps = [
+    @for (dep : deps) {
+        '@dep',
+    }
+    ],
+}
+@if (!visibility.isEmpty()) {
+    visibility = [
+    @for (v : visibility) {
+        '@v',
+    }
+    ],
+}
+)
