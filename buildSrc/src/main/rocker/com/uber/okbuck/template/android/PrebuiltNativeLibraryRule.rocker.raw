@@ -1,0 +1,4 @@
+@args (String nativeLibs)
+@com.uber.okbuck.template.base.BuckRule.template() -> {
+    native_libs = '@nativeLibs',
+}

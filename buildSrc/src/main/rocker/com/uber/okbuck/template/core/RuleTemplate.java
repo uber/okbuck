@@ -1,18 +1,19 @@
-package com.uber.okbuck.rule.base;
+package com.uber.okbuck.template.core;
 
 import com.fizzed.rocker.RockerModel;
 import com.fizzed.rocker.RockerTemplate;
 import com.fizzed.rocker.runtime.DefaultRockerTemplate;
 
-import java.util.Set;
+import java.util.Collection;
 
 public abstract class RuleTemplate extends DefaultRockerTemplate {
 
     protected String ruleType;
     protected String name;
-    protected Set<String> visibility;
-    protected Set<String> deps;
-    protected Set<String> extraBuckOpts;
+    protected Collection visibility;
+    protected Collection deps;
+    protected Collection labels;
+    protected Collection extraBuckOpts;
 
     public RuleTemplate(RockerModel model) {
         super(model);
@@ -22,6 +23,7 @@ public abstract class RuleTemplate extends DefaultRockerTemplate {
             this.name = rule.name;
             this.visibility = rule.visibility;
             this.deps = rule.deps;
+            this.labels = rule.labels;
             this.extraBuckOpts = rule.extraBuckOpts;
         } else {
             throw new IllegalArgumentException("Unable to create template (model was not an instance of " +
@@ -39,6 +41,7 @@ public abstract class RuleTemplate extends DefaultRockerTemplate {
             this.name = ninjaContext.name;
             this.visibility = ninjaContext.visibility;
             this.deps = ninjaContext.deps;
+            this.labels = ninjaContext.labels;
             this.extraBuckOpts = ninjaContext.extraBuckOpts;
         } else {
             throw new IllegalArgumentException("Unable to associate (context was not an instance of " +

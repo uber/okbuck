@@ -1,6 +1,12 @@
 @import java.util.Collection
-@args (Collection<String> inputs, Collection<String> bashCmds, boolean globSrcs, String output, boolean executable)
-@content => {
+@args (
+Collection inputs,
+Collection bashCmds,
+String output,
+boolean globSrcs,
+boolean executable
+)
+@com.uber.okbuck.template.base.BuckRule.template() -> {
 @if (!inputs.isEmpty()) {
 @if (globSrcs) {
     srcs = glob([
@@ -26,4 +32,3 @@
 }
     '',
 }
-@template.base.BuckRule.template(content)

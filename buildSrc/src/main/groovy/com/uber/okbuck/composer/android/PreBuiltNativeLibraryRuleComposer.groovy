@@ -1,7 +1,9 @@
 package com.uber.okbuck.composer.android
 
 import com.uber.okbuck.core.model.android.AndroidTarget
-import com.uber.okbuck.rule.android.PrebuiltNativeLibraryRule
+import com.uber.okbuck.core.model.base.RuleType
+import com.uber.okbuck.template.android.PrebuiltNativeLibraryRule
+import com.uber.okbuck.template.core.Rule
 
 final class PreBuiltNativeLibraryRuleComposer extends AndroidBuckRuleComposer {
 
@@ -9,8 +11,11 @@ final class PreBuiltNativeLibraryRuleComposer extends AndroidBuckRuleComposer {
         // no instance
     }
 
-    static PrebuiltNativeLibraryRule compose(AndroidTarget target, String jniLibDir) {
-        return new PrebuiltNativeLibraryRule(prebuiltNative(target, jniLibDir),
-                Arrays.asList("PUBLIC"), jniLibDir)
+    static Rule compose(AndroidTarget target, String jniLibDir) {
+        return new PrebuiltNativeLibraryRule()
+                .nativeLibs(jniLibDir)
+                .defaultVisibility()
+                .ruleType(RuleType.PREBUILT_NATIVE_LIBRARY.buckName)
+                .name(prebuiltNative(target, jniLibDir))
     }
 }

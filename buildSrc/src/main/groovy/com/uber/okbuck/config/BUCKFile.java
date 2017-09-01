@@ -1,22 +1,33 @@
 package com.uber.okbuck.config;
 
-import com.uber.okbuck.core.io.Printer;
-import com.uber.okbuck.rule.base.BuckRule;
+import com.fizzed.rocker.runtime.OutputStreamOutput;
+import com.uber.okbuck.template.core.Rule;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 
-public final class BUCKFile extends BuckConfigFile {
+public final class BUCKFile {
 
-    private final List<BuckRule> rules;
+    private static final byte[] NEWLINE = System.lineSeparator().getBytes();
 
-    public BUCKFile(List<BuckRule> rules) {
+    private final List<Rule> rules;
+    private final File buckFile;
+
+    public BUCKFile(List<Rule> rules, File buckFile) {
         this.rules = rules;
+        this.buckFile = buckFile;
     }
 
-    @Override
-    public final void print(Printer printer) {
-        for (BuckRule rule : rules) {
-            rule.print(printer);
+    public void print() throws IOException {
+        final OutputStream os = new FileOutputStream(buckFile);
+
+        for (Rule rule : rules) {
+            rule.render((contentType, charsetName) -> new OutputStreamOutput(contentType, os, charsetName));
+            os.write(NEWLINE);
         }
+        os.flush();
     }
 }

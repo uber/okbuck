@@ -1,19 +1,23 @@
 package com.uber.okbuck.composer.java
 
+import com.google.common.collect.ImmutableSet
 import com.uber.okbuck.composer.jvm.JvmBuckRuleComposer
 import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.core.model.java.JavaLibTarget
 import com.uber.okbuck.core.util.RetrolambdaUtil
-import com.uber.okbuck.rule.java.JavaTestRule
+import com.uber.okbuck.template.core.Rule
+import com.uber.okbuck.template.java.JavaRule
 
 final class JavaTestRuleComposer extends JvmBuckRuleComposer {
+
+    private static final Set<String> JAVA_TEST_LABELS = ImmutableSet.of('unit', 'java')
 
     private JavaTestRuleComposer() {
         // no instance
     }
 
-    static JavaTestRule compose(JavaLibTarget target,
-                                RuleType ruleType = RuleType.JAVA_TEST) {
+    static Rule compose(JavaLibTarget target,
+                        RuleType ruleType = RuleType.JAVA_TEST) {
         List<String> deps = []
         deps.add(":${src(target)}")
         deps.addAll(external(target.test.externalDeps))
@@ -32,21 +36,24 @@ final class JavaTestRuleComposer extends JvmBuckRuleComposer {
             providedDeps.add(RetrolambdaUtil.getRtStubJarRule())
         }
 
-        new JavaTestRule(
-                ruleType,
-                test(target),
-                ["PUBLIC"],
-                deps,
-                target.test.sources,
-                target.testAnnotationProcessors,
-                aptDeps,
-                providedDeps,
-                target.test.resourcesDir,
-                target.sourceCompatibility,
-                target.targetCompatibility,
-                target.postprocessClassesCommands,
-                target.test.jvmArgs,
-                target.testOptions,
-                target.getExtraOpts(ruleType))
+        new JavaRule()
+                .srcs(target.test.sources)
+                .exts(ruleType.sourceExtensions)
+                .annotationProcessors(target.testAnnotationProcessors)
+                .aptDeps(aptDeps)
+                .providedDeps(providedDeps)
+                .resourcesDir(target.test.resourcesDir)
+                .sourceCompatibility(target.sourceCompatibility)
+                .targetCompatibility(target.targetCompatibility)
+                .postprocessClassesCommands(target.postprocessClassesCommands)
+                .options(target.test.jvmArgs)
+                .jvmArgs(target.testOptions.jvmArgs)
+                .env(target.testOptions.env)
+                .ruleType(ruleType.buckName)
+                .defaultVisibility()
+                .deps(deps)
+                .name(test(target))
+                .labels(JAVA_TEST_LABELS)
+                .extraBuckOpts(target.getExtraOpts(ruleType))
     }
 }

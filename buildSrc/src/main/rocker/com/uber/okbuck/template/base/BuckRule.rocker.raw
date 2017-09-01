@@ -1,18 +1,26 @@
-@args (RockerContent content)
+@args (RockerBody content)
 @(ruleType)(
     name = '@name',
-@content
+@content @if (valid(extraBuckOpts)) {
 @for (extraBuckOpt : extraBuckOpts) {
     @extraBuckOpt,
 }
-@if (!deps.isEmpty()) {
+}
+@if (valid(deps)) {
     deps = [
     @for (dep : deps) {
         '@dep',
     }
     ],
 }
-@if (!visibility.isEmpty()) {
+@if (valid(labels)) {
+    labels = [
+    @for (label : labels) {
+        '@label',
+    }
+    ],
+}
+@if (valid(visibility)) {
     visibility = [
     @for (v : visibility) {
         '@v',

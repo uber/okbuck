@@ -1,0 +1,12 @@
+@import java.util.Collection
+@args (String pkg, Collection values)
+@com.uber.okbuck.template.base.BuckRule.template() -> {
+    package = '@pkg',
+@if (valid(values)) {
+    values = [
+    @for (value : values) {
+        '@value',
+    }
+    ],
+}
+}

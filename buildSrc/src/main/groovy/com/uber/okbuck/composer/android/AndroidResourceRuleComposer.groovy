@@ -1,9 +1,11 @@
 package com.uber.okbuck.composer.android
 
 import com.uber.okbuck.core.model.android.AndroidTarget
+import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.core.model.base.Target
 import com.uber.okbuck.extension.OkBuckExtension
-import com.uber.okbuck.rule.android.AndroidResourceRule
+import com.uber.okbuck.template.android.ResourceRule
+import com.uber.okbuck.template.core.Rule
 
 final class AndroidResourceRuleComposer extends AndroidBuckRuleComposer {
 
@@ -11,7 +13,7 @@ final class AndroidResourceRuleComposer extends AndroidBuckRuleComposer {
         // no instance
     }
 
-    static AndroidResourceRule compose(AndroidTarget target) {
+    static Rule compose(AndroidTarget target) {
         List<String> resDeps = []
         resDeps.addAll(external(target.main.externalDeps.findAll { String dep ->
             dep.endsWith(".aar")
@@ -24,13 +26,15 @@ final class AndroidResourceRuleComposer extends AndroidBuckRuleComposer {
         })
 
         OkBuckExtension okbuck = target.rootProject.okbuck
-        return new AndroidResourceRule(
-                res(target),
-                ["PUBLIC"],
-                resDeps,
-                target.package,
-                target.resDirs,
-                target.assetDirs,
-                okbuck.resourceUnion)
+
+        return new ResourceRule()
+                .pkg(target.package)
+                .res(target.resDirs)
+                .assets(target.assetDirs)
+                .resourceUnion(okbuck.resourceUnion)
+                .defaultVisibility()
+                .ruleType(RuleType.ANDROID_RESOURCE.buckName)
+                .deps(resDeps)
+                .name(res(target))
     }
 }

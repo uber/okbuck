@@ -1,0 +1,27 @@
+@import java.util.Collection
+@args (String aidlFilePath, String importPath, String manifest, Collection aidlDeps)
+import re
+gen_@(name) = []
+for aidl_file in glob(['@(aidlFilePath)/**/*.aidl']):
+    name = '@(name)__' + re.sub(r'^.*/([^/]+)\.aidl$', r'\1', aidl_file)
+    gen_@(name).append(':' + name)
+    gen_aidl(
+        name = name,
+        aidl = aidl_file,
+        import_path = '@importPath',
+    )
+
+android_library(
+    name = '@name',
+    srcs = gen_@(name),
+@if (valid(manifest)) {
+    manifest = '@manifest',
+}
+@if (valid(aidlDeps)) {
+    deps = [
+    @for (aidlDep : aidlDeps) {
+        '@aidlDep',
+    }
+    ],
+}
+)

@@ -1,0 +1,22 @@
+@import java.util.Collection
+@args (String pkg, Collection res, Collection assets, boolean resourceUnion)
+@com.uber.okbuck.template.base.BuckRule.template() -> {
+    package = '@pkg',
+@if (valid(res)) {
+    res = res_glob([
+    @for (r : res) {
+        ('@r', '**'),
+    }
+    ]),
+}
+@if (valid(assets)) {
+    assets = subdir_glob([
+    @for (a : assets) {
+        ('@a', '**'),
+    }
+    ]),
+}
+@if (resourceUnion) {
+    resource_union = True,
+}
+}

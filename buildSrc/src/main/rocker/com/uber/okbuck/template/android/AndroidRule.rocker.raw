@@ -1,0 +1,72 @@
+@import java.util.Collection
+@import java.util.Map
+@args (
+Collection srcs,
+Collection exts,
+Collection excludes,
+String sourceCompatibility,
+String targetCompatibility,
+String resourcesDir,
+Collection testTargets,
+Collection annotationProcessors,
+Collection aptDeps,
+Collection providedDeps,
+Collection options,
+Collection postprocessClassesCommands,
+Collection jvmArgs,
+Map env,
+Collection exportedDeps,
+Collection extraKotlincArgs,
+String language,
+String manifest,
+String robolectricManifest,
+String runtimeDependency,
+boolean generateR2
+)
+@com.uber.okbuck.template.java.JavaRule.template(
+srcs,
+exts,
+excludes,
+sourceCompatibility,
+targetCompatibility,
+resourcesDir,
+testTargets,
+annotationProcessors,
+aptDeps,
+providedDeps,
+options,
+postprocessClassesCommands,
+jvmArgs,
+env
+) -> {
+@if (valid(manifest)) {
+    manifest = '@manifest',
+}
+@if (valid(robolectricManifest)) {
+    robolectric_manifest = '@robolectricManifest',
+}
+@if (valid(exportedDeps)) {
+    exported_deps = [
+    @for (exportedDep : exportedDeps) {
+        '@exportedDep',
+    }
+    ],
+}
+@if (generateR2) {
+    final_r_name = 'R2',
+}
+@if (valid(runtimeDependency)) {
+    force_final_resource_ids = False,
+    robolectric_runtime_dependency = '@runtimeDependency',
+}
+@if (valid(language)) {
+    language = '@language',
+}
+@if (valid(extraKotlincArgs)) {
+    extra_kotlinc_arguments = [
+    @for (extraKotlincArg : extraKotlincArgs) {
+        '@extraKotlincArg',
+    }
+    ],
+}
+}

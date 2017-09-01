@@ -1,0 +1,104 @@
+@import java.util.Collection
+@import java.util.Map
+@args (
+Collection srcs,
+Collection exts,
+Collection excludes,
+String sourceCompatibility,
+String targetCompatibility,
+String resourcesDir,
+Collection testTargets,
+Collection annotationProcessors,
+Collection aptDeps,
+Collection providedDeps,
+Collection options,
+Collection postprocessClassesCommands,
+Collection jvmArgs,
+Map env,
+RockerBody content
+)
+@com.uber.okbuck.template.base.BuckRule.template() -> {
+@if (valid(srcs)) {
+    srcs = glob([
+    @for (src : srcs) {
+    @for (ext : exts) {
+        '@src/**/*.@ext',
+    }
+    }
+@if (valid(excludes)) {
+    ], excludes = [
+    @for (exclude : excludes) {
+        '@exclude',
+    }
+}
+    ]),
+}
+    source = '@sourceCompatibility',
+    target = '@targetCompatibility',
+@if (valid(resourcesDir)) {
+    resources = glob([
+        '@resourcesDir/**',
+    ]),
+    resources_root = '@resourcesDir',
+    unbundled_resources_root = '@resourcesDir',
+}
+@if (valid(testTargets)) {
+    tests = [
+    @for (testTarget : testTargets) {
+        '@testTarget',
+    }
+    ],
+}
+@if (valid(annotationProcessors)) {
+    annotation_processors = [
+    @for (annotationProcessor : annotationProcessors) {
+        '@annotationProcessor',
+    }
+    ],
+}
+@if (valid(aptDeps)) {
+    annotation_processor_deps = [
+    @for (aptDep : aptDeps) {
+        '@aptDep',
+    }
+    ],
+}
+@if (valid(providedDeps)) {
+    provided_deps = [
+    @for (providedDep : providedDeps) {
+        '@providedDep',
+    }
+    ],
+}
+@if (valid(options)) {
+    extra_arguments = [
+    @for (option : options) {
+        '@option',
+    }
+    ],
+}
+@if (valid(postprocessClassesCommands)) {
+    postprocess_classes_commands = [
+    @for (postprocessClassesCommand : postprocessClassesCommands) {
+        '@postprocessClassesCommand',
+    }
+    ],
+}
+@if (valid(jvmArgs)) {
+    vm_args = [
+    @for (jvmArg : jvmArgs) {
+        '@jvmArg',
+    }
+    ],
+}
+@if (valid(env)) {
+    env = @{
+    @for ((key, val) : env) {
+        '@key': '@val',
+    }
+    @},
+}
+@if (content != null) {
+@content
+}
+}
