@@ -1,19 +1,9 @@
 @import java.util.Collection
 @args (String aidlFilePath, String importPath, String manifest, Collection aidlDeps)
-import re
-gen_@(name) = []
-for aidl_file in glob(['@(aidlFilePath)/**/*.aidl']):
-    name = '@(name)__' + re.sub(r'^.*/([^/]+)\.aidl$', r'\1', aidl_file)
-    gen_@(name).append(':' + name)
-    gen_aidl(
-        name = name,
-        aidl = aidl_file,
-        import_path = '@importPath',
-    )
-
-android_library(
+okbuck_aidl(
     name = '@name',
-    srcs = gen_@(name),
+    aidls = '@aidlFilePath',
+    imports = '@importPath',
 @if (valid(manifest)) {
     manifest = '@manifest',
 }

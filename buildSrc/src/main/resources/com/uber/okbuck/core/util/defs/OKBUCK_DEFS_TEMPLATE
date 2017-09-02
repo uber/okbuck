@@ -1,4 +1,4 @@
-import os
+import os, re
 
 
 def merge_maps(**res_maps):
@@ -30,3 +30,28 @@ def res_glob(glob_specs):
         excludes=[${template-resource-excludes}])
 
     return merge_maps(**results)
+
+
+def okbuck_aidl(
+        name,
+        aidls,
+        imports,
+        manifest=None,
+        deps=[],
+    ):
+    gen = []
+    for aidl_file in glob(["{}/**/*.aidl".format(aidls)]):
+        rule_name = '{}__'.format(name) + re.sub(r'^.*/([^/]+)\.aidl$', r'\1', aidl_file)
+        gen.append(':' + rule_name)
+        gen_aidl(
+            name = rule_name,
+            aidl = aidl_file,
+            import_path = imports,
+        )
+
+    android_library(
+        name = name,
+        srcs = gen,
+        manifest = manifest,
+        deps = deps
+    )
