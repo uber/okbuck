@@ -1,8 +1,10 @@
 package com.uber.okbuck.template.core;
 
 import com.fizzed.rocker.runtime.DefaultRockerModel;
+import com.fizzed.rocker.runtime.OutputStreamOutput;
 import com.google.common.collect.ImmutableSet;
 
+import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -67,5 +69,9 @@ public abstract class Rule<T extends Rule> extends DefaultRockerModel {
 
     protected static boolean valid(String s) {
         return s != null && !s.isEmpty();
+    }
+
+    public void render(OutputStream os) {
+        render((contentType, charsetName) -> new OutputStreamOutput(contentType, os, charsetName));
     }
 }

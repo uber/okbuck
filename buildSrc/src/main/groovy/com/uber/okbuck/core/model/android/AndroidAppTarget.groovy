@@ -163,20 +163,12 @@ class AndroidAppTarget extends AndroidLibTarget {
     }
 
     private Keystore extractKeystore() {
-        SigningConfig config = baseVariant.mergedFlavor.signingConfig
-        if (config == null) {
-            config = baseVariant.buildType.signingConfig
-        }
-
-        if (config != null) {
-            return new Keystore(config.storeFile,
-                    config.keyAlias,
-                    config.storePassword,
-                    config.keyPassword,
-                    getGenPath())
-        } else {
-            return null
-        }
+        SigningConfig config = baseVariant.mergedFlavor.signingConfig ?: baseVariant.buildType.signingConfig
+        return config ? new Keystore(config.storeFile,
+                config.keyAlias,
+                config.storePassword,
+                config.keyPassword,
+                getGenPath()) : null
     }
 
     static class Keystore {

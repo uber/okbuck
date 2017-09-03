@@ -25,7 +25,7 @@ public final class BUCKFile {
         final OutputStream os = new FileOutputStream(buckFile);
 
         for (Rule rule : rules) {
-            rule.render((contentType, charsetName) -> new OutputStreamOutput(contentType, os, charsetName));
+            rule.render(os);
             os.write(NEWLINE);
         }
         os.flush();
