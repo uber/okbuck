@@ -55,3 +55,41 @@ def okbuck_aidl(
         manifest = manifest,
         deps = deps
     )
+
+
+def toLocation(dep):
+    return "$(location {})".format(dep)
+
+
+def okbuck_lint(
+        name,
+        manifest,
+        has_srcs=True,
+        inputs=[],
+        custom_lints=[],
+        jvm_args="",
+        deps=[],
+        lint_options=[]
+    ):
+    variant = name.replace('lint_', '', 1)
+
+    bash = "export ANDROID_LINT_JARS=\"{}\"; RUN_IN=`dirname {}`; PROJECT_ROOT=`echo $RUN_IN | sed 's|buck-out.*||'`; ".format(':'.join(map(toLocation, custom_lints)), toLocation(manifest))
+
+    if has_srcs:
+        bash += "CP_FILE=`sed 's/@//' <<< $(@classpath :src_{})`; ".format(variant)
+
+    bash += 'mkdir -p $OUT; sed -i.bak -e "s|$PROJECT_ROOT||g" -e "s|\'||g" $CP_FILE; exec java -Djava.awt.headless=true -Dcom.android.tools.lint.workdir=$PROJECT_ROOT '
+    bash += "{} ".format(jvm_args)
+    bash += "-classpath {} com.android.tools.lint.Main ".format(':'.join(map(toLocation, deps)))
+
+    if has_srcs:
+        bash += "--classpath $(location :src_{}) --libraries `cat $CP_FILE` ".format(variant)
+
+    bash += "{} $RUN_IN".format(' '.join(lint_options))
+
+    genrule(
+        name = name,
+        srcs = inputs,
+        out = "{}_out".format(name),
+        bash = bash
+    )

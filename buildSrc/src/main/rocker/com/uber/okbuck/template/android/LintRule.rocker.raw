@@ -1,0 +1,95 @@
+@import java.util.Collection
+@import com.google.common.base.Joiner
+@import com.android.builder.model.LintOptions
+@args (
+String manifest,
+String jvmArgs,
+Collection sources,
+Collection resources,
+Collection customLints,
+Collection deps,
+String lintConfigXml,
+LintOptions lintOptions,
+)
+okbuck_lint(
+    name = '@name',
+    manifest = '@manifest',
+@if (!valid(sources)) {
+    has_srcs = False,
+}
+@if (valid(sources) || valid(resources)) {
+    inputs = [
+    @for (source : sources) {
+        '@source',
+    }
+    @for (resource : resources) {
+        '@resource',
+    }
+    ],
+}
+@if (valid(customLints)) {
+    custom_lints = [
+    @for (customLint : customLints) {
+        '@customLint',
+    }
+    ],
+}
+@if (valid(jvmArgs)) {
+    jvm_args = '@jvmArgs',
+}
+@if (valid(deps)) {
+    deps = [
+    @for (dep : deps) {
+        '@dep',
+    }
+    ],
+}
+    lint_options = [
+@if (valid(sources)) {
+    @for (source : sources) {
+        '--sources @source',
+    }
+}
+@if (valid(resources)) {
+    @for (resource : resources) {
+        '--resources @resource',
+    }
+}
+@if (lintOptions.isAbortOnError()) {
+        '--exitcode',
+}
+@if (lintOptions.isAbsolutePaths()) {
+        '--fullpath',
+}
+@if (lintOptions.isQuiet()) {
+        '--quiet',
+}
+@if (lintOptions.isCheckAllWarnings()) {
+        '-Wall',
+}
+@if (lintOptions.isIgnoreWarnings()) {
+        '--nowarn',
+}
+@if (lintOptions.isWarningsAsErrors()) {
+        '-Werror',
+}
+@if (lintOptions.isNoLines()) {
+        '--nolines',
+}
+@if (valid(lintOptions.getDisable())) {
+        '--disable @(Joiner.on(",").join(lintOptions.getDisable()))',
+}
+@if (valid(lintOptions.getEnable())) {
+        '--enable @(Joiner.on(",").join(lintOptions.getEnable()))',
+}
+@if (valid(lintConfigXml)) {
+        '--config $(location @(lintConfigXml))',
+}
+@if (lintOptions.getXmlReport()) {
+        '--xml "$OUT/lint-results.xml"',
+}
+@if (lintOptions.getHtmlReport()) {
+        '--html "$OUT/lint-results.html"',
+}
+    ],
+)
