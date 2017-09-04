@@ -1,14 +1,13 @@
 package com.uber.okbuck.core.util;
 
-import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.base.BuckRuleComposer;
 import com.uber.okbuck.core.dependency.DependencyCache;
 import com.uber.okbuck.core.dependency.DependencyUtils;
 import com.uber.okbuck.core.model.base.Scope;
+import com.uber.okbuck.template.config.TransformBuckFile;
 
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
@@ -23,7 +22,6 @@ public final class TransformUtil {
 
     public static final String CONFIGURATION_TRANSFORM = "transform";
     private static final String TRANSFORM_FOLDER = "transform/";
-    private static final String TRANSFORM_BUCK_FILE = "BUCK_FILE";
     private static final String TRANSFORM_JAR = "transform-cli-1.1.0.jar";
 
     public static final String TRANSFORM_RULE = "//" + TRANSFORM_CACHE + ":okbuck_transform";
@@ -50,12 +48,8 @@ public final class TransformUtil {
                 .stream()
                 .map(s -> "'" + s + "'")
                 .collect(MoreCollectors.toImmutableSet());
-        String allTargetDeps = Joiner.on(", ").join(targetDeps);
 
-        FileUtil.copyResourceToProject(
-                TRANSFORM_FOLDER + TRANSFORM_BUCK_FILE,
-                new File(cacheDir, "BUCK"),
-                ImmutableMap.of("template-target-deps", allTargetDeps));
+        new TransformBuckFile().targetDeps(targetDeps).render(new File(cacheDir, "BUCK"));
         FileUtil.copyResourceToProject(TRANSFORM_FOLDER + TRANSFORM_JAR, new File(cacheDir, TRANSFORM_JAR));
     }
 }

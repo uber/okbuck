@@ -29,7 +29,7 @@ final class KeystoreRuleComposer extends BuckRuleComposer {
                     .alias(keystore.alias)
                     .storePassword(keystore.storePassword)
                     .keyPassword(keystore.keyPassword)
-                    .render(new FileOutputStream(new File(keystore.path, STORE_FILE_PROPS)))
+                    .render(new File(keystore.path, STORE_FILE_PROPS))
 
             return fileRule(FileUtil.getRelativePath(target.rootProject.projectDir, keyStoreGen))
         } else {

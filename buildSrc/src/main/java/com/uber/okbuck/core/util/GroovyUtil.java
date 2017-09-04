@@ -1,9 +1,10 @@
 package com.uber.okbuck.core.util;
 
-import com.google.common.collect.ImmutableMap;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.core.dependency.DependencyCache;
 import com.uber.okbuck.core.dependency.DependencyUtils;
+import com.uber.okbuck.template.config.Groovyc;
+import com.uber.okbuck.template.config.StartGroovy;
 
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
@@ -35,15 +36,11 @@ public final class GroovyUtil {
         FileUtil.copyResourceToProject("groovy/conf/groovy-starter.conf", groovyStarterConf);
 
         File groovyc = new File(groovyHome, "bin/groovyc");
-        FileUtil.copyResourceToProject("groovy/bin/groovyc",
-                new File(groovyHome, "bin/groovyc"),
-                ImmutableMap.of("template-groovy-version", groovyVersion));
+        new Groovyc().groovyVersion(groovyVersion).render(groovyc);
         groovyc.setExecutable(true);
 
         File startGroovy = new File(groovyHome, "bin/startGroovy");
-        FileUtil.copyResourceToProject("groovy/bin/startGroovy",
-                new File(groovyHome, "/bin/startGroovy"),
-                ImmutableMap.of("template-groovy-version", groovyVersion));
+        new StartGroovy().groovyVersion(groovyVersion).render(startGroovy);
         startGroovy.setExecutable(true);
     }
 }

@@ -4,6 +4,9 @@ import com.fizzed.rocker.runtime.DefaultRockerModel;
 import com.fizzed.rocker.runtime.OutputStreamOutput;
 import com.google.common.collect.ImmutableSet;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Map;
@@ -73,5 +76,14 @@ public abstract class Rule<T extends Rule> extends DefaultRockerModel {
 
     public void render(OutputStream os) {
         render((contentType, charsetName) -> new OutputStreamOutput(contentType, os, charsetName));
+    }
+
+    public void render(File file) {
+        try {
+            file.getParentFile().mkdirs();
+            render(new FileOutputStream(file));
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

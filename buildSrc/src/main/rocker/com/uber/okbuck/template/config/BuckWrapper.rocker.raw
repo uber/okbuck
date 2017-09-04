@@ -1,10 +1,14 @@
+@args (
+String customBuckRepo,
+String watch,
+String sourceRoots,
+String ignoredDirs
+)
 #!/usr/bin/env bash
 
 #########################################################################
 ##
 ##  Buck wrapper script to invoke okbuck when needed, before running buck
-##
-##  Created by OkBuck Gradle Plugin on : ${template-creation-time}
 ##
 #########################################################################
 
@@ -52,7 +56,7 @@ INSTALLED_WATCHMAN=`command -v watchman`
 
 DEFAULT_BUCK_REPO="https://github.com/facebook/buck.git"
 DEFAULT_BUCK_INSTALL_DIR="$HOME/.gradle/caches/okbuck/buck"
-CUSTOM_BUCK_REPO="${template-custom-buck-repo}"
+CUSTOM_BUCK_REPO="@(customBuckRepo)"
 CUSTOM_REMOTE_NAME="custom"
 OKBUCK_SUCCESS="$WORKING_DIR/build/okbuck.success"
 OKBUCK_DIR="$WORKING_DIR/.okbuck"
@@ -71,9 +75,9 @@ getChanges ( ) {
     "expression": ["allof",
         ["type", "f"],
         ["anyof",
-${template-watch}
+@watch
         ],
-${template-ignored-dirs}
+@ignoredDirs
     ],
     "fields": ["name"]
 }]
@@ -84,9 +88,9 @@ EOT`
     "expression": ["allof",
         ["type", "d"],
         ["anyof",
-${template-source-roots}
+@sourceRoots
         ],
-${template-ignored-dirs}
+@ignoredDirs
     ],
     "fields": ["new", "exists", "name"]
 }]
@@ -205,13 +209,13 @@ setupBuckRun ( ) {
 # Handle parameters and flags
 handleParams ( ) {
    # Go directly to the kill command, help command, or --help option. Do not run okbuck.
-   if [[ "kill" == $1 || "help" == $1 || $@ == *"--help"* || $@ == *"-h"* ]]; then
+   if [[ "kill" == $1 || "help" == $1 || $@@ == *"--help"* || $@@ == *"-h"* ]]; then
       SKIP_OKBUCK=true
    fi
 }
 
-handleParams "$@"
+handleParams "$@@"
 setupBuckRun
 
 # Invoke buck binary with arguments
-exec "$BUCK_BINARY" "$@"
+exec "$BUCK_BINARY" "$@@"

@@ -1,7 +1,5 @@
 package com.uber.okbuck.core.task;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableMap;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.core.model.base.ProjectType;
 import com.uber.okbuck.core.util.FileUtil;
@@ -13,6 +11,7 @@ import com.uber.okbuck.core.util.ScalaUtil;
 import com.uber.okbuck.extension.OkBuckExtension;
 import com.uber.okbuck.extension.ScalaExtension;
 import com.uber.okbuck.generator.BuckConfigLocalGenerator;
+import com.uber.okbuck.template.config.BuckDefs;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.specs.Specs;
@@ -22,8 +21,6 @@ import org.gradle.api.tasks.TaskAction;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -113,27 +110,21 @@ public class OkBuckTask extends DefaultTask {
         }
 
         // Setup defs
-        FileUtil.copyResourceToProject("defs/OKBUCK_DEFS_TEMPLATE", okbuckDefs(),
-                ImmutableMap.of("template-resource-excludes", Joiner.on(", ")
-                        .join(okBuckExtension.excludeResources
-                                .stream()
-                                .map(s -> "'" + s + "'")
-                                .collect(Collectors.toSet()))));
+        new BuckDefs().resourceExcludes(okBuckExtension.excludeResources
+                .stream()
+                .map(s -> "'" + s + "'")
+                .collect(Collectors.toSet())).render(okbuckDefs());
         Set<String> defs = okbuckExt.extraDefs.stream()
                 .map(it -> "//" + FileUtil.getRelativePath(getProject().getRootDir(), it))
                 .collect(Collectors.toSet());
         defs.add("//" + OKBUCK_DEFS);
 
         // generate .buckconfig.local
-        try {
-            BuckConfigLocalGenerator.generate(okbuckExt,
-                    groovyHome,
-                    kotlinHome,
-                    scalaHome,
-                    ProguardUtil.getProguardJarPath(getProject()),
-                    defs).render(new FileOutputStream(dotBuckConfigLocal()));
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+        BuckConfigLocalGenerator.generate(okbuckExt,
+                groovyHome,
+                kotlinHome,
+                scalaHome,
+                ProguardUtil.getProguardJarPath(getProject()),
+                defs).render(dotBuckConfigLocal());
     }
 }

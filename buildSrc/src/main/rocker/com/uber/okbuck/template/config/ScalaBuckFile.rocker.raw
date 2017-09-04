@@ -1,0 +1,29 @@
+@args (String scalaVersion)
+import re
+
+file_name_regex = re.compile(r'^.*/([^/]+)\.(jar)$', re.IGNORECASE)
+jars = []
+
+for jar in glob(['*.jar']):
+    name = file_name_regex.sub(r'\1', jar)
+    jars.append(name)
+
+for jar in jars:
+    prebuilt_jar(
+        name = jar,
+        binary_jar = jar,
+        visibility = ['PUBLIC'],
+    )
+
+prebuilt_jar(
+    name='scala-library',
+    binary_jar='scala-library-@(scalaVersion).jar',
+    visibility = ['PUBLIC'],
+)
+
+java_binary(
+    name='scala-compiler',
+    main_class='scala.tools.nsc.Main',
+    deps=map(lambda x: ":" + x, jars),
+    visibility = ['PUBLIC'],
+)

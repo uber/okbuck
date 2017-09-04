@@ -1,3 +1,4 @@
+@args (String groovyVersion)
 #!/bin/sh
 # ----------------------------------------------------------------------------
 # Licensed to the Apache Software Foundation (ASF) under one
@@ -28,7 +29,7 @@
 ## $Revision$
 ## $Date$
 ##
-## Groovy Version: ${template-groovy-version}
+## Groovy Version: @groovyVersion
 
 GROOVY_APP_NAME=GroovyC
 
@@ -49,4 +50,4 @@ DIRNAME=`dirname "$PRG"`
 
 . "$DIRNAME/startGroovy"
 
-startGroovy org.codehaus.groovy.tools.FileSystemCompiler "$@"
+startGroovy org.codehaus.groovy.tools.FileSystemCompiler "$@@"

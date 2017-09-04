@@ -1,8 +1,8 @@
 package com.uber.okbuck.wrapper;
 
-import com.google.common.collect.ImmutableMap;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.core.util.FileUtil;
+import com.uber.okbuck.template.config.BuckWrapper;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
@@ -14,9 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -40,15 +38,12 @@ public class BuckWrapperTask extends DefaultTask {
 
     @TaskAction
     void installWrapper() {
-        Map<String, String> templates = ImmutableMap.<String, String>builder()
-                .put("template-creation-time", new Date().toString())
-                .put("template-custom-buck-repo", repo)
-                .put("template-watch", toWatchmanMatchers(watch))
-                .put("template-source-roots", toWatchmanMatchers(sourceRoots))
-                .put("template-ignored-dirs", toWatchmanIgnoredDirs(ignoredDirs))
-                .build();
-
-        FileUtil.copyResourceToProject("wrapper/BUCKW_TEMPLATE", wrapper, templates);
+        new BuckWrapper()
+                .customBuckRepo(repo)
+                .watch(toWatchmanMatchers(watch))
+                .sourceRoots(toWatchmanMatchers(sourceRoots))
+                .ignoredDirs(toWatchmanIgnoredDirs(ignoredDirs))
+                .render(wrapper);
         wrapper.setExecutable(true);
 
         File watchmanConfig = getProject().file(".watchmanconfig");
@@ -64,11 +59,13 @@ public class BuckWrapperTask extends DefaultTask {
         }
     }
 
-    @Override public String getDescription() {
+    @Override
+    public String getDescription() {
         return "Create buck wrapper";
     }
 
-    @Override public String getGroup() {
+    @Override
+    public String getGroup() {
         return OkBuckGradlePlugin.GROUP;
     }
 

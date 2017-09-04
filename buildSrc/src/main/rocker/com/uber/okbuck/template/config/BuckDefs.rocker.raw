@@ -1,3 +1,5 @@
+@import java.util.Collection
+@args (Collection resourceExcludes)
 import os, re
 
 
@@ -26,8 +28,8 @@ def res_glob(glob_specs):
     results = {}
 
     for dirpath, glob_pattern in glob_specs:
-        results[dirpath] = subdir_glob([(dirpath, glob_pattern)], 
-        excludes=[${template-resource-excludes}])
+        results[dirpath] = subdir_glob([(dirpath, glob_pattern)],
+        excludes=[@(String.join(",", resourceExcludes))])
 
     return merge_maps(**results)
 
@@ -76,7 +78,7 @@ def okbuck_lint(
     bash = "export ANDROID_LINT_JARS=\"{}\"; RUN_IN=`dirname {}`; PROJECT_ROOT=`echo $RUN_IN | sed 's|buck-out.*||'`; ".format(':'.join(map(toLocation, custom_lints)), toLocation(manifest))
 
     if has_srcs:
-        bash += "CP_FILE=`sed 's/@//' <<< $(@classpath :src_{})`; ".format(variant)
+        bash += "CP_FILE=`sed 's/@@//' <<< $(@@classpath :src_{})`; ".format(variant)
 
     bash += 'mkdir -p $OUT; sed -i.bak -e "s|$PROJECT_ROOT||g" -e "s|\'||g" $CP_FILE; exec java -Djava.awt.headless=true -Dcom.android.tools.lint.workdir=$PROJECT_ROOT '
     bash += "{} ".format(jvm_args)
