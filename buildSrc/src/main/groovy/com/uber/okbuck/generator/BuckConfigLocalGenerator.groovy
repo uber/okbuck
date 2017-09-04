@@ -1,28 +1,28 @@
 package com.uber.okbuck.generator
 
 import com.uber.okbuck.composer.android.AndroidBuckRuleComposer
-import com.uber.okbuck.config.DotBuckConfigLocalFile
 import com.uber.okbuck.core.model.android.AndroidAppTarget
 import com.uber.okbuck.core.model.base.ProjectType
 import com.uber.okbuck.core.model.base.Target
 import com.uber.okbuck.core.util.ProjectUtil
 import com.uber.okbuck.extension.OkBuckExtension
+import com.uber.okbuck.template.config.BuckConfig
 import org.gradle.api.Project
 import org.jetbrains.annotations.Nullable
 
-final class DotBuckConfigLocalGenerator {
+final class BuckConfigLocalGenerator {
 
-    private DotBuckConfigLocalGenerator() {}
+    private BuckConfigLocalGenerator() {}
 
     /**
-     * generate {@link DotBuckConfigLocalFile}
+     * generate {@link BuckConfig}
      */
-    static DotBuckConfigLocalFile generate(OkBuckExtension okbuck,
-                                           @Nullable String groovyHome,
-                                           @Nullable String kotlinHome,
-                                           @Nullable String scalaHome,
-                                           @Nullable String proguardJar,
-                                           Set<String> defs) {
+    static BuckConfig generate(OkBuckExtension okbuck,
+                               @Nullable String groovyHome,
+                               @Nullable String kotlinHome,
+                               @Nullable String scalaHome,
+                               @Nullable String proguardJar,
+                               Set<String> defs) {
         Map<String, String> aliases = [:]
         okbuck.buckProjects.findAll { Project project ->
             ProjectUtil.getType(project) == ProjectType.ANDROID_APP
@@ -33,13 +33,14 @@ final class DotBuckConfigLocalGenerator {
             }
         }
 
-        return new DotBuckConfigLocalFile(aliases,
-                okbuck.buildToolVersion,
-                okbuck.target,
-                groovyHome,
-                kotlinHome,
-                scalaHome,
-                proguardJar,
-                defs)
+        return new BuckConfig()
+                .aliases(aliases)
+                .buildToolsVersion(okbuck.buildToolVersion)
+                .target(okbuck.target)
+                .groovyHome(groovyHome)
+                .kotlinHome(kotlinHome)
+                .scalaHome(scalaHome)
+                .proguardJar(proguardJar)
+                .defs(defs)
     }
 }

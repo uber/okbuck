@@ -1,5 +1,4 @@
 @import java.util.Collection
-@import com.google.common.base.Joiner
 @import com.android.builder.model.LintOptions
 @args (
 String manifest,
@@ -77,10 +76,10 @@ okbuck_lint(
         '--nolines',
 }
 @if (valid(lintOptions.getDisable())) {
-        '--disable @(Joiner.on(",").join(lintOptions.getDisable()))',
+        '--disable @(String.join(",", lintOptions.getDisable()))',
 }
 @if (valid(lintOptions.getEnable())) {
-        '--enable @(Joiner.on(",").join(lintOptions.getEnable()))',
+        '--enable @(String.join(",", lintOptions.getEnable()))',
 }
 @if (valid(lintConfigXml)) {
         '--config $(location @(lintConfigXml))',

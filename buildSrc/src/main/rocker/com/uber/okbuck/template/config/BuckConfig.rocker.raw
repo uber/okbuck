@@ -1,0 +1,50 @@
+@import java.util.Collection
+@import java.util.Map
+@args (
+String buildToolsVersion,
+String target,
+String groovyHome,
+String kotlinHome,
+String scalaHome,
+String proguardJar,
+Map aliases,
+Collection defs
+)
+@if (valid(aliases)) {
+[alias]
+@for ((key, val) : aliases) {
+    '@key' = '@val',
+}
+}
+@if (valid(buildToolsVersion) && valid(target)) {
+
+[android]
+    build_tools_version = @buildToolsVersion
+    target = @target
+}
+@if (valid(defs)) {
+
+[buildfile]
+    includes = @(String.join(" ", defs))
+}
+@if (valid(groovyHome)) {
+
+[groovy]
+    groovy_home = @groovyHome
+}
+@if (valid(kotlinHome)) {
+
+[kotlin]
+    kotlin_home = @kotlinHome
+}
+@if (valid(scalaHome)) {
+
+[scala]
+    compiler = //@(scalaHome):scala-compiler
+    library = //@(scalaHome):scala-library
+}
+@if (valid(proguardJar)) {
+
+[tools]
+    proguard = @proguardJar
+}

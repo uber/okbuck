@@ -46,6 +46,7 @@ public final class FileUtil {
         try (Source a = Okio.source(FileUtil.class.getResourceAsStream(resource));
                 BufferedSink b = Okio.buffer(Okio.sink(destination))) {
             b.writeAll(a);
+            b.flush();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

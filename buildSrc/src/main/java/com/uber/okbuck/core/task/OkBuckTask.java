@@ -3,8 +3,6 @@ package com.uber.okbuck.core.task;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 import com.uber.okbuck.OkBuckGradlePlugin;
-import com.uber.okbuck.core.io.FilePrinter;
-import com.uber.okbuck.core.io.Printer;
 import com.uber.okbuck.core.model.base.ProjectType;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.GroovyUtil;
@@ -14,7 +12,7 @@ import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.core.util.ScalaUtil;
 import com.uber.okbuck.extension.OkBuckExtension;
 import com.uber.okbuck.extension.ScalaExtension;
-import com.uber.okbuck.generator.DotBuckConfigLocalGenerator;
+import com.uber.okbuck.generator.BuckConfigLocalGenerator;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.specs.Specs;
@@ -25,6 +23,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -127,14 +126,12 @@ public class OkBuckTask extends DefaultTask {
 
         // generate .buckconfig.local
         try {
-            Printer printer = new FilePrinter(dotBuckConfigLocal());
-            DotBuckConfigLocalGenerator.generate(okbuckExt,
+            BuckConfigLocalGenerator.generate(okbuckExt,
                     groovyHome,
                     kotlinHome,
                     scalaHome,
                     ProguardUtil.getProguardJarPath(getProject()),
-                    defs).print(printer);
-            printer.flush();
+                    defs).render(new FileOutputStream(dotBuckConfigLocal()));
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
