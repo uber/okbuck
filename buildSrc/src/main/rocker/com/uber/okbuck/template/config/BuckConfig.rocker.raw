@@ -13,7 +13,7 @@ Collection defs
 @if (valid(aliases)) {
 [alias]
 @for ((key, val) : aliases) {
-    @key = @val,
+    @key = @val
 }
 }
 @if (valid(buildToolsVersion) && valid(target)) {
