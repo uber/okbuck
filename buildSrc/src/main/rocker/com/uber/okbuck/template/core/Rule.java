@@ -3,6 +3,7 @@ package com.uber.okbuck.template.core;
 import com.fizzed.rocker.runtime.DefaultRockerModel;
 import com.fizzed.rocker.runtime.OutputStreamOutput;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSortedSet;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -11,6 +12,7 @@ import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 
 public abstract class Rule<T extends Rule> extends DefaultRockerModel {
 
@@ -85,5 +87,13 @@ public abstract class Rule<T extends Rule> extends DefaultRockerModel {
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    protected static Collection<String> sorted(Collection c) {
+        ImmutableSortedSet.Builder<String> builder = new ImmutableSortedSet.Builder<>(String::compareTo);
+        for (Object o : c) {
+            builder.add(o.toString());
+        }
+        return builder.build();
     }
 }

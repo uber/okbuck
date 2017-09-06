@@ -9,7 +9,7 @@ Set excludes
 }
 @if (excludes != null && !excludes.isEmpty()) {
     blacklist = [
-    @for (exclude : excludes) {
+    @for (exclude : sorted(excludes)) {
         '@exclude',
     }
     ],

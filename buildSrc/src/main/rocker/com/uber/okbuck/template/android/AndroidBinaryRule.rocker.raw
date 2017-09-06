@@ -36,7 +36,7 @@ boolean multidexEnabled,
     preprocess_java_classes_bash = '@preprocessJavaClassesBash',
 @if (valid(preprocessJavaClassesDeps)) {
     preprocess_java_classes_deps = [
-    @for (preprocessJavaClassesDep : preprocessJavaClassesDeps) {
+    @for (preprocessJavaClassesDep : sorted(preprocessJavaClassesDeps)) {
         '@preprocessJavaClassesDep',
     }
     ],
@@ -44,7 +44,7 @@ boolean multidexEnabled,
 }
 @if (valid(cpuFilters)) {
     cpu_filters = [
-    @for (cpuFilter : cpuFilters) {
+    @for (cpuFilter : sorted(cpuFilters)) {
         '@cpuFilter',
     }
     ],

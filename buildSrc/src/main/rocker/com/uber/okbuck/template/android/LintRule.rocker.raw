@@ -18,17 +18,17 @@ okbuck_lint(
 }
 @if (valid(sources) || valid(resources)) {
     inputs = [
-    @for (source : sources) {
+    @for (source : sorted(sources)) {
         '@source',
     }
-    @for (resource : resources) {
+    @for (resource : sorted(resources)) {
         '@resource',
     }
     ],
 }
 @if (valid(customLints)) {
     custom_lints = [
-    @for (customLint : customLints) {
+    @for (customLint : sorted(customLints)) {
         '@customLint',
     }
     ],
@@ -38,19 +38,19 @@ okbuck_lint(
 }
 @if (valid(deps)) {
     deps = [
-    @for (dep : deps) {
+    @for (dep : sorted(deps)) {
         '@dep',
     }
     ],
 }
     lint_options = [
 @if (valid(sources)) {
-    @for (source : sources) {
+    @for (source : sorted(sources)) {
         '--sources @source',
     }
 }
 @if (valid(resources)) {
-    @for (resource : resources) {
+    @for (resource : sorted(resources)) {
         '--resources @resource',
     }
 }

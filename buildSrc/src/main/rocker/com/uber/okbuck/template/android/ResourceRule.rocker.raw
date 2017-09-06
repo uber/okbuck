@@ -4,14 +4,14 @@
     package = '@pkg',
 @if (valid(res)) {
     res = res_glob([
-    @for (r : res) {
+    @for (r : sorted(res)) {
         ('@r', '**'),
     }
     ]),
 }
 @if (valid(assets)) {
     assets = subdir_glob([
-    @for (a : assets) {
+    @for (a : sorted(assets)) {
         ('@a', '**'),
     }
     ]),
