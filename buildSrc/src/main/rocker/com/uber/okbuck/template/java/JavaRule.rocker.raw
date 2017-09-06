@@ -72,7 +72,7 @@ RockerBody content
 }
 @if (valid(options)) {
     extra_arguments = [
-    @for (option : sorted(options)) {
+    @for (option : options) {
         '@option',
     }
     ],
@@ -86,7 +86,7 @@ RockerBody content
 }
 @if (valid(jvmArgs)) {
     vm_args = [
-    @for (jvmArg : sorted(jvmArgs)) {
+    @for (jvmArg : jvmArgs) {
         '@jvmArg',
     }
     ],

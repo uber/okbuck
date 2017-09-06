@@ -7,9 +7,9 @@ Set excludes
 @if (mainClassName != null) {
     main_class = '@mainClassName',
 }
-@if (excludes != null && !excludes.isEmpty()) {
+@if (valid(excludes)) {
     blacklist = [
-    @for (exclude : sorted(excludes)) {
+    @for (exclude : excludes) {
         '@exclude',
     }
     ],

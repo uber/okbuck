@@ -15,7 +15,7 @@
 }
 @if (valid(labels)) {
     labels = [
-    @for (label : sorted(labels)) {
+    @for (label : labels) {
         '@label',
     }
     ],
