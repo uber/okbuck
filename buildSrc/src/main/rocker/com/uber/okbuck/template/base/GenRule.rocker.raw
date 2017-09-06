@@ -13,7 +13,7 @@ boolean executable
 } else {
     srcs = [
 }
-    @for (input : inputs) {
+    @for (input : sorted(inputs)) {
         '@input',
     }
 @if (globSrcs) {

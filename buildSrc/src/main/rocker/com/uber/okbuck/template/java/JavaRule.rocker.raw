@@ -20,14 +20,14 @@ RockerBody content
 @com.uber.okbuck.template.base.BuckRule.template() -> {
 @if (valid(srcs)) {
     srcs = glob([
-    @for (src : srcs) {
-    @for (ext : exts) {
+    @for (src : sorted(srcs)) {
+    @for (ext : sorted(exts)) {
         '@src/**/*.@ext',
     }
     }
 @if (valid(excludes)) {
     ], excludes = [
-    @for (exclude : excludes) {
+    @for (exclude : sorted(excludes)) {
         '@exclude',
     }
 }
@@ -51,28 +51,28 @@ RockerBody content
 }
 @if (valid(annotationProcessors)) {
     annotation_processors = [
-    @for (annotationProcessor : annotationProcessors) {
+    @for (annotationProcessor : sorted(annotationProcessors)) {
         '@annotationProcessor',
     }
     ],
 }
 @if (valid(aptDeps)) {
     annotation_processor_deps = [
-    @for (aptDep : aptDeps) {
+    @for (aptDep : sorted(aptDeps)) {
         '@aptDep',
     }
     ],
 }
 @if (valid(providedDeps)) {
     provided_deps = [
-    @for (providedDep : providedDeps) {
+    @for (providedDep : sorted(providedDeps)) {
         '@providedDep',
     }
     ],
 }
 @if (valid(options)) {
     extra_arguments = [
-    @for (option : options) {
+    @for (option : sorted(options)) {
         '@option',
     }
     ],
@@ -86,7 +86,7 @@ RockerBody content
 }
 @if (valid(jvmArgs)) {
     vm_args = [
-    @for (jvmArg : jvmArgs) {
+    @for (jvmArg : sorted(jvmArgs)) {
         '@jvmArg',
     }
     ],

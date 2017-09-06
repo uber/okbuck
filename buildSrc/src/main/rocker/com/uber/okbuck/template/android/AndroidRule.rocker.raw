@@ -47,7 +47,7 @@ env
 }
 @if (valid(exportedDeps)) {
     exported_deps = [
-    @for (exportedDep : exportedDeps) {
+    @for (exportedDep : sorted(exportedDeps)) {
         '@exportedDep',
     }
     ],

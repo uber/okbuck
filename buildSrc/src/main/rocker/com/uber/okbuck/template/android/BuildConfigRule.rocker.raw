@@ -4,7 +4,7 @@
     package = '@pkg',
 @if (valid(values)) {
     values = [
-    @for (value : values) {
+    @for (value : sorted(values)) {
         '@value',
     }
     ],

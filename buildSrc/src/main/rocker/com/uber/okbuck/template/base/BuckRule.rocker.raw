@@ -8,14 +8,14 @@
 }
 @if (valid(deps)) {
     deps = [
-    @for (dep : deps) {
+    @for (dep : sorted(deps)) {
         '@dep',
     }
     ],
 }
 @if (valid(labels)) {
     labels = [
-    @for (label : labels) {
+    @for (label : sorted(labels)) {
         '@label',
     }
     ],

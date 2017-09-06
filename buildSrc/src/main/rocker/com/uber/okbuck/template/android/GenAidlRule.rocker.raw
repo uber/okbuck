@@ -9,7 +9,7 @@ okbuck_aidl(
 }
 @if (valid(aidlDeps)) {
     deps = [
-    @for (aidlDep : aidlDeps) {
+    @for (aidlDep : sorted(aidlDeps)) {
         '@aidlDep',
     }
     ],
