@@ -18,7 +18,6 @@ import com.uber.okbuck.composer.android.PreBuiltNativeLibraryRuleComposer
 import com.uber.okbuck.composer.android.TrasformDependencyWriterRuleComposer
 import com.uber.okbuck.composer.java.JavaLibraryRuleComposer
 import com.uber.okbuck.composer.java.JavaTestRuleComposer
-import com.uber.okbuck.config.BUCKFile
 import com.uber.okbuck.core.model.android.AndroidAppTarget
 import com.uber.okbuck.core.model.android.AndroidInstrumentationTarget
 import com.uber.okbuck.core.model.android.AndroidLibTarget
@@ -39,6 +38,8 @@ import org.gradle.api.Project
 
 final class BuckFileGenerator {
 
+    private static final byte[] NEWLINE = System.lineSeparator().getBytes()
+
     private BuckFileGenerator() {}
 
     /**
@@ -48,12 +49,12 @@ final class BuckFileGenerator {
         List<Rule> rules = createRules(project)
 
         if (rules) {
-            BUCKFile buckFile = new BUCKFile(rules, project.file(OkBuckGradlePlugin.BUCK))
-            try {
-                buckFile.print()
-            } catch (FileNotFoundException e) {
-                throw new RuntimeException(e)
+            final OutputStream os = new FileOutputStream(project.file(OkBuckGradlePlugin.BUCK))
+            for (Rule rule : rules) {
+                rule.render(os)
+                os.write(NEWLINE)
             }
+            os.flush()
         }
     }
 

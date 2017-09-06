@@ -106,6 +106,12 @@ public class OkBuckExtension {
     @Input
     public boolean failOnChangingDependencies = false;
 
+    /**
+     * Makes okbuck generated default aliases for android apps in .buckconfig.local
+     */
+    @Input
+    public boolean generateDefaultAliases = true;
+
     public OkBuckExtension(Project project) {
         buckProjects = project.getSubprojects();
     }

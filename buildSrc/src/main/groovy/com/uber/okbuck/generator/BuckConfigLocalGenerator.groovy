@@ -24,12 +24,14 @@ final class BuckConfigLocalGenerator {
                                @Nullable String proguardJar,
                                Set<String> defs) {
         Map<String, String> aliases = [:]
-        okbuck.buckProjects.findAll { Project project ->
-            ProjectUtil.getType(project) == ProjectType.ANDROID_APP
-        }.each { Project project ->
-            ProjectUtil.getTargets(project).each { String name, Target target ->
-                aliases.put("${target.identifier.replaceAll(':', '-')}${name.capitalize()}" as String,
-                        "//${target.path}:${AndroidBuckRuleComposer.bin((AndroidAppTarget) target)}" as String)
+        if (okbuck.generateDefaultAliases) {
+            okbuck.buckProjects.findAll { Project project ->
+                ProjectUtil.getType(project) == ProjectType.ANDROID_APP
+            }.each { Project project ->
+                ProjectUtil.getTargets(project).each { String name, Target target ->
+                    aliases.put("${target.identifier.replaceAll(':', '-')}${name.capitalize()}" as String,
+                            "//${target.path}:${AndroidBuckRuleComposer.bin((AndroidAppTarget) target)}" as String)
+                }
             }
         }
 
