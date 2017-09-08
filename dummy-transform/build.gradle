@@ -1,0 +1,9 @@
+plugins {
+    id "java"
+}
+
+apply from: "../dependencies.gradle"
+
+dependencies {
+    compile deps.build.androidPlugin
+}
