@@ -24,9 +24,7 @@ for jar in jars:
 
 java_binary(
     name='okbuck_transform',
-@if (valid(targetDeps)) {
     deps=map(lambda x: ":" + x, jars) + [@(String.join(", ", targetDeps))],
-}
     blacklist=[
         'META-INF',
     ],
