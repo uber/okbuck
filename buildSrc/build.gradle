@@ -38,7 +38,6 @@ dependencies {
     compile deps.build.commonsIo
     compile deps.build.commonsLang
     compile deps.build.kotlinPlugin
-    compile deps.external.kotlinExtension
     compile deps.build.mavenArtifact
     compile deps.build.okio
     compile deps.build.rockerRuntime

@@ -24,7 +24,6 @@ import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.testing.Test
-import org.jetbrains.kotlin.gradle.internal.AndroidExtensionsExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinAndroidPluginWrapper
 
 import java.nio.file.Paths
@@ -92,11 +91,10 @@ abstract class AndroidTarget extends JavaLibTarget {
         isKotlin = project.plugins.hasPlugin(KotlinAndroidPluginWrapper.class)
         hasKotlinAndroidExtensions = project.plugins.hasPlugin(KOTLIN_ANDROID_EXTENSIONS_MODULE)
 
-        if (hasKotlinAndroidExtensions) {
-            AndroidExtensionsExtension kotlinAndroidExtensionsExtension = project.extensions.
-                    getByType(AndroidExtensionsExtension.class)
-            hasExperimentalKotlinAndroidExtensions = kotlinAndroidExtensionsExtension.experimental
-        } else {
+        try {
+            hasExperimentalKotlinAndroidExtensions = hasKotlinAndroidExtensions &&
+                                                     project.androidExtensions.experimental
+        } catch (Exception ignored) {
             hasExperimentalKotlinAndroidExtensions = false
         }
 
