@@ -94,10 +94,9 @@ abstract class AndroidTarget extends JavaLibTarget {
         try {
             AndroidExtensionsExtension kotlinAndroidExtensionsExtension = project.extensions.
                     getByType(AndroidExtensionsExtension.class)
-            hasExperimentalKotlinAndroidExtensions = hasKotlinAndroidExtensions &&
-                                                     kotlinAndroidExtensionsExtension.experimental
+            hasExperimentalKotlinAndroidExtensions = kotlinAndroidExtensionsExtension.experimental
         } catch (Exception ignored) {
-            hasExperimentalKotlinAndroidExtensions = false;
+            hasExperimentalKotlinAndroidExtensions = false
         }
 
 
