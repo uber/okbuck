@@ -91,6 +91,7 @@ abstract class AndroidTarget extends JavaLibTarget {
         // Check if kotlin
         isKotlin = project.plugins.hasPlugin(KotlinAndroidPluginWrapper.class)
         hasKotlinAndroidExtensions = project.plugins.hasPlugin(KOTLIN_ANDROID_EXTENSIONS_MODULE)
+
         if (hasKotlinAndroidExtensions) {
             AndroidExtensionsExtension kotlinAndroidExtensionsExtension = project.extensions.
                     getByType(AndroidExtensionsExtension.class)
@@ -98,7 +99,6 @@ abstract class AndroidTarget extends JavaLibTarget {
         } else {
             hasExperimentalKotlinAndroidExtensions = false
         }
-
 
         if (baseVariant.mergedFlavor.minSdkVersion == null ||
                 baseVariant.mergedFlavor.targetSdkVersion == null) {
