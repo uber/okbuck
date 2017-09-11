@@ -91,11 +91,11 @@ abstract class AndroidTarget extends JavaLibTarget {
         // Check if kotlin
         isKotlin = project.plugins.hasPlugin(KotlinAndroidPluginWrapper.class)
         hasKotlinAndroidExtensions = project.plugins.hasPlugin(KOTLIN_ANDROID_EXTENSIONS_MODULE)
-        try {
+        if (hasKotlinAndroidExtensions) {
             AndroidExtensionsExtension kotlinAndroidExtensionsExtension = project.extensions.
                     getByType(AndroidExtensionsExtension.class)
             hasExperimentalKotlinAndroidExtensions = kotlinAndroidExtensionsExtension.experimental
-        } catch (Exception ignored) {
+        } else {
             hasExperimentalKotlinAndroidExtensions = false
         }
 
