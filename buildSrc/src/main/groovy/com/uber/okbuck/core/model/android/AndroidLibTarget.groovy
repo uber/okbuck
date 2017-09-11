@@ -60,6 +60,12 @@ class AndroidLibTarget extends AndroidTarget {
         options.append("package=")
         options.append(getPackage())
 
+        if (hasExperimentalKotlinAndroidExtensions) {
+            options.append(",")
+            options.append(KOTLIN_EXTENSIONS_OPTION)
+            options.append("experimental=true")
+        }
+
         extraKotlincArgs.add(plugin.toString())
         extraKotlincArgs.add("-P")
         extraKotlincArgs.add(options.toString())
