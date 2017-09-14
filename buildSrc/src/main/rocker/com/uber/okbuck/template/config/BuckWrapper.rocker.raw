@@ -165,6 +165,7 @@ setupBuckBinary ( ) {
             if [[ "$BUCK_VERSION" != "$CURRENT_BUCK_VERSION" ]]; then
                 info "BUCK VERSION IS AT $CURRENT_BUCK_VERSION , BUT IT SHOULD BE $BUCK_VERSION. UPDATING BUCK"
                 git clean -fdx --quiet && git reset --hard --quiet && git fetch --all && git checkout "$BUCK_VERSION" --quiet && success "UPDATED BUCK TO $BUCK_VERSION" || die "FAILED TO UPDATE BUCK TO $BUCK_VERSION"
+                ps -ef | grep "[c]om.facebook.buck.cli.Main\$DaemonBootstrap" | awk '{print $2}' | xargs kill -9 && success "STOPPED ACTIVE BUCK DAEMONS"
             fi
             popd >/dev/null
         fi
