@@ -11,12 +11,21 @@ Collection testTargets,
 Collection annotationProcessors,
 Collection aptDeps,
 Collection providedDeps,
+Collection libDeps,
 Collection options,
 Collection postprocessClassesCommands,
 Collection jvmArgs,
 Map env,
 RockerBody content
 )
+@if (valid(libDeps)) {
+lib_deps = [
+@for (libDep : sorted(libDeps)) {
+    '@libDep',
+}
+]
+
+}
 @com.uber.okbuck.template.base.BuckRule.template() -> {
 @if (valid(srcs)) {
     srcs = glob([
@@ -97,6 +106,9 @@ RockerBody content
         '@key': '@val',
     }
     @},
+}
+@if (valid(libDeps)) {
+    deps = lib_deps,
 }
 @if (content != null) {
 @content
