@@ -1,6 +1,7 @@
 package com.uber.okbuck.composer.android
 
 import com.google.common.collect.ImmutableSet
+import com.uber.okbuck.core.model.android.AndroidAppTarget
 import com.uber.okbuck.core.model.android.AndroidLibTarget
 import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.core.util.RetrolambdaUtil
@@ -40,6 +41,8 @@ final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
             providedDeps.add(RetrolambdaUtil.getRtStubJarRule())
         }
 
+        String manifest = target instanceof AndroidAppTarget ? ":${AndroidBuckRuleComposer.manifest(target)}" : fileRule(target.manifest)
+
         AndroidRule androidRule = new AndroidRule()
                 .srcs(target.test.sources)
                 .exts(target.testRuleType.sourceExtensions)
@@ -55,7 +58,7 @@ final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
                 .options(target.main.jvmArgs)
                 .jvmArgs(target.testOptions.jvmArgs)
                 .env(target.testOptions.env)
-                .robolectricManifest(fileRule(target.manifest))
+                .robolectricManifest(manifest)
                 .runtimeDependency(RobolectricUtil.ROBOLECTRIC_CACHE)
 
         if (target.testRuleType == RuleType.KOTLIN_ROBOLECTRIC_TEST) {
