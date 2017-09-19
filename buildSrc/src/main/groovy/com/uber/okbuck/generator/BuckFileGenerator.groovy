@@ -180,11 +180,19 @@ final class BuckFileGenerator {
 
         // Test
         if (target.robolectric && target.test.sources && !target.isTest) {
+            String manifestRuleName = null
+            if (target instanceof AndroidAppTarget) {
+                Rule manifestRule = AndroidManifestRuleComposer.compose(target)
+                rules.add(manifestRule)
+                manifestRuleName = ":${manifestRule.name()}"
+            }
+
             androidLibRules.add(AndroidTestRuleComposer.compose(
                     target,
                     deps,
                     aidlRuleNames,
-                    appClass))
+                    appClass,
+                    manifestRuleName))
         }
 
         OkBuckExtension okbuck = target.rootProject.okbuck

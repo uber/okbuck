@@ -6,6 +6,11 @@
         android:label="@string/app_name"
         android:supportsRtl="true">
 
+        <activity
+            android:name="com.uber.okbuck.example.common.AnotherActivity"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.NoActionBar"/>
+
     </application>
 
 </manifest>
