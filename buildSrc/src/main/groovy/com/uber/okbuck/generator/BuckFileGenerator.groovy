@@ -182,9 +182,7 @@ final class BuckFileGenerator {
         if (target.robolectric && target.test.sources && !target.isTest) {
             String manifestRuleName = null
             if (target instanceof AndroidAppTarget) {
-                Rule manifestRule = AndroidManifestRuleComposer.compose(target)
-                rules.add(manifestRule)
-                manifestRuleName = ":${manifestRule.name()}"
+                manifestRuleName = ":manifest_${target.name}"
             }
 
             androidLibRules.add(AndroidTestRuleComposer.compose(
