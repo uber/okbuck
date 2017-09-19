@@ -21,8 +21,7 @@ final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
             AndroidLibTarget target,
             List<String> deps,
             final List<String> aidlRuleNames,
-            String appClass,
-            String manifestRuleName) {
+            String appClass) {
 
         List<String> testDeps = new ArrayList<>(deps)
         testDeps.add(":${src(target)}")
@@ -42,6 +41,8 @@ final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
             providedDeps.add(RetrolambdaUtil.getRtStubJarRule())
         }
 
+        String manifest = target instanceof AndroidAppTarget ? ":${AndroidBuckRuleComposer.manifest(target)}" : fileRule(target.manifest)
+
         AndroidRule androidRule = new AndroidRule()
                 .srcs(target.test.sources)
                 .exts(target.testRuleType.sourceExtensions)
@@ -57,7 +58,7 @@ final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
                 .options(target.main.jvmArgs)
                 .jvmArgs(target.testOptions.jvmArgs)
                 .env(target.testOptions.env)
-                .robolectricManifest(manifestRuleName != null ? manifestRuleName : fileRule(target.manifest))
+                .robolectricManifest(manifest)
                 .runtimeDependency(RobolectricUtil.ROBOLECTRIC_CACHE)
 
         if (target.testRuleType == RuleType.KOTLIN_ROBOLECTRIC_TEST) {
