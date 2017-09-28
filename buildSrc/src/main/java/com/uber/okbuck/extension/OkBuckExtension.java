@@ -94,7 +94,7 @@ public class OkBuckExtension {
 
     /**
      * Additional dependency caches.
-     * Every entry will create a new configuration "entryDepCache"
+     * Every value "entry" will create a new configuration "entryExtraDepCache"
      * that can be used to fetch and cache dependencies.
      */
     @Input
