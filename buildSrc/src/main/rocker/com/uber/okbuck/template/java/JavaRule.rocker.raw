@@ -25,6 +25,9 @@ lib_deps = [
 }
 ]
 
+} else {
+lib_deps = []
+
 }
 @com.uber.okbuck.template.base.BuckRule.template() -> {
 @if (valid(srcs)) {
