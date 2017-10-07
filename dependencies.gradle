@@ -1,5 +1,5 @@
 def versions = [
-        androidTools         : '26.0.0-alpha9',
+        androidTools         : '26.0.0-beta7',
         butterKnifeVersion   : '8.6.0',
         daggerVersion        : '2.11',
         kotlinVersion        : '1.1.50',
