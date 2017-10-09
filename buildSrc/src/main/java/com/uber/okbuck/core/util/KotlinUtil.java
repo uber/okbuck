@@ -39,12 +39,14 @@ public final class KotlinUtil {
 
         new DependencyCache(project, DependencyUtils.createCacheDir(project, KOTLIN_HOME_LOCATION)).build(kotlinConfig);
 
-        removeVersions(Paths.get(KOTLIN_HOME_LOCATION),
-                KOTLIN_COMPILER_MODULE, "kotlin-compiler");
-        removeVersions(Paths.get(KOTLIN_HOME_LOCATION),
-                KOTLIN_STDLIB_MODULE, KOTLIN_STDLIB_MODULE);
-        removeVersions(Paths.get(KOTLIN_HOME_LOCATION),
-                KOTLIN_ANDROID_EXTENSIONS_MODULE, KOTLIN_ANDROID_EXTENSIONS_MODULE);
+        Path kotlinHome = project.file(KOTLIN_HOME_LOCATION).toPath();
+        removeVersions(kotlinHome, KOTLIN_COMPILER_MODULE, "kotlin-compiler");
+        removeVersions(kotlinHome, KOTLIN_STDLIB_MODULE);
+        removeVersions(kotlinHome, KOTLIN_ANDROID_EXTENSIONS_MODULE);
+    }
+
+    private static void removeVersions(Path dir, String toRemove) {
+        removeVersions(dir, toRemove, toRemove);
     }
 
     private static void removeVersions(Path dir, String toRename, String renamed) {
