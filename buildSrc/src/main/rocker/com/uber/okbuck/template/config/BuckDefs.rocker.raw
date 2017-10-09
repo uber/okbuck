@@ -73,9 +73,17 @@ def okbuck_lint(
         deps=[],
         lint_options=[]
     ):
+
     variant = name.replace('lint_', '', 1)
 
-    bash = "export ANDROID_LINT_JARS=\"{}\"; RUN_IN=`dirname {}`; PROJECT_ROOT=`echo $RUN_IN | sed 's|buck-out.*||'`; ".format(':'.join(map(toLocation, custom_lints)), toLocation(manifest))
+    manifest_copy = "manifest_copy_{}".format(variant)
+    genrule(
+        name = manifest_copy,
+        out = "{}/AndroidManifest.xml".format(get_base_path().replace('/', '_')),
+        bash = "mkdir -p `dirname $OUT`; cp {} $OUT".format(toLocation(manifest))
+    )
+
+    bash = "export ANDROID_LINT_JARS=\"{}\"; PROJECT_ROOT=`echo '{}' | sed 's|buck-out.*||'`; ".format(':'.join(map(toLocation, custom_lints)), toLocation(':' + manifest_copy))
 
     if has_srcs:
         bash += "CP_FILE=`sed 's/@@//' <<< $(@@classpath :src_{})`; ".format(variant)
@@ -88,7 +96,7 @@ def okbuck_lint(
     if has_srcs:
         bash += "--classpath $(location :src_{}) --libraries `cat $CP_FILE` ".format(variant)
 
-    bash += "{} $RUN_IN".format(' '.join(lint_options))
+    bash += "{} `dirname {}`".format(' '.join(lint_options), toLocation(':' + manifest_copy))
 
     genrule(
         name = name,

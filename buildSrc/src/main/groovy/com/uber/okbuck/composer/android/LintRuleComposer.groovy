@@ -38,7 +38,7 @@ final class LintRuleComposer extends AndroidBuckRuleComposer {
 
         LintExtension lintExtension = target.rootProject.okbuck.lint
         return new LintRule()
-                .manifest(manifest(target))
+                .manifest(":${manifest(target)}")
                 .sources(target.main.sources)
                 .resources(target.resDirs)
                 .customLints(customLintRules)

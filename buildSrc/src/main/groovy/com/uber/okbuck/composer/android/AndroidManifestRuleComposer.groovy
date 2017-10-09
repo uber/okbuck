@@ -2,6 +2,7 @@ package com.uber.okbuck.composer.android
 
 import com.uber.okbuck.core.model.android.AndroidAppTarget
 import com.uber.okbuck.core.model.android.AndroidLibTarget
+import com.uber.okbuck.core.model.android.AndroidTarget
 import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.core.model.base.Scope
 import com.uber.okbuck.core.model.base.Target
@@ -14,7 +15,7 @@ final class AndroidManifestRuleComposer extends AndroidBuckRuleComposer {
         // no instance
     }
 
-    static Rule compose(AndroidAppTarget target, Scope manifestScope = target.main) {
+    static Rule compose(AndroidTarget target, Scope manifestScope = target.main) {
         List<String> deps = []
         deps.addAll(external(manifestScope.externalDeps.findAll { String dep ->
             dep.endsWith("aar")

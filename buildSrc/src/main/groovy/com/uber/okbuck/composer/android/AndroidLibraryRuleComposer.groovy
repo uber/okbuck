@@ -18,6 +18,7 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
     static Rule compose(
             AndroidLibTarget target,
             List<String> deps,
+            String manifestRuleName,
             final List<String> aidlRuleNames,
             String appClass) {
         List<String> libraryDeps = new ArrayList<>(deps)
@@ -51,7 +52,7 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
         AndroidRule androidRule = new AndroidRule()
                 .srcs(target.main.sources)
                 .exts(target.ruleType.sourceExtensions)
-                .manifest(fileRule(target.manifest))
+                .manifest(manifestRuleName)
                 .annotationProcessors(target.annotationProcessors)
                 .aptDeps(libraryAptDeps)
                 .providedDeps(providedDeps)
