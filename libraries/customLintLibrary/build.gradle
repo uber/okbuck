@@ -6,8 +6,8 @@ repositories {
 }
 
 dependencies {
-    compile deps.lint.lintApi
-    compile deps.lint.lintChecks
+    compileOnly deps.lint.lintApi
+    compileOnly deps.lint.lintChecks
 
     testCompile deps.lint.lint
     testCompile deps.lint.lintTests

@@ -28,15 +28,14 @@ final class LintRuleComposer extends JvmBuckRuleComposer {
 
         List<String> customLintRules = []
         customLintRules.addAll(external(target.main.packagedLintJars))
-        customLintRules.addAll(targets(customLintTargets as Set))
+        customLintTargets.each {
+            if (it instanceof JavaLibTarget && it.hasApplication()) {
+                customLintRules.add(binTargets(it))
+            }
+        }
 
         List<String> lintDeps = []
         lintDeps.addAll(LintUtil.LINT_DEPS_RULE)
-        customLintTargets.each {
-            if (it instanceof JavaLibTarget && it.hasApplication()) {
-                lintDeps.add(binTargets(it))
-            }
-        }
 
         LintExtension lintExtension = target.rootProject.okbuck.lint
         return new LintRule()
