@@ -1,6 +1,5 @@
 package com.uber.okbuck.composer.android
 
-import com.uber.okbuck.composer.jvm.JvmBuckRuleComposer
 import com.uber.okbuck.core.model.android.AndroidTarget
 import com.uber.okbuck.core.model.base.Target
 import com.uber.okbuck.core.model.java.JavaLibTarget
@@ -10,7 +9,7 @@ import com.uber.okbuck.extension.LintExtension
 import com.uber.okbuck.template.android.LintRule
 import com.uber.okbuck.template.core.Rule
 
-final class LintRuleComposer extends JvmBuckRuleComposer {
+final class LintRuleComposer extends AndroidBuckRuleComposer {
 
     private LintRuleComposer() {
         // no instance
@@ -39,7 +38,7 @@ final class LintRuleComposer extends JvmBuckRuleComposer {
 
         LintExtension lintExtension = target.rootProject.okbuck.lint
         return new LintRule()
-                .manifest(fileRule(target.manifest))
+                .manifest(manifest(target))
                 .sources(target.main.sources)
                 .resources(target.resDirs)
                 .customLints(customLintRules)
