@@ -49,7 +49,7 @@ public final class TransformUtil {
                 .map(s -> "'" + s + "'")
                 .collect(MoreCollectors.toImmutableSet());
 
-        new TransformBuckFile().targetDeps(targetDeps).render(new File(cacheDir, "BUCK"));
+        new TransformBuckFile().targetDeps(targetDeps).render(cacheDir.toPath().resolve("BUCK"));
         FileUtil.copyResourceToProject(TRANSFORM_FOLDER + TRANSFORM_JAR, new File(cacheDir, TRANSFORM_JAR));
     }
 }

@@ -8,8 +8,6 @@ import com.uber.okbuck.template.config.ScalaBuckFile;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 
-import java.io.File;
-
 public final class ScalaUtil {
 
     private static final String SCALA_DEPS_CONFIG = "okbuck_scala_deps";
@@ -24,8 +22,7 @@ public final class ScalaUtil {
         rootProject.getDependencies().add(SCALA_DEPS_CONFIG, "org.scala-lang:scala-compiler:" + scalaVersion);
         new DependencyCache(rootProject, DependencyUtils.createCacheDir(rootProject, SCALA_HOME_LOCATION))
                 .build(scalaConfig);
-
-        File scalaHome = new File(SCALA_HOME_LOCATION);
-        new ScalaBuckFile().scalaVersion(scalaVersion).render(new File(scalaHome, "BUCK"));
+        new ScalaBuckFile().scalaVersion(scalaVersion)
+                .render(rootProject.file(SCALA_HOME_LOCATION).toPath().resolve("BUCK"));
     }
 }

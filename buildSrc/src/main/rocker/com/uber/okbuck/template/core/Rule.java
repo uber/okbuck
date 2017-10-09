@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -78,6 +79,10 @@ public abstract class Rule<T extends Rule> extends DefaultRockerModel {
 
     public void render(OutputStream os) {
         render((contentType, charsetName) -> new OutputStreamOutput(contentType, os, charsetName));
+    }
+
+    public void render(Path path) {
+        render(path.toFile());
     }
 
     public void render(File file) {

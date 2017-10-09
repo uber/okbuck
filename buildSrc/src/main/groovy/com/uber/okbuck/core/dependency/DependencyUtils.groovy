@@ -29,7 +29,7 @@ final class DependencyUtils {
     }
 
     static File createCacheDir(Project project, String cacheDirPath, String buckFile = null) {
-        File cacheDir = new File(project.rootProject.projectDir, cacheDirPath)
+        File cacheDir = project.rootProject.file(cacheDirPath)
         cacheDir.mkdirs()
 
         if (buckFile) {

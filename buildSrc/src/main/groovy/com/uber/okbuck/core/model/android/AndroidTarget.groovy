@@ -85,7 +85,7 @@ abstract class AndroidTarget extends JavaLibTarget {
         // Create gen dir
         genDir = Paths.get(OkBuckGradlePlugin.OKBUCK_GEN, path, name).toString()
         FileUtil.copyResourceToProject("gen/BUCK_FILE",
-                new File(rootProject.file(genDir), OkBuckGradlePlugin.BUCK))
+                rootProject.file(genDir).toPath().resolve(OkBuckGradlePlugin.BUCK).toFile())
 
         // Check if kotlin
         isKotlin = project.plugins.hasPlugin(KotlinAndroidPluginWrapper.class)
@@ -458,7 +458,7 @@ abstract class AndroidTarget extends JavaLibTarget {
             srcs.addAll(javaSrcs.findAll {
                 it.name == "java"
             }.collect {
-                new File(it.absolutePath.replaceFirst("/java\$", "/kotlin"))
+                project.file(it.absolutePath.replaceFirst("/java\$", "/kotlin"))
             })
         }
         return srcs.build()

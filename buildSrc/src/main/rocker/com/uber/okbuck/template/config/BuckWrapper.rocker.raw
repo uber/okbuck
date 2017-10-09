@@ -12,7 +12,21 @@ String ignoredDirs
 ##
 #########################################################################
 
-WORKING_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PRG="$0"
+# Need this for relative symlinks.
+while [ -h "$PRG" ] ; do
+    ls=`ls -ld "$PRG"`
+    link=`expr "$ls" : '.*-> \(.*\)$'`
+    if expr "$link" : '/.*' > /dev/null; then
+        PRG="$link"
+    else
+        PRG=`dirname "$PRG"`"/$link"
+    fi
+done
+SAVED="`pwd`"
+cd "`dirname \"$PRG\"`/" >/dev/null
+SCRIPT_DIR="`pwd -P`"
+cd "$SAVED" >/dev/null
 
 red=`tput setab 1 2>/dev/null || true`
 yellow=`tput setab 3 2>/dev/null || true`
@@ -58,19 +72,19 @@ DEFAULT_BUCK_REPO="https://github.com/facebook/buck.git"
 DEFAULT_BUCK_INSTALL_DIR="$HOME/.gradle/caches/okbuck/buck"
 CUSTOM_BUCK_REPO="@(customBuckRepo)"
 CUSTOM_REMOTE_NAME="custom"
-OKBUCK_SUCCESS="$WORKING_DIR/build/okbuck.success"
-OKBUCK_DIR="$WORKING_DIR/.okbuck"
+OKBUCK_SUCCESS="$SCRIPT_DIR/build/okbuck.success"
+OKBUCK_DIR="$SCRIPT_DIR/.okbuck"
 MAX_DISPLAY_CHANGES=10
 
 ensureWatch ( ) {
-    watchman watch-project $WORKING_DIR >/dev/null 2>&1
+    watchman watch-project $SCRIPT_DIR >/dev/null 2>&1
 }
 
 getChanges ( ) {
     ensureWatch
 
     WATCHED_CHANGES=`watchman --output-encoding=json --no-pretty -j 2>&1 <<-EOT
-["query", "$WORKING_DIR", {
+["query", "$SCRIPT_DIR", {
     "since": "n:okbuck_trig",
     "expression": ["allof",
         ["type", "f"],
@@ -83,7 +97,7 @@ getChanges ( ) {
 }]
 EOT`
     SOURCE_ROOTS=`watchman --output-encoding=json --no-pretty -j 2>&1 <<-EOT
-["query", "$WORKING_DIR", {
+["query", "$SCRIPT_DIR", {
     "since": "n:okbuck_source_roots",
     "expression": ["allof",
         ["type", "d"],
@@ -108,7 +122,7 @@ runOkBuck ( ) {
     echo
 
     rm -f $OKBUCK_SUCCESS
-    ( $WORKING_DIR/gradlew -p $WORKING_DIR okbuck -Dokbuck.wrapper=true $EXTRA_OKBUCK_ARGS &&
+    ( $SCRIPT_DIR/gradlew -p $SCRIPT_DIR okbuck -Dokbuck.wrapper=true $EXTRA_OKBUCK_ARGS &&
     updateOkBuckSuccess && success "PROCEEDING WITH BUCK" ) || die "OKBUCK FAILED"
 }
 
@@ -158,7 +172,7 @@ setupBuckBinary ( ) {
         fi
 
         # Check for current buck version
-        BUCK_VERSION=$(cat $WORKING_DIR/.buckversion)
+        BUCK_VERSION=$(cat $SCRIPT_DIR/.buckversion)
         if [[ ! -z "$BUCK_VERSION" ]]; then
             pushd "$BUCK_HOME" >/dev/null
             CURRENT_BUCK_VERSION=$(git rev-parse HEAD)

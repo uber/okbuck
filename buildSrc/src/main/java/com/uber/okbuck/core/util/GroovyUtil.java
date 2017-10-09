@@ -30,7 +30,7 @@ public final class GroovyUtil {
         new DependencyCache(project, DependencyUtils.createCacheDir(project, GROOVY_HOME_LOCATION + "/lib"))
                 .build(groovyConfig);
 
-        File groovyHome = new File(GROOVY_HOME_LOCATION);
+        File groovyHome = project.file(GROOVY_HOME_LOCATION);
 
         File groovyStarterConf = new File(groovyHome, "conf/groovy-starter.conf");
         FileUtil.copyResourceToProject("groovy/conf/groovy-starter.conf", groovyStarterConf);

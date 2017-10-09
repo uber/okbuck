@@ -6,6 +6,7 @@ import com.uber.okbuck.core.util.FileUtil
 import com.uber.okbuck.template.android.KeystoreRule
 
 import java.nio.file.Files
+import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 
 final class KeystoreRuleComposer extends BuckRuleComposer {
@@ -20,18 +21,18 @@ final class KeystoreRuleComposer extends BuckRuleComposer {
     static String compose(AndroidAppTarget target) {
         AndroidAppTarget.Keystore keystore = target.keystore
         if (keystore != null) {
-            File keyStoreGen = new File(keystore.path, STORE_FILE)
+            Path keyStoreGen = keystore.path.toPath().resolve(STORE_FILE)
             try {
-                Files.copy(keystore.storeFile.toPath(), keyStoreGen.toPath(), StandardCopyOption.REPLACE_EXISTING)
+                Files.copy(keystore.storeFile.toPath(), keyStoreGen, StandardCopyOption.REPLACE_EXISTING)
             } catch (IOException ignored) { }
 
             new KeystoreRule()
                     .alias(keystore.alias)
                     .storePassword(keystore.storePassword)
                     .keyPassword(keystore.keyPassword)
-                    .render(new File(keystore.path, STORE_FILE_PROPS))
+                    .render(keystore.path.toPath().resolve(STORE_FILE_PROPS))
 
-            return fileRule(FileUtil.getRelativePath(target.rootProject.projectDir, keyStoreGen))
+            return fileRule(FileUtil.getRelativePath(target.rootProject.projectDir, keyStoreGen.toFile()))
         } else {
             throw new IllegalStateException("${target.name} of ${target.path} has no signing config set!")
         }

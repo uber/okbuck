@@ -47,10 +47,10 @@ class DependencyCache {
         this.cacheDir = cacheDir
         this.fetchSources = rootProject.okbuck.intellij.sources
 
-        sources = new Store(new File("${OkBuckGradlePlugin.OKBUCK_STATE_DIR}/SOURCES"))
-        processors = new Store(new File("${OkBuckGradlePlugin.OKBUCK_STATE_DIR}/PROCESSORS"))
-        lintJars = new Store(new File("${OkBuckGradlePlugin.OKBUCK_STATE_DIR}/LINT_JARS"))
-        proguardConfigs = new Store(new File("${OkBuckGradlePlugin.OKBUCK_STATE_DIR}/PROGUARD_CONFIGS"))
+        sources = new Store(rootProject.file("${OkBuckGradlePlugin.OKBUCK_STATE_DIR}/SOURCES"))
+        processors = new Store(rootProject.file("${OkBuckGradlePlugin.OKBUCK_STATE_DIR}/PROCESSORS"))
+        lintJars = new Store(rootProject.file("${OkBuckGradlePlugin.OKBUCK_STATE_DIR}/LINT_JARS"))
+        proguardConfigs = new Store(rootProject.file("${OkBuckGradlePlugin.OKBUCK_STATE_DIR}/PROGUARD_CONFIGS"))
 
         if (forcedConfiguration) {
             Scope.from(project, Collections.singleton(forcedConfiguration)).external.each {
@@ -221,7 +221,7 @@ class DependencyCache {
         ExternalDependency dependency = forcedDeps.getOrDefault(externalDependency.versionless, externalDependency)
         String entry = getAarEntry(dependency, proguardConfigs, "proguard.txt", "-proguard.pro")
         if (entry) {
-            return new File(entry)
+            return rootProject.file(entry)
         } else {
             return null
         }
