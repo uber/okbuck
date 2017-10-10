@@ -2,6 +2,7 @@ package com.uber.okbuck.core.util;
 
 import java.io.File;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import com.android.build.gradle.AppPlugin;
 import com.android.build.gradle.LibraryPlugin;
@@ -77,9 +78,10 @@ public final class ProjectUtil {
                 .getArtifacts()
                 .getArtifacts()
                 .stream()
-                .map(artifactResult -> artifactResult.getId().getComponentIdentifier())
-                .filter(identifier -> identifier instanceof ModuleComponentIdentifier)
-                .map(componentIdentifier -> (ModuleComponentIdentifier) componentIdentifier)
+                .flatMap(artifactResult ->
+                    artifactResult.getId().getComponentIdentifier() instanceof ModuleComponentIdentifier
+                        ? Stream.of((ModuleComponentIdentifier) artifactResult.getId().getComponentIdentifier())
+                        : Stream.empty())
                 .filter(identifier -> (group.equals(identifier.getGroup()) &&
                         module.equals(identifier.getModule())))
                 .findFirst()
