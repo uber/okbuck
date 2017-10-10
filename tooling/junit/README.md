@@ -8,7 +8,7 @@ Run tests
 
 Perform Conversion
 ```
-./tools/junit/buck_to_junit.sh build/buck-test.xml build/buck-junit.xml
+./tooling/junit/buck_to_junit.sh build/buck-test.xml build/buck-junit.xml
 ```
 
 `build/buck-junit.xml` will contain the test results in junit xml format
