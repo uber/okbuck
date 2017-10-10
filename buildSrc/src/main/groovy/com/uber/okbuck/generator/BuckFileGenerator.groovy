@@ -243,10 +243,7 @@ final class BuckFileGenerator {
         Set<Rule> libRules = createRules((AndroidLibTarget) target, null, filterAndroidDepRules(mainApkTargetRules))
         rules.addAll(libRules)
 
-        Rule manifestRule = AndroidManifestRuleComposer.compose(target, target.instrumentation)
-        rules.add(manifestRule)
-
-        rules.add(AndroidInstrumentationApkRuleComposer.compose(filterAndroidDepRules(rules), ":${manifestRule.name}", mainApkTarget))
+        rules.add(AndroidInstrumentationApkRuleComposer.compose(filterAndroidDepRules(rules), target, mainApkTarget))
         rules.add(AndroidInstrumentationTestRuleComposer.compose(mainApkTarget))
         return rules
     }
