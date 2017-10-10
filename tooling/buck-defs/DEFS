@@ -1,0 +1,9 @@
+original_android_binary = android_binary
+def android_binary(
+    aapt_mode='aapt2',
+    **kwargs
+    ):
+  original_android_binary(
+    aapt_mode=aapt_mode,
+    **kwargs
+  )
