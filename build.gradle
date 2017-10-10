@@ -184,6 +184,8 @@ okbuck {
     dependencies {
         transform project(':dummy-transform')
     }
+
+    extraDefs += project.file('tooling/buck-defs/DEFS')
 }
 
 gradle.buildFinished {
