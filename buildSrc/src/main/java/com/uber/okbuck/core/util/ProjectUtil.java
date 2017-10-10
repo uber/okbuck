@@ -1,5 +1,8 @@
 package com.uber.okbuck.core.util;
 
+import java.io.File;
+import java.util.Map;
+
 import com.android.build.gradle.AppPlugin;
 import com.android.build.gradle.LibraryPlugin;
 import com.uber.okbuck.OkBuckGradlePlugin;
@@ -8,7 +11,6 @@ import com.uber.okbuck.core.model.base.ProjectType;
 import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.model.base.Target;
 import com.uber.okbuck.core.model.base.TargetCache;
-
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier;
 import org.gradle.api.plugins.GroovyPlugin;
@@ -17,9 +19,6 @@ import org.gradle.api.plugins.PluginContainer;
 import org.gradle.api.plugins.scala.ScalaPlugin;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper;
-
-import java.io.File;
-import java.util.Map;
 
 public final class ProjectUtil {
 
@@ -78,14 +77,13 @@ public final class ProjectUtil {
                 .getArtifacts()
                 .getArtifacts()
                 .stream()
-                .filter(resolvedArtifactResult -> {
-                    ModuleComponentIdentifier identifier =
-                            (ModuleComponentIdentifier) resolvedArtifactResult.getId().getComponentIdentifier();
-                    return (group.equals(identifier.getGroup()) &&
-                            module.equals(identifier.getModule()));
-                })
+                .map(artifactResult -> artifactResult.getId().getComponentIdentifier())
+                .filter(identifier -> identifier instanceof ModuleComponentIdentifier)
+                .map(componentIdentifier -> (ModuleComponentIdentifier) componentIdentifier)
+                .filter(identifier -> (group.equals(identifier.getGroup()) &&
+                        module.equals(identifier.getModule())))
                 .findFirst()
-                .map(r -> ((ModuleComponentIdentifier) r.getId().getComponentIdentifier()).getVersion())
+                .map(ModuleComponentIdentifier::getVersion)
                 .orElse(null);
     }
 }
