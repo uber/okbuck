@@ -33,6 +33,11 @@ final class AndroidBinaryRuleComposer extends AndroidBuckRuleComposer {
             "\$(exe ${it}) \$IN_JARS_DIR \$OUT_JARS_DIR \$ANDROID_BOOTCLASSPATH;"
         }.join(" ")
 
+        List<String> testTargets = []
+        if (target.instrumentationTarget) {
+            testTargets.add(":${instrumentationTest(target)}")
+        }
+
         return new AndroidBinaryRule()
                 .manifest(manifestRuleName)
                 .keystore(keystoreRuleName)

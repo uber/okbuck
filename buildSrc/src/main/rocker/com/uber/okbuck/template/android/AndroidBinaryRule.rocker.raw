@@ -9,6 +9,7 @@ int linearAllocHardLimit,
 Collection primaryDexPatterns,
 Collection cpuFilters,
 Collection preprocessJavaClassesDeps,
+Collection testTargets,
 Map placeholders,
 boolean includesVectorDrawables,
 boolean exopackage,
@@ -64,5 +65,12 @@ boolean multidexEnabled,
         }
         @},
     @},
+}
+@if (valid(testTargets)) {
+    tests = [
+    @for (testTarget : testTargets) {
+        '@testTarget',
+    }
+    ],
 }
 }
