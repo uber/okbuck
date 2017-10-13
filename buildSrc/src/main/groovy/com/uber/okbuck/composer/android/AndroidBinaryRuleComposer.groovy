@@ -52,6 +52,7 @@ final class AndroidBinaryRuleComposer extends AndroidBuckRuleComposer {
                 .includesVectorDrawables(target.includesVectorDrawables)
                 .preprocessJavaClassesDeps(transformRuleNames)
                 .preprocessJavaClassesBash(bashCommand)
+                .testTargets(testTargets)
                 .ruleType(RuleType.ANDROID_BINARY.getBuckName())
                 .defaultVisibility()
                 .deps(deps)
