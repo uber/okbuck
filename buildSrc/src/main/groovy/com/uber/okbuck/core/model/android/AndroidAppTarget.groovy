@@ -142,7 +142,7 @@ class AndroidAppTarget extends AndroidLibTarget {
 
             // Copy over any mapping files if specified
             if (proguardMappingFile) {
-                File genProguardMappingFile = getGenPath(proguardMappingFile.name)
+                File genProguardMappingFile = getGenPath("proguard.map")
                 try {
                     LOG.info("Creating symlink {} -> {}", genProguardMappingFile, proguardMappingFile)
                     Files.createSymbolicLink(genProguardMappingFile.toPath(), proguardMappingFile.toPath())

@@ -15,6 +15,8 @@ public class WrapperExtension {
      * List of changed files to trigger okbuck runs on
      */
     public Set<String> watch = Sets.newHashSet(
+            "**/*.pro",
+            "**/*.map",
             "**/*.gradle",
             "**/src/**/AndroidManifest.xml",
             "**/gradle-wrapper.properties",

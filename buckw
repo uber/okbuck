@@ -83,9 +83,11 @@ getChanges ( ) {
     "expression": ["allof",
         ["type", "f"],
         ["anyof",
-            ["suffix", "sq"],
             ["suffix", "gradle"],
-            ["name", ["gradle-wrapper.properties", "lint.xml"]],
+            ["suffix", "map"],
+            ["suffix", "sq"],
+            ["suffix", "pro"],
+            ["name", ["lint.xml", "gradle-wrapper.properties"]],
             ["match", "**/src/**/AndroidManifest.xml", "wholename"]
         ],
         ["not",
