@@ -38,6 +38,10 @@ final class AndroidBinaryRuleComposer extends AndroidBuckRuleComposer {
             testTargets.add(":${instrumentationTest(target)}")
         }
 
+        if (target.proguardMapping) {
+            deps.add(fileRule(target.proguardMapping))
+        }
+
         return new AndroidBinaryRule()
                 .manifest(manifestRuleName)
                 .keystore(keystoreRuleName)

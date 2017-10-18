@@ -157,6 +157,10 @@ class AndroidAppTarget extends AndroidLibTarget {
         }
     }
 
+    String getProguardMapping() {
+        return proguardMappingFile ? FileUtil.getRelativePath(project.rootDir, getGenPath("proguard.map")) : null
+    }
+
     List<Map<String, String>> getTransforms() {
         TransformExtension transform = okbuck.transform
         return getProp(transform.transforms, ImmutableList.of())
