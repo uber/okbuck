@@ -94,8 +94,8 @@ abstract class AndroidTarget extends JavaLibTarget {
         hasKotlinAndroidExtensions = project.plugins.hasPlugin(KOTLIN_ANDROID_EXTENSIONS_MODULE)
 
         // Check if any rules are excluded
-        lintExclude = okbuck.lintExclude.contains(name)
-        testExclude = okbuck.testExclude.contains(name)
+        lintExclude = ((Set) getProp(okbuck.lintExclude, ImmutableSet.of())).contains(name)
+        testExclude = ((Set) getProp(okbuck.testExclude, ImmutableSet.of())).contains(name)
 
         try {
             hasExperimentalKotlinAndroidExtensions = hasKotlinAndroidExtensions &&

@@ -65,13 +65,13 @@ public class OkBuckExtension {
      * List of build types/variant names for which to exclude generating lint rules
      */
     @Input
-    public Set<String> lintExclude = new HashSet<>();
+    public Map<String, Set<String>> lintExclude = new HashMap<>();
 
     /**
      * List of build types/variant names for which to exclude generating test rules
      */
     @Input
-    public Set<String> testExclude = new HashSet<>();
+    public Map<String, Set<String>> testExclude = new HashMap<>();
 
     /**
      * Set of projects to generate buck configs for. Default is all subprojects of root project.
