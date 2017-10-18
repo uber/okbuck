@@ -38,7 +38,8 @@ final class AndroidBinaryRuleComposer extends AndroidBuckRuleComposer {
             testTargets.add(":${instrumentationTest(target)}")
         }
 
-        if (target.proguardMapping) {
+        String proguardConfig = target.proguardConfig
+        if (proguardConfig && target.proguardMapping) {
             deps.add(fileRule(target.proguardMapping))
         }
 
@@ -51,7 +52,7 @@ final class AndroidBinaryRuleComposer extends AndroidBuckRuleComposer {
                 .exopackage(target.exopackage != null)
                 .cpuFilters(mappedCpuFilters)
                 .minifyEnabled(target.minifyEnabled)
-                .proguardConfig(fileRule(target.proguardConfig))
+                .proguardConfig(fileRule(proguardConfig))
                 .placeholders(target.placeholders)
                 .includesVectorDrawables(target.includesVectorDrawables)
                 .preprocessJavaClassesDeps(transformRuleNames)
