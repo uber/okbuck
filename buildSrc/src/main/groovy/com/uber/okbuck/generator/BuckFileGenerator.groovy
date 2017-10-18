@@ -29,8 +29,6 @@ import com.uber.okbuck.core.model.java.JavaLibTarget
 import com.uber.okbuck.core.model.kotlin.KotlinLibTarget
 import com.uber.okbuck.core.model.scala.ScalaLibTarget
 import com.uber.okbuck.core.util.ProjectUtil
-import com.uber.okbuck.extension.LintExtension
-import com.uber.okbuck.extension.OkBuckExtension
 import com.uber.okbuck.template.android.AndroidRule
 import com.uber.okbuck.template.android.ResourceRule
 import com.uber.okbuck.template.core.Rule
@@ -183,7 +181,7 @@ final class BuckFileGenerator {
         ))
 
         // Test
-        if (target.robolectric && target.test.sources && !target.isTest) {
+        if (target.robolectricEnabled && target.test.sources && !target.isTest) {
             androidLibRules.add(AndroidTestRuleComposer.compose(
                     target,
                     deps,
@@ -192,9 +190,8 @@ final class BuckFileGenerator {
                     appClass))
         }
 
-        OkBuckExtension okbuck = target.rootProject.okbuck
-        LintExtension lint = okbuck.lint
-        if (!lint.disabled) {
+        // Lint
+        if (target.lintEnabled) {
             androidLibRules.add(LintRuleComposer.compose(target))
         }
 

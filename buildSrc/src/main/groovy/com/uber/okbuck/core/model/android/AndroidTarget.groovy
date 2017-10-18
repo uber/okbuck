@@ -50,6 +50,8 @@ abstract class AndroidTarget extends JavaLibTarget {
     final boolean isKotlin
     final boolean hasKotlinAndroidExtensions
     final boolean hasExperimentalKotlinAndroidExtensions
+    final boolean lintExclude
+    final boolean testExclude
 
     private String manifestPath
     private String packageName
@@ -90,6 +92,10 @@ abstract class AndroidTarget extends JavaLibTarget {
         // Check if kotlin
         isKotlin = project.plugins.hasPlugin(KotlinAndroidPluginWrapper.class)
         hasKotlinAndroidExtensions = project.plugins.hasPlugin(KOTLIN_ANDROID_EXTENSIONS_MODULE)
+
+        // Check if any rules are excluded
+        lintExclude = okbuck.lintExclude.contains(name)
+        testExclude = okbuck.testExclude.contains(name)
 
         try {
             hasExperimentalKotlinAndroidExtensions = hasKotlinAndroidExtensions &&
@@ -138,8 +144,12 @@ abstract class AndroidTarget extends JavaLibTarget {
         return project.android.lintOptions
     }
 
-    boolean getRobolectric() {
-        return okbuck.test.robolectric
+    boolean getRobolectricEnabled() {
+        return okbuck.test.robolectric && !testExclude
+    }
+
+    boolean getLintEnabled() {
+        return !okbuck.lint.disabled && !lintExclude
     }
 
     @Override
