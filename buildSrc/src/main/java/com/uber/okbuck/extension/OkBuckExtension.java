@@ -62,6 +62,18 @@ public class OkBuckExtension {
     public Map<String, File> proguardMappingFile = new HashMap<>();
 
     /**
+     * List of build types/variant names for which to exclude generating lint rules
+     */
+    @Input
+    public Set<String> lintExclude = new HashSet<>();
+
+    /**
+     * List of build types/variant names for which to exclude generating test rules
+     */
+    @Input
+    public Set<String> testExclude = new HashSet<>();
+
+    /**
      * Set of projects to generate buck configs for. Default is all subprojects of root project.
      */
     @SuppressWarnings("CanBeFinal")
