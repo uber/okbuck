@@ -1,11 +1,11 @@
 package com.uber.okbuck.composer.android
 
-import com.google.common.collect.ImmutableSet
 import com.uber.okbuck.core.model.android.AndroidAppTarget
 import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.core.util.TransformUtil
 import com.uber.okbuck.template.android.AndroidBinaryRule
 import com.uber.okbuck.template.core.Rule
+import org.apache.commons.lang3.tuple.Pair
 
 final class AndroidBinaryRuleComposer extends AndroidBuckRuleComposer {
 
@@ -27,7 +27,10 @@ final class AndroidBinaryRuleComposer extends AndroidBuckRuleComposer {
             CPU_FILTER_MAP.get(cpuFilter)
         }.findAll { String cpuFilter -> cpuFilter != null }
 
-        String bashCommand = TransformUtil.getBashCommand(target)
+        Pair<String, List<String>> results = TransformUtil.getBashCommandAndTransformDeps(target)
+        String bashCommand = results.left
+        List<String> transformDeps = results.right
+        transformDeps.add(TransformUtil.TRANSFORM_RULE)
 
         List<String> testTargets = []
         if (target.instrumentationTarget) {
@@ -51,7 +54,7 @@ final class AndroidBinaryRuleComposer extends AndroidBuckRuleComposer {
                 .proguardConfig(fileRule(proguardConfig))
                 .placeholders(target.placeholders)
                 .includesVectorDrawables(target.includesVectorDrawables)
-                .preprocessJavaClassesDeps(ImmutableSet.of(TransformUtil.TRANSFORM_RULE))
+                .preprocessJavaClassesDeps(transformDeps)
                 .preprocessJavaClassesBash(bashCommand)
                 .testTargets(testTargets)
                 .ruleType(RuleType.ANDROID_BINARY.getBuckName())

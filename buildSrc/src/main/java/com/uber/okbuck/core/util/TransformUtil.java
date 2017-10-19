@@ -10,18 +10,24 @@ import com.uber.okbuck.core.model.android.AndroidAppTarget;
 import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.template.config.TransformBuckFile;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public final class TransformUtil {
 
-    public static final String TRANSFORM_CACHE = OkBuckGradlePlugin.DEFAULT_CACHE_PATH + "/transform";
+    private static final String TRANSFORM_CACHE = OkBuckGradlePlugin.DEFAULT_CACHE_PATH + "/transform";
     public static final String TRANSFORM_RULE = "//" + TRANSFORM_CACHE + ":okbuck_transform";
 
     public static final String CONFIGURATION_TRANSFORM = "transform";
@@ -62,28 +68,48 @@ public final class TransformUtil {
         FileUtil.copyResourceToProject(TRANSFORM_FOLDER + TRANSFORM_JAR, new File(cacheDir, TRANSFORM_JAR));
     }
 
-    public static String getBashCommand(AndroidAppTarget target) {
-        return String.join(" ", target.getTransforms().stream().map(
-                TransformUtil::getBashCommand
-        ).collect(Collectors.toList()));
+    public static Pair<String, List<String>> getBashCommandAndTransformDeps(AndroidAppTarget target) {
+        List<Pair<String, String>> results = target.getTransforms().stream().map(
+                it -> getBashCommandAndTransformDeps(target, it)
+        ).collect(Collectors.toList());
+        return Pair.of(
+          String.join(" ", results.stream().map(Pair::getLeft).collect(Collectors.toList())),
+                results.stream().map(Pair::getRight).filter(Objects::nonNull).collect(Collectors.toList())
+        );
     }
 
-    private static String getBashCommand(Map<String, String> options) {
+    private static Pair<String, String> getBashCommandAndTransformDeps(AndroidAppTarget target, Map<String, String> options) {
         String transformClass = options.get(OPT_TRANSFORM_CLASS);
         String configFile = options.get(OPT_CONFIG_FILE);
-
         StringBuilder bashCmd = new StringBuilder(PREFIX);
+
+        String configFileRule = null;
         if (transformClass != null) {
             bashCmd.append("-Dokbuck.transformClass=");
             bashCmd.append(transformClass);
             bashCmd.append(" ");
         }
         if (configFile != null) {
-            bashCmd.append("-Dokbuck.configFile=");
-            bashCmd.append(configFile);
-            bashCmd.append(" ");
+            configFileRule =
+                    getTransformConfigRuleForFile(target.getProject(), target.getRootProject().file(configFile));
+            bashCmd.append("-Dokbuck.configFile=$(location ");
+            bashCmd.append(configFileRule);
+            bashCmd.append(") ");
         }
         bashCmd.append(SUFFIX);
-        return bashCmd.toString();
+        return Pair.of(bashCmd.toString(), configFileRule);
+    }
+
+    private static String getTransformConfigRuleForFile(Project project, File config) {
+        String path = getTransformFilePathForFile(project, config);
+        File configFile = new File(project.getRootDir(), TransformUtil.TRANSFORM_CACHE + File.pathSeparator + path);
+        try {
+            Files.copy(config.toPath(), configFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException ignored) { }
+        return "//" + TransformUtil.TRANSFORM_CACHE + ":" + path;
+    }
+
+    private static String getTransformFilePathForFile(Project project, File config) {
+        return FileUtil.getRelativePath(project.getRootDir(), config).replaceAll("/", "_");
     }
 }
