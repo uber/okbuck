@@ -102,7 +102,7 @@ public final class TransformUtil {
 
     private static String getTransformConfigRuleForFile(Project project, File config) {
         String path = getTransformFilePathForFile(project, config);
-        File configFile = new File(project.getRootDir(), TransformUtil.TRANSFORM_CACHE + File.pathSeparator + path);
+        File configFile = new File(project.getRootDir(), TransformUtil.TRANSFORM_CACHE + File.separator + path);
         try {
             Files.copy(config.toPath(), configFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException ignored) { }
