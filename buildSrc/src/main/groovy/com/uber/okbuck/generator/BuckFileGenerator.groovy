@@ -155,9 +155,6 @@ final class BuckFileGenerator {
         // Res
         androidLibRules.add(AndroidResourceRuleComposer.compose(target))
 
-        Rule manifestRule = AndroidManifestRuleComposer.compose(target)
-        rules.add(manifestRule)
-
         // BuildConfig
         androidLibRules.add(AndroidBuildConfigRuleComposer.compose(target))
 
@@ -175,7 +172,6 @@ final class BuckFileGenerator {
         androidLibRules.add(AndroidLibraryRuleComposer.compose(
                 target,
                 deps,
-                ":${manifestRule.name()}",
                 aidlRuleNames,
                 appClass
         ))
@@ -185,7 +181,6 @@ final class BuckFileGenerator {
             androidLibRules.add(AndroidTestRuleComposer.compose(
                     target,
                     deps,
-                    ":${manifestRule.name()}",
                     aidlRuleNames,
                     appClass))
         }
