@@ -15,7 +15,6 @@ import com.uber.okbuck.composer.android.GenAidlRuleComposer
 import com.uber.okbuck.composer.android.KeystoreRuleComposer
 import com.uber.okbuck.composer.android.LintRuleComposer
 import com.uber.okbuck.composer.android.PreBuiltNativeLibraryRuleComposer
-import com.uber.okbuck.composer.android.TrasformDependencyWriterRuleComposer
 import com.uber.okbuck.composer.java.JavaLibraryRuleComposer
 import com.uber.okbuck.composer.java.JavaTestRuleComposer
 import com.uber.okbuck.core.model.android.AndroidAppTarget
@@ -219,11 +218,8 @@ final class BuckFileGenerator {
             deps.add(":${exoPackageRule.name()}")
         }
 
-        List<Rule> transformGenRules = TrasformDependencyWriterRuleComposer.compose(target)
-        rules.addAll(transformGenRules)
-
         rules.add(AndroidBinaryRuleComposer.compose(
-                target, deps, ":${manifestRule.name()}", keystoreRuleName, transformGenRules))
+                target, deps, ":${manifestRule.name()}", keystoreRuleName))
 
         return rules
     }
