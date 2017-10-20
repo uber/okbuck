@@ -51,7 +51,7 @@ class AndroidLibTarget extends AndroidTarget {
         }
 
         plugin.append("-Xplugin=")
-        plugin.append(KotlinUtil.KOTLIN_HOME_LOCATION)
+        plugin.append(KotlinUtil.KOTLIN_LIBRARIES_LOCATION)
         plugin.append(File.separator)
         plugin.append("kotlin-android-extensions.jar")
 
