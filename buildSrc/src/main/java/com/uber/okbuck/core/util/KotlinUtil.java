@@ -12,19 +12,23 @@ import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 
 public final class KotlinUtil {
 
+    public static final String KOTLIN_HOME_LOCATION = OkBuckGradlePlugin.DEFAULT_CACHE_PATH + "/kotlin_home";
+    public static final String KOTLIN_ANDROID_EXTENSIONS_MODULE = "kotlin-android-extensions";
+
     private static final String KOTLIN_DEPS_CONFIG = "okbuck_kotlin_deps";
     private static final String KOTLIN_GROUP = "org.jetbrains.kotlin";
+    private static final String KOTLIN_LIBRARIES_LOCATION = KOTLIN_HOME_LOCATION + "/libexec/lib";
     private static final String KOTLIN_COMPILER_MODULE = "kotlin-compiler-embeddable";
     private static final String KOTLIN_GRADLE_MODULE = "kotlin-gradle-plugin";
     private static final String KOTLIN_STDLIB_MODULE = "kotlin-stdlib";
-    public static final String KOTLIN_ANDROID_EXTENSIONS_MODULE = "kotlin-android-extensions";
-    public static final String KOTLIN_HOME_LOCATION = OkBuckGradlePlugin.DEFAULT_CACHE_PATH + "/kotlin_home";
+    private static final String KOTLIN_REFLECT_MODULE = "kotlin-reflect";
+    private static final String KOTLIN_SCRIPT_RUNTIME_MODULE = "kotlin-script-runtime";
+    private static final String KOTLIN_ANNOTATION_PROCESSING_MODULE = "kotlin-annotation-processing";
 
     private KotlinUtil() {}
 
@@ -36,13 +40,19 @@ public final class KotlinUtil {
         handler.add(KOTLIN_DEPS_CONFIG, String.format("%s:%s:%s", KOTLIN_GROUP, KOTLIN_COMPILER_MODULE, kotlinVersion));
         handler.add(KOTLIN_DEPS_CONFIG, String.format("%s:%s:%s", KOTLIN_GROUP, KOTLIN_STDLIB_MODULE, kotlinVersion));
         handler.add(KOTLIN_DEPS_CONFIG, String.format("%s:%s:%s", KOTLIN_GROUP, KOTLIN_ANDROID_EXTENSIONS_MODULE, kotlinVersion));
+        handler.add(KOTLIN_DEPS_CONFIG, String.format("%s:%s:%s", KOTLIN_GROUP, KOTLIN_REFLECT_MODULE, kotlinVersion));
+        handler.add(KOTLIN_DEPS_CONFIG, String.format("%s:%s:%s", KOTLIN_GROUP, KOTLIN_SCRIPT_RUNTIME_MODULE, kotlinVersion));
+        handler.add(KOTLIN_DEPS_CONFIG, String.format("%s:%s:%s", KOTLIN_GROUP, KOTLIN_ANNOTATION_PROCESSING_MODULE, kotlinVersion));
 
-        new DependencyCache(project, DependencyUtils.createCacheDir(project, KOTLIN_HOME_LOCATION)).build(kotlinConfig);
+        new DependencyCache(project, DependencyUtils.createCacheDir(project, KOTLIN_LIBRARIES_LOCATION)).build(kotlinConfig);
 
-        Path kotlinHome = project.file(KOTLIN_HOME_LOCATION).toPath();
-        removeVersions(kotlinHome, KOTLIN_COMPILER_MODULE, "kotlin-compiler");
-        removeVersions(kotlinHome, KOTLIN_STDLIB_MODULE);
-        removeVersions(kotlinHome, KOTLIN_ANDROID_EXTENSIONS_MODULE);
+        Path kotlinLibraries = project.file(KOTLIN_LIBRARIES_LOCATION).toPath();
+        removeVersions(kotlinLibraries, KOTLIN_COMPILER_MODULE, "kotlin-compiler");
+        removeVersions(kotlinLibraries, KOTLIN_STDLIB_MODULE);
+        removeVersions(kotlinLibraries, KOTLIN_ANDROID_EXTENSIONS_MODULE);
+        removeVersions(kotlinLibraries, KOTLIN_REFLECT_MODULE);
+        removeVersions(kotlinLibraries, KOTLIN_SCRIPT_RUNTIME_MODULE);
+        removeVersions(kotlinLibraries, KOTLIN_ANNOTATION_PROCESSING_MODULE);
     }
 
     private static void removeVersions(Path dir, String toRemove) {
