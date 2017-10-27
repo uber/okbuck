@@ -69,7 +69,7 @@ public class JarsTransformOutputProvider implements TransformOutputProvider {
 
 
         // If the full absolute path was in name.
-        File file;
+        final File file;
         if (name.startsWith(inputFolder.getAbsolutePath())) {
             String[] nameParts = name.split(File.separator);
             LinkedList<String> baseFolderParts = new LinkedList(Arrays.asList(nameParts));
