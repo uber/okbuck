@@ -121,7 +121,7 @@ abstract class AndroidTarget extends JavaLibTarget {
     Scope getMain() {
         return Scope.from(
                 project,
-                ImmutableSet.of(baseVariant.compileConfiguration),
+                ImmutableSet.of(baseVariant.compileConfiguration.collect { it.name }),
                 getSources(baseVariant),
                 null,
                 getJavaCompilerOptions(baseVariant))
