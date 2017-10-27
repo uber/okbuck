@@ -17,7 +17,7 @@ public class JarsTransformOutputProviderTest {
                     + "__app.rxscreenshotdetector-release.aar#aar_prebuilt_jar__/classes.jar";
 
     private static final String INPUT =
-            "buck-out/bin/app/java_classes_preprocess_it_bin_prodDebug/";
+            "buck-out/bin/app/java_classes_preprocess_in_bin_prodDebug/";
 
     private static final String OUTPUT =
             "buck-out/bin/app/java_classes_preprocess_out_bin_prodDebug/";
