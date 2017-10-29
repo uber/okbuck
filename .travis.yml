@@ -10,7 +10,7 @@ before_script:
   - export EXTRA_OKBUCK_ARGS="--quiet --stacktrace"
   - export ANDROID_HOME="$HOME"/android-sdk
   - mkdir -p "$ANDROID_HOME"
-  - export ANDROID_SDK_FILE_NAME=sdk-tools-darwin-3859397.zip
+  - export ANDROID_SDK_FILE_NAME=sdk-tools-linux-3859397.zip
   - sudo apt-get update -q
   - sudo apt-get install -y curl unzip
   - curl --fail https://dl.google.com/android/repository/$ANDROID_SDK_FILE_NAME --silent --location --output $ANDROID_SDK_FILE_NAME
