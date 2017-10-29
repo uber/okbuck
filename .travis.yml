@@ -5,7 +5,7 @@ jdk: oraclejdk8
 
 dist: precise
 
-before_script:
+before_install:
   - export SKIP_OKBUCK=true
   - export EXTRA_OKBUCK_ARGS="--quiet --stacktrace"
   - export ANDROID_HOME="$HOME"/android-sdk
