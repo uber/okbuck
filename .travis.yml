@@ -22,8 +22,9 @@ before_install:
   - eval $ANDROID_SDK_INSTALL_COMPONENT '"build-tools;26.0.0"'
   - eval $ANDROID_SDK_INSTALL_COMPONENT '"platforms;android-26"'
   - eval $ANDROID_SDK_INSTALL_COMPONENT '"extras;android;m2repository"'
-  - export PATH="$PATH:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools"
-  - echo no | android create avd --force -n test -t android-18 --abi armeabi-v7a
+  - eval $ANDROID_SDK_INSTALL_COMPONENT '"system-images;android-18;default;armeabi-v7a"'
+  - export PATH="$PATH:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator"
+  - echo no | avdmanager create avd -f -n test -k "system-images;android-18;default;armeabi-v7a"
   - emulator -avd test -no-audio -no-window &
 
 script:
