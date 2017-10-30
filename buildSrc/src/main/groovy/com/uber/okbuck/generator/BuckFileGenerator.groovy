@@ -155,7 +155,9 @@ final class BuckFileGenerator {
         androidLibRules.add(AndroidResourceRuleComposer.compose(target))
 
         // BuildConfig
-        androidLibRules.add(AndroidBuildConfigRuleComposer.compose(target))
+        if (target.shouldGenerateBuildConfig()) {
+            androidLibRules.add(AndroidBuildConfigRuleComposer.compose(target))
+        }
 
         // Jni
         androidLibRules.addAll(target.jniLibs.collect { String jniLib ->

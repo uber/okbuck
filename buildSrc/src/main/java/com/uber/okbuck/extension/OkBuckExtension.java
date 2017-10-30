@@ -99,6 +99,12 @@ public class OkBuckExtension {
     public boolean resourceUnion = true;
 
     /**
+     * Whether to generate android_build_config rules for library projects
+     */
+    @Input
+    public boolean libraryBuildConfig = true;
+
+    /**
      * List of exclude patterns for resources to be processed by aapt
      */
     @Input
