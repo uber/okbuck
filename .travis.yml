@@ -27,6 +27,9 @@ before_install:
   - echo no | avdmanager create avd -f -n test -k "system-images;android-18;default;armeabi-v7a"
   - emulator -avd test -no-audio -no-window &
 
+install:
+  - echo "Override default Travis install step to avoid unnecessary './gradlew assemble'."
+
 script:
   - SKIP_OKBUCK= ./buckw --version
   - ./buckw targets --type android_binary java_test groovy_test robolectric_test kotlin_test scala_test | xargs ./buckw build -v 0
