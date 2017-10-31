@@ -56,7 +56,8 @@ public final class RobolectricUtil {
         API_23("org.robolectric:android-all:6.0.1_r3-robolectric-0", null),
         API_24("org.robolectric:android-all:7.0.0_r1-robolectric-0", null),
         API_25("org.robolectric:android-all:7.1.0_r7-robolectric-0", null),
-        API_26("org.robolectric:android-all:8.0.0_r4-robolectric-0", null);
+        API_26("org.robolectric:android-all:8.0.0_r4-robolectric-0", null),
+        API_27("org.robolectric:android-all:8.1.0-robolectric-4402310", null);
 
         private final String androidJar;
         private final String shadowsJar;
