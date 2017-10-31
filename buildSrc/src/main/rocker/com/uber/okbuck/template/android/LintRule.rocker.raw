@@ -46,12 +46,12 @@ okbuck_lint(
     lint_options = [
 @if (valid(sources)) {
     @for (source : sorted(sources)) {
-        '--sources {}/@source'.format(get_base_path()),
+        '--sources @source',
     }
 }
 @if (valid(resources)) {
     @for (resource : sorted(resources)) {
-        '--resources {}/@resource'.format(get_base_path()),
+        '--resources @resource',
     }
 }
 @if (lintOptions.isAbortOnError()) {
