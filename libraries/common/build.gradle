@@ -8,12 +8,8 @@ android {
 
     publishNonDefault true
     productFlavors {
-        free {
-            buildConfigField "String", "COMMON_CONFIG", "\"free\""
-        }
-        paid {
-            buildConfigField "String", "COMMON_CONFIG", "\"paid\""
-        }
+        free {}
+        paid {}
     }
 }
 

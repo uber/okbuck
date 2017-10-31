@@ -83,6 +83,12 @@ class AndroidAppTarget extends AndroidLibTarget {
     }
 
     @Override
+    boolean shouldGenerateBuildConfig() {
+        // Always generate for apps
+        return true
+    }
+
+    @Override
     String processManifestXml(GPathResult manifestXml) {
         if (isTest) {
             manifestXml.@package = applicationId + applicationIdSuffix + ".test"

@@ -10,7 +10,7 @@ public class Calc {
     }
 
     public int add(int a, int b) {
-        mCalcMonitor.addCalled(BuildConfig.COMMON_CONFIG);
+        mCalcMonitor.addCalled("flavor");
         return a + b;
     }
 }

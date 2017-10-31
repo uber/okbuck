@@ -2,10 +2,6 @@ apply plugin: 'com.android.library'
 apply plugin: 'me.tatarka.retrolambda'
 
 android {
-    defaultConfig {
-        buildConfigField "String", "DUMMY_CONFIG", "\"default\""
-    }
-
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
@@ -19,12 +15,8 @@ android {
 
     publishNonDefault true
     productFlavors {
-        free {
-            buildConfigField "String", "DUMMY_CONFIG", "\"free\""
-        }
-        paid {
-            buildConfigField "String", "DUMMY_CONFIG", "\"paid\""
-        }
+        free {}
+        paid {}
     }
 }
 

@@ -186,6 +186,7 @@ okbuck {
     }
 
     extraDefs += project.file('tooling/buck-defs/DEFS')
+    libraryBuildConfig = false
 }
 
 gradle.buildFinished {

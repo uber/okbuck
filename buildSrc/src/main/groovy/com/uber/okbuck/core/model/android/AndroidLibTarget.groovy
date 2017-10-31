@@ -27,6 +27,10 @@ class AndroidLibTarget extends AndroidTarget {
         return ManifestMerger2.MergeType.LIBRARY
     }
 
+    boolean shouldGenerateBuildConfig() {
+        return okbuck.libraryBuildConfig
+    }
+
     List<String> getKotlincArguments() {
         if (!hasKotlinAndroidExtensions) {
             return ImmutableList.of()
