@@ -13,7 +13,6 @@ Collection aptDeps,
 Collection providedDeps,
 Collection libDeps,
 Collection options,
-Collection postprocessClassesCommands,
 Collection jvmArgs,
 Map env,
 RockerBody content
@@ -86,13 +85,6 @@ lib_deps = []
     extra_arguments = [
     @for (option : options) {
         '@option',
-    }
-    ],
-}
-@if (valid(postprocessClassesCommands)) {
-    postprocess_classes_commands = [
-    @for (postprocessClassesCommand : postprocessClassesCommands) {
-        '@postprocessClassesCommand',
     }
     ],
 }

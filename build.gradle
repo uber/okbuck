@@ -9,7 +9,6 @@ buildscript {
         classpath deps.build.androidPlugin
         classpath deps.build.butterKnifePlugin
         classpath deps.build.kotlinPlugin
-        classpath deps.build.retrolambdaPlugin
         classpath deps.build.sqlDelightPlugin
         classpath deps.build.shadowJar
     }
@@ -41,13 +40,8 @@ subprojects { project ->
 }
 
 def addCommonConfigurationForJavaModules(Project project) {
-    if (project.plugins.hasPlugin('me.tatarka.retrolambda')) {
-        project.sourceCompatibility = JavaVersion.VERSION_1_8
-        project.targetCompatibility = JavaVersion.VERSION_1_8
-    } else {
-        project.sourceCompatibility = JavaVersion.VERSION_1_7
-        project.targetCompatibility = JavaVersion.VERSION_1_7
-    }
+    project.sourceCompatibility = JavaVersion.VERSION_1_8
+    project.targetCompatibility = JavaVersion.VERSION_1_8
 }
 
 def addCommonConfigurationForAndroidModules(Project project) {
@@ -64,13 +58,8 @@ def addCommonConfigurationForAndroidModules(Project project) {
         }
 
         compileOptions {
-            if (project.plugins.hasPlugin('me.tatarka.retrolambda')) {
-                sourceCompatibility JavaVersion.VERSION_1_8
-                targetCompatibility JavaVersion.VERSION_1_8
-            } else {
-                sourceCompatibility JavaVersion.VERSION_1_7
-                targetCompatibility JavaVersion.VERSION_1_7
-            }
+            sourceCompatibility JavaVersion.VERSION_1_8
+            targetCompatibility JavaVersion.VERSION_1_8
         }
 
         lintOptions {
@@ -81,6 +70,13 @@ def addCommonConfigurationForAndroidModules(Project project) {
     def variants
     if (project.plugins.hasPlugin('com.android.application')) {
         project.android {
+            defaultConfig {
+                // Silly option to keep AGP happy till we can upgrade to 3.x
+                jackOptions {
+                    enabled true
+                }
+            }
+
             signingConfigs {
                 debug {
                     storeFile project.rootProject.file('config/signing/debug.keystore')

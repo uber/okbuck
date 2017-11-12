@@ -19,6 +19,7 @@ boolean multidexEnabled,
 @com.uber.okbuck.template.base.BuckRule.template() -> {
     manifest = '@manifest',
     keystore = '@keystore',
+    dex_tool = 'd8',
 @if (exopackage) {
     exopackage_modes = ['secondary_dex'],
 }

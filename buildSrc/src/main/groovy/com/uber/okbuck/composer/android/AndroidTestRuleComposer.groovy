@@ -3,7 +3,7 @@ package com.uber.okbuck.composer.android
 import com.google.common.collect.ImmutableSet
 import com.uber.okbuck.core.model.android.AndroidLibTarget
 import com.uber.okbuck.core.model.base.RuleType
-import com.uber.okbuck.core.util.RetrolambdaUtil
+import com.uber.okbuck.core.util.D8Util
 import com.uber.okbuck.core.util.RobolectricUtil
 import com.uber.okbuck.template.android.AndroidRule
 import com.uber.okbuck.template.core.Rule
@@ -34,11 +34,7 @@ final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
         Set<String> providedDeps = []
         providedDeps.addAll(external(target.testProvided.externalDeps))
         providedDeps.addAll(targets(target.testProvided.targetDeps))
-        providedDeps.removeAll(testDeps)
-
-        if (target.retrolambda) {
-            providedDeps.add(RetrolambdaUtil.getRtStubJarRule())
-        }
+        providedDeps.add(D8Util.RT_STUB_JAR_RULE)
 
         AndroidRule androidRule = new AndroidRule()
                 .srcs(target.test.sources)
@@ -49,7 +45,6 @@ final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
                 .resourcesDir(target.test.resourcesDir)
                 .sourceCompatibility(target.sourceCompatibility)
                 .targetCompatibility(target.targetCompatibility)
-                .postprocessClassesCommands(target.postprocessClassesCommands)
                 .exportedDeps(aidlRuleNames)
                 .excludes(appClass != null ? ImmutableSet.of(appClass) : ImmutableSet.of())
                 .options(target.main.jvmArgs)

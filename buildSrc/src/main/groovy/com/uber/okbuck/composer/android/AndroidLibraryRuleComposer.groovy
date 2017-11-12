@@ -5,7 +5,7 @@ import com.uber.okbuck.core.model.android.AndroidLibTarget
 import com.uber.okbuck.core.model.android.AndroidTarget
 import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.core.model.base.Target
-import com.uber.okbuck.core.util.RetrolambdaUtil
+import com.uber.okbuck.core.util.D8Util
 import com.uber.okbuck.template.android.AndroidRule
 import com.uber.okbuck.template.core.Rule
 
@@ -32,10 +32,7 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
         providedDeps.addAll(external(target.provided.externalDeps))
         providedDeps.addAll(targets(target.provided.targetDeps))
         providedDeps.removeAll(libraryDeps)
-
-        if (target.retrolambda) {
-            providedDeps.add(RetrolambdaUtil.getRtStubJarRule())
-        }
+        providedDeps.add(D8Util.RT_STUB_JAR_RULE)
 
         libraryDeps.addAll(target.main.targetDeps.findAll { Target targetDep ->
             targetDep instanceof AndroidTarget
@@ -58,7 +55,6 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
                 .resourcesDir(target.main.resourcesDir)
                 .sourceCompatibility(target.sourceCompatibility)
                 .targetCompatibility(target.targetCompatibility)
-                .postprocessClassesCommands(target.postprocessClassesCommands)
                 .testTargets(testTargets)
                 .exportedDeps(aidlRuleNames)
                 .excludes(appClass != null ? ImmutableSet.of(appClass) : ImmutableSet.of())
