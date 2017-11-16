@@ -35,6 +35,7 @@ dependencies {
     compile deps.support.v4
     compile project(":libraries:javalibrary")
     compile project(":libraries:emptylibrary")
+    compile project(":libraries:parcelable")
     releaseCompile project(path: ':libraries:common', configuration: 'paidRelease')
     debugCompile project(path: ':libraries:common', configuration: 'freeDebug')
 }

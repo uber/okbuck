@@ -95,3 +95,5 @@
 -keepclasseswithmembers class * {
     @android.support.annotation.Keep <init>(...);
 }
+
+-dontwarn java.lang.invoke.**

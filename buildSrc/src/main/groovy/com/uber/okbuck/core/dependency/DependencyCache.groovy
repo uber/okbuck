@@ -34,7 +34,6 @@ class DependencyCache {
     private final boolean fetchSources
     private final Store lintJars
     private final Store processors
-    private final Store proguardConfigs
     private final Store sources
 
     private final Set<File> copies = ConcurrentHashMap.newKeySet()
@@ -50,7 +49,6 @@ class DependencyCache {
         sources = new Store(rootProject.file("${OkBuckGradlePlugin.OKBUCK_STATE_DIR}/SOURCES"))
         processors = new Store(rootProject.file("${OkBuckGradlePlugin.OKBUCK_STATE_DIR}/PROCESSORS"))
         lintJars = new Store(rootProject.file("${OkBuckGradlePlugin.OKBUCK_STATE_DIR}/LINT_JARS"))
-        proguardConfigs = new Store(rootProject.file("${OkBuckGradlePlugin.OKBUCK_STATE_DIR}/PROGUARD_CONFIGS"))
 
         if (forcedConfiguration) {
             Scope.from(project, Collections.singleton(forcedConfiguration)).external.each {
@@ -65,7 +63,6 @@ class DependencyCache {
         sources.persist()
         processors.persist()
         lintJars.persist()
-        proguardConfigs.persist()
         cleanup()
     }
 
@@ -209,22 +206,6 @@ class DependencyCache {
     String getLintJar(ExternalDependency externalDependency) {
         ExternalDependency dependency = forcedDeps.getOrDefault(externalDependency.versionless, externalDependency)
         return getAarEntry(dependency, lintJars, "lint.jar", "-lint.jar")
-    }
-
-    /**
-     * Get the packaged proguard config of an aar dependency if any.
-     *
-     * @param externalDependency The depenency
-     * @return path to the proguard config in the cache.
-     */
-    File getProguardConfig(ExternalDependency externalDependency) {
-        ExternalDependency dependency = forcedDeps.getOrDefault(externalDependency.versionless, externalDependency)
-        String entry = getAarEntry(dependency, proguardConfigs, "proguard.txt", "-proguard.pro")
-        if (entry) {
-            return rootProject.file(entry)
-        } else {
-            return null
-        }
     }
 
     void build(Configuration configuration, boolean cleanupDeps = true, boolean useFullDepname = false) {
