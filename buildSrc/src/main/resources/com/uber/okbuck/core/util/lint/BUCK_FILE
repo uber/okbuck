@@ -16,6 +16,7 @@ for xml in glob(['*.xml']):
 for xml in xmls:
   export_file(
     name = xml,
+    mode = 'reference',
     visibility = ['PUBLIC'],
   )
 

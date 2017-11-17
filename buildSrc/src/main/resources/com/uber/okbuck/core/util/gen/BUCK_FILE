@@ -1,6 +1,7 @@
 for file in glob(['AndroidManifest.xml', 'proguard.pro', 'proguard.map']):
   export_file(
     name = file,
+    mode = 'reference',
     visibility = ['PUBLIC'],
   )
 

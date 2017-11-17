@@ -12,6 +12,7 @@ for entry in glob(['*.*']):
 for config in configs:
     export_file(
         name = config,
+        mode = 'reference',
         visibility = ['PUBLIC'],
     )
 
