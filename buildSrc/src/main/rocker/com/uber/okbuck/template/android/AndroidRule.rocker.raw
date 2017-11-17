@@ -7,6 +7,7 @@ Collection excludes,
 String sourceCompatibility,
 String targetCompatibility,
 String resourcesDir,
+String proguardConfig,
 Collection testTargets,
 Collection annotationProcessors,
 Collection aptDeps,
@@ -54,6 +55,9 @@ env
 }
 @if (generateR2) {
     final_r_name = 'R2',
+}
+@if (valid(proguardConfig)) {
+    proguard_config = '@proguardConfig',
 }
 @if (valid(runtimeDependency)) {
     force_final_resource_ids = False,

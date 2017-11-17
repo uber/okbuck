@@ -3,6 +3,7 @@ package com.uber.okbuck.core.model.android
 import com.android.build.gradle.api.BaseVariant
 import com.android.manifmerger.ManifestMerger2
 import com.google.common.collect.ImmutableList
+import com.uber.okbuck.core.util.FileUtil
 import com.uber.okbuck.core.util.KotlinUtil
 import org.gradle.api.Project
 
@@ -31,12 +32,21 @@ class AndroidLibTarget extends AndroidTarget {
         return okbuck.libraryBuildConfig
     }
 
+    String getConsumerProguardConfig() {
+        Set<File> consumerProguardFiles = (baseVariant.mergedFlavor.consumerProguardFiles +
+                baseVariant.buildType.consumerProguardFiles)
+        if (consumerProguardFiles.size() > 0 && consumerProguardFiles[0].exists()) {
+            return FileUtil.getRelativePath(project.projectDir, consumerProguardFiles[0])
+        }
+        return null
+    }
+
     List<String> getKotlincArguments() {
         if (!hasKotlinAndroidExtensions) {
             return ImmutableList.of()
         }
 
-        ImmutableList.Builder<String> extraKotlincArgs = ImmutableList.<String>builder()
+        ImmutableList.Builder<String> extraKotlincArgs = ImmutableList.<String> builder()
         StringBuilder plugin = new StringBuilder()
         StringBuilder resDirs = new StringBuilder()
         StringBuilder options = new StringBuilder()

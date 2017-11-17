@@ -5,7 +5,6 @@ import com.android.builder.model.SigningConfig
 import com.android.manifmerger.ManifestMerger2
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableSet
-import com.uber.okbuck.core.model.base.Target
 import com.uber.okbuck.core.util.FileUtil
 import com.uber.okbuck.extension.TestExtension
 import com.uber.okbuck.extension.TransformExtension
@@ -112,55 +111,31 @@ class AndroidAppTarget extends AndroidLibTarget {
 
     String getProguardConfig() {
         if (minifyEnabled) {
-            File mergedProguardConfig = getGenPath("proguard.pro")
-            mergedProguardConfig.parentFile.mkdirs()
-            mergedProguardConfig.createNewFile()
-
-            Set<File> configs = [] as Set<File>
-
-            // project proguard files
-            configs.addAll(baseVariant.mergedFlavor.proguardFiles)
-            configs.addAll(baseVariant.buildType.proguardFiles)
-
-            // Consumer proguard files of target dependencies
-            configs.addAll((main.targetDeps.findAll { Target target ->
-                target instanceof AndroidLibTarget
-            } as List<AndroidLibTarget>).collect { AndroidLibTarget target ->
-                target.baseVariant.mergedFlavor.consumerProguardFiles +
-                        target.baseVariant.buildType.consumerProguardFiles
-            }.flatten() as Set<File>)
-
-            String mergedConfig = ""
-            configs.findAll { File config ->
-                config.exists()
-            }.each { File config ->
-                mergedConfig += "\n##---- ${FileUtil.getRelativePath(project.rootDir, config)} ----##\n"
-                mergedConfig += config.text
-            }
-
-            // Consumer proguard files of compiled aar dependencies
-            main.getPackagedProguardConfigs().each { File dep ->
-                mergedConfig += "\n##---- ${dep.name} ----##\n"
-                mergedConfig += dep.text
-            }
-
-            mergedProguardConfig.text = mergedConfig
-
-            // Copy over any mapping files if specified
-            if (proguardMappingFile) {
-                File genProguardMappingFile = getGenPath("proguard.map")
+            Set<File> proguardFiles = (baseVariant.mergedFlavor.proguardFiles +
+                    baseVariant.buildType.proguardFiles)
+            if (proguardFiles.size() > 0 && proguardFiles[0].exists()) {
+                File genProguardConfig = getGenPath("proguard.pro")
                 try {
-                    LOG.info("Creating symlink {} -> {}", genProguardMappingFile, proguardMappingFile)
-                    Files.createSymbolicLink(genProguardMappingFile.toPath(), proguardMappingFile.toPath())
+                    LOG.info("Creating symlink {} -> {}", genProguardConfig, proguardFiles[0])
+                    Files.createSymbolicLink(genProguardConfig.toPath(), proguardFiles[0].toPath())
                 } catch (IOException ignored) {
-                    LOG.info("Could not create symlink {} -> {}", genProguardMappingFile, proguardMappingFile)
+                    LOG.info("Could not create symlink {} -> {}", genProguardConfig, proguardFiles[0])
                 }
-            }
 
-            return FileUtil.getRelativePath(project.rootDir, mergedProguardConfig)
-        } else {
-            return null
+                if (proguardMappingFile) {
+                    File genProguardMappingFile = getGenPath("proguard.map")
+                    try {
+                        LOG.info("Creating symlink {} -> {}", genProguardMappingFile, proguardMappingFile)
+                        Files.createSymbolicLink(genProguardMappingFile.toPath(), proguardMappingFile.toPath())
+                    } catch (IOException ignored) {
+                        LOG.info("Could not create symlink {} -> {}", genProguardMappingFile, proguardMappingFile)
+                    }
+                }
+
+                return FileUtil.getRelativePath(project.rootDir, genProguardConfig)
+            }
         }
+        return null
     }
 
     String getProguardMapping() {
