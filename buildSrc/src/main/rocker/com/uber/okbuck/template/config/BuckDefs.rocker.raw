@@ -96,7 +96,7 @@ def okbuck_lint(
     if has_srcs:
         bash += "--classpath $(location :src_{}) --libraries `cat $CP_FILE` ".format(variant)
 
-    bash += "{} `dirname {}`".format(' '.join(lint_options), toLocation(':' + manifest_copy))
+    bash += "{} `dirname {}` 1>&2".format(' '.join(lint_options), toLocation(':' + manifest_copy))
 
     genrule(
         name = name,
