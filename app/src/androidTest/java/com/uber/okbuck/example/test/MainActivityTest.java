@@ -10,10 +10,12 @@ import org.junit.runner.RunWith;
 
 import com.uber.okbuck.example.R;
 import android.support.test.runner.AndroidJUnit4;
+
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static junit.framework.Assert.assertEquals;
 
 @RunWith(AndroidJUnit4.class)
 public class MainActivityTest {
@@ -25,5 +27,11 @@ public class MainActivityTest {
     @Test
     public void checkTextDisplayed() {
         onView(withId(R.id.mTextView2)).check(matches(withText("test in app")));
+    }
+
+    @Test
+    public void java8LambdaCompilesAndWorksInInstrumentationApk() {
+        Runnable runnable = () -> assertEquals(3, 2 + 1);
+        runnable.run();
     }
 }
