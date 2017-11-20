@@ -1,11 +1,12 @@
 apply plugin: 'java'
+apply plugin: "net.ltgt.apt"
 
 dependencies {
     compile deps.external.gson
     compile deps.external.dagger
 
-    compileOnly deps.apt.javax
-    compileOnly deps.apt.daggerCompiler
+    apt deps.apt.javax
+    apt deps.apt.daggerCompiler
 
     testCompile deps.test.junit
 }
