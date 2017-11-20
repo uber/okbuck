@@ -11,6 +11,7 @@ def versions = [
 def build = [
         androidPlugin    : "com.android.tools.build:gradle:${versions.androidPluginVersion}",
         androidPluginApi : "com.android.tools.build:gradle-api:${versions.androidPluginVersion}",
+        aptPlugin        : "net.ltgt.gradle:gradle-apt-plugin:0.13",
         butterKnifePlugin: "com.jakewharton:butterknife-gradle-plugin:${versions.butterKnifeVersion}",
         commonsIo        : 'commons-io:commons-io:2.5',
         commonsLang      : 'commons-lang:commons-lang:2.6',
