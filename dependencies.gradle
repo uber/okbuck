@@ -50,6 +50,7 @@ def external = [
         rxPermissions  : 'com.tbruyelle.rxpermissions2:rxpermissions:0.9.4',
         sqlite         : 'com.pushtorefresh.storio:sqlite:1.13.0',
         xlogAndroidIdle: 'com.github.promeg:xlog-android-idle:2.1.1',
+        jacksonDatabind: 'com.fasterxml.jackson.core:jackson-databind:2.9.2',
 ]
 
 def lint = [
