@@ -7,7 +7,6 @@ import com.uber.okbuck.composer.android.AndroidBuildConfigRuleComposer
 import com.uber.okbuck.composer.android.AndroidInstrumentationApkRuleComposer
 import com.uber.okbuck.composer.android.AndroidInstrumentationTestRuleComposer
 import com.uber.okbuck.composer.android.AndroidLibraryRuleComposer
-import com.uber.okbuck.composer.android.AndroidManifestRuleComposer
 import com.uber.okbuck.composer.android.AndroidResourceRuleComposer
 import com.uber.okbuck.composer.android.AndroidTestRuleComposer
 import com.uber.okbuck.composer.android.ExopackageAndroidLibraryRuleComposer
@@ -209,9 +208,6 @@ final class BuckFileGenerator {
             }
         }
 
-        Rule manifestRule = AndroidManifestRuleComposer.compose(target)
-        rules.add(manifestRule)
-
         String keystoreRuleName = KeystoreRuleComposer.compose(target)
 
         if (target.exopackage) {
@@ -220,8 +216,7 @@ final class BuckFileGenerator {
             deps.add(":${exoPackageRule.name()}")
         }
 
-        rules.add(AndroidBinaryRuleComposer.compose(
-                target, deps, ":${manifestRule.name()}", keystoreRuleName))
+        rules.add(AndroidBinaryRuleComposer.compose(target, deps, keystoreRuleName))
 
         return rules
     }

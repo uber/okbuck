@@ -21,8 +21,7 @@ final class AndroidBinaryRuleComposer extends AndroidBuckRuleComposer {
         // no instance
     }
 
-    static Rule compose(AndroidAppTarget target, List<String> deps, String manifestRuleName,
-                        String keystoreRuleName) {
+    static Rule compose(AndroidAppTarget target, List<String> deps, String keystoreRuleName) {
         Set<String> mappedCpuFilters = target.cpuFilters.collect { String cpuFilter ->
             CPU_FILTER_MAP.get(cpuFilter)
         }.findAll { String cpuFilter -> cpuFilter != null }
@@ -43,7 +42,7 @@ final class AndroidBinaryRuleComposer extends AndroidBuckRuleComposer {
         }
 
         return new AndroidBinaryRule()
-                .manifest(manifestRuleName)
+                .manifestSkeleton(fileRule(target.manifest))
                 .keystore(keystoreRuleName)
                 .multidexEnabled(target.multidexEnabled)
                 .linearAllocHardLimit(target.linearAllocHardLimit)

@@ -1,7 +1,7 @@
 @import java.util.Collection
 @import java.util.Map
 @args (
-String manifest,
+String manifestSkeleton,
 String keystore,
 String preprocessJavaClassesBash,
 String proguardConfig,
@@ -17,7 +17,7 @@ boolean minifyEnabled,
 boolean multidexEnabled,
 )
 @com.uber.okbuck.template.base.BuckRule.template() -> {
-    manifest = '@manifest',
+    manifest_skeleton = '@manifestSkeleton',
     keystore = '@keystore',
     dex_tool = 'd8',
 @if (exopackage) {
