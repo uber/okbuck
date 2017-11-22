@@ -16,7 +16,7 @@ final class AndroidInstrumentationApkRuleComposer extends AndroidBuckRuleCompose
                         AndroidInstrumentationTarget target,
                         AndroidAppTarget mainApkTarget) {
         return new InstrumentationApkRule()
-                .manifest(fileRule(target.manifest))
+                .manifestSkeleton(fileRule(target.manifest))
                 .mainApkRuleName(bin(mainApkTarget))
                 .defaultVisibility()
                 .ruleType(RuleType.ANDROID_INSTRUMENTATION_APK.buckName)

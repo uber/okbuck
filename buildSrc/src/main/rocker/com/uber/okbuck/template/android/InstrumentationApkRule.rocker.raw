@@ -1,6 +1,6 @@
-@args (String manifest, String mainApkRuleName)
+@args (String manifestSkeleton, String mainApkRuleName)
 @com.uber.okbuck.template.base.BuckRule.template() -> {
-    manifest = '@manifest',
+    manifest_skeleton = '@manifestSkeleton',
     dex_tool = 'd8',
     apk = ':@mainApkRuleName',
 }
