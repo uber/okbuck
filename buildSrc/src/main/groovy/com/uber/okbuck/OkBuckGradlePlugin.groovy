@@ -67,7 +67,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     public static final String OKBUCK_STATE = "${OKBUCK_STATE_DIR}/STATE"
     public static final String OKBUCK_GEN = ".okbuck/gen"
 
-    public static final String DEFAULT_BUCK_VERSION = "ec5aa35b246face4b98d53d219c9a6f1b7d10ab0"
+    public static final String DEFAULT_BUCK_VERSION = "b08c8889ccdf18de641ee1fd12340fe817a453e9"
 
     // Project level globals
     public DependencyCache depCache
