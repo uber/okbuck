@@ -32,9 +32,12 @@ public final class KotlinUtil {
 
     private KotlinUtil() {}
 
+    public static String getDefaultKotlinVersion(Project project) {
+        return ProjectUtil.findVersionInClasspath(project, KOTLIN_GROUP, KOTLIN_GRADLE_MODULE);
+    }
+
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    public static void setupKotlinHome(Project project) {
-        String kotlinVersion = ProjectUtil.findVersionInClasspath(project, KOTLIN_GROUP, KOTLIN_GRADLE_MODULE);
+    public static void setupKotlinHome(Project project, String kotlinVersion) {
         Configuration kotlinConfig = project.getConfigurations().maybeCreate(KOTLIN_DEPS_CONFIG);
         DependencyHandler handler = project.getDependencies();
         handler.add(KOTLIN_DEPS_CONFIG, String.format("%s:%s:%s", KOTLIN_GROUP, KOTLIN_COMPILER_MODULE, kotlinVersion));
@@ -73,9 +76,5 @@ public final class KotlinUtil {
                 }
             });
         } catch (IOException ignored) {}
-    }
-
-    public static boolean hasKotlinPluginInClasspath(Project project) {
-        return ProjectUtil.findVersionInClasspath(project, KOTLIN_GROUP, KOTLIN_GRADLE_MODULE) != null;
     }
 }

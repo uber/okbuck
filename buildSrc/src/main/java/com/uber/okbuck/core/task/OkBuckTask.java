@@ -8,6 +8,7 @@ import com.uber.okbuck.core.util.KotlinUtil;
 import com.uber.okbuck.core.util.ProguardUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.core.util.ScalaUtil;
+import com.uber.okbuck.extension.KotlinExtension;
 import com.uber.okbuck.extension.OkBuckExtension;
 import com.uber.okbuck.extension.ScalaExtension;
 import com.uber.okbuck.generator.BuckConfigLocalGenerator;
@@ -34,6 +35,9 @@ public class OkBuckTask extends DefaultTask {
     public OkBuckExtension okBuckExtension;
 
     @Nested
+    public KotlinExtension kotlinExtension;
+
+    @Nested
     public ScalaExtension scalaExtension;
 
     public OkBuckTask() {
@@ -50,17 +54,17 @@ public class OkBuckTask extends DefaultTask {
             GroovyUtil.setupGroovyHome(getProject());
         }
 
-        // Fetch Kotlin support deps if needed
-        boolean hasKotlinLib = KotlinUtil.hasKotlinPluginInClasspath(getProject());
-        if (hasKotlinLib) {
-            KotlinUtil.setupKotlinHome(getProject());
-        }
-
         // Fetch Scala support deps if needed
         boolean hasScalaLib = okBuckExtension.buckProjects.stream().anyMatch(
                 project -> ProjectUtil.getType(project) == ProjectType.SCALA_LIB);
         if (hasScalaLib) {
             ScalaUtil.setupScalaHome(getProject(), scalaExtension.version);
+        }
+
+        boolean hasKotlinLib = kotlinExtension.version != null;
+        // Fetch Kotlin deps if needed
+        if (hasKotlinLib) {
+            KotlinUtil.setupKotlinHome(getProject(), kotlinExtension.version);
         }
 
         generate(okBuckExtension,

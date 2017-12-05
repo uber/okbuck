@@ -161,6 +161,10 @@ okbuck {
         watch += ["**/*.sq"]
     }
 
+    kotlin {
+        version = deps.versions.kotlinVersion
+    }
+
     lint {
         version = deps.versions.androidTools
     }

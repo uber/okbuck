@@ -13,6 +13,7 @@ import com.uber.okbuck.core.util.RobolectricUtil
 import com.uber.okbuck.core.util.TransformUtil
 import com.uber.okbuck.extension.ExperimentalExtension
 import com.uber.okbuck.extension.IntellijExtension
+import com.uber.okbuck.extension.KotlinExtension
 import com.uber.okbuck.extension.LintExtension
 import com.uber.okbuck.extension.OkBuckExtension
 import com.uber.okbuck.extension.ScalaExtension
@@ -57,6 +58,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     public static final String EXTRA_DEP_CACHE_PATH = ".okbuck/cache/extra"
     public static final String GROUP = "okbuck"
     public static final String BUCK_LINT = "buckLint"
+    public static final String KOTLIN = "kotlin"
     public static final String LINT = "lint"
     public static final String TRANSFORM = "transform"
     public static final String SCALA = "scala"
@@ -81,6 +83,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         WrapperExtension wrapper = okbuckExt.extensions.create(WRAPPER, WrapperExtension)
         ExperimentalExtension experimental = okbuckExt.extensions.create(EXPERIMENTAL, ExperimentalExtension)
         TestExtension test = okbuckExt.extensions.create(TEST, TestExtension)
+        KotlinExtension kotlin = okbuckExt.extensions.create(KOTLIN, KotlinExtension, project)
         LintExtension lint = okbuckExt.extensions.create(LINT, LintExtension, project)
         ScalaExtension scala = okbuckExt.extensions.create(SCALA, ScalaExtension)
 
@@ -98,6 +101,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
 
         Task okBuck = project.tasks.create(OKBUCK, OkBuckTask, {
             okBuckExtension = okbuckExt
+            kotlinExtension = kotlin
             scalaExtension = scala
         })
         okBuck.dependsOn(setupOkbuck)
