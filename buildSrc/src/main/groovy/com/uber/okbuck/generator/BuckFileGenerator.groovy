@@ -186,7 +186,7 @@ final class BuckFileGenerator {
         }
 
         // Lint
-        if (target.lintEnabled) {
+        if (target.lintEnabled && !target.isTest) {
             androidLibRules.add(LintRuleComposer.compose(target))
         }
 
