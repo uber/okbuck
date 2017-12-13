@@ -71,7 +71,7 @@ OKBUCK_DIR="$SCRIPT_DIR/.okbuck"
 MAX_DISPLAY_CHANGES=10
 
 ensureWatch ( ) {
-    watchman watch-project $SCRIPT_DIR >/dev/null 2>&1
+    watchman watch-project "$SCRIPT_DIR" >/dev/null 2>&1
 }
 
 getChanges ( ) {
@@ -127,7 +127,7 @@ runOkBuck ( ) {
     echo
 
     rm -f $OKBUCK_SUCCESS
-    ( $SCRIPT_DIR/gradlew -p $SCRIPT_DIR okbuck -Dokbuck.wrapper=true $EXTRA_OKBUCK_ARGS &&
+    ( "$SCRIPT_DIR"/gradlew -p "$SCRIPT_DIR" okbuck -Dokbuck.wrapper=true $EXTRA_OKBUCK_ARGS &&
     updateOkBuckSuccess && success "PROCEEDING WITH BUCK" ) || die "OKBUCK FAILED"
 }
 
@@ -177,7 +177,7 @@ setupBuckBinary ( ) {
         fi
 
         # Check for current buck version
-        BUCK_VERSION=$(cat $SCRIPT_DIR/.buckversion)
+        BUCK_VERSION=$(cat "$SCRIPT_DIR"/.buckversion)
         if [[ ! -z "$BUCK_VERSION" ]]; then
             pushd "$BUCK_HOME" >/dev/null
             CURRENT_BUCK_VERSION=$(git rev-parse HEAD)
