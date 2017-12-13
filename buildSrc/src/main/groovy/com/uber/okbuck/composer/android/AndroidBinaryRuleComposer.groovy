@@ -51,6 +51,7 @@ final class AndroidBinaryRuleComposer extends AndroidBuckRuleComposer {
                 .cpuFilters(mappedCpuFilters)
                 .minifyEnabled(target.minifyEnabled)
                 .proguardConfig(fileRule(proguardConfig))
+                .debuggable(target.debuggable)
                 .placeholders(target.placeholders)
                 .includesVectorDrawables(target.includesVectorDrawables)
                 .preprocessJavaClassesDeps(transformDeps)

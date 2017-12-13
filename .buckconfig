@@ -36,3 +36,7 @@
 
 [ui]
     build_rule_minimum_duration_millis = 500
+
+[ndk]
+    gcc_version=4.9
+    app_platform = android-24

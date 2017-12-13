@@ -5,6 +5,7 @@ String manifestSkeleton,
 String keystore,
 String preprocessJavaClassesBash,
 String proguardConfig,
+boolean debuggable,
 int linearAllocHardLimit,
 Collection primaryDexPatterns,
 Collection cpuFilters,
@@ -54,6 +55,11 @@ boolean multidexEnabled,
 @if (minifyEnabled) {
     android_sdk_proguard_config = 'none',
     proguard_config = '@proguardConfig',
+}
+@if (debuggable) {
+    package_type = 'debug',
+} else {
+    package_type = 'release',
 }
 @if (includesVectorDrawables) {
     includes_vector_drawables = True,
