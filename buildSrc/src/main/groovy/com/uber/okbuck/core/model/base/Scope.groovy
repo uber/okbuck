@@ -96,14 +96,6 @@ class Scope {
         }).flatten() as Set<String>).findAll { !it.empty }
     }
 
-    Set<File> getPackagedProguardConfigs() {
-        external.collect {
-            depCache.getProguardConfig(it)
-        }.findAll {
-            it != null
-        }
-    }
-
     private void extractConfigurations(Set<Configuration> configurations) {
         if (configurations.size() == 0) {
             return
