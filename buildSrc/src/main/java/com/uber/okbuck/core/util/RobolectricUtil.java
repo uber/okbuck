@@ -12,8 +12,6 @@ import java.util.EnumSet;
 
 public final class RobolectricUtil {
 
-    private static final String JSON = "org.json:json:20080701";
-    private static final String TAGSOUP = "org.ccil.cowan.tagsoup:tagsoup:1.2";
     private static final String ROBOLECTRIC_RUNTIME = "robolectricRuntime";
     public static final String ROBOLECTRIC_CACHE = OkBuckGradlePlugin.DEFAULT_CACHE_PATH + "/robolectric";
 
@@ -22,18 +20,10 @@ public final class RobolectricUtil {
     public static void download(Project project) {
         ImmutableSet.Builder<Configuration> runtimeDeps = ImmutableSet.builder();
 
-        Configuration runtimeCommon = project.getConfigurations().maybeCreate(ROBOLECTRIC_RUNTIME + "_common");
-        project.getDependencies().add(runtimeCommon.getName(), JSON);
-        project.getDependencies().add(runtimeCommon.getName(), TAGSOUP);
-        runtimeDeps.add(runtimeCommon);
-
         for (API api : EnumSet.allOf(API.class)) {
             Configuration runtimeApi = project.getConfigurations().maybeCreate(
                     ROBOLECTRIC_RUNTIME + "_" + api.name());
-            project.getDependencies().add(runtimeApi.getName(), api.androidJar);
-            if (api.shadowsJar != null) {
-                project.getDependencies().add(runtimeApi.getName(), api.shadowsJar);
-            }
+            project.getDependencies().add(runtimeApi.getName(), api.getCoordinates());
             runtimeDeps.add(runtimeApi);
         }
 
@@ -47,24 +37,28 @@ public final class RobolectricUtil {
 
     @SuppressWarnings("unused")
     enum API {
-        API_16("org.robolectric:android-all:4.1.2_r1-robolectric-0", "org.robolectric:shadows-core:3.0:16"),
-        API_17("org.robolectric:android-all:4.2.2_r1.2-robolectric-0", "org.robolectric:shadows-core:3.0:17"),
-        API_18("org.robolectric:android-all:4.3_r2-robolectric-0", "org.robolectric:shadows-core:3.0:18"),
-        API_19("org.robolectric:android-all:4.4_r1-robolectric-1", "org.robolectric:shadows-core:3.0:19"),
-        API_21("org.robolectric:android-all:5.0.0_r2-robolectric-1", "org.robolectric:shadows-core:3.0:21"),
-        API_22("org.robolectric:android-all:5.1.1_r9-robolectric-1", null),
-        API_23("org.robolectric:android-all:6.0.1_r3-robolectric-0", null),
-        API_24("org.robolectric:android-all:7.0.0_r1-robolectric-0", null),
-        API_25("org.robolectric:android-all:7.1.0_r7-robolectric-0", null),
-        API_26("org.robolectric:android-all:8.0.0_r4-robolectric-0", null),
-        API_27("org.robolectric:android-all:8.1.0-robolectric-4402310", null);
+        API_16("4.1.2_r1", "r1"),
+        API_17("4.2.2_r1.2", "r1"),
+        API_18("4.3_r2", "r1"),
+        API_19("4.4_r1", "r2"),
+        API_21("5.0.2_r3", "r0"),
+        API_22("5.1.1_r9", "r2"),
+        API_23("6.0.1_r3", "r1"),
+        API_24("7.0.0_r1", "r1"),
+        API_25("7.1.0_r7", "r1"),
+        API_26("8.0.0_r4", "r1"),
+        API_27("8.1.0", "r4458339");
 
-        private final String androidJar;
-        private final String shadowsJar;
+        private final String androidVersion;
+        private final String frameworkSdkBuildVersion;
 
-        API(String androidJar, String shadowsJar) {
-            this.androidJar = androidJar;
-            this.shadowsJar = shadowsJar;
+        API(String androidVersion, String frameworkSdkBuildVersion) {
+            this.androidVersion = androidVersion;
+            this.frameworkSdkBuildVersion = frameworkSdkBuildVersion;
+        }
+
+        String getCoordinates() {
+            return "org.robolectric:android-all:" + androidVersion + "-robolectric-"+ frameworkSdkBuildVersion;
         }
     }
 }
