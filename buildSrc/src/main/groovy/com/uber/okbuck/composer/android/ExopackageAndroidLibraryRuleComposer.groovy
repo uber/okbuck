@@ -1,10 +1,7 @@
 package com.uber.okbuck.composer.android
 
 import com.uber.okbuck.core.model.android.AndroidAppTarget
-import com.uber.okbuck.core.model.android.AndroidTarget
 import com.uber.okbuck.core.model.base.RuleType
-import com.uber.okbuck.core.model.base.Target
-import com.uber.okbuck.core.util.D8Util
 import com.uber.okbuck.template.android.AndroidRule
 import com.uber.okbuck.template.core.Rule
 
@@ -15,35 +12,20 @@ final class ExopackageAndroidLibraryRuleComposer extends AndroidBuckRuleComposer
     }
 
     static Rule compose(AndroidAppTarget target) {
-        Set<String> libraryDeps = []
-        libraryDeps.addAll(external(target.main.externalDeps))
-        libraryDeps.addAll(targets(target.main.targetDeps))
-        libraryDeps.addAll(external(target.exopackage.externalDeps))
-        libraryDeps.addAll(targets(target.exopackage.targetDeps))
-        libraryDeps.add(":${buildConfig(target)}")
+        List<String> deps = []
+        deps.addAll(external(target.exopackage.externalDeps))
+        deps.addAll(targets(target.exopackage.targetDeps))
+        deps.add(":${buildConfig(target)}")
 
         Set<String> libraryAptDeps = []
         libraryAptDeps.addAll(externalApt(target.apt.externalDeps))
         libraryAptDeps.addAll(targetsApt(target.apt.targetDeps))
-
-        Set<String> providedDeps = []
-        providedDeps.addAll(external(target.provided.externalDeps))
-        providedDeps.addAll(targets(target.provided.targetDeps))
-        providedDeps.removeAll(libraryDeps)
-        providedDeps.add(D8Util.RT_STUB_JAR_RULE)
-
-        libraryDeps.addAll(target.main.targetDeps.findAll { Target targetDep ->
-            targetDep instanceof AndroidTarget
-        }.collect { Target targetDep ->
-            resRule(targetDep as AndroidTarget)
-        })
 
         AndroidRule androidRule = new AndroidRule()
                 .sourceCompatibility(target.sourceCompatibility)
                 .targetCompatibility(target.targetCompatibility)
                 .annotationProcessors(target.annotationProcessors)
                 .aptDeps(libraryAptDeps)
-                .providedDeps(providedDeps)
                 .options(target.main.jvmArgs)
 
         if (target.ruleType == RuleType.KOTLIN_ANDROID_LIBRARY) {
@@ -58,7 +40,7 @@ final class ExopackageAndroidLibraryRuleComposer extends AndroidBuckRuleComposer
         return androidRule
                 .ruleType(target.ruleType.buckName)
                 .defaultVisibility()
-                .deps(libraryDeps)
+                .deps(deps)
                 .name(appLib(target))
                 .extraBuckOpts(extraBuckOpts)
     }
