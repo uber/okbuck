@@ -2,6 +2,7 @@ package com.uber.okbuck.composer.android
 
 import com.uber.okbuck.core.model.android.AndroidAppTarget
 import com.uber.okbuck.core.model.base.RuleType
+import com.uber.okbuck.core.util.D8Util
 import com.uber.okbuck.template.android.AndroidRule
 import com.uber.okbuck.template.core.Rule
 
@@ -21,11 +22,15 @@ final class ExopackageAndroidLibraryRuleComposer extends AndroidBuckRuleComposer
         libraryAptDeps.addAll(externalApt(target.apt.externalDeps))
         libraryAptDeps.addAll(targetsApt(target.apt.targetDeps))
 
+        Set<String> providedDeps = []
+        providedDeps.add(D8Util.RT_STUB_JAR_RULE)
+
         AndroidRule androidRule = new AndroidRule()
                 .sourceCompatibility(target.sourceCompatibility)
                 .targetCompatibility(target.targetCompatibility)
                 .annotationProcessors(target.annotationProcessors)
                 .aptDeps(libraryAptDeps)
+                .providedDeps(providedDeps)
                 .options(target.main.jvmArgs)
 
         if (target.ruleType == RuleType.KOTLIN_ANDROID_LIBRARY) {
