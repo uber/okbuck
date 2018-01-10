@@ -4,6 +4,7 @@ buildscript {
         jcenter()
         google()
         maven { url "https://plugins.gradle.org/m2/" }
+        // Remove once butterknife is updated to a stable version
         maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
     }
     dependencies {
@@ -22,6 +23,7 @@ allprojects { project ->
         jcenter()
         google()
         maven { url "https://plugins.gradle.org/m2/" }
+        // Remove once butterknife is updated to a stable version
         maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
     }
 }

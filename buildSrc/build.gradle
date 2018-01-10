@@ -10,6 +10,7 @@ apply from: "../dependencies.gradle"
 repositories {
     jcenter()
     google()
+    // Remove once butterknife is updated to a stable version
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
 }
 
