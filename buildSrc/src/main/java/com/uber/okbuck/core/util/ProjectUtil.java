@@ -2,6 +2,7 @@ package com.uber.okbuck.core.util;
 
 import com.android.build.gradle.AppPlugin;
 import com.android.build.gradle.LibraryPlugin;
+import com.google.common.collect.Sets;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.core.dependency.DependencyCache;
 import com.uber.okbuck.core.model.base.ProjectType;
