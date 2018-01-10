@@ -11,6 +11,7 @@ repositories {
     jcenter()
     google()
     // Remove once butterknife is updated to a stable version
+    // TODO: https://github.com/uber/okbuck/issues/570
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
 }
 
@@ -64,7 +65,7 @@ task sourcesJar(type: Jar) {
     classifier = 'sources'
 }
 
-def publishVersion = '0.32.1-uber'
+def publishVersion = '0.33.0-alpha01'
 group = 'com.uber'
 version = publishVersion
 def siteUrl = 'https://github.com/uber/okbuck'
