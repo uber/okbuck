@@ -2,7 +2,6 @@ package com.uber.okbuck.core.util;
 
 import com.android.build.gradle.AppPlugin;
 import com.android.build.gradle.LibraryPlugin;
-import com.google.common.collect.Sets;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.core.dependency.DependencyCache;
 import com.uber.okbuck.core.model.base.ProjectType;
@@ -26,7 +25,6 @@ import org.gradle.language.base.artifact.SourcesArtifact;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper;
 
-import java.io.File;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -115,7 +113,7 @@ public final class ProjectUtil {
      * limitations under the License.
      */
     // Copied from AGP 3.1.0 ArtifactDependencyGraph
-    static void downloadSources(
+    public static void downloadSources(
             Project project,
             Set<ComponentIdentifier> artifacts) {
         final DependencyHandler dependencies = project.getDependencies();

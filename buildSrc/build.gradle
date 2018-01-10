@@ -68,7 +68,7 @@ task sourcesJar(type: Jar) {
 // Release alpha version of the plugin and fix issues that come up. this will
 // allow us to bake the plugin for a bit before doing minor bump release.
 // We will release 0.33.0 after stable AGP 3.1.0 is released.
-def publishVersion = '0.33.0-alpha03'
+def publishVersion = '0.33.0-alpha06'
 group = 'com.uber'
 version = publishVersion
 def siteUrl = 'https://github.com/uber/okbuck'

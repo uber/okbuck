@@ -3,12 +3,9 @@ package com.uber.okbuck.core.model.base
 import com.android.build.api.attributes.VariantAttr
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableSet
-import com.google.common.collect.MultimapBuilder
-import com.google.common.collect.SortedSetMultimap
 import com.uber.okbuck.core.dependency.DependencyCache
 import com.uber.okbuck.core.dependency.DependencyUtils
 import com.uber.okbuck.core.dependency.ExternalDependency
-import com.uber.okbuck.core.dependency.ExternalDependency.VersionlessDependency
 import com.uber.okbuck.core.util.FileUtil
 import com.uber.okbuck.core.util.ProjectUtil
 import com.uber.okbuck.extension.OkBuckExtension
@@ -22,16 +19,13 @@ import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 import org.gradle.api.artifacts.component.ProjectComponentIdentifier
 import org.gradle.api.artifacts.result.ResolvedArtifactResult
 import org.gradle.api.attributes.Attribute
+import org.gradle.api.specs.Spec
 import org.jetbrains.annotations.Nullable
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 import java.util.concurrent.ConcurrentHashMap
 
 @EqualsAndHashCode
 class Scope {
-
-    private static final Logger LOG = LoggerFactory.getLogger(Scope)
 
     final String resourcesDir
     final Set<String> sources
@@ -111,46 +105,84 @@ class Scope {
     }
 
     private static Set<ResolvedArtifactResult> getArtifacts(
-            Configuration configuration, String value) {
+            Configuration configuration, String value, Spec<ComponentIdentifier> filter) {
         return configuration.getIncoming().artifactView({ config ->
             config.attributes({ container ->
-                container.getAttribute(VariantAttr.ATTRIBUTE)
                 container.attribute(Attribute.of("artifactType", String.class), value);
             })
+            config.componentFilter(filter)
         }).getArtifacts().getArtifacts()
     }
 
     /*
      * Resolves the configuration using the Variant Attribute and returns the aar/jar artifacts
      */
-    private static Set<ResolvedArtifactResult> getArtifacts(Configuration configuration) {
-        Set<ResolvedArtifactResult> artifactResults =
-                ImmutableSet.builder()
-                    .addAll(getArtifacts(configuration, "aar"))
-                    .addAll(getArtifacts(configuration, "jar"))
-                    .build()
+    private static Set<ResolvedArtifactResult> getArtifacts(
+            Configuration configuration,
+            Spec<ComponentIdentifier> filter,
+            ImmutableList<String> artifactTypes) {
 
-        artifactResults = artifactResults.findAll { it -> it.file.name != 'classes.jar' }
+        ImmutableSet.Builder<ResolvedArtifactResult> artifactResultsBuilder =
+                ImmutableSet.builder();
+
+        artifactTypes.each { artifactType ->
+            artifactResultsBuilder.addAll(getArtifacts(configuration, artifactType, filter))
+        }
+
+        Set<ResolvedArtifactResult> artifactResults =
+                artifactResultsBuilder.build().findAll { it -> it.file.name != 'classes.jar' }
 
         return artifactResults
     }
 
     private void extractConfiguration(Configuration configuration) {
-        Set<ResolvedArtifactResult> artifacts = getArtifacts(configuration)
         Set<ComponentIdentifier> artifactIds = new HashSet<>()
+
+        Spec<ComponentIdentifier> filter = new Spec<ComponentIdentifier>() {
+            @Override
+            boolean isSatisfiedBy(ComponentIdentifier componentIdentifier) {
+                return componentIdentifier instanceof ProjectComponentIdentifier
+            }
+        }
+
+        Set<ResolvedArtifactResult> artifacts =
+                getArtifacts(
+                        configuration,
+                        filter,
+                        ImmutableList.of("jar"))
+
         artifacts.each { ResolvedArtifactResult artifact ->
             if (!DependencyUtils.isConsumable(artifact.file)) {
                 return
             }
+
+            ProjectComponentIdentifier identifier = artifact.id.componentIdentifier
+            String variant = artifact.variant.attributes.getAttribute(VariantAttr.ATTRIBUTE)
+            targetDeps.add(ProjectUtil.getTargetForVariant(
+                    project.project(identifier.projectPath), variant))
+        }
+
+        filter = new Spec<ComponentIdentifier>() {
+            @Override
+            boolean isSatisfiedBy(ComponentIdentifier componentIdentifier) {
+                return !(componentIdentifier instanceof ProjectComponentIdentifier)
+            }
+        }
+
+        artifacts = getArtifacts(
+                configuration,
+                filter,
+                ImmutableList.of("aar", "jar"))
+
+        artifacts.each { ResolvedArtifactResult artifact ->
+            if (!DependencyUtils.isConsumable(artifact.file)) {
+                return
+            }
+
             ComponentIdentifier identifier = artifact.id.componentIdentifier
             artifactIds.add(identifier)
-            if (identifier instanceof ProjectComponentIdentifier) {
 
-                String variant = artifact.variant.attributes.getAttribute(VariantAttr.ATTRIBUTE)
-                targetDeps.add(ProjectUtil.getTargetForVariant(
-                        project.project(identifier.projectPath), variant))
-
-            } else if (identifier instanceof ModuleComponentIdentifier && identifier.version) {
+            if (identifier instanceof ModuleComponentIdentifier && identifier.version) {
                 ExternalDependency externalDependency = new ExternalDependency(
                         identifier.group,
                         identifier.module,
@@ -169,7 +201,6 @@ class Scope {
             }
         }
 
-        // Download sources if needed
         if (project.rootProject.okbuck.intellij.sources) {
             ProjectUtil.downloadSources(project, artifactIds)
         }

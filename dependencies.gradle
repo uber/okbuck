@@ -1,18 +1,20 @@
 def versions = [
-        androidTools         : '26.1.0-beta1',
-        butterKnifeVersion   : '9.0.0-SNAPSHOT',
-        daggerVersion        : '2.11',
-        kotlinVersion        : '1.2.0',
-        leakCanaryVersion    : '1.5.1',
-        supportVersion       : '27.0.2',
-        androidPluginVersion : '3.1.0-beta1',
+        androidTools                : '26.1.0-beta2',
+        butterKnifeVersion          : '9.0.0-20180212.024326-29',
+        butterKnifeCompilerVersion  : '9.0.0-20180212.024332-29',
+        butterKnifePluginVersion    : '9.0.0-20180212.024336-29',
+        daggerVersion               : '2.11',
+        kotlinVersion               : '1.2.0',
+        leakCanaryVersion           : '1.5.1',
+        supportVersion              : '27.0.2',
+        androidPluginVersion        : '3.1.0-beta3',
 ]
 
 def build = [
         androidPlugin    : "com.android.tools.build:gradle:${versions.androidPluginVersion}",
         androidPluginApi : "com.android.tools.build:gradle-api:${versions.androidPluginVersion}",
         aptPlugin        : "net.ltgt.gradle:gradle-apt-plugin:0.13",
-        butterKnifePlugin: "com.jakewharton:butterknife-gradle-plugin:${versions.butterKnifeVersion}",
+        butterKnifePlugin: "com.jakewharton:butterknife-gradle-plugin:${versions.butterKnifePluginVersion}",
         commonsIo        : 'commons-io:commons-io:2.5',
         commonsLang      : 'commons-lang:commons-lang:2.6',
         kotlinPlugin     : "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlinVersion}",
@@ -33,7 +35,7 @@ def buildConfig = [
 def apt = [
         autoValue          : 'com.google.auto.value:auto-value:1.4-rc1',
         autoValueGson      : 'com.ryanharter.auto.value:auto-value-gson:0.4.4',
-        butterKnifeCompiler: "com.jakewharton:butterknife-compiler:${versions.butterKnifeVersion}",
+        butterKnifeCompiler: "com.jakewharton:butterknife-compiler:${versions.butterKnifeCompilerVersion}",
         daggerCompiler     : "com.google.dagger:dagger-compiler:${versions.daggerVersion}",
         javax              : 'org.glassfish:javax.annotation:10.0-b28',
 ]

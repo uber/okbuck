@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Collections;
+import java.util.HashMap;
 
 public final class LintUtil {
 
@@ -56,15 +57,23 @@ public final class LintUtil {
         return FileUtil.getRelativePath(project.getRootDir(), config).replaceAll("/", "_");
     }
 
+
+    private static HashMap<String, String> lintConfigTarget = new HashMap<>();
+
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public static synchronized String getLintwConfigRule(Project project, File config) {
-        File configFile = project.getRootProject().file(LINT_DEPS_CACHE + "/" + getLintwConfigName(project, config));
-        try {
-            FileUtils.copyFile(config, configFile);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        String configName =  getLintwConfigName(project, config);
+
+        if (!lintConfigTarget.containsKey(configName)) {
+            File configFile = project.getRootProject().file(LINT_DEPS_CACHE + "/" + configName);
+            try {
+                FileUtils.copyFile(config, configFile);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            lintConfigTarget.put(configName, "//" + LINT_DEPS_CACHE + ":" + configName);
         }
-        return "//" + LINT_DEPS_CACHE + ":" + getLintwConfigName(project, config);
+        return lintConfigTarget.get(configName);
     }
 
     public static DependencyCache getLintDepsCache(Project project) {

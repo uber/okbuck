@@ -139,8 +139,7 @@ class DependencyCache {
      *
      * @param externalDependency The dependency.
      */
-    void getSources(ExternalDependency externalDependency) {
-        ExternalDependency dependency = forcedDeps.getOrDefault(externalDependency.versionless, externalDependency)
+    void getSources(ExternalDependency dependency) {
         String key = dependency.cacheName
         String sourcesJarPath = sources.get(key)
         if (sourcesJarPath == null || !Files.exists(Paths.get(sourcesJarPath))) {
