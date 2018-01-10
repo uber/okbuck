@@ -7,8 +7,10 @@ android {
 }
 
 dependencies {
-    compile deps.support.appCompat
+    api deps.support.appCompat
 
-    testCompile deps.test.junit
-    testCompile deps.test.robolectric
+    compileOnly deps.support.multidex
+
+    testImplementation deps.test.junit
+    testImplementation deps.test.robolectric
 }

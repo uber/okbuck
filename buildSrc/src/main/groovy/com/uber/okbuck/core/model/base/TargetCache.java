@@ -56,9 +56,7 @@ public class TargetCache {
                         Target target = new AndroidLibTarget(project, v.getName());
                         projectTargets.put(v.getName(), target);
 
-                        String artifactName = String.format("%s-%s", archiveBaseName,
-                                NAME_CONVERTER.convert(v.getName()));
-                        projectArtifacts.put(artifactName, target);
+                        projectArtifacts.put(v.getName(), target);
                     }
                     artifactNameToTarget.put(project, projectArtifacts);
                     break;
@@ -89,15 +87,15 @@ public class TargetCache {
     }
 
     @Nullable
-    public Target getTargetForOutput(Project targetProject, File artifact) {
+    public Target getTargetForOutput(Project targetProject, String variant) {
         Target result;
         ProjectType type = ProjectUtil.getType(targetProject);
         switch (type) {
             case ANDROID_LIB:
-                result = artifactNameToTarget.get(targetProject)
-                            .get(FilenameUtils.getBaseName(artifact.getName()));
+                result = artifactNameToTarget.get(targetProject).get(variant);
                 if (result == null) {
-                    throw new IllegalStateException("No target found for " + artifact.toString());
+                    throw new IllegalStateException("No target found for " + targetProject
+                            .getDisplayName() + " for variant " + variant);
                 }
                 break;
             case GROOVY_LIB:

@@ -31,8 +31,8 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
         Set<String> providedDeps = []
         providedDeps.addAll(external(target.provided.externalDeps))
         providedDeps.addAll(targets(target.provided.targetDeps))
-        providedDeps.removeAll(libraryDeps)
         providedDeps.add(D8Util.RT_STUB_JAR_RULE)
+        providedDeps.removeAll(libraryDeps)
 
         libraryDeps.addAll(target.main.targetDeps.findAll { Target targetDep ->
             targetDep instanceof AndroidTarget

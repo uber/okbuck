@@ -62,8 +62,8 @@ public final class ProjectUtil {
     }
 
     @Nullable
-    public static Target getTargetForOutput(Project targetProject, File output) {
-        return getTargetCache(targetProject).getTargetForOutput(targetProject, output);
+    public static Target getTargetForOutput(Project targetProject, String variant) {
+        return getTargetCache(targetProject).getTargetForOutput(targetProject, variant);
     }
 
     public static Map<Project, Map<String, Scope>> getScopes(Project project) {

@@ -1,6 +1,5 @@
 package com.uber.okbuck.core.model.kotlin
 
-import com.uber.okbuck.core.model.base.Scope
 import com.uber.okbuck.core.model.java.JavaLibTarget
 import org.gradle.api.Project
 
@@ -14,20 +13,12 @@ class KotlinLibTarget extends JavaLibTarget {
     }
 
     @Override
-    Scope getMain() {
-        return Scope.from(project,
-                compileConfigs,
-                (project.sourceSets.main.java.srcDirs as Set) + (project.sourceSets.main.kotlin.srcDirs as Set),
-                project.file("src/main/resources"),
-                Collections.emptyList())
+    protected Set<File> getMainSrcDirs() {
+        return (project.sourceSets.main.java.srcDirs as Set) + (project.sourceSets.main.kotlin.srcDirs as Set)
     }
 
     @Override
-    Scope getTest() {
-        return Scope.from(project,
-                expand(compileConfigs, TEST_PREFIX, true),
-                (project.sourceSets.test.java.srcDirs as Set) + (project.sourceSets.test.kotlin.srcDirs as Set),
-                project.file("src/test/resources"),
-                Collections.emptyList())
+    protected Set<File> getTestSrcDirs() {
+        return (project.sourceSets.test.java.srcDirs as Set) + (project.sourceSets.test.kotlin.srcDirs as Set)
     }
 }

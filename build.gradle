@@ -4,6 +4,7 @@ buildscript {
         jcenter()
         google()
         maven { url "https://plugins.gradle.org/m2/" }
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
     }
     dependencies {
         classpath deps.build.androidPlugin
@@ -20,6 +21,8 @@ allprojects { project ->
     repositories {
         jcenter()
         google()
+        maven { url "https://plugins.gradle.org/m2/" }
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
     }
 }
 
@@ -48,7 +51,6 @@ def addCommonConfigurationForJavaModules(Project project) {
 def addCommonConfigurationForAndroidModules(Project project) {
     project.android {
         compileSdkVersion config.build.compileSdk
-        buildToolsVersion config.build.buildTools
 
         defaultConfig {
             minSdkVersion config.build.minSdk
@@ -71,13 +73,6 @@ def addCommonConfigurationForAndroidModules(Project project) {
     def variants
     if (project.plugins.hasPlugin('com.android.application')) {
         project.android {
-            defaultConfig {
-                // Silly option to keep AGP happy till we can upgrade to 3.x
-                jackOptions {
-                    enabled true
-                }
-            }
-
             signingConfigs {
                 debug {
                     storeFile project.rootProject.file('config/signing/debug.keystore')

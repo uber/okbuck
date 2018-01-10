@@ -223,7 +223,7 @@ class DependencyCache {
     void build(Set<Configuration> configurations, boolean cleanupDeps = true, boolean useFullDepname = false) {
         configurations.each { Configuration configuration ->
             try {
-                configuration.incoming.artifacts.each { ResolvedArtifactResult artifact ->
+                configuration.incoming.artifacts.artifacts.each { ResolvedArtifactResult artifact ->
                     ComponentIdentifier identifier = artifact.id.componentIdentifier
                     if (identifier instanceof ProjectComponentIdentifier || !DependencyUtils.isConsumable(artifact.file)) {
                         return

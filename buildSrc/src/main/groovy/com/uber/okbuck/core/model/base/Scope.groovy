@@ -1,5 +1,6 @@
 package com.uber.okbuck.core.model.base
 
+import com.android.build.api.attributes.VariantAttr
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableSet
 import com.google.common.collect.MultimapBuilder
@@ -20,6 +21,7 @@ import org.gradle.api.artifacts.component.ComponentIdentifier
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 import org.gradle.api.artifacts.component.ProjectComponentIdentifier
 import org.gradle.api.artifacts.result.ResolvedArtifactResult
+import org.gradle.api.attributes.Attribute
 import org.jetbrains.annotations.Nullable
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -96,6 +98,30 @@ class Scope {
         }).flatten() as Set<String>).findAll { !it.empty }
     }
 
+    private static Set<ResolvedArtifactResult> getArtifacts(
+            Configuration configuration, String value) {
+        return configuration.getIncoming().artifactView({ config ->
+            config.attributes({ container ->
+                container.getAttribute(VariantAttr.ATTRIBUTE)
+                container.attribute(Attribute.of("artifactType", String.class), value);
+            })
+        }).getArtifacts().getArtifacts()
+    }
+
+    private static Set<ResolvedArtifactResult> getArtifacts(Set<Configuration> configurations) {
+        Set<ResolvedArtifactResult> artifactResults = configurations.collect { config ->
+            return ImmutableSet.builder()
+                    .addAll(getArtifacts(config, "aar"))
+                    .addAll(getArtifacts(config, "jar"))
+                    .build()
+
+        }.flatten() as Set<ResolvedArtifactResult>
+
+        artifactResults = artifactResults.findAll { it -> it.file.name != 'classes.jar' }
+
+        return artifactResults
+    }
+
     private void extractConfigurations(Set<Configuration> configurations) {
         if (configurations.size() == 0) {
             return
@@ -108,11 +134,8 @@ class Scope {
             greatest = MultimapBuilder.hashKeys().treeSetValues().build()
         }
 
-        LOG.info("Resolving configurations of {} : {}", project, configurations)
 
-        Set<ResolvedArtifactResult> artifacts = configurations.collect {
-            it.incoming.artifacts.artifacts
-        }.flatten() as Set<ResolvedArtifactResult>
+        Set<ResolvedArtifactResult> artifacts = getArtifacts(configurations)
 
         Set<ComponentIdentifier> artifactIds = new HashSet<>()
         artifacts.each { ResolvedArtifactResult artifact ->
@@ -122,7 +145,11 @@ class Scope {
             ComponentIdentifier identifier = artifact.id.componentIdentifier
             artifactIds.add(identifier)
             if (identifier instanceof ProjectComponentIdentifier) {
-                targetDeps.add(ProjectUtil.getTargetForOutput(project.project(identifier.projectPath), artifact.file))
+
+                String variant = artifact.variant.attributes.getAttribute(VariantAttr.ATTRIBUTE)
+                targetDeps.add(ProjectUtil.getTargetForOutput(
+                        project.project(identifier.projectPath), variant))
+
             } else if (identifier instanceof ModuleComponentIdentifier && identifier.version) {
                 ExternalDependency externalDependency = new ExternalDependency(
                         identifier.group,
@@ -156,5 +183,10 @@ class Scope {
                 external.add(greatest.get(it).first())
             }
         }
+
+//        // Download sources if needed
+//        if (project.rootProject.okbuck.intellij.sources) {
+//            DependencyUtils.downloadSourceJars(project, configurations)
+//        }
     }
 }

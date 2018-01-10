@@ -15,11 +15,19 @@ class JavaLibTarget extends JavaTarget {
         super(project, name)
     }
 
+    protected Set<File> getMainSrcDirs() {
+        return project.sourceSets.main.java.srcDirs as Set
+    }
+
+    protected Set<File> getTestSrcDirs() {
+        return project.sourceSets.test.java.srcDirs as Set
+    }
+
     @Override
     Scope getMain() {
         return Scope.from(project,
-                compileConfigs,
-                project.sourceSets.main.java.srcDirs as Set,
+                depsConfigs,
+                mainSrcDirs,
                 project.file("src/main/resources"),
                 project.compileJava.options.compilerArgs as List)
     }
@@ -27,8 +35,8 @@ class JavaLibTarget extends JavaTarget {
     @Override
     Scope getTest() {
         return Scope.from(project,
-                expand(compileConfigs, TEST_PREFIX, true),
-                project.sourceSets.test.java.srcDirs as Set,
+                expand(depsConfigs, UNIT_TEST_PREFIX),
+                testSrcDirs,
                 project.file("src/test/resources"),
                 project.compileTestJava.options.compilerArgs as List)
     }

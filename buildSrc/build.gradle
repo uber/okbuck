@@ -10,6 +10,7 @@ apply from: "../dependencies.gradle"
 repositories {
     jcenter()
     google()
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
 }
 
 jar {
@@ -31,18 +32,18 @@ sourceSets.main.groovy.srcDirs = ["src/main/java", "src/main/groovy"]
 sourceSets.main.rocker.srcDirs = ["src/main/rocker", "src/main/java"]
 
 dependencies {
-    compile gradleApi()
-    compile localGroovy()
+    implementation gradleApi()
+    implementation localGroovy()
 
-    compile deps.build.androidPlugin
-    compile deps.build.commonsIo
-    compile deps.build.commonsLang
-    compile deps.build.kotlinPlugin
-    compile deps.build.mavenArtifact
-    compile deps.build.okio
-    compile deps.build.rockerRuntime
+    implementation deps.build.androidPlugin
+    implementation deps.build.commonsIo
+    implementation deps.build.commonsLang
+    implementation deps.build.kotlinPlugin
+    implementation deps.build.mavenArtifact
+    implementation deps.build.okio
+    implementation deps.build.rockerRuntime
 
-    testCompile deps.test.junit
+    testImplementation deps.test.junit
 }
 
 rocker {
@@ -62,7 +63,7 @@ task sourcesJar(type: Jar) {
     classifier = 'sources'
 }
 
-def publishVersion = '0.32.2'
+def publishVersion = '0.32.1-uber'
 group = 'com.uber'
 version = publishVersion
 def siteUrl = 'https://github.com/uber/okbuck'

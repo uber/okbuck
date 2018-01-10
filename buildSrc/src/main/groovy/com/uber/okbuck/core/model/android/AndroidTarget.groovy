@@ -36,8 +36,6 @@ import static com.uber.okbuck.core.util.KotlinUtil.KOTLIN_ANDROID_EXTENSIONS_MOD
 abstract class AndroidTarget extends JavaLibTarget {
 
     private static final EmptyLogger EMPTY_LOGGER = new EmptyLogger()
-    private static final Set<String> ANDROID_APT_CONFIGS = ["apt", "annotationProcessor"]
-    private static final Set<String> ANDROID_PROVIDED_CONFIGS = ["provided"]
 
     final String applicationId
     final String applicationIdSuffix
@@ -60,6 +58,7 @@ abstract class AndroidTarget extends JavaLibTarget {
 
     AndroidTarget(Project project, String name, boolean isTest = false) {
         super(project, name)
+
         this.isTest = isTest
 
         String suffix = ""
@@ -124,7 +123,7 @@ abstract class AndroidTarget extends JavaLibTarget {
     Scope getMain() {
         return Scope.from(
                 project,
-                expand(compileConfigs),
+                ImmutableSet.of(baseVariant.runtimeConfiguration.name),
                 getSources(baseVariant),
                 null,
                 getJavaCompilerOptions(baseVariant))
@@ -134,10 +133,38 @@ abstract class AndroidTarget extends JavaLibTarget {
     Scope getTest() {
         return Scope.from(
                 project,
-                expand(compileConfigs, TEST_PREFIX, true),
+                unitTestVariant ?
+                        ImmutableSet.of(
+                                unitTestVariant.runtimeConfiguration.name) : ImmutableSet.of(),
                 unitTestVariant ? getSources(unitTestVariant): ImmutableSet.of(),
                 project.file("src/test/resources"),
                 getJavaCompilerOptions(unitTestVariant))
+    }
+
+    @Override
+    Scope getApt() {
+        return Scope.from(project, ImmutableSet.of(baseVariant.annotationProcessorConfiguration.name))
+    }
+
+    @Override
+    Scope getTestApt() {
+        return Scope.from(project, unitTestVariant
+                ? ImmutableSet.of(unitTestVariant.annotationProcessorConfiguration.name)
+                : ImmutableSet.of()
+        )
+    }
+
+    @Override
+    Scope getProvided() {
+        return Scope.from(project, ImmutableSet.of(baseVariant.compileConfiguration.name))
+    }
+
+    @Override
+    Scope getTestProvided() {
+        return Scope.from(project, unitTestVariant
+                ? ImmutableSet.of(unitTestVariant.compileConfiguration.name)
+                : ImmutableSet.of()
+        )
     }
 
     @Override
@@ -409,32 +436,14 @@ abstract class AndroidTarget extends JavaLibTarget {
         }
     }
 
-    @Override
-    protected Set<String> getAptConfigs() {
-        return ANDROID_APT_CONFIGS
-    }
-
-    @Override
-    protected Set<String> getProvidedConfigs() {
-        return ANDROID_PROVIDED_CONFIGS
-    }
-
     /**
      * Expands configuration names to android configuration conventions
      */
     @Override
-    protected Set<String> expand(Set<String> configNames, String prefix = "", boolean includeParent = false) {
-        List<String> expansions = ["", buildType, flavor, name]
-        Set<String> expandedConfigs = configNames.collect { String configName ->
-            expansions.collect { String expansion ->
-                String expanded = [prefix, expansion.capitalize(), configName.capitalize()].join('')
-                expanded.substring(0, 1).toLowerCase() + expanded.substring(1)
-            }
-        }.flatten() as Set<String>
-        if (prefix && includeParent) {
-            expandedConfigs += expand(configNames)
+    protected Set<String> expand(Set<String> configNames, String prefix = "") {
+        return configNames.collect { String configName ->
+            "${name}${prefix.capitalize()}${configName.capitalize()}"
         }
-        return expandedConfigs
     }
 
     File getGenPath(String... paths) {

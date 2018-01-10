@@ -35,6 +35,7 @@ final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
         providedDeps.addAll(external(target.testProvided.externalDeps))
         providedDeps.addAll(targets(target.testProvided.targetDeps))
         providedDeps.add(D8Util.RT_STUB_JAR_RULE)
+        providedDeps.removeAll(testDeps)
 
         AndroidRule androidRule = new AndroidRule()
                 .srcs(target.test.sources)

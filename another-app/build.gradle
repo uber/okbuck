@@ -4,6 +4,7 @@ android {
     defaultConfig {
         applicationId "com.uber.okbuck.example.anotherapp"
         manifestPlaceholders = [label: "custom permission"]
+        missingDimensionStrategy 'tier', 'paid', 'free'
     }
 
     buildTypes {
@@ -31,11 +32,10 @@ android {
 }
 
 dependencies {
-    compile deps.support.appCompat
-    compile deps.support.v4
-    compile project(":libraries:javalibrary")
-    compile project(":libraries:emptylibrary")
-    compile project(":libraries:parcelable")
-    releaseCompile project(path: ':libraries:common', configuration: 'paidRelease')
-    debugCompile project(path: ':libraries:common', configuration: 'freeDebug')
+    api deps.support.appCompat
+    api deps.support.v4
+    api project(":libraries:javalibrary")
+    api project(":libraries:emptylibrary")
+    api project(":libraries:parcelable")
+    api project(":libraries:common")
 }

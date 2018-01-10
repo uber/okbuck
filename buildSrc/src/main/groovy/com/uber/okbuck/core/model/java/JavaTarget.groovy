@@ -1,6 +1,7 @@
 package com.uber.okbuck.core.model.java
 
 import com.android.builder.model.LintOptions
+import com.google.common.base.Preconditions
 import com.uber.okbuck.OkBuckGradlePlugin
 import com.uber.okbuck.core.model.base.Scope
 import com.uber.okbuck.core.model.jvm.JvmTarget
@@ -10,74 +11,64 @@ import org.gradle.api.Project
 
 abstract class JavaTarget extends JvmTarget {
 
-    protected static final String TEST_PREFIX = "test"
+    protected static final String UNIT_TEST_PREFIX = "test"
 
-    private static final Set<String> JAVA_COMPILE_CONFIGS = ["compile"]
-    private static final Set<String> JAVA_APT_CONFIGS = ["apt"]
-    public static final Set<String> JAVA_PROVIDED_CONFIGS = ["compileOnly", "provided"]
+    public static final Set<String> JAVA_DEPS_CONFIGS = ["runtimeClasspath"]
+    private static final Set<String> JAVA_PROVIDED_DEPS_CONFIGS = ["compileClasspath"]
+    private static final Set<String> JAVA_APT_CONFIGS = ["apt", "annotationProcessorClasspath"]
 
     JavaTarget(Project project, String name) {
         super(project, name)
     }
 
-    protected static Set<String> getCompileConfigs() {
-        return JAVA_COMPILE_CONFIGS
+    protected static Set<String> getDepsConfigs() {
+        return JAVA_DEPS_CONFIGS
     }
 
-    protected Set<String> getAptConfigs() {
+    protected static Set<String> getProvidedDepsConfigs() {
+        return JAVA_PROVIDED_DEPS_CONFIGS
+    }
+
+    protected static Set<String> getAptConfigs() {
         return JAVA_APT_CONFIGS
-    }
-
-    protected Set<String> getProvidedConfigs() {
-        return JAVA_PROVIDED_CONFIGS
     }
 
     /**
      * Apt Scope
      */
     Scope getApt() {
-        return Scope.from(project, expand(aptConfigs))
+        return Scope.from(project, aptConfigs)
     }
 
     /**
      * Test Apt Scope
      */
     Scope getTestApt() {
-        return Scope.from(project, expand(aptConfigs, TEST_PREFIX))
+        return Scope.from(project, expand(aptConfigs, UNIT_TEST_PREFIX))
     }
 
     /**
      * Provided Scope
      */
     Scope getProvided() {
-        return Scope.from(project, expand(providedConfigs))
+        return Scope.from(project, providedDepsConfigs)
     }
 
     /**
      * Test Provided Scope
      */
     Scope getTestProvided() {
-        return Scope.from(project, expand(providedConfigs, TEST_PREFIX))
+        return Scope.from(project, expand(providedDepsConfigs, UNIT_TEST_PREFIX))
     }
 
     /**
      * Expands configuration names to java configuration conventions
      */
-    protected Set<String> expand(Set<String> configNames, String prefix = "", boolean includeParent = false) {
-        Set<String> expanded
-        if (prefix) {
-            expanded = configNames.collect {
-                "${prefix}${it.capitalize()}"
-            }
-        } else {
-            expanded = configNames
+    protected Set<String> expand(Set<String> configNames, String prefix = "") {
+        Preconditions.checkArgument(!prefix.isEmpty(), "Empty prefix not allowed for java rules")
+        return configNames.collect { String configName ->
+            "${prefix}${configName.capitalize()}"
         }
-
-        if (prefix && includeParent) {
-            expanded += expand(configNames)
-        }
-
-        return expanded
     }
 
     /**
