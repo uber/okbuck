@@ -19,7 +19,7 @@ final class AndroidResourceRuleComposer extends AndroidBuckRuleComposer {
             dep.endsWith(".aar")
         }))
 
-        resDeps.addAll(target.main.targetDeps.findAll { Target targetDep ->
+        resDeps.addAll(getTargetDeps(target.main, target.provided).findAll { Target targetDep ->
             targetDep instanceof AndroidTarget
         }.collect { Target targetDep ->
             resRule(targetDep as AndroidTarget)

@@ -17,19 +17,19 @@ final class JavaTestRuleComposer extends JvmBuckRuleComposer {
 
     static Rule compose(JavaLibTarget target,
                         RuleType ruleType = RuleType.JAVA_TEST) {
+
         List<String> deps = []
         deps.add(":${src(target)}")
-        deps.addAll(external(target.test.externalDeps))
-        deps.addAll(targets(target.test.targetDeps))
+        deps.addAll(external(getExternalDeps(target.test, target.testProvided)))
+        deps.addAll(targets(getTargetDeps(target.test, target.testProvided)))
 
         Set<String> aptDeps = [] as Set
         aptDeps.addAll(external(target.testApt.externalDeps))
         aptDeps.addAll(targets(target.testApt.targetDeps))
 
         Set<String> providedDeps = []
-        providedDeps.addAll(external(target.testProvided.externalDeps))
-        providedDeps.addAll(targets(target.testProvided.targetDeps))
-        providedDeps.removeAll(deps)
+        providedDeps.addAll(external(getExternalProvidedDeps(target.test, target.testProvided)))
+        providedDeps.addAll(targets(getTargetProvidedDeps(target.test, target.testProvided)))
 
         new JavaRule()
                 .srcs(target.test.sources)

@@ -16,18 +16,18 @@ final class JavaLibraryRuleComposer extends JvmBuckRuleComposer {
 
     static List<Rule> compose(JavaLibTarget target,
                               RuleType ruleType = RuleType.JAVA_LIBRARY) {
+
         List<String> deps = []
-        deps.addAll(external(target.main.externalDeps))
-        deps.addAll(targets(target.main.targetDeps))
+        deps.addAll(external(getExternalDeps(target.main, target.provided)))
+        deps.addAll(targets(getTargetDeps(target.main, target.provided)))
 
         Set<String> aptDeps = [] as Set
         aptDeps.addAll(externalApt(target.apt.externalDeps))
         aptDeps.addAll(targetsApt(target.apt.targetDeps))
 
         Set<String> providedDeps = []
-        providedDeps.addAll(external(target.provided.externalDeps))
-        providedDeps.addAll(targets(target.provided.targetDeps))
-        providedDeps.removeAll(deps)
+        providedDeps.addAll(external(getExternalProvidedDeps(target.main, target.provided)))
+        providedDeps.addAll(targets(getTargetProvidedDeps(target.main, target.provided)))
 
         List<String> testTargets = []
         if (target.test.sources) {

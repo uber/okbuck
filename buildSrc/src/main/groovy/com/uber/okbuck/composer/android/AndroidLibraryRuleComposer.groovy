@@ -20,21 +20,21 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
             List<String> deps,
             final List<String> aidlRuleNames,
             String appClass) {
-        List<String> libraryDeps = new ArrayList<>(deps)
-        libraryDeps.addAll(external(target.main.externalDeps))
-        libraryDeps.addAll(targets(target.main.targetDeps))
+
+        Set<String> libraryDeps = new HashSet<>(deps)
+        libraryDeps.addAll(external(getExternalDeps(target.main, target.provided)))
+        libraryDeps.addAll(targets(getTargetDeps(target.main, target.provided)))
 
         List<String> libraryAptDeps = []
         libraryAptDeps.addAll(externalApt(target.apt.externalDeps))
         libraryAptDeps.addAll(targetsApt(target.apt.targetDeps))
 
-        Set<String> providedDeps = []
-        providedDeps.addAll(external(target.provided.externalDeps))
-        providedDeps.addAll(targets(target.provided.targetDeps))
+        Set<String> providedDeps = new HashSet<>()
+        providedDeps.addAll(external(getExternalProvidedDeps(target.main, target.provided)))
+        providedDeps.addAll(targets(getTargetProvidedDeps(target.main, target.provided)))
         providedDeps.add(D8Util.RT_STUB_JAR_RULE)
-        providedDeps.removeAll(libraryDeps)
 
-        libraryDeps.addAll(target.main.targetDeps.findAll { Target targetDep ->
+        libraryDeps.addAll(getTargetDeps(target.main, target.provided).findAll { Target targetDep ->
             targetDep instanceof AndroidTarget
         }.collect { Target targetDep ->
             resRule(targetDep as AndroidTarget)
