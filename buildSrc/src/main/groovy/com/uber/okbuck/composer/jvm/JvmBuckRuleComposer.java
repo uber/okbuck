@@ -3,7 +3,6 @@ package com.uber.okbuck.composer.jvm;
 import com.uber.okbuck.composer.base.BuckRuleComposer;
 import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.model.base.Target;
-import com.uber.okbuck.core.model.java.JavaTarget;
 import com.uber.okbuck.core.model.jvm.JvmTarget;
 
 import java.util.HashSet;
@@ -23,33 +22,67 @@ public class JvmBuckRuleComposer extends BuckRuleComposer {
         return "test_" + target.getName();
     }
 
-    public static Set<Target> getTargetDeps(final Scope main, final Scope provided) {
-        Set<Target> runtimeOnlyDeps = new HashSet<>(main.getTargetDeps());
-        runtimeOnlyDeps.removeAll(provided.getTargetDeps());
+    /**
+     * Get api & implementation target deps.
+     * runtimeOnlyDeps = runtimeClasspath(api + implementation + runtimeOnly) -
+     *                   compileClasspath(api + implementation + compileOnly)
+     * deps = runtimeClasspath(api + implementation + runtimeOnly) - runtimeOnlyDeps
+     * @param runtime RuntimeClasspath scope
+     * @param compile CompileClasspath scope
+     * @return Target deps
+     */
+    public static Set<Target> getTargetDeps(final Scope runtime, final Scope compile) {
+        Set<Target> runtimeOnlyDeps = new HashSet<>(runtime.getTargetDeps());
+        runtimeOnlyDeps.removeAll(compile.getTargetDeps());
 
-        Set<Target> deps = new HashSet<>(main.getTargetDeps());
+        Set<Target> deps = new HashSet<>(runtime.getTargetDeps());
         deps.removeAll(runtimeOnlyDeps);
         return deps;
     }
 
-    public static Set<Target> getTargetProvidedDeps(final Scope main, final Scope provided) {
-        Set<Target> deps = new HashSet<>(provided.getTargetDeps());
-        deps.removeAll(main.getTargetDeps());
+    /**
+     * Get compileOnly target deps.
+     * compileOnlyDeps = compileClasspath(api + implementation + compileOnly) -
+     *                   runtimeClasspath(api + implementation + runtimeOnly)
+     * @param runtime RuntimeClasspath scope
+     * @param compile CompileClasspath scope
+     * @return CompileOnly Target deps
+     */
+    public static Set<Target> getTargetProvidedDeps(final Scope runtime, final Scope compile) {
+        Set<Target> deps = new HashSet<>(compile.getTargetDeps());
+        deps.removeAll(runtime.getTargetDeps());
         return deps;
     }
 
-    public static Set<String> getExternalDeps(final Scope main, final Scope provided) {
-        Set<String> runtimeOnlyDeps = new HashSet<>(main.getExternalDeps());
-        runtimeOnlyDeps.removeAll(provided.getExternalDeps());
+    /**
+     * Get api & implementation external deps.
+     * runtimeOnlyDeps = runtimeClasspath(api + implementation + runtimeOnly) -
+     *                   compileClasspath(api + implementation + compileOnly)
+     * deps = runtimeClasspath(api + implementation + runtimeOnly) - runtimeOnlyDeps
+     * @param runtime RuntimeClasspath scope
+     * @param compile CompileClasspath scope
+     * @return External deps
+     */
+    public static Set<String> getExternalDeps(final Scope runtime, final Scope compile) {
+        Set<String> runtimeOnlyDeps = new HashSet<>(runtime.getExternalDeps());
+        runtimeOnlyDeps.removeAll(compile.getExternalDeps());
 
-        Set<String> deps = new HashSet<>(main.getExternalDeps());
+        Set<String> deps = new HashSet<>(runtime.getExternalDeps());
         deps.removeAll(runtimeOnlyDeps);
         return deps;
     }
 
-    public static Set<String> getExternalProvidedDeps(final Scope main, final Scope provided) {
-        Set<String> deps = new HashSet<>(provided.getExternalDeps());
-        deps.removeAll(main.getExternalDeps());
+    /**
+     * Get compileOnly external deps.
+     * compileOnlyDeps = compileClasspath(api + implementation + compileOnly) -
+     *                   runtimeClasspath(api + implementation + runtimeOnly)
+     * @param runtime RuntimeClasspath scope
+     * @param compile CompileClasspath scope
+     * @return CompileOnly Target deps
+     */
+    public static Set<String> getExternalProvidedDeps(final Scope runtime, final Scope compile) {
+        Set<String> deps = new HashSet<>(compile.getExternalDeps());
+        deps.removeAll(runtime.getExternalDeps());
         return deps;
     }
 }
