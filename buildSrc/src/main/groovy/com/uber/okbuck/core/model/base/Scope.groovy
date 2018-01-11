@@ -56,7 +56,9 @@ class Scope {
         jvmArgs = jvmArguments
         this.depCache = depCache
 
-        extractConfiguration(configuration)
+        if (configuration) {
+            extractConfiguration(configuration)
+        }
     }
 
     static Scope from(Project project,
@@ -76,7 +78,7 @@ class Scope {
                       List<String> jvmArguments = ImmutableList.of(),
                       DependencyCache depCache = ProjectUtil.getDependencyCache(project)) {
         Configuration useful = DependencyUtils.useful(configuration)
-        String key = useful ? useful.name : "n/a"
+        String key = useful ? useful.name : "--none--"
         return ProjectUtil.getScopes(project)
                 .computeIfAbsent(project, { new ConcurrentHashMap<>() })
                 .computeIfAbsent(key,
@@ -134,10 +136,6 @@ class Scope {
     }
 
     private void extractConfiguration(Configuration configuration) {
-        if (!configuration) {
-            return
-        }
-
         Set<ResolvedArtifactResult> artifacts = getArtifacts(configuration)
         Set<ComponentIdentifier> artifactIds = new HashSet<>()
         artifacts.each { ResolvedArtifactResult artifact ->

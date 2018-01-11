@@ -3,6 +3,7 @@ package com.uber.okbuck.core.model.java
 import com.uber.okbuck.core.model.base.Scope
 import org.gradle.api.Project
 import org.gradle.api.plugins.ApplicationPlugin
+import org.gradle.api.plugins.JavaPlugin
 import org.gradle.jvm.tasks.Jar
 import org.jetbrains.annotations.Nullable
 
@@ -26,7 +27,7 @@ class JavaLibTarget extends JavaTarget {
     @Override
     Scope getMain() {
         return Scope.from(project,
-                depsConfig,
+                JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME,
                 mainSrcDirs,
                 project.file("src/main/resources"),
                 project.compileJava.options.compilerArgs as List)
@@ -35,7 +36,7 @@ class JavaLibTarget extends JavaTarget {
     @Override
     Scope getTest() {
         return Scope.from(project,
-                expand(depsConfig, UNIT_TEST_PREFIX),
+                JavaPlugin.TEST_RUNTIME_CLASSPATH_CONFIGURATION_NAME,
                 testSrcDirs,
                 project.file("src/test/resources"),
                 project.compileTestJava.options.compilerArgs as List)

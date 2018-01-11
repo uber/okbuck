@@ -16,8 +16,9 @@ final class DependencyUtils {
         try {
             Configuration config = project.configurations.getByName(configuration)
             return useful(config)
-        } catch (UnknownConfigurationException ignored) {}
-        return null;
+        } catch (UnknownConfigurationException ignored) {
+            return null;
+        }
     }
 
     static Configuration useful(Configuration configuration) {

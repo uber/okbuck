@@ -20,18 +20,6 @@ abstract class JavaTarget extends JvmTarget {
         super(project, name)
     }
 
-    protected static String getDepsConfig() {
-        return JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME
-    }
-
-    protected static String getProvidedDepsConfig() {
-        return JavaPlugin.COMPILE_CLASSPATH_CONFIGURATION_NAME
-    }
-
-    protected static String getAptConfig() {
-        return JAVA_APT_CONFIG
-    }
-
     /**
      * Apt Scope
      */
@@ -43,21 +31,21 @@ abstract class JavaTarget extends JvmTarget {
      * Test Apt Scope
      */
     Scope getTestApt() {
-        return Scope.from(project, expand(aptConfig, UNIT_TEST_PREFIX))
+        return Scope.from(project, expand(JAVA_APT_CONFIG, UNIT_TEST_PREFIX))
     }
 
     /**
      * Provided Scope
      */
     Scope getProvided() {
-        return Scope.from(project, providedDepsConfig)
+        return Scope.from(project, JavaPlugin.COMPILE_CLASSPATH_CONFIGURATION_NAME)
     }
 
     /**
      * Test Provided Scope
      */
     Scope getTestProvided() {
-        return Scope.from(project, expand(providedDepsConfig, UNIT_TEST_PREFIX))
+        return Scope.from(project, JavaPlugin.TEST_COMPILE_CLASSPATH_CONFIGURATION_NAME)
     }
 
     /**
