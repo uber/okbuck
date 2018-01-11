@@ -24,7 +24,7 @@ abstract class JavaTarget extends JvmTarget {
      * Apt Scope
      */
     Scope getApt() {
-        return Scope.from(project, aptConfig)
+        return Scope.from(project, JAVA_APT_CONFIG)
     }
 
     /**
