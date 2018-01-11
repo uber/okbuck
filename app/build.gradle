@@ -11,6 +11,8 @@ android {
         buildConfigField "int", "EXOPACKAGE_FLAGS", "0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
+        // If app doesn't specify dimensions, use missingDimensionStrategy
+        // https://developer.android.com/studio/build/gradle-plugin-3-0-0-migration.html#resolve_matching_errors
         missingDimensionStrategy 'tier', 'free', 'paid'
     }
 
@@ -52,22 +54,22 @@ repositories {
 }
 
 dependencies {
-    api fileTree(dir: 'libs', include: ['*.jar'])
-    api(name: 'rxscreenshotdetector-1.2.0', ext: 'aar')
-    api deps.external.rxjava
-    api deps.external.rxandroid
-    api deps.external.rxPermissions
-    api deps.support.multidex
-    api deps.external.butterKnife
-    api deps.support.design
-    api deps.support.recyclerView
-    api deps.external.leakCanary
-    api deps.external.xlogAndroidIdle
-    api deps.apt.autoValue
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation(name: 'rxscreenshotdetector-1.2.0', ext: 'aar')
+    implementation deps.external.rxjava
+    implementation deps.external.rxandroid
+    implementation deps.external.rxPermissions
+    implementation deps.support.multidex
+    implementation deps.external.butterKnife
+    implementation deps.support.design
+    implementation deps.support.recyclerView
+    implementation deps.external.leakCanary
+    implementation deps.external.xlogAndroidIdle
+    implementation deps.apt.autoValue
 
-    api project(':libraries:emptylibrary')
-    api project(':libraries:kotlinandroidlibrary')
-    api project(':dummylibrary')
+    implementation project(':libraries:emptylibrary')
+    implementation project(':libraries:kotlinandroidlibrary')
+    implementation project(':dummylibrary')
 
     annotationProcessor deps.apt.autoValue
     annotationProcessor deps.apt.butterKnifeCompiler

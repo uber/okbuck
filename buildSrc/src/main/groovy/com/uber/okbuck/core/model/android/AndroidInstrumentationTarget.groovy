@@ -24,19 +24,19 @@ class AndroidInstrumentationTarget extends AndroidAppTarget {
 
     @Override
     Scope getApt() {
-        return Scope.from(project, ImmutableSet.of(baseVariant.annotationProcessorConfiguration.name))
+        return Scope.from(project, baseVariant.annotationProcessorConfiguration)
     }
 
     @Override
     Scope getProvided() {
-        return Scope.from(project, ImmutableSet.of(baseVariant.compileConfiguration.name))
+        return Scope.from(project, baseVariant.compileConfiguration)
     }
 
     @Override
     Scope getMain() {
         return Scope.from(
                 project,
-                ImmutableSet.of(baseVariant.runtimeConfiguration.name),
+                baseVariant.runtimeConfiguration,
                 getSources(baseVariant),
                 null,
                 getJavaCompilerOptions(baseVariant))
@@ -44,14 +44,13 @@ class AndroidInstrumentationTarget extends AndroidAppTarget {
 
     @Override
     Scope getTest() {
-        return Scope.from(project, ImmutableSet.of())
+        return Scope.from(project, null)
     }
 
     Scope getInstrumentation() {
         return Scope.from(
                 project,
-                ImmutableSet.of(baseVariant.runtimeConfiguration.name,
-                        ["androidTest${getMainTargetName(name).capitalize()}RuntimeClasspath"]),
+                baseVariant.runtimeConfiguration,
                 getSources(baseVariant),
                 null,
                 getJavaCompilerOptions(instrumentationTestVariant))

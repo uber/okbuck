@@ -52,7 +52,7 @@ class DependencyCache {
         lintJars = new Store(rootProject.file("${OkBuckGradlePlugin.OKBUCK_STATE_DIR}/LINT_JARS"))
 
         if (forcedConfiguration) {
-            Scope.from(project, Collections.singleton(forcedConfiguration)).external.each {
+            Scope.from(project, forcedConfiguration).external.each {
                 get(it)
                 forcedDeps.put(it.versionless, it)
             }

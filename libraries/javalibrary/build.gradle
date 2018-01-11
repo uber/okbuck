@@ -1,5 +1,5 @@
 apply plugin: 'java-library'
-apply plugin: "net.ltgt.apt"
+apply plugin: 'net.ltgt.apt'
 
 dependencies {
     implementation deps.external.gson

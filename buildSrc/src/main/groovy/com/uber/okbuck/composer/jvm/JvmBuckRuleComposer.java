@@ -1,5 +1,7 @@
 package com.uber.okbuck.composer.jvm;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Sets;
 import com.uber.okbuck.composer.base.BuckRuleComposer;
 import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.model.base.Target;
@@ -23,21 +25,15 @@ public class JvmBuckRuleComposer extends BuckRuleComposer {
     }
 
     /**
-     * Get api & implementation target deps.
-     * runtimeOnlyDeps = runtimeClasspath(api + implementation + runtimeOnly) -
-     *                   compileClasspath(api + implementation + compileOnly)
-     * deps = runtimeClasspath(api + implementation + runtimeOnly) - runtimeOnlyDeps
+     * Get api and implementation target deps.
+     * deps = runtimeClasspath(api + implementation + runtimeOnly) intersect
+     *        compileClasspath(api + implementation + compileOnly)
      * @param runtime RuntimeClasspath scope
      * @param compile CompileClasspath scope
      * @return Target deps
      */
     public static Set<Target> getTargetDeps(final Scope runtime, final Scope compile) {
-        Set<Target> runtimeOnlyDeps = new HashSet<>(runtime.getTargetDeps());
-        runtimeOnlyDeps.removeAll(compile.getTargetDeps());
-
-        Set<Target> deps = new HashSet<>(runtime.getTargetDeps());
-        deps.removeAll(runtimeOnlyDeps);
-        return deps;
+        return Sets.intersection(runtime.getTargetDeps(), compile.getTargetDeps());
     }
 
     /**
@@ -49,27 +45,19 @@ public class JvmBuckRuleComposer extends BuckRuleComposer {
      * @return CompileOnly Target deps
      */
     public static Set<Target> getTargetProvidedDeps(final Scope runtime, final Scope compile) {
-        Set<Target> deps = new HashSet<>(compile.getTargetDeps());
-        deps.removeAll(runtime.getTargetDeps());
-        return deps;
+        return Sets.difference(compile.getTargetDeps(), runtime.getTargetDeps());
     }
 
     /**
-     * Get api & implementation external deps.
-     * runtimeOnlyDeps = runtimeClasspath(api + implementation + runtimeOnly) -
-     *                   compileClasspath(api + implementation + compileOnly)
-     * deps = runtimeClasspath(api + implementation + runtimeOnly) - runtimeOnlyDeps
+     * Get api and implementation external deps.
+     * deps = runtimeClasspath(api + implementation + runtimeOnly) intersect
+     *        compileClasspath(api + implementation + compileOnly)
      * @param runtime RuntimeClasspath scope
      * @param compile CompileClasspath scope
      * @return External deps
      */
     public static Set<String> getExternalDeps(final Scope runtime, final Scope compile) {
-        Set<String> runtimeOnlyDeps = new HashSet<>(runtime.getExternalDeps());
-        runtimeOnlyDeps.removeAll(compile.getExternalDeps());
-
-        Set<String> deps = new HashSet<>(runtime.getExternalDeps());
-        deps.removeAll(runtimeOnlyDeps);
-        return deps;
+        return Sets.intersection(runtime.getExternalDeps(), compile.getExternalDeps());
     }
 
     /**
@@ -81,8 +69,6 @@ public class JvmBuckRuleComposer extends BuckRuleComposer {
      * @return CompileOnly Target deps
      */
     public static Set<String> getExternalProvidedDeps(final Scope runtime, final Scope compile) {
-        Set<String> deps = new HashSet<>(compile.getExternalDeps());
-        deps.removeAll(runtime.getExternalDeps());
-        return deps;
+        return Sets.difference(compile.getExternalDeps(), runtime.getExternalDeps());
     }
 }

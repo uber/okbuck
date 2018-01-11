@@ -63,7 +63,7 @@ public final class ProjectUtil {
     }
 
     @Nullable
-    public static Target getTargetForOutput(Project targetProject, String variant) {
+    public static Target getTargetForVariant(Project targetProject, String variant) {
         return getTargetCache(targetProject).getTargetForOutput(targetProject, variant);
     }
 

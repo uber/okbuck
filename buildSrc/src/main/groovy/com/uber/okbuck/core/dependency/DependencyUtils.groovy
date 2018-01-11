@@ -12,22 +12,19 @@ final class DependencyUtils {
 
     private DependencyUtils() {}
 
-    static Set<Configuration> useful(Project project, Set<String> configurations) {
-        Set<Configuration> useful = new HashSet<>()
-        configurations.each { String configName ->
-            try {
-                def conf = project.configurations.getByName(configName)
-                if (conf.isCanBeResolved()) {
-                    useful.add(conf)
-                }
-            } catch (UnknownConfigurationException ignored) {}
-        }
+    static Configuration useful(Project project, String configuration) {
+        try {
+            Configuration config = project.configurations.getByName(configuration)
+            return useful(config)
+        } catch (UnknownConfigurationException ignored) {}
+        return null;
+    }
 
-        useful.findAll { Configuration configuration ->
-            !configuration.dependencies.empty
+    static Configuration useful(Configuration configuration) {
+        if (configuration && configuration.isCanBeResolved()) {
+            return configuration
         }
-        useful.removeAll(useful.collect { it.extendsFrom }.flatten())
-        return useful
+        return null;
     }
 
     static File createCacheDir(Project project, String cacheDirPath, String buckFile = null) {

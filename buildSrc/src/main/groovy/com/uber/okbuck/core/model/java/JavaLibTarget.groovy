@@ -26,7 +26,7 @@ class JavaLibTarget extends JavaTarget {
     @Override
     Scope getMain() {
         return Scope.from(project,
-                depsConfigs,
+                depsConfig,
                 mainSrcDirs,
                 project.file("src/main/resources"),
                 project.compileJava.options.compilerArgs as List)
@@ -35,7 +35,7 @@ class JavaLibTarget extends JavaTarget {
     @Override
     Scope getTest() {
         return Scope.from(project,
-                expand(depsConfigs, UNIT_TEST_PREFIX),
+                expand(depsConfig, UNIT_TEST_PREFIX),
                 testSrcDirs,
                 project.file("src/test/resources"),
                 project.compileTestJava.options.compilerArgs as List)

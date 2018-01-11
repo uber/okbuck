@@ -53,7 +53,7 @@ public final class TransformUtil {
 
         Scope transformScope = Scope.from(
                 project,
-                Collections.singleton(CONFIGURATION_TRANSFORM),
+                CONFIGURATION_TRANSFORM,
                 ImmutableSet.of(),
                 null,
                 ImmutableList.of(),

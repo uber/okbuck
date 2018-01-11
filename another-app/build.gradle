@@ -4,6 +4,8 @@ android {
     defaultConfig {
         applicationId "com.uber.okbuck.example.anotherapp"
         manifestPlaceholders = [label: "custom permission"]
+        // If app doesn't specify dimensions, use missingDimensionStrategy
+        // https://developer.android.com/studio/build/gradle-plugin-3-0-0-migration.html#resolve_matching_errors
         missingDimensionStrategy 'tier', 'paid', 'free'
     }
 
@@ -32,10 +34,10 @@ android {
 }
 
 dependencies {
-    api deps.support.appCompat
-    api deps.support.v4
-    api project(":libraries:javalibrary")
-    api project(":libraries:emptylibrary")
-    api project(":libraries:parcelable")
-    api project(":libraries:common")
+    implementation deps.support.appCompat
+    implementation deps.support.v4
+    implementation project(":libraries:javalibrary")
+    implementation project(":libraries:emptylibrary")
+    implementation project(":libraries:parcelable")
+    implementation project(":libraries:common")
 }

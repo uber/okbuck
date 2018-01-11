@@ -123,7 +123,7 @@ abstract class AndroidTarget extends JavaLibTarget {
     Scope getMain() {
         return Scope.from(
                 project,
-                ImmutableSet.of(baseVariant.runtimeConfiguration.name),
+                baseVariant.runtimeConfiguration,
                 getSources(baseVariant),
                 null,
                 getJavaCompilerOptions(baseVariant))
@@ -133,9 +133,7 @@ abstract class AndroidTarget extends JavaLibTarget {
     Scope getTest() {
         return Scope.from(
                 project,
-                unitTestVariant ?
-                        ImmutableSet.of(
-                                unitTestVariant.runtimeConfiguration.name) : ImmutableSet.of(),
+                unitTestVariant ? unitTestVariant.runtimeConfiguration : null,
                 unitTestVariant ? getSources(unitTestVariant): ImmutableSet.of(),
                 project.file("src/test/resources"),
                 getJavaCompilerOptions(unitTestVariant))
@@ -143,27 +141,25 @@ abstract class AndroidTarget extends JavaLibTarget {
 
     @Override
     Scope getApt() {
-        return Scope.from(project, ImmutableSet.of(baseVariant.annotationProcessorConfiguration.name))
+        return Scope.from(project, baseVariant.annotationProcessorConfiguration)
     }
 
     @Override
     Scope getTestApt() {
         return Scope.from(project, unitTestVariant
-                ? ImmutableSet.of(unitTestVariant.annotationProcessorConfiguration.name)
-                : ImmutableSet.of()
+                ? unitTestVariant.annotationProcessorConfiguration : null
         )
     }
 
     @Override
     Scope getProvided() {
-        return Scope.from(project, ImmutableSet.of(baseVariant.compileConfiguration.name))
+        return Scope.from(project, baseVariant.compileConfiguration)
     }
 
     @Override
     Scope getTestProvided() {
         return Scope.from(project, unitTestVariant
-                ? ImmutableSet.of(unitTestVariant.compileConfiguration.name)
-                : ImmutableSet.of()
+                ? unitTestVariant.compileConfiguration : null
         )
     }
 
@@ -433,16 +429,6 @@ abstract class AndroidTarget extends JavaLibTarget {
             return map.get(identifier)
         } else {
             return defaultValue
-        }
-    }
-
-    /**
-     * Expands configuration names to android configuration conventions
-     */
-    @Override
-    protected Set<String> expand(Set<String> configNames, String prefix = "") {
-        return configNames.collect { String configName ->
-            "${name}${prefix.capitalize()}${configName.capitalize()}"
         }
     }
 
