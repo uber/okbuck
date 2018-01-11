@@ -87,7 +87,7 @@ public class TargetCache {
     }
 
     @Nullable
-    public Target getTargetForOutput(Project targetProject, String variant) {
+    public Target getTargetForVariant(Project targetProject, String variant) {
         Target result;
         ProjectType type = ProjectUtil.getType(targetProject);
         switch (type) {

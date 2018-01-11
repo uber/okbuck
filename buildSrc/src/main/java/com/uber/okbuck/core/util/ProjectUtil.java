@@ -64,7 +64,7 @@ public final class ProjectUtil {
 
     @Nullable
     public static Target getTargetForVariant(Project targetProject, String variant) {
-        return getTargetCache(targetProject).getTargetForOutput(targetProject, variant);
+        return getTargetCache(targetProject).getTargetForVariant(targetProject, variant);
     }
 
     public static Map<Project, Map<String, Scope>> getScopes(Project project) {
