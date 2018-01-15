@@ -1,0 +1,46 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/code
+    docker:
+      - image: circleci/android:api-27-alpha
+    environment:
+      SKIP_OKBUCK: true
+      EXTRA_OKBUCK_ARGS: --quiet --stacktrace
+    steps:
+      - checkout
+      - restore_cache:
+         keys:
+           - build-cache
+      - emulator -avd circleci-android22 -no-audio -no-window:
+          background: true
+          parallel: true
+      - run:
+          name: Run okbuck
+          command: SKIP_OKBUCK= ./buckw --version
+      - run:
+          name: Build all non lint targets
+          command: ./buckw targets --type android_binary android_instrumentation_apk java_test groovy_test robolectric_test kotlin_test scala_test | xargs ./buckw build -v 0
+      - run:
+          name: Build all lint targets, except for lint error library
+          command: ./buckw targets --type genrule | grep -v lintErrorLibrary | xargs ./buckw build -v 0
+      - run:
+          name: Run lint integration test
+          command: ./tooling/ci/lint_integration_test.sh
+      - run:
+          name: Run unit tests
+          command: ./buckw test --include unit
+      - circle-android wait-for-boot
+      - adb shell input keyevent 82
+      - run:
+          name: Run ui tests
+          command: ./buckw test //app:instrumentation_demoDebug_test
+      - run:
+          name: Cleanup
+          command: rm -f ~/.gradle/caches/modules-2/modules-2.lock
+      - save_cache:
+          paths:
+            - buck-out/cache
+            - ~/.gradle/caches/modules-2/
+            - ~/.gradle/wrapper/
+          key: build-cache
