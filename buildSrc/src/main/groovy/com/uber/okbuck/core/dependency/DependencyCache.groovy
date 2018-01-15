@@ -12,6 +12,7 @@ import org.gradle.api.artifacts.component.ComponentIdentifier
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 import org.gradle.api.artifacts.component.ProjectComponentIdentifier
 import org.gradle.api.artifacts.result.ResolvedArtifactResult
+import org.gradle.api.internal.artifacts.ivyservice.DefaultLenientConfiguration
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -220,22 +221,26 @@ class DependencyCache {
      */
     void build(Set<Configuration> configurations, boolean cleanupDeps = true, boolean useFullDepname = false) {
         configurations.each { Configuration configuration ->
-            configuration.incoming.artifacts.each { ResolvedArtifactResult artifact ->
-                ComponentIdentifier identifier = artifact.id.componentIdentifier
-                if (identifier instanceof ProjectComponentIdentifier || !DependencyUtils.isConsumable(artifact.file)) {
-                    return
+            try {
+                configuration.incoming.artifacts.each { ResolvedArtifactResult artifact ->
+                    ComponentIdentifier identifier = artifact.id.componentIdentifier
+                    if (identifier instanceof ProjectComponentIdentifier || !DependencyUtils.isConsumable(artifact.file)) {
+                        return
+                    }
+                    ExternalDependency dependency
+                    if (identifier instanceof ModuleComponentIdentifier && identifier.version) {
+                        dependency = new ExternalDependency(
+                                identifier.group,
+                                identifier.module,
+                                identifier.version,
+                                artifact.file)
+                    } else {
+                        dependency = ExternalDependency.fromLocal(artifact.file)
+                    }
+                    get(dependency, true, useFullDepname)
                 }
-                ExternalDependency dependency
-                if (identifier instanceof ModuleComponentIdentifier && identifier.version) {
-                    dependency = new ExternalDependency(
-                            identifier.group,
-                            identifier.module,
-                            identifier.version,
-                            artifact.file)
-                } else {
-                    dependency = ExternalDependency.fromLocal(artifact.file)
-                }
-                get(dependency, true, useFullDepname)
+            } catch (DefaultLenientConfiguration.ArtifactResolveException e) {
+                throw new IllegalStateException("Failed to resolve an artifact. Make sure you have a repositories block defined. See https://github.com/uber/okbuck/wiki/Known-caveats#could-not-resolve-all-dependencies-for-configuration for more information.", e)
             }
         }
 
