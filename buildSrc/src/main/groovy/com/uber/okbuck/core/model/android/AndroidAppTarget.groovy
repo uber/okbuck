@@ -3,6 +3,7 @@ package com.uber.okbuck.core.model.android
 import com.android.build.gradle.api.BaseVariant
 import com.android.builder.model.SigningConfig
 import com.android.manifmerger.ManifestMerger2
+import com.google.common.base.Preconditions
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableSet
 import com.uber.okbuck.core.util.FileUtil
@@ -113,27 +114,27 @@ class AndroidAppTarget extends AndroidLibTarget {
         if (minifyEnabled) {
             Set<File> proguardFiles = (baseVariant.mergedFlavor.proguardFiles +
                     baseVariant.buildType.proguardFiles)
-            if (proguardFiles.size() > 0 && proguardFiles[0].exists()) {
-                File genProguardConfig = getGenPath("proguard.pro")
-                try {
-                    LOG.info("Creating symlink {} -> {}", genProguardConfig, proguardFiles[0])
-                    Files.createSymbolicLink(genProguardConfig.toPath(), proguardFiles[0].toPath())
-                } catch (IOException ignored) {
-                    LOG.info("Could not create symlink {} -> {}", genProguardConfig, proguardFiles[0])
-                }
-
-                if (proguardMappingFile) {
-                    File genProguardMappingFile = getGenPath("proguard.map")
-                    try {
-                        LOG.info("Creating symlink {} -> {}", genProguardMappingFile, proguardMappingFile)
-                        Files.createSymbolicLink(genProguardMappingFile.toPath(), proguardMappingFile.toPath())
-                    } catch (IOException ignored) {
-                        LOG.info("Could not create symlink {} -> {}", genProguardMappingFile, proguardMappingFile)
-                    }
-                }
-
-                return FileUtil.getRelativePath(project.rootDir, genProguardConfig)
+            Preconditions.checkArgument(proguardFiles.size() == 1, "%s proguard files found. Only one can be used.", proguardFiles.size())
+            Preconditions.checkArgument(proguardFiles[0].exists(), "Proguard file %s does not exist", proguardFiles[0])
+            File genProguardConfig = getGenPath("proguard.pro")
+            try {
+                LOG.info("Creating symlink {} -> {}", genProguardConfig, proguardFiles[0])
+                Files.createSymbolicLink(genProguardConfig.toPath(), proguardFiles[0].toPath())
+            } catch (IOException ignored) {
+                LOG.info("Could not create symlink {} -> {}", genProguardConfig, proguardFiles[0])
             }
+
+            if (proguardMappingFile) {
+                File genProguardMappingFile = getGenPath("proguard.map")
+                try {
+                    LOG.info("Creating symlink {} -> {}", genProguardMappingFile, proguardMappingFile)
+                    Files.createSymbolicLink(genProguardMappingFile.toPath(), proguardMappingFile.toPath())
+                } catch (IOException ignored) {
+                    LOG.info("Could not create symlink {} -> {}", genProguardMappingFile, proguardMappingFile)
+                }
+            }
+
+            return FileUtil.getRelativePath(project.rootDir, genProguardConfig)
         }
         return null
     }
