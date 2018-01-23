@@ -70,7 +70,7 @@ class DependencyCache {
     void cleanup() {
         String changingDeps = requested.findAll { ExternalDependency dependency ->
             String version = dependency.version.toString()
-            return version.contains("+") || version.contains("-SNAPSHOT")
+            return version.endsWith("+") || version.endsWith("-SNAPSHOT")
         }.collect { ExternalDependency dependency ->
             dependency.cacheName
         }.join("\n")
