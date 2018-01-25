@@ -29,7 +29,6 @@ import org.gradle.api.plugins.PluginContainer;
 import org.gradle.api.plugins.scala.ScalaPlugin;
 import org.gradle.jvm.JvmLibrary;
 import org.gradle.language.base.artifact.SourcesArtifact;
-import org.gradle.language.java.artifact.JavadocArtifact;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper;
 
