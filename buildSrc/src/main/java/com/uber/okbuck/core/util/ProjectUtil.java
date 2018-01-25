@@ -1,27 +1,20 @@
 package com.uber.okbuck.core.util;
 
-import java.io.File;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Stream;
-
 import com.android.build.gradle.AppPlugin;
 import com.android.build.gradle.LibraryPlugin;
-import com.google.common.collect.Sets;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.core.dependency.DependencyCache;
 import com.uber.okbuck.core.model.base.ProjectType;
 import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.model.base.Target;
 import com.uber.okbuck.core.model.base.TargetCache;
+
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.component.ComponentIdentifier;
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.artifacts.query.ArtifactResolutionQuery;
 import org.gradle.api.artifacts.result.ArtifactResolutionResult;
-import org.gradle.api.artifacts.result.ArtifactResult;
-import org.gradle.api.artifacts.result.ComponentArtifactsResult;
 import org.gradle.api.component.Artifact;
 import org.gradle.api.plugins.GroovyPlugin;
 import org.gradle.api.plugins.JavaPlugin;
@@ -31,6 +24,11 @@ import org.gradle.jvm.JvmLibrary;
 import org.gradle.language.base.artifact.SourcesArtifact;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper;
+
+import java.io.File;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Stream;
 
 public final class ProjectUtil {
 

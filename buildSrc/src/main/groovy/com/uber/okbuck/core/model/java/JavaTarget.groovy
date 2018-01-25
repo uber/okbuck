@@ -5,7 +5,6 @@ import com.uber.okbuck.OkBuckGradlePlugin
 import com.uber.okbuck.core.model.base.Scope
 import com.uber.okbuck.core.model.jvm.JvmTarget
 import com.uber.okbuck.core.util.LintUtil
-import com.uber.okbuck.core.util.ProjectUtil
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 

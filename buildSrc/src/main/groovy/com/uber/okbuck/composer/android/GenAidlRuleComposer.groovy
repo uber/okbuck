@@ -1,7 +1,6 @@
 package com.uber.okbuck.composer.android
 
 import com.uber.okbuck.core.model.android.AndroidTarget
-import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.template.android.GenAidlRule
 import com.uber.okbuck.template.core.Rule
 

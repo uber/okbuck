@@ -3,7 +3,6 @@ package com.uber.okbuck.transform;
 import com.android.build.api.transform.DirectoryInput;
 import com.android.build.api.transform.JarInput;
 import com.android.build.api.transform.TransformInput;
-import com.uber.okbuck.transform.TransformInputBuilder;
 
 import org.junit.Before;
 import org.junit.Test;

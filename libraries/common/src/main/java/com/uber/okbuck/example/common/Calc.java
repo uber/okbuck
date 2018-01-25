@@ -1,7 +1,5 @@
 package com.uber.okbuck.example.common;
 
-import com.uber.okbuck.example.common.CalcMonitor;
-
 public class Calc {
     private final CalcMonitor mCalcMonitor;
 

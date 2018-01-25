@@ -1,7 +1,7 @@
 package demo 
 
-import kotlin.test.assertEquals
 import org.junit.Test
+import kotlin.test.assertEquals
 
 class HelloWorldTest {
     @Test fun f() {

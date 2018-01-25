@@ -17,7 +17,6 @@ import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.core.model.base.Scope
 import com.uber.okbuck.core.model.java.JavaLibTarget
 import com.uber.okbuck.core.model.jvm.TestOptions
-import com.uber.okbuck.core.util.D8Util
 import com.uber.okbuck.core.util.FileUtil
 import groovy.util.slurpersupport.GPathResult
 import groovy.xml.StreamingMarkupBuilder
@@ -30,6 +29,7 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinAndroidPluginWrapper
 import java.nio.file.Paths
 
 import static com.uber.okbuck.core.util.KotlinUtil.KOTLIN_ANDROID_EXTENSIONS_MODULE
+
 /**
  * An Android target
  */
