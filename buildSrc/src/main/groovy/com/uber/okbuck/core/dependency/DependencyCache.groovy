@@ -93,7 +93,8 @@ class DependencyCache {
                         !copies.contains(pathname) &&
                         (pathname.name.endsWith(".jar")
                                 || pathname.name.endsWith(".aar")
-                                || pathname.name.endsWith(".pro"))
+                                || pathname.name.endsWith(".pro")
+                                || pathname.name.endsWith(".pex"))
             }
         })
 

@@ -63,13 +63,13 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     public static final String TRANSFORM = "transform"
     public static final String SCALA = "scala"
     public static final String FORCED_OKBUCK = "forcedOkbuck"
+    public static final String BUCK_BINARY = "buck_binary"
     public static final String OKBUCK_DEFS = ".okbuck/defs/DEFS"
 
     public static final String OKBUCK_STATE_DIR = ".okbuck/state"
     public static final String OKBUCK_STATE = "${OKBUCK_STATE_DIR}/STATE"
     public static final String OKBUCK_GEN = ".okbuck/gen"
-
-    public static final String DEFAULT_BUCK_VERSION = "b08c8889ccdf18de641ee1fd12340fe817a453e9"
+    public static final String JITPACK_URL = 'https://jitpack.io'
 
     // Project level globals
     public DependencyCache depCache
@@ -93,6 +93,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         // Create configurations
         project.configurations.maybeCreate(TransformUtil.CONFIGURATION_TRANSFORM)
         project.configurations.maybeCreate(FORCED_OKBUCK)
+        Configuration buckBinaryConfiguration = project.configurations.maybeCreate(BUCK_BINARY)
 
         // Create tasks
         Task setupOkbuck = project.task('setupOkbuck')
@@ -121,6 +122,16 @@ class OkBuckGradlePlugin implements Plugin<Project> {
             // Create extra dependency caches if needed
             Map<String, Configuration> extraConfigurations = okbuckExt.extraDepCaches.collectEntries { String cacheName ->
                 [cacheName, project.configurations.maybeCreate("${cacheName}ExtraDepCache")]
+            }
+
+            // Create dependency cache for buck binary if needed
+            if (okbuckExt.buckBinary) {
+                project.repositories {
+                    maven { url JITPACK_URL }
+                }
+                project.dependencies {
+                    delegate."${BUCK_BINARY}" okbuckExt.buckBinary
+                }
             }
 
             setupOkbuck.doFirst {
@@ -165,6 +176,10 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                                     project, "${EXTRA_DEP_CACHE_PATH}/${cacheName}", EXTERNAL_DEP_BUCK_FILE))
                             .build(extraConfiguration)
                 }
+
+                // Fetch buck binary
+                new DependencyCache(project, DependencyUtils.createCacheDir(project, "${DEFAULT_CACHE_PATH}/${BUCK_BINARY}"))
+                    .build(buckBinaryConfiguration)
             }
 
             // Create clean task

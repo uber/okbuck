@@ -42,6 +42,6 @@ final class DependencyUtils {
     }
 
     static boolean isConsumable(File file) {
-        return file.name.endsWith(".jar") || file.name.endsWith(".aar")
+        return file.name.endsWith(".jar") || file.name.endsWith(".aar") || file.name.endsWith(".pex")
     }
 }

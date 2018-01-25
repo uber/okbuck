@@ -50,13 +50,6 @@ public class BuckWrapperTask extends DefaultTask {
         if (!watchmanConfig.exists()) {
             FileUtil.copyResourceToProject("wrapper/WATCHMAN_CONFIG", getProject().file(".watchmanconfig"));
         }
-
-        File buckVersion = getProject().file(".buckversion");
-        if (!buckVersion.exists()) {
-            try {
-                Files.write(buckVersion.toPath(), OkBuckGradlePlugin.DEFAULT_BUCK_VERSION.getBytes());
-            } catch (IOException ignored) { }
-        }
     }
 
     @Override
