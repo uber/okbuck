@@ -108,22 +108,19 @@ class Scope {
             greatest = MultimapBuilder.hashKeys().treeSetValues().build()
         }
 
-        // Download sources if needed
-        if (project.rootProject.okbuck.intellij.sources) {
-            DependencyUtils.downloadSourceJars(project, configurations)
-        }
-
         LOG.info("Resolving configurations of {} : {}", project, configurations)
 
         Set<ResolvedArtifactResult> artifacts = configurations.collect {
             it.incoming.artifacts.artifacts
         }.flatten() as Set<ResolvedArtifactResult>
 
+        Set<ComponentIdentifier> artifactIds = new HashSet<>()
         artifacts.each { ResolvedArtifactResult artifact ->
             if (!DependencyUtils.isConsumable(artifact.file)) {
                 return
             }
             ComponentIdentifier identifier = artifact.id.componentIdentifier
+            artifactIds.add(identifier)
             if (identifier instanceof ProjectComponentIdentifier) {
                 targetDeps.add(ProjectUtil.getTargetForOutput(project.project(identifier.projectPath), artifact.file))
             } else if (identifier instanceof ModuleComponentIdentifier && identifier.version) {
@@ -147,6 +144,11 @@ class Scope {
                 }
                 external.add(ExternalDependency.fromLocal(artifact.file))
             }
+        }
+
+        // Download sources if needed
+        if (project.rootProject.okbuck.intellij.sources) {
+            ProjectUtil.downloadSources(project, artifactIds)
         }
 
         if (resolveDups) {

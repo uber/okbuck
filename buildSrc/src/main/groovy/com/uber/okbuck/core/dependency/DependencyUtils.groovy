@@ -4,7 +4,6 @@ import com.uber.okbuck.core.util.FileUtil
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.UnknownConfigurationException
-import org.gradle.plugins.ide.internal.IdeDependenciesExtractor
 
 final class DependencyUtils {
 
@@ -36,15 +35,6 @@ final class DependencyUtils {
             FileUtil.copyResourceToProject(buckFile, new File(cacheDir, "BUCK"))
         }
         return cacheDir
-    }
-
-    static void downloadSourceJars(Project project, Set<Configuration> configurations) {
-        new IdeDependenciesExtractor().extractRepoFileDependencies(
-                project.dependencies,
-                configurations,
-                [],
-                true,
-                false)
     }
 
     static boolean isWhiteListed(File depFile) {
