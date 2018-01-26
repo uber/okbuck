@@ -28,10 +28,10 @@ jobs:
           command: SKIP_OKBUCK= ./buckw --version
       - run:
           name: Build all non lint targets
-          command: ./buckw targets --type android_binary android_instrumentation_apk java_test groovy_test robolectric_test kotlin_test scala_test | xargs ./buckw build -v 0
+          command: ./buckw targets --type android_binary android_instrumentation_apk java_test groovy_test robolectric_test kotlin_test scala_test | xargs ./buckw build
       - run:
           name: Build all lint targets, except for lint error library
-          command: ./buckw targets --type genrule | grep -v lintErrorLibrary | xargs ./buckw build -v 0
+          command: ./buckw targets --type genrule | grep -v lintErrorLibrary | xargs ./buckw build
       - run:
           name: Run lint integration test
           command: ./tooling/ci/lint_integration_test.sh

@@ -175,7 +175,10 @@ watchmanWorkflow ( ) {
 }
 
 killBuckDaemons ( ) {
-    ps -ef | grep "[c]om.facebook.buck.cli.Main\$DaemonBootstrap" | awk '{print $2}' | xargs kill -9
+    DAEMONS=$(ps -ef | grep "[c]om.facebook.buck.cli.Main\$DaemonBootstrap" | awk '{print $2}')
+    if [ ! -z "$DAEMONS" ]; then
+        echo "$DAEMONS" | xargs kill -9
+    fi
 }
 
 setupBuckBinary ( ) {
