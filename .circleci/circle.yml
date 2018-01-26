@@ -1,6 +1,7 @@
 version: 2
 jobs:
   build:
+    working_directory: ~/okbuck
     docker:
       - image: circleci/android:api-27-alpha
     environment:
@@ -11,6 +12,10 @@ jobs:
       - restore_cache:
          keys:
            - build-cache
+      # Prepare the container for the build
+      - run:
+          name: Ensure Android SDK licenses are accepted
+          command: ./tooling/ci/ensure-android-sdk-licenses.sh
       - emulator -avd circleci-android22 -no-audio -no-window:
           background: true
           parallel: true
