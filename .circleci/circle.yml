@@ -1,6 +1,9 @@
 version: 2
 jobs:
   build:
+    dependencies:
+      override:
+        - yes | sudo sdkmanager --licenses
     working_directory: ~/code
     docker:
       - image: circleci/android:api-27-alpha
