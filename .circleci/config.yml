@@ -2,6 +2,7 @@ version: 2
 jobs:
   build:
     working_directory: ~/okbuck
+    resource_class: large
     docker:
       - image: circleci/android:api-27-alpha
     environment:
