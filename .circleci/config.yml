@@ -44,7 +44,14 @@ jobs:
           key: gradle-cache
       - run:
           name: Build all non lint targets
-          command: ./buckw targets --type android_binary android_instrumentation_apk java_test groovy_test robolectric_test kotlin_test scala_test | xargs ./buckw build
+          command: |
+            ./buckw targets --type android_binary | ./buckw build
+            && ./buckw targets --type android_instrumentation_apk | ./buckw build
+            && ./buckw targets --type java_test | xargs ./buckw build
+            && ./buckw targets --type groovy_test | xargs ./buckw build
+            && ./buckw targets --type robolectric_test | xargs ./buckw build
+            && ./buckw targets --type kotlin_test | xargs ./buckw build
+            && ./buckw targets --type scala_test | xargs ./buckw build
           shell: "/bin/bash"
       - run:
           name: Build all lint targets, except for lint error library
