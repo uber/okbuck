@@ -9,6 +9,7 @@ jobs:
       SKIP_OKBUCK: true
       EXTRA_OKBUCK_ARGS: --stacktrace
       JVM_OPTS: -Xmx3200m
+      GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx2048m -XX:+HeapDumpOnOutOfMemoryError"'
     steps:
       - checkout
       - restore_cache:
@@ -45,13 +46,13 @@ jobs:
       - run:
           name: Build all non lint targets
           command: |
-            ./buckw targets --type android_binary | ./buckw build
-            && ./buckw targets --type android_instrumentation_apk | ./buckw build
-            && ./buckw targets --type java_test | xargs ./buckw build
-            && ./buckw targets --type groovy_test | xargs ./buckw build
-            && ./buckw targets --type robolectric_test | xargs ./buckw build
-            && ./buckw targets --type kotlin_test | xargs ./buckw build
-            && ./buckw targets --type scala_test | xargs ./buckw build
+            ./buckw targets --type android_binary | xargs ./buckw build \
+            && ./buckw targets --type android_instrumentation_apk | xargs ./buckw build \
+            && ./buckw targets --type java_test | xargs ./buckw build \
+            && ./buckw targets --type groovy_test | xargs ./buckw build \
+            && ./buckw targets --type robolectric_test | xargs ./buckw build \
+            && ./buckw targets --type kotlin_test | xargs ./buckw build \
+            && ./buckw targets --type scala_test | xargs ./buckw build \
           shell: "/bin/bash"
       - run:
           name: Build all lint targets, except for lint error library
