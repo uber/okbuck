@@ -15,7 +15,9 @@ jobs:
       - run:
           name: Ensure Android SDK licenses are accepted
           command: ./tooling/ci/ensure-android-sdk-licenses.sh
-      - emulator -avd circleci-android22 -no-audio -no-window:
+      - run:
+          name: Run emulator
+          command: emulator -avd circleci-android22 -no-audio -no-window
           background: true
           parallel: true
       - run:
