@@ -16,10 +16,12 @@ jobs:
           name: Ensure Android SDK licenses are accepted
           command: ./tooling/ci/ensure-android-sdk-licenses.sh
       - run:
-          name: Run emulator
-          command: emulator -avd circleci-android22 -no-audio -no-window
+          name: Setup emulator
+          command: sdkmanager "system-images;android-27;google_apis;x86" && echo "no" | avdmanager create avd -n test -k "system-images;android-27;google_apis;x86"
+      - run:
+          name: Launch emulator
+          command: export LD_LIBRARY_PATH=${ANDROID_HOME}/emulator/lib64:${ANDROID_HOME}/emulator/lib64/qt/lib && emulator -avd test -noaudio -no-boot-anim -no-window -accel on
           background: true
-          parallel: true
       - run:
           name: Run okbuck
           command: SKIP_OKBUCK= ./buckw --version
@@ -36,8 +38,10 @@ jobs:
           name: Run unit tests
           command: ./buckw test --include unit
       - run:
-          name: wake up emulator
-          command: adb shell input keyevent 82
+          name: Wait for emulator
+          command: |
+            circle-android wait-for-boot
+            adb shell input keyevent 82
       - run:
           name: Run ui tests
           command: ./buckw test //app:instrumentation_demoDebug_test
