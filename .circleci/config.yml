@@ -35,8 +35,9 @@ jobs:
       - run:
           name: Run unit tests
           command: ./buckw test --include unit
-      - circle-android wait-for-boot
-      - adb shell input keyevent 82
+      - run:
+          name: wake up emulator
+          command: adb shell input keyevent 82
       - run:
           name: Run ui tests
           command: ./buckw test //app:instrumentation_demoDebug_test
