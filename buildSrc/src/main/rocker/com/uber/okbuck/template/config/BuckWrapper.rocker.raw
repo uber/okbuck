@@ -65,18 +65,14 @@ jsonq() {
 }
 
 ensure python 'https://www.python.org'
-ensure ant 'http://ant.apache.org/'
 INSTALLED_WATCHMAN=`command -v watchman`
 
-DEFAULT_BUCK_REPO="https://github.com/facebook/buck.git"
-DEFAULT_BUCK_INSTALL_DIR="$HOME/.gradle/caches/okbuck/buck"
-CUSTOM_BUCK_REPO="@(customBuckRepo)"
-CUSTOM_REMOTE_NAME="custom"
 OKBUCK_SUCCESS="$SCRIPT_DIR/build/okbuck.success"
 OKBUCK_DIR="$SCRIPT_DIR/.okbuck"
 MAX_DISPLAY_CHANGES=10
 WATCHMAN_TIMEOUT=10
 WATCHMAN_FAILED="WATCHMAN FAILED"
+BUCK_BINARY_DIR="$OKBUCK_DIR/cache/buck_binary"
 
 # Timeout a call and exit early. This can be called via timeout <time> <command>.
 timeout( ) {
@@ -173,52 +169,34 @@ watchmanWorkflow ( ) {
     fi
 }
 
+killBuckDaemons ( ) {
+    ps -ef | grep "[c]om.facebook.buck.cli.Main\$DaemonBootstrap" | awk '{print $2}' | xargs kill -9
+}
+
 setupBuckBinary ( ) {
-    # If no explicit buck binary is set
-    if [[ -z "$BUCK_BINARY" ]] ; then
-        # If no buck installation directory is set
-        if [[ -z "$BUCK_HOME" ]]; then
-            BUCK_HOME=$DEFAULT_BUCK_INSTALL_DIR
-        fi
+    BUCK_BINARY=$(find "$BUCK_BINARY_DIR" -name buck-*.pex)
 
-        # Install buck from source if not already available
-        if [[ ! -d "$BUCK_HOME" ]]; then
-            warn "BUCK NOT FOUND IN '$BUCK_HOME'. INSTALLING BUCK..."
-            git clone $DEFAULT_BUCK_REPO $BUCK_HOME || die "FAILED TO CLONE $DEFAULT_BUCK_REPO"
-        fi
+    if [[ ! -x "$BUCK_BINARY" ]]; then
+        chmod +x "$BUCK_BINARY"
+    fi
 
-        # Add custom buck remote
-        if [[ ! -z $CUSTOM_BUCK_REPO ]]; then
-            cd $BUCK_HOME
-            REMOTE_EXISTS=$(git remote -v | grep "$CUSTOM_REMOTE_NAME")
-            if [[ -z "$REMOTE_EXISTS" ]]; then
-                git remote add $CUSTOM_REMOTE_NAME $CUSTOM_BUCK_REPO || die "FAILED TO ADD REMOTE $CUSTOM_BUCK_REPO"
-            fi
-            cd -
-        fi
+    # No existing daemon or clean project root
+    BUCKD_VERSION_FILE="$PROJECT_ROOT/.buckd/buckd.version"
+    if [[ ! -f "$BUCKD_VERSION_FILE" ]]; then
+        killBuckDaemons
+    else
+        BUCKD_VERSION=$(cat "$BUCKD_VERSION_FILE")
+    fi
 
-        # Check for current buck version
-        BUCK_VERSION=$(cat $SCRIPT_DIR/.buckversion)
-        if [[ ! -z "$BUCK_VERSION" ]]; then
-            pushd "$BUCK_HOME" >/dev/null
-            CURRENT_BUCK_VERSION=$(git rev-parse HEAD)
-            if [[ "$BUCK_VERSION" != "$CURRENT_BUCK_VERSION" ]]; then
-                info "BUCK VERSION IS AT $CURRENT_BUCK_VERSION , BUT IT SHOULD BE $BUCK_VERSION. UPDATING BUCK"
-                git clean -fdx --quiet && git reset --hard --quiet && git fetch --all && git checkout "$BUCK_VERSION" --quiet && success "UPDATED BUCK TO $BUCK_VERSION" || die "FAILED TO UPDATE BUCK TO $BUCK_VERSION"
-                ps -ef | grep "[c]om.facebook.buck.cli.Main\$DaemonBootstrap" | awk '{print $2}' | xargs kill -9 && success "STOPPED ACTIVE BUCK DAEMONS"
-            fi
-            popd >/dev/null
-        fi
+    # Unknown daemon state
+    if [[ -z "$BUCKD_VERSION" ]]; then
+        killBuckDaemons
+    fi
 
-        # Build buck if needed
-        if [[ ! -f "$BUCK_HOME/build/successful-build" ]]; then
-            echo "Buck does not appear to have been built -- building Buck!"
-            pushd "$BUCK_HOME" >/dev/null
-            mkdir -p build && ant > build/ant.log && success "BUCK BUILT SUCCESSFULLY" || die "FAILED TO BUILD BUCK"
-            popd >/dev/null
-        fi
-
-        BUCK_BINARY="$BUCK_HOME/bin/buck"
+    # Daemon version does not match
+    BUCK_BINARY_VERSION=$(basename "$BUCK_BINARY" | cut -f 1 -d "." | cut -f 2 -d "-")
+    if [[ "$BUCK_BINARY_VERSION" != "$BUCKD_VERSION" ]]; then
+        killBuckDaemons
     fi
 }
 
