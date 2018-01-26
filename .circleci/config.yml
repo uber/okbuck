@@ -12,15 +12,16 @@ jobs:
       - restore_cache:
          keys:
            - build-cache
+           - emulator-cache
       - run:
           name: Ensure Android SDK licenses are accepted
           command: ./tooling/ci/ensure-android-sdk-licenses.sh
       - run:
           name: Setup emulator
-          command: sdkmanager "system-images;android-27;google_apis;x86" && echo "no" | avdmanager create avd -n test -k "system-images;android-27;google_apis;x86"
+          command: sdkmanager "system-images;android-21;google_apis;armeabi-v7a" && echo "no" | avdmanager create avd -n test -k "system-images;android-21;google_apis;armeabi-v7a"
       - run:
           name: Launch emulator
-          command: export LD_LIBRARY_PATH=${ANDROID_HOME}/emulator/lib64:${ANDROID_HOME}/emulator/lib64/qt/lib && emulator -avd test -noaudio -no-boot-anim -no-window -accel on
+          command: export LD_LIBRARY_PATH=${ANDROID_HOME}/emulator/lib64:${ANDROID_HOME}/emulator/lib64/qt/lib && emulator64-arm -avd test -noaudio -no-boot-anim -no-window -accel on
           background: true
       - run:
           name: Run okbuck
@@ -54,3 +55,7 @@ jobs:
             - ~/.gradle/caches/modules-2/
             - ~/.gradle/wrapper/
           key: build-cache
+      - save_cache:
+          paths:
+            - ~/.android/avd
+          key: emulator-cache
