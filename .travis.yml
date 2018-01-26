@@ -3,8 +3,6 @@ sudo: true
 language: java
 jdk: oraclejdk8
 
-dist: precise
-
 before_install:
   - export SKIP_OKBUCK=true
   - export EXTRA_OKBUCK_ARGS="--quiet --stacktrace"
@@ -19,13 +17,10 @@ before_install:
   - export ANDROID_SDK_INSTALL_COMPONENT="echo \"y\" | \"$ANDROID_HOME\"/tools/bin/sdkmanager > /dev/null"
   - eval $ANDROID_SDK_INSTALL_COMPONENT '"tools"'
   - eval $ANDROID_SDK_INSTALL_COMPONENT '"platform-tools"'
-  - eval $ANDROID_SDK_INSTALL_COMPONENT '"build-tools;26.0.0"'
-  - eval $ANDROID_SDK_INSTALL_COMPONENT '"platforms;android-26"'
+  - eval $ANDROID_SDK_INSTALL_COMPONENT '"build-tools;27.0.0"'
+  - eval $ANDROID_SDK_INSTALL_COMPONENT '"platforms;android-27"'
   - eval $ANDROID_SDK_INSTALL_COMPONENT '"extras;android;m2repository"'
-  - eval $ANDROID_SDK_INSTALL_COMPONENT '"system-images;android-18;default;armeabi-v7a"'
   - export PATH="$PATH:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator"
-  - echo no | avdmanager create avd -f -n test -k "system-images;android-18;default;armeabi-v7a"
-  - emulator -avd test -no-audio -no-window &
 
 install:
   - echo "Override default Travis install step to avoid unnecessary './gradlew assemble'."
@@ -34,22 +29,8 @@ script:
   - SKIP_OKBUCK= ./buckw --version
   - ./buckw targets --type android_binary android_instrumentation_apk java_test groovy_test robolectric_test kotlin_test scala_test | xargs ./buckw build -v 0
   - ./buckw targets --type genrule | grep -v lintErrorLibrary | xargs ./buckw build -v 0
-  - ./buckw build //libraries/lintErrorLibrary:lint_debug -v 0;
-    if [ $? -eq 0 ]; then
-      echo "Lint passed when it should have failed. Please revisit any changes you may have made to lint wiring.";
-      exit 1;
-    else
-      if grep -q 'id=\"DontUseSystemTime\"' 'buck-out/gen/libraries/lintErrorLibrary/lint_debug/lint_debug_out/lint-results.xml'; then
-        echo "Lint failed as expected.";
-      else
-        echo "Lint did not create the expected output. Please double check your changes to resolve.";
-        exit 1;
-      fi
-    fi
+  - ./tooling/ci/lint_integration_test.sh
   - ./buckw test --include unit
-  - android-wait-for-emulator
-  - adb shell input keyevent 82
-  - ./buckw test //app:instrumentation_demoDebug_test
 
 notifications:
   email: false
