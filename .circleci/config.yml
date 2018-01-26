@@ -12,7 +12,6 @@ jobs:
       - restore_cache:
          keys:
            - build-cache
-      # Prepare the container for the build
       - run:
           name: Ensure Android SDK licenses are accepted
           command: ./tooling/ci/ensure-android-sdk-licenses.sh
