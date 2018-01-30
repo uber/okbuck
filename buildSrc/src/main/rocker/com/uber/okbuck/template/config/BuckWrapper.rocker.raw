@@ -184,7 +184,7 @@ setupBuckBinary ( ) {
     fi
 
     # No existing daemon or clean project root
-    BUCKD_VERSION_FILE="$PROJECT_ROOT/.buckd/buckd.version"
+    BUCKD_VERSION_FILE="$SCRIPT_DIR/.buckd/buckd.version"
     if [[ ! -f "$BUCKD_VERSION_FILE" ]]; then
         killBuckDaemons
     else
