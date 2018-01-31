@@ -89,8 +89,7 @@ please read the [Exopackage wiki](https://github.com/uber/okbuck/wiki/Exopackage
 
 ## Configuring Buck
 
-You can configure behavior of buck by using various configuration files like [buckconfig](https://buckbuild
-.com/concept/buckconfig.html), [buckjavaargs](https://buckbuild.com/concept/buckjavaargs.html), [bucklogging](https://buckbuild.com/contributing/logging.html) and [buckversion](https://buckbuild.com/concept/buckversion.html). It is recommended to atleast set the buckversion so you are pointed at a good revision of the [buck
+You can configure behavior of buck by using various configuration files like [buckconfig](https://buckbuild.com/concept/buckconfig.html), [buckjavaargs](https://buckbuild.com/concept/buckjavaargs.html), [bucklogging](https://buckbuild.com/contributing/logging.html) and [buckversion](https://buckbuild.com/concept/buckversion.html). It is recommended to atleast set the buckversion so you are pointed at a good revision of the [buck
 codebase](https://github.com/facebook/buck).
 
 Similarly, watchman can be configured for better performance via [watchmanconfig](https://facebook.github.io/watchman/docs/config.html). For examples of these configuration files, you can look at the existing configuration files in this repository.
