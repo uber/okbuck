@@ -55,6 +55,7 @@ def addCommonConfigurationForJavaModules(Project project) {
 def addCommonConfigurationForAndroidModules(Project project) {
     project.android {
         compileSdkVersion config.build.compileSdk
+        buildToolsVersion config.build.buildTools
 
         defaultConfig {
             minSdkVersion config.build.minSdk
