@@ -5,7 +5,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.TextView;
 
 import com.example.hellojni.HelloJni;
@@ -21,20 +20,24 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mTvTest = (TextView) findViewById(R.id.mTvTest);
-        mTvTest.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mTvTest();
-            }
-        });
+        CalcMonitor calcMonitor = new CalcMonitor(this);
+        calcMonitor.addCalled("from another-app");
+
+        mTvTest = findViewById(R.id.mTvTest);
+        mTvTest.setOnClickListener(v -> mTvTest());
     }
 
     void mTvTest() {
         Log.d("TEST", "" + android.support.v7.appcompat.R.color.button_material_light);
-        mTvTest.setText("1 + 2 = " + new Calc(new CalcMonitor(this)).add(1, 2) + "\n\n" + HelloJni
-                .stringFromJNI() + "\n\n" + getString(
-                com.uber.okbuck.example.empty.R.string.empty_release_string));
+        mTvTest.setText(new StringBuilder().append("1 + 2 = ")
+                .append(new Calc(new CalcMonitor(this)).add(1, 2))
+                .append("\n\n")
+                .append(HelloJni
+                        .stringFromJNI())
+                .append("\n\n")
+                .append(getString(
+                        com.uber.okbuck.example.empty.R.string.empty_release_string))
+                .toString());
     }
 
     @Override

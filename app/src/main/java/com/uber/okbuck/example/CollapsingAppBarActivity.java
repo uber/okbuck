@@ -65,9 +65,9 @@ public class CollapsingAppBarActivity extends AppCompatActivity {
     }
 
     private void bind() {
-        mRecyclerView = ButterKnife.findById(this, R.id.mRecyclerView);
-        mAppBarLayout = ButterKnife.findById(this, R.id.mAppBarLayout);
-        mCoordinatorLayout = ButterKnife.findById(this, R.id.mCoordinatorLayout);
+        mRecyclerView = findViewById(R.id.mRecyclerView);
+        mAppBarLayout = findViewById(R.id.mAppBarLayout);
+        mCoordinatorLayout = findViewById(R.id.mCoordinatorLayout);
     }
 
     public static class Adapter extends RecyclerView.Adapter<ViewHolder> {

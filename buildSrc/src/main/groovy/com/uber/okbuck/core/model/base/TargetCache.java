@@ -13,16 +13,22 @@ import com.uber.okbuck.core.model.jvm.JvmTarget;
 import com.uber.okbuck.core.model.kotlin.KotlinLibTarget;
 import com.uber.okbuck.core.model.scala.ScalaLibTarget;
 import com.uber.okbuck.core.util.ProjectUtil;
+import com.uber.okbuck.core.util.FileUtil;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.FileUtils;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.BasePluginConvention;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Collections;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.uber.okbuck.core.util.LintUtil.LINT_DEPS_CACHE;
 
 public class TargetCache {
 
@@ -31,6 +37,7 @@ public class TargetCache {
 
     private final Map<Project, Map<String, Target>> store = new HashMap<>();
     private final Map<Project, Map<String, Target>> artifactNameToTarget = new HashMap<>();
+    private final Map<String, String> lintConfig = new ConcurrentHashMap<>();
 
     public Map<String, Target> getTargets(Project project) {
         Map<String, Target> projectTargets = store.get(project);
@@ -56,9 +63,7 @@ public class TargetCache {
                         Target target = new AndroidLibTarget(project, v.getName());
                         projectTargets.put(v.getName(), target);
 
-                        String artifactName = String.format("%s-%s", archiveBaseName,
-                                NAME_CONVERTER.convert(v.getName()));
-                        projectArtifacts.put(artifactName, target);
+                        projectArtifacts.put(v.getName(), target);
                     }
                     artifactNameToTarget.put(project, projectArtifacts);
                     break;
@@ -89,15 +94,15 @@ public class TargetCache {
     }
 
     @Nullable
-    public Target getTargetForOutput(Project targetProject, File artifact) {
+    public Target getTargetForVariant(Project targetProject, String variant) {
         Target result;
         ProjectType type = ProjectUtil.getType(targetProject);
         switch (type) {
             case ANDROID_LIB:
-                result = artifactNameToTarget.get(targetProject)
-                            .get(FilenameUtils.getBaseName(artifact.getName()));
+                result = artifactNameToTarget.get(targetProject).get(variant);
                 if (result == null) {
-                    throw new IllegalStateException("No target found for " + artifact.toString());
+                    throw new IllegalStateException("No target found for " + targetProject
+                            .getDisplayName() + " for variant " + variant);
                 }
                 break;
             case GROOVY_LIB:
@@ -110,5 +115,18 @@ public class TargetCache {
                 result = null;
         }
         return result;
+    }
+
+    public String lintConfig(Project project, File config) {
+        String configName = FileUtil.getRelativePath(project.getRootDir(), config).replaceAll("/", "_");
+        return lintConfig.computeIfAbsent(configName, key -> {
+            File configFile = project.getRootProject().file(LINT_DEPS_CACHE + "/" + configName);
+            try {
+                FileUtils.copyFile(config, configFile);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            return "//" + LINT_DEPS_CACHE + ":" + configName;
+        });
     }
 }

@@ -12,7 +12,7 @@ android {
         test.setRoot('test')
     }
 
-    publishNonDefault true
+    flavorDimensions "tier"
     productFlavors {
         free {}
         paid {}
@@ -20,15 +20,13 @@ android {
 }
 
 dependencies {
-    compile project(':libraries:javalibrary')
-    compile(deps.external.sqlite) {
-        exclude module: 'support-annotations'
-    }
+    api deps.external.dagger
+    api deps.external.gson
 
-    freeCompile project(path: ':libraries:common', configuration: 'freeDebug')
-    paidCompile project(path: ':libraries:common', configuration: 'paidRelease')
+    api project(':libraries:javalibrary')
+    api project(':libraries:common')
 
     annotationProcessor deps.apt.daggerCompiler
 
-    testCompile deps.test.junit
+    testImplementation deps.test.junit
 }

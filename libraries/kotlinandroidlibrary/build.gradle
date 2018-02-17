@@ -7,9 +7,9 @@ androidExtensions {
 }
 
 dependencies {
-  compile deps.external.kotlinStdlib
-  testCompile deps.test.junit
-  testCompile deps.test.kotlinTest
+  api deps.external.kotlinStdlib
+  testImplementation deps.test.junit
+  testImplementation deps.test.kotlinTest
 }
 
 android {

@@ -51,6 +51,7 @@ final class BuckFileGenerator {
                 os.write(NEWLINE)
             }
             os.flush()
+            os.close()
         }
     }
 

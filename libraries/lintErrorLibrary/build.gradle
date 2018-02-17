@@ -2,5 +2,5 @@ apply plugin: 'com.android.library'
 
 dependencies {
     buckLint project (':libraries:customLintLibrary')
-    compile deps.support.appCompat
+    api deps.support.appCompat
 }

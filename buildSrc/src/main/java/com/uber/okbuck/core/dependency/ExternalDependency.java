@@ -2,8 +2,6 @@ package com.uber.okbuck.core.dependency;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
@@ -11,13 +9,13 @@ import java.io.File;
  * Represents a pre packaged dependency from an external
  * source like gradle/maven cache or the filesystem
  */
-public final class ExternalDependency implements Comparable<ExternalDependency> {
+public final class ExternalDependency {
 
     private static final String LOCAL_DEP_VERSION = "1.0.0-LOCAL";
     private static final String SOURCES_JAR = "-sources.jar";
 
     public final boolean isLocal;
-    public final DefaultArtifactVersion version;
+    public final String version;
     public final File depFile;
     public final String group;
     public final String name;
@@ -34,9 +32,9 @@ public final class ExternalDependency implements Comparable<ExternalDependency> 
 
         ExternalDependency that = (ExternalDependency) o;
 
-        if (!version.equals(that.version)) { return false; }
-        if (!group.equals(that.group)) { return false; }
-        return name.equals(that.name);
+        return version.equals(that.version) &&
+                group.equals(that.group) &&
+                name.equals(that.name);
     }
 
     @Override
@@ -45,11 +43,6 @@ public final class ExternalDependency implements Comparable<ExternalDependency> 
         result = 31 * result + group.hashCode();
         result = 31 * result + name.hashCode();
         return result;
-    }
-
-    @Override
-    public int compareTo(@NotNull ExternalDependency o) {
-        return version.compareTo(o.version);
     }
 
     @Override
@@ -83,9 +76,9 @@ public final class ExternalDependency implements Comparable<ExternalDependency> 
         this.name = name;
         this.isLocal = isLocal;
         if (!StringUtils.isEmpty(version)) {
-            this.version = new DefaultArtifactVersion(version);
+            this.version = version;
         } else {
-            this.version = new DefaultArtifactVersion(LOCAL_DEP_VERSION);
+            this.version = LOCAL_DEP_VERSION;
         }
 
         this.depFile = depFile;
@@ -114,8 +107,7 @@ public final class ExternalDependency implements Comparable<ExternalDependency> 
 
             VersionlessDependency that = (VersionlessDependency) o;
 
-            if (!group.equals(that.group)) { return false; }
-            return name.equals(that.name);
+            return group.equals(that.group) && name.equals(that.name);
         }
 
         @Override

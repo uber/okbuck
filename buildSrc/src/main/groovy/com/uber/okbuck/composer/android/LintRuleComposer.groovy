@@ -5,6 +5,7 @@ import com.uber.okbuck.core.model.base.Target
 import com.uber.okbuck.core.model.java.JavaLibTarget
 import com.uber.okbuck.core.model.java.JavaTarget
 import com.uber.okbuck.core.util.LintUtil
+import com.uber.okbuck.core.util.ProjectUtil
 import com.uber.okbuck.extension.LintExtension
 import com.uber.okbuck.template.android.LintRule
 import com.uber.okbuck.template.core.Rule
@@ -18,7 +19,7 @@ final class LintRuleComposer extends AndroidBuckRuleComposer {
     static Rule compose(AndroidTarget target) {
         String lintConfigXml = ""
         if (target.lintOptions.lintConfig != null && target.lintOptions.lintConfig.exists()) {
-            lintConfigXml = LintUtil.getLintwConfigRule(target.project, target.lintOptions.lintConfig)
+            lintConfigXml = ProjectUtil.getLintwConfigRule(target.project, target.lintOptions.lintConfig)
         }
 
         Set<Target> customLintTargets = target.lint.targetDeps.findAll {

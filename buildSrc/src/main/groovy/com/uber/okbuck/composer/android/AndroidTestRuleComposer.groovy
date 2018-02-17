@@ -24,16 +24,16 @@ final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
 
         List<String> testDeps = new ArrayList<>(deps)
         testDeps.add(":${src(target)}")
-        testDeps.addAll(external(target.test.externalDeps))
-        testDeps.addAll(targets(target.test.targetDeps))
+        testDeps.addAll(external(getExternalDeps(target.test, target.testProvided)))
+        testDeps.addAll(targets(getTargetDeps(target.test, target.testProvided)))
 
         List<String> testAptDeps = []
         testAptDeps.addAll(external(target.testApt.externalDeps))
         testAptDeps.addAll(targets(target.testApt.targetDeps))
 
         Set<String> providedDeps = []
-        providedDeps.addAll(external(target.testProvided.externalDeps))
-        providedDeps.addAll(targets(target.testProvided.targetDeps))
+        providedDeps.addAll(external(getExternalProvidedDeps(target.test, target.testProvided)))
+        providedDeps.addAll(targets(getTargetProvidedDeps(target.test, target.testProvided)))
         providedDeps.add(D8Util.RT_STUB_JAR_RULE)
 
         AndroidRule androidRule = new AndroidRule()

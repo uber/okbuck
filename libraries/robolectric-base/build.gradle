@@ -1,5 +1,5 @@
-apply plugin: 'java'
+apply plugin: 'java-library'
 
 dependencies {
-    compile deps.test.robolectric
+    implementation deps.test.robolectric
 }

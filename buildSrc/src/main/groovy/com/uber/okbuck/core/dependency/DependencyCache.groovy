@@ -52,7 +52,7 @@ class DependencyCache {
         lintJars = new Store(rootProject.file("${OkBuckGradlePlugin.OKBUCK_STATE_DIR}/LINT_JARS"))
 
         if (forcedConfiguration) {
-            Scope.from(project, Collections.singleton(forcedConfiguration)).external.each {
+            Scope.from(project, forcedConfiguration).external.each {
                 get(it)
                 forcedDeps.put(it.versionless, it)
             }
@@ -139,8 +139,7 @@ class DependencyCache {
      *
      * @param externalDependency The dependency.
      */
-    void getSources(ExternalDependency externalDependency) {
-        ExternalDependency dependency = forcedDeps.getOrDefault(externalDependency.versionless, externalDependency)
+    void getSources(ExternalDependency dependency) {
         String key = dependency.cacheName
         String sourcesJarPath = sources.get(key)
         if (sourcesJarPath == null || !Files.exists(Paths.get(sourcesJarPath))) {
@@ -223,7 +222,7 @@ class DependencyCache {
     void build(Set<Configuration> configurations, boolean cleanupDeps = true, boolean useFullDepname = false) {
         configurations.each { Configuration configuration ->
             try {
-                configuration.incoming.artifacts.each { ResolvedArtifactResult artifact ->
+                configuration.incoming.artifacts.artifacts.each { ResolvedArtifactResult artifact ->
                     ComponentIdentifier identifier = artifact.id.componentIdentifier
                     if (identifier instanceof ProjectComponentIdentifier || !DependencyUtils.isConsumable(artifact.file)) {
                         return

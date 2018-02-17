@@ -17,7 +17,7 @@ before_install:
   - export ANDROID_SDK_INSTALL_COMPONENT="echo \"y\" | \"$ANDROID_HOME\"/tools/bin/sdkmanager > /dev/null"
   - eval $ANDROID_SDK_INSTALL_COMPONENT '"tools"'
   - eval $ANDROID_SDK_INSTALL_COMPONENT '"platform-tools"'
-  - eval $ANDROID_SDK_INSTALL_COMPONENT '"build-tools;27.0.0"'
+  - eval $ANDROID_SDK_INSTALL_COMPONENT '"build-tools;27.0.3"'
   - eval $ANDROID_SDK_INSTALL_COMPONENT '"platforms;android-27"'
   - eval $ANDROID_SDK_INSTALL_COMPONENT '"extras;android;m2repository"'
   - export PATH="$PATH:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator"

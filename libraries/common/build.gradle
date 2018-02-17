@@ -5,7 +5,8 @@ android {
         buildConfigField "String", "COMMON_CONFIG", "\"default\""
     }
 
-    publishNonDefault true
+    flavorDimensions "tier"
+
     productFlavors {
         free {}
         paid {}
@@ -13,6 +14,6 @@ android {
 }
 
 dependencies {
-    compile deps.support.appCompat
-    compile project(':libraries:parcelable')
+    api deps.support.appCompat
+    implementation project(":libraries:parcelable")
 }

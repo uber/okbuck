@@ -3,6 +3,7 @@ package com.uber.okbuck.core.model.java
 import com.uber.okbuck.core.model.base.Scope
 import org.gradle.api.Project
 import org.gradle.api.plugins.ApplicationPlugin
+import org.gradle.api.plugins.JavaPlugin
 import org.gradle.jvm.tasks.Jar
 import org.jetbrains.annotations.Nullable
 
@@ -15,11 +16,19 @@ class JavaLibTarget extends JavaTarget {
         super(project, name)
     }
 
+    protected Set<File> getMainSrcDirs() {
+        return project.sourceSets.main.java.srcDirs as Set
+    }
+
+    protected Set<File> getTestSrcDirs() {
+        return project.sourceSets.test.java.srcDirs as Set
+    }
+
     @Override
     Scope getMain() {
         return Scope.from(project,
-                compileConfigs,
-                project.sourceSets.main.java.srcDirs as Set,
+                JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME,
+                mainSrcDirs,
                 project.file("src/main/resources"),
                 project.compileJava.options.compilerArgs as List)
     }
@@ -27,8 +36,8 @@ class JavaLibTarget extends JavaTarget {
     @Override
     Scope getTest() {
         return Scope.from(project,
-                expand(compileConfigs, TEST_PREFIX, true),
-                project.sourceSets.test.java.srcDirs as Set,
+                JavaPlugin.TEST_RUNTIME_CLASSPATH_CONFIGURATION_NAME,
+                testSrcDirs,
                 project.file("src/test/resources"),
                 project.compileTestJava.options.compilerArgs as List)
     }

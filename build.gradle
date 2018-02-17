@@ -4,6 +4,9 @@ buildscript {
         jcenter()
         google()
         maven { url "https://plugins.gradle.org/m2/" }
+        // Remove once butterknife is updated to a stable version
+        // TODO: https://github.com/uber/okbuck/issues/570
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
     }
     dependencies {
         classpath deps.build.androidPlugin
@@ -20,6 +23,10 @@ allprojects { project ->
     repositories {
         jcenter()
         google()
+        maven { url "https://plugins.gradle.org/m2/" }
+        // Remove once butterknife is updated to a stable version
+        // TODO: https://github.com/uber/okbuck/issues/570
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
     }
 }
 
@@ -71,13 +78,6 @@ def addCommonConfigurationForAndroidModules(Project project) {
     def variants
     if (project.plugins.hasPlugin('com.android.application')) {
         project.android {
-            defaultConfig {
-                // Silly option to keep AGP happy till we can upgrade to 3.x
-                jackOptions {
-                    enabled true
-                }
-            }
-
             signingConfigs {
                 debug {
                     storeFile project.rootProject.file('config/signing/debug.keystore')

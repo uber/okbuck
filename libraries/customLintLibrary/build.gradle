@@ -1,16 +1,12 @@
-apply plugin: 'java'
+apply plugin: 'java-library'
 apply plugin: 'application'
-
-repositories {
-    mavenCentral()
-}
 
 dependencies {
     compileOnly deps.lint.lintApi
     compileOnly deps.lint.lintChecks
 
-    testCompile deps.lint.lint
-    testCompile deps.lint.lintTests
+    testImplementation deps.lint.lint
+    testImplementation deps.lint.lintTests
 }
 
 jar {

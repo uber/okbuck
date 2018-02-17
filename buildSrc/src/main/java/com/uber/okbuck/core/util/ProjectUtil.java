@@ -62,8 +62,12 @@ public final class ProjectUtil {
     }
 
     @Nullable
-    public static Target getTargetForOutput(Project targetProject, File output) {
-        return getTargetCache(targetProject).getTargetForOutput(targetProject, output);
+    public static Target getTargetForVariant(Project targetProject, String variant) {
+        return getTargetCache(targetProject).getTargetForVariant(targetProject, variant);
+    }
+
+    public static String getLintwConfigRule(Project project, File config) {
+        return getTargetCache(project).lintConfig(project, config);
     }
 
     public static Map<Project, Map<String, Scope>> getScopes(Project project) {
@@ -114,7 +118,7 @@ public final class ProjectUtil {
      * limitations under the License.
      */
     // Copied from AGP 3.1.0 ArtifactDependencyGraph
-    static void downloadSources(
+    public static void downloadSources(
             Project project,
             Set<ComponentIdentifier> artifacts) {
         final DependencyHandler dependencies = project.getDependencies();
