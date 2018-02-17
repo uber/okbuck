@@ -1,10 +1,10 @@
 def versions = [
-        androidTools                : '26.1.0-beta2',
+        androidTools                : '26.0.1',
         butterKnifeVersion          : '9.0.0-20180212.024326-29',
         butterKnifeCompilerVersion  : '9.0.0-20180212.024332-29',
         butterKnifePluginVersion    : '9.0.0-20180212.024336-29',
         daggerVersion               : '2.11',
-        kotlinVersion               : '1.2.0',
+        kotlinVersion               : '1.2.20',
         leakCanaryVersion           : '1.5.1',
         supportVersion              : '27.0.2',
         androidPluginVersion        : '3.1.0-beta3',
