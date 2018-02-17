@@ -37,6 +37,26 @@ class Scope {
     protected final Project project
     final Set<ExternalDependency> external = new HashSet<>()
 
+    /**
+     * Used to filter out only project dependencies when resolving a configuration.
+     */
+    private static Spec<ComponentIdentifier> projectFilter = new Spec<ComponentIdentifier>() {
+        @Override
+        boolean isSatisfiedBy(ComponentIdentifier componentIdentifier) {
+            return componentIdentifier instanceof ProjectComponentIdentifier
+        }
+    }
+
+    /**
+     * Used to filter out external & local jar/aar dependencies when resolving a configuration.
+     */
+    private static Spec<ComponentIdentifier> externalDepFilter = new Spec<ComponentIdentifier>() {
+        @Override
+        boolean isSatisfiedBy(ComponentIdentifier componentIdentifier) {
+            return !(componentIdentifier instanceof ProjectComponentIdentifier)
+        }
+    }
+
     protected Scope(Project project,
                     Configuration configuration,
                     Set<File> sourceDirs,
@@ -138,17 +158,10 @@ class Scope {
     private void extractConfiguration(Configuration configuration) {
         Set<ComponentIdentifier> artifactIds = new HashSet<>()
 
-        Spec<ComponentIdentifier> filter = new Spec<ComponentIdentifier>() {
-            @Override
-            boolean isSatisfiedBy(ComponentIdentifier componentIdentifier) {
-                return componentIdentifier instanceof ProjectComponentIdentifier
-            }
-        }
-
         Set<ResolvedArtifactResult> artifacts =
                 getArtifacts(
                         configuration,
-                        filter,
+                        projectFilter,
                         ImmutableList.of("jar"))
 
         artifacts.each { ResolvedArtifactResult artifact ->
@@ -162,16 +175,9 @@ class Scope {
                     project.project(identifier.projectPath), variant))
         }
 
-        filter = new Spec<ComponentIdentifier>() {
-            @Override
-            boolean isSatisfiedBy(ComponentIdentifier componentIdentifier) {
-                return !(componentIdentifier instanceof ProjectComponentIdentifier)
-            }
-        }
-
         artifacts = getArtifacts(
                 configuration,
-                filter,
+                externalDepFilter,
                 ImmutableList.of("aar", "jar"))
 
         artifacts.each { ResolvedArtifactResult artifact ->
