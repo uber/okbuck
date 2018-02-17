@@ -40,22 +40,24 @@ class Scope {
     /**
      * Used to filter out only project dependencies when resolving a configuration.
      */
-    private static Spec<ComponentIdentifier> projectFilter = new Spec<ComponentIdentifier>() {
-        @Override
-        boolean isSatisfiedBy(ComponentIdentifier componentIdentifier) {
-            return componentIdentifier instanceof ProjectComponentIdentifier
-        }
-    }
+    private static final Spec<ComponentIdentifier> PROJECT_FILTER =
+            new Spec<ComponentIdentifier>() {
+                @Override
+                boolean isSatisfiedBy(ComponentIdentifier componentIdentifier) {
+                    return componentIdentifier instanceof ProjectComponentIdentifier
+                }
+            }
 
     /**
      * Used to filter out external & local jar/aar dependencies when resolving a configuration.
      */
-    private static Spec<ComponentIdentifier> externalDepFilter = new Spec<ComponentIdentifier>() {
-        @Override
-        boolean isSatisfiedBy(ComponentIdentifier componentIdentifier) {
-            return !(componentIdentifier instanceof ProjectComponentIdentifier)
-        }
-    }
+    private static final Spec<ComponentIdentifier> EXTERNAL_DEP_FILTER =
+            new Spec<ComponentIdentifier>() {
+                @Override
+                boolean isSatisfiedBy(ComponentIdentifier componentIdentifier) {
+                    return !(componentIdentifier instanceof ProjectComponentIdentifier)
+                }
+            }
 
     protected Scope(Project project,
                     Configuration configuration,
@@ -161,7 +163,7 @@ class Scope {
         Set<ResolvedArtifactResult> artifacts =
                 getArtifacts(
                         configuration,
-                        projectFilter,
+                        PROJECT_FILTER,
                         ImmutableList.of("jar"))
 
         artifacts.each { ResolvedArtifactResult artifact ->
@@ -177,7 +179,7 @@ class Scope {
 
         artifacts = getArtifacts(
                 configuration,
-                externalDepFilter,
+                EXTERNAL_DEP_FILTER,
                 ImmutableList.of("aar", "jar"))
 
         artifacts.each { ResolvedArtifactResult artifact ->
