@@ -25,6 +25,7 @@ import org.gradle.language.base.artifact.SourcesArtifact;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper;
 
+import java.io.File;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -63,6 +64,10 @@ public final class ProjectUtil {
     @Nullable
     public static Target getTargetForVariant(Project targetProject, String variant) {
         return getTargetCache(targetProject).getTargetForVariant(targetProject, variant);
+    }
+
+    public static String getLintwConfigRule(Project project, File config) {
+        return getTargetCache(project).lintConfig(project, config);
     }
 
     public static Map<Project, Map<String, Scope>> getScopes(Project project) {
