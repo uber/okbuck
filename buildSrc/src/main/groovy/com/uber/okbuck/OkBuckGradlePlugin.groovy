@@ -63,7 +63,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     public static final String TRANSFORM = "transform"
     public static final String SCALA = "scala"
     public static final String FORCED_OKBUCK = "forcedOkbuck"
-    public static final String BUCK_BINARY = "buck_binary"
+    public static final String BUCK_BINARY = "buckBinary"
     public static final String OKBUCK_DEFS = ".okbuck/defs/DEFS"
 
     public static final String OKBUCK_STATE_DIR = ".okbuck/state"
