@@ -63,7 +63,8 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     public static final String TRANSFORM = "transform"
     public static final String SCALA = "scala"
     public static final String FORCED_OKBUCK = "forcedOkbuck"
-    public static final String BUCK_BINARY = "buckBinary"
+    public static final String BUCK_BINARY = "buck_binary"
+    public static final String BUCK_BINARY_CONFIGURATION = "buckBinary"
     public static final String OKBUCK_DEFS = ".okbuck/defs/DEFS"
 
     public static final String OKBUCK_STATE_DIR = ".okbuck/state"
@@ -93,7 +94,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         // Create configurations
         project.configurations.maybeCreate(TransformUtil.CONFIGURATION_TRANSFORM)
         project.configurations.maybeCreate(FORCED_OKBUCK)
-        Configuration buckBinaryConfiguration = project.configurations.maybeCreate(BUCK_BINARY)
+        Configuration buckBinaryConfiguration = project.configurations.maybeCreate(BUCK_BINARY_CONFIGURATION)
 
         // Create tasks
         Task setupOkbuck = project.task('setupOkbuck')
@@ -130,7 +131,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                     maven { url JITPACK_URL }
                 }
                 project.dependencies {
-                    delegate."${BUCK_BINARY}" okbuckExt.buckBinary
+                    delegate."${BUCK_BINARY_CONFIGURATION}" okbuckExt.buckBinary
                 }
             }
 
