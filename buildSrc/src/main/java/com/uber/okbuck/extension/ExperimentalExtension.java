@@ -9,4 +9,9 @@ public class ExperimentalExtension {
      * Whether transform rules are to be generated
      */
     public boolean transform = false;
+
+    /**
+     * Whether to use classpath_abi for lint or not
+     */
+    public boolean lintWithClasspathAbi = false;
 }

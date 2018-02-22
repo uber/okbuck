@@ -1,6 +1,7 @@
 package com.uber.okbuck.core.task;
 
 import com.uber.okbuck.OkBuckGradlePlugin;
+import com.uber.okbuck.core.annotation.Experimental;
 import com.uber.okbuck.core.model.base.ProjectType;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.GroovyUtil;
@@ -8,6 +9,7 @@ import com.uber.okbuck.core.util.KotlinUtil;
 import com.uber.okbuck.core.util.ProguardUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.core.util.ScalaUtil;
+import com.uber.okbuck.extension.ExperimentalExtension;
 import com.uber.okbuck.extension.KotlinExtension;
 import com.uber.okbuck.extension.OkBuckExtension;
 import com.uber.okbuck.extension.ScalaExtension;
@@ -31,6 +33,9 @@ import static com.uber.okbuck.OkBuckGradlePlugin.OKBUCK_DEFS;
 @SuppressWarnings({"WeakerAccess", "CanBeFinal", "unused", "ResultOfMethodCallIgnored", "NewApi"})
 public class OkBuckTask extends DefaultTask {
 
+    public static final String CLASSPATH_MACRO = "classpath";
+    public static final String CLASSPATH_ABI_MACRO = "classpath_abi";
+
     @Nested
     public OkBuckExtension okBuckExtension;
 
@@ -39,6 +44,9 @@ public class OkBuckTask extends DefaultTask {
 
     @Nested
     public ScalaExtension scalaExtension;
+
+    @Nested
+    public ExperimentalExtension experimentalExtension;
 
     public OkBuckTask() {
         // Never up to date; this task isn't safe to run incrementally.
@@ -68,6 +76,7 @@ public class OkBuckTask extends DefaultTask {
         }
 
         generate(okBuckExtension,
+                experimentalExtension,
                 hasGroovyLib ? GroovyUtil.GROOVY_HOME_LOCATION : null,
                 hasKotlinLib ? KotlinUtil.KOTLIN_HOME_LOCATION : null,
                 hasScalaLib ? ScalaUtil.SCALA_HOME_LOCATION : null);
@@ -103,6 +112,7 @@ public class OkBuckTask extends DefaultTask {
 
     private void generate(
             OkBuckExtension okbuckExt,
+            ExperimentalExtension experimentalExt,
             @Nullable String groovyHome,
             @Nullable String kotlinHome,
             @Nullable String scalaHome) {
@@ -113,14 +123,28 @@ public class OkBuckTask extends DefaultTask {
             throw new RuntimeException(e);
         }
 
+        String classpathMacro = CLASSPATH_MACRO;
+        if (experimentalExt.lintWithClasspathAbi) {
+            classpathMacro = CLASSPATH_MACRO;
+        }
+
         // Setup defs
-        new BuckDefs().resourceExcludes(okBuckExtension.excludeResources
-                .stream()
-                .map(s -> "'" + s + "'")
-                .collect(Collectors.toSet())).render(okbuckDefs());
-        Set<String> defs = okbuckExt.extraDefs.stream()
-                .map(it -> "//" + FileUtil.getRelativePath(getProject().getRootDir(), it))
-                .collect(Collectors.toSet());
+        new BuckDefs()
+                .resourceExcludes(
+                        okBuckExtension.excludeResources
+                                .stream()
+                                .map(s -> "'" + s + "'")
+                                .collect(Collectors.toSet()))
+                .classpathMacro(classpathMacro)
+                .render(okbuckDefs());
+
+        Set<String> defs =
+                okbuckExt
+                        .extraDefs
+                        .stream()
+                        .map(it -> "//" + FileUtil.getRelativePath(getProject().getRootDir(), it))
+                        .collect(Collectors.toSet());
+
         defs.add("//" + OKBUCK_DEFS);
 
         // generate .buckconfig.local
