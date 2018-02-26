@@ -4,6 +4,7 @@ def versions = [
         butterKnifeCompilerVersion  : '9.0.0-20180212.024332-29',
         butterKnifePluginVersion    : '9.0.0-20180212.024336-29',
         daggerVersion               : '2.11',
+        dagger1Version              : '1.2.5',
         kotlinVersion               : '1.2.20',
         leakCanaryVersion           : '1.5.1',
         supportVersion              : '27.0.2',
@@ -37,12 +38,14 @@ def apt = [
         autoValueGson      : 'com.ryanharter.auto.value:auto-value-gson:0.4.4',
         butterKnifeCompiler: "com.jakewharton:butterknife-compiler:${versions.butterKnifeCompilerVersion}",
         daggerCompiler     : "com.google.dagger:dagger-compiler:${versions.daggerVersion}",
+        dagger1Compiler    : "com.squareup.dagger:dagger-compiler:${versions.dagger1Version}",
         javax              : 'org.glassfish:javax.annotation:10.0-b28',
 ]
 
 def external = [
         butterKnife    : "com.jakewharton:butterknife:${versions.butterKnifeVersion}",
         dagger         : "com.google.dagger:dagger:${versions.daggerVersion}",
+        dagger1        : "com.squareup.dagger:dagger:${versions.dagger1Version}",
         gson           : 'com.google.code.gson:gson:2.8.1',
         kotlinStdlib   : "org.jetbrains.kotlin:kotlin-stdlib:${versions.kotlinVersion}",
         kotlinExtension: "org.jetbrains.kotlin:kotlin-android-extensions:${versions.kotlinVersion}",
