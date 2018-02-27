@@ -1,0 +1,8 @@
+apply plugin: 'java-library'
+
+dependencies {
+    api deps.external.guice
+
+    // Change this to api or compile to "fix" error.
+    implementation project(':libraries:guice:module3')
+}

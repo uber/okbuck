@@ -5,10 +5,11 @@ def versions = [
         butterKnifePluginVersion    : '9.0.0-20180212.024336-29',
         daggerVersion               : '2.11',
         dagger1Version              : '1.2.5',
+        guice                       : '4.1.0',
         kotlinVersion               : '1.2.20',
         leakCanaryVersion           : '1.5.1',
         supportVersion              : '27.0.2',
-        androidPluginVersion        : '3.1.0-beta3',
+        androidPluginVersion        : '3.2.0-alpha03',
 ]
 
 def build = [
@@ -46,6 +47,7 @@ def external = [
         butterKnife    : "com.jakewharton:butterknife:${versions.butterKnifeVersion}",
         dagger         : "com.google.dagger:dagger:${versions.daggerVersion}",
         dagger1        : "com.squareup.dagger:dagger:${versions.dagger1Version}",
+        guice          : "com.google.inject:guice:${versions.guice}",
         gson           : 'com.google.code.gson:gson:2.8.1',
         kotlinStdlib   : "org.jetbrains.kotlin:kotlin-stdlib:${versions.kotlinVersion}",
         kotlinExtension: "org.jetbrains.kotlin:kotlin-android-extensions:${versions.kotlinVersion}",
