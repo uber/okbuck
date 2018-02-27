@@ -1,0 +1,7 @@
+apply plugin: 'java-library'
+
+dependencies {
+    api deps.external.guice
+
+    implementation project(':libraries:guice:module2')
+}

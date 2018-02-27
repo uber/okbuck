@@ -1,0 +1,9 @@
+apply plugin: 'java-library'
+apply plugin: 'net.ltgt.apt'
+
+dependencies {
+    api deps.external.dagger1
+    apt deps.apt.dagger1Compiler
+
+    implementation project(':libraries:dagger1:module2')
+}
