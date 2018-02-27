@@ -11,7 +11,12 @@ public class DaggerModule2 {
         return null;
     }
 
-    @Provides Class2 provideClass2(Class3 class3) {
-        return null;
+    @Provides Interface2 provideInterface2(Class3 class3) {
+        return new Interface2() {
+            @Override
+            public void f() {
+                class3.toString();
+            }
+        };
     }
 }
