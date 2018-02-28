@@ -39,9 +39,8 @@ dependencies {
 
     implementation deps.build.androidPlugin
     implementation deps.build.commonsIo
-    implementation deps.build.commonsLang
+    implementation deps.build.commonsLang3
     implementation deps.build.kotlinPlugin
-    implementation deps.build.mavenArtifact
     implementation deps.build.okio
     implementation deps.build.rockerRuntime
 

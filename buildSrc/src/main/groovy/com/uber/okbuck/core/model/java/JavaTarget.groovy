@@ -12,10 +12,6 @@ import org.gradle.api.plugins.JavaPlugin
 
 abstract class JavaTarget extends JvmTarget {
 
-    protected static final String UNIT_TEST_PREFIX = "test"
-
-    private static final String JAVA_APT_CONFIG = "apt"
-
     JavaTarget(Project project, String name) {
         super(project, name)
     }
@@ -24,14 +20,14 @@ abstract class JavaTarget extends JvmTarget {
      * Apt Scope
      */
     Scope getApt() {
-        return Scope.from(project, JAVA_APT_CONFIG)
+        return Scope.from(project, JavaPlugin.ANNOTATION_PROCESSOR_CONFIGURATION_NAME)
     }
 
     /**
      * Test Apt Scope
      */
     Scope getTestApt() {
-        return Scope.from(project, expand(JAVA_APT_CONFIG, UNIT_TEST_PREFIX))
+        return Scope.from(project, JavaPlugin.TEST_ANNOTATION_PROCESSOR_CONFIGURATION_NAME)
     }
 
     /**

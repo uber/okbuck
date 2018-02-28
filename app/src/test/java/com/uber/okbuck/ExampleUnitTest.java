@@ -6,7 +6,7 @@ import com.uber.okbuck.example.common.CalcMonitor;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.verify;
@@ -21,7 +21,7 @@ public class ExampleUnitTest {
         Calc calc = new Calc(monitor);
 
         int ret = calc.add(1, 2);
-        verify(monitor, only()).addCalled(anyString());
+        verify(monitor, only()).addCalled(any(String.class));
         assertEquals(3, ret);
     }
 }
