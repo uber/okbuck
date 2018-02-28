@@ -15,22 +15,15 @@ jobs:
           name: Ensure Android SDK licenses are accepted
           command: ./tooling/ci/ensure-android-sdk-licenses.sh
           shell: "/bin/bash"
-      - restore_cache:
-         keys:
-           - emulator-cache-21
-      - run:
-          name: Setup emulator
-          command: sdkmanager "system-images;android-21;google_apis;armeabi-v7a" && echo "no" | avdmanager create avd -n test -k "system-images;android-21;google_apis;armeabi-v7a || true"
-          shell: "/bin/bash"
-      - save_cache:
-          paths:
-            - ~/.android/avd
-          key: emulator-cache-21
-      - run:
-          name: Launch emulator
-          command: export LD_LIBRARY_PATH=${ANDROID_HOME}/emulator/lib64:${ANDROID_HOME}/emulator/lib64/qt/lib && emulator64-arm -avd test -noaudio -no-boot-anim -no-window -accel on
-          shell: "/bin/bash"
-          background: true
+      # - run:
+      #     name: Setup emulator
+      #     command: sdkmanager "system-images;android-21;google_apis;armeabi-v7a" && echo "no" | avdmanager create avd -n test -k "system-images;android-21;google_apis;armeabi-v7a"
+      #     shell: "/bin/bash"
+      # - run:
+      #     name: Launch emulator
+      #     command: export LD_LIBRARY_PATH=${ANDROID_HOME}/emulator/lib64:${ANDROID_HOME}/emulator/lib64/qt/lib && emulator64-arm -avd test -noaudio -no-boot-anim -no-window -accel on
+      #     shell: "/bin/bash"
+      #     background: true
       - restore_cache:
          keys:
            - gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
