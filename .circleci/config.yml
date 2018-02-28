@@ -50,7 +50,7 @@ jobs:
           command: ./buckw test --include unit
           shell: "/bin/bash"
       - run:
-          name: Wait for emulator
+          name: Wait for emulator from background
           command: |
             circle-android wait-for-boot
             adb shell input keyevent 82
