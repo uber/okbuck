@@ -32,7 +32,7 @@ jobs:
            - gradle-cache-{{ checksum "dependencies.gradle" }}
       - run:
           name: Run okbuck
-          command: SKIP_OKBUCK= ./buckw --version
+          command: SKIP_OKBUCK= EXTRA_OKBUCK_ARGS="-Dorg.gradle.daemon=false" ./buckw --version
           shell: "/bin/bash"
       - run:
           name: Cleanup gradle lock file
