@@ -27,6 +27,8 @@ jobs:
       - restore_cache:
          keys:
            - gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+      - restore_cache:
+         keys:
            - gradle-cache-{{ checksum "dependencies.gradle" }}
       - run:
           name: Run okbuck
