@@ -1,12 +1,11 @@
 apply plugin: 'java-library'
-apply plugin: 'net.ltgt.apt'
 
 dependencies {
     implementation deps.external.gson
     implementation deps.external.dagger
 
-    apt deps.apt.javax
-    apt deps.apt.daggerCompiler
+    annotationProcessor deps.apt.javax
+    annotationProcessor deps.apt.daggerCompiler
 
     compileOnly deps.support.annotations
 

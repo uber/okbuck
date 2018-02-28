@@ -9,7 +9,7 @@ import org.robolectric.annotation.Config;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 21, packageName = "com.uber.okbuck.example.empty")
+@Config(sdk = 27, packageName = "com.uber.okbuck.example.empty")
 public class EmptyLibraryUnitTest {
 
     @Test

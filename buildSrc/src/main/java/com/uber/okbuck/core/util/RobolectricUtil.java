@@ -47,7 +47,7 @@ public final class RobolectricUtil {
         API_24("7.0.0_r1", "r1"),
         API_25("7.1.0_r7", "r1"),
         API_26("8.0.0_r4", "r1"),
-        API_27("8.1.0", "r4458339");
+        API_27("8.1.0", "r4402310");
 
         private final String androidVersion;
         private final String frameworkSdkBuildVersion;
