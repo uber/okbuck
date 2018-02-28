@@ -76,3 +76,7 @@ jobs:
           name: Run ui tests
           command: ./buckw test //app:instrumentation_demoDebug_test -v 0
           shell: "/bin/bash"
+      - run:
+          name: Kill emulator
+          command: adb devices | grep emulator | cut -f1 | while read line; do adb -s $line emu kill; done
+          shell: "bin/bash"
