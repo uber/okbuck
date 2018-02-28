@@ -24,6 +24,10 @@ jobs:
           name: Setup emulator
           command: sdkmanager "system-images;android-21;google_apis;armeabi-v7a" && echo "no" | avdmanager create avd -n test -k "system-images;android-21;google_apis;armeabi-v7a"
           shell: "/bin/bash"
+      - save_cache:
+          paths:
+            - ~/.android/avd
+          key: emulator-cache
       - run:
           name: Launch emulator
           command: export LD_LIBRARY_PATH=${ANDROID_HOME}/emulator/lib64:${ANDROID_HOME}/emulator/lib64/qt/lib && emulator64-arm -avd test -noaudio -no-boot-anim -no-window -accel on
@@ -33,6 +37,15 @@ jobs:
           name: Run okbuck
           command: SKIP_OKBUCK= ./buckw --version
           shell: "/bin/bash"
+      - run:
+          name: Cleanup gradle lock file
+          command: rm -f ~/.gradle/caches/modules-2/modules-2.lock
+          shell: "/bin/bash"
+      - save_cache:
+          paths:
+            - ~/.gradle/caches/modules-2/
+            - ~/.gradle/wrapper/
+          key: gradle-cache
       - run:
           name: Build all non lint targets
           command: ./buckw targets --type android_binary android_instrumentation_apk java_test groovy_test robolectric_test kotlin_test scala_test | xargs ./buckw build -v 0
@@ -45,6 +58,10 @@ jobs:
           name: Run lint integration test
           command: ./tooling/ci/lint_integration_test.sh
           shell: "/bin/bash"
+      - save_cache:
+          paths:
+            - buck-out/cache
+          key: buck-cache
       - run:
           name: Run unit tests
           command: ./buckw test --include unit
@@ -57,22 +74,5 @@ jobs:
           shell: "/bin/bash"
       - run:
           name: Run ui tests
-          command: ./buckw test //app:instrumentation_demoDebug_test
+          command: ./buckw test //app:instrumentation_demoDebug_test -v 0
           shell: "/bin/bash"
-      - run:
-          name: Cleanup
-          command: rm -f ~/.gradle/caches/modules-2/modules-2.lock
-          shell: "/bin/bash"
-      - save_cache:
-          paths:
-            - ~/.gradle/caches/modules-2/
-            - ~/.gradle/wrapper/
-          key: gradle-cache
-      - save_cache:
-          paths:
-            - buck-out/cache
-          key: buck-cache
-      - save_cache:
-          paths:
-            - ~/.android/avd
-          key: emulator-cache
