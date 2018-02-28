@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     working_directory: ~/okbuck
-    resource_class: large
+    resource_class: xlarge
     docker:
       - image: circleci/android:api-27-alpha
     environment:
@@ -35,11 +35,11 @@ jobs:
           shell: "/bin/bash"
       - run:
           name: Build all non lint targets
-          command: ./buckw targets --type android_binary android_instrumentation_apk java_test groovy_test robolectric_test kotlin_test scala_test | xargs ./buckw build
+          command: ./buckw targets --type android_binary android_instrumentation_apk java_test groovy_test robolectric_test kotlin_test scala_test | xargs ./buckw build -v 0
           shell: "/bin/bash"
       - run:
           name: Build all lint targets, except for lint error library
-          command: ./buckw targets --type genrule | grep -v lintErrorLibrary | xargs ./buckw build
+          command: ./buckw targets --type genrule | grep -v lintErrorLibrary | xargs ./buckw build -v 0
           shell: "/bin/bash"
       - run:
           name: Run lint integration test
@@ -50,7 +50,7 @@ jobs:
           command: ./buckw test --include unit
           shell: "/bin/bash"
       - run:
-          name: Wait for emulator from background
+          name: Wait for emulator
           command: |
             circle-android wait-for-boot
             adb shell input keyevent 82
