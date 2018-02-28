@@ -20,7 +20,7 @@ jobs:
            - emulator-cache-21
       - run:
           name: Setup emulator
-          command: sdkmanager "system-images;android-21;google_apis;armeabi-v7a" && echo "no" | avdmanager create avd -n test -k "system-images;android-21;google_apis;armeabi-v7a"
+          command: sdkmanager "system-images;android-21;google_apis;armeabi-v7a" && echo "no" | avdmanager create avd -n test -k "system-images;android-21;google_apis;armeabi-v7a || true"
           shell: "/bin/bash"
       - save_cache:
           paths:
