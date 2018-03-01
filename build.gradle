@@ -161,7 +161,7 @@ okbuck {
     }
 
     kotlin {
-        version = deps.versions.kotlinVersion
+        version = deps.versions.kotlin
     }
 
     lint {
