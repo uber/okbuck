@@ -1,5 +1,5 @@
-apply plugin: 'java-library'
-apply plugin: 'application'
+apply plugin: "java-library"
+apply plugin: "application"
 
 dependencies {
     compileOnly deps.lint.lintApi
@@ -11,9 +11,9 @@ dependencies {
 
 jar {
     manifest {
-        attributes 'Lint-Registry': 'com.uber.lint.LintRegistry'
+        attributes "Lint-Registry": "com.uber.lint.LintRegistry"
     }
-    exclude 'META-INF'
+    exclude "META-INF"
 }
 
 configurations.all {

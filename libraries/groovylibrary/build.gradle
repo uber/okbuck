@@ -3,11 +3,11 @@ plugins {
 }
 
 dependencies {
-    compile 'org.codehaus.groovy:groovy-all:2.4.7'
-    testCompile 'junit:junit:4.12'
+    compile "org.codehaus.groovy:groovy-all:2.4.7"
+    testCompile "junit:junit:4.12"
 }
 
 tasks.withType(JavaCompile) {
-    sourceCompatibility = '1.7'
-    targetCompatibility = '1.7'
+    sourceCompatibility = "1.7"
+    targetCompatibility = "1.7"
 }

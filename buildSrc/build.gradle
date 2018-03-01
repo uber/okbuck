@@ -1,9 +1,18 @@
-plugins {
-    id "groovy"
-    id "maven-publish"
-    id "com.jfrog.bintray" version "1.7"
-    id "com.fizzed.rocker" version "0.22.0"
+buildscript {
+    apply from: "../dependencies.gradle"
+    repositories {
+        gradlePluginPortal()
+    }
+    dependencies {
+        classpath deps.build.rockerPlugin
+        classpath deps.build.bintrayPlugin
+    }
 }
+
+apply plugin: "groovy"
+apply plugin: "maven-publish"
+apply plugin: "com.jfrog.bintray"
+apply plugin: "com.fizzed.rocker"
 
 apply from: "../dependencies.gradle"
 
@@ -12,21 +21,21 @@ repositories {
     google()
     // Remove once butterknife is updated to a stable version
     // TODO: https://github.com/uber/okbuck/issues/570
-    maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
 }
 
 jar {
-    exclude('**/*.rocker.raw')
+    exclude("**/*.rocker.raw")
 }
 
 tasks.withType(GroovyCompile) {
-    sourceCompatibility = '1.8'
-    targetCompatibility = '1.8'
+    sourceCompatibility = "1.8"
+    targetCompatibility = "1.8"
 }
 
 tasks.withType(JavaCompile) {
-    sourceCompatibility = '1.8'
-    targetCompatibility = '1.8'
+    sourceCompatibility = "1.8"
+    targetCompatibility = "1.8"
 }
 
 sourceSets.main.java.srcDirs = ["src/main/rocker"]
@@ -55,20 +64,20 @@ rocker {
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from 'build/docs/javadoc'
+    classifier = "javadoc"
+    from "build/docs/javadoc"
 }
 
 task sourcesJar(type: Jar) {
     from sourceSets.main.allSource
-    classifier = 'sources'
+    classifier = "sources"
 }
 
-def publishVersion = '0.33.0'
-group = 'com.uber'
+def publishVersion = "0.33.0"
+group = "com.uber"
 version = publishVersion
-def siteUrl = 'https://github.com/uber/okbuck'
-def gitUrl = 'https://github.com/uber/okbuck.git'
+def siteUrl = "https://github.com/uber/okbuck"
+def gitUrl = "https://github.com/uber/okbuck.git"
 
 publishing {
     publications {
@@ -78,7 +87,7 @@ publishing {
             artifact sourcesJar
             artifact javadocJar
 
-            artifactId 'okbuck'
+            artifactId "okbuck"
         }
     }
 }
@@ -86,23 +95,23 @@ publishing {
 bintray {
     user = project.properties.get("bintray.user")
     key = project.properties.get("bintray.apikey")
-    publications = ['mavenJava']
+    publications = ["mavenJava"]
     dryRun = false
     publish = true
     pkg {
-        repo = 'gradle-plugins'
-        name = 'okbuck'
-        userOrg = 'uber'
-        desc = 'Gradle plugin that lets developers utilize the Buck build system on a Gradle project'
+        repo = "gradle-plugins"
+        name = "okbuck"
+        userOrg = "uber"
+        desc = "Gradle plugin that lets developers utilize the Buck build system on a Gradle project"
         websiteUrl = siteUrl
-        issueTrackerUrl = siteUrl + '/issues'
+        issueTrackerUrl = siteUrl + "/issues"
         vcsUrl = gitUrl
-        licenses = ['MIT']
-        labels = ['buck', 'okbuck', 'uber']
+        licenses = ["MIT"]
+        labels = ["buck", "okbuck", "uber"]
         publicDownloadNumbers = true
         version {
             name = publishVersion
-            released = new java.text.SimpleDateFormat('yyyy-MM-dd\'T\'HH:mm:ss.SSSZZ').format(new Date())
+            released = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZ").format(new Date())
             vcsTag = publishVersion
         }
     }

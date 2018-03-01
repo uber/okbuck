@@ -1,8 +1,8 @@
-apply plugin: 'com.android.library'
+apply plugin: "com.android.library"
 
 android {
     lintOptions {
-        disable 'HardcodedDebugMode'
+        disable "HardcodedDebugMode"
     }
 }
 

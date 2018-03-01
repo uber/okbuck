@@ -1,15 +1,15 @@
-apply plugin: 'com.android.library'
+apply plugin: "com.android.library"
 
 android {
     sourceSets {
         main {
-            manifest.srcFile 'AndroidManifest.xml'
-            java.srcDirs = ['src']
-            res.srcDirs = ['res']
-            assets.srcDirs = ['assets']
+            manifest.srcFile "AndroidManifest.xml"
+            java.srcDirs = ["src"]
+            res.srcDirs = ["res"]
+            assets.srcDirs = ["assets"]
         }
 
-        test.setRoot('test')
+        test.setRoot("test")
     }
 
     flavorDimensions "tier"
@@ -23,8 +23,8 @@ dependencies {
     api deps.external.dagger
     api deps.external.gson
 
-    api project(':libraries:javalibrary')
-    api project(':libraries:common')
+    api project(":libraries:javalibrary")
+    api project(":libraries:common")
 
     annotationProcessor deps.apt.daggerCompiler
 

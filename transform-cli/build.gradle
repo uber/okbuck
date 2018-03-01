@@ -1,11 +1,11 @@
-String pluginProjectPath = ':plugin'
+String pluginProjectPath = ":plugin"
 evaluationDependsOn(pluginProjectPath)
 
 apply plugin: "application"
 apply plugin: "com.github.johnrengelman.shadow"
 
-group = 'com.uber.okbuck.transform'
-version = '1.1.0'
+group = "com.uber.okbuck.transform"
+version = "1.1.0"
 
 tasks.withType(JavaCompile) {
     sourceCompatibility = JavaVersion.VERSION_1_8
@@ -13,11 +13,11 @@ tasks.withType(JavaCompile) {
 }
 
 jar.manifest.attributes(
-        'Implementation-Title': 'Okbuck Cli Transform',
-        'Implementation-Version': version,
-        'Main-Class': 'com.uber.okbuck.transform.CliTransform',
-        'X-Compile-Source-JDK': '1.8',
-        'X-Compile-Target-JDK': '1.8')
+        "Implementation-Title": "Okbuck Cli Transform",
+        "Implementation-Version": version,
+        "Main-Class": "com.uber.okbuck.transform.CliTransform",
+        "X-Compile-Source-JDK": "1.8",
+        "X-Compile-Target-JDK": "1.8")
 
 mainClassName = "com.uber.okbuck.transform.CliTransform"
 
@@ -33,15 +33,15 @@ dependencies {
 }
 
 shadowJar {
-    baseName = 'transform-cli'
+    baseName = "transform-cli"
     classifier = null
     version = version
 }
 
-File copyTo = project(pluginProjectPath).file('src/main/resources/com/uber/okbuck/core/util/transform/')
+File copyTo = project(pluginProjectPath).file("src/main/resources/com/uber/okbuck/core/util/transform/")
 
 task deleteExisting(type: Delete) {
-    project.fileTree(dir: copyTo, includes: ['*.jar'])
+    project.fileTree(dir: copyTo, includes: ["*.jar"])
 }
 
 task copyTransformCli(type: Copy) {

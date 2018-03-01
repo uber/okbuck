@@ -1,12 +1,12 @@
 buildscript {
-    apply from: rootProject.file('dependencies.gradle')
+    apply from: rootProject.file("dependencies.gradle")
     repositories {
         jcenter()
         google()
         maven { url "https://plugins.gradle.org/m2/" }
         // Remove once butterknife is updated to a stable version
         // TODO: https://github.com/uber/okbuck/issues/570
-        maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
     }
     dependencies {
         classpath deps.build.androidPlugin
@@ -18,25 +18,25 @@ buildscript {
 }
 
 allprojects { project ->
-    project.apply from: rootProject.file('dependencies.gradle')
+    project.apply from: rootProject.file("dependencies.gradle")
     repositories {
         jcenter()
         google()
         maven { url "https://plugins.gradle.org/m2/" }
         // Remove once butterknife is updated to a stable version
         // TODO: https://github.com/uber/okbuck/issues/570
-        maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
     }
 }
 
-apply plugin: 'com.uber.okbuck'
+apply plugin: "com.uber.okbuck"
 
 subprojects { project ->
     afterEvaluate {
-        if (project.plugins.hasPlugin('java')) {
+        if (project.plugins.hasPlugin("java")) {
             addCommonConfigurationForJavaModules(project)
-        } else if (project.plugins.hasPlugin('com.android.application')
-                || project.plugins.hasPlugin('com.android.library')) {
+        } else if (project.plugins.hasPlugin("com.android.application")
+                || project.plugins.hasPlugin("com.android.library")) {
             addCommonConfigurationForAndroidModules(project)
         }
 
@@ -70,16 +70,16 @@ def addCommonConfigurationForAndroidModules(Project project) {
         }
 
         lintOptions {
-            lintConfig project.rootProject.file('config/lint/lint.xml')
+            lintConfig project.rootProject.file("config/lint/lint.xml")
         }
     }
 
     def variants
-    if (project.plugins.hasPlugin('com.android.application')) {
+    if (project.plugins.hasPlugin("com.android.application")) {
         project.android {
             signingConfigs {
                 debug {
-                    storeFile project.rootProject.file('config/signing/debug.keystore')
+                    storeFile project.rootProject.file("config/signing/debug.keystore")
                 }
             }
             buildTypes {
@@ -96,7 +96,7 @@ def addCommonConfigurationForAndroidModules(Project project) {
         variants = project.android.libraryVariants
     }
 
-    if (project.plugins.hasPlugin('com.squareup.sqldelight')) {
+    if (project.plugins.hasPlugin("com.squareup.sqldelight")) {
         variants.all {
             Task okbuckTask = project.tasks.getByName("okbuck")
             Task sqlDelightTask = project.tasks.getByName("generate${it.name.capitalize()}SqlDelightInterface")
@@ -111,38 +111,38 @@ okbuck {
     target = "android-${config.build.compileSdk}"
 
     primaryDexPatterns = [
-            'app': [
-                    '^com/uber/okbuck/example/AppShell^',
-                    '^com/uber/okbuck/example/BuildConfig^',
-                    '^android/support/multidex/',
-                    '^com/facebook/buck/android/support/exopackage/',
-                    '^com/github/promeg/xlog_android/lib/XLogConfig^',
-                    '^com/squareup/leakcanary/LeakCanary^',
-                    '^com/uber/okbuck/example/common/Calc^',
-                    '^com/uber/okbuck/example/common/BuildConfig^',
+            "app": [
+                    "^com/uber/okbuck/example/AppShell^",
+                    "^com/uber/okbuck/example/BuildConfig^",
+                    "^android/support/multidex/",
+                    "^com/facebook/buck/android/support/exopackage/",
+                    "^com/github/promeg/xlog_android/lib/XLogConfig^",
+                    "^com/squareup/leakcanary/LeakCanary^",
+                    "^com/uber/okbuck/example/common/Calc^",
+                    "^com/uber/okbuck/example/common/BuildConfig^",
             ]
     ]
     exopackage = [
-            'appDevDebug': true
+            "appDevDebug": true
     ]
     appLibDependencies = [
-            'appProd': [
-                    'buck-android-support',
-                    'com.android.support:multidex',
-                    'libraries/javalibrary:main',
-                    'libraries/common:paidRelease',
+            "appProd": [
+                    "buck-android-support",
+                    "com.android.support:multidex",
+                    "libraries/javalibrary:main",
+                    "libraries/common:paidRelease",
             ],
-            'appDev' : [
-                    'buck-android-support',
-                    'com.android.support:multidex',
-                    'libraries/javalibrary:main',
-                    'libraries/common:freeDebug',
+            "appDev" : [
+                    "buck-android-support",
+                    "com.android.support:multidex",
+                    "libraries/javalibrary:main",
+                    "libraries/common:freeDebug",
             ],
-            'appDemo': [
-                    'buck-android-support',
-                    'com.android.support:multidex',
-                    'libraries/javalibrary:main',
-                    'libraries/common:paidRelease',
+            "appDemo": [
+                    "buck-android-support",
+                    "com.android.support:multidex",
+                    "libraries/javalibrary:main",
+                    "libraries/common:paidRelease",
             ]
     ]
     buckProjects = project.subprojects.findAll { it.name != "plugin" && it.name != "transform-cli" }
@@ -175,7 +175,7 @@ okbuck {
 
     transform {
         transforms = [
-                'appProd': [
+                "appProd": [
                         [transform: "com.uber.okbuck.transform.DummyTransform"]
                 ]
 
@@ -183,10 +183,10 @@ okbuck {
     }
 
     dependencies {
-        transform project(':dummy-transform')
+        transform project(":dummy-transform")
     }
 
-    extraDefs += project.file('tooling/buck-defs/DEFS')
+    extraDefs += project.file("tooling/buck-defs/DEFS")
     libraryBuildConfig = false
 }
 
