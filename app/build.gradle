@@ -1,6 +1,6 @@
-apply plugin: 'com.android.application'
-apply plugin: 'com.jakewharton.butterknife'
-apply plugin: 'com.squareup.sqldelight'
+apply plugin: "com.android.application"
+apply plugin: "com.jakewharton.butterknife"
+apply plugin: "com.squareup.sqldelight"
 
 android {
     defaultConfig {
@@ -11,9 +11,9 @@ android {
         buildConfigField "int", "EXOPACKAGE_FLAGS", "0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
-        // If app doesn't specify dimensions, use missingDimensionStrategy
+        // If app doesn"t specify dimensions, use missingDimensionStrategy
         // https://developer.android.com/studio/build/gradle-plugin-3-0-0-migration.html#resolve_matching_errors
-        missingDimensionStrategy 'tier', 'free', 'paid'
+        missingDimensionStrategy "tier", "free", "paid"
     }
 
     flavorDimensions "default"
@@ -49,13 +49,13 @@ android {
 
 repositories {
     flatDir {
-        dirs 'aars'
+        dirs "aars"
     }
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation(name: 'rxscreenshotdetector-1.2.0', ext: 'aar')
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+    implementation(name: "rxscreenshotdetector-1.2.0", ext: "aar")
     implementation deps.external.rxjava
     implementation deps.external.rxandroid
     implementation deps.external.rxPermissions
@@ -67,9 +67,9 @@ dependencies {
     implementation deps.external.xlogAndroidIdle
     implementation deps.apt.autoValue
 
-    implementation project(':libraries:emptylibrary')
-    implementation project(':libraries:kotlinandroidlibrary')
-    implementation project(':dummylibrary')
+    implementation project(":libraries:emptylibrary")
+    implementation project(":libraries:kotlinandroidlibrary")
+    implementation project(":dummylibrary")
 
     annotationProcessor deps.apt.autoValue
     annotationProcessor deps.apt.butterKnifeCompiler
@@ -85,8 +85,8 @@ dependencies {
 }
 
 android.testVariants.all { variant ->
-    variant.getCompileConfiguration().exclude group: 'com.android.support', module: 'support-annotations'
-    variant.getRuntimeConfiguration().exclude group: 'com.android.support', module: 'support-annotations'
+    variant.getCompileConfiguration().exclude group: "com.android.support", module: "support-annotations"
+    variant.getRuntimeConfiguration().exclude group: "com.android.support", module: "support-annotations"
 }
 
 afterEvaluate {

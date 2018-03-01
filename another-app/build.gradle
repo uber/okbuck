@@ -1,35 +1,35 @@
-apply plugin: 'com.android.application'
+apply plugin: "com.android.application"
 
 android {
     defaultConfig {
         applicationId "com.uber.okbuck.example.anotherapp"
         manifestPlaceholders = [label: "custom permission"]
-        // If app doesn't specify dimensions, use missingDimensionStrategy
+        // If app doesn"t specify dimensions, use missingDimensionStrategy
         // https://developer.android.com/studio/build/gradle-plugin-3-0-0-migration.html#resolve_matching_errors
-        missingDimensionStrategy 'tier', 'paid', 'free'
+        missingDimensionStrategy "tier", "paid", "free"
     }
 
     buildTypes {
         release {
             minifyEnabled true
-            proguardFiles 'proguard-android.txt'
+            proguardFiles "proguard-android.txt"
         }
     }
 
     sourceSets {
         main {
-            manifest.srcFile 'AndroidManifest.xml'
-            java.srcDirs = ['src']
-            res.srcDirs = ['res']
-            assets.srcDirs = ['assets']
-            jniLibs.srcDirs = ['jniLibs']
+            manifest.srcFile "AndroidManifest.xml"
+            java.srcDirs = ["src"]
+            res.srcDirs = ["res"]
+            assets.srcDirs = ["assets"]
+            jniLibs.srcDirs = ["jniLibs"]
         }
 
-        test.setRoot('test')
+        test.setRoot("test")
     }
 
     lintOptions {
-        disable 'HardcodedDebugMode'
+        disable "HardcodedDebugMode"
     }
 }
 

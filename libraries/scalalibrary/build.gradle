@@ -7,7 +7,7 @@ dependencies {
     compile "org.scala-lang:scala-library:2.12.4"
 
     testCompile "org.scalatest:scalatest_2.12:3.0.5"
-    testCompile 'junit:junit:4.12'
+    testCompile "junit:junit:4.12"
 }
 
 mainClassName = "com.uber.okbuck.scala.example.Hello"
