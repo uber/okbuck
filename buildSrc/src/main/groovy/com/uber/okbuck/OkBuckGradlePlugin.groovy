@@ -105,6 +105,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
             okBuckExtension = okbuckExt
             kotlinExtension = kotlin
             scalaExtension = scala
+            experimentalExtension = experimental
         })
         okBuck.dependsOn(setupOkbuck)
 

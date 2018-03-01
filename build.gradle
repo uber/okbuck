@@ -194,3 +194,4 @@ gradle.buildFinished {
     "zip -d .okbuck/cache/org.hamcrest.hamcrest-library-1.3.jar LICENSE.txt".execute()
     "zip -d .okbuck/cache/org.hamcrest.hamcrest-integration-1.3.jar LICENSE.txt".execute()
 }
+
