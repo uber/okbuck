@@ -125,7 +125,7 @@ public class OkBuckTask extends DefaultTask {
 
         String classpathMacro = CLASSPATH_MACRO;
         if (experimentalExt.lintWithClasspathAbi) {
-            classpathMacro = CLASSPATH_MACRO;
+            classpathMacro = CLASSPATH_ABI_MACRO;
         }
 
         // Setup defs
