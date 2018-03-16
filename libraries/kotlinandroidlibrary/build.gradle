@@ -1,5 +1,6 @@
 apply plugin: "com.android.library"
 apply plugin: "kotlin-android"
+apply plugin: "kotlin-kapt"
 apply plugin: "kotlin-android-extensions"
 
 androidExtensions {
@@ -8,6 +9,8 @@ androidExtensions {
 
 dependencies {
   api deps.external.kotlinStdlib
+  implementation deps.external.daggerAndroid
+  kapt deps.apt.daggerCompiler
   testImplementation deps.test.junit
   testImplementation deps.test.kotlinTest
 }

@@ -44,6 +44,7 @@ def apt = [
 def external = [
         butterKnife    : "com.jakewharton:butterknife:${versions.butterKnife}",
         dagger         : "com.google.dagger:dagger:${versions.dagger}",
+        daggerAndroid  : "com.google.dagger:dagger-android-support:${versions.dagger}",
         gson           : "com.google.code.gson:gson:2.8.2",
         kotlinExtension: "org.jetbrains.kotlin:kotlin-android-extensions:${versions.kotlin}",
         kotlinStdlib   : "org.jetbrains.kotlin:kotlin-stdlib:${versions.kotlin}",
