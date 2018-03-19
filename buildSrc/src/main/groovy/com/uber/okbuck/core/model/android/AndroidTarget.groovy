@@ -17,6 +17,7 @@ import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.core.model.base.Scope
 import com.uber.okbuck.core.model.java.JavaLibTarget
 import com.uber.okbuck.core.model.jvm.TestOptions
+import com.uber.okbuck.core.model.kotlin.KotlinLibTarget
 import com.uber.okbuck.core.util.FileUtil
 import groovy.util.slurpersupport.GPathResult
 import groovy.xml.StreamingMarkupBuilder
@@ -141,14 +142,20 @@ abstract class AndroidTarget extends JavaLibTarget {
 
     @Override
     Scope getApt() {
-        return Scope.from(project, baseVariant.annotationProcessorConfiguration)
+        if (!isKotlin)
+            return Scope.from(project, baseVariant.annotationProcessorConfiguration)
+        else
+            return Scope.from(project, KotlinLibTarget.ANNOTATION_PROCESSOR_CONFIGURATION_NAME)
     }
 
     @Override
     Scope getTestApt() {
-        return Scope.from(project, unitTestVariant
-                ? unitTestVariant.annotationProcessorConfiguration : null
-        )
+        if (!isKotlin)
+            return Scope.from(project, unitTestVariant
+                    ? unitTestVariant.annotationProcessorConfiguration : null
+            )
+        else
+            return Scope.from(project, KotlinLibTarget.ANNOTATION_PROCESSOR_CONFIGURATION_NAME)
     }
 
     @Override

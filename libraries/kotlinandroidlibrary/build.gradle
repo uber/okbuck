@@ -9,6 +9,7 @@ androidExtensions {
 
 dependencies {
   api deps.external.kotlinStdlib
+  implementation deps.apt.javax
   implementation deps.external.daggerAndroid
   kapt deps.apt.daggerCompiler
   testImplementation deps.test.junit

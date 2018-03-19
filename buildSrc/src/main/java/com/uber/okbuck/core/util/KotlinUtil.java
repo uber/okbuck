@@ -28,7 +28,7 @@ public final class KotlinUtil {
     private static final String KOTLIN_STDLIB_MODULE = "kotlin-stdlib";
     private static final String KOTLIN_REFLECT_MODULE = "kotlin-reflect";
     private static final String KOTLIN_SCRIPT_RUNTIME_MODULE = "kotlin-script-runtime";
-    private static final String KOTLIN_ANNOTATION_PROCESSING_MODULE = "kotlin-annotation-processing-maven";
+    private static final String KOTLIN_ANNOTATION_PROCESSING_MODULE = "kotlin-annotation-processing-gradle";
 
     private KotlinUtil() {}
 
