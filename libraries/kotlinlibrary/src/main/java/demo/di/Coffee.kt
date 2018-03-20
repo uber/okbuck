@@ -52,7 +52,8 @@ abstract class PumpModule {
 
 @Module(includes = arrayOf(PumpModule::class))
 class DripCoffeeModule {
-    @Provides @Singleton
+    @Provides
+    @Singleton
     fun provideHeater(): Heater = ElectricHeater()
 }
 
@@ -61,6 +62,9 @@ class CoffeeMaker
         private val heater: Lazy<Heater>,
         private val pump: Pump
 ) {
+
+    fun heating() : Boolean = heater.get().isHot
+
     fun brew() {
         heater.get().on()
         pump.pump()
@@ -73,9 +77,4 @@ class CoffeeMaker
 @Component(modules = arrayOf(DripCoffeeModule::class))
 interface CoffeeShop {
     fun maker(): CoffeeMaker
-}
-
-fun main(args: Array<String>) {
-    val coffee = DaggerCoffeeShop.builder().build()
-    coffee.maker().brew()
 }
