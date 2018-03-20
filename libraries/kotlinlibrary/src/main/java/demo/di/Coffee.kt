@@ -1,6 +1,10 @@
 package demo.di
 
-import dagger.*
+import dagger.Lazy
+import dagger.Binds
+import dagger.Component
+import dagger.Module
+import dagger.Provides
 import javax.inject.Inject
 import javax.inject.Singleton
 
