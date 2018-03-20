@@ -1,0 +1,36 @@
+apply plugin: "com.android.application"
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+
+android {
+    defaultConfig {
+        applicationId "com.uber.okbuck.example"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+}
+
+dependencies {
+    implementation deps.external.kotlinStdlib
+    implementation deps.apt.javax
+    implementation deps.external.dagger
+    implementation deps.external.daggerAndroid
+
+    kapt deps.apt.daggerCompiler
+    kapt deps.apt.daggerAndroidProcessor
+
+    kaptTest deps.apt.daggerCompiler
+
+    kaptAndroidTest deps.apt.daggerCompiler
+    kaptAndroidTest deps.apt.daggerAndroidProcessor
+
+    implementation deps.support.appCompat
+    implementation deps.support.design
+    implementation deps.support.constraintLayout
+
+    testImplementation deps.test.junit
+    testImplementation deps.test.kotlinTest
+
+    androidTestImplementation deps.test.espressoRunner
+    androidTestImplementation deps.test.espressoCore
+}
