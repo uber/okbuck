@@ -24,6 +24,9 @@ class AndroidInstrumentationTarget extends AndroidAppTarget {
 
     @Override
     Scope getApt() {
+        if (isKapt) {
+            return Scope.from(project, "kaptAndroidTest")
+        }
         return Scope.from(project, baseVariant.annotationProcessorConfiguration)
     }
 

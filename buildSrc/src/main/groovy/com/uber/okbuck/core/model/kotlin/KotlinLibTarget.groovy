@@ -3,13 +3,12 @@ package com.uber.okbuck.core.model.kotlin
 import com.uber.okbuck.core.model.base.Scope
 import com.uber.okbuck.core.model.java.JavaLibTarget
 import org.gradle.api.Project
+import org.jetbrains.kotlin.gradle.internal.Kapt3GradleSubplugin
 
 /**
  * A kotlin library target
  */
 class KotlinLibTarget extends JavaLibTarget {
-
-    public static final String ANNOTATION_PROCESSOR_CONFIGURATION_NAME = "kapt"
 
     KotlinLibTarget(Project project, String name) {
         super(project, name)
@@ -27,11 +26,11 @@ class KotlinLibTarget extends JavaLibTarget {
 
     @Override
     Scope getApt() {
-        return Scope.from(project, ANNOTATION_PROCESSOR_CONFIGURATION_NAME)
+        return Scope.from(project, "kapt")
     }
 
     @Override
     Scope getTestApt() {
-        return Scope.from(project, ANNOTATION_PROCESSOR_CONFIGURATION_NAME)
+        return Scope.from(project, "kaptTest")
     }
 }

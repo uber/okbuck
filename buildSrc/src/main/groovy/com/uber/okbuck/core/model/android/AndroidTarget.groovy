@@ -25,6 +25,7 @@ import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.testing.Test
+import org.jetbrains.kotlin.gradle.internal.Kapt3GradleSubplugin
 import org.jetbrains.kotlin.gradle.plugin.KotlinAndroidPluginWrapper
 
 import java.nio.file.Paths
@@ -48,6 +49,7 @@ abstract class AndroidTarget extends JavaLibTarget {
     final boolean generateR2
     final String genDir
     final boolean isKotlin
+    final boolean isKapt
     final boolean hasKotlinAndroidExtensions
     final boolean hasExperimentalKotlinAndroidExtensions
     final boolean lintExclude
@@ -92,6 +94,7 @@ abstract class AndroidTarget extends JavaLibTarget {
 
         // Check if kotlin
         isKotlin = project.plugins.hasPlugin(KotlinAndroidPluginWrapper.class)
+        isKapt = project.plugins.hasPlugin(Kapt3GradleSubplugin.class)
         hasKotlinAndroidExtensions = project.plugins.hasPlugin(KOTLIN_ANDROID_EXTENSIONS_MODULE)
 
         // Check if any rules are excluded
@@ -142,20 +145,18 @@ abstract class AndroidTarget extends JavaLibTarget {
 
     @Override
     Scope getApt() {
-        if (!isKotlin)
-            return Scope.from(project, baseVariant.annotationProcessorConfiguration)
-        else
-            return Scope.from(project, KotlinLibTarget.ANNOTATION_PROCESSOR_CONFIGURATION_NAME)
+        if (isKapt) {
+            return Scope.from(project, "kapt${baseVariant.name.capitalize()}")
+        }
+        return Scope.from(project, baseVariant.annotationProcessorConfiguration)
     }
 
     @Override
     Scope getTestApt() {
-        if (!isKotlin)
-            return Scope.from(project, unitTestVariant
-                    ? unitTestVariant.annotationProcessorConfiguration : null
-            )
-        else
-            return Scope.from(project, KotlinLibTarget.ANNOTATION_PROCESSOR_CONFIGURATION_NAME)
+        if (isKapt)  {
+            return Scope.from(project, "kapt${baseVariant.getName().capitalize()}")
+        }
+        return Scope.from(project, unitTestVariant ? unitTestVariant.annotationProcessorConfiguration : null)
     }
 
     @Override
