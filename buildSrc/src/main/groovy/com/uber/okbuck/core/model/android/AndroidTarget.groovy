@@ -145,18 +145,15 @@ abstract class AndroidTarget extends JavaLibTarget {
 
     @Override
     Scope getApt() {
-        if (isKapt) {
-            return Scope.from(project, "kapt${baseVariant.name.capitalize()}")
-        }
-        return Scope.from(project, baseVariant.annotationProcessorConfiguration)
+        return Scope.from(project,
+                isKapt ?"kapt${baseVariant.name.capitalize()}" : baseVariant.annotationProcessorConfiguration)
     }
 
     @Override
     Scope getTestApt() {
-        if (isKapt)  {
-            return Scope.from(project, "kapt${baseVariant.getName().capitalize()}")
-        }
-        return Scope.from(project, unitTestVariant ? unitTestVariant.annotationProcessorConfiguration : null)
+        return Scope.from(project,
+                isKapt ? "kapt${baseVariant.name.capitalize()}" :
+                        unitTestVariant ? unitTestVariant.annotationProcessorConfiguration : null)
     }
 
     @Override
