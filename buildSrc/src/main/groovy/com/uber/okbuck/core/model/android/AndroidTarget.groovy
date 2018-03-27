@@ -17,7 +17,6 @@ import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.core.model.base.Scope
 import com.uber.okbuck.core.model.java.JavaLibTarget
 import com.uber.okbuck.core.model.jvm.TestOptions
-import com.uber.okbuck.core.model.kotlin.KotlinLibTarget
 import com.uber.okbuck.core.util.FileUtil
 import groovy.util.slurpersupport.GPathResult
 import groovy.xml.StreamingMarkupBuilder
@@ -25,12 +24,12 @@ import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.testing.Test
-import org.jetbrains.kotlin.gradle.internal.Kapt3GradleSubplugin
 import org.jetbrains.kotlin.gradle.plugin.KotlinAndroidPluginWrapper
 
 import java.nio.file.Paths
 
 import static com.uber.okbuck.core.util.KotlinUtil.KOTLIN_ANDROID_EXTENSIONS_MODULE
+import static com.uber.okbuck.core.util.KotlinUtil.KOTLIN_KAPT_PLUGIN
 
 /**
  * An Android target
@@ -94,7 +93,7 @@ abstract class AndroidTarget extends JavaLibTarget {
 
         // Check if kotlin
         isKotlin = project.plugins.hasPlugin(KotlinAndroidPluginWrapper.class)
-        isKapt = project.plugins.hasPlugin(Kapt3GradleSubplugin.class)
+        isKapt = project.plugins.hasPlugin(KOTLIN_KAPT_PLUGIN)
         hasKotlinAndroidExtensions = project.plugins.hasPlugin(KOTLIN_ANDROID_EXTENSIONS_MODULE)
 
         // Check if any rules are excluded
@@ -146,7 +145,7 @@ abstract class AndroidTarget extends JavaLibTarget {
     @Override
     Scope getApt() {
         return Scope.from(project,
-                isKapt ?"kapt${baseVariant.name.capitalize()}" : baseVariant.annotationProcessorConfiguration)
+                isKapt ? "kapt${baseVariant.name.capitalize()}" : baseVariant.annotationProcessorConfiguration)
     }
 
     @Override

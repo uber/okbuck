@@ -3,7 +3,6 @@ package com.uber.okbuck.core.model.kotlin
 import com.uber.okbuck.core.model.base.Scope
 import com.uber.okbuck.core.model.java.JavaLibTarget
 import org.gradle.api.Project
-import org.jetbrains.kotlin.gradle.internal.Kapt3GradleSubplugin
 
 /**
  * A kotlin library target

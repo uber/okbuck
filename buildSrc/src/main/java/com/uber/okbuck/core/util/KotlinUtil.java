@@ -19,6 +19,7 @@ public final class KotlinUtil {
 
     public static final String KOTLIN_HOME_LOCATION = OkBuckGradlePlugin.DEFAULT_CACHE_PATH + "/kotlin_home";
     public static final String KOTLIN_ANDROID_EXTENSIONS_MODULE = "kotlin-android-extensions";
+    public static final String KOTLIN_KAPT_PLUGIN = "kotlin-kapt";
     public static final String KOTLIN_LIBRARIES_LOCATION = KOTLIN_HOME_LOCATION + "/libexec/lib";
 
     private static final String KOTLIN_DEPS_CONFIG = "okbuck_kotlin_deps";
