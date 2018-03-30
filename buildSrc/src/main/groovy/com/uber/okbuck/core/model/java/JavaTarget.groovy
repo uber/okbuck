@@ -2,6 +2,8 @@ package com.uber.okbuck.core.model.java
 
 import com.android.builder.model.LintOptions
 import com.google.common.base.Preconditions
+import com.google.common.collect.ImmutableList
+import com.google.common.collect.ImmutableSet
 import com.uber.okbuck.OkBuckGradlePlugin
 import com.uber.okbuck.core.model.base.Scope
 import com.uber.okbuck.core.model.jvm.JvmTarget
@@ -56,14 +58,11 @@ abstract class JavaTarget extends JvmTarget {
      * Lint Scope
      */
     Scope getLint() {
-        File res = null
-        Set<File> sourceDirs = []
-        List<String> jvmArguments = []
         return Scope.from(project,
                 OkBuckGradlePlugin.BUCK_LINT,
-                sourceDirs,
-                res,
-                jvmArguments,
+                ImmutableSet.of(),
+                ImmutableSet.of(),
+                ImmutableList.of(),
                 LintUtil.getLintDepsCache(project))
     }
 

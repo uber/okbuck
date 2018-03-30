@@ -40,7 +40,7 @@ class AndroidInstrumentationTarget extends AndroidAppTarget {
                 project,
                 baseVariant.runtimeConfiguration,
                 getSources(baseVariant),
-                null,
+                getJavaResources(baseVariant),
                 getJavaCompilerOptions(baseVariant))
     }
 
@@ -48,16 +48,6 @@ class AndroidInstrumentationTarget extends AndroidAppTarget {
     Scope getTest() {
         return Scope.from(project, null)
     }
-
-    Scope getInstrumentation() {
-        return Scope.from(
-                project,
-                baseVariant.runtimeConfiguration,
-                getSources(baseVariant),
-                null,
-                getJavaCompilerOptions(instrumentationTestVariant))
-    }
-
 
     static String getMainTargetName(String name) {
         return name.replaceFirst(/_test$/, '')

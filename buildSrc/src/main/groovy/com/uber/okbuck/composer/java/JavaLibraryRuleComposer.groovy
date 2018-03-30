@@ -41,7 +41,7 @@ final class JavaLibraryRuleComposer extends JvmBuckRuleComposer {
                 .annotationProcessors(target.annotationProcessors)
                 .aptDeps(aptDeps)
                 .providedDeps(providedDeps)
-                .resourcesDir(target.main.resourcesDir)
+                .resources(target.main.javaResources)
                 .sourceCompatibility(target.sourceCompatibility)
                 .targetCompatibility(target.targetCompatibility)
                 .testTargets(testTargets)

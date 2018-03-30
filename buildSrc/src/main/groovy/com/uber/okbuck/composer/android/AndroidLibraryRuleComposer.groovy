@@ -53,7 +53,7 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
                 .annotationProcessors(target.annotationProcessors)
                 .aptDeps(libraryAptDeps)
                 .providedDeps(providedDeps)
-                .resourcesDir(target.main.resourcesDir)
+                .resources(target.main.javaResources)
                 .sourceCompatibility(target.sourceCompatibility)
                 .targetCompatibility(target.targetCompatibility)
                 .testTargets(testTargets)
