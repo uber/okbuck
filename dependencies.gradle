@@ -34,16 +34,18 @@ def buildConfig = [
 ]
 
 def apt = [
-        autoValue          : "com.google.auto.value:auto-value:1.5.3",
-        autoValueGson      : "com.ryanharter.auto.value:auto-value-gson:0.7.0",
-        butterKnifeCompiler: "com.jakewharton:butterknife-compiler:${versions.butterKnifeCompiler}",
-        daggerCompiler     : "com.google.dagger:dagger-compiler:${versions.dagger}",
-        javax              : "org.glassfish:javax.annotation:10.0-b28",
+        autoValue             : "com.google.auto.value:auto-value:1.5.3",
+        autoValueGson         : "com.ryanharter.auto.value:auto-value-gson:0.7.0",
+        butterKnifeCompiler   : "com.jakewharton:butterknife-compiler:${versions.butterKnifeCompiler}",
+        daggerCompiler        : "com.google.dagger:dagger-compiler:${versions.dagger}",
+        daggerAndroidProcessor: "com.google.dagger:dagger-android-processor:${versions.dagger}",
+        javax                 : "org.glassfish:javax.annotation:10.0-b28",
 ]
 
 def external = [
         butterKnife    : "com.jakewharton:butterknife:${versions.butterKnife}",
         dagger         : "com.google.dagger:dagger:${versions.dagger}",
+        daggerAndroid  : "com.google.dagger:dagger-android-support:${versions.dagger}",
         gson           : "com.google.code.gson:gson:2.8.2",
         kotlinExtension: "org.jetbrains.kotlin:kotlin-android-extensions:${versions.kotlin}",
         kotlinStdlib   : "org.jetbrains.kotlin:kotlin-stdlib:${versions.kotlin}",
@@ -63,12 +65,13 @@ def lint = [
 ]
 
 def support = [
-        annotations : "com.android.support:support-annotations:${versions.support}",
-        appCompat   : "com.android.support:appcompat-v7:${versions.support}",
-        design      : "com.android.support:design:${versions.support}",
-        multidex    : "com.android.support:multidex:1.0.3",
-        recyclerView: "com.android.support:recyclerview-v7:${versions.support}",
-        v4          : "com.android.support:support-v4:${versions.support}",
+        annotations     : "com.android.support:support-annotations:${versions.support}",
+        appCompat       : "com.android.support:appcompat-v7:${versions.support}",
+        design          : "com.android.support:design:${versions.support}",
+        recyclerView    : "com.android.support:recyclerview-v7:${versions.support}",
+        v4              : "com.android.support:support-v4:${versions.support}",
+        multidex        : "com.android.support:multidex:1.0.3",
+        constraintLayout: "com.android.support.constraint:constraint-layout:1.0.2",
 ]
 
 def test = [

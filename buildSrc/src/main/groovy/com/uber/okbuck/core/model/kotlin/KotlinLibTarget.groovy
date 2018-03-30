@@ -1,5 +1,6 @@
 package com.uber.okbuck.core.model.kotlin
 
+import com.uber.okbuck.core.model.base.Scope
 import com.uber.okbuck.core.model.java.JavaLibTarget
 import org.gradle.api.Project
 
@@ -20,5 +21,15 @@ class KotlinLibTarget extends JavaLibTarget {
     @Override
     protected Set<File> getTestSrcDirs() {
         return (project.sourceSets.test.java.srcDirs as Set) + (project.sourceSets.test.kotlin.srcDirs as Set)
+    }
+
+    @Override
+    Scope getApt() {
+        return Scope.from(project, "kapt")
+    }
+
+    @Override
+    Scope getTestApt() {
+        return Scope.from(project, "kaptTest")
     }
 }

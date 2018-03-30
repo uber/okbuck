@@ -6,6 +6,7 @@ import com.android.builder.core.VariantType
 import com.google.common.collect.ImmutableSet
 import com.uber.okbuck.core.model.base.Scope
 import org.gradle.api.Project
+
 /**
  * An Android instrumentation target
  */
@@ -22,9 +23,10 @@ class AndroidInstrumentationTarget extends AndroidAppTarget {
         }).testVariant
     }
 
+    // TODO: Update to use variant once issue solved: https://youtrack.jetbrains.com/issue/KT-23411
     @Override
     Scope getApt() {
-        return Scope.from(project, baseVariant.annotationProcessorConfiguration)
+        return Scope.from(project, isKapt ? "kaptAndroidTest" : baseVariant.annotationProcessorConfiguration)
     }
 
     @Override

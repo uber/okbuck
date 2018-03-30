@@ -1,7 +1,11 @@
 apply plugin: "kotlin"
+apply plugin: "kotlin-kapt"
 
 dependencies {
-  compile deps.external.kotlinStdlib
-  testCompile deps.test.junit
-  testCompile deps.test.kotlinTest
+  implementation deps.external.kotlinStdlib
+  implementation deps.external.dagger
+  kapt deps.apt.daggerCompiler
+  kaptTest deps.apt.daggerCompiler
+  testImplementation deps.test.junit
+  testImplementation deps.test.kotlinTest
 }

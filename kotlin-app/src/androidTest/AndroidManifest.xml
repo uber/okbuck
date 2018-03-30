@@ -1,0 +1,19 @@
+<manifest package="com.uber.okbuck.example.test"
+          xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <instrumentation
+        android:label="Tests for com.uber.okbuck.example"
+        android:name="android.support.test.runner.AndroidJUnitRunner"
+        android:targetPackage="com.uber.okbuck.example"
+        android:handleProfiling="false"
+        android:functionalTest="false" />
+
+    <application
+        android:name="com.uber.okbuck.example.TestMainApp"
+        android:debuggable="true">
+
+        <uses-library
+            android:name="android.test.runner" />
+    </application>
+
+</manifest>

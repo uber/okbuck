@@ -29,6 +29,7 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinAndroidPluginWrapper
 import java.nio.file.Paths
 
 import static com.uber.okbuck.core.util.KotlinUtil.KOTLIN_ANDROID_EXTENSIONS_MODULE
+import static com.uber.okbuck.core.util.KotlinUtil.KOTLIN_KAPT_PLUGIN
 
 /**
  * An Android target
@@ -47,6 +48,7 @@ abstract class AndroidTarget extends JavaLibTarget {
     final boolean generateR2
     final String genDir
     final boolean isKotlin
+    final boolean isKapt
     final boolean hasKotlinAndroidExtensions
     final boolean hasExperimentalKotlinAndroidExtensions
     final boolean lintExclude
@@ -91,6 +93,7 @@ abstract class AndroidTarget extends JavaLibTarget {
 
         // Check if kotlin
         isKotlin = project.plugins.hasPlugin(KotlinAndroidPluginWrapper.class)
+        isKapt = project.plugins.hasPlugin(KOTLIN_KAPT_PLUGIN)
         hasKotlinAndroidExtensions = project.plugins.hasPlugin(KOTLIN_ANDROID_EXTENSIONS_MODULE)
 
         // Check if any rules are excluded
@@ -141,14 +144,15 @@ abstract class AndroidTarget extends JavaLibTarget {
 
     @Override
     Scope getApt() {
-        return Scope.from(project, baseVariant.annotationProcessorConfiguration)
+        return Scope.from(project,
+                isKapt ? "kapt${baseVariant.name.capitalize()}" : baseVariant.annotationProcessorConfiguration)
     }
 
     @Override
     Scope getTestApt() {
-        return Scope.from(project, unitTestVariant
-                ? unitTestVariant.annotationProcessorConfiguration : null
-        )
+        return Scope.from(project,
+                isKapt ? "kapt${baseVariant.name.capitalize()}" :
+                        unitTestVariant ? unitTestVariant.annotationProcessorConfiguration : null)
     }
 
     @Override

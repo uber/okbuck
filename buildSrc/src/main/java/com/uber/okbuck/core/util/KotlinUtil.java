@@ -19,6 +19,7 @@ public final class KotlinUtil {
 
     public static final String KOTLIN_HOME_LOCATION = OkBuckGradlePlugin.DEFAULT_CACHE_PATH + "/kotlin_home";
     public static final String KOTLIN_ANDROID_EXTENSIONS_MODULE = "kotlin-android-extensions";
+    public static final String KOTLIN_KAPT_PLUGIN = "kotlin-kapt";
     public static final String KOTLIN_LIBRARIES_LOCATION = KOTLIN_HOME_LOCATION + "/libexec/lib";
 
     private static final String KOTLIN_DEPS_CONFIG = "okbuck_kotlin_deps";
@@ -28,7 +29,7 @@ public final class KotlinUtil {
     private static final String KOTLIN_STDLIB_MODULE = "kotlin-stdlib";
     private static final String KOTLIN_REFLECT_MODULE = "kotlin-reflect";
     private static final String KOTLIN_SCRIPT_RUNTIME_MODULE = "kotlin-script-runtime";
-    private static final String KOTLIN_ANNOTATION_PROCESSING_MODULE = "kotlin-annotation-processing-maven";
+    private static final String KOTLIN_ANNOTATION_PROCESSING_MODULE = "kotlin-annotation-processing-gradle";
 
     private KotlinUtil() {}
 

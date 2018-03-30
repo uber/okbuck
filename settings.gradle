@@ -1,5 +1,6 @@
 include "app"
 include "another-app"
+include "kotlin-app"
 include "dummylibrary"
 include "dummy-transform"
 include "libraries:common"
