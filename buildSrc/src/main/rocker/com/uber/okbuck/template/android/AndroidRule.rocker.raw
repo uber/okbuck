@@ -3,10 +3,10 @@
 @args (
 Collection srcs,
 Collection exts,
+Collection resources,
 Collection excludes,
 String sourceCompatibility,
 String targetCompatibility,
-String resourcesDir,
 String proguardConfig,
 Collection testTargets,
 Collection annotationProcessors,
@@ -27,10 +27,10 @@ boolean generateR2
 @com.uber.okbuck.template.java.JavaRule.template(
 srcs,
 exts,
+resources,
 excludes,
 sourceCompatibility,
 targetCompatibility,
-resourcesDir,
 testTargets,
 annotationProcessors,
 aptDeps,

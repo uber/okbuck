@@ -16,7 +16,7 @@ class ExoPackageScope extends Scope {
     private final String manifest
 
     ExoPackageScope(Project project, Scope base, Set<String> exoPackageDependencies, String manifest) {
-        super(project, null, ImmutableSet.of(), null, ImmutableList.of())
+        super(project, null, ImmutableSet.of(), ImmutableSet.of(), ImmutableList.of())
         this.base = base
         this.manifest = manifest
         extractDependencies(base, exoPackageDependencies)

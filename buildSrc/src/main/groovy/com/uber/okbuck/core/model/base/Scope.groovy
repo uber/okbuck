@@ -27,7 +27,7 @@ import java.util.concurrent.ConcurrentHashMap
 @EqualsAndHashCode
 class Scope {
 
-    final String resourcesDir
+    final Set<String> javaResources
     final Set<String> sources
     final Set<Target> targetDeps = new HashSet<>()
 
@@ -62,13 +62,13 @@ class Scope {
     protected Scope(Project project,
                     Configuration configuration,
                     Set<File> sourceDirs,
-                    @Nullable File resDir,
+                    Set<File> javaResourceDirs,
                     List<String> jvmArguments,
                     DependencyCache depCache = ProjectUtil.getDependencyCache(project)) {
 
         this.project = project
         sources = FileUtil.available(project, sourceDirs)
-        resourcesDir = resDir ? FileUtil.available(project, ImmutableSet.of(resDir))[0] : null
+        javaResources = FileUtil.available(project, javaResourceDirs)
         jvmArgs = jvmArguments
         this.depCache = depCache
 
@@ -80,17 +80,17 @@ class Scope {
     static Scope from(Project project,
                       String configuration,
                       Set<File> sourceDirs = ImmutableSet.of(),
-                      @Nullable File resDir = null,
+                      Set<File> javaResourceDirs = ImmutableSet.of(),
                       List<String> jvmArguments = ImmutableList.of(),
                       DependencyCache depCache = ProjectUtil.getDependencyCache(project)) {
         Configuration useful = DependencyUtils.useful(project, configuration)
-        return from(project, useful, sourceDirs, resDir, jvmArguments, depCache)
+        return from(project, useful, sourceDirs, javaResourceDirs, jvmArguments, depCache)
     }
 
     static Scope from(Project project,
                       Configuration configuration,
                       Set<File> sourceDirs = ImmutableSet.of(),
-                      @Nullable File resDir = null,
+                      Set<File> javaResourceDirs = ImmutableSet.of(),
                       List<String> jvmArguments = ImmutableList.of(),
                       DependencyCache depCache = ProjectUtil.getDependencyCache(project)) {
         Configuration useful = DependencyUtils.useful(configuration)
@@ -98,7 +98,7 @@ class Scope {
         return ProjectUtil.getScopes(project)
                 .computeIfAbsent(project, { new ConcurrentHashMap<>() })
                 .computeIfAbsent(key,
-                { new Scope(project, useful, sourceDirs, resDir, jvmArguments, depCache) })
+                { new Scope(project, useful, sourceDirs, javaResourceDirs, jvmArguments, depCache) })
     }
 
     Set<String> getExternalDeps() {

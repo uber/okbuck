@@ -42,7 +42,7 @@ final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
                 .annotationProcessors(target.testAnnotationProcessors)
                 .aptDeps(testAptDeps)
                 .providedDeps(providedDeps)
-                .resourcesDir(target.test.resourcesDir)
+                .resources(target.test.javaResources)
                 .sourceCompatibility(target.sourceCompatibility)
                 .targetCompatibility(target.targetCompatibility)
                 .exportedDeps(aidlRuleNames)

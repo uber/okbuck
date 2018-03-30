@@ -37,7 +37,7 @@ final class JavaTestRuleComposer extends JvmBuckRuleComposer {
                 .annotationProcessors(target.testAnnotationProcessors)
                 .aptDeps(aptDeps)
                 .providedDeps(providedDeps)
-                .resourcesDir(target.test.resourcesDir)
+                .resources(target.test.javaResources)
                 .sourceCompatibility(target.sourceCompatibility)
                 .targetCompatibility(target.targetCompatibility)
                 .options(target.test.jvmArgs)

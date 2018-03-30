@@ -20,8 +20,16 @@ class JavaLibTarget extends JavaTarget {
         return project.sourceSets.main.java.srcDirs as Set
     }
 
+    protected Set<File> getMainJavaResourceDirs() {
+        return project.sourceSets.main.resources.srcDirs as Set
+    }
+
     protected Set<File> getTestSrcDirs() {
         return project.sourceSets.test.java.srcDirs as Set
+    }
+
+    protected Set<File> getTestJavaResourceDirs() {
+        return project.sourceSets.test.resources.srcDirs as Set
     }
 
     @Override
@@ -29,7 +37,7 @@ class JavaLibTarget extends JavaTarget {
         return Scope.from(project,
                 JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME,
                 mainSrcDirs,
-                project.file("src/main/resources"),
+                mainJavaResourceDirs,
                 project.compileJava.options.compilerArgs as List)
     }
 
@@ -38,7 +46,7 @@ class JavaLibTarget extends JavaTarget {
         return Scope.from(project,
                 JavaPlugin.TEST_RUNTIME_CLASSPATH_CONFIGURATION_NAME,
                 testSrcDirs,
-                project.file("src/test/resources"),
+                testJavaResourceDirs,
                 project.compileTestJava.options.compilerArgs as List)
     }
 

@@ -3,10 +3,10 @@
 @args (
 Collection srcs,
 Collection exts,
+Collection resources,
 Collection excludes,
 String sourceCompatibility,
 String targetCompatibility,
-String resourcesDir,
 Collection testTargets,
 Collection annotationProcessors,
 Collection aptDeps,
@@ -46,12 +46,14 @@ lib_deps = []
 }
     source = '@sourceCompatibility',
     target = '@targetCompatibility',
-@if (valid(resourcesDir)) {
+@if (valid(resources)) {
     resources = glob([
-        '@resourcesDir/**',
+    @for (res : sorted(resources)) {
+        '@res/**',
+    }
     ]),
-    resources_root = '@resourcesDir',
-    unbundled_resources_root = '@resourcesDir',
+    resources_root = '@resources.iterator().next()',
+    unbundled_resources_root = '@resources.iterator().next()',
 }
 @if (valid(testTargets)) {
     tests = [

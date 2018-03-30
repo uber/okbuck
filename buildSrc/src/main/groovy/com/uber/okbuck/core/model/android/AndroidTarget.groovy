@@ -128,7 +128,7 @@ abstract class AndroidTarget extends JavaLibTarget {
                 project,
                 baseVariant.runtimeConfiguration,
                 getSources(baseVariant),
-                null,
+                getJavaResources(baseVariant),
                 getJavaCompilerOptions(baseVariant))
     }
 
@@ -138,7 +138,7 @@ abstract class AndroidTarget extends JavaLibTarget {
                 project,
                 unitTestVariant ? unitTestVariant.runtimeConfiguration : null,
                 unitTestVariant ? getSources(unitTestVariant): ImmutableSet.of(),
-                project.file("src/test/resources"),
+                getJavaResources(unitTestVariant),
                 getJavaCompilerOptions(unitTestVariant))
     }
 
@@ -472,6 +472,12 @@ abstract class AndroidTarget extends JavaLibTarget {
             })
         }
         return srcs.build()
+    }
+
+    Set<File> getJavaResources(BaseVariant variant) {
+        return variant.sourceSets.collect { SourceProvider provider ->
+            provider.resourcesDirectories
+        }.flatten() as Set<File>
     }
 
     private static class EmptyLogger implements ILogger {

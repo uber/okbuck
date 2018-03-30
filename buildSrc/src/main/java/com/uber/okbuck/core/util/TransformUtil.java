@@ -55,7 +55,7 @@ public final class TransformUtil {
                 project,
                 CONFIGURATION_TRANSFORM,
                 ImmutableSet.of(),
-                null,
+                ImmutableSet.of(),
                 ImmutableList.of(),
                 dependencyCache);
 
