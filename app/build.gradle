@@ -54,6 +54,8 @@ repositories {
 }
 
 dependencies {
+    compileOnly deps.apt.autoValueAnnotations
+
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation(name: "rxscreenshotdetector-1.2.0", ext: "aar")
     implementation deps.external.rxjava
@@ -65,13 +67,13 @@ dependencies {
     implementation deps.support.recyclerView
     implementation deps.external.leakCanary
     implementation deps.external.xlogAndroidIdle
-    implementation deps.apt.autoValue
 
     implementation project(":libraries:emptylibrary")
     implementation project(":libraries:kotlinandroidlibrary")
     implementation project(":dummylibrary")
 
     annotationProcessor deps.apt.autoValue
+    annotationProcessor deps.apt.autoValueAnnotations
     annotationProcessor deps.apt.butterKnifeCompiler
     annotationProcessor deps.apt.daggerCompiler
     annotationProcessor deps.apt.autoValueGson
