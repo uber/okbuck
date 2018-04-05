@@ -1,11 +1,13 @@
 package com.uber.okbuck.extension;
 
+import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.Input;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,7 +30,7 @@ public class OkBuckExtension {
      * Annotation processor classes of project dependencies
      */
     @Input
-    public Map<String, Set<String>> annotationProcessors = new HashMap<>();
+    public Map<String, List<String>> annotationProcessors = new HashMap<>();
 
     /**
      * LinearAllocHardLimit used for multi-dex support.
@@ -137,5 +139,16 @@ public class OkBuckExtension {
 
     public OkBuckExtension(Project project) {
         buckProjects = project.getSubprojects();
+    }
+
+    private IntellijExtension intellijExtension;
+
+    public void intellij(Action<IntellijExtension> container) {
+        this.intellijExtension = new IntellijExtension();
+        container.execute(intellijExtension);
+    }
+
+    public IntellijExtension getIntellijExtension() {
+        return intellijExtension;
     }
 }
