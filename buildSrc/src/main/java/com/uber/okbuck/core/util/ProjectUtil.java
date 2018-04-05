@@ -8,6 +8,7 @@ import com.uber.okbuck.core.model.base.ProjectType;
 import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.model.base.Target;
 import com.uber.okbuck.core.model.base.TargetCache;
+import com.uber.okbuck.extension.OkBuckExtension;
 
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.component.ComponentIdentifier;
@@ -76,6 +77,11 @@ public final class ProjectUtil {
 
     static OkBuckGradlePlugin getPlugin(Project project) {
         return project.getRootProject().getPlugins().getPlugin(OkBuckGradlePlugin.class);
+    }
+
+    public static OkBuckExtension getOkBuckExtension(Project project) {
+        return (OkBuckExtension) project.getRootProject().getExtensions()
+                .getByName(OkBuckGradlePlugin.OKBUCK);
     }
 
     private static TargetCache getTargetCache(Project project) {
