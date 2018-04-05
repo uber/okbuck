@@ -1,5 +1,6 @@
 package com.uber.okbuck.extension;
 
+import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.Input;
 
@@ -142,11 +143,12 @@ public class OkBuckExtension {
 
     private IntellijExtension intellijExtension;
 
-    public IntellijExtension getIntellijExtension() {
-        return intellijExtension;
+    public void intellij(Action<IntellijExtension> container) {
+        this.intellijExtension = new IntellijExtension();
+        container.execute(intellijExtension);
     }
 
-    public void setIntellijExtension(IntellijExtension extension) {
-        this.intellijExtension = extension;
+    public IntellijExtension getIntellijExtension() {
+        return intellijExtension;
     }
 }

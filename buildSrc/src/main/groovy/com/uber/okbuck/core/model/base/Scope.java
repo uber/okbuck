@@ -1,7 +1,6 @@
 package com.uber.okbuck.core.model.base;
 
 import com.android.build.api.attributes.VariantAttr;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Streams;
@@ -16,14 +15,12 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.groovy.runtime.DefaultGroovyMethods;
 import org.gradle.api.Project;
-import org.gradle.api.artifacts.ArtifactView;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.component.ComponentIdentifier;
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier;
 import org.gradle.api.artifacts.component.ProjectComponentIdentifier;
 import org.gradle.api.artifacts.result.ResolvedArtifactResult;
 import org.gradle.api.attributes.Attribute;
-import org.gradle.api.attributes.AttributeContainer;
 import org.gradle.api.specs.Spec;
 
 import java.io.File;
@@ -33,9 +30,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import groovy.lang.Closure;
 import groovy.transform.EqualsAndHashCode;
 
 @EqualsAndHashCode
@@ -242,9 +237,8 @@ public class Scope {
             final Spec<ComponentIdentifier> filter) {
 
         return configuration.getIncoming().artifactView(config -> {
-            config.attributes(container -> {
-                container.attribute(Attribute.of("artifactType", String.class), value);
-            });
+            config.attributes(container ->
+                    container.attribute(Attribute.of("artifactType", String.class), value));
             config.componentFilter(filter);
         }).getArtifacts().getArtifacts();
     }
@@ -254,12 +248,19 @@ public class Scope {
             final Spec<ComponentIdentifier> filter,
             ImmutableList<String> artifactTypes) {
 
-        return artifactTypes
-                .stream()
-                .map(artifactType -> getArtifacts(configuration, artifactType, filter))
-                .flatMap(Set::stream)
-                .filter(i -> !i.getFile().getName().equals("classes.jar"))
-                .collect(Collectors.toSet());
+        ImmutableSet.Builder<ResolvedArtifactResult> artifactResultsBuilder =
+                ImmutableSet.builder();
+
+        // We need to individually add these sets to the final set so as to maintain the order.
+        // for eg. aar artifact should come before jar artifacts.
+        artifactTypes.forEach(artifactType -> artifactResultsBuilder.addAll(
+                getArtifacts(configuration, artifactType, filter)
+                        .stream()
+                        .filter(it -> !it.getFile().getName().equals("classes.jar"))
+                        .collect(Collectors.toSet())
+                ));
+
+        return artifactResultsBuilder.build();
     }
 
     private void extractConfiguration(Configuration configuration) {
@@ -314,14 +315,17 @@ public class Scope {
                     if (!FilenameUtils.directoryContains(rootProjectPath, artifactPath)
                             && !DependencyUtils.isWhiteListed(artifact.getFile())) {
 
-                        throw new IllegalStateException("Local dependencies should be under project root. Dependencies " +
-                                "outside the project can cause hard to reproduce builds. Please move dependency: " +
-                                "${artifact.file} inside ${project.rootProject.projectDir}");
+                        throw new IllegalStateException(String.format(
+                                "Local dependencies should be under project root. Dependencies "
+                                        + "outside the project can cause hard to reproduce builds"
+                                        + ". Please move dependency: %s inside %s",
+                                artifact.getFile(),
+                                project.getRootProject().getProjectDir()));
                     }
                     external.add(ExternalDependency.fromLocal(artifact.getFile()));
 
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    throw new RuntimeException(e);
                 }
             }
         });
