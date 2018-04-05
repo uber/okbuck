@@ -252,7 +252,7 @@ public class Scope {
                 ImmutableSet.builder();
 
         // We need to individually add these sets to the final set so as to maintain the order.
-        // for eg. aar artifact should come before jar artifacts.
+        // for eg. All aar artifact should come before jar artifacts.
         artifactTypes.forEach(artifactType -> artifactResultsBuilder.addAll(
                 getArtifacts(configuration, artifactType, filter)
                         .stream()

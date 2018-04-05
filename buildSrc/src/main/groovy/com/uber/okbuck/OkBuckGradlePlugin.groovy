@@ -89,7 +89,6 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         ScalaExtension scala = okbuckExt.extensions.create(SCALA, ScalaExtension)
 
         okbuckExt.extensions.create(INTELLIJ, IntellijExtension)
-
         okbuckExt.extensions.create(TRANSFORM, TransformExtension)
 
         // Create configurations
