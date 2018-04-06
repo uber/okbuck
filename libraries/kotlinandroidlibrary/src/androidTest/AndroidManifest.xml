@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest package="com.uber.okbuck.kotlin.android.test"
+          xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <instrumentation
+        android:label="Tests for com.uber.okbuck.kotlin.android.test"
+        android:name="android.support.test.runner.AndroidJUnitRunner"
+        android:targetPackage="com.uber.okbuck.kotlin.android.test"
+        android:handleProfiling="false"
+        android:functionalTest="false" />
+
+    <application/>
+
+</manifest>

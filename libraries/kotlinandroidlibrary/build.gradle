@@ -3,19 +3,31 @@ apply plugin: "kotlin-android"
 apply plugin: "kotlin-android-extensions"
 
 androidExtensions {
-  experimental = true
+    experimental = true
 }
 
 dependencies {
-  api deps.external.kotlinStdlib
-  testImplementation deps.test.junit
-  testImplementation deps.test.kotlinTest
+    api deps.external.kotlinStdlib
+    implementation 'com.android.support:appcompat-v7:27.1.1'
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    implementation 'com.android.support:design:27.1.1'
+    testImplementation deps.test.junit
+    testImplementation deps.test.kotlinTest
+
+    androidTestImplementation deps.test.junit
+    androidTestImplementation deps.test.espressoCore
+    androidTestImplementation deps.test.espressoRules
+    androidTestImplementation deps.test.espressoRunner
 }
 
 android {
-  buildTypes {
-    custom {
-      sourceSets.custom.res.srcDirs = ["src/custom_res"]
+    buildTypes {
+        custom {
+            sourceSets.custom.res.srcDirs = ["src/custom_res"]
+        }
     }
-  }
+
+    defaultConfig {
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
 }
