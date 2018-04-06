@@ -6,6 +6,7 @@ import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.core.util.D8Util
 import com.uber.okbuck.core.util.RobolectricUtil
 import com.uber.okbuck.template.android.AndroidRule
+import com.uber.okbuck.template.android.RobolectricRule
 import com.uber.okbuck.template.core.Rule
 
 final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
@@ -36,7 +37,7 @@ final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
         providedDeps.addAll(targets(getTargetProvidedDeps(target.test, target.testProvided)))
         providedDeps.add(D8Util.RT_STUB_JAR_RULE)
 
-        AndroidRule androidRule = new AndroidRule()
+        RobolectricRule robolectric = new RobolectricRule()
                 .srcs(target.test.sources)
                 .exts(target.testRuleType.sourceExtensions)
                 .annotationProcessors(target.testAnnotationProcessors)
@@ -54,12 +55,12 @@ final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
                 .runtimeDependency(RobolectricUtil.ROBOLECTRIC_CACHE)
 
         if (target.testRuleType == RuleType.KOTLIN_ROBOLECTRIC_TEST) {
-            androidRule = androidRule
+            robolectric = robolectric
                     .language("kotlin")
                     .extraKotlincArgs(target.kotlincArguments)
         }
 
-        return androidRule
+        return robolectric
                 .ruleType(target.testRuleType.buckName)
                 .defaultVisibility()
                 .deps(testDeps)
