@@ -34,7 +34,7 @@ abstract class AndroidBuckRuleComposer extends JvmBuckRuleComposer {
         return "app_lib_${target.name}"
     }
 
-    static String bin(AndroidAppTarget target) {
+    static String bin(AndroidTarget target) {
         return "bin_${target.name}"
     }
 

@@ -16,8 +16,9 @@ import com.uber.okbuck.composer.android.LintRuleComposer
 import com.uber.okbuck.composer.android.PreBuiltNativeLibraryRuleComposer
 import com.uber.okbuck.composer.jvm.JvmLibraryRuleComposer
 import com.uber.okbuck.composer.jvm.JvmTestRuleComposer
+import com.uber.okbuck.core.model.android.AndroidAppInstrumentationTarget
 import com.uber.okbuck.core.model.android.AndroidAppTarget
-import com.uber.okbuck.core.model.android.AndroidInstrumentationTarget
+import com.uber.okbuck.core.model.android.AndroidLibInstrumentationTarget
 import com.uber.okbuck.core.model.android.AndroidLibTarget
 import com.uber.okbuck.core.model.base.ProjectType
 import com.uber.okbuck.core.model.base.RuleType
@@ -64,14 +65,19 @@ final class BuckFileGenerator {
                     rules.addAll(createRules((JvmTarget) target, projectType.mainRuleType, projectType.testRuleType))
                     break
                 case ProjectType.ANDROID_LIB:
-                    rules.addAll(createRules((AndroidLibTarget) target))
+                    AndroidLibTarget androidLibTarget = (AndroidLibTarget) target
+                    List<Rule> targetRules = createRules(androidLibTarget)
+                    rules.addAll(targetRules)
+                    if (androidLibTarget.libInstrumentationTarget) {
+                        rules.addAll(createRules(androidLibTarget.libInstrumentationTarget, targetRules))
+                    }
                     break
                 case ProjectType.ANDROID_APP:
                     AndroidAppTarget androidAppTarget = (AndroidAppTarget) target
                     List<Rule> targetRules = createRules(androidAppTarget)
                     rules.addAll(targetRules)
-                    if (androidAppTarget.instrumentationTarget) {
-                        rules.addAll(createRules(androidAppTarget.instrumentationTarget, androidAppTarget, targetRules))
+                    if (androidAppTarget.appInstrumentationTarget) {
+                        rules.addAll(createRules(androidAppTarget.appInstrumentationTarget, androidAppTarget, targetRules))
                     }
                     break
                 default:
@@ -156,9 +162,11 @@ final class BuckFileGenerator {
         return rules
     }
 
-    private static List<Rule> createRules(AndroidAppTarget target) {
+    private static List<Rule> createRules(AndroidAppTarget target,
+                                          List<String> additionalDeps = []) {
         List<Rule> rules = []
         List<String> deps = [":${AndroidBuckRuleComposer.src(target)}"]
+        deps.addAll(additionalDeps)
 
         Set<Rule> libRules = createRules((AndroidLibTarget) target,
                 target.exopackage ? target.exopackage.appClass : null)
@@ -183,7 +191,7 @@ final class BuckFileGenerator {
         return rules
     }
 
-    private static List<Rule> createRules(AndroidInstrumentationTarget target, AndroidAppTarget mainApkTarget,
+    private static List<Rule> createRules(AndroidAppInstrumentationTarget target, AndroidAppTarget mainApkTarget,
                                           List<Rule> mainApkTargetRules) {
         List<Rule> rules = []
 
@@ -192,6 +200,18 @@ final class BuckFileGenerator {
 
         rules.add(AndroidInstrumentationApkRuleComposer.compose(filterAndroidDepRules(rules), target, mainApkTarget))
         rules.add(AndroidInstrumentationTestRuleComposer.compose(mainApkTarget))
+        return rules
+    }
+
+    private static List<Rule> createRules(AndroidLibInstrumentationTarget target, List<Rule> mainLibTargetRules) {
+        List<Rule> rules = []
+
+        // TODO: We should find a way to filter robolectric rule too, but Rules have no getter to find out its type, and robolectric rule at the end is a normal AndroidRule
+        // TODO: res_<type>_test should also depend on res_<type>, haven't thought of a way to achieve that
+        Set<Rule> libRules = createRules((AndroidLibTarget) target, null, filterAndroidDepRules(mainLibTargetRules))
+        rules.addAll(libRules)
+
+        rules.addAll(createRules((AndroidAppTarget) target, filterAndroidDepRules(rules)))
         return rules
     }
 

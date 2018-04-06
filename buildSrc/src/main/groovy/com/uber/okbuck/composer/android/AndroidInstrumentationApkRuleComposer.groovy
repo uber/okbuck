@@ -1,7 +1,7 @@
 package com.uber.okbuck.composer.android
 
 import com.uber.okbuck.core.model.android.AndroidAppTarget
-import com.uber.okbuck.core.model.android.AndroidInstrumentationTarget
+import com.uber.okbuck.core.model.android.AndroidAppInstrumentationTarget
 import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.template.android.InstrumentationApkRule
 import com.uber.okbuck.template.core.Rule
@@ -13,7 +13,7 @@ final class AndroidInstrumentationApkRuleComposer extends AndroidBuckRuleCompose
     }
 
     static Rule compose(List<String> deps,
-                        AndroidInstrumentationTarget target,
+                        AndroidAppInstrumentationTarget target,
                         AndroidAppTarget mainApkTarget) {
         return new InstrumentationApkRule()
                 .manifest(fileRule(target.manifest))

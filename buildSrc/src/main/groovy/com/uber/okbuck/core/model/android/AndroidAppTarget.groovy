@@ -38,7 +38,7 @@ class AndroidAppTarget extends AndroidLibTarget {
 
     final Map<String, Object> placeholders = [:]
     final boolean includesVectorDrawables
-    final AndroidInstrumentationTarget instrumentationTarget
+    final AndroidAppInstrumentationTarget appInstrumentationTarget
 
     AndroidAppTarget(Project project, String name, boolean isTest = false) {
         super(project, name, isTest)
@@ -65,10 +65,10 @@ class AndroidAppTarget extends AndroidLibTarget {
 
         TestExtension testExtension = rootProject.okbuck.test
         if (testExtension.espresso && instrumentationTestVariant) {
-            instrumentationTarget = new AndroidInstrumentationTarget(project,
-                    AndroidInstrumentationTarget.getInstrumentationTargetName(name))
+            appInstrumentationTarget = new AndroidAppInstrumentationTarget(project,
+                    AndroidAppInstrumentationTarget.getInstrumentationTargetName(name))
         } else {
-            instrumentationTarget = null
+            appInstrumentationTarget = null
         }
     }
 

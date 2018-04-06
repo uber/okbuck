@@ -5,6 +5,7 @@ import com.android.manifmerger.ManifestMerger2
 import com.google.common.collect.ImmutableList
 import com.uber.okbuck.core.util.FileUtil
 import com.uber.okbuck.core.util.KotlinUtil
+import com.uber.okbuck.extension.TestExtension
 import org.gradle.api.Project
 
 /**
@@ -14,8 +15,18 @@ class AndroidLibTarget extends AndroidTarget {
 
     private static final String KOTLIN_EXTENSIONS_OPTION = "plugin:org.jetbrains.kotlin.android:"
 
+    final AndroidLibInstrumentationTarget libInstrumentationTarget
+
     AndroidLibTarget(Project project, String name, boolean isTest = false) {
         super(project, name, isTest)
+
+        TestExtension testExtension = rootProject.okbuck.test
+        if (testExtension.espresso && instrumentationTestVariant) {
+            libInstrumentationTarget = new AndroidLibInstrumentationTarget(project,
+                    AndroidAppInstrumentationTarget.getInstrumentationTargetName(name))
+        } else {
+            libInstrumentationTarget = null
+        }
     }
 
     @Override
