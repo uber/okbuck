@@ -1,6 +1,7 @@
 package com.uber.okbuck.composer.android
 
 import com.google.common.collect.ImmutableSet
+import com.uber.okbuck.core.model.android.AndroidLibInstrumentationTarget
 import com.uber.okbuck.core.model.android.AndroidLibTarget
 import com.uber.okbuck.core.model.android.AndroidTarget
 import com.uber.okbuck.core.model.base.RuleType
@@ -45,7 +46,7 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
             testTargets.add(":${test(target)}")
         }
         if (target.libInstrumentationTarget && target.instrumentationTest.sources) {
-            testTargets.add(":${instrumentation(target)}")
+            testTargets.add(":${bin((AndroidTarget) target.libInstrumentationTarget)}")
         }
 
         AndroidRule androidRule = new AndroidRule()

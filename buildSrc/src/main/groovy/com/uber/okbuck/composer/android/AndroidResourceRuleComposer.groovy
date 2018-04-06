@@ -13,7 +13,7 @@ final class AndroidResourceRuleComposer extends AndroidBuckRuleComposer {
         // no instance
     }
 
-    static Rule compose(AndroidTarget target) {
+    static Rule compose(AndroidTarget target, List<String> extraDeps = []) {
         List<String> resDeps = []
         resDeps.addAll(external(target.main.externalDeps.findAll { String dep ->
             dep.endsWith(".aar")
@@ -24,6 +24,7 @@ final class AndroidResourceRuleComposer extends AndroidBuckRuleComposer {
         }.collect { Target targetDep ->
             resRule(targetDep as AndroidTarget)
         })
+        resDeps.addAll(extraDeps)
 
         OkBuckExtension okbuck = target.rootProject.okbuck
 

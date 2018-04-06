@@ -105,7 +105,7 @@ final class BuckFileGenerator {
     }
 
     private static List<Rule> createRules(AndroidLibTarget target, String appClass = null,
-                                          List<String> extraDeps = []) {
+                                          List<String> extraDeps = [], List<String> extraResDeps = []) {
         List<Rule> rules = []
         List<Rule> androidLibRules = []
 
@@ -119,7 +119,7 @@ final class BuckFileGenerator {
         androidLibRules.addAll(aidlRules)
 
         // Res
-        androidLibRules.add(AndroidResourceRuleComposer.compose(target))
+        androidLibRules.add(AndroidResourceRuleComposer.compose(target, extraResDeps))
 
         // BuildConfig
         if (target.shouldGenerateBuildConfig()) {
@@ -206,9 +206,12 @@ final class BuckFileGenerator {
     private static List<Rule> createRules(AndroidLibInstrumentationTarget target, List<Rule> mainLibTargetRules) {
         List<Rule> rules = []
 
-        // TODO: We should find a way to filter robolectric rule too, but Rules have no getter to find out its type, and robolectric rule at the end is a normal AndroidRule
-        // TODO: res_<type>_test should also depend on res_<type>, haven't thought of a way to achieve that
-        Set<Rule> libRules = createRules((AndroidLibTarget) target, null, filterAndroidDepRules(mainLibTargetRules))
+        // TODO: We should find a way to filter robolectric rule too,
+        // but Rules have no getter to find out its type, and robolectric rule at the end is a normal AndroidRule
+        Set<Rule> libRules = createRules((AndroidLibTarget) target,
+                null,
+                filterAndroidDepRules(mainLibTargetRules),
+                filterAndroidResDepRules(mainLibTargetRules))
         rules.addAll(libRules)
 
         rules.addAll(createRules((AndroidAppTarget) target, filterAndroidDepRules(rules)))
@@ -218,6 +221,14 @@ final class BuckFileGenerator {
     private static List<String> filterAndroidDepRules(List<Rule> rules) {
         return rules.findAll { Rule rule ->
             rule instanceof AndroidRule || rule instanceof ResourceRule
+        }.collect {
+            ":${it.name()}"
+        }
+    }
+
+    private static List<String> filterAndroidResDepRules(List<Rule> rules) {
+        return rules.findAll { Rule rule ->
+            rule instanceof ResourceRule
         }.collect {
             ":${it.name()}"
         }
