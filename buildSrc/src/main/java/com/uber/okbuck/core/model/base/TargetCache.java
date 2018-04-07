@@ -32,9 +32,6 @@ import static com.uber.okbuck.core.util.LintUtil.LINT_DEPS_CACHE;
 
 public class TargetCache {
 
-    private static final Converter<String, String> NAME_CONVERTER =
-            CaseFormat.LOWER_CAMEL.converterTo(CaseFormat.LOWER_HYPHEN);
-
     private final Map<Project, Map<String, Target>> store = new HashMap<>();
     private final Map<Project, Map<String, Target>> artifactNameToTarget = new HashMap<>();
     private final Map<String, String> lintConfig = new ConcurrentHashMap<>();
