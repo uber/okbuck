@@ -7,33 +7,25 @@ import com.google.common.base.CaseFormat;
 import com.google.common.base.Converter;
 import com.uber.okbuck.core.model.android.AndroidAppTarget;
 import com.uber.okbuck.core.model.android.AndroidLibTarget;
-import com.uber.okbuck.core.model.groovy.GroovyLibTarget;
 import com.uber.okbuck.core.model.java.JavaLibTarget;
 import com.uber.okbuck.core.model.jvm.JvmTarget;
-import com.uber.okbuck.core.model.kotlin.KotlinLibTarget;
-import com.uber.okbuck.core.model.scala.ScalaLibTarget;
-import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.core.util.FileUtil;
+import com.uber.okbuck.core.util.ProjectUtil;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.Project;
-import org.gradle.api.plugins.BasePluginConvention;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.uber.okbuck.core.util.LintUtil.LINT_DEPS_CACHE;
 
 public class TargetCache {
-
-    private static final Converter<String, String> NAME_CONVERTER =
-            CaseFormat.LOWER_CAMEL.converterTo(CaseFormat.LOWER_HYPHEN);
 
     private final Map<Project, Map<String, Target>> store = new HashMap<>();
     private final Map<Project, Map<String, Target>> artifactNameToTarget = new HashMap<>();
@@ -55,8 +47,6 @@ public class TargetCache {
                 case ANDROID_LIB:
                     projectTargets = new HashMap<>();
                     Map<String, Target> projectArtifacts = new HashMap<>();
-                    String archiveBaseName = project.getConvention().getPlugin(BasePluginConvention.class)
-                            .getArchivesBaseName();
                     for (BaseVariant v : project.getExtensions()
                             .getByType(LibraryExtension.class)
                             .getLibraryVariants()) {
@@ -67,18 +57,12 @@ public class TargetCache {
                     }
                     artifactNameToTarget.put(project, projectArtifacts);
                     break;
-                case GROOVY_LIB:
-                    projectTargets = Collections.singletonMap(JvmTarget.MAIN,
-                            new GroovyLibTarget(project, JvmTarget.MAIN));
-                    break;
                 case KOTLIN_LIB:
                     projectTargets = Collections.singletonMap(JvmTarget.MAIN,
-                            new KotlinLibTarget(project, JvmTarget.MAIN));
+                            new JavaLibTarget(project, JvmTarget.MAIN, "kapt", "kaptTest"));
                     break;
+                case GROOVY_LIB:
                 case SCALA_LIB:
-                    projectTargets = Collections.singletonMap(JvmTarget.MAIN,
-                            new ScalaLibTarget(project, JvmTarget.MAIN));
-                    break;
                 case JAVA_LIB:
                     projectTargets = Collections.singletonMap(JvmTarget.MAIN,
                             new JavaLibTarget(project, JvmTarget.MAIN));

@@ -19,22 +19,27 @@ import javax.annotation.Nullable;
 
 public abstract class JavaTarget extends JvmTarget {
 
-    public JavaTarget(Project project, String name) {
+    private final String aptConfigurationName;
+    private final String testAptConfigurationName;
+
+    JavaTarget(Project project, String name, String aptConfigurationName, String testAptConfigurationName) {
         super(project, name);
+        this.aptConfigurationName = aptConfigurationName;
+        this.testAptConfigurationName = testAptConfigurationName;
     }
 
     /**
      * Apt Scope
      */
     public Scope getApt() {
-        return Scope.from(getProject(), JavaPlugin.ANNOTATION_PROCESSOR_CONFIGURATION_NAME);
+        return Scope.from(getProject(), aptConfigurationName);
     }
 
     /**
      * Test Apt Scope
      */
     public Scope getTestApt() {
-        return Scope.from(getProject(), JavaPlugin.TEST_ANNOTATION_PROCESSOR_CONFIGURATION_NAME);
+        return Scope.from(getProject(), testAptConfigurationName);
     }
 
     /**
