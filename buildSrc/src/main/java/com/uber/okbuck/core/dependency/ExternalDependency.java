@@ -95,9 +95,17 @@ public final class ExternalDependency {
         private final String group;
         private final String name;
 
-        VersionlessDependency(String group, String name) {
+        public VersionlessDependency(String group, String name) {
             this.group = group;
             this.name = name;
+        }
+
+        public String getGroup() {
+            return group;
+        }
+
+        public String getName() {
+            return name;
         }
 
         @Override

@@ -7,6 +7,7 @@ import com.google.common.collect.Streams;
 import com.uber.okbuck.core.dependency.DependencyCache;
 import com.uber.okbuck.core.dependency.DependencyUtils;
 import com.uber.okbuck.core.dependency.ExternalDependency;
+import com.uber.okbuck.core.dependency.ExternalDependency.VersionlessDependency;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.extension.OkBuckExtension;
@@ -32,8 +33,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class Scope {
+    public static final String EMPTY_GROUP = "----empty----";
+
     private final Set<String> javaResources;
     private final Set<String> sources;
+    private final Configuration configuration;
+
     private List<String> jvmArgs;
     private DependencyCache depCache;
 
@@ -87,10 +92,11 @@ public class Scope {
             DependencyCache depCache) {
 
         this.project = project;
-        sources = FileUtil.available(project, sourceDirs);
-        javaResources = FileUtil.available(project, javaResourceDirs);
-        jvmArgs = jvmArguments;
+        this.sources = FileUtil.available(project, sourceDirs);
+        this.javaResources = FileUtil.available(project, javaResourceDirs);
+        this.jvmArgs = jvmArguments;
         this.depCache = depCache;
+        this.configuration = configuration;
 
         if (configuration != null) {
             extractConfiguration(configuration);
@@ -212,13 +218,31 @@ public class Scope {
     }
 
     public Set<String> getAnnotationProcessors() {
+        Set<ExternalDependency.VersionlessDependency> firstLevelDependencies = configuration
+                .getAllDependencies()
+                .stream()
+                .map(i -> new ExternalDependency.VersionlessDependency(
+                        i.getGroup() == null ? EMPTY_GROUP : i.getGroup(),
+                        i.getName())
+                )
+                .collect(Collectors.toSet());
+
         return Streams.concat(
                 external
                         .stream()
+                        .filter(i -> firstLevelDependencies.contains(i.versionless))
                         .map(depCache::getAnnotationProcessors)
                         .flatMap(Set::stream),
                 targetDeps
                         .stream()
+                        .filter(i -> {
+                            VersionlessDependency versionless =
+                                    new ExternalDependency.VersionlessDependency(
+                                            (String) i.getProject().getGroup(),
+                                            i.getProject().getName()
+                                    );
+                            return firstLevelDependencies.contains(versionless);
+                        })
                         .map(target -> {
                             OkBuckExtension okBuckExtension = ProjectUtil.getOkBuckExtension(project);
                             return target.getProp(okBuckExtension.annotationProcessors, ImmutableList.of());
