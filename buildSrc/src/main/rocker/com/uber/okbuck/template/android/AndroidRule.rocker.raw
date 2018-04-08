@@ -24,7 +24,7 @@ String robolectricManifest,
 String runtimeDependency,
 boolean generateR2
 )
-@com.uber.okbuck.template.java.JavaRule.template(
+@com.uber.okbuck.template.jvm.JvmRule.template(
 srcs,
 exts,
 resources,

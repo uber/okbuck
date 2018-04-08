@@ -6,7 +6,7 @@ import com.uber.okbuck.composer.jvm.JvmBuckRuleComposer;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.model.jvm.JvmTarget;
 import com.uber.okbuck.template.core.Rule;
-import com.uber.okbuck.template.java.JavaRule;
+import com.uber.okbuck.template.jvm.JvmRule;
 
 import java.util.List;
 import java.util.Set;
@@ -36,7 +36,7 @@ public final class JvmTestRuleComposer extends JvmBuckRuleComposer {
                 .addAll(targets(getTargetProvidedDeps(target.getTest(), target.getTestProvided())))
                 .build();
 
-        return new JavaRule().srcs(target.getTest().getSources())
+        return new JvmRule().srcs(target.getTest().getSources())
                 .exts(ruleType.getSourceExtensions())
                 .annotationProcessors(target.getTestAnnotationProcessors())
                 .aptDeps(aptDeps)

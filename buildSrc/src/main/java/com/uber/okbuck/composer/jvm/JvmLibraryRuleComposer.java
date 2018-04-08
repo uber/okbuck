@@ -6,8 +6,8 @@ import com.uber.okbuck.composer.jvm.JvmBuckRuleComposer;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.model.jvm.JvmTarget;
 import com.uber.okbuck.template.core.Rule;
-import com.uber.okbuck.template.java.JavaBinaryRule;
-import com.uber.okbuck.template.java.JavaRule;
+import com.uber.okbuck.template.jvm.JvmBinaryRule;
+import com.uber.okbuck.template.jvm.JvmRule;
 
 import java.util.List;
 import java.util.Set;
@@ -38,7 +38,7 @@ public final class JvmLibraryRuleComposer extends JvmBuckRuleComposer {
                 : ImmutableList.of();
 
         ImmutableList.Builder<Rule> rulesBuilder = new ImmutableList.Builder<>();
-        rulesBuilder.add(new JavaRule()
+        rulesBuilder.add(new JvmRule()
                 .srcs(target.getMain().getSources())
                 .exts(ruleType.getSourceExtensions())
                 .annotationProcessors(target.getAnnotationProcessors())
@@ -57,7 +57,7 @@ public final class JvmLibraryRuleComposer extends JvmBuckRuleComposer {
                 .extraBuckOpts(target.getExtraOpts(ruleType)));
 
         if (target.hasApplication()) {
-            rulesBuilder.add(new JavaBinaryRule().mainClassName(target.getMainClass())
+            rulesBuilder.add(new JvmBinaryRule().mainClassName(target.getMainClass())
                     .excludes(target.getExcludes())
                     .defaultVisibility()
                     .name(bin(target))
