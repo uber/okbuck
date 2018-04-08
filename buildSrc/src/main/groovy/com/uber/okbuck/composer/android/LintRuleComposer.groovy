@@ -2,8 +2,7 @@ package com.uber.okbuck.composer.android
 
 import com.uber.okbuck.core.model.android.AndroidTarget
 import com.uber.okbuck.core.model.base.Target
-import com.uber.okbuck.core.model.java.JavaLibTarget
-import com.uber.okbuck.core.model.java.JavaTarget
+import com.uber.okbuck.core.model.jvm.JvmTarget
 import com.uber.okbuck.core.util.LintUtil
 import com.uber.okbuck.core.util.ProjectUtil
 import com.uber.okbuck.extension.LintExtension
@@ -23,13 +22,13 @@ final class LintRuleComposer extends AndroidBuckRuleComposer {
         }
 
         Set<Target> customLintTargets = target.lint.targetDeps.findAll {
-            (it instanceof JavaTarget) && (it.hasLintRegistry())
+            (it instanceof JvmTarget) && (it.hasLintRegistry())
         }
 
         List<String> customLintRules = []
         customLintRules.addAll(external(target.main.packagedLintJars))
         customLintTargets.each {
-            if (it instanceof JavaLibTarget && it.hasApplication()) {
+            if (it instanceof JvmTarget && it.hasApplication()) {
                 customLintRules.add(binTargets(it))
             }
         }
