@@ -13,7 +13,6 @@ import com.uber.okbuck.extension.OkBuckExtension;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.groovy.runtime.DefaultGroovyMethods;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.component.ComponentIdentifier;
@@ -27,13 +26,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import groovy.transform.EqualsAndHashCode;
-
-@EqualsAndHashCode
 public class Scope {
     private final Set<String> javaResources;
     private final Set<String> sources;
@@ -95,7 +92,7 @@ public class Scope {
         jvmArgs = jvmArguments;
         this.depCache = depCache;
 
-        if (DefaultGroovyMethods.asBoolean(configuration)) {
+        if (configuration != null) {
             extractConfiguration(configuration);
         }
     }
@@ -158,7 +155,7 @@ public class Scope {
             List<String> jvmArguments,
             DependencyCache depCache) {
         Configuration useful = DependencyUtils.useful(configuration);
-        String key = DefaultGroovyMethods.asBoolean(useful) ? useful.getName() : "--none--";
+        String key = useful != null ? useful.getName() : "--none--";
 
         return ProjectUtil
                 .getScopes(project)
@@ -333,5 +330,21 @@ public class Scope {
         if (ProjectUtil.getOkBuckExtension(project).getIntellijExtension().sources) {
             ProjectUtil.downloadSources(project, artifactIds);
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
+        Scope scope = (Scope) o;
+        return Objects.equals(javaResources, scope.javaResources) &&
+                Objects.equals(sources, scope.sources) &&
+                Objects.equals(jvmArgs, scope.jvmArgs) &&
+                Objects.equals(project, scope.project);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(javaResources, sources, jvmArgs, project);
     }
 }
