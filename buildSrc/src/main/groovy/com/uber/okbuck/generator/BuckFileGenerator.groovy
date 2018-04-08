@@ -22,10 +22,7 @@ import com.uber.okbuck.core.model.android.AndroidLibTarget
 import com.uber.okbuck.core.model.base.ProjectType
 import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.core.model.base.Target
-import com.uber.okbuck.core.model.groovy.GroovyLibTarget
 import com.uber.okbuck.core.model.java.JavaLibTarget
-import com.uber.okbuck.core.model.kotlin.KotlinLibTarget
-import com.uber.okbuck.core.model.scala.ScalaLibTarget
 import com.uber.okbuck.core.util.ProjectUtil
 import com.uber.okbuck.template.android.AndroidRule
 import com.uber.okbuck.template.android.ResourceRule
@@ -61,16 +58,10 @@ final class BuckFileGenerator {
         ProjectUtil.getTargets(project).each { String name, Target target ->
             switch (projectType) {
                 case ProjectType.JAVA_LIB:
-                    rules.addAll(createRules((JavaLibTarget) target))
-                    break
                 case ProjectType.GROOVY_LIB:
-                    rules.addAll(createRules((GroovyLibTarget) target))
-                    break
                 case ProjectType.KOTLIN_LIB:
-                    rules.addAll(createRules((KotlinLibTarget) target))
-                    break
                 case ProjectType.SCALA_LIB:
-                    rules.addAll(createRules((ScalaLibTarget) target))
+                    rules.addAll(createRules((JavaLibTarget) target, projectType.mainRuleType, projectType.testRuleType))
                     break
                 case ProjectType.ANDROID_LIB:
                     rules.addAll(createRules((AndroidLibTarget) target))
@@ -97,42 +88,12 @@ final class BuckFileGenerator {
         return rules
     }
 
-    private static List<Rule> createRules(JavaLibTarget target) {
+    private static List<Rule> createRules(JavaLibTarget target, RuleType mainRuleType, RuleType testRuleType) {
         List<Rule> rules = []
-        rules.addAll(JavaLibraryRuleComposer.compose(target))
+        rules.addAll(JavaLibraryRuleComposer.compose(target, mainRuleType))
 
         if (target.test.sources) {
-            rules.add(JavaTestRuleComposer.compose(target))
-        }
-        return rules
-    }
-
-    private static List<Rule> createRules(GroovyLibTarget target) {
-        List<Rule> rules = []
-        rules.addAll(JavaLibraryRuleComposer.compose(target, RuleType.GROOVY_LIBRARY))
-
-        if (target.test.sources) {
-            rules.add(JavaTestRuleComposer.compose(target, RuleType.GROOVY_TEST))
-        }
-        return rules
-    }
-
-    private static List<Rule> createRules(KotlinLibTarget target) {
-        List<Rule> rules = []
-        rules.addAll(JavaLibraryRuleComposer.compose(target, RuleType.KOTLIN_LIBRARY))
-
-        if (target.test.sources) {
-            rules.add(JavaTestRuleComposer.compose(target, RuleType.KOTLIN_TEST))
-        }
-        return rules
-    }
-
-    private static List<Rule> createRules(ScalaLibTarget target) {
-        List<Rule> rules = []
-        rules.addAll(JavaLibraryRuleComposer.compose(target, RuleType.SCALA_LIBRARY))
-
-        if (target.test.sources) {
-            rules.add(JavaTestRuleComposer.compose(target, RuleType.SCALA_TEST))
+            rules.add(JavaTestRuleComposer.compose(target, testRuleType))
         }
         return rules
     }
