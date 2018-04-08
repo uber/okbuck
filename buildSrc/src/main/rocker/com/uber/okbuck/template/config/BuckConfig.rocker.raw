@@ -7,15 +7,8 @@ String groovyHome,
 String kotlinHome,
 String scalaHome,
 String proguardJar,
-Map aliases,
 Collection defs
 )
-@if (valid(aliases)) {
-[alias]
-@for ((key, val) : aliases) {
-    @key = @val
-}
-}
 @if (valid(buildToolsVersion) && valid(target)) {
 
 [android]
