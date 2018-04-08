@@ -14,8 +14,8 @@ import com.uber.okbuck.composer.android.GenAidlRuleComposer
 import com.uber.okbuck.composer.android.KeystoreRuleComposer
 import com.uber.okbuck.composer.android.LintRuleComposer
 import com.uber.okbuck.composer.android.PreBuiltNativeLibraryRuleComposer
-import com.uber.okbuck.composer.java.JavaLibraryRuleComposer
-import com.uber.okbuck.composer.java.JavaTestRuleComposer
+import com.uber.okbuck.composer.jvm.JvmLibraryRuleComposer
+import com.uber.okbuck.composer.jvm.JvmTestRuleComposer
 import com.uber.okbuck.core.model.android.AndroidAppTarget
 import com.uber.okbuck.core.model.android.AndroidInstrumentationTarget
 import com.uber.okbuck.core.model.android.AndroidLibTarget
@@ -90,10 +90,10 @@ final class BuckFileGenerator {
 
     private static List<Rule> createRules(JvmTarget target, RuleType mainRuleType, RuleType testRuleType) {
         List<Rule> rules = []
-        rules.addAll(JavaLibraryRuleComposer.compose(target, mainRuleType))
+        rules.addAll(JvmLibraryRuleComposer.compose(target, mainRuleType))
 
         if (target.test.sources) {
-            rules.add(JavaTestRuleComposer.compose(target, testRuleType))
+            rules.add(JvmTestRuleComposer.compose(target, testRuleType))
         }
         return rules
     }
