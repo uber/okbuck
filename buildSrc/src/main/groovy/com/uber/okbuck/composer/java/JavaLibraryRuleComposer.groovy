@@ -3,7 +3,7 @@ package com.uber.okbuck.composer.java
 import com.google.common.collect.ImmutableSet
 import com.uber.okbuck.composer.jvm.JvmBuckRuleComposer
 import com.uber.okbuck.core.model.base.RuleType
-import com.uber.okbuck.core.model.java.JavaLibTarget
+import com.uber.okbuck.core.model.jvm.JvmTarget
 import com.uber.okbuck.template.core.Rule
 import com.uber.okbuck.template.java.JavaBinaryRule
 import com.uber.okbuck.template.java.JavaRule
@@ -14,7 +14,7 @@ final class JavaLibraryRuleComposer extends JvmBuckRuleComposer {
         // no instance
     }
 
-    static List<Rule> compose(JavaLibTarget target,
+    static List<Rule> compose(JvmTarget target,
                               RuleType ruleType = RuleType.JAVA_LIBRARY) {
 
         List<String> deps = []

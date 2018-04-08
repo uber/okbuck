@@ -22,7 +22,7 @@ import com.uber.okbuck.core.model.android.AndroidLibTarget
 import com.uber.okbuck.core.model.base.ProjectType
 import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.core.model.base.Target
-import com.uber.okbuck.core.model.java.JavaLibTarget
+import com.uber.okbuck.core.model.jvm.JvmTarget
 import com.uber.okbuck.core.util.ProjectUtil
 import com.uber.okbuck.template.android.AndroidRule
 import com.uber.okbuck.template.android.ResourceRule
@@ -61,7 +61,7 @@ final class BuckFileGenerator {
                 case ProjectType.GROOVY_LIB:
                 case ProjectType.KOTLIN_LIB:
                 case ProjectType.SCALA_LIB:
-                    rules.addAll(createRules((JavaLibTarget) target, projectType.mainRuleType, projectType.testRuleType))
+                    rules.addAll(createRules((JvmTarget) target, projectType.mainRuleType, projectType.testRuleType))
                     break
                 case ProjectType.ANDROID_LIB:
                     rules.addAll(createRules((AndroidLibTarget) target))
@@ -88,7 +88,7 @@ final class BuckFileGenerator {
         return rules
     }
 
-    private static List<Rule> createRules(JavaLibTarget target, RuleType mainRuleType, RuleType testRuleType) {
+    private static List<Rule> createRules(JvmTarget target, RuleType mainRuleType, RuleType testRuleType) {
         List<Rule> rules = []
         rules.addAll(JavaLibraryRuleComposer.compose(target, mainRuleType))
 

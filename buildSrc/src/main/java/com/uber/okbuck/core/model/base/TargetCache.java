@@ -3,11 +3,8 @@ package com.uber.okbuck.core.model.base;
 import com.android.build.gradle.AppExtension;
 import com.android.build.gradle.LibraryExtension;
 import com.android.build.gradle.api.BaseVariant;
-import com.google.common.base.CaseFormat;
-import com.google.common.base.Converter;
 import com.uber.okbuck.core.model.android.AndroidAppTarget;
 import com.uber.okbuck.core.model.android.AndroidLibTarget;
-import com.uber.okbuck.core.model.java.JavaLibTarget;
 import com.uber.okbuck.core.model.jvm.JvmTarget;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
@@ -59,13 +56,13 @@ public class TargetCache {
                     break;
                 case KOTLIN_LIB:
                     projectTargets = Collections.singletonMap(JvmTarget.MAIN,
-                            new JavaLibTarget(project, JvmTarget.MAIN, "kapt", "kaptTest"));
+                            new JvmTarget(project, JvmTarget.MAIN, "kapt", "kaptTest"));
                     break;
                 case GROOVY_LIB:
                 case SCALA_LIB:
                 case JAVA_LIB:
                     projectTargets = Collections.singletonMap(JvmTarget.MAIN,
-                            new JavaLibTarget(project, JvmTarget.MAIN));
+                            new JvmTarget(project, JvmTarget.MAIN));
                     break;
                 default:
                     projectTargets = Collections.emptyMap();

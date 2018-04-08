@@ -15,7 +15,7 @@ import com.google.common.collect.ImmutableSet
 import com.uber.okbuck.OkBuckGradlePlugin
 import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.core.model.base.Scope
-import com.uber.okbuck.core.model.java.JavaLibTarget
+import com.uber.okbuck.core.model.jvm.JvmTarget
 import com.uber.okbuck.core.model.jvm.TestOptions
 import com.uber.okbuck.core.util.FileUtil
 import groovy.util.slurpersupport.GPathResult
@@ -34,7 +34,7 @@ import static com.uber.okbuck.core.util.KotlinUtil.KOTLIN_KAPT_PLUGIN
 /**
  * An Android target
  */
-abstract class AndroidTarget extends JavaLibTarget {
+abstract class AndroidTarget extends JvmTarget {
 
     private static final EmptyLogger EMPTY_LOGGER = new EmptyLogger()
 

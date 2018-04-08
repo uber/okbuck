@@ -1,7 +1,7 @@
 package com.uber.okbuck.composer.base;
 
 import com.uber.okbuck.core.model.base.Target;
-import com.uber.okbuck.core.model.java.JavaLibTarget;
+import com.uber.okbuck.core.model.jvm.JvmTarget;
 
 import org.apache.commons.io.FilenameUtils;
 import org.jetbrains.annotations.Nullable;
@@ -49,7 +49,7 @@ public abstract class BuckRuleComposer {
 
     public static Set<String> targetsApt(final Set<Target> deps) {
         return deps.stream()
-                .filter(target -> target.getClass().equals(JavaLibTarget.class))
+                .filter(target -> target.getClass().equals(JvmTarget.class))
                 .map(BuckRuleComposer::targets)
                 .collect(Collectors.toSet());
     }
