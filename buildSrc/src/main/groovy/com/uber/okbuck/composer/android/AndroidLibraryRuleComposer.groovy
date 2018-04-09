@@ -44,6 +44,9 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
         if (target.robolectricEnabled && target.test.sources) {
             testTargets.add(":${test(target)}")
         }
+        if (target.libInstrumentationTarget && target.instrumentationTest.sources) {
+            testTargets.add(":${bin(target.libInstrumentationTarget)}")
+        }
 
         AndroidRule androidRule = new AndroidRule()
                 .srcs(target.main.sources)

@@ -2,6 +2,8 @@ package com.uber.okbuck.composer.android
 
 import com.uber.okbuck.composer.jvm.JvmBuckRuleComposer
 import com.uber.okbuck.core.model.android.AndroidAppTarget
+import com.uber.okbuck.core.model.android.AndroidLibInstrumentationTarget
+import com.uber.okbuck.core.model.android.AndroidLibTarget
 import com.uber.okbuck.core.model.android.AndroidTarget
 
 abstract class AndroidBuckRuleComposer extends JvmBuckRuleComposer {
@@ -36,6 +38,15 @@ abstract class AndroidBuckRuleComposer extends JvmBuckRuleComposer {
 
     static String bin(AndroidAppTarget target) {
         return "bin_${target.name}"
+    }
+
+    /**
+     * This method is intentionally called bin because libraries test apks are actually
+     * android_binary rules. So this overrides the behavior of the
+     * {@link AndroidBuckRuleComposer#bin(AndroidAppTarget)} the get the right name.
+     */
+    static String bin(AndroidLibInstrumentationTarget target) {
+        return "lib_instrumentation_${target.name}_apk"
     }
 
     static String instrumentation(AndroidAppTarget target) {

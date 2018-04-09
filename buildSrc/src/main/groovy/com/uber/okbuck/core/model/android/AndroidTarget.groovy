@@ -18,6 +18,7 @@ import com.uber.okbuck.core.model.base.Scope
 import com.uber.okbuck.core.model.jvm.JvmTarget
 import com.uber.okbuck.core.model.jvm.TestOptions
 import com.uber.okbuck.core.util.FileUtil
+import com.uber.okbuck.extension.TestExtension
 import groovy.util.slurpersupport.GPathResult
 import groovy.xml.StreamingMarkupBuilder
 import org.gradle.api.JavaVersion
@@ -141,6 +142,15 @@ abstract class AndroidTarget extends JvmTarget {
                 unitTestVariant ? getSources(unitTestVariant): ImmutableSet.of(),
                 getJavaResources(unitTestVariant),
                 getJavaCompilerOptions(unitTestVariant))
+    }
+
+    Scope getInstrumentationTest() {
+        return Scope.from(
+                project,
+                instrumentationTestVariant ? instrumentationTestVariant.runtimeConfiguration : null,
+                instrumentationTestVariant ? getSources(instrumentationTestVariant): ImmutableSet.of(),
+                getJavaResources(instrumentationTestVariant),
+                getJavaCompilerOptions(instrumentationTestVariant))
     }
 
     @Override

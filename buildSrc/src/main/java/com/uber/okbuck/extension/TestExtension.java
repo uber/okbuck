@@ -11,4 +11,9 @@ public class TestExtension {
      * Enable generation of espresso test rules.
      */
     public boolean espresso = false;
+
+    /**
+     * Enable generation of espresso test rules on android libraries.
+     */
+    public boolean espressoForLibraries = false;
 }

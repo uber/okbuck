@@ -78,6 +78,7 @@ def support = [
 def test = [
         assertj       : "org.assertj:assertj-core:3.9.1",
         espressoCore  : "com.android.support.test.espresso:espresso-core:3.0.1",
+        espressoRules : "com.android.support.test:rules:1.0.1",
         espressoRunner: "com.android.support.test:runner:1.0.1",
         junit         : "junit:junit:4.12",
         kotlinTest    : "org.jetbrains.kotlin:kotlin-test-junit:${versions.kotlin}",

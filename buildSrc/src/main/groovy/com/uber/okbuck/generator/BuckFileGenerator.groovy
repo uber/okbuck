@@ -16,8 +16,9 @@ import com.uber.okbuck.composer.android.LintRuleComposer
 import com.uber.okbuck.composer.android.PreBuiltNativeLibraryRuleComposer
 import com.uber.okbuck.composer.jvm.JvmLibraryRuleComposer
 import com.uber.okbuck.composer.jvm.JvmTestRuleComposer
+import com.uber.okbuck.core.model.android.AndroidAppInstrumentationTarget
 import com.uber.okbuck.core.model.android.AndroidAppTarget
-import com.uber.okbuck.core.model.android.AndroidInstrumentationTarget
+import com.uber.okbuck.core.model.android.AndroidLibInstrumentationTarget
 import com.uber.okbuck.core.model.android.AndroidLibTarget
 import com.uber.okbuck.core.model.base.ProjectType
 import com.uber.okbuck.core.model.base.RuleType
@@ -25,6 +26,7 @@ import com.uber.okbuck.core.model.base.Target
 import com.uber.okbuck.core.model.jvm.JvmTarget
 import com.uber.okbuck.core.util.ProjectUtil
 import com.uber.okbuck.template.android.AndroidRule
+import com.uber.okbuck.template.android.AndroidTestRule
 import com.uber.okbuck.template.android.ResourceRule
 import com.uber.okbuck.template.core.Rule
 import org.gradle.api.Project
@@ -64,14 +66,19 @@ final class BuckFileGenerator {
                     rules.addAll(createRules((JvmTarget) target, projectType.mainRuleType, projectType.testRuleType))
                     break
                 case ProjectType.ANDROID_LIB:
-                    rules.addAll(createRules((AndroidLibTarget) target))
+                    AndroidLibTarget androidLibTarget = (AndroidLibTarget) target
+                    List<Rule> targetRules = createRules(androidLibTarget)
+                    rules.addAll(targetRules)
+                    if (androidLibTarget.libInstrumentationTarget) {
+                        rules.addAll(createRules(androidLibTarget.libInstrumentationTarget, targetRules))
+                    }
                     break
                 case ProjectType.ANDROID_APP:
                     AndroidAppTarget androidAppTarget = (AndroidAppTarget) target
                     List<Rule> targetRules = createRules(androidAppTarget)
                     rules.addAll(targetRules)
-                    if (androidAppTarget.instrumentationTarget) {
-                        rules.addAll(createRules(androidAppTarget.instrumentationTarget, androidAppTarget, targetRules))
+                    if (androidAppTarget.appInstrumentationTarget) {
+                        rules.addAll(createRules(androidAppTarget.appInstrumentationTarget, androidAppTarget, targetRules))
                     }
                     break
                 default:
@@ -99,7 +106,7 @@ final class BuckFileGenerator {
     }
 
     private static List<Rule> createRules(AndroidLibTarget target, String appClass = null,
-                                          List<String> extraDeps = []) {
+                                          List<String> extraDeps = [], List<String> extraResDeps = []) {
         List<Rule> rules = []
         List<Rule> androidLibRules = []
 
@@ -113,7 +120,7 @@ final class BuckFileGenerator {
         androidLibRules.addAll(aidlRules)
 
         // Res
-        androidLibRules.add(AndroidResourceRuleComposer.compose(target))
+        androidLibRules.add(AndroidResourceRuleComposer.compose(target, extraResDeps))
 
         // BuildConfig
         if (target.shouldGenerateBuildConfig()) {
@@ -156,9 +163,11 @@ final class BuckFileGenerator {
         return rules
     }
 
-    private static List<Rule> createRules(AndroidAppTarget target) {
+    private static List<Rule> createRules(AndroidAppTarget target,
+                                          List<String> additionalDeps = []) {
         List<Rule> rules = []
         List<String> deps = [":${AndroidBuckRuleComposer.src(target)}"]
+        deps.addAll(additionalDeps)
 
         Set<Rule> libRules = createRules((AndroidLibTarget) target,
                 target.exopackage ? target.exopackage.appClass : null)
@@ -183,11 +192,14 @@ final class BuckFileGenerator {
         return rules
     }
 
-    private static List<Rule> createRules(AndroidInstrumentationTarget target, AndroidAppTarget mainApkTarget,
+    private static List<Rule> createRules(AndroidAppInstrumentationTarget target, AndroidAppTarget mainApkTarget,
                                           List<Rule> mainApkTargetRules) {
         List<Rule> rules = []
 
-        Set<Rule> libRules = createRules((AndroidLibTarget) target, null, filterAndroidDepRules(mainApkTargetRules))
+        Set<Rule> libRules = createRules((AndroidLibTarget) target,
+                null,
+                filterAndroidDepRules(mainApkTargetRules),
+                filterAndroidResDepRules(mainApkTargetRules))
         rules.addAll(libRules)
 
         rules.add(AndroidInstrumentationApkRuleComposer.compose(filterAndroidDepRules(rules), target, mainApkTarget))
@@ -195,9 +207,31 @@ final class BuckFileGenerator {
         return rules
     }
 
+    private static List<Rule> createRules(AndroidLibInstrumentationTarget target, List<Rule> mainLibTargetRules) {
+
+        List<Rule> rules = []
+
+        Set<Rule> libRules = createRules((AndroidLibTarget) target,
+                null,
+                filterAndroidDepRules(mainLibTargetRules),
+                filterAndroidResDepRules(mainLibTargetRules))
+
+        rules.addAll(libRules)
+        rules.addAll(createRules((AndroidAppTarget) target, filterAndroidDepRules(rules)))
+        return rules
+    }
+
     private static List<String> filterAndroidDepRules(List<Rule> rules) {
         return rules.findAll { Rule rule ->
-            rule instanceof AndroidRule || rule instanceof ResourceRule
+            (rule instanceof AndroidRule || rule instanceof ResourceRule) && !(rule instanceof AndroidTestRule)
+        }.collect {
+            ":${it.name()}"
+        }
+    }
+
+    private static List<String> filterAndroidResDepRules(List<Rule> rules) {
+        return rules.findAll { Rule rule ->
+            rule instanceof ResourceRule
         }.collect {
             ":${it.name()}"
         }

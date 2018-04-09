@@ -1,1 +1,13 @@
-<manifest package="com.uber.okbuck.kotlin.android" />
+<?xml version="1.0" encoding="utf-8"?>
+<manifest package="com.uber.okbuck.kotlin.android"
+          xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application>
+        <activity
+            android:name="com.uber.okbuck.java.KotlinLibActivity"
+            android:label="@string/title_activity_kotlin_lib"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+    </application>
+
+</manifest>

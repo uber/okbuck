@@ -1,26 +1,15 @@
 package com.uber.okbuck.core.model.android
 
-import com.android.build.gradle.api.ApplicationVariant
-import com.android.build.gradle.api.BaseVariant
-import com.android.builder.core.VariantType
-import com.google.common.collect.ImmutableSet
 import com.uber.okbuck.core.model.base.Scope
 import org.gradle.api.Project
 
 /**
- * An Android instrumentation target
+ * An abstract Android instrumentation target
  */
-class AndroidInstrumentationTarget extends AndroidAppTarget {
+abstract class AndroidInstrumentationTarget extends AndroidAppTarget {
 
     AndroidInstrumentationTarget(Project project, String name) {
         super(project, name, true)
-    }
-
-    @Override
-    protected BaseVariant getBaseVariant() {
-        return ((ApplicationVariant) project.android.applicationVariants.find {
-            it.name == getMainTargetName(name)
-        }).testVariant
     }
 
     // TODO: Update to use variant once issue solved: https://youtrack.jetbrains.com/issue/KT-23411

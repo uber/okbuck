@@ -32,7 +32,7 @@ final class AndroidBinaryRuleComposer extends AndroidBuckRuleComposer {
         transformDeps.add(TransformUtil.TRANSFORM_RULE)
 
         List<String> testTargets = []
-        if (target.instrumentationTarget) {
+        if (target.appInstrumentationTarget) {
             testTargets.add(":${instrumentationTest(target)}")
         }
 
