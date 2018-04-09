@@ -37,13 +37,14 @@ import static com.uber.okbuck.core.util.KotlinUtil.KOTLIN_KAPT_PLUGIN
 abstract class AndroidTarget extends JvmTarget {
 
     private static final EmptyLogger EMPTY_LOGGER = new EmptyLogger()
+    private static final String DEFAULT_SDK = "1"
 
     final String applicationId
     final String applicationIdSuffix
     final String versionName
     final Integer versionCode
-    final int minSdk
-    final int targetSdk
+    final String minSdk
+    final String targetSdk
     final boolean debuggable
     final boolean generateR2
     final String genDir
@@ -109,12 +110,12 @@ abstract class AndroidTarget extends JvmTarget {
 
         if (baseVariant.mergedFlavor.minSdkVersion == null ||
                 baseVariant.mergedFlavor.targetSdkVersion == null) {
-            minSdk = targetSdk = 1
+            minSdk = targetSdk = DEFAULT_SDK
             throw new IllegalStateException("module `" + project.name +
                     "` must specify minSdkVersion and targetSdkVersion in build.gradle")
         } else {
-            minSdk = baseVariant.mergedFlavor.minSdkVersion.apiLevel
-            targetSdk = baseVariant.mergedFlavor.targetSdkVersion.apiLevel
+            minSdk = baseVariant.mergedFlavor.minSdkVersion.apiString
+            targetSdk = baseVariant.mergedFlavor.targetSdkVersion.apiString
         }
     }
 
@@ -382,10 +383,10 @@ abstract class AndroidTarget extends JvmTarget {
         }
     }
 
-    private static Closure getSdkNode(GPathResult manifestXml, int minSdk, int targetSdk) {
+    private static Closure getSdkNode(GPathResult manifestXml, String minSdk, String targetSdk) {
         def sdkAttributes = manifestXml.'uses-sdk'.'**'*.attributes()[0] ?: [:]
-        sdkAttributes['android:minSdkVersion'] = String.valueOf(minSdk)
-        sdkAttributes['android:targetSdkVersion'] = String.valueOf(targetSdk)
+        sdkAttributes['android:minSdkVersion'] = minSdk
+        sdkAttributes['android:targetSdkVersion'] = targetSdk
 
         return {
             'uses-sdk'(sdkAttributes) {}
