@@ -8,9 +8,10 @@ androidExtensions {
 
 dependencies {
     api deps.external.kotlinStdlib
-    implementation 'com.android.support:appcompat-v7:27.1.1'
-    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
-    implementation 'com.android.support:design:27.1.1'
+    implementation deps.support.appCompat
+    implementation deps.support.constraintLayout
+    implementation deps.support.design
+
     testImplementation deps.test.junit
     testImplementation deps.test.kotlinTest
 
