@@ -40,6 +40,11 @@ abstract class AndroidBuckRuleComposer extends JvmBuckRuleComposer {
         return "bin_${target.name}"
     }
 
+    /**
+     * This method is intentionally called bin because libraries test apks are actually
+     * android_binary rules. So this overrides the behavior of the
+     * {@link AndroidBuckRuleComposer#bin(AndroidAppTarget)} the get the right name.
+     */
     static String bin(AndroidLibInstrumentationTarget target) {
         return "lib_instrumentation_${target.name}_apk"
     }

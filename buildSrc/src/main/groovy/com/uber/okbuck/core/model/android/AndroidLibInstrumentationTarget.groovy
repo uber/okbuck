@@ -8,7 +8,7 @@ import org.gradle.api.Project
 /**
  * An Android library instrumentation target
  */
-class AndroidLibInstrumentationTarget extends AndroidAppInstrumentationTarget {
+class AndroidLibInstrumentationTarget extends AndroidInstrumentationTarget {
 
     AndroidLibInstrumentationTarget(Project project, String name) {
         super(project, name)

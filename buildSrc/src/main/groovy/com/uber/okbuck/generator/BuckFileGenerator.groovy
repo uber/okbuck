@@ -26,8 +26,8 @@ import com.uber.okbuck.core.model.base.Target
 import com.uber.okbuck.core.model.jvm.JvmTarget
 import com.uber.okbuck.core.util.ProjectUtil
 import com.uber.okbuck.template.android.AndroidRule
+import com.uber.okbuck.template.android.AndroidTestRule
 import com.uber.okbuck.template.android.ResourceRule
-import com.uber.okbuck.template.android.RobolectricRule
 import com.uber.okbuck.template.core.Rule
 import org.gradle.api.Project
 
@@ -223,7 +223,7 @@ final class BuckFileGenerator {
 
     private static List<String> filterAndroidDepRules(List<Rule> rules) {
         return rules.findAll { Rule rule ->
-            (rule instanceof AndroidRule || rule instanceof ResourceRule) && !(rule instanceof RobolectricRule)
+            (rule instanceof AndroidRule || rule instanceof ResourceRule) && !(rule instanceof AndroidTestRule)
         }.collect {
             ":${it.name()}"
         }

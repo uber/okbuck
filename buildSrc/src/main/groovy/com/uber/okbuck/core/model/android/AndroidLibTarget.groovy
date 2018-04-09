@@ -25,7 +25,7 @@ class AndroidLibTarget extends AndroidTarget {
         TestExtension testExtension = rootProject.okbuck.test
         if (testExtension.espressoForLibraries && instrumentationTestVariant && ProjectUtil.getType(project) == ProjectType.ANDROID_LIB) { // do not try to create this for android apps
             libInstrumentationTarget = new AndroidLibInstrumentationTarget(project,
-                    AndroidAppInstrumentationTarget.getInstrumentationTargetName(name))
+                    AndroidInstrumentationTarget.getInstrumentationTargetName(name))
         } else {
             libInstrumentationTarget = null
         }
