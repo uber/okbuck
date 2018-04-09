@@ -2,6 +2,8 @@ package com.uber.okbuck.composer.android
 
 import com.uber.okbuck.composer.jvm.JvmBuckRuleComposer
 import com.uber.okbuck.core.model.android.AndroidAppTarget
+import com.uber.okbuck.core.model.android.AndroidLibInstrumentationTarget
+import com.uber.okbuck.core.model.android.AndroidLibTarget
 import com.uber.okbuck.core.model.android.AndroidTarget
 
 abstract class AndroidBuckRuleComposer extends JvmBuckRuleComposer {
@@ -34,8 +36,12 @@ abstract class AndroidBuckRuleComposer extends JvmBuckRuleComposer {
         return "app_lib_${target.name}"
     }
 
-    static String bin(AndroidTarget target) {
+    static String bin(AndroidAppTarget target) {
         return "bin_${target.name}"
+    }
+
+    static String bin(AndroidLibInstrumentationTarget target) {
+        return "lib_instrumentation_${target.name}_apk"
     }
 
     static String instrumentation(AndroidAppTarget target) {

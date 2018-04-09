@@ -45,7 +45,7 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
             testTargets.add(":${test(target)}")
         }
         if (target.libInstrumentationTarget && target.instrumentationTest.sources) {
-            testTargets.add(":${bin((AndroidTarget) target.libInstrumentationTarget)}")
+            testTargets.add(":${bin(target.libInstrumentationTarget)}")
         }
 
         AndroidRule androidRule = new AndroidRule()

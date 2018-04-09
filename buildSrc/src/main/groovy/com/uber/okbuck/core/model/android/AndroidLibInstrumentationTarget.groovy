@@ -4,8 +4,9 @@ import com.android.build.gradle.api.BaseVariant
 import com.android.build.gradle.api.LibraryVariant
 import com.android.builder.model.SourceProvider
 import org.gradle.api.Project
+
 /**
- * An Android instrumentation target
+ * An Android library instrumentation target
  */
 class AndroidLibInstrumentationTarget extends AndroidAppInstrumentationTarget {
 

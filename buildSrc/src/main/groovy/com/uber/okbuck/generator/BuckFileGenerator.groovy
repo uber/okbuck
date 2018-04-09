@@ -208,16 +208,15 @@ final class BuckFileGenerator {
     }
 
     private static List<Rule> createRules(AndroidLibInstrumentationTarget target, List<Rule> mainLibTargetRules) {
+
         List<Rule> rules = []
 
-        // TODO: We should find a way to filter robolectric rule too,
-        // but Rules have no getter to find out its type, and robolectric rule at the end is a normal AndroidRule
         Set<Rule> libRules = createRules((AndroidLibTarget) target,
                 null,
                 filterAndroidDepRules(mainLibTargetRules),
                 filterAndroidResDepRules(mainLibTargetRules))
-        rules.addAll(libRules)
 
+        rules.addAll(libRules)
         rules.addAll(createRules((AndroidAppTarget) target, filterAndroidDepRules(rules)))
         return rules
     }
