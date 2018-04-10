@@ -33,7 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class Scope {
-    public static final String EMPTY_GROUP = "----empty----";
+    private static final String EMPTY_GROUP = "----empty----";
 
     private final Set<String> javaResources;
     private final Set<String> sources;
@@ -321,10 +321,18 @@ public class Scope {
             if (identifier instanceof ModuleComponentIdentifier &&
                     ((ModuleComponentIdentifier) identifier).getVersion().length() > 0) {
                 ModuleComponentIdentifier moduleIdentifier = (ModuleComponentIdentifier) identifier;
+
+                String version = moduleIdentifier.getVersion();
+                String classifier = DependencyUtils.extractModuleClassifier(
+                        artifact.getFile().getName(), version);
+                if (classifier != null) {
+                    version = String.format("%s-%s", version, classifier);
+                }
+
                 ExternalDependency externalDependency = new ExternalDependency(
                         moduleIdentifier.getGroup(),
                         moduleIdentifier.getModule(),
-                        moduleIdentifier.getVersion(),
+                        version,
                         artifact.getFile()
                 );
                 external.add(externalDependency);

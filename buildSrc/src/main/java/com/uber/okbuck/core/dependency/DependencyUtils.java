@@ -57,4 +57,29 @@ public final class DependencyUtils {
     public static boolean isConsumable(File file) {
         return FilenameUtils.isExtension(file.getName(), ALLOWED_EXTENSIONS);
     }
+
+    public static String extractModuleClassifier(String fileNameString, String moduleVersion) {
+        int dotIndex = fileNameString.lastIndexOf(".");
+        if (dotIndex > -1) {
+            int versionIndex = fileNameString.indexOf(moduleVersion);
+            if (versionIndex > -1) {
+                String classifier = fileNameString.substring(
+                        versionIndex + moduleVersion.length(), dotIndex);
+                if (classifier.length() > 0) {
+                    // Remove the prefixed '-'
+                    return classifier.substring(1);
+                } else {
+                    return null;
+                }
+
+            } else {
+                throw new IllegalStateException(String.format(
+                        "Version string %s not present in %s module filename",
+                        moduleVersion, fileNameString));
+            }
+        } else {
+            throw new IllegalStateException(String.format(
+                    "Not a valid module filename %s, should have an extension", fileNameString));
+        }
+    }
 }
