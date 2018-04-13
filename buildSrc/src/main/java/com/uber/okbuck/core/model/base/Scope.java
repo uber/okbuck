@@ -322,12 +322,8 @@ public class Scope {
                     ((ModuleComponentIdentifier) identifier).getVersion().length() > 0) {
                 ModuleComponentIdentifier moduleIdentifier = (ModuleComponentIdentifier) identifier;
 
-                String version = moduleIdentifier.getVersion();
-                String classifier = DependencyUtils.extractModuleClassifier(
-                        artifact.getFile().getName(), version);
-                if (classifier != null) {
-                    version = String.format("%s-%s", version, classifier);
-                }
+                String version = DependencyUtils.getModuleVersion(
+                        artifact.getFile().getName(), moduleIdentifier.getVersion());
 
                 ExternalDependency externalDependency = new ExternalDependency(
                         moduleIdentifier.getGroup(),

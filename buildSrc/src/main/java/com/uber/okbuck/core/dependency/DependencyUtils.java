@@ -58,28 +58,20 @@ public final class DependencyUtils {
         return FilenameUtils.isExtension(file.getName(), ALLOWED_EXTENSIONS);
     }
 
-    public static String extractModuleClassifier(String fileNameString, String moduleVersion) {
-        int dotIndex = fileNameString.lastIndexOf(".");
-        if (dotIndex > -1) {
-            int versionIndex = fileNameString.indexOf(moduleVersion);
+    public static String getModuleVersion(String fileNameString, String version) {
+        String baseFileName = FilenameUtils.getBaseName(fileNameString);
+        if (baseFileName.length() > 0) {
+            int versionIndex = fileNameString.lastIndexOf(version);
             if (versionIndex > -1) {
-                String classifier = fileNameString.substring(
-                        versionIndex + moduleVersion.length(), dotIndex);
-                if (classifier.length() > 0) {
-                    // Remove the prefixed '-'
-                    return classifier.substring(1);
-                } else {
-                    return null;
-                }
-
+                return fileNameString.substring(versionIndex);
             } else {
                 throw new IllegalStateException(String.format(
                         "Version string %s not present in %s module filename",
-                        moduleVersion, fileNameString));
+                        version, fileNameString));
             }
         } else {
             throw new IllegalStateException(String.format(
-                    "Not a valid module filename %s, should have an extension", fileNameString));
+                    "Not a valid module filename %s", fileNameString));
         }
     }
 }
