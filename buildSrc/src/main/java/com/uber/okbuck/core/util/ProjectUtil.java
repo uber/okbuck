@@ -4,6 +4,7 @@ import com.android.build.gradle.AppPlugin;
 import com.android.build.gradle.LibraryPlugin;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.core.dependency.DependencyCache;
+import com.uber.okbuck.core.model.base.AnnotationProcessorCache;
 import com.uber.okbuck.core.model.base.ProjectType;
 import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.model.base.Target;
@@ -56,6 +57,10 @@ public final class ProjectUtil {
 
     public static DependencyCache getDependencyCache(Project project) {
         return getPlugin(project).depCache;
+    }
+
+    public static AnnotationProcessorCache getAnnotationProcessorCache(Project project) {
+        return getPlugin(project).annotationProcessorCache;
     }
 
     public static Map<String, Target> getTargets(Project project) {

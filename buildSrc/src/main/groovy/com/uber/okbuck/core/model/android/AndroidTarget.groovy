@@ -13,16 +13,19 @@ import com.android.manifmerger.MergingReport
 import com.android.utils.ILogger
 import com.google.common.collect.ImmutableSet
 import com.uber.okbuck.OkBuckGradlePlugin
+import com.uber.okbuck.core.model.base.AnnotationProcessorCache
 import com.uber.okbuck.core.model.base.RuleType
 import com.uber.okbuck.core.model.base.Scope
 import com.uber.okbuck.core.model.jvm.JvmTarget
 import com.uber.okbuck.core.model.jvm.TestOptions
 import com.uber.okbuck.core.util.FileUtil
-import com.uber.okbuck.extension.TestExtension
+import com.uber.okbuck.core.util.ProjectUtil
+import com.uber.okbuck.extension.ExperimentalExtension
 import groovy.util.slurpersupport.GPathResult
 import groovy.xml.StreamingMarkupBuilder
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Configuration
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.testing.Test
 import org.jetbrains.kotlin.gradle.plugin.KotlinAndroidPluginWrapper
@@ -154,16 +157,51 @@ abstract class AndroidTarget extends JvmTarget {
     }
 
     @Override
-    Scope getApt() {
-        return Scope.from(project,
+    List<Scope> getApts() {
+        AnnotationProcessorCache apCache = ProjectUtil.getAnnotationProcessorCache(project)
+        return apCache.getAnnotationProcessorScopes(project,
                 isKapt ? "kapt${baseVariant.name.capitalize()}" : baseVariant.annotationProcessorConfiguration)
     }
 
     @Override
-    Scope getTestApt() {
-        return Scope.from(project,
+    List<Scope> getTestApts() {
+        AnnotationProcessorCache apCache = ProjectUtil.getAnnotationProcessorCache(project)
+        return apCache.getAnnotationProcessorScopes(project,
                 isKapt ? "kapt${baseVariant.name.capitalize()}" :
                         unitTestVariant ? unitTestVariant.annotationProcessorConfiguration : null)
+
+    }
+
+    @Override
+    Scope getApt() {
+        def configuration = isKapt ?
+                "kapt${baseVariant.name.capitalize()}" : baseVariant.annotationProcessorConfiguration
+
+        ExperimentalExtension experimentalExtension = getOkbuck().getExperimentalExtension();
+        if (experimentalExtension.useAnnotationProcessorPlugin) {
+            if (!ProjectUtil.getAnnotationProcessorCache(getProject())
+                    .hasEmptyAnnotationProcessors(getProject(), configuration)) {
+                return Scope.from(getProject(), (Configuration) null);
+            }
+        }
+
+        return Scope.from(project, configuration)
+    }
+
+    @Override
+    Scope getTestApt() {
+        def configuration = isKapt ? "kapt${baseVariant.name.capitalize()}" :
+                unitTestVariant ? unitTestVariant.annotationProcessorConfiguration : null
+
+        ExperimentalExtension experimentalExtension = getOkbuck().getExperimentalExtension();
+        if (experimentalExtension.useAnnotationProcessorPlugin) {
+            if (!ProjectUtil.getAnnotationProcessorCache(getProject())
+                    .hasEmptyAnnotationProcessors(getProject(), configuration)) {
+                return Scope.from(getProject(), (Configuration) null);
+            }
+        }
+
+        return Scope.from(project, configuration)
     }
 
     @Override

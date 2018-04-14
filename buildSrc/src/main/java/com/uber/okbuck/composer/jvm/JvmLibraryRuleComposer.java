@@ -18,7 +18,8 @@ public final class JvmLibraryRuleComposer extends JvmBuckRuleComposer {
         // no instance
     }
 
-    public static List<Rule> compose(final JvmTarget target, RuleType ruleType) {
+    public static List<Rule> compose(
+            final JvmTarget target, RuleType ruleType, boolean useAPPlugin) {
         List<String> deps = ImmutableList.<String>builder()
                 .addAll(external(getExternalDeps(target.getMain(), target.getProvided())))
                 .addAll(targets(getTargetDeps(target.getMain(), target.getProvided())))
@@ -43,6 +44,7 @@ public final class JvmLibraryRuleComposer extends JvmBuckRuleComposer {
                 .exts(ruleType.getSourceExtensions())
                 .annotationProcessors(target.getAnnotationProcessors())
                 .aptDeps(aptDeps)
+                .useAnnotationProcessorPlugin(useAPPlugin)
                 .providedDeps(providedDeps)
                 .resources(target.getMain().getJavaResources())
                 .sourceCompatibility(target.getSourceCompatibility())

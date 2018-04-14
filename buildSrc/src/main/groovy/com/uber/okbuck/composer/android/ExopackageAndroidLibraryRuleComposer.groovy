@@ -12,7 +12,7 @@ final class ExopackageAndroidLibraryRuleComposer extends AndroidBuckRuleComposer
         // no instance
     }
 
-    static Rule compose(AndroidAppTarget target) {
+    static Rule compose(AndroidAppTarget target, boolean useApPlugin) {
         List<String> deps = []
         deps.addAll(external(target.exopackage.externalDeps))
         deps.addAll(targets(target.exopackage.targetDeps))
@@ -30,6 +30,7 @@ final class ExopackageAndroidLibraryRuleComposer extends AndroidBuckRuleComposer
                 .targetCompatibility(target.targetCompatibility)
                 .annotationProcessors(target.annotationProcessors)
                 .aptDeps(libraryAptDeps)
+                .useAnnotationProcessorPlugin(useApPlugin)
                 .providedDeps(providedDeps)
                 .options(target.main.jvmArgs)
 

@@ -2,6 +2,7 @@ package com.uber.okbuck
 
 import com.uber.okbuck.core.dependency.DependencyCache
 import com.uber.okbuck.core.dependency.DependencyUtils
+import com.uber.okbuck.core.model.base.AnnotationProcessorCache
 import com.uber.okbuck.core.model.base.Scope
 import com.uber.okbuck.core.model.base.TargetCache
 import com.uber.okbuck.core.task.OkBuckCleanTask
@@ -76,18 +77,21 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     public DependencyCache depCache
     public DependencyCache lintDepCache
     public TargetCache targetCache
+    public AnnotationProcessorCache annotationProcessorCache
     public final Map<Project, Map<String, Scope>> scopes = new ConcurrentHashMap<>()
 
     void apply(Project project) {
         // Create extensions
         OkBuckExtension okbuckExt = project.extensions.create(OKBUCK, OkBuckExtension, project)
         WrapperExtension wrapper = okbuckExt.extensions.create(WRAPPER, WrapperExtension)
-        ExperimentalExtension experimental = okbuckExt.extensions.create(EXPERIMENTAL, ExperimentalExtension)
+
         TestExtension test = okbuckExt.extensions.create(TEST, TestExtension)
         KotlinExtension kotlin = okbuckExt.extensions.create(KOTLIN, KotlinExtension, project)
         LintExtension lint = okbuckExt.extensions.create(LINT, LintExtension, project)
         ScalaExtension scala = okbuckExt.extensions.create(SCALA, ScalaExtension)
 
+        ExperimentalExtension experimental = okbuckExt.extensions.create(EXPERIMENTAL,
+                ExperimentalExtension)
         okbuckExt.extensions.create(INTELLIJ, IntellijExtension)
         okbuckExt.extensions.create(TRANSFORM, TransformExtension)
 
@@ -108,9 +112,15 @@ class OkBuckGradlePlugin implements Plugin<Project> {
             experimentalExtension = experimental
         })
         okBuck.dependsOn(setupOkbuck)
+        okBuck.doLast {
+            annotationProcessorCache.finalize(project, depCache)
+        }
 
         // Create target cache
         targetCache = new TargetCache()
+
+        // Create Annotation Processor cache
+        annotationProcessorCache = new AnnotationProcessorCache(project.rootProject);
 
         project.afterEvaluate {
             // Create wrapper task
@@ -160,7 +170,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                 }
 
                 // Fetch transform deps if needed
-                if (experimental.transform) {
+                if (okbuckExt.experimentalExtension.transform) {
                     TransformUtil.fetchTransformDeps(project)
                 }
 

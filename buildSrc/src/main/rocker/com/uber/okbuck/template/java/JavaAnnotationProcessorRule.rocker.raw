@@ -1,0 +1,20 @@
+@import java.util.Collection
+@args (Collection processorClasses)
+java_annotation_processor(
+    name = '@name',
+@if (valid(processorClasses)) {
+    processor_classes = [
+    @for (processorClass : sorted(processorClasses)) {
+        '@processorClass',
+    }
+    ],
+}
+@if (valid(deps)) {
+    deps = [
+    @for (dep : sorted(deps)) {
+        '@dep',
+    }
+    ],
+}
+    visibility = ['PUBLIC'],
+)

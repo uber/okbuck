@@ -35,6 +35,7 @@ class DependencyCache {
     private final boolean fetchSources
     private final Store lintJars
     private final Store processors
+    private final Store processorExtensions
     private final Store sources
 
     private final Set<File> copies = ConcurrentHashMap.newKeySet()
@@ -49,6 +50,8 @@ class DependencyCache {
 
         sources = new Store(rootProject.file("${OkBuckGradlePlugin.OKBUCK_STATE_DIR}/SOURCES"))
         processors = new Store(rootProject.file("${OkBuckGradlePlugin.OKBUCK_STATE_DIR}/PROCESSORS"))
+        processorExtensions = new Store(rootProject.file(
+                "${OkBuckGradlePlugin.OKBUCK_STATE_DIR}/PROCESSORS_EXTENSIONS"))
         lintJars = new Store(rootProject.file("${OkBuckGradlePlugin.OKBUCK_STATE_DIR}/LINT_JARS"))
 
         if (forcedConfiguration) {
@@ -180,22 +183,53 @@ class DependencyCache {
         ExternalDependency dependency = forcedDeps.getOrDefault(externalDependency.versionless, externalDependency)
         String key = dependency.cacheName
         String processorsList = processors.get(key)
+
         if (processorsList == null) {
-            JarFile jarFile = new JarFile(dependency.depFile)
-            JarEntry jarEntry = (JarEntry) jarFile.getEntry("META-INF/services/javax.annotation.processing.Processor")
-            if (jarEntry) {
-                List<String> processorClasses = IOUtils.toString(jarFile.getInputStream(jarEntry))
-                        .trim().split("\\n").findAll { String entry ->
-                    !entry.startsWith('#') && !entry.trim().empty // filter out comments and empty lines
-                }
-                processorsList = processorClasses.join(",")
-            } else {
-                processorsList = ""
-            }
+            processorsList = getJarFileContent(dependency.depFile,
+                    "META-INF/services/javax.annotation.processing.Processor")
             processors.set(key, processorsList)
         }
 
         return processorsList ? ImmutableSet.copyOf(processorsList.split(",")) : ImmutableSet.of()
+    }
+
+    /**
+     * Check if the dependency has an auto value extension.
+     *
+     * @param externalDependency The dependency
+     * @return Whether the dependency has auto value extension.
+     */
+    public boolean hasAutoValueExtensions(ExternalDependency externalDependency) {
+        ExternalDependency dependency = forcedDeps.getOrDefault(externalDependency.versionless, externalDependency)
+        String key = dependency.cacheName
+        String extensions = processorExtensions.get(key)
+
+        if (extensions == null) {
+            extensions = getJarFileContent(dependency.depFile,
+                    "META-INF/services/com.google.auto.value.extension.AutoValueExtension")
+            processorExtensions.set(key, extensions)
+        }
+
+        return extensions && extensions.length() > 0
+    }
+
+    private static String getJarFileContent(
+            File dependencyFile,
+            String filePathString) {
+        String content;
+
+        JarFile jarFile = new JarFile(dependencyFile)
+        JarEntry jarEntry = (JarEntry) jarFile.getEntry(filePathString)
+        if (jarEntry) {
+            List<String> entries = IOUtils.toString(jarFile.getInputStream(jarEntry))
+                    .trim().split("\\n").findAll { String entry ->
+                !entry.startsWith('#') && !entry.trim().empty // filter out comments and empty lines
+            }
+            content = entries.join(",")
+        } else {
+            content = ""
+        }
+        return content;
     }
 
     /**

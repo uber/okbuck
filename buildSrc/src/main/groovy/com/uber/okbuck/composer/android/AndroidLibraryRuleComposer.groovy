@@ -19,7 +19,8 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
             AndroidLibTarget target,
             List<String> deps,
             final List<String> aidlRuleNames,
-            String appClass) {
+            String appClass,
+            boolean useApPlugin) {
 
         Set<String> libraryDeps = new HashSet<>(deps)
         libraryDeps.addAll(external(getExternalDeps(target.main, target.provided)))
@@ -55,6 +56,7 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
                 .proguardConfig(target.consumerProguardConfig)
                 .annotationProcessors(target.annotationProcessors)
                 .aptDeps(libraryAptDeps)
+                .useAnnotationProcessorPlugin(useApPlugin)
                 .providedDeps(providedDeps)
                 .resources(target.main.javaResources)
                 .sourceCompatibility(target.sourceCompatibility)
