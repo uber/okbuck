@@ -56,6 +56,8 @@ def external = [
         rxPermissions  : "com.tbruyelle.rxpermissions2:rxpermissions:0.9.4",
         sqlite         : "com.pushtorefresh.storio3:sqlite:3.0.0",
         xlogAndroidIdle: "com.github.promeg:xlog-android-idle:2.1.1",
+        avroIpc        : "org.apache.avro:avro-ipc:1.7.7",
+        avroIpcTests   : "org.apache.avro:avro-ipc:1.7.7:tests",
 ]
 
 def lint = [

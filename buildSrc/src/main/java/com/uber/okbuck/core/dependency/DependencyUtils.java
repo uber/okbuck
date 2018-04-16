@@ -57,4 +57,21 @@ public final class DependencyUtils {
     public static boolean isConsumable(File file) {
         return FilenameUtils.isExtension(file.getName(), ALLOWED_EXTENSIONS);
     }
+
+    public static String getModuleVersion(String fileNameString, String version) {
+        String baseFileName = FilenameUtils.getBaseName(fileNameString);
+        if (baseFileName.length() > 0) {
+            int versionIndex = fileNameString.lastIndexOf(version);
+            if (versionIndex > -1) {
+                return fileNameString.substring(versionIndex);
+            } else {
+                throw new IllegalStateException(String.format(
+                        "Version string %s not present in %s module filename",
+                        version, fileNameString));
+            }
+        } else {
+            throw new IllegalStateException(String.format(
+                    "Not a valid module filename %s", fileNameString));
+        }
+    }
 }

@@ -1,0 +1,9 @@
+apply plugin: "java-library"
+apply plugin: "application"
+
+dependencies {
+    implementation deps.external.gson
+    implementation deps.external.dagger
+    implementation deps.external.avroIpc
+    implementation deps.external.avroIpcTests
+}

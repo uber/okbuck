@@ -6,7 +6,7 @@ import dagger.Provides;
 @Module
 public class JavaModule {
     @Provides
-    DummyJavaClass provodeDummyJavaClass() {
+    DummyJavaClass provideDummyJavaClass() {
         return new DummyJavaClass();
     }
 }
