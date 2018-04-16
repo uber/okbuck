@@ -218,6 +218,10 @@ public class Scope {
     }
 
     public Set<String> getAnnotationProcessors() {
+        if (configuration == null) {
+            return ImmutableSet.of();
+        }
+
         Set<ExternalDependency.VersionlessDependency> firstLevelDependencies = configuration
                 .getAllDependencies()
                 .stream()
