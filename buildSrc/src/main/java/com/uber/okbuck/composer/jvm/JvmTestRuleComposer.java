@@ -19,7 +19,7 @@ public final class JvmTestRuleComposer extends JvmBuckRuleComposer {
         // no instance
     }
 
-    public static Rule compose(final JvmTarget target, RuleType ruleType, boolean useAPPlugin) {
+    public static Rule compose(final JvmTarget target, RuleType ruleType, boolean useApPlugin) {
         List<String> deps = ImmutableList.<String>builder()
                 .add(":" + src(target))
                 .addAll(external(getExternalDeps(target.getTest(), target.getTestProvided())))
@@ -40,7 +40,7 @@ public final class JvmTestRuleComposer extends JvmBuckRuleComposer {
                 .exts(ruleType.getSourceExtensions())
                 .annotationProcessors(target.getTestAnnotationProcessors())
                 .aptDeps(aptDeps)
-                .useAnnotationProcessorPlugin(useAPPlugin)
+                .useAnnotationProcessorPlugin(useApPlugin)
                 .providedDeps(providedDeps)
                 .resources(target.getTest().getJavaResources())
                 .sourceCompatibility(target.getSourceCompatibility())
