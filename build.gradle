@@ -171,7 +171,6 @@ okbuck {
 
     experimental {
         transform = true
-        lintWithClasspathAbi = true
     }
 
     transform {

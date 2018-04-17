@@ -33,7 +33,6 @@ import static com.uber.okbuck.OkBuckGradlePlugin.OKBUCK_DEFS;
 @SuppressWarnings({"WeakerAccess", "CanBeFinal", "unused", "ResultOfMethodCallIgnored", "NewApi"})
 public class OkBuckTask extends DefaultTask {
 
-    public static final String CLASSPATH_MACRO = "classpath";
     public static final String CLASSPATH_ABI_MACRO = "classpath_abi";
 
     @Nested
@@ -123,11 +122,6 @@ public class OkBuckTask extends DefaultTask {
             throw new RuntimeException(e);
         }
 
-        String classpathMacro = CLASSPATH_MACRO;
-        if (experimentalExt.lintWithClasspathAbi) {
-            classpathMacro = CLASSPATH_ABI_MACRO;
-        }
-
         // Setup defs
         new BuckDefs()
                 .resourceExcludes(
@@ -135,7 +129,7 @@ public class OkBuckTask extends DefaultTask {
                                 .stream()
                                 .map(s -> "'" + s + "'")
                                 .collect(Collectors.toSet()))
-                .classpathMacro(classpathMacro)
+                .classpathMacro(CLASSPATH_ABI_MACRO)
                 .render(okbuckDefs());
 
         Set<String> defs =
