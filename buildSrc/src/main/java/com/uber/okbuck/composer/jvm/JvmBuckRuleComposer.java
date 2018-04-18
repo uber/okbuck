@@ -75,6 +75,14 @@ public class JvmBuckRuleComposer extends BuckRuleComposer {
         return Sets.difference(compile.getExternalDeps(), runtime.getExternalDeps());
     }
 
+    /**
+     * If annotation processor plugin is enabled return the ap's plugin rules path
+     * otherwise just return the ap's
+     *
+     * @param aps Annotation Processor plugin's UUID
+     * @param useApPlugin whether annotation processor plugin is enabled
+     * @return Set of java annotation processor plugin's rule paths.
+     */
     public static Set<String> getApsOrPlugins(Set<String> aps, boolean useApPlugin) {
         if (useApPlugin) {
             return aps
@@ -86,10 +94,20 @@ public class JvmBuckRuleComposer extends BuckRuleComposer {
         }
     }
 
+    /**
+     * Returns the java annotation processor plugin's rule name using the pluginUUID
+     * @param pluginUUID pluginUUID used to get the rule name
+     * @return Plugin rule name.
+     */
     protected static String getApPluginRuleName(String pluginUUID) {
         return String.format("processor_%s", pluginUUID);
     }
 
+    /**
+     * Returns the java annotation processor plugin's rule path using the pluginUUID
+     * @param pluginUUID pluginUUID used to get the rule path
+     * @return Plugin rule path.
+     */
     private static String getApPluginRulePath(String pluginUUID) {
         return String.format("//.okbuck/cache/processor:%s", getApPluginRuleName(pluginUUID));
     }

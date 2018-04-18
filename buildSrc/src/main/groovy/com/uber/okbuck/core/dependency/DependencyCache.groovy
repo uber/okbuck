@@ -210,7 +210,7 @@ class DependencyCache {
             processorExtensions.set(key, extensions)
         }
 
-        return extensions && extensions.length() > 0
+        return extensions != null && extensions.length() > 0
     }
 
     private static String getJarFileContent(

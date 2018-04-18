@@ -15,6 +15,13 @@ public class JavaAnnotationProcessorRuleComposer extends JvmBuckRuleComposer {
 
     JavaAnnotationProcessorRuleComposer() { }
 
+    /**
+     * Uses the annotation processors scope list to generate the java_annotation_processor
+     * rules. It sorts them based on the the annotation processor's UUID.
+     *
+     * @param scopeList List of annotation processor scopes.
+     * @return A list containing java_annotation_processor rules.
+     */
     public static List<Rule> compose(Collection<Scope> scopeList) {
         return scopeList
                 .stream()
