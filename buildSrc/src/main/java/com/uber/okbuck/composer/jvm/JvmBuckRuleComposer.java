@@ -79,7 +79,7 @@ public class JvmBuckRuleComposer extends BuckRuleComposer {
      * If annotation processor plugin is enabled return the ap's plugin rules path
      * otherwise just return the ap's
      *
-     * @param aps Annotation Processor plugin's UUID
+     * @param aps Annotation Processor plugin's UID
      * @param useApPlugin whether annotation processor plugin is enabled
      * @return Set of java annotation processor plugin's rule paths.
      */
@@ -95,20 +95,20 @@ public class JvmBuckRuleComposer extends BuckRuleComposer {
     }
 
     /**
-     * Returns the java annotation processor plugin's rule name using the pluginUUID
-     * @param pluginUUID pluginUUID used to get the rule name
+     * Returns the java annotation processor plugin's rule name using the pluginUID
+     * @param pluginUID pluginUID used to get the rule name
      * @return Plugin rule name.
      */
-    protected static String getApPluginRuleName(String pluginUUID) {
-        return String.format("processor_%s", pluginUUID);
+    protected static String getApPluginRuleName(String pluginUID) {
+        return String.format("processor_%s", pluginUID);
     }
 
     /**
-     * Returns the java annotation processor plugin's rule path using the pluginUUID
-     * @param pluginUUID pluginUUID used to get the rule path
+     * Returns the java annotation processor plugin's rule path using the pluginUID
+     * @param pluginUID pluginUID used to get the rule path
      * @return Plugin rule path.
      */
-    private static String getApPluginRulePath(String pluginUUID) {
-        return String.format("//.okbuck/cache/processor:%s", getApPluginRuleName(pluginUUID));
+    private static String getApPluginRulePath(String pluginUID) {
+        return String.format("//.okbuck/cache/processor:%s", getApPluginRuleName(pluginUID));
     }
 }

@@ -97,8 +97,8 @@ final class BuckFileGenerator {
     }
 
     private static List<Rule> createRules(JvmTarget target, RuleType mainRuleType, RuleType testRuleType) {
-        boolean useApPlugin = target.okbuck.extensions
-                .getByName(OkBuckGradlePlugin.EXPERIMENTAL).useAnnotationProcessorPlugin
+        boolean useApPlugin = target.getOkbuck()
+                .getExperimentalExtension().useAnnotationProcessorPlugin
 
         List<Rule> rules = []
         rules.addAll(JvmLibraryRuleComposer.compose(target, mainRuleType, useApPlugin))
@@ -111,8 +111,8 @@ final class BuckFileGenerator {
 
     private static List<Rule> createRules(AndroidLibTarget target, String appClass = null,
                                           List<String> extraDeps = [], List<String> extraResDeps = []) {
-        boolean useApPlugin = target.okbuck.extensions
-                .getByName(OkBuckGradlePlugin.EXPERIMENTAL).useAnnotationProcessorPlugin
+        boolean useApPlugin = target.getOkbuck()
+                .getExperimentalExtension().useAnnotationProcessorPlugin
 
         List<Rule> rules = []
         List<Rule> androidLibRules = []
@@ -174,8 +174,8 @@ final class BuckFileGenerator {
 
     private static List<Rule> createRules(AndroidAppTarget target,
                                           List<String> additionalDeps = []) {
-        boolean useApPlugin = target.okbuck.extensions
-                .getByName(OkBuckGradlePlugin.EXPERIMENTAL).useAnnotationProcessorPlugin
+        boolean useApPlugin = target.getOkbuck()
+                .getExperimentalExtension().useAnnotationProcessorPlugin
 
         List<Rule> rules = []
         List<String> deps = [":${AndroidBuckRuleComposer.src(target)}"]

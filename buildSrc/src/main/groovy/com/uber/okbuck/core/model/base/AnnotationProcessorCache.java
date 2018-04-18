@@ -5,15 +5,12 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.composer.java.JavaAnnotationProcessorRuleComposer;
-import com.uber.okbuck.core.dependency.DependencyCache;
 import com.uber.okbuck.core.dependency.DependencyUtils;
-import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.template.core.Rule;
 
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
-import org.gradle.api.artifacts.DependencySet;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -67,7 +64,7 @@ public class AnnotationProcessorCache {
         ImmutableList.Builder<Scope> scopesBuilder = ImmutableList.builder();
         ImmutableSet.Builder<Dependency> autoValueDependencyBuilder = ImmutableSet.builder();
 
-        Map<Set<Dependency>, Scope> depToScope = composeProcessors(
+        Map<Set<Dependency>, Scope> depToScope = createProcessorScopes(
                 project, configuration.getAllDependencies(), false);
 
         for(Set<Dependency> dependencySet : depToScope.keySet()) {
@@ -100,7 +97,7 @@ public class AnnotationProcessorCache {
         // Compute new scope using the auto value dependencies and add it to the scope builder.
         ImmutableSet<Dependency> autoValueDependencies = autoValueDependencyBuilder.build();
         if (autoValueDependencies.size() > 0) {
-            scopesBuilder.addAll(composeProcessors(
+            scopesBuilder.addAll(createProcessorScopes(
                     project, autoValueDependencies, true).values());
         }
 
@@ -127,51 +124,13 @@ public class AnnotationProcessorCache {
      * @return A boolean whether the configuration has any empty annotation processors.
      */
     public boolean hasEmptyAnnotationProcessors(Project project, Configuration configuration) {
-        Map<Set<Dependency>, Scope> depToScope = composeProcessors(
+        Map<Set<Dependency>, Scope> depToScope = createProcessorScopes(
                 project, configuration.getAllDependencies(), false);
 
         return depToScope
                 .values()
                 .stream()
                 .anyMatch(scope -> scope.getAnnotationProcessors().isEmpty());
-    }
-
-    private Map<Set<Dependency>, Scope> composeProcessors(Project project,
-            Set<Dependency> dependencies, boolean groupDependencies) {
-
-        ImmutableMap.Builder<Set<Dependency>, Scope> currentBuilder = new ImmutableMap.Builder<>();
-
-        // Creates a scope using a detached configuration and the dependency set.
-        Function<Set<Dependency>, Scope> computeScope = depSet -> {
-            Dependency[] depArray = depSet.toArray(new Dependency[depSet.size()]);
-            Configuration detached = project.getConfigurations().detachedConfiguration(depArray);
-            return Scope.from(project, detached);
-        };
-
-        if (groupDependencies) {
-            ImmutableSet<Dependency> dependencySet = ImmutableSet.copyOf(dependencies);
-            Scope scope = dependencyToScopeMap.computeIfAbsent(dependencySet, computeScope);
-            currentBuilder.put(dependencySet, scope);
-
-        } else {
-            dependencies.forEach(dependency -> {
-                ImmutableSet<Dependency> dependencySet = ImmutableSet.of(dependency);
-                Scope scope = dependencyToScopeMap.computeIfAbsent(dependencySet, computeScope);
-                currentBuilder.put(dependencySet, scope);
-            });
-        }
-        return currentBuilder.build();
-    }
-
-    private Configuration getConfiguration(Project project, String configurationString) {
-        Configuration configuration = DependencyUtils.useful(project, configurationString);
-
-        if (configuration == null) {
-            throw new IllegalStateException(
-                    String.format("No valid configuration found for '%s' in project '%s'",
-                            configurationString, project.getDisplayName()));
-        }
-        return configuration;
     }
 
     /**
@@ -198,5 +157,47 @@ public class AnnotationProcessorCache {
         } catch (IOException e) {
             throw new IllegalStateException("Couldn't create the buck file: %s", e);
         }
+    }
+
+    private Map<Set<Dependency>, Scope> createProcessorScopes(Project project,
+            Set<Dependency> dependencies, boolean groupDependencies) {
+
+        ImmutableMap.Builder<Set<Dependency>, Scope> currentBuilder = new ImmutableMap.Builder<>();
+
+        // Creates a scope using a detached configuration and the given dependency set.
+        Function<Set<Dependency>, Scope> computeScope = depSet -> {
+            Dependency[] depArray = depSet.toArray(new Dependency[depSet.size()]);
+            Configuration detached = project.getConfigurations().detachedConfiguration(depArray);
+            return Scope.from(project, detached);
+        };
+
+        if (groupDependencies) {
+            // Creates one scope for all the dependencies if not
+            // already present and adds it to the current builder.
+            ImmutableSet<Dependency> dependencySet = ImmutableSet.copyOf(dependencies);
+            Scope scope = dependencyToScopeMap.computeIfAbsent(dependencySet, computeScope);
+            currentBuilder.put(dependencySet, scope);
+
+        } else {
+            // Creates one scope per dependency if not already
+            // found and adds it to the current builder.
+            dependencies.forEach(dependency -> {
+                ImmutableSet<Dependency> dependencySet = ImmutableSet.of(dependency);
+                Scope scope = dependencyToScopeMap.computeIfAbsent(dependencySet, computeScope);
+                currentBuilder.put(dependencySet, scope);
+            });
+        }
+        return currentBuilder.build();
+    }
+
+    private Configuration getConfiguration(Project project, String configurationString) {
+        Configuration configuration = DependencyUtils.useful(project, configurationString);
+
+        if (configuration == null) {
+            throw new IllegalStateException(
+                    String.format("No valid configuration found for '%s' in project '%s'",
+                            configurationString, project.getDisplayName()));
+        }
+        return configuration;
     }
 }

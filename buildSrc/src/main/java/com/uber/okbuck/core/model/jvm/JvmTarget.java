@@ -163,7 +163,7 @@ public class JvmTarget extends Target {
 
     /**
      * List of annotation processor classes. If annotation processor plugin is enabled
-     * returns the annotation processor's UUID.
+     * returns the annotation processor's UID.
      */
     public Set<String> getAnnotationProcessors() {
         ExperimentalExtension experimentalExtension = getOkbuck().getExperimentalExtension();
@@ -171,7 +171,7 @@ public class JvmTarget extends Target {
             return getAptScopes()
                     .stream()
                     .filter(scope -> !scope.getAnnotationProcessors().isEmpty())
-                    .map(Scope::getAnnotationProcessorsUUID)
+                    .map(Scope::getAnnotationProcessorsUID)
                     .collect(Collectors.toSet());
         } else {
             return getApt().getAnnotationProcessors();
@@ -180,7 +180,7 @@ public class JvmTarget extends Target {
 
     /**
      * List of test annotation processor classes. If annotation processor plugin is enabled
-     * returns the annotation processor's UUID.
+     * returns the annotation processor's UID.
      */
     public Set<String> getTestAnnotationProcessors() {
         ExperimentalExtension experimentalExtension = getOkbuck().getExperimentalExtension();
@@ -188,7 +188,7 @@ public class JvmTarget extends Target {
             return getTestAptScopes()
                     .stream()
                     .filter(scope -> !scope.getAnnotationProcessors().isEmpty())
-                    .map(Scope::getAnnotationProcessorsUUID)
+                    .map(Scope::getAnnotationProcessorsUID)
                     .collect(Collectors.toSet());
         } else {
             return getTestApt().getAnnotationProcessors();

@@ -283,10 +283,10 @@ public class Scope {
     }
 
     /**
-     * Returns the UUID for the annotation processors of the scope.
-     * @return String UUID
+     * Returns the UID for the annotation processors of the scope.
+     * @return String UID
      */
-    public String getAnnotationProcessorsUUID() {
+    public String getAnnotationProcessorsUID() {
         return configuration
                 .getAllDependencies()
                 .stream()

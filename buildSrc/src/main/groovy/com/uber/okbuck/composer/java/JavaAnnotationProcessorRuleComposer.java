@@ -1,7 +1,6 @@
 package com.uber.okbuck.composer.java;
 
 import com.google.common.collect.ImmutableSet;
-import com.uber.okbuck.composer.base.BuckRuleComposer;
 import com.uber.okbuck.composer.jvm.JvmBuckRuleComposer;
 import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.template.core.Rule;
@@ -17,7 +16,7 @@ public class JavaAnnotationProcessorRuleComposer extends JvmBuckRuleComposer {
 
     /**
      * Uses the annotation processors scope list to generate the java_annotation_processor
-     * rules. It sorts them based on the the annotation processor's UUID.
+     * rules. It sorts them based on the the annotation processor's UID.
      *
      * @param scopeList List of annotation processor scopes.
      * @return A list containing java_annotation_processor rules.
@@ -27,8 +26,8 @@ public class JavaAnnotationProcessorRuleComposer extends JvmBuckRuleComposer {
                 .stream()
                 .filter(scope -> !scope.getAnnotationProcessors().isEmpty())
                 .sorted((scope1, scope2) ->
-                        scope1.getAnnotationProcessorsUUID()
-                                .compareToIgnoreCase(scope2.getAnnotationProcessorsUUID())
+                        scope1.getAnnotationProcessorsUID()
+                                .compareToIgnoreCase(scope2.getAnnotationProcessorsUID())
                 )
                 .map(scope -> {
                     ImmutableSet.Builder<String> depsBuilder = new ImmutableSet.Builder<>();
@@ -37,7 +36,7 @@ public class JavaAnnotationProcessorRuleComposer extends JvmBuckRuleComposer {
 
                     return new JavaAnnotationProcessorRule()
                             .processorClasses(scope.getAnnotationProcessors())
-                            .name(getApPluginRuleName(scope.getAnnotationProcessorsUUID()))
+                            .name(getApPluginRuleName(scope.getAnnotationProcessorsUID()))
                             .deps(depsBuilder.build());
                 })
                 .collect(Collectors.toList());
