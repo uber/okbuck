@@ -42,7 +42,7 @@ public final class JvmLibraryRuleComposer extends JvmBuckRuleComposer {
         rulesBuilder.add(new JvmRule()
                 .srcs(target.getMain().getSources())
                 .exts(ruleType.getSourceExtensions())
-                .annotationProcessors(target.getAnnotationProcessors())
+                .annotationProcessors(getApsOrPlugins(target.getAnnotationProcessors(), useApPlugin))
                 .aptDeps(aptDeps)
                 .useAnnotationProcessorPlugin(useApPlugin)
                 .providedDeps(providedDeps)

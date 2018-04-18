@@ -23,21 +23,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * Keeps a cache of the annotation processor dependencies and its scope.
  */
 public class AnnotationProcessorCache {
-    private final static String PROCESSOR_BUCK_FILE = ".okbuck/cache/processor/BUCK";
-
     private final static String AUTO_VALUE_GROUP = "com.google.auto.value";
     private final static String AUTO_VALUE_NAME = "auto-value";
 
+    private final Project project;
+    private final String processorBuckFile;
+
     private Map<Set<Dependency>, Scope> dependencyToScopeMap = new HashMap<>();
 
-    public AnnotationProcessorCache(Project project) {
-        File buckFile = project.getRootProject().file(PROCESSOR_BUCK_FILE);
-        FileUtil.deleteQuietly(buckFile.toPath());
+    public AnnotationProcessorCache(Project project, String processorBuckFile) {
+        this.project = project;
+        this.processorBuckFile = processorBuckFile;
     }
 
     /**
@@ -65,27 +67,29 @@ public class AnnotationProcessorCache {
         ImmutableList.Builder<Scope> scopesBuilder = ImmutableList.builder();
         ImmutableSet.Builder<Dependency> autoValueDependencyBuilder = ImmutableSet.builder();
 
-        DependencySet allDependencies = configuration.getAllDependencies();
-
         Map<Set<Dependency>, Scope> depToScope = composeProcessors(
-                project, allDependencies, false);
+                project, configuration.getAllDependencies(), false);
 
         for(Set<Dependency> dependencySet : depToScope.keySet()) {
-            boolean autoValueDependency = false;
-
-            for (Dependency dependency : dependencySet) {
-                if (dependency.getGroup() != null &&
-                        dependency.getGroup().equals(AUTO_VALUE_GROUP) &&
-                        dependency.getName().startsWith(AUTO_VALUE_NAME)) {
-                    autoValueDependency = true;
-                }
-            }
+            // Initialize with whether the dependency set contains any
+            // auto value or auto-value.* dependency.
+            boolean autoValueDependency =
+                    dependencySet
+                            .stream()
+                            .anyMatch(dependency ->
+                                    dependency.getGroup() != null &&
+                                            dependency.getGroup().equals(AUTO_VALUE_GROUP) &&
+                                            dependency.getName().startsWith(AUTO_VALUE_NAME));
 
             Scope scope = depToScope.get(dependencySet);
+
+            // Whether the scope of the dependency set has any auto value extensions.
             if (scope.hasAutoValueExtensions()) {
                 autoValueDependency = true;
             }
 
+            // If an auto value dependency add it to the auto value dependency builder or
+            // add the corresponding scope to the scope builder which will be returned.
             if (autoValueDependency) {
                 autoValueDependencyBuilder.addAll(dependencySet);
             } else {
@@ -93,6 +97,7 @@ public class AnnotationProcessorCache {
             }
         }
 
+        // Compute new scope using the auto value dependencies and add it to the scope builder.
         ImmutableSet<Dependency> autoValueDependencies = autoValueDependencyBuilder.build();
         if (autoValueDependencies.size() > 0) {
             scopesBuilder.addAll(composeProcessors(
@@ -122,10 +127,8 @@ public class AnnotationProcessorCache {
      * @return A boolean whether the configuration has any empty annotation processors.
      */
     public boolean hasEmptyAnnotationProcessors(Project project, Configuration configuration) {
-        DependencySet allDependencies = configuration.getAllDependencies();
-
         Map<Set<Dependency>, Scope> depToScope = composeProcessors(
-                project, allDependencies, false);
+                project, configuration.getAllDependencies(), false);
 
         return depToScope
                 .values()
@@ -135,37 +138,29 @@ public class AnnotationProcessorCache {
 
     private Map<Set<Dependency>, Scope> composeProcessors(Project project,
             Set<Dependency> dependencies, boolean groupDependencies) {
-        ImmutableMap.Builder<Set<Dependency>, Scope> currentMapBuilder =
-                new ImmutableMap.Builder<>();
+
+        ImmutableMap.Builder<Set<Dependency>, Scope> currentBuilder = new ImmutableMap.Builder<>();
+
+        // Creates a scope using a detached configuration and the dependency set.
+        Function<Set<Dependency>, Scope> computeScope = depSet -> {
+            Dependency[] depArray = depSet.toArray(new Dependency[depSet.size()]);
+            Configuration detached = project.getConfigurations().detachedConfiguration(depArray);
+            return Scope.from(project, detached);
+        };
 
         if (groupDependencies) {
-            ImmutableSet<Dependency> dependencySet =
-                    new ImmutableSet.Builder<Dependency>().addAll(dependencies).build();
-            if (!dependencyToScopeMap.containsKey(dependencySet)) {
+            ImmutableSet<Dependency> dependencySet = ImmutableSet.copyOf(dependencies);
+            Scope scope = dependencyToScopeMap.computeIfAbsent(dependencySet, computeScope);
+            currentBuilder.put(dependencySet, scope);
 
-                Dependency [] dependencyArray = new Dependency[dependencySet.size()];
-                int arrayIndex = 0;
-                for (Dependency dependency : dependencySet) {
-                    dependencyArray[arrayIndex++] = dependency;
-                }
-
-                Configuration detached = project.getConfigurations()
-                        .detachedConfiguration(dependencyArray);
-                dependencyToScopeMap.put(dependencySet, Scope.from(project, detached));
-            }
-            currentMapBuilder.put(dependencySet, dependencyToScopeMap.get(dependencySet));
         } else {
-            for (Dependency dependency : dependencies) {
+            dependencies.forEach(dependency -> {
                 ImmutableSet<Dependency> dependencySet = ImmutableSet.of(dependency);
-                if (!dependencyToScopeMap.containsKey(dependencySet)) {
-                    Configuration detached =
-                            project.getConfigurations().detachedConfiguration(dependency);
-                    dependencyToScopeMap.put(dependencySet, Scope.from(project, detached));
-                }
-                currentMapBuilder.put(dependencySet, dependencyToScopeMap.get(dependencySet));
-            }
+                Scope scope = dependencyToScopeMap.computeIfAbsent(dependencySet, computeScope);
+                currentBuilder.put(dependencySet, scope);
+            });
         }
-        return currentMapBuilder.build();
+        return currentBuilder.build();
     }
 
     private Configuration getConfiguration(Project project, String configurationString) {
@@ -180,25 +175,13 @@ public class AnnotationProcessorCache {
     }
 
     /**
-     * Write the buck file for the java_annotation_processor rules and
-     * finalizes the passed in dependency cache.
-     *
-     * @param project Gradle Project
-     * @param dependencyCache dependency cache to be finalized
+     * Write the buck file for the java_annotation_processor rules.
      */
-    public void finalize(Project project, DependencyCache dependencyCache) {
-        // Compose Annotation Processor rules
-        composeProcessors(project);
-
-        // Finalize Dependency Cache
-        dependencyCache.finalizeDeps();
-    }
-
-    private void composeProcessors(Project project) {
+    public void finalizeProcessors() {
         List<Rule> rules =
                 JavaAnnotationProcessorRuleComposer.compose(dependencyToScopeMap.values());
 
-        File buckFile = project.getRootProject().file(PROCESSOR_BUCK_FILE);
+        File buckFile = project.getRootProject().file(processorBuckFile);
         File parent = buckFile.getParentFile();
         if (!parent.exists() && !parent.mkdirs()) {
             throw new IllegalStateException("Couldn't create dir: " + parent);

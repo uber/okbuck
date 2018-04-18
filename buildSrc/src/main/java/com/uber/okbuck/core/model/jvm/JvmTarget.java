@@ -69,7 +69,7 @@ public class JvmTarget extends Target {
     /**
      * Apt Scopes
      */
-    public List<Scope> getApts() {
+    public List<Scope> getAptScopes() {
         AnnotationProcessorCache apCache = ProjectUtil.getAnnotationProcessorCache(
                 getProject());
         return apCache.getAnnotationProcessorScopes(getProject(), aptConfigurationName);
@@ -78,7 +78,7 @@ public class JvmTarget extends Target {
     /**
      * Test Apt Scopes
      */
-    public List<Scope> getTestApts() {
+    public List<Scope> getTestAptScopes() {
         AnnotationProcessorCache apCache = ProjectUtil.getAnnotationProcessorCache(
                 getProject());
         return apCache.getAnnotationProcessorScopes(getProject(), testAptConfigurationName);
@@ -88,35 +88,44 @@ public class JvmTarget extends Target {
      * Apt Scope Used to get the annotation processor deps of the target.
      */
     public Scope getApt() {
-        ExperimentalExtension experimentalExtension = getOkbuck().getExperimentalExtension();
-
-        // If using annotation processor plugin, return an empty scope if there are no annotation
-        // processors so no need to have any specified in the annotation processor deps list.
-        if (experimentalExtension.useAnnotationProcessorPlugin) {
-            if (!ProjectUtil.getAnnotationProcessorCache(getProject())
-                    .hasEmptyAnnotationProcessors(getProject(), aptConfigurationName)) {
-                return Scope.from(getProject(), (Configuration) null);
-            }
-        }
-        return Scope.from(getProject(), aptConfigurationName);
+        return getAptScopeForConfiguration(aptConfigurationName);
     }
 
     /**
      * Test Apt Scope
      */
     public Scope getTestApt() {
+        return getAptScopeForConfiguration(testAptConfigurationName);
+    }
+
+    protected Scope getAptScopeForConfiguration(String configurationName) {
         ExperimentalExtension experimentalExtension = getOkbuck().getExperimentalExtension();
 
         // If using annotation processor plugin, return an empty scope if there are no annotation
         // processors so no need to have any specified in the annotation processor deps list.
         if (experimentalExtension.useAnnotationProcessorPlugin) {
             if (!ProjectUtil.getAnnotationProcessorCache(getProject())
-                    .hasEmptyAnnotationProcessors(getProject(), testAptConfigurationName)) {
-                return Scope.from(getProject(), (Configuration) null);
+                    .hasEmptyAnnotationProcessors(getProject(), configurationName)) {
+                return Scope.from(getProject());
             }
         }
-        return Scope.from(getProject(), testAptConfigurationName);
+        return Scope.from(getProject(), configurationName);
     }
+
+    protected Scope getAptScopeForConfiguration(Configuration configuration) {
+        ExperimentalExtension experimentalExtension = getOkbuck().getExperimentalExtension();
+
+        // If using annotation processor plugin, return an empty scope if there are no annotation
+        // processors so no need to have any specified in the annotation processor deps list.
+        if (experimentalExtension.useAnnotationProcessorPlugin) {
+            if (!ProjectUtil.getAnnotationProcessorCache(getProject())
+                    .hasEmptyAnnotationProcessors(getProject(), configuration)) {
+                return Scope.from(getProject());
+            }
+        }
+        return Scope.from(getProject(), configuration);
+    }
+
 
     /**
      * Provided Scope
@@ -154,15 +163,15 @@ public class JvmTarget extends Target {
 
     /**
      * List of annotation processor classes. If annotation processor plugin is enabled
-     * returns the annotation processor plugin rules paths.
+     * returns the annotation processor's UUID.
      */
     public Set<String> getAnnotationProcessors() {
         ExperimentalExtension experimentalExtension = getOkbuck().getExperimentalExtension();
         if (experimentalExtension.useAnnotationProcessorPlugin) {
-            return getApts()
+            return getAptScopes()
                     .stream()
                     .filter(scope -> !scope.getAnnotationProcessors().isEmpty())
-                    .map(Scope::getAnnotationProcessorRulePath)
+                    .map(Scope::getAnnotationProcessorsUUID)
                     .collect(Collectors.toSet());
         } else {
             return getApt().getAnnotationProcessors();
@@ -171,15 +180,15 @@ public class JvmTarget extends Target {
 
     /**
      * List of test annotation processor classes. If annotation processor plugin is enabled
-     * returns the annotation processor plugin rules paths.
+     * returns the annotation processor's UUID.
      */
     public Set<String> getTestAnnotationProcessors() {
         ExperimentalExtension experimentalExtension = getOkbuck().getExperimentalExtension();
         if (experimentalExtension.useAnnotationProcessorPlugin) {
-            return getTestApts()
+            return getTestAptScopes()
                     .stream()
                     .filter(scope -> !scope.getAnnotationProcessors().isEmpty())
-                    .map(Scope::getAnnotationProcessorRulePath)
+                    .map(Scope::getAnnotationProcessorsUUID)
                     .collect(Collectors.toSet());
         } else {
             return getTestApt().getAnnotationProcessors();

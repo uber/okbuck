@@ -7,6 +7,7 @@ import com.uber.okbuck.core.model.base.Target;
 import com.uber.okbuck.core.model.jvm.JvmTarget;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class JvmBuckRuleComposer extends BuckRuleComposer {
 
@@ -72,5 +73,24 @@ public class JvmBuckRuleComposer extends BuckRuleComposer {
      */
     public static Set<String> getExternalProvidedDeps(final Scope runtime, final Scope compile) {
         return Sets.difference(compile.getExternalDeps(), runtime.getExternalDeps());
+    }
+
+    public static Set<String> getApsOrPlugins(Set<String> aps, boolean useApPlugin) {
+        if (useApPlugin) {
+            return aps
+                    .stream()
+                    .map(JvmBuckRuleComposer::getApPluginRulePath)
+                    .collect(Collectors.toSet());
+        } else {
+            return aps;
+        }
+    }
+
+    protected static String getApPluginRuleName(String pluginUUID) {
+        return String.format("processor_%s", pluginUUID);
+    }
+
+    private static String getApPluginRulePath(String pluginUUID) {
+        return String.format("//.okbuck/cache/processor:%s", getApPluginRuleName(pluginUUID));
     }
 }

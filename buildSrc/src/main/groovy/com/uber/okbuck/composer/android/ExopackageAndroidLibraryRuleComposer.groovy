@@ -28,7 +28,7 @@ final class ExopackageAndroidLibraryRuleComposer extends AndroidBuckRuleComposer
         AndroidRule androidRule = new AndroidRule()
                 .sourceCompatibility(target.sourceCompatibility)
                 .targetCompatibility(target.targetCompatibility)
-                .annotationProcessors(target.annotationProcessors)
+                .annotationProcessors(getApsOrPlugins(target.annotationProcessors, useApPlugin))
                 .aptDeps(libraryAptDeps)
                 .useAnnotationProcessorPlugin(useApPlugin)
                 .providedDeps(providedDeps)

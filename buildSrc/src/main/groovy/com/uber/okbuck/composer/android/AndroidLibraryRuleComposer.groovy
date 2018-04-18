@@ -54,7 +54,7 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
                 .exts(target.ruleType.sourceExtensions)
                 .manifest(fileRule(target.manifest))
                 .proguardConfig(target.consumerProguardConfig)
-                .annotationProcessors(target.annotationProcessors)
+                .annotationProcessors(getApsOrPlugins(target.annotationProcessors, useApPlugin))
                 .aptDeps(libraryAptDeps)
                 .useAnnotationProcessorPlugin(useApPlugin)
                 .providedDeps(providedDeps)

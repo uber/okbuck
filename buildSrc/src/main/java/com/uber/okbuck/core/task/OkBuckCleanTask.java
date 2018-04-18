@@ -7,6 +7,7 @@ import com.uber.okbuck.core.model.base.ProjectType;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.MoreCollectors;
 import com.uber.okbuck.core.util.ProjectUtil;
+import com.uber.okbuck.extension.ExperimentalExtension;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
@@ -29,6 +30,12 @@ public class OkBuckCleanTask extends DefaultTask {
     @Input
     public Set<Project> projects = new HashSet<>();
 
+    @Input
+    public String processorBuckFile = null;
+
+    @Input
+    public ExperimentalExtension experimentalExtension = null;
+
     @TaskAction
     void clean() throws IOException {
         Project rootProject = getProject();
@@ -41,7 +48,7 @@ public class OkBuckCleanTask extends DefaultTask {
         if (okbuckState.exists()) {
             lastProjectPaths = Files.lines(okbuckState.toPath())
                     .map(String::trim)
-                    .filter(s -> s != null && s.length() > 0)
+                    .filter(s -> s.length() > 0)
                     .collect(MoreCollectors.toImmutableSet());
         } else {
             lastProjectPaths = ImmutableSet.of();
@@ -68,6 +75,15 @@ public class OkBuckCleanTask extends DefaultTask {
                 currentProjectPaths.stream()
                         .sorted()
                         .collect(MoreCollectors.toImmutableList()));
+
+        // Delete processor buck file. This needs to be done if the annotation processor plugin
+        // is first enabled then disabled. This cleans up the stale processor buck file.
+        if (experimentalExtension != null &&
+                !experimentalExtension.useAnnotationProcessorPlugin &&
+                processorBuckFile != null) {
+            File buckFile = rootProject.file(processorBuckFile);
+            FileUtil.deleteQuietly(buckFile.toPath());
+        }
     }
 
     @Override

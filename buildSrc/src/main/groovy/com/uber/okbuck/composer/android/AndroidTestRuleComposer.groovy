@@ -40,7 +40,7 @@ final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
         AndroidTestRule androidTest = new AndroidTestRule()
                 .srcs(target.test.sources)
                 .exts(target.testRuleType.sourceExtensions)
-                .annotationProcessors(target.testAnnotationProcessors)
+                .annotationProcessors(getApsOrPlugins(target.testAnnotationProcessors, useApPlugin))
                 .aptDeps(testAptDeps)
                 .useAnnotationProcessorPlugin(useApPlugin)
                 .providedDeps(providedDeps)

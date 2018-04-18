@@ -157,14 +157,14 @@ abstract class AndroidTarget extends JvmTarget {
     }
 
     @Override
-    List<Scope> getApts() {
+    List<Scope> getAptScopes() {
         AnnotationProcessorCache apCache = ProjectUtil.getAnnotationProcessorCache(project)
         return apCache.getAnnotationProcessorScopes(project,
                 isKapt ? "kapt${baseVariant.name.capitalize()}" : baseVariant.annotationProcessorConfiguration)
     }
 
     @Override
-    List<Scope> getTestApts() {
+    List<Scope> getTestAptScopes() {
         AnnotationProcessorCache apCache = ProjectUtil.getAnnotationProcessorCache(project)
         return apCache.getAnnotationProcessorScopes(project,
                 isKapt ? "kapt${baseVariant.name.capitalize()}" :
@@ -177,15 +177,7 @@ abstract class AndroidTarget extends JvmTarget {
         def configuration = isKapt ?
                 "kapt${baseVariant.name.capitalize()}" : baseVariant.annotationProcessorConfiguration
 
-        ExperimentalExtension experimentalExtension = getOkbuck().getExperimentalExtension();
-        if (experimentalExtension.useAnnotationProcessorPlugin) {
-            if (!ProjectUtil.getAnnotationProcessorCache(getProject())
-                    .hasEmptyAnnotationProcessors(getProject(), configuration)) {
-                return Scope.from(getProject(), (Configuration) null);
-            }
-        }
-
-        return Scope.from(project, configuration)
+        return getAptScopeForConfiguration(configuration)
     }
 
     @Override
@@ -193,15 +185,7 @@ abstract class AndroidTarget extends JvmTarget {
         def configuration = isKapt ? "kapt${baseVariant.name.capitalize()}" :
                 unitTestVariant ? unitTestVariant.annotationProcessorConfiguration : null
 
-        ExperimentalExtension experimentalExtension = getOkbuck().getExperimentalExtension();
-        if (experimentalExtension.useAnnotationProcessorPlugin) {
-            if (!ProjectUtil.getAnnotationProcessorCache(getProject())
-                    .hasEmptyAnnotationProcessors(getProject(), configuration)) {
-                return Scope.from(getProject(), (Configuration) null);
-            }
-        }
-
-        return Scope.from(project, configuration)
+        return getAptScopeForConfiguration(configuration)
     }
 
     @Override

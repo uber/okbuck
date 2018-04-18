@@ -38,7 +38,7 @@ public final class JvmTestRuleComposer extends JvmBuckRuleComposer {
 
         return new JvmRule().srcs(target.getTest().getSources())
                 .exts(ruleType.getSourceExtensions())
-                .annotationProcessors(target.getTestAnnotationProcessors())
+                .annotationProcessors(getApsOrPlugins(target.getTestAnnotationProcessors(), useApPlugin))
                 .aptDeps(aptDeps)
                 .useAnnotationProcessorPlugin(useApPlugin)
                 .providedDeps(providedDeps)

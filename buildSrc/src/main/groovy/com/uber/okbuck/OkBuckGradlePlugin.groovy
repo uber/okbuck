@@ -73,6 +73,8 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     public static final String OKBUCK_GEN = ".okbuck/gen"
     public static final String JITPACK_URL = 'https://jitpack.io'
 
+    public static String PROCESSOR_BUCK_FILE = ".okbuck/cache/processor/BUCK";
+
     // Project level globals
     public DependencyCache depCache
     public DependencyCache lintDepCache
@@ -113,14 +115,16 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         })
         okBuck.dependsOn(setupOkbuck)
         okBuck.doLast {
-            annotationProcessorCache.finalize(project, depCache)
+            annotationProcessorCache.finalizeProcessors()
+            depCache.finalizeDeps()
         }
 
         // Create target cache
         targetCache = new TargetCache()
 
         // Create Annotation Processor cache
-        annotationProcessorCache = new AnnotationProcessorCache(project.rootProject);
+        annotationProcessorCache = new AnnotationProcessorCache(
+                project.rootProject, PROCESSOR_BUCK_FILE);
 
         project.afterEvaluate {
             // Create wrapper task
@@ -170,7 +174,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                 }
 
                 // Fetch transform deps if needed
-                if (okbuckExt.experimentalExtension.transform) {
+                if (experimental.transform) {
                     TransformUtil.fetchTransformDeps(project)
                 }
 
@@ -197,6 +201,8 @@ class OkBuckGradlePlugin implements Plugin<Project> {
             // Create clean task
             Task okBuckClean = project.tasks.create(OKBUCK_CLEAN, OkBuckCleanTask, {
                 projects = okbuckExt.buckProjects
+                processorBuckFile = PROCESSOR_BUCK_FILE
+                experimentalExtension = experimental
             })
             okBuck.dependsOn(okBuckClean)
 

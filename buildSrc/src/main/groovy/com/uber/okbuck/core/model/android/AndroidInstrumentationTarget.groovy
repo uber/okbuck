@@ -18,7 +18,7 @@ abstract class AndroidInstrumentationTarget extends AndroidAppTarget {
 
     // TODO: Update to use variant once issue solved: https://youtrack.jetbrains.com/issue/KT-23411
     @Override
-    List<Scope> getApts() {
+    List<Scope> getAptScopes() {
         AnnotationProcessorCache apCache = ProjectUtil.getAnnotationProcessorCache(project)
         return apCache.getAnnotationProcessorScopes(project,
                 isKapt ? "kaptAndroidTest" : baseVariant.annotationProcessorConfiguration)
@@ -29,15 +29,7 @@ abstract class AndroidInstrumentationTarget extends AndroidAppTarget {
     Scope getApt() {
         def configuration = isKapt ? "kaptAndroidTest" : baseVariant.annotationProcessorConfiguration
 
-        ExperimentalExtension experimentalExtension = getOkbuck().getExperimentalExtension();
-        if (experimentalExtension.useAnnotationProcessorPlugin) {
-            if (!ProjectUtil.getAnnotationProcessorCache(getProject())
-                    .hasEmptyAnnotationProcessors(getProject(), configuration)) {
-                return Scope.from(getProject(), (Configuration) null);
-            }
-        }
-
-        return Scope.from(project, configuration)
+        return getAptScopeForConfiguration(configuration)
     }
 
     @Override
