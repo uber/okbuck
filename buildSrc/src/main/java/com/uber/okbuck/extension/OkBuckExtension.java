@@ -135,11 +135,10 @@ public class OkBuckExtension {
         buckProjects = project.getSubprojects();
     }
 
-    private IntellijExtension intellijExtension;
-    private ExperimentalExtension experimentalExtension;
+    private IntellijExtension intellijExtension = new IntellijExtension();
+    private ExperimentalExtension experimentalExtension = new ExperimentalExtension();
 
     public void intellij(Action<IntellijExtension> container) {
-        this.intellijExtension = new IntellijExtension();
         container.execute(intellijExtension);
     }
 
@@ -148,7 +147,6 @@ public class OkBuckExtension {
     }
 
     public void experimental(Action<ExperimentalExtension> container) {
-        this.experimentalExtension = new ExperimentalExtension();
         container.execute(experimentalExtension);
     }
 
