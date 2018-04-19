@@ -92,8 +92,9 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         LintExtension lint = okbuckExt.extensions.create(LINT, LintExtension, project)
         ScalaExtension scala = okbuckExt.extensions.create(SCALA, ScalaExtension)
 
-        ExperimentalExtension experimental = okbuckExt.extensions.create(EXPERIMENTAL,
-                ExperimentalExtension)
+        // These extensions are created before the next run loop
+        // Access them using methods on okbuckExt in the project.afterEvaluate block below.
+        okbuckExt.extensions.create(EXPERIMENTAL, ExperimentalExtension)
         okbuckExt.extensions.create(INTELLIJ, IntellijExtension)
         okbuckExt.extensions.create(TRANSFORM, TransformExtension)
 
@@ -111,7 +112,6 @@ class OkBuckGradlePlugin implements Plugin<Project> {
             okBuckExtension = okbuckExt
             kotlinExtension = kotlin
             scalaExtension = scala
-            experimentalExtension = experimental
         })
         okBuck.dependsOn(setupOkbuck)
         okBuck.doLast {
@@ -174,7 +174,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                 }
 
                 // Fetch transform deps if needed
-                if (experimental.transform) {
+                if (okbuckExt.getExperimentalExtension().transform) {
                     TransformUtil.fetchTransformDeps(project)
                 }
 
@@ -202,7 +202,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
             Task okBuckClean = project.tasks.create(OKBUCK_CLEAN, OkBuckCleanTask, {
                 projects = okbuckExt.buckProjects
                 processorBuckFile = PROCESSOR_BUCK_FILE
-                experimentalExtension = experimental
+                experimentalExtension = okbuckExt.getExperimentalExtension()
             })
             okBuck.dependsOn(okBuckClean)
 
