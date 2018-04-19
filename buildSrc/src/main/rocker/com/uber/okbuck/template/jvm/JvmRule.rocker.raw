@@ -10,6 +10,7 @@ String targetCompatibility,
 Collection testTargets,
 Collection annotationProcessors,
 Collection aptDeps,
+boolean useAnnotationProcessorPlugin,
 Collection providedDeps,
 Collection libDeps,
 Collection options,
@@ -62,7 +63,14 @@ lib_deps = []
     }
     ],
 }
-@if (valid(annotationProcessors)) {
+@if (valid(annotationProcessors) && useAnnotationProcessorPlugin) {
+    plugins = [
+    @for (annotationProcessor : sorted(annotationProcessors)) {
+        '@annotationProcessor',
+    }
+    ],
+}
+@if (valid(annotationProcessors) && !useAnnotationProcessorPlugin) {
     annotation_processors = [
     @for (annotationProcessor : sorted(annotationProcessors)) {
         '@annotationProcessor',

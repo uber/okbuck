@@ -2,6 +2,7 @@ package com.uber.okbuck
 
 import com.uber.okbuck.core.dependency.DependencyCache
 import com.uber.okbuck.core.dependency.DependencyUtils
+import com.uber.okbuck.core.model.base.AnnotationProcessorCache
 import com.uber.okbuck.core.model.base.Scope
 import com.uber.okbuck.core.model.base.TargetCache
 import com.uber.okbuck.core.task.OkBuckCleanTask
@@ -72,22 +73,28 @@ class OkBuckGradlePlugin implements Plugin<Project> {
     public static final String OKBUCK_GEN = ".okbuck/gen"
     public static final String JITPACK_URL = 'https://jitpack.io'
 
+    public static String PROCESSOR_BUCK_FILE = ".okbuck/cache/processor/BUCK";
+
     // Project level globals
     public DependencyCache depCache
     public DependencyCache lintDepCache
     public TargetCache targetCache
+    public AnnotationProcessorCache annotationProcessorCache
     public final Map<Project, Map<String, Scope>> scopes = new ConcurrentHashMap<>()
 
     void apply(Project project) {
         // Create extensions
         OkBuckExtension okbuckExt = project.extensions.create(OKBUCK, OkBuckExtension, project)
         WrapperExtension wrapper = okbuckExt.extensions.create(WRAPPER, WrapperExtension)
-        ExperimentalExtension experimental = okbuckExt.extensions.create(EXPERIMENTAL, ExperimentalExtension)
+
         TestExtension test = okbuckExt.extensions.create(TEST, TestExtension)
         KotlinExtension kotlin = okbuckExt.extensions.create(KOTLIN, KotlinExtension, project)
         LintExtension lint = okbuckExt.extensions.create(LINT, LintExtension, project)
         ScalaExtension scala = okbuckExt.extensions.create(SCALA, ScalaExtension)
 
+        // These extensions are created before the next run loop
+        // Access them using methods on okbuckExt in the project.afterEvaluate block below.
+        okbuckExt.extensions.create(EXPERIMENTAL, ExperimentalExtension)
         okbuckExt.extensions.create(INTELLIJ, IntellijExtension)
         okbuckExt.extensions.create(TRANSFORM, TransformExtension)
 
@@ -105,12 +112,19 @@ class OkBuckGradlePlugin implements Plugin<Project> {
             okBuckExtension = okbuckExt
             kotlinExtension = kotlin
             scalaExtension = scala
-            experimentalExtension = experimental
         })
         okBuck.dependsOn(setupOkbuck)
+        okBuck.doLast {
+            annotationProcessorCache.finalizeProcessors()
+            depCache.finalizeDeps()
+        }
 
         // Create target cache
         targetCache = new TargetCache()
+
+        // Create Annotation Processor cache
+        annotationProcessorCache = new AnnotationProcessorCache(
+                project.rootProject, PROCESSOR_BUCK_FILE);
 
         project.afterEvaluate {
             // Create wrapper task
@@ -160,7 +174,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                 }
 
                 // Fetch transform deps if needed
-                if (experimental.transform) {
+                if (okbuckExt.getExperimentalExtension().transform) {
                     TransformUtil.fetchTransformDeps(project)
                 }
 
@@ -187,6 +201,8 @@ class OkBuckGradlePlugin implements Plugin<Project> {
             // Create clean task
             Task okBuckClean = project.tasks.create(OKBUCK_CLEAN, OkBuckCleanTask, {
                 projects = okbuckExt.buckProjects
+                processorBuckFile = PROCESSOR_BUCK_FILE
+                experimentalExtension = okbuckExt.getExperimentalExtension()
             })
             okBuck.dependsOn(okBuckClean)
 

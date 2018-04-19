@@ -1,7 +1,11 @@
 package com.uber.okbuck.core.model.android
 
+import com.uber.okbuck.core.model.base.AnnotationProcessorCache
 import com.uber.okbuck.core.model.base.Scope
+import com.uber.okbuck.core.util.ProjectUtil
+import com.uber.okbuck.extension.ExperimentalExtension
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Configuration
 
 /**
  * An abstract Android instrumentation target
@@ -14,8 +18,18 @@ abstract class AndroidInstrumentationTarget extends AndroidAppTarget {
 
     // TODO: Update to use variant once issue solved: https://youtrack.jetbrains.com/issue/KT-23411
     @Override
+    List<Scope> getAptScopes() {
+        AnnotationProcessorCache apCache = ProjectUtil.getAnnotationProcessorCache(project)
+        return apCache.getAnnotationProcessorScopes(project,
+                isKapt ? "kaptAndroidTest" : baseVariant.annotationProcessorConfiguration)
+    }
+
+
+    @Override
     Scope getApt() {
-        return Scope.from(project, isKapt ? "kaptAndroidTest" : baseVariant.annotationProcessorConfiguration)
+        def configuration = isKapt ? "kaptAndroidTest" : baseVariant.annotationProcessorConfiguration
+
+        return getAptScopeForConfiguration(configuration)
     }
 
     @Override

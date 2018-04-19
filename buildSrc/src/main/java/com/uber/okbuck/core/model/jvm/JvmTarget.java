@@ -4,12 +4,16 @@ import com.android.builder.model.LintOptions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.OkBuckGradlePlugin;
+import com.uber.okbuck.core.model.base.AnnotationProcessorCache;
 import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.model.base.Target;
 import com.uber.okbuck.core.util.LintUtil;
+import com.uber.okbuck.core.util.ProjectUtil;
+import com.uber.okbuck.extension.ExperimentalExtension;
 
 import org.gradle.api.JavaVersion;
 import org.gradle.api.Project;
+import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.plugins.ApplicationPlugin;
 import org.gradle.api.plugins.ApplicationPluginConvention;
 import org.gradle.api.plugins.JavaPlugin;
@@ -21,8 +25,10 @@ import org.gradle.api.tasks.testing.Test;
 import org.gradle.jvm.tasks.Jar;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
@@ -61,18 +67,65 @@ public class JvmTarget extends Target {
     }
 
     /**
-     * Apt Scope
+     * Apt Scopes
+     */
+    public List<Scope> getAptScopes() {
+        AnnotationProcessorCache apCache = ProjectUtil.getAnnotationProcessorCache(
+                getProject());
+        return apCache.getAnnotationProcessorScopes(getProject(), aptConfigurationName);
+    }
+
+    /**
+     * Test Apt Scopes
+     */
+    public List<Scope> getTestAptScopes() {
+        AnnotationProcessorCache apCache = ProjectUtil.getAnnotationProcessorCache(
+                getProject());
+        return apCache.getAnnotationProcessorScopes(getProject(), testAptConfigurationName);
+    }
+
+    /**
+     * Apt Scope Used to get the annotation processor deps of the target.
      */
     public Scope getApt() {
-        return Scope.from(getProject(), aptConfigurationName);
+        return getAptScopeForConfiguration(aptConfigurationName);
     }
 
     /**
      * Test Apt Scope
      */
     public Scope getTestApt() {
-        return Scope.from(getProject(), testAptConfigurationName);
+        return getAptScopeForConfiguration(testAptConfigurationName);
     }
+
+    protected Scope getAptScopeForConfiguration(String configurationName) {
+        ExperimentalExtension experimentalExtension = getOkbuck().getExperimentalExtension();
+
+        // If using annotation processor plugin, return an empty scope if there are no annotation
+        // processors so no need to have any specified in the annotation processor deps list.
+        if (experimentalExtension.useAnnotationProcessorPlugin) {
+            if (!ProjectUtil.getAnnotationProcessorCache(getProject())
+                    .hasEmptyAnnotationProcessors(getProject(), configurationName)) {
+                return Scope.from(getProject());
+            }
+        }
+        return Scope.from(getProject(), configurationName);
+    }
+
+    protected Scope getAptScopeForConfiguration(Configuration configuration) {
+        ExperimentalExtension experimentalExtension = getOkbuck().getExperimentalExtension();
+
+        // If using annotation processor plugin, return an empty scope if there are no annotation
+        // processors so no need to have any specified in the annotation processor deps list.
+        if (experimentalExtension.useAnnotationProcessorPlugin) {
+            if (!ProjectUtil.getAnnotationProcessorCache(getProject())
+                    .hasEmptyAnnotationProcessors(getProject(), configuration)) {
+                return Scope.from(getProject());
+            }
+        }
+        return Scope.from(getProject(), configuration);
+    }
+
 
     /**
      * Provided Scope
@@ -103,25 +156,43 @@ public class JvmTarget extends Target {
 
     public boolean hasLintRegistry() {
         Jar jarTask = (Jar) getProject().getTasks().findByName(JavaPlugin.JAR_TASK_NAME);
-        if (jarTask != null) {
-            return jarTask.getManifest().getAttributes().containsKey("Lint-Registry")
-                    || jarTask.getManifest().getAttributes().containsKey("Lint-Registry-v2");
-        }
-        return false;
+        return jarTask != null && (
+                jarTask.getManifest().getAttributes().containsKey("Lint-Registry")
+                        || jarTask.getManifest().getAttributes().containsKey("Lint-Registry-v2"));
     }
 
     /**
-     * List of annotation processor classes.
+     * List of annotation processor classes. If annotation processor plugin is enabled
+     * returns the annotation processor's UID.
      */
     public Set<String> getAnnotationProcessors() {
-        return getApt().getAnnotationProcessors();
+        ExperimentalExtension experimentalExtension = getOkbuck().getExperimentalExtension();
+        if (experimentalExtension.useAnnotationProcessorPlugin) {
+            return getAptScopes()
+                    .stream()
+                    .filter(scope -> !scope.getAnnotationProcessors().isEmpty())
+                    .map(Scope::getAnnotationProcessorsUID)
+                    .collect(Collectors.toSet());
+        } else {
+            return getApt().getAnnotationProcessors();
+        }
     }
 
     /**
-     * List of test annotation processor classes.
+     * List of test annotation processor classes. If annotation processor plugin is enabled
+     * returns the annotation processor's UID.
      */
     public Set<String> getTestAnnotationProcessors() {
-        return getTestApt().getAnnotationProcessors();
+        ExperimentalExtension experimentalExtension = getOkbuck().getExperimentalExtension();
+        if (experimentalExtension.useAnnotationProcessorPlugin) {
+            return getTestAptScopes()
+                    .stream()
+                    .filter(scope -> !scope.getAnnotationProcessors().isEmpty())
+                    .map(Scope::getAnnotationProcessorsUID)
+                    .collect(Collectors.toSet());
+        } else {
+            return getTestApt().getAnnotationProcessors();
+        }
     }
 
     public Scope getMain() {

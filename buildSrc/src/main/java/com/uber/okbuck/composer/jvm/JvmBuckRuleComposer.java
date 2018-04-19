@@ -7,6 +7,7 @@ import com.uber.okbuck.core.model.base.Target;
 import com.uber.okbuck.core.model.jvm.JvmTarget;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class JvmBuckRuleComposer extends BuckRuleComposer {
 
@@ -72,5 +73,42 @@ public class JvmBuckRuleComposer extends BuckRuleComposer {
      */
     public static Set<String> getExternalProvidedDeps(final Scope runtime, final Scope compile) {
         return Sets.difference(compile.getExternalDeps(), runtime.getExternalDeps());
+    }
+
+    /**
+     * If annotation processor plugin is enabled return the ap's plugin rules path
+     * otherwise just return the ap's
+     *
+     * @param aps Annotation Processor plugin's UID
+     * @param useApPlugin whether annotation processor plugin is enabled
+     * @return Set of java annotation processor plugin's rule paths.
+     */
+    public static Set<String> getApsOrPlugins(Set<String> aps, boolean useApPlugin) {
+        if (useApPlugin) {
+            return aps
+                    .stream()
+                    .map(JvmBuckRuleComposer::getApPluginRulePath)
+                    .collect(Collectors.toSet());
+        } else {
+            return aps;
+        }
+    }
+
+    /**
+     * Returns the java annotation processor plugin's rule name using the pluginUID
+     * @param pluginUID pluginUID used to get the rule name
+     * @return Plugin rule name.
+     */
+    protected static String getApPluginRuleName(String pluginUID) {
+        return String.format("processor_%s", pluginUID);
+    }
+
+    /**
+     * Returns the java annotation processor plugin's rule path using the pluginUID
+     * @param pluginUID pluginUID used to get the rule path
+     * @return Plugin rule path.
+     */
+    private static String getApPluginRulePath(String pluginUID) {
+        return String.format("//.okbuck/cache/processor:%s", getApPluginRuleName(pluginUID));
     }
 }

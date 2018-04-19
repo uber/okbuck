@@ -136,6 +136,7 @@ public class OkBuckExtension {
     }
 
     private IntellijExtension intellijExtension;
+    private ExperimentalExtension experimentalExtension;
 
     public void intellij(Action<IntellijExtension> container) {
         this.intellijExtension = new IntellijExtension();
@@ -144,5 +145,14 @@ public class OkBuckExtension {
 
     public IntellijExtension getIntellijExtension() {
         return intellijExtension;
+    }
+
+    public void experimental(Action<ExperimentalExtension> container) {
+        this.experimentalExtension = new ExperimentalExtension();
+        container.execute(experimentalExtension);
+    }
+
+    public ExperimentalExtension getExperimentalExtension() {
+        return experimentalExtension;
     }
 }

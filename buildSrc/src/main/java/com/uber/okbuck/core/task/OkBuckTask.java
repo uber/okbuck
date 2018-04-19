@@ -44,9 +44,6 @@ public class OkBuckTask extends DefaultTask {
     @Nested
     public ScalaExtension scalaExtension;
 
-    @Nested
-    public ExperimentalExtension experimentalExtension;
-
     public OkBuckTask() {
         // Never up to date; this task isn't safe to run incrementally.
         getOutputs().upToDateWhen(Specs.satisfyNone());
@@ -75,7 +72,6 @@ public class OkBuckTask extends DefaultTask {
         }
 
         generate(okBuckExtension,
-                experimentalExtension,
                 hasGroovyLib ? GroovyUtil.GROOVY_HOME_LOCATION : null,
                 hasKotlinLib ? KotlinUtil.KOTLIN_HOME_LOCATION : null,
                 hasScalaLib ? ScalaUtil.SCALA_HOME_LOCATION : null);
@@ -111,7 +107,6 @@ public class OkBuckTask extends DefaultTask {
 
     private void generate(
             OkBuckExtension okbuckExt,
-            ExperimentalExtension experimentalExt,
             @Nullable String groovyHome,
             @Nullable String kotlinHome,
             @Nullable String scalaHome) {

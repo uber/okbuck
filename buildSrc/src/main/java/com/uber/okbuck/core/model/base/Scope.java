@@ -33,7 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class Scope {
-    private static final String EMPTY_GROUP = "----empty----";
+    private final static String EMPTY_GROUP = "----empty----";
 
     private final Set<String> javaResources;
     private final Set<String> sources;
@@ -41,6 +41,7 @@ public class Scope {
 
     private List<String> jvmArgs;
     private DependencyCache depCache;
+    private Set<String> annotationProcessors;
 
     protected final Project project;
 
@@ -201,6 +202,11 @@ public class Scope {
                 ImmutableList.of(), ProjectUtil.getDependencyCache(project));
     }
 
+    public static Scope from(Project project) {
+        return Scope.from(project, (Configuration) null, ImmutableSet.of(), ImmutableSet.of(),
+                ImmutableList.of(), ProjectUtil.getDependencyCache(project));
+    }
+
     public Set<String> getExternalDeps() {
         return external
                 .stream()
@@ -211,49 +217,91 @@ public class Scope {
     public Set<String> getPackagedLintJars() {
         return external
                 .stream()
-                .filter(i -> i.depFile.getName().endsWith("aar"))
+                .filter(dependency -> dependency.depFile.getName().endsWith("aar"))
                 .map(depCache::getLintJar)
                 .filter(StringUtils::isNotEmpty)
                 .collect(Collectors.toSet());
     }
 
+    /**
+     * Get the annotation processors string present in the configurations first level dependencies.
+     * @return A set containing annotation processor class names.
+     */
     public Set<String> getAnnotationProcessors() {
         if (configuration == null) {
             return ImmutableSet.of();
         }
 
-        Set<ExternalDependency.VersionlessDependency> firstLevelDependencies = configuration
+        if (annotationProcessors == null) {
+            Set<ExternalDependency.VersionlessDependency> firstLevelDependencies = configuration
+                    .getAllDependencies()
+                    .stream()
+                    .map(dependency -> new ExternalDependency.VersionlessDependency(
+                            dependency.getGroup() == null ? EMPTY_GROUP : dependency.getGroup(),
+                            dependency.getName())
+                    )
+                    .collect(Collectors.toSet());
+
+            annotationProcessors = Streams.concat(
+                    external
+                            .stream()
+                            .filter(dependency ->
+                                    firstLevelDependencies.contains(dependency.versionless))
+                            .map(depCache::getAnnotationProcessors)
+                            .flatMap(Set::stream),
+                    targetDeps
+                            .stream()
+                            .filter(target -> {
+                                VersionlessDependency versionless =
+                                        new ExternalDependency.VersionlessDependency(
+                                                (String) target.getProject().getGroup(),
+                                                target.getProject().getName()
+                                        );
+                                return firstLevelDependencies.contains(versionless);
+                            })
+                            .map(target -> {
+                                OkBuckExtension okBuckExtension = ProjectUtil.getOkBuckExtension(
+                                        project);
+                                return target.getProp(okBuckExtension.annotationProcessors,
+                                        ImmutableList.of());
+                            })
+                            .flatMap(List::stream))
+                    .filter(StringUtils::isNotEmpty)
+                    .collect(Collectors.toSet());
+        }
+        return annotationProcessors;
+    }
+
+    /**
+     * Check if the annotation processor scope has any auto value extension.
+     * @return boolean whether the scope has any auto value extension.
+     */
+    public boolean hasAutoValueExtensions() {
+        return external
+                .stream()
+                .anyMatch(dependency -> depCache.hasAutoValueExtensions(dependency));
+    }
+
+    /**
+     * Returns the UID for the annotation processors of the scope.
+     * @return String UID
+     */
+    public String getAnnotationProcessorsUID() {
+        return configuration
                 .getAllDependencies()
                 .stream()
-                .map(i -> new ExternalDependency.VersionlessDependency(
-                        i.getGroup() == null ? EMPTY_GROUP : i.getGroup(),
-                        i.getName())
-                )
-                .collect(Collectors.toSet());
-
-        return Streams.concat(
-                external
-                        .stream()
-                        .filter(i -> firstLevelDependencies.contains(i.versionless))
-                        .map(depCache::getAnnotationProcessors)
-                        .flatMap(Set::stream),
-                targetDeps
-                        .stream()
-                        .filter(i -> {
-                            VersionlessDependency versionless =
-                                    new ExternalDependency.VersionlessDependency(
-                                            (String) i.getProject().getGroup(),
-                                            i.getProject().getName()
-                                    );
-                            return firstLevelDependencies.contains(versionless);
-                        })
-                        .map(target -> {
-                            OkBuckExtension okBuckExtension = ProjectUtil.getOkBuckExtension(project);
-                            return target.getProp(okBuckExtension.annotationProcessors, ImmutableList.of());
-                        })
-                        .flatMap(List::stream))
-                .filter(StringUtils::isNotEmpty)
-                .collect(Collectors.toSet());
+                .map(dep -> {
+                    if (dep.getVersion() == null || dep.getVersion().length() == 0) {
+                        return String.format(
+                                "%s-%s", dep.getGroup(), dep.getName());
+                    } else {
+                        return String.format(
+                                "%s-%s-%s", dep.getGroup(), dep.getName(), dep.getVersion());
+                    }
+                })
+                .filter(name -> name.length() > 0)
+                .sorted()
+                .collect(Collectors.joining("-"));
     }
 
     private static Set<ResolvedArtifactResult> getArtifacts(
