@@ -63,11 +63,9 @@ public final class DependencyUtils {
         if (baseFileName.length() > 0) {
             int versionIndex = fileNameString.lastIndexOf(version);
             if (versionIndex > -1) {
-                return fileNameString.substring(versionIndex);
+                return baseFileName.substring(versionIndex);
             } else {
-                throw new IllegalStateException(String.format(
-                        "Version string %s not present in %s module filename",
-                        version, fileNameString));
+                return version;
             }
         } else {
             throw new IllegalStateException(String.format(
