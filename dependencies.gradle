@@ -5,7 +5,7 @@ def versions = [
         butterKnifeCompiler: "9.0.0-20180212.024332-29",
         butterKnifePlugin  : "9.0.0-20180212.024336-29",
         dagger             : "2.15",
-        kotlin             : "1.2.30",
+        kotlin             : "1.2.31",
         leakCanary         : "1.5.4",
         rocker             : "0.23.0",
         support            : "27.1.0",
