@@ -5,6 +5,7 @@ import com.uber.okbuck.OkBuckGradlePlugin
 import com.uber.okbuck.core.model.base.Scope
 import com.uber.okbuck.core.model.base.Store
 import com.uber.okbuck.core.util.FileUtil
+import com.uber.okbuck.core.util.ProjectUtil
 import org.apache.commons.io.IOUtils
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -46,7 +47,7 @@ class DependencyCache {
     DependencyCache(Project project, File cacheDir, String forcedConfiguration = null) {
         this.rootProject = project.rootProject
         this.cacheDir = cacheDir
-        this.fetchSources = rootProject.okbuck.intellij.sources
+        this.fetchSources = ProjectUtil.getOkBuckExtension(project).getIntellijExtension().sources
 
         sources = new Store(rootProject.file("${OkBuckGradlePlugin.OKBUCK_STATE_DIR}/SOURCES"))
         processors = new Store(rootProject.file("${OkBuckGradlePlugin.OKBUCK_STATE_DIR}/PROCESSORS"))
