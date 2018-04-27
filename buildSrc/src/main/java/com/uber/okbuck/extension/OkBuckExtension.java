@@ -5,6 +5,7 @@ import org.gradle.api.Project;
 import org.gradle.api.tasks.Input;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -85,7 +86,7 @@ public class OkBuckExtension {
      * Extra buck options
      */
     @Input
-    public Map<String, Map<String, Set<String>>> extraBuckOpts = new HashMap<>();
+    public Map<String, Map<String, Collection<String>>> extraBuckOpts = new HashMap<>();
 
     /**
      * Extra buck defs
