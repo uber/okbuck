@@ -1,6 +1,7 @@
 package com.uber.okbuck.core.model.base;
 
 import com.android.build.api.attributes.VariantAttr;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Streams;
@@ -12,10 +13,12 @@ import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.extension.OkBuckExtension;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.DependencySet;
 import org.gradle.api.artifacts.component.ComponentIdentifier;
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier;
 import org.gradle.api.artifacts.component.ProjectComponentIdentifier;
@@ -28,6 +31,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -287,8 +291,8 @@ public class Scope {
      * @return String UID
      */
     public String getAnnotationProcessorsUID() {
-        return configuration
-                .getAllDependencies()
+        DependencySet dependencies = configuration.getAllDependencies();
+        String processorsUID = dependencies
                 .stream()
                 .map(dep -> {
                     if (dep.getVersion() == null || dep.getVersion().length() == 0) {
@@ -302,6 +306,29 @@ public class Scope {
                 .filter(name -> name.length() > 0)
                 .sorted()
                 .collect(Collectors.joining("-"));
+
+        if (dependencies.size() > 1) {
+            // Use md5 hash when there are multiple dependencies along with auto value.
+            // Multiple dependencies will only happen when auto value extensions are present.
+
+            Optional<String> autoValueUID = dependencies
+                    .stream()
+                    .filter(dep -> dep.getGroup() != null &&
+                            dep.getGroup().equals(AnnotationProcessorCache.AUTO_VALUE_GROUP) &&
+                            dep.getName().equals(AnnotationProcessorCache.AUTO_VALUE_NAME)
+                    )
+                    .map(dep -> String.format(
+                            "%s-%s-%s", dep.getGroup(), dep.getName(), dep.getVersion()))
+                    .findAny();
+
+            Preconditions.checkArgument(autoValueUID.isPresent(),
+                    "Multiple annotation processor dependencies should have auto value");
+
+            String md5Hash = DigestUtils.md5Hex(processorsUID);
+            return String.format("%s__%s", autoValueUID.get(), md5Hash);
+        } else {
+            return processorsUID;
+        }
     }
 
     private static Set<ResolvedArtifactResult> getArtifacts(

@@ -26,8 +26,8 @@ import java.util.function.Function;
  * Keeps a cache of the annotation processor dependencies and its scope.
  */
 public class AnnotationProcessorCache {
-    private final static String AUTO_VALUE_GROUP = "com.google.auto.value";
-    private final static String AUTO_VALUE_NAME = "auto-value";
+    public final static String AUTO_VALUE_GROUP = "com.google.auto.value";
+    public final static String AUTO_VALUE_NAME = "auto-value";
 
     private final Project project;
     private final String processorBuckFile;
