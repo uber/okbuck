@@ -130,7 +130,7 @@ public class OkBuckExtension {
      * The prebult buck binary to use
      */
     @Input
-    public String buckBinary = "com.github.facebook:buck:17aba06d14f0667460ee93953747421b01950dd7@pex";
+    public String buckBinary = "com.github.facebook:buck:910226716ecd215a38f27bd3dcfd7da3793e6cff@pex";
 
     public OkBuckExtension(Project project) {
         buckProjects = project.getSubprojects();
