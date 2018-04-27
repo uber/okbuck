@@ -71,8 +71,10 @@ public abstract class Target {
         return map.getOrDefault(identifier + name, map.getOrDefault(identifier, defaultValue));
     }
 
-    public Set<String> getExtraOpts(RuleType ruleType) {
-        Map<String, Set<String>> propertyMap = getProp(getOkbuck().extraBuckOpts, ImmutableMap.of());
+    public Collection<String> getExtraOpts(RuleType ruleType) {
+        Map<String, Collection<String>> propertyMap =
+                getProp(getOkbuck().extraBuckOpts, ImmutableMap.of());
+
         return propertyMap.isEmpty() ? ImmutableSet.of()
                 : propertyMap.computeIfAbsent(ruleType.name().toLowerCase(), k -> ImmutableSet.of());
     }
