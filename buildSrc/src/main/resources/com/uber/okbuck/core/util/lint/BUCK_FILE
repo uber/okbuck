@@ -31,8 +31,9 @@ java_binary(
   name='okbuck_lint',
   deps=map(lambda x: ":" + x, jars),
   blacklist=[
-    'META-INF',
-    'org.jetbrains.annotations',
+    'META-INF/.*\.SF',
+    'META-INF/.*\.DSA',
+    'META-INF/.*\.RSA',
   ],
   visibility = ['PUBLIC'],
 )
