@@ -1,6 +1,5 @@
 package com.uber.lint;
 
-import com.android.annotations.NonNull;
 import com.android.annotations.Nullable;
 import com.android.tools.lint.detector.api.Category;
 import com.android.tools.lint.detector.api.Detector;
@@ -9,17 +8,16 @@ import com.android.tools.lint.detector.api.Issue;
 import com.android.tools.lint.detector.api.JavaContext;
 import com.android.tools.lint.detector.api.Scope;
 import com.android.tools.lint.detector.api.Severity;
+import com.intellij.psi.PsiMethod;
+import org.jetbrains.uast.UCallExpression;
 
 import java.util.Collections;
 import java.util.List;
 
-import lombok.ast.AstVisitor;
-import lombok.ast.MethodInvocation;
-
 /**
  * Custom Lint Check to prevent useage of System.currentTimeMillis.
  */
-public class SystemCurrentTimeMillisDetector extends Detector implements Detector.JavaScanner {
+public class SystemCurrentTimeMillisDetector extends Detector implements Detector.UastScanner {
 
     public static final String CHECK_METHOD_TO_EXCLUDE = "currentTimeMillis";
     public static final String CHECK_PACKAGE_TO_EXCLUDE = "java.lang.System";
@@ -50,13 +48,12 @@ public class SystemCurrentTimeMillisDetector extends Detector implements Detecto
      * Check that the currentTimeMillis() came from the System package, if so raise an error.
      *
      * @param context
-     * @param visitor
      * @param node
+     * @param method
      */
     @Override
-    public void visitMethod(@NonNull JavaContext context, @Nullable AstVisitor visitor,
-                            @NonNull MethodInvocation node) {
+    public void visitMethod(JavaContext context, UCallExpression node, PsiMethod method) {
         String message = "System.currentTimeMillis() should not be used as this can't be easily mocked and tested.";
-        context.report(ISSUE, node, context.getLocation(node.astName()), message);
+        context.report(ISSUE, node, context.getLocation(node), message);
     }
 }
