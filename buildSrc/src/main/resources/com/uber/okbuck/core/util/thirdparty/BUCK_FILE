@@ -3,6 +3,7 @@ import re
 sources_regex = re.compile(r'-sources.jar$', re.IGNORECASE)
 base_name_regex = re.compile(r'\.(jar|aar)$', re.IGNORECASE)
 file_name_regex = re.compile(r'^.*/([^/]+)\.(jar|aar)$', re.IGNORECASE)
+cache_delimiter = '--'
 
 jars = []
 aars = []
@@ -21,17 +22,25 @@ for aar in glob(['*.aar']):
 
 for jar in jars:
   basename = base_name_regex.sub('', jar)
+
+  maven_coords = None
+  if (cache_delimiter in basename):
+    parts = basename.split(cache_delimiter)
+    maven_coords = parts[0] + ":" + parts[1] + ":jar:" + parts[2]
+
   if sources.get(basename, None) is not None:
     prebuilt_jar(
       name = jar,
       binary_jar = jar,
       source_jar = sources[basename],
+      maven_coords = maven_coords,
       visibility = ['PUBLIC'],
     )
   else:
     prebuilt_jar(
       name = jar,
       binary_jar = jar,
+      maven_coords = maven_coords,
       visibility = ['PUBLIC'],
     )
 
