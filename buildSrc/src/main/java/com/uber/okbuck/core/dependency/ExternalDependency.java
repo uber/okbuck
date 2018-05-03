@@ -13,6 +13,11 @@ public final class ExternalDependency {
 
     private static final String LOCAL_DEP_VERSION = "1.0.0-LOCAL";
     private static final String SOURCES_JAR = "-sources.jar";
+    /**
+     * this is used to output artifacts as %GROUP%--%NAME%--%VERSION%
+     * Thus making it possible to re-construct maven coordinates.
+     */
+    private static final String CACHE_DELIMITER = "--";
 
     public final boolean isLocal;
     public final String version;
@@ -20,6 +25,7 @@ public final class ExternalDependency {
     public final String group;
     public final String name;
     public final VersionlessDependency versionless;
+    public final String packaging;
 
     public ExternalDependency(String group, String name, String version, File depFile) {
         this(group, name, version, depFile, false);
@@ -57,7 +63,7 @@ public final class ExternalDependency {
     public String getCacheName(boolean useFullDepName) {
         if (useFullDepName) {
             if (!StringUtils.isEmpty(group)) {
-                return group + "." + depFile.getName();
+                return group + CACHE_DELIMITER + name + CACHE_DELIMITER + String.valueOf(version) + "." + packaging;
             } else {
                 return name + "." + depFile.getName();
             }
@@ -83,6 +89,7 @@ public final class ExternalDependency {
 
         this.depFile = depFile;
         this.versionless = new VersionlessDependency(group, name);
+        this.packaging = FilenameUtils.getExtension(depFile.getName());
     }
 
     public static ExternalDependency fromLocal(File localDep) {
