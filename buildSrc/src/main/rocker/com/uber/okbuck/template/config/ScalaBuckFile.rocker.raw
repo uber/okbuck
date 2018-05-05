@@ -18,6 +18,7 @@ for jar in jars:
 prebuilt_jar(
     name='scala-library',
     binary_jar='scala-library-@(scalaVersion).jar',
+    maven_coords='org.scala-lang:scala-library:jar:@(scalaVersion)',
     visibility = ['PUBLIC'],
 )
 
