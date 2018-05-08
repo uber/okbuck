@@ -2,7 +2,6 @@ package com.uber.okbuck.composer.jvm;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.uber.okbuck.composer.jvm.JvmBuckRuleComposer;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.model.jvm.JvmTarget;
 import com.uber.okbuck.template.core.Rule;
@@ -19,7 +18,7 @@ public final class JvmTestRuleComposer extends JvmBuckRuleComposer {
         // no instance
     }
 
-    public static Rule compose(final JvmTarget target, RuleType ruleType, boolean useApPlugin) {
+    public static Rule compose(final JvmTarget target, RuleType ruleType) {
         List<String> deps = ImmutableList.<String>builder()
                 .add(":" + src(target))
                 .addAll(external(getExternalDeps(target.getTest(), target.getTestProvided())))
@@ -38,9 +37,8 @@ public final class JvmTestRuleComposer extends JvmBuckRuleComposer {
 
         return new JvmRule().srcs(target.getTest().getSources())
                 .exts(ruleType.getSourceExtensions())
-                .annotationProcessors(getApsOrPlugins(target.getTestAnnotationProcessors(), useApPlugin))
+                .apPlugins(getApPlugins(target.getTestApPlugins()))
                 .aptDeps(aptDeps)
-                .useAnnotationProcessorPlugin(useApPlugin)
                 .providedDeps(providedDeps)
                 .resources(target.getTest().getJavaResources())
                 .sourceCompatibility(target.getSourceCompatibility())

@@ -8,9 +8,8 @@ Collection excludes,
 String sourceCompatibility,
 String targetCompatibility,
 Collection testTargets,
-Collection annotationProcessors,
+Collection apPlugins,
 Collection aptDeps,
-boolean useAnnotationProcessorPlugin,
 Collection providedDeps,
 Collection libDeps,
 Collection options,
@@ -63,17 +62,10 @@ lib_deps = []
     }
     ],
 }
-@if (valid(annotationProcessors) && useAnnotationProcessorPlugin) {
+@if (valid(apPlugins)) {
     plugins = [
-    @for (annotationProcessor : sorted(annotationProcessors)) {
-        '@annotationProcessor',
-    }
-    ],
-}
-@if (valid(annotationProcessors) && !useAnnotationProcessorPlugin) {
-    annotation_processors = [
-    @for (annotationProcessor : sorted(annotationProcessors)) {
-        '@annotationProcessor',
+    @for (apPlugin : sorted(apPlugins)) {
+        '@apPlugin',
     }
     ],
 }

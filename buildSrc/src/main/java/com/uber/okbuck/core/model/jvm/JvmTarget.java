@@ -99,29 +99,21 @@ public class JvmTarget extends Target {
     }
 
     protected Scope getAptScopeForConfiguration(String configurationName) {
-        ExperimentalExtension experimentalExtension = getOkbuck().getExperimentalExtension();
-
         // If using annotation processor plugin, return an empty scope if there are no annotation
         // processors so no need to have any specified in the annotation processor deps list.
-        if (experimentalExtension.useAnnotationProcessorPlugin) {
-            if (!ProjectUtil.getAnnotationProcessorCache(getProject())
-                    .hasEmptyAnnotationProcessors(getProject(), configurationName)) {
-                return Scope.from(getProject());
-            }
+        if (!ProjectUtil.getAnnotationProcessorCache(getProject())
+                .hasEmptyAnnotationProcessors(getProject(), configurationName)) {
+            return Scope.from(getProject());
         }
         return Scope.from(getProject(), configurationName);
     }
 
     protected Scope getAptScopeForConfiguration(Configuration configuration) {
-        ExperimentalExtension experimentalExtension = getOkbuck().getExperimentalExtension();
-
         // If using annotation processor plugin, return an empty scope if there are no annotation
         // processors so no need to have any specified in the annotation processor deps list.
-        if (experimentalExtension.useAnnotationProcessorPlugin) {
-            if (!ProjectUtil.getAnnotationProcessorCache(getProject())
-                    .hasEmptyAnnotationProcessors(getProject(), configuration)) {
-                return Scope.from(getProject());
-            }
+        if (!ProjectUtil.getAnnotationProcessorCache(getProject())
+                .hasEmptyAnnotationProcessors(getProject(), configuration)) {
+            return Scope.from(getProject());
         }
         return Scope.from(getProject(), configuration);
     }
@@ -165,34 +157,24 @@ public class JvmTarget extends Target {
      * List of annotation processor classes. If annotation processor plugin is enabled
      * returns the annotation processor's UID.
      */
-    public Set<String> getAnnotationProcessors() {
-        ExperimentalExtension experimentalExtension = getOkbuck().getExperimentalExtension();
-        if (experimentalExtension.useAnnotationProcessorPlugin) {
-            return getAptScopes()
-                    .stream()
-                    .filter(scope -> !scope.getAnnotationProcessors().isEmpty())
-                    .map(Scope::getAnnotationProcessorsUID)
-                    .collect(Collectors.toSet());
-        } else {
-            return getApt().getAnnotationProcessors();
-        }
+    public Set<String> getApPlugins() {
+        return getAptScopes()
+                .stream()
+                .filter(scope -> !scope.getAnnotationProcessors().isEmpty())
+                .map(Scope::getAnnotationProcessorsUID)
+                .collect(Collectors.toSet());
     }
 
     /**
      * List of test annotation processor classes. If annotation processor plugin is enabled
      * returns the annotation processor's UID.
      */
-    public Set<String> getTestAnnotationProcessors() {
-        ExperimentalExtension experimentalExtension = getOkbuck().getExperimentalExtension();
-        if (experimentalExtension.useAnnotationProcessorPlugin) {
-            return getTestAptScopes()
-                    .stream()
-                    .filter(scope -> !scope.getAnnotationProcessors().isEmpty())
-                    .map(Scope::getAnnotationProcessorsUID)
-                    .collect(Collectors.toSet());
-        } else {
-            return getTestApt().getAnnotationProcessors();
-        }
+    public Set<String> getTestApPlugins() {
+        return getTestAptScopes()
+                .stream()
+                .filter(scope -> !scope.getAnnotationProcessors().isEmpty())
+                .map(Scope::getAnnotationProcessorsUID)
+                .collect(Collectors.toSet());
     }
 
     public Scope getMain() {
