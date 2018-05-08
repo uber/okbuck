@@ -76,22 +76,16 @@ public class JvmBuckRuleComposer extends BuckRuleComposer {
     }
 
     /**
-     * If annotation processor plugin is enabled return the ap's plugin rules path
-     * otherwise just return the ap's
+     * Returns the ap's plugin rules path
      *
      * @param aps Annotation Processor plugin's UID
-     * @param useApPlugin whether annotation processor plugin is enabled
      * @return Set of java annotation processor plugin's rule paths.
      */
-    public static Set<String> getApsOrPlugins(Set<String> aps, boolean useApPlugin) {
-        if (useApPlugin) {
-            return aps
-                    .stream()
-                    .map(JvmBuckRuleComposer::getApPluginRulePath)
-                    .collect(Collectors.toSet());
-        } else {
-            return aps;
-        }
+    public static Set<String> getApPlugins(Set<String> aps) {
+        return aps
+                .stream()
+                .map(JvmBuckRuleComposer::getApPluginRulePath)
+                .collect(Collectors.toSet());
     }
 
     /**

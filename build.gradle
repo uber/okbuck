@@ -170,7 +170,6 @@ okbuck {
 
     experimental {
         transform = true
-        useAnnotationProcessorPlugin = true
     }
 
     transform {

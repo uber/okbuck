@@ -97,23 +97,17 @@ final class BuckFileGenerator {
     }
 
     private static List<Rule> createRules(JvmTarget target, RuleType mainRuleType, RuleType testRuleType) {
-        boolean useApPlugin = target.getOkbuck()
-                .getExperimentalExtension().useAnnotationProcessorPlugin
-
         List<Rule> rules = []
-        rules.addAll(JvmLibraryRuleComposer.compose(target, mainRuleType, useApPlugin))
+        rules.addAll(JvmLibraryRuleComposer.compose(target, mainRuleType))
 
         if (target.test.sources) {
-            rules.add(JvmTestRuleComposer.compose(target, testRuleType, useApPlugin))
+            rules.add(JvmTestRuleComposer.compose(target, testRuleType))
         }
         return rules
     }
 
     private static List<Rule> createRules(AndroidLibTarget target, String appClass = null,
                                           List<String> extraDeps = [], List<String> extraResDeps = []) {
-        boolean useApPlugin = target.getOkbuck()
-                .getExperimentalExtension().useAnnotationProcessorPlugin
-
         List<Rule> rules = []
         List<Rule> androidLibRules = []
 
@@ -149,8 +143,7 @@ final class BuckFileGenerator {
                 target,
                 deps,
                 aidlRuleNames,
-                appClass,
-                useApPlugin
+                appClass
         ))
 
         // Test
@@ -159,8 +152,8 @@ final class BuckFileGenerator {
                     target,
                     deps,
                     aidlRuleNames,
-                    appClass,
-                    useApPlugin))
+                    appClass
+            ))
         }
 
         // Lint
@@ -174,9 +167,6 @@ final class BuckFileGenerator {
 
     private static List<Rule> createRules(AndroidAppTarget target,
                                           List<String> additionalDeps = []) {
-        boolean useApPlugin = target.getOkbuck()
-                .getExperimentalExtension().useAnnotationProcessorPlugin
-
         List<Rule> rules = []
         List<String> deps = [":${AndroidBuckRuleComposer.src(target)}"]
         deps.addAll(additionalDeps)
@@ -194,7 +184,7 @@ final class BuckFileGenerator {
         String keystoreRuleName = KeystoreRuleComposer.compose(target)
 
         if (target.exopackage) {
-            Rule exoPackageRule = ExopackageAndroidLibraryRuleComposer.compose(target, useApPlugin)
+            Rule exoPackageRule = ExopackageAndroidLibraryRuleComposer.compose(target)
             rules.add(exoPackageRule)
             deps.add(":${exoPackageRule.name()}")
         }

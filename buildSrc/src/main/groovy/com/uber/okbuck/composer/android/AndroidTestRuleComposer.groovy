@@ -20,8 +20,7 @@ final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
             AndroidLibTarget target,
             List<String> deps,
             final List<String> aidlRuleNames,
-            String appClass,
-            boolean useApPlugin) {
+            String appClass) {
 
         List<String> testDeps = new ArrayList<>(deps)
         testDeps.add(":${src(target)}")
@@ -40,9 +39,8 @@ final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
         AndroidTestRule androidTest = new AndroidTestRule()
                 .srcs(target.test.sources)
                 .exts(target.testRuleType.sourceExtensions)
-                .annotationProcessors(getApsOrPlugins(target.testAnnotationProcessors, useApPlugin))
+                .apPlugins(getApPlugins(target.testApPlugins))
                 .aptDeps(testAptDeps)
-                .useAnnotationProcessorPlugin(useApPlugin)
                 .providedDeps(providedDeps)
                 .resources(target.test.javaResources)
                 .sourceCompatibility(target.sourceCompatibility)

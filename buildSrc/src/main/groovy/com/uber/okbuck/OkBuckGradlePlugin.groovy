@@ -202,7 +202,6 @@ class OkBuckGradlePlugin implements Plugin<Project> {
             Task okBuckClean = project.tasks.create(OKBUCK_CLEAN, OkBuckCleanTask, {
                 projects = okbuckExt.buckProjects
                 processorBuckFile = PROCESSOR_BUCK_FILE
-                experimentalExtension = okbuckExt.getExperimentalExtension()
             })
             okBuck.dependsOn(okBuckClean)
 
