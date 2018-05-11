@@ -47,6 +47,7 @@ public final class JvmLibraryRuleComposer extends JvmBuckRuleComposer {
                 .resources(target.getMain().getJavaResources())
                 .sourceCompatibility(target.getSourceCompatibility())
                 .targetCompatibility(target.getTargetCompatibility())
+                .mavenCoords(target.getMavenCoords())
                 .testTargets(testTargets)
                 .options(target.getMain().getJvmArgs())
                 .libDeps(target.hasApplication() ? deps : ImmutableSet.of())

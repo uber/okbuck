@@ -14,6 +14,7 @@ Collection providedDeps,
 Collection libDeps,
 Collection options,
 Collection jvmArgs,
+String mavenCoords,
 Map env,
 RockerBody content
 )
@@ -96,6 +97,9 @@ lib_deps = []
         '@jvmArg',
     }
     ],
+}
+@if (valid(mavenCoords)) {
+    maven_coords = '@mavenCoords',
 }
 @if (valid(env)) {
     env = @{
