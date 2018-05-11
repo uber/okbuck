@@ -59,7 +59,6 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
                 .resources(target.main.javaResources)
                 .sourceCompatibility(target.sourceCompatibility)
                 .targetCompatibility(target.targetCompatibility)
-                .mavenCoords(target.getMavenCoords())
                 .testTargets(testTargets)
                 .exportedDeps(aidlRuleNames)
                 .excludes(appClass != null ? ImmutableSet.of(appClass) : ImmutableSet.of())
