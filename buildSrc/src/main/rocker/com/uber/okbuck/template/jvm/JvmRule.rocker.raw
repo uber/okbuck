@@ -7,6 +7,7 @@ Collection resources,
 Collection excludes,
 String sourceCompatibility,
 String targetCompatibility,
+String mavenCoords,
 Collection testTargets,
 Collection apPlugins,
 Collection aptDeps,
@@ -96,6 +97,9 @@ lib_deps = []
         '@jvmArg',
     }
     ],
+}
+@if (valid(mavenCoords)) {
+    maven_coords = '@mavenCoords',
 }
 @if (valid(env)) {
     env = @{

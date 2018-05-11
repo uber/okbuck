@@ -16,6 +16,7 @@ import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.plugins.ApplicationPlugin;
 import org.gradle.api.plugins.ApplicationPluginConvention;
+import org.gradle.api.plugins.BasePluginConvention;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
@@ -203,6 +204,13 @@ public class JvmTarget extends Target {
 
     public String getTargetCompatibility() {
         return javaVersion(getProject().getConvention().getPlugin(JavaPluginConvention.class).getTargetCompatibility());
+    }
+
+    public String getMavenCoords() {
+        String group = getProject().getGroup().toString();
+        String id = getProject().getConvention().getPlugin(BasePluginConvention.class).getArchivesBaseName();
+        String version = getProject().getVersion().toString();
+        return String.join(":", group, id, version);
     }
 
     public boolean hasApplication() {
