@@ -24,6 +24,8 @@ public class LintExtension {
      */
     public String jvmArgs = "-Xmx1024m";
 
+    public LintExtension() { }
+
     public LintExtension(Project project) {
         version = LintUtil.getDefaultLintVersion(project);
     }

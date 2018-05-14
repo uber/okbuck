@@ -43,7 +43,7 @@ public class OkBuckExtension {
      * Primary dex class patterns.
      */
     @Input
-    public Map<String, Set<String>> primaryDexPatterns = new HashMap<>();
+    public Map<String, List<String>> primaryDexPatterns = new HashMap<>();
 
     /**
      * Whether to enable exopackage.
@@ -55,7 +55,7 @@ public class OkBuckExtension {
      * Exopackage lib dependencies.
      */
     @Input
-    public Map<String, Set<String>> appLibDependencies = new HashMap<>();
+    public Map<String, List<String>> appLibDependencies = new HashMap<>();
 
     /**
      * Proguard mapping file applied via applymapping
@@ -132,12 +132,16 @@ public class OkBuckExtension {
     @Input
     public String buckBinary = "com.github.facebook:buck:910226716ecd215a38f27bd3dcfd7da3793e6cff@pex";
 
-    public OkBuckExtension(Project project) {
-        buckProjects = project.getSubprojects();
-    }
-
     private IntellijExtension intellijExtension = new IntellijExtension();
     private ExperimentalExtension experimentalExtension = new ExperimentalExtension();
+    private TestExtension testExtension = new TestExtension();
+    private TransformExtension transformExtension = new TransformExtension();
+    private LintExtension lintExtension;
+
+    public OkBuckExtension(Project project) {
+        buckProjects = project.getSubprojects();
+        lintExtension = new LintExtension(project);
+    }
 
     public void intellij(Action<IntellijExtension> container) {
         container.execute(intellijExtension);
@@ -153,5 +157,29 @@ public class OkBuckExtension {
 
     public ExperimentalExtension getExperimentalExtension() {
         return experimentalExtension;
+    }
+
+    public void test(Action<TestExtension> container) {
+        container.execute(testExtension);
+    }
+
+    public TestExtension getTestExtension() {
+        return testExtension;
+    }
+
+    public void lint(Action<LintExtension> container) {
+        container.execute(lintExtension);
+    }
+
+    public LintExtension getLintExtension() {
+        return lintExtension;
+    }
+
+    public void transform(Action<TransformExtension> container) {
+        container.execute(transformExtension);
+    }
+
+    public TransformExtension getTransformExtension() {
+        return transformExtension;
     }
 }

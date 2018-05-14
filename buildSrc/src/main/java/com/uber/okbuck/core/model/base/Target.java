@@ -3,6 +3,7 @@ package com.uber.okbuck.core.model.base;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.core.util.FileUtil;
+import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.extension.OkBuckExtension;
 
 import org.gradle.api.Project;
@@ -60,7 +61,7 @@ public abstract class Target {
     }
 
     public OkBuckExtension getOkbuck() {
-        return rootProject.getExtensions().getByType(OkBuckExtension.class);
+        return ProjectUtil.getOkBuckExtension(project);
     }
 
     protected Set<String> getAvailable(Collection<File> files) {
@@ -68,7 +69,8 @@ public abstract class Target {
     }
 
     protected <T> T getProp(Map<String, T> map, T defaultValue) {
-        return map.getOrDefault(identifier + name, map.getOrDefault(identifier, defaultValue));
+        return map.getOrDefault(getIdentifier() + getName(),
+                map.getOrDefault(getIdentifier(), defaultValue));
     }
 
     public Collection<String> getExtraOpts(RuleType ruleType) {

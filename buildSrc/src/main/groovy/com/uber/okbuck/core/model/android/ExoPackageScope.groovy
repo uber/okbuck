@@ -1,21 +1,30 @@
 package com.uber.okbuck.core.model.android
 
+import com.google.common.base.Preconditions
 import com.google.common.collect.ImmutableList
 import com.google.common.collect.ImmutableSet
 import com.uber.okbuck.core.dependency.ExternalDependency
 import com.uber.okbuck.core.model.base.Scope
 import com.uber.okbuck.core.model.base.Target
 import com.uber.okbuck.core.util.FileUtil
-import groovy.util.slurpersupport.GPathResult
 import org.gradle.api.Project
 import org.gradle.api.file.FileTree
+import org.w3c.dom.Document
+import org.w3c.dom.Element
+import org.w3c.dom.NodeList
+import org.xml.sax.SAXException
+
+import javax.xml.parsers.DocumentBuilder
+import javax.xml.parsers.DocumentBuilderFactory
+import javax.xml.parsers.ParserConfigurationException
 
 class ExoPackageScope extends Scope {
 
     private final Scope base
     private final String manifest
 
-    ExoPackageScope(Project project, Scope base, Set<String> exoPackageDependencies, String manifest) {
+    ExoPackageScope(Project project, Scope base, List<String> exoPackageDependencies, String
+            manifest) {
         super(project, null, ImmutableSet.of(), ImmutableSet.of(), ImmutableList.of())
         this.base = base
         this.manifest = manifest
@@ -26,9 +35,16 @@ class ExoPackageScope extends Scope {
         String appClass = null
         XmlSlurper slurper = new XmlSlurper()
         slurper.DTDHandler = null
-        GPathResult manifestXml = slurper.parse(project.rootProject.file(manifest))
+
+        File manifestFile = project.rootProject.file(manifest)
+        Document manifestXml = loadXml(manifestFile)
         try {
-            appClass = manifestXml.application.@"android:name"
+            NodeList nodeList = manifestXml.getElementsByTagName("application")
+            Preconditions.checkArgument(nodeList.length == 1)
+
+            Element application = (Element) nodeList.item(0)
+
+            appClass = application.getAttribute("android:name")
             appClass = appClass.replaceAll('\\.', "/").replaceAll('^/', '')
         } catch (Exception ignored) {}
         if (appClass != null && !appClass.empty) {
@@ -42,7 +58,20 @@ class ExoPackageScope extends Scope {
         return appClass
     }
 
-    private void extractDependencies(Scope base, Set<String> exoPackageDependencies) {
+    private static final DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+
+    static Document loadXml(File xmlFile) {
+        try {
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(xmlFile);
+            doc.getDocumentElement().normalize();
+            return doc;
+        } catch (ParserConfigurationException | IOException | SAXException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void extractDependencies(Scope base, List<String> exoPackageDependencies) {
         exoPackageDependencies.each { String exoPackageDep ->
             String first // can denote either group or project name
             String last // can denote either module or configuration name

@@ -243,7 +243,7 @@ public class JvmTarget extends Target {
         return sourceSets.getByName(SourceSet.TEST_SOURCE_SET_NAME).getResources().getSrcDirs();
     }
 
-    private static String javaVersion(JavaVersion version) {
+    public static String javaVersion(JavaVersion version) {
         return version.getMajorVersion();
     }
 }

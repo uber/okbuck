@@ -87,13 +87,13 @@ class OkBuckGradlePlugin implements Plugin<Project> {
         OkBuckExtension okbuckExt = project.extensions.create(OKBUCK, OkBuckExtension, project)
         WrapperExtension wrapper = okbuckExt.extensions.create(WRAPPER, WrapperExtension)
 
-        TestExtension test = okbuckExt.extensions.create(TEST, TestExtension)
         KotlinExtension kotlin = okbuckExt.extensions.create(KOTLIN, KotlinExtension, project)
-        LintExtension lint = okbuckExt.extensions.create(LINT, LintExtension, project)
         ScalaExtension scala = okbuckExt.extensions.create(SCALA, ScalaExtension)
 
         // These extensions are created before the next run loop
         // Access them using methods on okbuckExt in the project.afterEvaluate block below.
+        okbuckExt.extensions.create(LINT, LintExtension)
+        okbuckExt.extensions.create(TEST, TestExtension)
         okbuckExt.extensions.create(EXPERIMENTAL, ExperimentalExtension)
         okbuckExt.extensions.create(INTELLIJ, IntellijExtension)
         okbuckExt.extensions.create(TRANSFORM, TransformExtension)
@@ -124,7 +124,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
 
         // Create Annotation Processor cache
         annotationProcessorCache = new AnnotationProcessorCache(
-                project.rootProject, PROCESSOR_BUCK_FILE);
+                project.rootProject, PROCESSOR_BUCK_FILE)
 
         project.afterEvaluate {
             // Create wrapper task
@@ -169,8 +169,9 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                 depCache = new DependencyCache(project, cacheDir, FORCED_OKBUCK)
 
                 // Fetch Lint deps if needed
-                if (!lint.disabled && lint.version != null) {
-                    LintUtil.fetchLintDeps(project, lint.version)
+                if (!okbuckExt.getLintExtension().disabled &&
+                        okbuckExt.getLintExtension().version != null) {
+                    LintUtil.fetchLintDeps(project, okbuckExt.getLintExtension().version)
                 }
 
                 // Fetch transform deps if needed
@@ -182,7 +183,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                 D8Util.copyDeps()
 
                 // Fetch robolectric deps if needed
-                if (test.robolectric) {
+                if (okbuckExt.getTestExtension().robolectric) {
                     RobolectricUtil.download(project)
                 }
 
