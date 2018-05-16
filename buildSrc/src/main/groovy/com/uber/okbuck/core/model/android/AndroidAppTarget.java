@@ -248,10 +248,6 @@ public class AndroidAppTarget extends AndroidLibTarget {
         return multidexEnabled;
     }
 
-    public final boolean isMultidexEnabled() {
-        return multidexEnabled;
-    }
-
     public final Keystore getKeystore() {
         return keystore;
     }
@@ -268,19 +264,7 @@ public class AndroidAppTarget extends AndroidLibTarget {
         return primaryDexPatterns;
     }
 
-    public final List<String> getExoPackageDependencies() {
-        return exoPackageDependencies;
-    }
-
-    public final File getProguardMappingFile() {
-        return proguardMappingFile;
-    }
-
     public final boolean getMinifyEnabled() {
-        return minifyEnabled;
-    }
-
-    public final boolean isMinifyEnabled() {
         return minifyEnabled;
     }
 
@@ -289,10 +273,6 @@ public class AndroidAppTarget extends AndroidLibTarget {
     }
 
     public final boolean getIncludesVectorDrawables() {
-        return includesVectorDrawables;
-    }
-
-    public final boolean isIncludesVectorDrawables() {
         return includesVectorDrawables;
     }
 

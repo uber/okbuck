@@ -22,6 +22,7 @@ import com.uber.okbuck.core.model.jvm.JvmTarget;
 import com.uber.okbuck.core.model.jvm.TestOptions;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
+import com.uber.okbuck.core.util.XmlUtil;
 
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.groovy.runtime.DefaultGroovyMethods;
@@ -35,16 +36,9 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinAndroidPluginWrapper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -59,16 +53,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
 import static com.uber.okbuck.core.util.KotlinUtil.KOTLIN_ANDROID_EXTENSIONS_MODULE;
 import static com.uber.okbuck.core.util.KotlinUtil.KOTLIN_KAPT_PLUGIN;
 
@@ -76,8 +60,8 @@ import static com.uber.okbuck.core.util.KotlinUtil.KOTLIN_KAPT_PLUGIN;
  * An Android target
  */
 public abstract class AndroidTarget extends JvmTarget {
+
     private static final EmptyLogger EMPTY_LOGGER = new EmptyLogger();
-    private static final DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 
     private static final String DEFAULT_SDK = "1";
     private final String applicationId;
@@ -99,8 +83,6 @@ public abstract class AndroidTarget extends JvmTarget {
     private String packageName;
     private boolean isTest;
 
-
-
     public AndroidTarget(Project project, String name, boolean isTest) {
         super(project, name);
 
@@ -114,7 +96,6 @@ public abstract class AndroidTarget extends JvmTarget {
         if (getBaseVariant().getBuildType().getApplicationIdSuffix() != null) {
             suffix += getBaseVariant().getBuildType().getApplicationIdSuffix();
         }
-
 
         applicationIdSuffix = suffix;
         if (isTest) {
@@ -143,7 +124,8 @@ public abstract class AndroidTarget extends JvmTarget {
         // Check if kotlin
         isKotlin = project.getPlugins().hasPlugin(KotlinAndroidPluginWrapper.class);
         isKapt = project.getPlugins().hasPlugin(KOTLIN_KAPT_PLUGIN);
-        hasKotlinAndroidExtensions = project.getPlugins().hasPlugin(KOTLIN_ANDROID_EXTENSIONS_MODULE);
+        hasKotlinAndroidExtensions = project.getPlugins()
+                .hasPlugin(KOTLIN_ANDROID_EXTENSIONS_MODULE);
 
         // Check if any rules are excluded
         lintExclude = getProp(getOkbuck().lintExclude, ImmutableSet.of()).contains(name);
@@ -194,7 +176,8 @@ public abstract class AndroidTarget extends JvmTarget {
     public Scope getTest() {
         return Scope.from(
                 getProject(),
-                getUnitTestVariant() != null ? getUnitTestVariant().getRuntimeConfiguration() : null,
+                getUnitTestVariant() != null ? getUnitTestVariant().getRuntimeConfiguration() :
+                        null,
                 getUnitTestVariant() != null ? getSources(getUnitTestVariant()) : ImmutableSet.of(),
                 getJavaResources(getUnitTestVariant()),
                 getJavaCompilerOptions(getUnitTestVariant()));
@@ -275,8 +258,10 @@ public abstract class AndroidTarget extends JvmTarget {
                 )
                 .findFirst();
 
-        List<String> jvmArgs = optionalTest.map(Test::getAllJvmArgs).orElseGet(Collections::<String>emptyList);
-        Map<String, Object> env = optionalTest.map(Test::getEnvironment).orElseGet(Collections::emptyMap);
+        List<String> jvmArgs = optionalTest.map(Test::getAllJvmArgs)
+                .orElseGet(Collections::<String>emptyList);
+        Map<String, Object> env = optionalTest.map(Test::getEnvironment)
+                .orElseGet(Collections::emptyMap);
 
         System.getenv().keySet().forEach(env::remove);
 
@@ -441,9 +426,11 @@ public abstract class AndroidTarget extends JvmTarget {
             // errors are reported later
             MergingReport report =
                     ManifestMerger2.newMerger(mainManifest, EMPTY_LOGGER, getMergeType())
-                            .addFlavorAndBuildTypeManifests(secondaryManifests.toArray(new File[secondaryManifests.size()]))
-                            .withFeatures(ManifestMerger2.Invoker.Feature.NO_PLACEHOLDER_REPLACEMENT) // handled by buck
-                    .merge();
+                            .addFlavorAndBuildTypeManifests(
+                                    secondaryManifests.toArray(new File[secondaryManifests.size()]))
+                            .withFeatures(
+                                    ManifestMerger2.Invoker.Feature.NO_PLACEHOLDER_REPLACEMENT) // handled by buck
+                            .merge();
 
             if (report.getResult().isSuccess()) {
                 parseManifest(report.getMergedDocument(MergingReport.MergedManifestKind.MERGED),
@@ -462,12 +449,12 @@ public abstract class AndroidTarget extends JvmTarget {
     }
 
     private void parseManifest(String originalManifest, File mergedManifest) {
-        Document manifestXml = loadXml(originalManifest);
+        Document manifestXml = XmlUtil.loadXml(originalManifest);
         packageName = manifestXml.getDocumentElement().getAttribute("package").trim();
 
         Document processedManifest = processManifestXml(manifestXml);
 
-        writeToXml(processedManifest, mergedManifest);
+        XmlUtil.writeToXml(processedManifest, mergedManifest);
     }
 
     static List<String> getJavaCompilerOptions(BaseVariant baseVariant) {
@@ -530,7 +517,6 @@ public abstract class AndroidTarget extends JvmTarget {
     }
 
 
-
     public File getGenPath(String... paths) {
         return getRootProject().file(Paths.get(genDir, paths).toFile());
     }
@@ -584,7 +570,8 @@ public abstract class AndroidTarget extends JvmTarget {
             srcs.addAll(javaSrcs
                     .stream()
                     .filter(i -> i.getName().equals("java"))
-                    .map(i -> getProject().file(i.getAbsolutePath().replaceFirst("/java$", "/kotlin")))
+                    .map(i -> getProject().file(
+                            i.getAbsolutePath().replaceFirst("/java$", "/kotlin")))
                     .collect(Collectors.toSet()));
         }
         return srcs.build();
@@ -664,52 +651,8 @@ public abstract class AndroidTarget extends JvmTarget {
         public void verbose(String s, Object... objects) {
             //ignore
         }
-
     }
 
-    private static Document loadXml(String xmlString) {
-        try {
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            InputSource source = new InputSource(new StringReader(xmlString));
-            Document doc = dBuilder.parse(source);
-            doc.getDocumentElement().normalize();
-            return doc;
-        } catch (ParserConfigurationException | IOException | SAXException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private static void writeToXml(Document document, File xmlFile) {
-        try {
-            Transformer transformer = TransformerFactory.newInstance().newTransformer();
-            transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-            transformer.setOutputProperty(OutputKeys.INDENT, "no");
-            transformer.setOutputProperty(OutputKeys.DOCTYPE_PUBLIC, "yes");
-
-            // normalize document
-            document.normalize();
-
-            // Set xml standalone to true to not print the attribute
-            document.setXmlStandalone(true);
-
-            // Set android namespace
-            document.getDocumentElement()
-                    .setAttribute("xmlns:android", "http://schemas.android.com/apk/res/android");
-
-            Writer stringWriter = new StringWriter();
-            transformer.transform(new DOMSource(document), new StreamResult(stringWriter));
-
-            String xmlString = stringWriter
-                    .toString()
-                    .replaceAll("xmlns:android=\"http://schemas.android.com/apk/res/android\"", "")
-                    .replaceFirst("<manifest ", "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\" ")
-                    .replaceAll(">[\\s\\S]*?<", "><");
-
-            writeText(xmlString, xmlFile);
-        } catch (IOException | TransformerException e) {
-            throw new RuntimeException(e);
-        }
-    }
     @Override
     public <T> T getProp(Map<String, T> map, T defaultValue) {
         String nameKey = getIdentifier() + StringUtils.capitalize(getName());
@@ -725,11 +668,5 @@ public abstract class AndroidTarget extends JvmTarget {
         } else {
             return map.getOrDefault(getIdentifier(), defaultValue);
         }
-    }
-
-    private static void writeText(String text, File file) throws IOException {
-        BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-        writer.write(text);
-        writer.close();
     }
 }

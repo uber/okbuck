@@ -34,6 +34,14 @@ import groovy.lang.Closure;
  */
 public class AndroidLibTarget extends AndroidTarget {
 
+    private static final String KOTLIN_EXTENSIONS_OPTION = "plugin:org.jetbrains.kotlin.android:";
+    private final AndroidLibInstrumentationTarget libInstrumentationTarget;
+
+
+    public AndroidLibTarget(Project project, String name) {
+        this(project, name, false);
+    }
+
     public AndroidLibTarget(Project project, String name, boolean isTest) {
         super(project, name, isTest);
 
@@ -48,10 +56,6 @@ public class AndroidLibTarget extends AndroidTarget {
         } else {
             libInstrumentationTarget = null;
         }
-    }
-
-    public AndroidLibTarget(Project project, String name) {
-        this(project, name, false);
     }
 
     @Override
@@ -145,7 +149,4 @@ public class AndroidLibTarget extends AndroidTarget {
     public final AndroidLibInstrumentationTarget getLibInstrumentationTarget() {
         return libInstrumentationTarget;
     }
-
-    private static final String KOTLIN_EXTENSIONS_OPTION = "plugin:org.jetbrains.kotlin.android:";
-    private final AndroidLibInstrumentationTarget libInstrumentationTarget;
 }

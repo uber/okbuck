@@ -12,11 +12,8 @@ import org.gradle.api.file.FileTree
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.NodeList
-import org.xml.sax.SAXException
 
-import javax.xml.parsers.DocumentBuilder
-import javax.xml.parsers.DocumentBuilderFactory
-import javax.xml.parsers.ParserConfigurationException
+import com.uber.okbuck.core.util.XmlUtil;
 
 class ExoPackageScope extends Scope {
 
@@ -37,7 +34,7 @@ class ExoPackageScope extends Scope {
         slurper.DTDHandler = null
 
         File manifestFile = project.rootProject.file(manifest)
-        Document manifestXml = loadXml(manifestFile)
+        Document manifestXml = XmlUtil.loadXml(manifestFile)
         try {
             NodeList nodeList = manifestXml.getElementsByTagName("application")
             Preconditions.checkArgument(nodeList.length == 1)
@@ -56,19 +53,6 @@ class ExoPackageScope extends Scope {
             }
         }
         return appClass
-    }
-
-    private static final DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-
-    static Document loadXml(File xmlFile) {
-        try {
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(xmlFile);
-            doc.getDocumentElement().normalize();
-            return doc;
-        } catch (ParserConfigurationException | IOException | SAXException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private void extractDependencies(Scope base, List<String> exoPackageDependencies) {
