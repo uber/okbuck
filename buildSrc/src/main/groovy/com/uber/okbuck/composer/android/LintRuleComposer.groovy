@@ -36,7 +36,7 @@ final class LintRuleComposer extends AndroidBuckRuleComposer {
         List<String> lintDeps = []
         lintDeps.addAll(LintUtil.LINT_DEPS_RULE)
 
-        LintExtension lintExtension = target.rootProject.okbuck.lint
+        LintExtension lintExtension = target.getOkbuck().getLintExtension()
         return new LintRule()
                 .manifest(fileRule(target.manifest))
                 .sources(target.main.sources)

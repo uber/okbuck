@@ -166,6 +166,7 @@ okbuck {
 
     lint {
         version = deps.versions.androidTools
+        jvmArgs = '-Xmx1g'
     }
 
     experimental {

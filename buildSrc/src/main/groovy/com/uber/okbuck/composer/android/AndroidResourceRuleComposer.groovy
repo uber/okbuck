@@ -26,7 +26,7 @@ final class AndroidResourceRuleComposer extends AndroidBuckRuleComposer {
         })
         resDeps.addAll(extraResDeps)
 
-        OkBuckExtension okbuck = target.rootProject.okbuck
+        OkBuckExtension okbuck = target.getOkbuck()
 
         return new ResourceRule()
                 .pkg(target.package)
