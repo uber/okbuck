@@ -9,7 +9,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.core.util.FileUtil;
-import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.extension.TestExtension;
 import com.uber.okbuck.extension.TransformExtension;
 import java.io.File;
@@ -87,7 +86,7 @@ public class AndroidAppTarget extends AndroidLibTarget {
     includesVectorDrawables =
         getAndroidExtension().getDefaultConfig().getVectorDrawables().getUseSupportLibrary();
 
-    TestExtension testExtension = ProjectUtil.getOkBuckExtension(project).getTestExtension();
+    TestExtension testExtension = getOkbuck().getTestExtension();
 
     if (testExtension.espresso && getInstrumentationTestVariant() != null) {
       appInstrumentationTarget =

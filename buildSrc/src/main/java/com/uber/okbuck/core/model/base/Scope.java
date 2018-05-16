@@ -264,8 +264,7 @@ public class Scope {
                                 return firstLevelDependencies.contains(versionless);
                             })
                             .map(target -> {
-                                OkBuckExtension okBuckExtension = ProjectUtil.getOkBuckExtension(
-                                        project);
+                                OkBuckExtension okBuckExtension = target.getOkbuck();
                                 return target.getProp(okBuckExtension.annotationProcessors,
                                         ImmutableList.of());
                             })

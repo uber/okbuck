@@ -34,7 +34,7 @@ public class AndroidLibTarget extends AndroidTarget {
   public AndroidLibTarget(Project project, String name, boolean isTest) {
     super(project, name, isTest);
 
-    TestExtension testExtension = ProjectUtil.getOkBuckExtension(project).getTestExtension();
+    TestExtension testExtension = getOkbuck().getTestExtension();
 
     // do not try to create this for android apps
     if (testExtension.espressoForLibraries

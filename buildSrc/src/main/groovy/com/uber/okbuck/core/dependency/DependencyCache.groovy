@@ -81,7 +81,7 @@ class DependencyCache {
 
         if (changingDeps) {
             String message = "Please do not use changing dependencies. They can cause hard to reproduce builds.\n${changingDeps}"
-            if (rootProject.okbuck.failOnChangingDependencies) {
+            if (ProjectUtil.getOkBuckExtension(rootProject).failOnChangingDependencies) {
                 throw new IllegalStateException(message)
             } else {
                 LOG.warn(message)
