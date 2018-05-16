@@ -55,7 +55,7 @@ public class AndroidLibTarget extends AndroidTarget {
         libraryExtension
             .getLibraryVariants()
             .stream()
-            .filter(i -> i.getName().equals(getName()))
+            .filter(variant -> variant.getName().equals(getName()))
             .findFirst();
 
     Preconditions.checkArgument(baseVariantOptional.isPresent());
