@@ -144,11 +144,11 @@ public class AndroidAppTarget extends AndroidLibTarget {
     documentElement.setAttribute("android:versionName", getVersionName());
 
     NodeList nodeList = manifestXml.getElementsByTagName("application");
-
-    Preconditions.checkArgument(nodeList.getLength() == 1);
-
-    Element applicationElement = (Element) nodeList.item(0);
-    applicationElement.setAttribute("android:debuggable", String.valueOf(getDebuggable()));
+    Preconditions.checkArgument(nodeList.getLength() <= 1);
+    if (nodeList.getLength() == 1) {
+      Element applicationElement = (Element) nodeList.item(0);
+      applicationElement.setAttribute("android:debuggable", String.valueOf(getDebuggable()));
+    }
 
     return super.processManifestXml(manifestXml);
   }

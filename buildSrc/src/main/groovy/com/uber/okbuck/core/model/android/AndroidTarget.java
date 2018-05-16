@@ -125,8 +125,8 @@ public abstract class AndroidTarget extends JvmTarget {
     hasKotlinAndroidExtensions = project.getPlugins().hasPlugin(KOTLIN_ANDROID_EXTENSIONS_MODULE);
 
     // Check if any rules are excluded
-    lintExclude = getProp(getOkbuck().lintExclude, ImmutableSet.of()).contains(name);
-    testExclude = getProp(getOkbuck().testExclude, ImmutableSet.of()).contains(name);
+    lintExclude = getProp(getOkbuck().lintExclude, ImmutableList.of()).contains(name);
+    testExclude = getProp(getOkbuck().testExclude, ImmutableList.of()).contains(name);
 
     boolean hasKotlinExtension;
     try {
