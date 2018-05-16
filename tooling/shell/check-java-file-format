@@ -1,0 +1,12 @@
+#!/bin/sh
+
+JAR_PATH=$1
+FILE_PATH=$2
+
+# Test if the file is Java file
+echo "${FILE_PATH}" | grep -Eqi "\.java$" || exit 1
+
+# Try to format the file
+java -jar "${JAR_PATH}" -i "${FILE_PATH}"
+
+exit 0
