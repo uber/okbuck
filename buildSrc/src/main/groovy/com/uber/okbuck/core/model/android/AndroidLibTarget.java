@@ -13,13 +13,10 @@ import com.uber.okbuck.core.util.KotlinUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.extension.TestExtension;
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import javax.xml.parsers.ParserConfigurationException;
 import org.gradle.api.Project;
-import org.xml.sax.SAXException;
 
 /** An Android library target */
 public class AndroidLibTarget extends AndroidTarget {
@@ -72,7 +69,7 @@ public class AndroidLibTarget extends AndroidTarget {
     return getOkbuck().libraryBuildConfig;
   }
 
-  String getConsumerProguardConfig() {
+  public String getConsumerProguardConfig() {
     Set<File> consumerProguardFiles =
         new ImmutableSet.Builder<File>()
             .addAll(getBaseVariant().getMergedFlavor().getConsumerProguardFiles())
@@ -86,9 +83,7 @@ public class AndroidLibTarget extends AndroidTarget {
     return null;
   }
 
-  public List<String> getKotlincArguments()
-      throws ParserConfigurationException, ManifestMerger2.MergeFailureException, SAXException,
-          IOException {
+  public List<String> getKotlincArguments() {
     if (!getHasKotlinAndroidExtensions()) {
       return ImmutableList.of();
     }

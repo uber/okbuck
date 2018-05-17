@@ -271,7 +271,7 @@ public abstract class AndroidTarget extends JvmTarget {
     return new TestOptions(jvmArgs, env);
   }
 
-  List<String> getBuildConfigFields() {
+  public List<String> getBuildConfigFields() {
     List<String> buildConfig = new ArrayList<>();
 
     if (isTest) {
@@ -320,7 +320,7 @@ public abstract class AndroidTarget extends JvmTarget {
     return getBaseVariant().getBuildType().getName();
   }
 
-  Set<String> getResDirs() {
+  public Set<String> getResDirs() {
     return getBaseVariant()
         .getSourceSets()
         .stream()
@@ -367,7 +367,7 @@ public abstract class AndroidTarget extends JvmTarget {
         .collect(Collectors.toSet());
   }
 
-  public String getPackage() throws ManifestMerger2.MergeFailureException, IOException {
+  public String getPackage() {
     if (packageName == null) {
       ensureManifest();
     }
@@ -375,7 +375,7 @@ public abstract class AndroidTarget extends JvmTarget {
     return packageName;
   }
 
-  public String getManifest() throws ManifestMerger2.MergeFailureException, IOException {
+  public String getManifest() {
     if (manifestPath == null) {
       ensureManifest();
     }
@@ -389,64 +389,69 @@ public abstract class AndroidTarget extends JvmTarget {
     return manifestXml;
   }
 
-  private void ensureManifest() throws IOException, ManifestMerger2.MergeFailureException {
-    Set<String> manifests =
-        getBaseVariant()
-            .getSourceSets()
-            .stream()
-            .map(SourceProvider::getManifestFile)
-            .map(file -> getAvailable(ImmutableSet.of(file)))
-            .flatMap(Collection::stream)
-            .collect(Collectors.toCollection(LinkedHashSet::new));
+  private void ensureManifest() {
+    try {
+      Set<String> manifests =
+          getBaseVariant()
+              .getSourceSets()
+              .stream()
+              .map(SourceProvider::getManifestFile)
+              .map(file -> getAvailable(ImmutableSet.of(file)))
+              .flatMap(Collection::stream)
+              .collect(Collectors.toCollection(LinkedHashSet::new));
 
-    // Nothing to merge
-    if (manifests.isEmpty()) {
-      return;
-    }
-
-    File mergedManifest = getGenPath("AndroidManifest.xml");
-    mergedManifest.getParentFile().mkdirs();
-    mergedManifest.createNewFile();
-
-    File mainManifest = getProject().file(manifests.iterator().next());
-
-    if (manifests.size() == 1 && getMergeType() == ManifestMerger2.MergeType.LIBRARY) {
-      // No need to merge for libraries
-      parseManifest(
-          Files.lines(mainManifest.toPath()).collect(Collectors.joining(System.lineSeparator())),
-          mergedManifest);
-    } else {
-      // always merge if more than one manifest or its an application
-      List<File> secondaryManifests =
-          manifests.stream().map(i -> getProject().file(i)).collect(Collectors.toList());
-
-      secondaryManifests.remove(mainManifest);
-
-      // errors are reported later
-      MergingReport report =
-          ManifestMerger2.newMerger(mainManifest, EMPTY_LOGGER, getMergeType())
-              .addFlavorAndBuildTypeManifests(
-                  secondaryManifests.toArray(new File[secondaryManifests.size()]))
-              .withFeatures(
-                  ManifestMerger2.Invoker.Feature.NO_PLACEHOLDER_REPLACEMENT) // handled by buck
-              .merge();
-
-      if (report.getResult().isSuccess()) {
-        parseManifest(
-            report.getMergedDocument(MergingReport.MergedManifestKind.MERGED), mergedManifest);
-      } else {
-        throw new IllegalStateException(
-            report
-                .getLoggingRecords()
-                .stream()
-                .map(
-                    i ->
-                        String.format(
-                            "%s: %s at %s", i.getSeverity(), i.getMessage(), i.getSourceLocation()))
-                .collect(Collectors.joining(System.lineSeparator())));
+      // Nothing to merge
+      if (manifests.isEmpty()) {
+        return;
       }
+
+      File mergedManifest = getGenPath("AndroidManifest.xml");
+      mergedManifest.getParentFile().mkdirs();
+      mergedManifest.createNewFile();
+
+      File mainManifest = getProject().file(manifests.iterator().next());
+
+      if (manifests.size() == 1 && getMergeType() == ManifestMerger2.MergeType.LIBRARY) {
+        // No need to merge for libraries
+        parseManifest(
+            Files.lines(mainManifest.toPath()).collect(Collectors.joining(System.lineSeparator())),
+            mergedManifest);
+      } else {
+        // always merge if more than one manifest or its an application
+        List<File> secondaryManifests =
+            manifests.stream().map(i -> getProject().file(i)).collect(Collectors.toList());
+
+        secondaryManifests.remove(mainManifest);
+
+        // errors are reported later
+        MergingReport report =
+            ManifestMerger2.newMerger(mainManifest, EMPTY_LOGGER, getMergeType())
+                .addFlavorAndBuildTypeManifests(
+                    secondaryManifests.toArray(new File[secondaryManifests.size()]))
+                .withFeatures(
+                    ManifestMerger2.Invoker.Feature.NO_PLACEHOLDER_REPLACEMENT) // handled by buck
+                .merge();
+
+        if (report.getResult().isSuccess()) {
+          parseManifest(
+              report.getMergedDocument(MergingReport.MergedManifestKind.MERGED), mergedManifest);
+        } else {
+          throw new IllegalStateException(
+              report
+                  .getLoggingRecords()
+                  .stream()
+                  .map(
+                      i ->
+                          String.format(
+                              "%s: %s at %s",
+                              i.getSeverity(), i.getMessage(), i.getSourceLocation()))
+                  .collect(Collectors.joining(System.lineSeparator())));
+        }
+      }
+      manifestPath = FileUtil.getRelativePath(getProject().getRootDir(), mergedManifest);
+    } catch (IOException | ManifestMerger2.MergeFailureException e) {
+      throw new RuntimeException(e);
     }
-    manifestPath = FileUtil.getRelativePath(getProject().getRootDir(), mergedManifest);
   }
 
   private void parseManifest(String originalManifest, File mergedManifest) {

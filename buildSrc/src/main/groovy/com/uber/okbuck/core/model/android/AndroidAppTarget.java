@@ -152,7 +152,7 @@ public class AndroidAppTarget extends AndroidLibTarget {
     return super.processManifestXml(manifestXml);
   }
 
-  public ExoPackageScope getExopackage() throws ManifestMerger2.MergeFailureException, IOException {
+  public ExoPackageScope getExopackage() {
     if (getProp(getOkbuck().exopackage, false)) {
       return new ExoPackageScope(getProject(), getMain(), exoPackageDependencies, getManifest());
     } else {
