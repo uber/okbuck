@@ -9,9 +9,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
 import java.util.Set;
-import okio.BufferedSink;
-import okio.Okio;
-import okio.Source;
+import org.apache.commons.io.FileUtils;
 import org.gradle.api.Project;
 
 public final class FileUtil {
@@ -28,13 +26,9 @@ public final class FileUtil {
     }
   }
 
-  @SuppressWarnings("ResultOfMethodCallIgnored")
   public static void copyResourceToProject(String resource, File destination) {
-    destination.getParentFile().mkdirs();
-    try (Source a = Okio.source(FileUtil.class.getResourceAsStream(resource));
-        BufferedSink b = Okio.buffer(Okio.sink(destination))) {
-      b.writeAll(a);
-      b.flush();
+    try {
+      FileUtils.copyURLToFile(FileUtil.class.getResource(resource), destination);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

@@ -19,7 +19,6 @@ def build = [
         commonsIo        : "commons-io:commons-io:2.5",
         commonsLang3     : "org.apache.commons:commons-lang3:3.7",
         kotlinPlugin     : "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}",
-        okio             : "com.squareup.okio:okio:1.14.0",
         rockerPlugin     : "gradle.plugin.com.fizzed:rocker-gradle-plugin:${versions.rocker}",
         rockerRuntime    : "com.fizzed:rocker-runtime:${versions.rocker}",
         shadowJar        : "com.github.jengelman.gradle.plugins:shadow:2.0.1",
