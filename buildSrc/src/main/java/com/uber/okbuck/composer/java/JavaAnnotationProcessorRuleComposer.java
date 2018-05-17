@@ -5,40 +5,41 @@ import com.uber.okbuck.composer.jvm.JvmBuckRuleComposer;
 import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.template.core.Rule;
 import com.uber.okbuck.template.java.JavaAnnotationProcessorRule;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class JavaAnnotationProcessorRuleComposer extends JvmBuckRuleComposer {
 
-    JavaAnnotationProcessorRuleComposer() { }
+  JavaAnnotationProcessorRuleComposer() {}
 
-    /**
-     * Uses the annotation processors scope list to generate the java_annotation_processor
-     * rules. It sorts them based on the the annotation processor's UID.
-     *
-     * @param scopeList List of annotation processor scopes.
-     * @return A list containing java_annotation_processor rules.
-     */
-    public static List<Rule> compose(Collection<Scope> scopeList) {
-        return scopeList
-                .stream()
-                .filter(scope -> !scope.getAnnotationProcessors().isEmpty())
-                .sorted((scope1, scope2) ->
-                        scope1.getAnnotationProcessorsUID()
-                                .compareToIgnoreCase(scope2.getAnnotationProcessorsUID())
-                )
-                .map(scope -> {
-                    ImmutableSet.Builder<String> depsBuilder = new ImmutableSet.Builder<>();
-                    depsBuilder.addAll(externalApt(scope.getExternalDeps()));
-                    depsBuilder.addAll(targetsApt(scope.getTargetDeps()));
+  /**
+   * Uses the annotation processors scope list to generate the java_annotation_processor rules. It
+   * sorts them based on the the annotation processor's UID.
+   *
+   * @param scopeList List of annotation processor scopes.
+   * @return A list containing java_annotation_processor rules.
+   */
+  public static List<Rule> compose(Collection<Scope> scopeList) {
+    return scopeList
+        .stream()
+        .filter(scope -> !scope.getAnnotationProcessors().isEmpty())
+        .sorted(
+            (scope1, scope2) ->
+                scope1
+                    .getAnnotationProcessorsUID()
+                    .compareToIgnoreCase(scope2.getAnnotationProcessorsUID()))
+        .map(
+            scope -> {
+              ImmutableSet.Builder<String> depsBuilder = new ImmutableSet.Builder<>();
+              depsBuilder.addAll(externalApt(scope.getExternalDeps()));
+              depsBuilder.addAll(targetsApt(scope.getTargetDeps()));
 
-                    return new JavaAnnotationProcessorRule()
-                            .processorClasses(scope.getAnnotationProcessors())
-                            .name(getApPluginRuleName(scope.getAnnotationProcessorsUID()))
-                            .deps(depsBuilder.build());
-                })
-                .collect(Collectors.toList());
-    }
+              return new JavaAnnotationProcessorRule()
+                  .processorClasses(scope.getAnnotationProcessors())
+                  .name(getApPluginRuleName(scope.getAnnotationProcessorsUID()))
+                  .deps(depsBuilder.build());
+            })
+        .collect(Collectors.toList());
+  }
 }
