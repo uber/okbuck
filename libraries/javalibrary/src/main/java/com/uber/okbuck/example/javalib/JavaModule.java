@@ -5,8 +5,8 @@ import dagger.Provides;
 
 @Module
 public class JavaModule {
-    @Provides
-    DummyJavaClass provideDummyJavaClass() {
-        return new DummyJavaClass();
-    }
+  @Provides
+  DummyJavaClass provideDummyJavaClass() {
+    return new DummyJavaClass();
+  }
 }

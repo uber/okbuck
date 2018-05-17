@@ -9,14 +9,15 @@ import java.util.Comparator;
 
 final class FileUtil {
 
-    private FileUtil() { }
+  private FileUtil() {}
 
-    static void deleteDirectory(File path) {
-        try {
-            Files.walk(path.toPath(), FileVisitOption.FOLLOW_LINKS)
-                    .sorted(Comparator.reverseOrder())
-                    .map(Path::toFile)
-                    .forEach(File::delete);
-        } catch (IOException ignored) { }
+  static void deleteDirectory(File path) {
+    try {
+      Files.walk(path.toPath(), FileVisitOption.FOLLOW_LINKS)
+          .sorted(Comparator.reverseOrder())
+          .map(Path::toFile)
+          .forEach(File::delete);
+    } catch (IOException ignored) {
     }
+  }
 }

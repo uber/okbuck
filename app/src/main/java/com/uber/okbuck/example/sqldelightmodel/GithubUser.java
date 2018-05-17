@@ -6,11 +6,11 @@ import com.google.gson.TypeAdapter;
 
 @AutoValue
 public abstract class GithubUser implements GithubUserModel {
-    public static TypeAdapter<GithubUser> typeAdapter(final Gson gson) {
-        return new AutoValue_GithubUser.GsonTypeAdapter(gson);
-    }
+  public static TypeAdapter<GithubUser> typeAdapter(final Gson gson) {
+    return new AutoValue_GithubUser.GsonTypeAdapter(gson);
+  }
 
-    public static GithubUser create(long id, String login) {
-        return new AutoValue_GithubUser(id, login);
-    }
+  public static GithubUser create(long id, String login) {
+    return new AutoValue_GithubUser(id, login);
+  }
 }

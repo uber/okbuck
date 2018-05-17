@@ -12,7 +12,6 @@ import com.android.build.api.transform.TransformInput;
 import com.android.build.api.transform.TransformInvocation;
 import com.android.utils.FileUtils;
 import com.google.common.collect.ImmutableSet;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
@@ -20,98 +19,103 @@ import java.util.Set;
 
 public class DummyTransform extends Transform {
 
-    private static final String TRANSFORM_NAME = "DummyTransform";
-    private static final String TRANSFORM_OUTPUT = "dummy-transform-output";
+  private static final String TRANSFORM_NAME = "DummyTransform";
+  private static final String TRANSFORM_OUTPUT = "dummy-transform-output";
 
-    @Override
-    public String getName() {
-        return TRANSFORM_NAME;
+  @Override
+  public String getName() {
+    return TRANSFORM_NAME;
+  }
+
+  @NonNull
+  @Override
+  public Set<QualifiedContent.ContentType> getInputTypes() {
+    return ImmutableSet.<QualifiedContent.ContentType>of(
+        QualifiedContent.DefaultContentType.CLASSES);
+  }
+
+  @NonNull
+  @Override
+  public Set<QualifiedContent.Scope> getScopes() {
+    return ImmutableSet.of(QualifiedContent.Scope.PROJECT, QualifiedContent.Scope.SUB_PROJECTS);
+  }
+
+  @NonNull
+  @Override
+  public Set<QualifiedContent.Scope> getReferencedScopes() {
+    return ImmutableSet.of(
+        QualifiedContent.Scope.SUB_PROJECTS,
+        QualifiedContent.Scope.PROJECT_LOCAL_DEPS,
+        QualifiedContent.Scope.SUB_PROJECTS_LOCAL_DEPS,
+        QualifiedContent.Scope.EXTERNAL_LIBRARIES);
+  }
+
+  @Override
+  public boolean isIncremental() {
+    return true;
+  }
+
+  @Override
+  public void transform(TransformInvocation transformInvocation)
+      throws TransformException, InterruptedException, IOException {
+
+    if (transformInvocation.getOutputProvider() == null) {
+      throw new IllegalArgumentException("Transform invocation needs a valid output provider.");
     }
 
-    @NonNull
-    @Override
-    public Set<QualifiedContent.ContentType> getInputTypes() {
-        return ImmutableSet.<QualifiedContent.ContentType>of(QualifiedContent.DefaultContentType.CLASSES);
-    }
+    File outputDir =
+        transformInvocation
+            .getOutputProvider()
+            .getContentLocation(TRANSFORM_OUTPUT, getOutputTypes(), getScopes(), Format.DIRECTORY);
 
-    @NonNull
-    @Override
-    public Set<QualifiedContent.Scope> getScopes() {
-        return ImmutableSet.of(QualifiedContent.Scope.PROJECT, QualifiedContent.Scope.SUB_PROJECTS);
-    }
+    for (TransformInput input : transformInvocation.getInputs()) {
 
-    @NonNull
-    @Override
-    public Set<QualifiedContent.Scope> getReferencedScopes() {
-        return ImmutableSet.of(
-                QualifiedContent.Scope.SUB_PROJECTS,
-                QualifiedContent.Scope.PROJECT_LOCAL_DEPS,
-                QualifiedContent.Scope.SUB_PROJECTS_LOCAL_DEPS,
-                QualifiedContent.Scope.EXTERNAL_LIBRARIES);
-    }
+      for (JarInput inputJar : input.getJarInputs()) {
+        File outputJar =
+            transformInvocation
+                .getOutputProvider()
+                .getContentLocation(inputJar.getName(), getOutputTypes(), getScopes(), Format.JAR);
+        outputJar.getParentFile().mkdirs();
 
-    @Override
-    public boolean isIncremental() {
-        return true;
-    }
-
-    @Override
-    public void transform(TransformInvocation transformInvocation)
-            throws TransformException, InterruptedException, IOException {
-
-        if (transformInvocation.getOutputProvider() == null) {
-            throw new IllegalArgumentException("Transform invocation needs a valid output provider.");
+        if (!transformInvocation.isIncremental() || inputJar.getStatus() != Status.REMOVED) {
+          FileUtils.copyFile(inputJar.getFile(), outputJar);
         }
+      }
 
-        File outputDir = transformInvocation.getOutputProvider().getContentLocation(
-                TRANSFORM_OUTPUT, getOutputTypes(), getScopes(), Format.DIRECTORY);
+      for (DirectoryInput directoryInput : input.getDirectoryInputs()) {
 
-        for (TransformInput input : transformInvocation.getInputs()) {
+        File inputDir = directoryInput.getFile();
+        if (transformInvocation.isIncremental()) {
 
-            for (JarInput inputJar : input.getJarInputs()) {
-                File outputJar = transformInvocation.getOutputProvider()
-                        .getContentLocation(inputJar.getName(), getOutputTypes(), getScopes(), Format.JAR);
-                outputJar.getParentFile().mkdirs();
+          for (Map.Entry<File, Status> changedInput : directoryInput.getChangedFiles().entrySet()) {
 
-                if (!transformInvocation.isIncremental() || inputJar.getStatus() != Status.REMOVED) {
-                    FileUtils.copyFile(inputJar.getFile(), outputJar);
-                }
+            File inputFile = changedInput.getKey();
+            File outputFile =
+                new File(outputDir, FileUtils.relativePossiblyNonExistingPath(inputFile, inputDir));
+
+            switch (changedInput.getValue()) {
+              case REMOVED:
+                FileUtils.delete(outputFile);
+                break;
+
+              case ADDED:
+              case CHANGED:
+                FileUtils.copyFile(inputFile, outputFile);
             }
+          }
+        } else {
 
-            for (DirectoryInput directoryInput : input.getDirectoryInputs()) {
+          FileUtils.deleteDirectoryContents(inputDir);
+          inputDir.mkdirs();
 
-                File inputDir = directoryInput.getFile();
-                if (transformInvocation.isIncremental()) {
+          Iterable<File> files = FileUtils.getAllFiles(inputDir);
+          for (File inputFile : files) {
 
-                    for (Map.Entry<File, Status> changedInput : directoryInput.getChangedFiles().entrySet()) {
-
-                        File inputFile = changedInput.getKey();
-                        File outputFile = new File(outputDir, FileUtils.relativePossiblyNonExistingPath(inputFile, inputDir));
-
-                        switch (changedInput.getValue()) {
-
-                            case REMOVED:
-                                FileUtils.delete(outputFile);
-                                break;
-
-                            case ADDED:
-                            case CHANGED:
-                                FileUtils.copyFile(inputFile, outputFile);
-                        }
-                    }
-                } else {
-
-                    FileUtils.deleteDirectoryContents(inputDir);
-                    inputDir.mkdirs();
-
-                    Iterable<File> files = FileUtils.getAllFiles(inputDir);
-                    for (File inputFile : files) {
-
-                        File outputFile = new File(outputDir, FileUtils.relativePath(inputFile, inputDir));
-                        FileUtils.copyFile(inputFile, outputFile);
-                    }
-                }
-            }
+            File outputFile = new File(outputDir, FileUtils.relativePath(inputFile, inputDir));
+            FileUtils.copyFile(inputFile, outputFile);
+          }
         }
+      }
     }
+  }
 }
