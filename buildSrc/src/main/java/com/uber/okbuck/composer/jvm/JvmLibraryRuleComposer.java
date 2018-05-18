@@ -65,6 +65,7 @@ public final class JvmLibraryRuleComposer extends JvmBuckRuleComposer {
       rulesBuilder.add(
           new JvmBinaryRule()
               .mainClassName(target.getMainClass())
+              .mavenCoords(target.getMavenCoords())
               .excludes(target.getExcludes())
               .defaultVisibility()
               .name(bin(target))

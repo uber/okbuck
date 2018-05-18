@@ -14,5 +14,8 @@ Set excludes
     }
     ],
 }
+@if (mavenCoords != null) {
+    maven_coords = '@mavenCoords',
+}
     deps = [ ':src_main' ] + lib_deps,
 }
