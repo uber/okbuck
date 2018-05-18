@@ -28,7 +28,6 @@ import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
-import org.codehaus.groovy.runtime.StringGroovyMethods;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.component.ComponentIdentifier;
@@ -424,7 +423,7 @@ public class DependencyCache {
       store.set(key, entryPath);
     }
 
-    if (StringGroovyMethods.asBoolean(entryPath)) {
+    if (!entryPath.isEmpty()) {
       copies.add(new File(rootProject.getProjectDir(), entryPath));
     }
 

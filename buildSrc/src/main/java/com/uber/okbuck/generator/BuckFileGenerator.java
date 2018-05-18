@@ -35,7 +35,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.codehaus.groovy.runtime.DefaultGroovyMethods;
 import org.gradle.api.Project;
 
 public final class BuckFileGenerator {
@@ -116,7 +115,7 @@ public final class BuckFileGenerator {
       JvmTarget target, RuleType mainRuleType, RuleType testRuleType) {
     List<Rule> rules = new ArrayList<>(JvmLibraryRuleComposer.compose(target, mainRuleType));
 
-    if (DefaultGroovyMethods.asBoolean(target.getTest().getSources())) {
+    if (!target.getTest().getSources().isEmpty()) {
       rules.add(JvmTestRuleComposer.compose(target, testRuleType));
     }
 
