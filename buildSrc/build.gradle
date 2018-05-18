@@ -9,7 +9,6 @@ buildscript {
     }
 }
 
-apply plugin: "groovy"
 apply plugin: "maven-publish"
 apply plugin: "com.jfrog.bintray"
 apply plugin: "com.fizzed.rocker"
@@ -28,23 +27,16 @@ jar {
     exclude("**/*.rocker.raw")
 }
 
-tasks.withType(GroovyCompile) {
-    sourceCompatibility = "1.8"
-    targetCompatibility = "1.8"
-}
-
 tasks.withType(JavaCompile) {
     sourceCompatibility = "1.8"
     targetCompatibility = "1.8"
 }
 
-sourceSets.main.java.srcDirs = ["src/main/rocker"]
-sourceSets.main.groovy.srcDirs = ["src/main/java", "src/main/groovy"]
+sourceSets.main.java.srcDirs = ["src/main/rocker", "src/main/java"]
 sourceSets.main.rocker.srcDirs = ["src/main/rocker", "src/main/java"]
 
 dependencies {
     implementation gradleApi()
-    implementation localGroovy()
 
     implementation deps.build.androidPlugin
     implementation deps.build.commonsIo

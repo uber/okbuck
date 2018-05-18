@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import javax.annotation.Nullable;
 
 public final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
 
@@ -25,7 +26,7 @@ public final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
       AndroidLibTarget target,
       List<String> deps,
       final List<String> aidlRuleNames,
-      String appClass) {
+      @Nullable String appClass) {
 
     List<String> testDeps = new ArrayList<>(deps);
     testDeps.add(":" + src(target));

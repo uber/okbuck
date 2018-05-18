@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.inject.Inject;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.DefaultTask;
@@ -27,6 +28,15 @@ public class BuckWrapperTask extends DefaultTask {
   @Input public Set<String> ignoredDirs;
 
   private final File wrapper = getProject().file("buckw");
+
+  @Inject
+  public BuckWrapperTask(
+      String repo, Set<String> watch, Set<String> sourceRoots, Set<String> ignoredDirs) {
+    this.repo = repo;
+    this.watch = watch;
+    this.sourceRoots = sourceRoots;
+    this.ignoredDirs = ignoredDirs;
+  }
 
   @TaskAction
   void installWrapper() {

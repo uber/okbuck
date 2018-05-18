@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.inject.Inject;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.specs.Specs;
 import org.gradle.api.tasks.Nested;
@@ -37,7 +38,15 @@ public class OkBuckTask extends DefaultTask {
 
   @Nested public ScalaExtension scalaExtension;
 
-  public OkBuckTask() {
+  @Inject
+  public OkBuckTask(
+      OkBuckExtension okBuckExtension,
+      KotlinExtension kotlinExtension,
+      ScalaExtension scalaExtension) {
+    this.okBuckExtension = okBuckExtension;
+    this.kotlinExtension = kotlinExtension;
+    this.scalaExtension = scalaExtension;
+
     // Never up to date; this task isn't safe to run incrementally.
     getOutputs().upToDateWhen(Specs.satisfyNone());
   }

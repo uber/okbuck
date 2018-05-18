@@ -16,9 +16,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.Project;
-import org.jetbrains.annotations.Nullable;
 
 public class TargetCache {
 
@@ -72,7 +72,7 @@ public class TargetCache {
   }
 
   @Nullable
-  public Target getTargetForVariant(Project targetProject, String variant) {
+  public Target getTargetForVariant(Project targetProject, @Nullable String variant) {
     Target result;
     ProjectType type = ProjectUtil.getType(targetProject);
     switch (type) {

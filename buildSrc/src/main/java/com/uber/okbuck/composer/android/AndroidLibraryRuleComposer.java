@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 
 public final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
 
@@ -23,7 +24,7 @@ public final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
       AndroidLibTarget target,
       List<String> deps,
       final List<String> aidlRuleNames,
-      String appClass) {
+      @Nullable String appClass) {
 
     Set<String> libraryDeps = new HashSet<>(deps);
     libraryDeps.addAll(external(getExternalDeps(target.getMain(), target.getProvided())));
