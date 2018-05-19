@@ -349,7 +349,7 @@ public abstract class AndroidTarget extends JvmTarget {
         .collect(Collectors.toSet());
   }
 
-  Set<String> getAidl() {
+  public Set<String> getAidl() {
     return getBaseVariant()
         .getSourceSets()
         .stream()
@@ -358,7 +358,7 @@ public abstract class AndroidTarget extends JvmTarget {
         .collect(Collectors.toSet());
   }
 
-  Set<String> getJniLibs() {
+  public Set<String> getJniLibs() {
     return getBaseVariant()
         .getSourceSets()
         .stream()

@@ -14,6 +14,7 @@ import java.io.File;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.component.ComponentIdentifier;
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier;
@@ -27,7 +28,6 @@ import org.gradle.api.plugins.PluginContainer;
 import org.gradle.api.plugins.scala.ScalaPlugin;
 import org.gradle.jvm.JvmLibrary;
 import org.gradle.language.base.artifact.SourcesArtifact;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper;
 
 public final class ProjectUtil {
@@ -66,7 +66,7 @@ public final class ProjectUtil {
   }
 
   @Nullable
-  public static Target getTargetForVariant(Project targetProject, String variant) {
+  public static Target getTargetForVariant(Project targetProject, @Nullable String variant) {
     return getTargetCache(targetProject).getTargetForVariant(targetProject, variant);
   }
 

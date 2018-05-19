@@ -35,7 +35,7 @@ public class OkBuckExtension {
   /** Exopackage lib dependencies. */
   @Input public Map<String, List<String>> appLibDependencies = new HashMap<>();
 
-  /** Proguard mapping file applied via applymapping */
+  /** Proguard mapping file applied via apply mapping */
   @Input public Map<String, File> proguardMappingFile = new HashMap<>();
 
   /** List of build types/variant names for which to exclude generating lint rules */

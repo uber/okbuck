@@ -11,8 +11,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashSet;
 import java.util.Set;
+import javax.inject.Inject;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.Input;
@@ -22,9 +22,15 @@ import org.gradle.api.tasks.TaskAction;
 @SuppressWarnings({"WeakerAccess", "CanBeFinal", "unused", "ResultOfMethodCallIgnored", "NewApi"})
 public class OkBuckCleanTask extends DefaultTask {
 
-  @Input public Set<Project> projects = new HashSet<>();
+  @Input public Set<Project> projects;
 
-  @Input public String processorBuckFile = null;
+  @Input public String processorBuckFile;
+
+  @Inject
+  public OkBuckCleanTask(Set<Project> projects, String processorBuckFile) {
+    this.projects = projects;
+    this.processorBuckFile = processorBuckFile;
+  }
 
   @TaskAction
   void clean() throws IOException {
