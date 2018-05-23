@@ -2,15 +2,12 @@ package com.uber.okbuck.composer.base;
 
 import com.uber.okbuck.core.model.base.Target;
 import com.uber.okbuck.core.model.jvm.JvmTarget;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.io.FilenameUtils;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class BuckRuleComposer {
-
-  private static final String SEPARATOR = ":";
 
   public static Set<String> external(final Set<String> deps) {
     return deps.stream().map(BuckRuleComposer::fileRule).collect(Collectors.toSet());
@@ -52,16 +49,5 @@ public abstract class BuckRuleComposer {
 
   public static String binTargets(final Target dep) {
     return String.format("//%s:bin_%s", dep.getPath(), dep.getName());
-  }
-
-  public static String toLocation(final List<String> targets) {
-    return targets
-        .stream()
-        .map(BuckRuleComposer::toLocation)
-        .collect(Collectors.joining(SEPARATOR));
-  }
-
-  public static String toLocation(final String target) {
-    return "$(location " + target + ")";
   }
 }

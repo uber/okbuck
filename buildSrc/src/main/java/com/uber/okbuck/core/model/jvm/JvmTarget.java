@@ -97,7 +97,7 @@ public class JvmTarget extends Target {
     return Scope.from(getProject(), configurationName);
   }
 
-  protected Scope getAptScopeForConfiguration(Configuration configuration) {
+  protected Scope getAptScopeForConfiguration(@Nullable Configuration configuration) {
     // If using annotation processor plugin, return an empty scope if there are no annotation
     // processors so no need to have any specified in the annotation processor deps list.
     if (!ProjectUtil.getAnnotationProcessorCache(getProject())

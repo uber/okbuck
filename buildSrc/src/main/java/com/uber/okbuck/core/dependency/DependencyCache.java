@@ -169,10 +169,6 @@ public class DependencyCache {
     return key;
   }
 
-  public String get(ExternalDependency externalDependency, boolean resolveOnly) {
-    return get(externalDependency, resolveOnly, true);
-  }
-
   public String get(ExternalDependency externalDependency) {
     return get(externalDependency, false, true);
   }
@@ -375,17 +371,6 @@ public class DependencyCache {
     if (cleanupDeps) {
       cleanup();
     }
-  }
-
-  /**
-   * Use this method to populate dependency caches of tools/languages etc. This is not meant to be
-   * used across multiple threads/gradle task executions which can run in parallel. This method is
-   * fully synchronous.
-   *
-   * @param configurations The set of configurations to materialize into the dependency cache
-   */
-  public void build(Set<Configuration> configurations, boolean cleanupDeps) {
-    build(configurations, cleanupDeps, false);
   }
 
   /**

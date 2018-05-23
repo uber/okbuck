@@ -15,10 +15,6 @@ public abstract class AndroidBuckRuleComposer extends JvmBuckRuleComposer {
     return "//" + target.getPath() + ":" + res(target);
   }
 
-  public static String manifest(AndroidTarget target) {
-    return "manifest_" + target.getName();
-  }
-
   public static String buildConfig(AndroidTarget target) {
     return "build_config_" + target.getName();
   }
@@ -54,9 +50,5 @@ public abstract class AndroidBuckRuleComposer extends JvmBuckRuleComposer {
 
   public static String instrumentationTest(AndroidAppTarget target) {
     return "instrumentation_" + target.getName() + "_test";
-  }
-
-  public static String transform(String runnerClass, AndroidAppTarget target) {
-    return "transform_" + runnerClass.replace(".", "_") + "_" + target.getName();
   }
 }

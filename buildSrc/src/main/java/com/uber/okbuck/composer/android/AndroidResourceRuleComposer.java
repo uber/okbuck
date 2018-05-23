@@ -1,6 +1,5 @@
 package com.uber.okbuck.composer.android;
 
-import com.google.common.collect.ImmutableList;
 import com.uber.okbuck.core.model.android.AndroidTarget;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.template.android.ResourceRule;
@@ -43,9 +42,5 @@ public final class AndroidResourceRuleComposer extends AndroidBuckRuleComposer {
         .ruleType(RuleType.ANDROID_RESOURCE.getBuckName())
         .deps(resDeps)
         .name(res(target));
-  }
-
-  public static Rule compose(AndroidTarget target) {
-    return AndroidResourceRuleComposer.compose(target, ImmutableList.of());
   }
 }
