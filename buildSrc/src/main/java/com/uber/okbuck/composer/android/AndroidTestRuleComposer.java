@@ -55,7 +55,7 @@ public final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
             .targetCompatibility(target.getTargetCompatibility())
             .exportedDeps(aidlRuleNames)
             .excludes(appClass != null ? ImmutableSet.of(appClass) : ImmutableSet.of())
-            .options(target.getMain().getJvmArgs())
+            .options(target.getMain().getJavaCompilerOptions())
             .jvmArgs(target.getTestOptions().getJvmArgs())
             .env(target.getTestOptions().getEnv())
             .robolectricManifest(fileRule(target.getManifest()))

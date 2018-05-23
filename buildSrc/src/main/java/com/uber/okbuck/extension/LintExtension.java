@@ -17,7 +17,7 @@ public class LintExtension {
   /** JVM arguments when invoking lint */
   public String jvmArgs = "-Xmx1024m";
 
-  public LintExtension(Project project) {
+  LintExtension(Project project) {
     version = LintUtil.getDefaultLintVersion(project);
   }
 }

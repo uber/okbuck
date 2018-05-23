@@ -9,7 +9,7 @@ public class KotlinExtension {
   @SuppressWarnings("CanBeFinal")
   public String version;
 
-  public KotlinExtension(Project project) {
+  KotlinExtension(Project project) {
     version = KotlinUtil.getDefaultKotlinVersion(project);
   }
 }

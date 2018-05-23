@@ -1,7 +1,6 @@
 package com.uber.okbuck.core.model.jvm;
 
 import com.android.builder.model.LintOptions;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.core.model.base.AnnotationProcessorCache;
@@ -92,9 +91,9 @@ public class JvmTarget extends Target {
     // processors so no need to have any specified in the annotation processor deps list.
     if (!ProjectUtil.getAnnotationProcessorCache(getProject())
         .hasEmptyAnnotationProcessors(getProject(), configurationName)) {
-      return Scope.from(getProject());
+      return Scope.builder(getProject()).build();
     }
-    return Scope.from(getProject(), configurationName);
+    return Scope.builder(getProject()).configuration(configurationName).build();
   }
 
   protected Scope getAptScopeForConfiguration(@Nullable Configuration configuration) {
@@ -102,30 +101,31 @@ public class JvmTarget extends Target {
     // processors so no need to have any specified in the annotation processor deps list.
     if (!ProjectUtil.getAnnotationProcessorCache(getProject())
         .hasEmptyAnnotationProcessors(getProject(), configuration)) {
-      return Scope.from(getProject());
+      return Scope.builder(getProject()).build();
     }
-    return Scope.from(getProject(), configuration);
+    return Scope.builder(getProject()).configuration(configuration).build();
   }
 
   /** Provided Scope */
   public Scope getProvided() {
-    return Scope.from(getProject(), JavaPlugin.COMPILE_CLASSPATH_CONFIGURATION_NAME);
+    return Scope.builder(getProject())
+        .configuration(JavaPlugin.COMPILE_CLASSPATH_CONFIGURATION_NAME)
+        .build();
   }
 
   /** Test Provided Scope */
   public Scope getTestProvided() {
-    return Scope.from(getProject(), JavaPlugin.TEST_COMPILE_CLASSPATH_CONFIGURATION_NAME);
+    return Scope.builder(getProject())
+        .configuration(JavaPlugin.TEST_COMPILE_CLASSPATH_CONFIGURATION_NAME)
+        .build();
   }
 
   /** Lint Scope */
   public Scope getLint() {
-    return Scope.from(
-        getProject(),
-        OkBuckGradlePlugin.BUCK_LINT,
-        ImmutableSet.of(),
-        ImmutableSet.of(),
-        ImmutableList.of(),
-        LintUtil.getLintDepsCache(getProject()));
+    return Scope.builder(getProject())
+        .configuration(OkBuckGradlePlugin.BUCK_LINT)
+        .depCache(LintUtil.getLintDepsCache(getProject()))
+        .build();
   }
 
   @Nullable
@@ -167,23 +167,23 @@ public class JvmTarget extends Target {
   public Scope getMain() {
     JavaCompile compileJavaTask =
         (JavaCompile) getProject().getTasks().getByName(JavaPlugin.COMPILE_JAVA_TASK_NAME);
-    return Scope.from(
-        getProject(),
-        JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME,
-        getMainSrcDirs(),
-        getMainJavaResourceDirs(),
-        compileJavaTask.getOptions().getCompilerArgs());
+    return Scope.builder(getProject())
+        .configuration(JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME)
+        .sourceDirs(getMainSrcDirs())
+        .javaResourceDirs(getMainJavaResourceDirs())
+        .javaCompilerOptions(compileJavaTask.getOptions().getCompilerArgs())
+        .build();
   }
 
   public Scope getTest() {
     JavaCompile testCompileJavaTask =
         (JavaCompile) getProject().getTasks().getByName(JavaPlugin.COMPILE_TEST_JAVA_TASK_NAME);
-    return Scope.from(
-        getProject(),
-        JavaPlugin.TEST_RUNTIME_CLASSPATH_CONFIGURATION_NAME,
-        getTestSrcDirs(),
-        getTestJavaResourceDirs(),
-        testCompileJavaTask.getOptions().getCompilerArgs());
+    return Scope.builder(getProject())
+        .configuration(JavaPlugin.TEST_RUNTIME_CLASSPATH_CONFIGURATION_NAME)
+        .sourceDirs(getTestSrcDirs())
+        .javaResourceDirs(getTestJavaResourceDirs())
+        .javaCompilerOptions(testCompileJavaTask.getOptions().getCompilerArgs())
+        .build();
   }
 
   public String getSourceCompatibility() {

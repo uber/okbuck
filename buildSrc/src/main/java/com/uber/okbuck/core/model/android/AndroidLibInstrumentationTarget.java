@@ -12,7 +12,7 @@ import org.gradle.api.Project;
 /** An Android library instrumentation target */
 public class AndroidLibInstrumentationTarget extends AndroidInstrumentationTarget {
 
-  public AndroidLibInstrumentationTarget(Project project, String name) {
+  AndroidLibInstrumentationTarget(Project project, String name) {
     super(project, name);
   }
 

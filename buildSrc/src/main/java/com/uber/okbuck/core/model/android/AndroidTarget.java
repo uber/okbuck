@@ -157,22 +157,24 @@ public abstract class AndroidTarget extends JvmTarget {
 
   @Override
   public Scope getMain() {
-    return Scope.from(
-        getProject(),
-        getBaseVariant().getRuntimeConfiguration(),
-        getSources(getBaseVariant()),
-        getJavaResources(getBaseVariant()),
-        getJavaCompilerOptions(getBaseVariant()));
+    return Scope.builder(getProject())
+        .configuration(getBaseVariant().getRuntimeConfiguration())
+        .sourceDirs(getSources(getBaseVariant()))
+        .javaResourceDirs(getJavaResources(getBaseVariant()))
+        .javaCompilerOptions(getJavaCompilerOptions(getBaseVariant()))
+        .build();
   }
 
   @Override
   public Scope getTest() {
-    return Scope.from(
-        getProject(),
-        getUnitTestVariant() != null ? getUnitTestVariant().getRuntimeConfiguration() : null,
-        getUnitTestVariant() != null ? getSources(getUnitTestVariant()) : ImmutableSet.of(),
-        getJavaResources(getUnitTestVariant()),
-        getJavaCompilerOptions(getUnitTestVariant()));
+    Scope.Builder builder = Scope.builder(getProject());
+    UnitTestVariant unitTestVariant = getUnitTestVariant();
+    if (unitTestVariant != null) {
+      builder.configuration(unitTestVariant.getRuntimeConfiguration());
+      builder.sourceDirs(getSources(getUnitTestVariant()));
+      builder.javaCompilerOptions(getJavaCompilerOptions(unitTestVariant));
+    }
+    return builder.build();
   }
 
   @Override
@@ -203,14 +205,17 @@ public abstract class AndroidTarget extends JvmTarget {
 
   @Override
   public Scope getProvided() {
-    return Scope.from(getProject(), getBaseVariant().getCompileConfiguration());
+    return Scope.builder(getProject())
+        .configuration(getBaseVariant().getCompileConfiguration())
+        .build();
   }
 
   @Override
   public Scope getTestProvided() {
-    return Scope.from(
-        getProject(),
-        getUnitTestVariant() != null ? getUnitTestVariant().getCompileConfiguration() : null);
+    return Scope.builder(getProject())
+        .configuration(
+            getUnitTestVariant() != null ? getUnitTestVariant().getCompileConfiguration() : null)
+        .build();
   }
 
   @Override
@@ -228,7 +233,6 @@ public abstract class AndroidTarget extends JvmTarget {
 
   @Override
   public String getSourceCompatibility() {
-
     return JvmTarget.javaVersion(
         getAndroidExtension().getCompileOptions().getSourceCompatibility());
   }
@@ -494,6 +498,7 @@ public abstract class AndroidTarget extends JvmTarget {
     usesSdkNode.setAttribute("android:targetSdkVersion", targetSdk);
   }
 
+  @Nullable
   private UnitTestVariant getUnitTestVariant() {
     if (getBaseVariant() instanceof TestedVariant) {
       return ((TestedVariant) getBaseVariant()).getUnitTestVariant();
@@ -590,19 +595,19 @@ public abstract class AndroidTarget extends JvmTarget {
         .collect(Collectors.toSet());
   }
 
-  public final String getApplicationId() {
+  final String getApplicationId() {
     return applicationId;
   }
 
-  public final String getApplicationIdSuffix() {
+  final String getApplicationIdSuffix() {
     return applicationIdSuffix;
   }
 
-  public final String getVersionName() {
+  final String getVersionName() {
     return versionName;
   }
 
-  public final Integer getVersionCode() {
+  final Integer getVersionCode() {
     return versionCode;
   }
 
@@ -614,15 +619,15 @@ public abstract class AndroidTarget extends JvmTarget {
     return generateR2;
   }
 
-  public final boolean getIsKapt() {
+  final boolean getIsKapt() {
     return isKapt;
   }
 
-  public final boolean getHasKotlinAndroidExtensions() {
+  final boolean getHasKotlinAndroidExtensions() {
     return hasKotlinAndroidExtensions;
   }
 
-  public final boolean getHasExperimentalKotlinAndroidExtensions() {
+  final boolean getHasExperimentalKotlinAndroidExtensions() {
     return hasExperimentalKotlinAndroidExtensions;
   }
 
@@ -630,7 +635,7 @@ public abstract class AndroidTarget extends JvmTarget {
     return isTest;
   }
 
-  protected static String minus(String s, String text) {
+  static String minus(String s, String text) {
     int index = s.indexOf(text);
     if (index == -1) {
       return s;

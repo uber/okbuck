@@ -11,15 +11,15 @@ public abstract class AndroidBuckRuleComposer extends JvmBuckRuleComposer {
     return "res_" + target.getName();
   }
 
-  public static String resRule(AndroidTarget target) {
+  static String resRule(AndroidTarget target) {
     return "//" + target.getPath() + ":" + res(target);
   }
 
-  public static String buildConfig(AndroidTarget target) {
+  static String buildConfig(AndroidTarget target) {
     return "build_config_" + target.getName();
   }
 
-  public static String prebuiltNative(AndroidTarget target, String jniLibDir) {
+  static String prebuiltNative(AndroidTarget target, String jniLibDir) {
     return "prebuilt_native_library_" + target.getName() + "_" + jniLibDir.replaceAll("/", "_");
   }
 
@@ -27,7 +27,7 @@ public abstract class AndroidBuckRuleComposer extends JvmBuckRuleComposer {
     return target.getName() + "_" + aidlDir.replaceAll("[/-]", "_") + "_aidls";
   }
 
-  public static String appLib(AndroidTarget target) {
+  static String appLib(AndroidTarget target) {
     return "app_lib_" + target.getName();
   }
 
@@ -48,7 +48,7 @@ public abstract class AndroidBuckRuleComposer extends JvmBuckRuleComposer {
     return "instrumentation_" + target.getName() + "_apk";
   }
 
-  public static String instrumentationTest(AndroidAppTarget target) {
+  static String instrumentationTest(AndroidAppTarget target) {
     return "instrumentation_" + target.getName() + "_test";
   }
 }

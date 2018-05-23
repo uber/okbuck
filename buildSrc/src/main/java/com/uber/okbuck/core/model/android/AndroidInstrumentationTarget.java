@@ -38,29 +38,31 @@ public abstract class AndroidInstrumentationTarget extends AndroidAppTarget {
 
   @Override
   public Scope getProvided() {
-    return Scope.from(getProject(), getBaseVariant().getCompileConfiguration());
+    return Scope.builder(getProject())
+        .configuration(getBaseVariant().getCompileConfiguration())
+        .build();
   }
 
   @Override
   public Scope getMain() {
-    return Scope.from(
-        getProject(),
-        getBaseVariant().getRuntimeConfiguration(),
-        getSources(getBaseVariant()),
-        getJavaResources(getBaseVariant()),
-        AndroidTarget.getJavaCompilerOptions(getBaseVariant()));
+    return Scope.builder(getProject())
+        .configuration(getBaseVariant().getRuntimeConfiguration())
+        .sourceDirs(getSources(getBaseVariant()))
+        .javaResourceDirs(getJavaResources(getBaseVariant()))
+        .javaCompilerOptions(getJavaCompilerOptions(getBaseVariant()))
+        .build();
   }
 
   @Override
   public Scope getTest() {
-    return Scope.from(getProject());
+    return Scope.builder(getProject()).build();
   }
 
   static String getMainTargetName(String name) {
     return name.replaceFirst("_test$", "");
   }
 
-  public static String getInstrumentationTargetName(final String name) {
+  static String getInstrumentationTargetName(final String name) {
     return name + "_test";
   }
 }

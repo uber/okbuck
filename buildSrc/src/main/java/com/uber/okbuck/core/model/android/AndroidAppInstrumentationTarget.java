@@ -10,7 +10,7 @@ import org.gradle.api.Project;
 /** An Android instrumentation target */
 public class AndroidAppInstrumentationTarget extends AndroidInstrumentationTarget {
 
-  public AndroidAppInstrumentationTarget(Project project, String name) {
+  AndroidAppInstrumentationTarget(Project project, String name) {
     super(project, name);
   }
 

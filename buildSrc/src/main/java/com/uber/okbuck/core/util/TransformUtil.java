@@ -1,6 +1,5 @@
 package com.uber.okbuck.core.util;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.base.BuckRuleComposer;
@@ -54,13 +53,10 @@ public final class TransformUtil {
     dependencyCache.build(transformConfigurations);
 
     Scope transformScope =
-        Scope.from(
-            project,
-            CONFIGURATION_TRANSFORM,
-            ImmutableSet.of(),
-            ImmutableSet.of(),
-            ImmutableList.of(),
-            dependencyCache);
+        Scope.builder(project)
+            .configuration(CONFIGURATION_TRANSFORM)
+            .depCache(dependencyCache)
+            .build();
 
     Set<String> targetDeps =
         BuckRuleComposer.targets(transformScope.getTargetDeps())
