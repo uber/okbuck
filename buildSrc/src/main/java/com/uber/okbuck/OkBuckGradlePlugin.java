@@ -12,14 +12,9 @@ import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.LintUtil;
 import com.uber.okbuck.core.util.RobolectricUtil;
 import com.uber.okbuck.core.util.TransformUtil;
-import com.uber.okbuck.extension.ExperimentalExtension;
-import com.uber.okbuck.extension.IntellijExtension;
 import com.uber.okbuck.extension.KotlinExtension;
-import com.uber.okbuck.extension.LintExtension;
 import com.uber.okbuck.extension.OkBuckExtension;
 import com.uber.okbuck.extension.ScalaExtension;
-import com.uber.okbuck.extension.TestExtension;
-import com.uber.okbuck.extension.TransformExtension;
 import com.uber.okbuck.extension.WrapperExtension;
 import com.uber.okbuck.generator.BuckFileGenerator;
 import com.uber.okbuck.wrapper.BuckWrapperTask;
@@ -74,49 +69,39 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
     OkBuckExtension okbuckExt =
         project.getExtensions().create(OKBUCK, OkBuckExtension.class, project);
 
-    WrapperExtension wrapper = project.getExtensions().create(WRAPPER, WrapperExtension.class);
-
-    KotlinExtension kotlin = project.getExtensions().create(KOTLIN, KotlinExtension.class, project);
-    ScalaExtension scala = project.getExtensions().create(SCALA, ScalaExtension.class);
-
-    // These extensions are created before the next run loop
-    // Access them using methods on okbuckExt in the project.afterEvaluate block below.
-    project.getExtensions().create(LINT, LintExtension.class);
-    project.getExtensions().create(TEST, TestExtension.class);
-    project.getExtensions().create(EXPERIMENTAL, ExperimentalExtension.class);
-    project.getExtensions().create(INTELLIJ, IntellijExtension.class);
-    project.getExtensions().create(TRANSFORM, TransformExtension.class);
-
     // Create configurations
     project.getConfigurations().maybeCreate(TransformUtil.CONFIGURATION_TRANSFORM);
     project.getConfigurations().maybeCreate(FORCED_OKBUCK);
     Configuration buckBinaryConfiguration =
         project.getConfigurations().maybeCreate(BUCK_BINARY_CONFIGURATION);
 
-    // Create tasks
-    Task setupOkbuck = project.getTasks().create("setupOkbuck");
-    setupOkbuck.setGroup(GROUP);
-    setupOkbuck.setDescription("Setup okbuck cache and dependencies");
-
-    Task okBuck = project.getTasks().create(OKBUCK, OkBuckTask.class, okbuckExt, kotlin, scala);
-
-    okBuck.dependsOn(setupOkbuck);
-    okBuck.doLast(
-        task -> {
-          annotationProcessorCache.finalizeProcessors();
-          depCache.finalizeDeps();
-        });
-
-    // Create target cache
-    targetCache = new TargetCache();
-
-    // Create Annotation Processor cache
-    annotationProcessorCache =
-        new AnnotationProcessorCache(project.getRootProject(), PROCESSOR_BUCK_FILE);
-
     project.afterEvaluate(
         buckProject -> {
+          // Create tasks
+          Task setupOkbuck = project.getTasks().create("setupOkbuck");
+          setupOkbuck.setGroup(GROUP);
+          setupOkbuck.setDescription("Setup okbuck cache and dependencies");
 
+          KotlinExtension kotlin = okbuckExt.getKotlinExtension();
+          ScalaExtension scala = okbuckExt.getScalaExtension();
+
+          Task okBuck =
+              project.getTasks().create(OKBUCK, OkBuckTask.class, okbuckExt, kotlin, scala);
+          okBuck.dependsOn(setupOkbuck);
+          okBuck.doLast(
+              task -> {
+                annotationProcessorCache.finalizeProcessors();
+                depCache.finalizeDeps();
+              });
+
+          // Create target cache
+          targetCache = new TargetCache();
+
+          // Create Annotation Processor cache
+          annotationProcessorCache =
+              new AnnotationProcessorCache(project.getRootProject(), PROCESSOR_BUCK_FILE);
+
+          WrapperExtension wrapper = okbuckExt.getWrapperExtension();
           // Create wrapper task
           buckProject
               .getTasks()
