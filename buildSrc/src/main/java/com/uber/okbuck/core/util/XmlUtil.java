@@ -83,7 +83,7 @@ public final class XmlUtil {
     }
   }
 
-  public static void writeText(String text, File file) throws IOException {
+  static void writeText(String text, File file) throws IOException {
     BufferedWriter writer = new BufferedWriter(new FileWriter(file));
     writer.write(text);
     writer.close();

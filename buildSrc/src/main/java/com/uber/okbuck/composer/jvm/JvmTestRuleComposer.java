@@ -46,7 +46,7 @@ public final class JvmTestRuleComposer extends JvmBuckRuleComposer {
         .resources(target.getTest().getJavaResources())
         .sourceCompatibility(target.getSourceCompatibility())
         .targetCompatibility(target.getTargetCompatibility())
-        .options(target.getTest().getJvmArgs())
+        .options(target.getTest().getJavaCompilerOptions())
         .jvmArgs(target.getTestOptions().getJvmArgs())
         .env(target.getTestOptions().getEnv())
         .ruleType(ruleType.getBuckName())

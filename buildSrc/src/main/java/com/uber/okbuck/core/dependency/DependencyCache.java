@@ -66,7 +66,9 @@ public class DependencyCache {
     lintJars = new Store(rootProject.file(OkBuckGradlePlugin.OKBUCK_STATE_DIR + "/LINT_JARS"));
 
     if (forcedConfiguration != null) {
-      Scope.from(project, forcedConfiguration)
+      Scope.builder(project)
+          .configuration(forcedConfiguration)
+          .build()
           .getExternal()
           .forEach(
               dependency -> {

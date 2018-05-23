@@ -42,7 +42,7 @@ public class Scope {
   private final Set<String> sources;
   private final Configuration configuration;
   private final DependencyCache depCache;
-  private final List<String> jvmArgs;
+  private final List<String> javaCompilerOptions;
   protected final Project project;
 
   private final Set<Target> targetDeps = new HashSet<>();
@@ -62,8 +62,8 @@ public class Scope {
     return targetDeps;
   }
 
-  public List<String> getJvmArgs() {
-    return jvmArgs;
+  public List<String> getJavaCompilerOptions() {
+    return javaCompilerOptions;
   }
 
   public final Set<ExternalDependency> getExternal() {
@@ -78,18 +78,18 @@ public class Scope {
   private static final Spec<ComponentIdentifier> EXTERNAL_DEP_FILTER =
       componentIdentifier -> !(componentIdentifier instanceof ProjectComponentIdentifier);
 
-  protected Scope(
+  Scope(
       Project project,
       @Nullable Configuration configuration,
       Set<File> sourceDirs,
       Set<File> javaResourceDirs,
-      List<String> jvmArguments,
+      List<String> javaCompilerOptions,
       DependencyCache depCache) {
 
     this.project = project;
     this.sources = FileUtil.available(project, sourceDirs);
     this.javaResources = FileUtil.available(project, javaResourceDirs);
-    this.jvmArgs = jvmArguments;
+    this.javaCompilerOptions = javaCompilerOptions;
     this.depCache = depCache;
     this.configuration = configuration;
 
@@ -103,101 +103,13 @@ public class Scope {
       @Nullable Configuration configuration,
       Set<File> sourceDirs,
       Set<File> javaResourceDirs,
-      List<String> jvmArguments) {
+      List<String> javaCompilerOptions) {
     this(
         project,
         configuration,
         sourceDirs,
         javaResourceDirs,
-        jvmArguments,
-        ProjectUtil.getDependencyCache(project));
-  }
-
-  public static Scope from(
-      Project project,
-      String configuration,
-      Set<File> sourceDirs,
-      Set<File> javaResourceDirs,
-      List<String> jvmArguments,
-      DependencyCache depCache) {
-    Configuration useful = DependencyUtils.useful(project, configuration);
-    return from(project, useful, sourceDirs, javaResourceDirs, jvmArguments, depCache);
-  }
-
-  public static Scope from(
-      Project project,
-      String configuration,
-      Set<File> sourceDirs,
-      Set<File> javaResourceDirs,
-      List<String> jvmArguments) {
-    return Scope.from(
-        project,
-        configuration,
-        sourceDirs,
-        javaResourceDirs,
-        jvmArguments,
-        ProjectUtil.getDependencyCache(project));
-  }
-
-  public static Scope from(Project project, String configuration) {
-    return Scope.from(
-        project,
-        configuration,
-        ImmutableSet.of(),
-        ImmutableSet.of(),
-        ImmutableList.of(),
-        ProjectUtil.getDependencyCache(project));
-  }
-
-  public static Scope from(
-      Project project,
-      @Nullable Configuration configuration,
-      Set<File> sourceDirs,
-      Set<File> javaResourceDirs,
-      List<String> jvmArguments,
-      DependencyCache depCache) {
-    Configuration useful = DependencyUtils.useful(configuration);
-    String key = useful != null ? useful.getName() : "--none--";
-
-    return ProjectUtil.getScopes(project)
-        .computeIfAbsent(project, t -> new ConcurrentHashMap<>())
-        .computeIfAbsent(
-            key,
-            t -> new Scope(project, useful, sourceDirs, javaResourceDirs, jvmArguments, depCache));
-  }
-
-  public static Scope from(
-      Project project,
-      Configuration configuration,
-      Set<File> sourceDirs,
-      Set<File> javaResourceDirs,
-      List<String> jvmArguments) {
-    return Scope.from(
-        project,
-        configuration,
-        sourceDirs,
-        javaResourceDirs,
-        jvmArguments,
-        ProjectUtil.getDependencyCache(project));
-  }
-
-  public static Scope from(Project project, Configuration configuration) {
-    return Scope.from(
-        project,
-        configuration,
-        ImmutableSet.of(),
-        ImmutableSet.of(),
-        ImmutableList.of(),
-        ProjectUtil.getDependencyCache(project));
-  }
-
-  public static Scope from(Project project) {
-    return Scope.from(
-        project,
-        (Configuration) null,
-        ImmutableSet.of(),
-        ImmutableSet.of(),
-        ImmutableList.of(),
+        javaCompilerOptions,
         ProjectUtil.getDependencyCache(project));
   }
 
@@ -271,7 +183,7 @@ public class Scope {
    *
    * @return boolean whether the scope has any auto value extension.
    */
-  public boolean hasAutoValueExtensions() {
+  boolean hasAutoValueExtensions() {
     return external.stream().anyMatch(depCache::hasAutoValueExtensions);
   }
 
@@ -449,12 +361,80 @@ public class Scope {
     Scope scope = (Scope) o;
     return Objects.equals(javaResources, scope.javaResources)
         && Objects.equals(sources, scope.sources)
-        && Objects.equals(jvmArgs, scope.jvmArgs)
+        && Objects.equals(javaCompilerOptions, scope.javaCompilerOptions)
         && Objects.equals(project, scope.project);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(javaResources, sources, jvmArgs, project);
+    return Objects.hash(javaResources, sources, javaCompilerOptions, project);
+  }
+
+  public static Builder builder(Project project) {
+    return new Builder(project);
+  }
+
+  public static final class Builder {
+
+    private final Project project;
+
+    private Set<File> javaResourceDirs = ImmutableSet.of();
+    private Set<File> sourceDirs = ImmutableSet.of();
+    @Nullable private Configuration configuration = null;
+    private DependencyCache depCache;
+    private List<String> javaCompilerOptions = ImmutableList.of();
+
+    private Builder(Project project) {
+      this.project = project;
+      depCache = ProjectUtil.getDependencyCache(project);
+    }
+
+    public Builder javaResourceDirs(Set<File> javaResourceDirs) {
+      this.javaResourceDirs = javaResourceDirs;
+      return this;
+    }
+
+    public Builder sourceDirs(Set<File> sourceDirs) {
+      this.sourceDirs = sourceDirs;
+      return this;
+    }
+
+    public Builder configuration(@Nullable Configuration configuration) {
+      this.configuration = configuration;
+      return this;
+    }
+
+    public Builder configuration(String configuration) {
+      this.configuration = DependencyUtils.useful(project, configuration);
+      return this;
+    }
+
+    public Builder depCache(DependencyCache depCache) {
+      this.depCache = depCache;
+      return this;
+    }
+
+    public Builder javaCompilerOptions(List<String> javaCompilerOptions) {
+      this.javaCompilerOptions = javaCompilerOptions;
+      return this;
+    }
+
+    public Scope build() {
+      Configuration useful = DependencyUtils.useful(configuration);
+      String key = useful != null ? useful.getName() : "--none--";
+
+      return ProjectUtil.getScopes(project)
+          .computeIfAbsent(project, t -> new ConcurrentHashMap<>())
+          .computeIfAbsent(
+              key,
+              t ->
+                  new Scope(
+                      project,
+                      useful,
+                      sourceDirs,
+                      javaResourceDirs,
+                      javaCompilerOptions,
+                      depCache));
+    }
   }
 }
