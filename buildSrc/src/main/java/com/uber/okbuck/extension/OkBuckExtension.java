@@ -78,6 +78,9 @@ public class OkBuckExtension {
   public String buckBinary =
       "com.github.facebook:buck:910226716ecd215a38f27bd3dcfd7da3793e6cff@pex";
 
+  private WrapperExtension wrapperExtension = new WrapperExtension();
+  private KotlinExtension kotlinExtension;
+  private ScalaExtension scalaExtension = new ScalaExtension();
   private IntellijExtension intellijExtension = new IntellijExtension();
   private ExperimentalExtension experimentalExtension = new ExperimentalExtension();
   private TestExtension testExtension = new TestExtension();
@@ -86,7 +89,32 @@ public class OkBuckExtension {
 
   public OkBuckExtension(Project project) {
     buckProjects = project.getSubprojects();
+    kotlinExtension = new KotlinExtension(project);
     lintExtension = new LintExtension(project);
+  }
+
+  public void wrapper(Action<WrapperExtension> container) {
+    container.execute(wrapperExtension);
+  }
+
+  public WrapperExtension getWrapperExtension() {
+    return wrapperExtension;
+  }
+
+  public void kotlin(Action<KotlinExtension> container) {
+    container.execute(kotlinExtension);
+  }
+
+  public KotlinExtension getKotlinExtension() {
+    return kotlinExtension;
+  }
+
+  public void scala(Action<ScalaExtension> container) {
+    container.execute(scalaExtension);
+  }
+
+  public ScalaExtension getScalaExtension() {
+    return scalaExtension;
   }
 
   public void intellij(Action<IntellijExtension> container) {
