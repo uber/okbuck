@@ -27,6 +27,7 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
+import org.jetbrains.annotations.NotNull;
 
 public class OkBuckGradlePlugin implements Plugin<Project> {
   public static final String BUCK = "BUCK";
@@ -64,7 +65,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
   public TargetCache targetCache;
   public AnnotationProcessorCache annotationProcessorCache;
 
-  public void apply(Project project) {
+  public void apply(@NotNull Project project) {
     // Create extensions
     OkBuckExtension okbuckExt =
         project.getExtensions().create(OKBUCK, OkBuckExtension.class, project);

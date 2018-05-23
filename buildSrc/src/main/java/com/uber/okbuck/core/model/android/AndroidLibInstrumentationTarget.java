@@ -28,10 +28,9 @@ public class AndroidLibInstrumentationTarget extends AndroidInstrumentationTarge
     getLibraryVariant()
         .getSourceSets()
         .forEach(
-            provider -> {
-              getAvailable(provider.getResDirectories())
-                  .forEach(dir -> variantDirs.put(dir, provider.getName()));
-            });
+            provider ->
+                getAvailable(provider.getResDirectories())
+                    .forEach(dir -> variantDirs.put(dir, provider.getName())));
 
     return variantDirs;
   }

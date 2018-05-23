@@ -42,12 +42,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.groovy.runtime.DefaultGroovyMethods;
-import org.codehaus.groovy.runtime.StringGroovyMethods;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.api.tasks.testing.Test;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.gradle.internal.AndroidExtensionsExtension;
 import org.jetbrains.kotlin.gradle.plugin.KotlinAndroidPluginWrapper;
 import org.w3c.dom.Document;
@@ -75,9 +74,9 @@ public abstract class AndroidTarget extends JvmTarget {
   private final boolean hasExperimentalKotlinAndroidExtensions;
   private final boolean lintExclude;
   private final boolean testExclude;
+  private final boolean isTest;
   private String manifestPath;
   private String packageName;
-  private boolean isTest;
 
   public AndroidTarget(Project project, String name, boolean isTest) {
     super(project, name);
@@ -96,13 +95,10 @@ public abstract class AndroidTarget extends JvmTarget {
     applicationIdSuffix = suffix;
     if (isTest) {
       String applicationIdString =
-          StringGroovyMethods.minus(
-              StringGroovyMethods.minus(getBaseVariant().getApplicationId(), ".test"),
-              applicationIdSuffix);
-      applicationId = StringGroovyMethods.minus(applicationIdString, applicationIdSuffix);
+          minus(minus(getBaseVariant().getApplicationId(), ".test"), applicationIdSuffix);
+      applicationId = minus(applicationIdString, applicationIdSuffix);
     } else {
-      applicationId =
-          StringGroovyMethods.minus(getBaseVariant().getApplicationId(), applicationIdSuffix);
+      applicationId = minus(getBaseVariant().getApplicationId(), applicationIdSuffix);
     }
 
     versionName = getBaseVariant().getMergedFlavor().getVersionName();
@@ -214,9 +210,7 @@ public abstract class AndroidTarget extends JvmTarget {
   public Scope getTestProvided() {
     return Scope.from(
         getProject(),
-        DefaultGroovyMethods.asBoolean(getUnitTestVariant())
-            ? getUnitTestVariant().getCompileConfiguration()
-            : null);
+        getUnitTestVariant() != null ? getUnitTestVariant().getCompileConfiguration() : null);
   }
 
   @Override
@@ -426,8 +420,7 @@ public abstract class AndroidTarget extends JvmTarget {
         // errors are reported later
         MergingReport report =
             ManifestMerger2.newMerger(mainManifest, EMPTY_LOGGER, getMergeType())
-                .addFlavorAndBuildTypeManifests(
-                    secondaryManifests.toArray(new File[secondaryManifests.size()]))
+                .addFlavorAndBuildTypeManifests(secondaryManifests.toArray(new File[0]))
                 .withFeatures(
                     ManifestMerger2.Invoker.Feature.NO_PLACEHOLDER_REPLACEMENT) // handled by buck
                 .merge();
@@ -509,6 +502,7 @@ public abstract class AndroidTarget extends JvmTarget {
     }
   }
 
+  @Nullable
   TestVariant getInstrumentationTestVariant() {
     if (getBaseVariant() instanceof TestedVariant) {
       TestVariant testVariant = ((TestedVariant) getBaseVariant()).getTestVariant();
@@ -517,9 +511,8 @@ public abstract class AndroidTarget extends JvmTarget {
         testVariant
             .getSourceSets()
             .forEach(
-                provider -> {
-                  manifests.addAll(getAvailable(ImmutableSet.of(provider.getManifestFile())));
-                });
+                provider ->
+                    manifests.addAll(getAvailable(ImmutableSet.of(provider.getManifestFile()))));
         return manifests.isEmpty() ? null : testVariant;
       }
     }
@@ -546,7 +539,8 @@ public abstract class AndroidTarget extends JvmTarget {
     }
   }
 
-  private Configuration getConfigurationFromVariant(BaseVariant variant) {
+  @Nullable
+  private Configuration getConfigurationFromVariant(@Nullable BaseVariant variant) {
     Configuration configuration = null;
     if (isKapt) {
       configuration =
@@ -620,10 +614,6 @@ public abstract class AndroidTarget extends JvmTarget {
     return generateR2;
   }
 
-  public final boolean isGenerateR2() {
-    return generateR2;
-  }
-
   public final boolean getIsKapt() {
     return isKapt;
   }
@@ -638,6 +628,16 @@ public abstract class AndroidTarget extends JvmTarget {
 
   public boolean getIsTest() {
     return isTest;
+  }
+
+  protected static String minus(String s, String text) {
+    int index = s.indexOf(text);
+    if (index == -1) {
+      return s;
+    } else {
+      int end = index + text.length();
+      return s.length() > end ? s.substring(0, index) + s.substring(end) : s.substring(0, index);
+    }
   }
 
   private static class EmptyLogger implements ILogger {

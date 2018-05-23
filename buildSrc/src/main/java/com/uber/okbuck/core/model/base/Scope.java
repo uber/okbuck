@@ -41,15 +41,14 @@ public class Scope {
   private final Set<String> javaResources;
   private final Set<String> sources;
   private final Configuration configuration;
-
-  private List<String> jvmArgs;
-  private DependencyCache depCache;
-  private Set<String> annotationProcessors;
-
+  private final DependencyCache depCache;
+  private final List<String> jvmArgs;
   protected final Project project;
 
   private final Set<Target> targetDeps = new HashSet<>();
   private final Set<ExternalDependency> external = new HashSet<>();
+
+  private Set<String> annotationProcessors;
 
   public final Set<String> getJavaResources() {
     return javaResources;
@@ -65,10 +64,6 @@ public class Scope {
 
   public List<String> getJvmArgs() {
     return jvmArgs;
-  }
-
-  public void setJvmArgs(List<String> jvmArgs) {
-    this.jvmArgs = jvmArgs;
   }
 
   public final Set<ExternalDependency> getExternal() {
@@ -144,27 +139,6 @@ public class Scope {
         ProjectUtil.getDependencyCache(project));
   }
 
-  public static Scope from(
-      Project project, String configuration, Set<File> sourceDirs, Set<File> javaResourceDirs) {
-    return Scope.from(
-        project,
-        configuration,
-        sourceDirs,
-        javaResourceDirs,
-        ImmutableList.of(),
-        ProjectUtil.getDependencyCache(project));
-  }
-
-  public static Scope from(Project project, String configuration, Set<File> sourceDirs) {
-    return Scope.from(
-        project,
-        configuration,
-        sourceDirs,
-        ImmutableSet.of(),
-        ImmutableList.of(),
-        ProjectUtil.getDependencyCache(project));
-  }
-
   public static Scope from(Project project, String configuration) {
     return Scope.from(
         project,
@@ -204,30 +178,6 @@ public class Scope {
         sourceDirs,
         javaResourceDirs,
         jvmArguments,
-        ProjectUtil.getDependencyCache(project));
-  }
-
-  public static Scope from(
-      Project project,
-      Configuration configuration,
-      Set<File> sourceDirs,
-      Set<File> javaResourceDirs) {
-    return Scope.from(
-        project,
-        configuration,
-        sourceDirs,
-        javaResourceDirs,
-        ImmutableList.of(),
-        ProjectUtil.getDependencyCache(project));
-  }
-
-  public static Scope from(Project project, Configuration configuration, Set<File> sourceDirs) {
-    return Scope.from(
-        project,
-        configuration,
-        sourceDirs,
-        ImmutableSet.of(),
-        ImmutableList.of(),
         ProjectUtil.getDependencyCache(project));
   }
 
@@ -322,7 +272,7 @@ public class Scope {
    * @return boolean whether the scope has any auto value extension.
    */
   public boolean hasAutoValueExtensions() {
-    return external.stream().anyMatch(dependency -> depCache.hasAutoValueExtensions(dependency));
+    return external.stream().anyMatch(depCache::hasAutoValueExtensions);
   }
 
   /**

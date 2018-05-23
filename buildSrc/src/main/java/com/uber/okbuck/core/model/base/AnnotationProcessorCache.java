@@ -27,7 +27,7 @@ public class AnnotationProcessorCache {
   private final Project project;
   private final String processorBuckFile;
 
-  private Map<Set<Dependency>, Scope> dependencyToScopeMap = new ConcurrentHashMap<>();
+  private final Map<Set<Dependency>, Scope> dependencyToScopeMap = new ConcurrentHashMap<>();
 
   public AnnotationProcessorCache(Project project, String processorBuckFile) {
     this.project = project;
@@ -159,7 +159,7 @@ public class AnnotationProcessorCache {
     // Creates a scope using a detached configuration and the given dependency set.
     Function<Set<Dependency>, Scope> computeScope =
         depSet -> {
-          Dependency[] depArray = depSet.toArray(new Dependency[depSet.size()]);
+          Dependency[] depArray = depSet.toArray(new Dependency[0]);
           Configuration detached = project.getConfigurations().detachedConfiguration(depArray);
           return Scope.from(project, detached);
         };

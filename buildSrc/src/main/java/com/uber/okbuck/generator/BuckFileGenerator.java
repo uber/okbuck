@@ -137,13 +137,7 @@ public final class BuckFileGenerator {
             .collect(Collectors.toList());
 
     List<String> aidlRuleNames =
-        aidlRules
-            .stream()
-            .map(
-                rule -> {
-                  return ":" + rule.name();
-                })
-            .collect(Collectors.toList());
+        aidlRules.stream().map(rule -> ":" + rule.name()).collect(Collectors.toList());
 
     List<Rule> androidLibRules = new ArrayList<>(aidlRules);
 
@@ -160,10 +154,7 @@ public final class BuckFileGenerator {
         target
             .getJniLibs()
             .stream()
-            .map(
-                jniLib -> {
-                  return PreBuiltNativeLibraryRuleComposer.compose(target, jniLib);
-                })
+            .map(jniLib -> PreBuiltNativeLibraryRuleComposer.compose(target, jniLib))
             .collect(Collectors.toList()));
 
     List<String> deps =
@@ -186,11 +177,6 @@ public final class BuckFileGenerator {
     }
 
     return new ArrayList<>(androidLibRules);
-  }
-
-  private static List<Rule> createRules(
-      AndroidLibTarget target, String appClass, List<String> extraDeps) {
-    return BuckFileGenerator.createRules(target, appClass, extraDeps, new ArrayList<>());
   }
 
   private static List<Rule> createRules(AndroidLibTarget target, @Nullable String appClass) {

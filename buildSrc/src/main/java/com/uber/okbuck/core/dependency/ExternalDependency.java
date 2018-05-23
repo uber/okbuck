@@ -1,6 +1,8 @@
 package com.uber.okbuck.core.dependency;
 
 import java.io.File;
+import java.util.Objects;
+import javax.annotation.Nullable;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -18,15 +20,16 @@ public final class ExternalDependency {
    */
   private static final String CACHE_DELIMITER = "--";
 
-  public final boolean isLocal;
-  public final String version;
+  @Nullable public final String version;
   public final File depFile;
   public final String group;
   public final String name;
   public final VersionlessDependency versionless;
-  public final String packaging;
 
-  public ExternalDependency(String group, String name, String version, File depFile) {
+  final boolean isLocal;
+  final String packaging;
+
+  public ExternalDependency(String group, String name, @Nullable String version, File depFile) {
     this(group, name, version, depFile, false);
   }
 
@@ -38,18 +41,15 @@ public final class ExternalDependency {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-
     ExternalDependency that = (ExternalDependency) o;
-
-    return version.equals(that.version) && group.equals(that.group) && name.equals(that.name);
+    return Objects.equals(version, that.version)
+        && Objects.equals(group, that.group)
+        && Objects.equals(name, that.name);
   }
 
   @Override
   public int hashCode() {
-    int result = version.hashCode();
-    result = 31 * result + group.hashCode();
-    result = 31 * result + name.hashCode();
-    return result;
+    return Objects.hash(version, group, name);
   }
 
   @Override
@@ -63,11 +63,11 @@ public final class ExternalDependency {
         + this.depFile.toString();
   }
 
-  public String getCacheName() {
+  String getCacheName() {
     return getCacheName(true);
   }
 
-  public String getCacheName(boolean useFullDepName) {
+  String getCacheName(boolean useFullDepName) {
     if (useFullDepName) {
       if (!StringUtils.isEmpty(group)) {
         return group
@@ -86,12 +86,12 @@ public final class ExternalDependency {
     }
   }
 
-  public String getSourceCacheName(boolean useFullDepName) {
+  String getSourceCacheName(boolean useFullDepName) {
     return getCacheName(useFullDepName).replaceFirst("\\.(jar|aar)$", SOURCES_JAR);
   }
 
   private ExternalDependency(
-      String group, String name, String version, File depFile, boolean isLocal) {
+      String group, String name, @Nullable String version, File depFile, boolean isLocal) {
     this.group = group;
     this.name = name;
     this.isLocal = isLocal;
@@ -119,14 +119,6 @@ public final class ExternalDependency {
     public VersionlessDependency(String group, String name) {
       this.group = group;
       this.name = name;
-    }
-
-    public String getGroup() {
-      return group;
-    }
-
-    public String getName() {
-      return name;
     }
 
     @Override

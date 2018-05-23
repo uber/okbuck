@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.gradle.api.Project;
+import org.jetbrains.annotations.Nullable;
 
 /** An Android library target */
 public class AndroidLibTarget extends AndroidTarget {
@@ -69,6 +70,7 @@ public class AndroidLibTarget extends AndroidTarget {
     return getOkbuck().libraryBuildConfig;
   }
 
+  @Nullable
   public String getConsumerProguardConfig() {
     Set<File> consumerProguardFiles =
         new ImmutableSet.Builder<File>()

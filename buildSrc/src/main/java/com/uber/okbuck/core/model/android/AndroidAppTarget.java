@@ -19,8 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import org.codehaus.groovy.runtime.DefaultGroovyMethods;
-import org.codehaus.groovy.runtime.StringGroovyMethods;
 import org.gradle.api.Project;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,10 +70,7 @@ public class AndroidAppTarget extends AndroidLibTarget {
 
     if (isTest) {
       placeholders.put(
-          "applicationId",
-          StringGroovyMethods.minus(getApplicationId(), ".test")
-              + getApplicationIdSuffix()
-              + ".test");
+          "applicationId", minus(getApplicationId(), ".test") + getApplicationIdSuffix() + ".test");
     } else {
       placeholders.put("applicationId", getApplicationId() + getApplicationIdSuffix());
     }
@@ -172,23 +167,15 @@ public class AndroidAppTarget extends AndroidLibTarget {
           proguardFiles.size() == 1,
           "%s proguard files found. Only one can be used.",
           proguardFiles.size());
+      File proguardFile = proguardFiles.iterator().next();
       Preconditions.checkArgument(
-          DefaultGroovyMethods.getAt(proguardFiles, 0).exists(),
-          "Proguard file %s does not exist",
-          DefaultGroovyMethods.getAt(proguardFiles, 0));
+          proguardFile.exists(), "Proguard file %s does not exist", proguardFile);
       File genProguardConfig = getGenPath("proguard.pro");
       try {
-        LOG.info(
-            "Creating symlink {} -> {}",
-            genProguardConfig,
-            DefaultGroovyMethods.getAt(proguardFiles, 0));
-        Files.createSymbolicLink(
-            genProguardConfig.toPath(), DefaultGroovyMethods.getAt(proguardFiles, 0).toPath());
+        LOG.info("Creating symlink {} -> {}", genProguardConfig, proguardFile);
+        Files.createSymbolicLink(genProguardConfig.toPath(), proguardFile.toPath());
       } catch (IOException ignored) {
-        LOG.info(
-            "Could not create symlink {} -> {}",
-            genProguardConfig,
-            DefaultGroovyMethods.getAt(proguardFiles, 0));
+        LOG.info("Could not create symlink {} -> {}", genProguardConfig, proguardFile);
       }
 
       if (proguardMappingFile != null) {
