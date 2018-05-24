@@ -49,7 +49,7 @@ public abstract class AndroidInstrumentationTarget extends AndroidAppTarget {
         .configuration(getBaseVariant().getRuntimeConfiguration())
         .sourceDirs(getSources(getBaseVariant()))
         .javaResourceDirs(getJavaResources(getBaseVariant()))
-        .javaCompilerOptions(getJavaCompilerOptions(getBaseVariant()))
+        .compilerOptions(Scope.Builder.COMPILER.JAVA, getJavaCompilerOptions(getBaseVariant()))
         .build();
   }
 
