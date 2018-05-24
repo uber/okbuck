@@ -478,9 +478,10 @@ public abstract class AndroidTarget extends JvmTarget {
     }
   }
 
-  private List<String> getKotlinCompilerOptions() {
+  @Override
+  protected List<String> getKotlinCompilerOptions() {
     if (!getHasKotlinAndroidExtensions()) {
-      return ImmutableList.of();
+      return super.getKotlinCompilerOptions();
     }
 
     ImmutableList.Builder<String> extraKotlincArgs = ImmutableList.builder();
@@ -524,6 +525,8 @@ public abstract class AndroidTarget extends JvmTarget {
     extraKotlincArgs.add(plugin.toString());
     extraKotlincArgs.add("-P");
     extraKotlincArgs.add(options.toString());
+
+    extraKotlincArgs.addAll(super.getKotlinCompilerOptions());
 
     return extraKotlincArgs.build();
   }
@@ -579,7 +582,7 @@ public abstract class AndroidTarget extends JvmTarget {
     return null;
   }
 
-  public File getGenPath(String... paths) {
+  File getGenPath(String... paths) {
     return getRootProject().file(Paths.get(genDir, paths).toFile());
   }
 

@@ -362,11 +362,11 @@ public class Scope {
       return false;
     }
     Scope scope = (Scope) o;
-    return Objects.equals(javaResources, scope.javaResources) &&
-        Objects.equals(sources, scope.sources) &&
-        Objects.equals(configuration, scope.configuration) &&
-        Objects.equals(compilerOptions, scope.compilerOptions) &&
-        Objects.equals(project, scope.project);
+    return Objects.equals(javaResources, scope.javaResources)
+        && Objects.equals(sources, scope.sources)
+        && Objects.equals(configuration, scope.configuration)
+        && Objects.equals(compilerOptions, scope.compilerOptions)
+        && Objects.equals(project, scope.project);
   }
 
   @Override
@@ -382,7 +382,6 @@ public class Scope {
   public static final class Builder {
 
     public enum COMPILER {
-      GROOVY,
       JAVA,
       KOTLIN,
       SCALA
@@ -427,7 +426,8 @@ public class Scope {
     }
 
     public Builder compilerOptions(COMPILER compiler, List<String> options) {
-      List<String> existingOptions = compilerOptions.computeIfAbsent(compiler, compiler1 -> new ArrayList<>());
+      List<String> existingOptions =
+          compilerOptions.computeIfAbsent(compiler, compiler1 -> new ArrayList<>());
       existingOptions.addAll(options);
       return this;
     }
@@ -442,12 +442,7 @@ public class Scope {
               key,
               t ->
                   new Scope(
-                      project,
-                      useful,
-                      sourceDirs,
-                      javaResourceDirs,
-                      compilerOptions,
-                      depCache));
+                      project, useful, sourceDirs, javaResourceDirs, compilerOptions, depCache));
     }
   }
 }

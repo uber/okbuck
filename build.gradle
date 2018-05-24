@@ -12,6 +12,7 @@ buildscript {
         classpath deps.build.androidPlugin
         classpath deps.build.butterKnifePlugin
         classpath deps.build.kotlinPlugin
+        classpath deps.build.kotlinAllOpen
         classpath deps.build.sqlDelightPlugin
         classpath deps.build.shadowJar
     }

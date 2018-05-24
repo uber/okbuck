@@ -6,7 +6,6 @@ import com.uber.okbuck.composer.base.BuckRuleComposer;
 import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.model.base.Target;
 import com.uber.okbuck.core.model.jvm.JvmTarget;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -14,12 +13,11 @@ import java.util.stream.Collectors;
 
 public class JvmBuckRuleComposer extends BuckRuleComposer {
 
-  private static final Map<Scope.Builder.COMPILER, String> COMPILER_OPTIONS_MAP = ImmutableMap.of(
-      Scope.Builder.COMPILER.GROOVY, "extra_groovyc_arguments",
-      Scope.Builder.COMPILER.JAVA, "extra_arguments",
-      Scope.Builder.COMPILER.KOTLIN, "extra_kotlinc_arguments",
-      Scope.Builder.COMPILER.SCALA, "extra_arguments"
-  );
+  private static final Map<Scope.Builder.COMPILER, String> COMPILER_OPTIONS_MAP =
+      ImmutableMap.of(
+          Scope.Builder.COMPILER.JAVA, "extra_arguments",
+          Scope.Builder.COMPILER.KOTLIN, "extra_kotlinc_arguments",
+          Scope.Builder.COMPILER.SCALA, "extra_arguments");
 
   public static String src(final JvmTarget target) {
     return "src_" + target.getName();
@@ -107,8 +105,11 @@ public class JvmBuckRuleComposer extends BuckRuleComposer {
    * @param options compiler options map
    * @return The compiler options
    */
-  protected static Map<String, List<String>> mapOptions(Map<Scope.Builder.COMPILER, List<String>> options) {
-    return options.entrySet().stream()
+  protected static Map<String, List<String>> mapOptions(
+      Map<Scope.Builder.COMPILER, List<String>> options) {
+    return options
+        .entrySet()
+        .stream()
         .collect(Collectors.toMap(e -> COMPILER_OPTIONS_MAP.get(e.getKey()), Map.Entry::getValue));
   }
 

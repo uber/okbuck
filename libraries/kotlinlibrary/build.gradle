@@ -1,5 +1,6 @@
 apply plugin: "kotlin"
 apply plugin: "kotlin-kapt"
+apply plugin: "kotlin-allopen"
 
 dependencies {
   implementation deps.external.kotlinStdlib
@@ -8,4 +9,10 @@ dependencies {
   kaptTest deps.apt.daggerCompiler
   testImplementation deps.test.junit
   testImplementation deps.test.kotlinTest
+  testImplementation deps.test.mockito
+}
+
+allOpen {
+  annotations("demo.Anno")
+  annotations("demo.Anno2")
 }
