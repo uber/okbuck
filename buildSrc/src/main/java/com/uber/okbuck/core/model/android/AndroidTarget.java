@@ -171,7 +171,8 @@ public abstract class AndroidTarget extends JvmTarget {
     UnitTestVariant unitTestVariant = getUnitTestVariant();
     if (unitTestVariant != null) {
       builder.configuration(unitTestVariant.getRuntimeConfiguration());
-      builder.sourceDirs(getSources(getUnitTestVariant()));
+      builder.sourceDirs(getSources(unitTestVariant));
+      builder.javaResourceDirs(getJavaResources(unitTestVariant));
       builder.compilerOptions(Scope.Builder.COMPILER.JAVA, getJavaCompilerOptions(unitTestVariant));
     }
     return builder.build();
