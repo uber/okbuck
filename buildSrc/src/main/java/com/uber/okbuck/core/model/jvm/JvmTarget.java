@@ -1,14 +1,17 @@
 package com.uber.okbuck.core.model.jvm;
 
 import com.android.builder.model.LintOptions;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.core.model.base.AnnotationProcessorCache;
 import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.model.base.Target;
+import com.uber.okbuck.core.util.KotlinUtil;
 import com.uber.okbuck.core.util.LintUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -171,7 +174,9 @@ public class JvmTarget extends Target {
         .configuration(JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME)
         .sourceDirs(getMainSrcDirs())
         .javaResourceDirs(getMainJavaResourceDirs())
-        .compilerOptions(Scope.Builder.COMPILER.JAVA, compileJavaTask.getOptions().getCompilerArgs())
+        .compilerOptions(
+            Scope.Builder.COMPILER.JAVA, compileJavaTask.getOptions().getCompilerArgs())
+        .compilerOptions(Scope.Builder.COMPILER.KOTLIN, getKotlinCompilerOptions())
         .build();
   }
 
@@ -182,7 +187,9 @@ public class JvmTarget extends Target {
         .configuration(JavaPlugin.TEST_RUNTIME_CLASSPATH_CONFIGURATION_NAME)
         .sourceDirs(getTestSrcDirs())
         .javaResourceDirs(getTestJavaResourceDirs())
-        .compilerOptions(Scope.Builder.COMPILER.JAVA, testCompileJavaTask.getOptions().getCompilerArgs())
+        .compilerOptions(
+            Scope.Builder.COMPILER.JAVA, testCompileJavaTask.getOptions().getCompilerArgs())
+        .compilerOptions(Scope.Builder.COMPILER.KOTLIN, getKotlinCompilerOptions())
         .build();
   }
 
@@ -245,5 +252,26 @@ public class JvmTarget extends Target {
 
   public static String javaVersion(JavaVersion version) {
     return version.getMajorVersion();
+  }
+
+  protected List<String> getKotlinCompilerOptions() {
+    if (getProject().getPlugins().hasPlugin("kotlin-allopen")) {
+      String allOpenAnnotations =
+          (String)
+              getProject().getExtensions().getExtraProperties().get("kotlinAllOpenAnnotations");
+      if (allOpenAnnotations != null) {
+        ImmutableList.Builder<String> optionBuilder = ImmutableList.builder();
+
+        optionBuilder.add("-Xplugin=" + KotlinUtil.KOTLIN_LIBRARIES_LOCATION + File.separator + "kotlin-allopen.jar");
+
+        for (String annotation: allOpenAnnotations.split(",")) {
+          optionBuilder.add("-P");
+          optionBuilder.add("plugin:org.jetbrains.kotlin.allopen:annotation=" + annotation);
+        }
+
+        return optionBuilder.build();
+      }
+    }
+    return ImmutableList.of();
   }
 }
