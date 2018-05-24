@@ -40,7 +40,7 @@ public final class ExopackageAndroidLibraryRuleComposer extends AndroidBuckRuleC
             .options(mapOptions(target.getMain().getCompilerOptions()));
 
     if (target.getRuleType().equals(RuleType.KOTLIN_ANDROID_LIBRARY)) {
-      androidRule = androidRule.language("kotlin").extraKotlincArgs(target.getKotlincArguments());
+      androidRule = androidRule.language("kotlin");
     }
 
     Set<String> extraBuckOpts = new HashSet<>(target.getExtraOpts(RuleType.ANDROID_LIBRARY));

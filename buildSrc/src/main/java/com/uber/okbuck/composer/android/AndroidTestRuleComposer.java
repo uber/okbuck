@@ -62,7 +62,7 @@ public final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
             .runtimeDependency(RobolectricUtil.ROBOLECTRIC_CACHE);
 
     if (target.getTestRuleType().equals(RuleType.KOTLIN_ROBOLECTRIC_TEST)) {
-      androidTest = androidTest.language("kotlin").extraKotlincArgs(target.getKotlincArguments());
+      androidTest = androidTest.language("kotlin");
     }
 
     return androidTest

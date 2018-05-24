@@ -24,6 +24,7 @@ import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.model.jvm.JvmTarget;
 import com.uber.okbuck.core.model.jvm.TestOptions;
 import com.uber.okbuck.core.util.FileUtil;
+import com.uber.okbuck.core.util.KotlinUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.core.util.XmlUtil;
 import java.io.File;
@@ -57,6 +58,7 @@ import org.w3c.dom.NodeList;
 public abstract class AndroidTarget extends JvmTarget {
 
   private static final EmptyLogger EMPTY_LOGGER = new EmptyLogger();
+  private static final String KOTLIN_EXTENSIONS_OPTION = "plugin:org.jetbrains.kotlin.android:";
 
   private static final String DEFAULT_SDK = "1";
   private final String applicationId;
@@ -162,6 +164,7 @@ public abstract class AndroidTarget extends JvmTarget {
         .sourceDirs(getSources(getBaseVariant()))
         .javaResourceDirs(getJavaResources(getBaseVariant()))
         .compilerOptions(Scope.Builder.COMPILER.JAVA, getJavaCompilerOptions(getBaseVariant()))
+        .compilerOptions(Scope.Builder.COMPILER.KOTLIN, getKotlinCompilerOptions())
         .build();
   }
 
@@ -174,6 +177,7 @@ public abstract class AndroidTarget extends JvmTarget {
       builder.sourceDirs(getSources(unitTestVariant));
       builder.javaResourceDirs(getJavaResources(unitTestVariant));
       builder.compilerOptions(Scope.Builder.COMPILER.JAVA, getJavaCompilerOptions(unitTestVariant));
+      builder.compilerOptions(Scope.Builder.COMPILER.KOTLIN, getKotlinCompilerOptions());
     }
     return builder.build();
   }
@@ -472,6 +476,56 @@ public abstract class AndroidTarget extends JvmTarget {
     } else {
       return ImmutableList.of();
     }
+  }
+
+  private List<String> getKotlinCompilerOptions() {
+    if (!getHasKotlinAndroidExtensions()) {
+      return ImmutableList.of();
+    }
+
+    ImmutableList.Builder<String> extraKotlincArgs = ImmutableList.builder();
+
+    StringBuilder plugin = new StringBuilder();
+    StringBuilder resDirs = new StringBuilder();
+    StringBuilder options = new StringBuilder();
+
+    // :root:module -> root/module/
+    final String module =
+        getProject().getPath().replace(":", File.separator).substring(1) + File.separator;
+
+    getResVariantDirs()
+        .forEach(
+            (String dir, String variant) -> {
+              String pathToRes = module + dir;
+              resDirs.append(KOTLIN_EXTENSIONS_OPTION);
+              resDirs.append("variant=");
+              resDirs.append(variant);
+              resDirs.append(";");
+              resDirs.append(pathToRes);
+              resDirs.append(",");
+            });
+
+    plugin.append("-Xplugin=");
+    plugin.append(KotlinUtil.KOTLIN_LIBRARIES_LOCATION);
+    plugin.append(File.separator);
+    plugin.append("kotlin-android-extensions.jar");
+
+    options.append(resDirs.toString());
+    options.append(KOTLIN_EXTENSIONS_OPTION);
+    options.append("package=");
+    options.append(getPackage());
+
+    if (getHasExperimentalKotlinAndroidExtensions()) {
+      options.append(",");
+      options.append(KOTLIN_EXTENSIONS_OPTION);
+      options.append("experimental=true");
+    }
+
+    extraKotlincArgs.add(plugin.toString());
+    extraKotlincArgs.add("-P");
+    extraKotlincArgs.add(options.toString());
+
+    return extraKotlincArgs.build();
   }
 
   static void filterOptions(List<String> options, List<String> remove) {
