@@ -5,15 +5,12 @@ import com.android.build.gradle.api.BaseVariant;
 import com.android.build.gradle.api.LibraryVariant;
 import com.android.manifmerger.ManifestMerger2;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.core.model.base.ProjectType;
 import com.uber.okbuck.core.util.FileUtil;
-import com.uber.okbuck.core.util.KotlinUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.extension.TestExtension;
 import java.io.File;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.gradle.api.Project;
@@ -22,7 +19,6 @@ import org.jetbrains.annotations.Nullable;
 /** An Android library target */
 public class AndroidLibTarget extends AndroidTarget {
 
-  private static final String KOTLIN_EXTENSIONS_OPTION = "plugin:org.jetbrains.kotlin.android:";
   private final AndroidLibInstrumentationTarget libInstrumentationTarget;
 
   public AndroidLibTarget(Project project, String name) {
@@ -83,56 +79,6 @@ public class AndroidLibTarget extends AndroidTarget {
       return FileUtil.getRelativePath(getProject().getProjectDir(), optionalFile.get());
     }
     return null;
-  }
-
-  public List<String> getKotlincArguments() {
-    if (!getHasKotlinAndroidExtensions()) {
-      return ImmutableList.of();
-    }
-
-    ImmutableList.Builder<String> extraKotlincArgs = ImmutableList.builder();
-
-    StringBuilder plugin = new StringBuilder();
-    StringBuilder resDirs = new StringBuilder();
-    StringBuilder options = new StringBuilder();
-
-    // :root:module -> root/module/
-    final String module =
-        getProject().getPath().replace(":", File.separator).substring(1) + File.separator;
-
-    getResVariantDirs()
-        .forEach(
-            (String dir, String variant) -> {
-              String pathToRes = module + dir;
-              resDirs.append(KOTLIN_EXTENSIONS_OPTION);
-              resDirs.append("variant=");
-              resDirs.append(variant);
-              resDirs.append(";");
-              resDirs.append(pathToRes);
-              resDirs.append(",");
-            });
-
-    plugin.append("-Xplugin=");
-    plugin.append(KotlinUtil.KOTLIN_LIBRARIES_LOCATION);
-    plugin.append(File.separator);
-    plugin.append("kotlin-android-extensions.jar");
-
-    options.append(resDirs.toString());
-    options.append(KOTLIN_EXTENSIONS_OPTION);
-    options.append("package=");
-    options.append(getPackage());
-
-    if (getHasExperimentalKotlinAndroidExtensions()) {
-      options.append(",");
-      options.append(KOTLIN_EXTENSIONS_OPTION);
-      options.append("experimental=true");
-    }
-
-    extraKotlincArgs.add(plugin.toString());
-    extraKotlincArgs.add("-P");
-    extraKotlincArgs.add(options.toString());
-
-    return extraKotlincArgs.build();
   }
 
   public final AndroidLibInstrumentationTarget getLibInstrumentationTarget() {

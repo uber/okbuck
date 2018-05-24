@@ -75,7 +75,7 @@ public final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
             .options(mapOptions(target.getMain().getCompilerOptions()));
 
     if (target.getRuleType().equals(RuleType.KOTLIN_ANDROID_LIBRARY)) {
-      androidRule = androidRule.language("kotlin").extraKotlincArgs(target.getKotlincArguments());
+      androidRule = androidRule.language("kotlin");
     }
 
     return androidRule
