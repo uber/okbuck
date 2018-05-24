@@ -72,7 +72,7 @@ public final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
             .exportedDeps(aidlRuleNames)
             .excludes(appClass != null ? ImmutableSet.of(appClass) : ImmutableSet.of())
             .generateR2(target.getGenerateR2())
-            .options(target.getMain().getJavaCompilerOptions());
+            .options(mapOptions(target.getMain().getCompilerOptions()));
 
     if (target.getRuleType().equals(RuleType.KOTLIN_ANDROID_LIBRARY)) {
       androidRule = androidRule.language("kotlin").extraKotlincArgs(target.getKotlincArguments());

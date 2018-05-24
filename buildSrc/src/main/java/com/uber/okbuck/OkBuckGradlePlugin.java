@@ -42,16 +42,8 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
 
   private static final String EXTERNAL_DEP_BUCK_FILE = "thirdparty/BUCK_FILE";
   private static final String OKBUCK_CLEAN = "okbuckClean";
-  private static final String EXPERIMENTAL = "experimental";
-  private static final String INTELLIJ = "intellij";
-  private static final String TEST = "test";
-  private static final String WRAPPER = "wrapper";
   private static final String BUCK_WRAPPER = "buckWrapper";
   private static final String EXTRA_DEP_CACHE_PATH = ".okbuck/cache/extra";
-  private static final String KOTLIN = "kotlin";
-  private static final String LINT = "lint";
-  private static final String TRANSFORM = "transform";
-  private static final String SCALA = "scala";
   private static final String FORCED_OKBUCK = "forcedOkbuck";
   private static final String BUCK_BINARY = "buck_binary";
   private static final String JITPACK_URL = "https://jitpack.io";

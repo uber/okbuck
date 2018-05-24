@@ -14,8 +14,11 @@ import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.extension.OkBuckExtension;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -42,7 +45,7 @@ public class Scope {
   private final Set<String> sources;
   private final Configuration configuration;
   private final DependencyCache depCache;
-  private final List<String> javaCompilerOptions;
+  private final Map<Builder.COMPILER, List<String>> compilerOptions;
   protected final Project project;
 
   private final Set<Target> targetDeps = new HashSet<>();
@@ -62,8 +65,8 @@ public class Scope {
     return targetDeps;
   }
 
-  public List<String> getJavaCompilerOptions() {
-    return javaCompilerOptions;
+  public Map<Builder.COMPILER, List<String>> getCompilerOptions() {
+    return compilerOptions;
   }
 
   public final Set<ExternalDependency> getExternal() {
@@ -83,13 +86,13 @@ public class Scope {
       @Nullable Configuration configuration,
       Set<File> sourceDirs,
       Set<File> javaResourceDirs,
-      List<String> javaCompilerOptions,
+      Map<Builder.COMPILER, List<String>> compilerOptions,
       DependencyCache depCache) {
 
     this.project = project;
     this.sources = FileUtil.available(project, sourceDirs);
     this.javaResources = FileUtil.available(project, javaResourceDirs);
-    this.javaCompilerOptions = javaCompilerOptions;
+    this.compilerOptions = compilerOptions;
     this.depCache = depCache;
     this.configuration = configuration;
 
@@ -103,13 +106,13 @@ public class Scope {
       @Nullable Configuration configuration,
       Set<File> sourceDirs,
       Set<File> javaResourceDirs,
-      List<String> javaCompilerOptions) {
+      Map<Builder.COMPILER, List<String>> compilerOptions) {
     this(
         project,
         configuration,
         sourceDirs,
         javaResourceDirs,
-        javaCompilerOptions,
+        compilerOptions,
         ProjectUtil.getDependencyCache(project));
   }
 
@@ -359,15 +362,17 @@ public class Scope {
       return false;
     }
     Scope scope = (Scope) o;
-    return Objects.equals(javaResources, scope.javaResources)
-        && Objects.equals(sources, scope.sources)
-        && Objects.equals(javaCompilerOptions, scope.javaCompilerOptions)
-        && Objects.equals(project, scope.project);
+    return Objects.equals(javaResources, scope.javaResources) &&
+        Objects.equals(sources, scope.sources) &&
+        Objects.equals(configuration, scope.configuration) &&
+        Objects.equals(compilerOptions, scope.compilerOptions) &&
+        Objects.equals(project, scope.project);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(javaResources, sources, javaCompilerOptions, project);
+
+    return Objects.hash(javaResources, sources, configuration, compilerOptions, project);
   }
 
   public static Builder builder(Project project) {
@@ -376,13 +381,20 @@ public class Scope {
 
   public static final class Builder {
 
+    public enum COMPILER {
+      GROOVY,
+      JAVA,
+      KOTLIN,
+      SCALA
+    }
+
     private final Project project;
 
     private Set<File> javaResourceDirs = ImmutableSet.of();
     private Set<File> sourceDirs = ImmutableSet.of();
     @Nullable private Configuration configuration = null;
     private DependencyCache depCache;
-    private List<String> javaCompilerOptions = ImmutableList.of();
+    private Map<COMPILER, List<String>> compilerOptions = new LinkedHashMap<>();
 
     private Builder(Project project) {
       this.project = project;
@@ -414,8 +426,9 @@ public class Scope {
       return this;
     }
 
-    public Builder javaCompilerOptions(List<String> javaCompilerOptions) {
-      this.javaCompilerOptions = javaCompilerOptions;
+    public Builder compilerOptions(COMPILER compiler, List<String> options) {
+      List<String> existingOptions = compilerOptions.computeIfAbsent(compiler, compiler1 -> new ArrayList<>());
+      existingOptions.addAll(options);
       return this;
     }
 
@@ -433,7 +446,7 @@ public class Scope {
                       useful,
                       sourceDirs,
                       javaResourceDirs,
-                      javaCompilerOptions,
+                      compilerOptions,
                       depCache));
     }
   }

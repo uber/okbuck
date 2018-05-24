@@ -161,7 +161,7 @@ public abstract class AndroidTarget extends JvmTarget {
         .configuration(getBaseVariant().getRuntimeConfiguration())
         .sourceDirs(getSources(getBaseVariant()))
         .javaResourceDirs(getJavaResources(getBaseVariant()))
-        .javaCompilerOptions(getJavaCompilerOptions(getBaseVariant()))
+        .compilerOptions(Scope.Builder.COMPILER.JAVA, getJavaCompilerOptions(getBaseVariant()))
         .build();
   }
 
@@ -172,7 +172,7 @@ public abstract class AndroidTarget extends JvmTarget {
     if (unitTestVariant != null) {
       builder.configuration(unitTestVariant.getRuntimeConfiguration());
       builder.sourceDirs(getSources(getUnitTestVariant()));
-      builder.javaCompilerOptions(getJavaCompilerOptions(unitTestVariant));
+      builder.compilerOptions(Scope.Builder.COMPILER.JAVA, getJavaCompilerOptions(unitTestVariant));
     }
     return builder.build();
   }

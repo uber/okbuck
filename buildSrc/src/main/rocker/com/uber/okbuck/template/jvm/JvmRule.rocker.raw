@@ -13,7 +13,7 @@ Collection apPlugins,
 Collection aptDeps,
 Collection providedDeps,
 Collection libDeps,
-Collection options,
+Map options,
 Collection jvmArgs,
 Map env,
 RockerBody content
@@ -85,12 +85,17 @@ lib_deps = []
     ],
 }
 @if (valid(options)) {
-    extra_arguments = [
-    @for (option : options) {
-        '@option',
+    @for ((key, val) : options) {
+    @if (valid((Collection) val)) {
+    @key = [
+    @for (value : (Collection) val) {
+        '@value',
     }
     ],
+    }
+    }
 }
+
 @if (valid(jvmArgs)) {
     vm_args = [
     @for (jvmArg : jvmArgs) {

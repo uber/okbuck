@@ -171,7 +171,7 @@ public class JvmTarget extends Target {
         .configuration(JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME)
         .sourceDirs(getMainSrcDirs())
         .javaResourceDirs(getMainJavaResourceDirs())
-        .javaCompilerOptions(compileJavaTask.getOptions().getCompilerArgs())
+        .compilerOptions(Scope.Builder.COMPILER.JAVA, compileJavaTask.getOptions().getCompilerArgs())
         .build();
   }
 
@@ -182,7 +182,7 @@ public class JvmTarget extends Target {
         .configuration(JavaPlugin.TEST_RUNTIME_CLASSPATH_CONFIGURATION_NAME)
         .sourceDirs(getTestSrcDirs())
         .javaResourceDirs(getTestJavaResourceDirs())
-        .javaCompilerOptions(testCompileJavaTask.getOptions().getCompilerArgs())
+        .compilerOptions(Scope.Builder.COMPILER.JAVA, testCompileJavaTask.getOptions().getCompilerArgs())
         .build();
   }
 
