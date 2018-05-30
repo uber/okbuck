@@ -236,7 +236,7 @@ setupBuckRun ( ) {
 # Handle parameters and flags
 handleParams ( ) {
    # Go directly to the kill command, help command, or --help option. Do not run okbuck.
-   if [[ "kill" == $1 || "help" == $1 || $@ == *"--help"* || $@ == *"-h"* ]]; then
+   if [[ "kill" == $1 || "help" == $1 || $@ == *"--help"* || $@ == *" -h "* ]]; then
       SKIP_OKBUCK=true
    fi
 }
