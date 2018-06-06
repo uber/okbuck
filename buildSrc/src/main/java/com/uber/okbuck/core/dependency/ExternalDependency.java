@@ -2,7 +2,10 @@ package com.uber.okbuck.core.dependency;
 
 import java.io.File;
 import java.util.Objects;
+import java.util.Optional;
 import javax.annotation.Nullable;
+
+import com.google.common.base.Strings;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -25,12 +28,18 @@ public final class ExternalDependency {
   public final String group;
   public final String name;
   public final VersionlessDependency versionless;
+  private final Optional<String> classifier;
 
   final boolean isLocal;
   final String packaging;
 
   public ExternalDependency(String group, String name, @Nullable String version, File depFile) {
-    this(group, name, version, depFile, false);
+    this(group, name, version, null, depFile, false);
+  }
+
+  public ExternalDependency(
+      String group, String name, @Nullable String version, String classifier, File depFile) {
+    this(group, name, version, classifier, depFile, false);
   }
 
   @Override
@@ -75,6 +84,7 @@ public final class ExternalDependency {
             + name
             + CACHE_DELIMITER
             + String.valueOf(version)
+            + classifier.map(c -> CACHE_DELIMITER + c).orElse("")
             + "."
             + packaging;
       } else {
@@ -91,7 +101,12 @@ public final class ExternalDependency {
   }
 
   private ExternalDependency(
-      String group, String name, @Nullable String version, File depFile, boolean isLocal) {
+      String group,
+      String name,
+      @Nullable String version,
+      @Nullable String classifier,
+      File depFile,
+      boolean isLocal) {
     this.group = group;
     this.name = name;
     this.isLocal = isLocal;
@@ -100,6 +115,7 @@ public final class ExternalDependency {
     } else {
       this.version = LOCAL_DEP_VERSION;
     }
+    this.classifier = Optional.ofNullable(Strings.emptyToNull(classifier));
 
     this.depFile = depFile;
     this.versionless = new VersionlessDependency(group, name);
@@ -108,7 +124,7 @@ public final class ExternalDependency {
 
   public static ExternalDependency fromLocal(File localDep) {
     String baseName = FilenameUtils.getBaseName(localDep.getName());
-    return new ExternalDependency(baseName, baseName, LOCAL_DEP_VERSION, localDep, true);
+    return new ExternalDependency(baseName, baseName, LOCAL_DEP_VERSION, null, localDep, true);
   }
 
   public static final class VersionlessDependency {
