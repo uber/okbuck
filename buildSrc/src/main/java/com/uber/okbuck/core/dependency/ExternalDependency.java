@@ -51,7 +51,8 @@ public final class ExternalDependency {
       return false;
     }
     ExternalDependency that = (ExternalDependency) o;
-    return Objects.equals(version, that.version)
+    return Objects.equals(classifier, that.classifier)
+        && Objects.equals(version, that.version)
         && Objects.equals(group, that.group)
         && Objects.equals(name, that.name);
   }
