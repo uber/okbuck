@@ -1,5 +1,6 @@
 package com.uber.okbuck.core.dependency;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.core.util.FileUtil;
 import java.io.File;
@@ -8,7 +9,8 @@ import org.apache.commons.io.FilenameUtils;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.UnknownConfigurationException;
-import org.jetbrains.annotations.Nullable;
+
+import javax.annotation.Nullable;
 
 public final class DependencyUtils {
 
@@ -59,14 +61,19 @@ public final class DependencyUtils {
     return FilenameUtils.isExtension(file.getName(), ALLOWED_EXTENSIONS);
   }
 
-  public static String getModuleVersion(String fileNameString, String version) {
+  @Nullable
+  public static String getModuleClassifier(String fileNameString, String version) {
     String baseFileName = FilenameUtils.getBaseName(fileNameString);
     if (baseFileName.length() > 0) {
       int versionIndex = fileNameString.lastIndexOf(version);
       if (versionIndex > -1) {
-        return baseFileName.substring(versionIndex);
+        String classifierSuffix = baseFileName.substring(versionIndex + version.length());
+        if (classifierSuffix.startsWith("-")) {
+          classifierSuffix = classifierSuffix.substring(1);
+        }
+        return Strings.emptyToNull(classifierSuffix);
       } else {
-        return version;
+        return null;
       }
     } else {
       throw new IllegalStateException(
