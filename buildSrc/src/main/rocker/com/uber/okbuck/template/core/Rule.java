@@ -111,15 +111,11 @@ public abstract class Rule<T extends Rule> extends DefaultRockerModel {
       return false;
     }
     Rule<?> rule = (Rule<?>) o;
-    return Objects.equals(ruleType, rule.ruleType) &&
-        Objects.equals(name, rule.name) &&
-        Objects.equals(visibility, rule.visibility) &&
-        Objects.equals(labels, rule.labels) &&
-        Objects.equals(extraBuckOpts, rule.extraBuckOpts);
+    return Objects.equals(name, rule.name);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(ruleType, name, visibility, labels, extraBuckOpts);
+    return Objects.hash(name);
   }
 }
