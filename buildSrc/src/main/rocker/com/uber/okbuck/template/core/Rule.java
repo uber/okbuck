@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public abstract class Rule<T extends Rule> extends DefaultRockerModel {
@@ -99,5 +100,26 @@ public abstract class Rule<T extends Rule> extends DefaultRockerModel {
       builder.add(o.toString());
     }
     return builder.build();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Rule<?> rule = (Rule<?>) o;
+    return Objects.equals(ruleType, rule.ruleType) &&
+        Objects.equals(name, rule.name) &&
+        Objects.equals(visibility, rule.visibility) &&
+        Objects.equals(labels, rule.labels) &&
+        Objects.equals(extraBuckOpts, rule.extraBuckOpts);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(ruleType, name, visibility, labels, extraBuckOpts);
   }
 }
