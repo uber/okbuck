@@ -32,6 +32,8 @@ public final class KotlinUtil {
   private static final String KOTLIN_ANNOTATION_PROCESSING_MODULE =
       "kotlin-annotation-processing-gradle";
 
+  private static final String JAR_EXTENSION = ".jar";
+
   private KotlinUtil() {}
 
   public static String getDefaultKotlinVersion(Project project) {
@@ -68,21 +70,11 @@ public final class KotlinUtil {
     new DependencyCache(project, DependencyUtils.createCacheDir(project, KOTLIN_LIBRARIES_LOCATION))
         .build(kotlinConfig);
 
-    Path kotlinLibraries = project.file(KOTLIN_LIBRARIES_LOCATION).toPath();
-    removeVersions(kotlinLibraries, KOTLIN_COMPILER_MODULE, "kotlin-compiler");
-    removeVersions(kotlinLibraries, KOTLIN_STDLIB_MODULE);
-    removeVersions(kotlinLibraries, KOTLIN_ANDROID_EXTENSIONS_MODULE);
-    removeVersions(kotlinLibraries, KOTLIN_ALLOPEN_MODULE);
-    removeVersions(kotlinLibraries, KOTLIN_REFLECT_MODULE);
-    removeVersions(kotlinLibraries, KOTLIN_SCRIPT_RUNTIME_MODULE);
-    removeVersions(kotlinLibraries, KOTLIN_ANNOTATION_PROCESSING_MODULE);
+    removeVersions(project.file(KOTLIN_LIBRARIES_LOCATION).toPath(), kotlinVersion);
   }
 
-  private static void removeVersions(Path dir, String toRemove) {
-    removeVersions(dir, toRemove, toRemove);
-  }
-
-  private static void removeVersions(Path dir, String toRename, String renamed) {
+  private static void removeVersions(Path dir, String kotlinVersion) {
+    String toReplace = "-" + kotlinVersion + "\\.jar$";
     try {
       Files.walkFileTree(
           dir,
@@ -91,9 +83,8 @@ public final class KotlinUtil {
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
                 throws IOException {
               String fileName = file.getFileName().toString();
-              if (fileName.startsWith(toRename)) {
-                Files.move(file, file.getParent().resolve(renamed + ".jar"));
-              }
+              String renamed = fileName.replaceFirst(toReplace, JAR_EXTENSION);
+              Files.move(file, file.getParent().resolve(renamed));
               return FileVisitResult.CONTINUE;
             }
           });

@@ -39,4 +39,5 @@
 
 [ndk]
     gcc_version=4.9
-    app_platform = android-24
+    app_platform = android-27
+    cpu_abis = armv7, x86
