@@ -32,6 +32,8 @@ public final class KotlinUtil {
   private static final String KOTLIN_ANNOTATION_PROCESSING_MODULE =
       "kotlin-annotation-processing-gradle";
 
+  private static final String JAR_EXTENSION = ".jar";
+
   private KotlinUtil() {}
 
   public static String getDefaultKotlinVersion(Project project) {
@@ -72,6 +74,7 @@ public final class KotlinUtil {
   }
 
   private static void removeVersions(Path dir, String kotlinVersion) {
+    String toReplace = "-" + kotlinVersion + "\\.jar$";
     try {
       Files.walkFileTree(
           dir,
@@ -80,7 +83,7 @@ public final class KotlinUtil {
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
                 throws IOException {
               String fileName = file.getFileName().toString();
-              String renamed = fileName.replaceFirst("-" + kotlinVersion + "\\.jar$", ".jar");
+              String renamed = fileName.replaceFirst(toReplace, JAR_EXTENSION);
               Files.move(file, file.getParent().resolve(renamed));
               return FileVisitResult.CONTINUE;
             }
