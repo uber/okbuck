@@ -14,7 +14,7 @@ def versions = [
 def build = [
         androidPlugin    : "com.android.tools.build:gradle:${versions.androidPlugin}",
         androidPluginApi : "com.android.tools.build:gradle-api:${versions.androidPlugin}",
-        bintrayPlugin    : "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.0",
+        bintrayPlugin    : "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.2",
         butterKnifePlugin: "com.jakewharton:butterknife-gradle-plugin:${versions.butterKnifePlugin}",
         commonsIo        : "commons-io:commons-io:2.5",
         commonsLang3     : "org.apache.commons:commons-lang3:3.7",
