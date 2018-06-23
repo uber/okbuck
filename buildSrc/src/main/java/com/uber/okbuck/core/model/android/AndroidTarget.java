@@ -42,6 +42,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
@@ -250,19 +251,13 @@ public abstract class AndroidTarget extends JvmTarget {
 
   @Override
   public TestOptions getTestOptions() {
+    String testTaskName =
+        VariantType.UNIT_TEST_PREFIX
+            + StringUtils.capitalize(getName())
+            + VariantType.UNIT_TEST_SUFFIX;
+    List<Test> testTasks = ImmutableList.copyOf(getProject().getTasks().withType(Test.class));
     Optional<Test> optionalTest =
-        getProject()
-            .getTasks()
-            .withType(Test.class)
-            .stream()
-            .filter(
-                test ->
-                    test.getName()
-                        .equals(
-                            VariantType.UNIT_TEST.getPrefix()
-                                + StringUtils.capitalize(getName())
-                                + VariantType.UNIT_TEST.getSuffix()))
-            .findFirst();
+        testTasks.stream().filter(test -> test.getName().equals(testTaskName)).findFirst();
 
     List<String> jvmArgs =
         optionalTest.map(Test::getAllJvmArgs).orElseGet(Collections::<String>emptyList);
@@ -416,9 +411,9 @@ public abstract class AndroidTarget extends JvmTarget {
 
       if (manifests.size() == 1 && getMergeType() == ManifestMerger2.MergeType.LIBRARY) {
         // No need to merge for libraries
-        parseManifest(
-            Files.lines(mainManifest.toPath()).collect(Collectors.joining(System.lineSeparator())),
-            mergedManifest);
+        try (Stream<String> lines = Files.lines(mainManifest.toPath())) {
+          parseManifest(lines.collect(Collectors.joining(System.lineSeparator())), mergedManifest);
+        }
       } else {
         // always merge if more than one manifest or its an application
         List<File> secondaryManifests =
