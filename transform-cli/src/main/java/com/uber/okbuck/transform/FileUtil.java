@@ -6,17 +6,15 @@ import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.stream.Stream;
 
 final class FileUtil {
 
   private FileUtil() {}
 
   static void deleteDirectory(File path) {
-    try {
-      Files.walk(path.toPath(), FileVisitOption.FOLLOW_LINKS)
-          .sorted(Comparator.reverseOrder())
-          .map(Path::toFile)
-          .forEach(File::delete);
+    try (Stream<Path> walk = Files.walk(path.toPath(), FileVisitOption.FOLLOW_LINKS)) {
+      walk.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
     } catch (IOException ignored) {
     }
   }
