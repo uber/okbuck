@@ -1,6 +1,6 @@
 package com.uber.okbuck.extension;
 
-import com.uber.okbuck.core.util.KotlinUtil;
+import com.uber.okbuck.core.manager.KotlinManager;
 import org.gradle.api.Project;
 
 public class KotlinExtension {
@@ -10,6 +10,6 @@ public class KotlinExtension {
   public String version;
 
   KotlinExtension(Project project) {
-    version = KotlinUtil.getDefaultKotlinVersion(project);
+    version = KotlinManager.getDefaultKotlinVersion(project);
   }
 }

@@ -3,7 +3,7 @@ Convert buck xml test reports to Junit
 
 Run tests
 ```
-./buckw test --include unit --xml build/buck-test.xml
+./buckw test //... --include unit --always_exclude --xml build/buck-test.xml
 ```
 
 Perform Conversion

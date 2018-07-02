@@ -1,31 +1,19 @@
-@import java.util.Collection
-@args (Collection targetDeps)
-jars = []
-configs = []
-
-for entry in glob(['*.*']):
-    if entry.endswith('jar'):
-        jars.append(entry)
-    else:
-        configs.append(entry)
-
-for config in configs:
-    export_file(
-        name = config,
-        mode = 'reference',
-        visibility = ['PUBLIC'],
-    )
-
-for jar in jars:
-    prebuilt_jar(
-        name = jar,
-        binary_jar = jar,
-        visibility = ['PUBLIC'],
-    )
+@args (String transformJar)
+prebuilt_jar(
+    name = '@transformJar',
+    binary_jar = '@transformJar',
+    visibility = ['PUBLIC'],
+)
 
 java_binary(
     name='okbuck_transform',
-    deps=map(lambda x: ":" + x, jars) + [@(String.join(", ", targetDeps))],
+@if (valid(deps)) {
+    deps = [
+    @for (dep : sorted(deps)) {
+        '@dep',
+    }
+    ],
+}
     blacklist=[
         'META-INF',
     ],

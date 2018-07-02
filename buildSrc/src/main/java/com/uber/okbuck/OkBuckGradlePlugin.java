@@ -1,17 +1,21 @@
 package com.uber.okbuck;
 
+import com.uber.okbuck.core.annotation.AnnotationProcessorCache;
 import com.uber.okbuck.core.dependency.DependencyCache;
 import com.uber.okbuck.core.dependency.DependencyUtils;
-import com.uber.okbuck.core.model.base.AnnotationProcessorCache;
+import com.uber.okbuck.core.manager.DependencyManager;
+import com.uber.okbuck.core.manager.GroovyManager;
+import com.uber.okbuck.core.manager.KotlinManager;
+import com.uber.okbuck.core.manager.LintManager;
+import com.uber.okbuck.core.manager.RobolectricManager;
+import com.uber.okbuck.core.manager.ScalaManager;
+import com.uber.okbuck.core.manager.TransformManager;
 import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.model.base.TargetCache;
 import com.uber.okbuck.core.task.OkBuckCleanTask;
 import com.uber.okbuck.core.task.OkBuckTask;
 import com.uber.okbuck.core.util.D8Util;
 import com.uber.okbuck.core.util.FileUtil;
-import com.uber.okbuck.core.util.LintUtil;
-import com.uber.okbuck.core.util.RobolectricUtil;
-import com.uber.okbuck.core.util.TransformUtil;
 import com.uber.okbuck.extension.KotlinExtension;
 import com.uber.okbuck.extension.OkBuckExtension;
 import com.uber.okbuck.extension.ScalaExtension;
@@ -29,6 +33,20 @@ import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.jetbrains.annotations.NotNull;
 
+// Dependency Tree
+//
+//                 rootOkBuckTask
+//            /               \
+//           /                v
+//          /             okbuckClean
+//         /        /          |          \
+//        /        v           v          v
+//       /     :p1:okbuck   :p2:okbuck   :p3:okbuck     ...
+//      |        /           /               /
+//      v       v           v               v
+//                setupOkbuck
+//
+
 public class OkBuckGradlePlugin implements Plugin<Project> {
   public static final String BUCK = "BUCK";
   public static final String OKBUCK = "okbuck";
@@ -40,7 +58,6 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
   public static final String OKBUCK_STATE = OKBUCK_STATE_DIR + "/STATE";
   public static final String OKBUCK_GEN = ".okbuck/gen";
 
-  private static final String EXTERNAL_DEP_BUCK_FILE = "thirdparty/BUCK_FILE";
   private static final String OKBUCK_CLEAN = "okbuckClean";
   private static final String BUCK_WRAPPER = "buckWrapper";
   private static final String EXTRA_DEP_CACHE_PATH = ".okbuck/cache/extra";
@@ -49,6 +66,8 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
   private static final String JITPACK_URL = "https://jitpack.io";
   private static final String BUCK_BINARY_CONFIGURATION = "buckBinary";
   private static final String PROCESSOR_BUCK_FILE = ".okbuck/cache/processor/BUCK";
+  private static final String LINT_BUCK_FILE = ".okbuck/cache/lint/BUCK";
+  public static final String EXTERNAL_DEPENDENCY_CACHE = "3rdparty";
 
   public final Map<Project, Map<String, Scope>> scopes = new ConcurrentHashMap<>();
 
@@ -56,47 +75,87 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
   public DependencyCache lintDepCache;
   public TargetCache targetCache;
   public AnnotationProcessorCache annotationProcessorCache;
+  public DependencyManager dependencyManager;
+  public LintManager lintManager;
+  public KotlinManager kotlinManager;
+  public ScalaManager scalaManager;
+  public GroovyManager groovyManager;
+  public RobolectricManager robolectricManager;
+  public TransformManager transformManager;
 
-  public void apply(@NotNull Project project) {
+  // Only apply to the root project
+  public void apply(@NotNull Project rootProject) {
     // Create extensions
     OkBuckExtension okbuckExt =
-        project.getExtensions().create(OKBUCK, OkBuckExtension.class, project);
+        rootProject.getExtensions().create(OKBUCK, OkBuckExtension.class, rootProject);
 
     // Create configurations
-    project.getConfigurations().maybeCreate(TransformUtil.CONFIGURATION_TRANSFORM);
-    project.getConfigurations().maybeCreate(FORCED_OKBUCK);
+    rootProject.getConfigurations().maybeCreate(TransformManager.CONFIGURATION_TRANSFORM);
+    rootProject.getConfigurations().maybeCreate(FORCED_OKBUCK);
     Configuration buckBinaryConfiguration =
-        project.getConfigurations().maybeCreate(BUCK_BINARY_CONFIGURATION);
+        rootProject.getConfigurations().maybeCreate(BUCK_BINARY_CONFIGURATION);
 
-    project.afterEvaluate(
-        buckProject -> {
+    rootProject.afterEvaluate(
+        rootBuckProject -> {
           // Create tasks
-          Task setupOkbuck = project.getTasks().create("setupOkbuck");
+          Task setupOkbuck = rootBuckProject.getTasks().create("setupOkbuck");
           setupOkbuck.setGroup(GROUP);
           setupOkbuck.setDescription("Setup okbuck cache and dependencies");
-
-          KotlinExtension kotlin = okbuckExt.getKotlinExtension();
-          ScalaExtension scala = okbuckExt.getScalaExtension();
-
-          Task okBuck =
-              project.getTasks().create(OKBUCK, OkBuckTask.class, okbuckExt, kotlin, scala);
-          okBuck.dependsOn(setupOkbuck);
-          okBuck.doLast(
-              task -> {
-                annotationProcessorCache.finalizeProcessors();
-                depCache.finalizeDeps();
-              });
 
           // Create target cache
           targetCache = new TargetCache();
 
           // Create Annotation Processor cache
           annotationProcessorCache =
-              new AnnotationProcessorCache(project.getRootProject(), PROCESSOR_BUCK_FILE);
+              new AnnotationProcessorCache(rootBuckProject, PROCESSOR_BUCK_FILE);
+
+          // Create Dependency manager
+          dependencyManager =
+              new DependencyManager(
+                  rootBuckProject,
+                  EXTERNAL_DEPENDENCY_CACHE,
+                  okbuckExt.getExternalExtension().getAllowedMap());
+
+          // Create Lint Manager
+          lintManager = new LintManager(rootBuckProject, LINT_BUCK_FILE);
+
+          // Create Kotlin Manager
+          kotlinManager = new KotlinManager(rootBuckProject);
+
+          // Create Scala Manager
+          scalaManager = new ScalaManager(rootBuckProject);
+
+          // Create Scala Manager
+          groovyManager = new GroovyManager(rootBuckProject);
+
+          // Create Robolectric Manager
+          robolectricManager = new RobolectricManager(rootBuckProject);
+
+          // Create Transform Manager
+          transformManager = new TransformManager(rootBuckProject);
+
+          KotlinExtension kotlin = okbuckExt.getKotlinExtension();
+          ScalaExtension scala = okbuckExt.getScalaExtension();
+
+          Task rootOkBuckTask =
+              rootBuckProject.getTasks().create(OKBUCK, OkBuckTask.class, okbuckExt, kotlin, scala);
+          rootOkBuckTask.dependsOn(setupOkbuck);
+          rootOkBuckTask.doLast(
+              task -> {
+                annotationProcessorCache.finalizeProcessors();
+                depCache.finalizeDeps();
+                dependencyManager.finalizeDependencies();
+                lintManager.finalizeDependencies();
+                kotlinManager.finalizeDependencies();
+                scalaManager.finalizeDependencies();
+                groovyManager.finalDependencies();
+                robolectricManager.finalizeDependencies();
+                transformManager.finalizeDependencies();
+              });
 
           WrapperExtension wrapper = okbuckExt.getWrapperExtension();
           // Create wrapper task
-          buckProject
+          rootBuckProject
               .getTasks()
               .create(
                   BUCK_WRAPPER,
@@ -114,16 +173,16 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
                       Collectors.toMap(
                           Function.identity(),
                           cacheName ->
-                              buckProject
+                              rootBuckProject
                                   .getConfigurations()
                                   .maybeCreate(cacheName + "ExtraDepCache")));
 
           // Create dependency cache for buck binary if needed
           if (okbuckExt.buckBinary != null) {
-            buckProject
+            rootBuckProject
                 .getRepositories()
                 .maven(mavenArtifactRepository -> mavenArtifactRepository.setUrl(JITPACK_URL));
-            buckProject.getDependencies().add(BUCK_BINARY_CONFIGURATION, okbuckExt.buckBinary);
+            rootBuckProject.getDependencies().add(BUCK_BINARY_CONFIGURATION, okbuckExt.buckBinary);
           }
 
           setupOkbuck.doFirst(
@@ -138,24 +197,25 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
           setupOkbuck.doLast(
               task -> {
                 // Cleanup gen folder
-                FileUtil.deleteQuietly(buckProject.getProjectDir().toPath().resolve(OKBUCK_GEN));
+                FileUtil.deleteQuietly(
+                    rootBuckProject.getProjectDir().toPath().resolve(OKBUCK_GEN));
 
                 okbuckExt.buckProjects.forEach(p -> targetCache.getTargets(p));
 
-                File cacheDir =
-                    DependencyUtils.createCacheDir(
-                        buckProject, DEFAULT_CACHE_PATH, EXTERNAL_DEP_BUCK_FILE);
-                depCache = new DependencyCache(buckProject, cacheDir, FORCED_OKBUCK);
+                File cacheDir = DependencyUtils.createCacheDir(rootBuckProject);
+                depCache =
+                    new DependencyCache(
+                        rootBuckProject, cacheDir, dependencyManager, FORCED_OKBUCK);
 
                 // Fetch Lint deps if needed
                 if (!okbuckExt.getLintExtension().disabled
                     && okbuckExt.getLintExtension().version != null) {
-                  LintUtil.fetchLintDeps(buckProject, okbuckExt.getLintExtension().version);
+                  lintManager.fetchLintDeps(okbuckExt.getLintExtension().version);
                 }
 
                 // Fetch transform deps if needed
                 if (okbuckExt.getExperimentalExtension().transform) {
-                  TransformUtil.fetchTransformDeps(buckProject);
+                  transformManager.fetchTransformDeps();
                 }
 
                 // Setup d8 deps
@@ -163,39 +223,33 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
 
                 // Fetch robolectric deps if needed
                 if (okbuckExt.getTestExtension().robolectric) {
-                  RobolectricUtil.download(buckProject);
+                  robolectricManager.download();
                 }
 
                 extraConfigurations.forEach(
                     (cacheName, extraConfiguration) ->
                         new DependencyCache(
-                                buckProject,
-                                DependencyUtils.createCacheDir(
-                                    buckProject,
-                                    EXTRA_DEP_CACHE_PATH + "/" + cacheName,
-                                    EXTERNAL_DEP_BUCK_FILE))
+                                rootBuckProject,
+                                DependencyUtils.createCacheDir(rootBuckProject),
+                                dependencyManager)
                             .build(extraConfiguration));
 
                 // Fetch buck binary
                 new DependencyCache(
-                        buckProject,
-                        DependencyUtils.createCacheDir(
-                            buckProject, DEFAULT_CACHE_PATH + "/" + BUCK_BINARY))
+                        rootBuckProject,
+                        DependencyUtils.createCacheDir(rootBuckProject),
+                        dependencyManager)
                     .build(buckBinaryConfiguration);
               });
 
           // Create clean task
           Task okBuckClean =
-              buckProject
+              rootBuckProject
                   .getTasks()
-                  .create(
-                      OKBUCK_CLEAN,
-                      OkBuckCleanTask.class,
-                      okbuckExt.buckProjects,
-                      PROCESSOR_BUCK_FILE);
-          okBuck.dependsOn(okBuckClean);
+                  .create(OKBUCK_CLEAN, OkBuckCleanTask.class, okbuckExt.buckProjects);
+          rootOkBuckTask.dependsOn(okBuckClean);
 
-          // Configure buck projects
+          // Create okbuck task on each project to generate their buck file
           okbuckExt
               .buckProjects
               .stream()

@@ -3,13 +3,13 @@ package com.uber.okbuck.core.task;
 import static com.uber.okbuck.OkBuckGradlePlugin.OKBUCK_DEFS;
 
 import com.uber.okbuck.OkBuckGradlePlugin;
+import com.uber.okbuck.core.manager.GroovyManager;
+import com.uber.okbuck.core.manager.KotlinManager;
+import com.uber.okbuck.core.manager.ScalaManager;
 import com.uber.okbuck.core.model.base.ProjectType;
 import com.uber.okbuck.core.util.FileUtil;
-import com.uber.okbuck.core.util.GroovyUtil;
-import com.uber.okbuck.core.util.KotlinUtil;
 import com.uber.okbuck.core.util.ProguardUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
-import com.uber.okbuck.core.util.ScalaUtil;
 import com.uber.okbuck.extension.KotlinExtension;
 import com.uber.okbuck.extension.OkBuckExtension;
 import com.uber.okbuck.extension.ScalaExtension;
@@ -60,7 +60,7 @@ public class OkBuckTask extends DefaultTask {
             .stream()
             .anyMatch(project -> ProjectUtil.getType(project) == ProjectType.GROOVY_LIB);
     if (hasGroovyLib) {
-      GroovyUtil.setupGroovyHome(getProject());
+      ProjectUtil.getGroovyManager(getProject()).setupGroovyHome();
     }
 
     // Fetch Scala support deps if needed
@@ -70,20 +70,21 @@ public class OkBuckTask extends DefaultTask {
             .stream()
             .anyMatch(project -> ProjectUtil.getType(project) == ProjectType.SCALA_LIB);
     if (hasScalaLib) {
-      ScalaUtil.setupScalaHome(getProject(), scalaExtension.version);
+      ProjectUtil.getScalaManager(getProject()).setupScalaHome(scalaExtension.version);
     }
 
     boolean hasKotlinLib = kotlinExtension.version != null;
     // Fetch Kotlin deps if needed
     if (hasKotlinLib) {
-      KotlinUtil.setupKotlinHome(getProject(), kotlinExtension.version);
+      ProjectUtil.getKotlinManager(getProject()).setupKotlinHome(kotlinExtension.version);
     }
 
     generate(
         okBuckExtension,
-        hasGroovyLib ? GroovyUtil.GROOVY_HOME_LOCATION : null,
-        hasKotlinLib ? KotlinUtil.KOTLIN_HOME_LOCATION : null,
-        hasScalaLib ? ScalaUtil.SCALA_HOME_LOCATION : null);
+        hasGroovyLib ? GroovyManager.GROOVY_HOME_LOCATION : null,
+        hasKotlinLib ? KotlinManager.KOTLIN_HOME_LOCATION : null,
+        hasScalaLib ? ScalaManager.SCALA_COMPILER_LOCATION : null,
+        hasScalaLib ? ScalaManager.SCALA_LIBRARY_LOCATION : null);
 
     // Perform dependency cache cleanup and persistence
     ProjectUtil.getDependencyCache(getProject()).finalizeDeps();
@@ -118,7 +119,8 @@ public class OkBuckTask extends DefaultTask {
       OkBuckExtension okbuckExt,
       @Nullable String groovyHome,
       @Nullable String kotlinHome,
-      @Nullable String scalaHome) {
+      @Nullable String scalaCompiler,
+      @Nullable String scalaLibrary) {
     // generate empty .buckconfig if it does not exist
     try {
       dotBuckConfig().createNewFile();
@@ -151,7 +153,8 @@ public class OkBuckTask extends DefaultTask {
             okbuckExt,
             groovyHome,
             kotlinHome,
-            scalaHome,
+            scalaCompiler,
+            scalaLibrary,
             ProguardUtil.getProguardJarPath(getProject()),
             defs)
         .render(dotBuckConfigLocal());

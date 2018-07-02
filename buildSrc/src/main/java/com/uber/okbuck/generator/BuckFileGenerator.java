@@ -23,13 +23,12 @@ import com.uber.okbuck.core.model.android.AndroidLibTarget;
 import com.uber.okbuck.core.model.base.ProjectType;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.model.jvm.JvmTarget;
+import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.template.android.AndroidRule;
 import com.uber.okbuck.template.android.ResourceRule;
 import com.uber.okbuck.template.core.Rule;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -38,26 +37,12 @@ import javax.annotation.Nullable;
 import org.gradle.api.Project;
 
 public final class BuckFileGenerator {
-  private static final byte[] NEWLINE = System.lineSeparator().getBytes();
 
   /** generate {@code BUCKFile} */
   public static void generate(Project project) {
     List<Rule> rules = createRules(project);
-
-    if (!rules.isEmpty()) {
-      try {
-
-        final OutputStream os = new FileOutputStream(project.file(OkBuckGradlePlugin.BUCK));
-        for (Rule rule : rules) {
-          rule.render(os);
-          os.write(NEWLINE);
-        }
-        os.flush();
-        os.close();
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    }
+    File buckFile = project.file(OkBuckGradlePlugin.BUCK);
+    FileUtil.writeToBuckFile(rules, buckFile);
   }
 
   private static List<Rule> createRules(Project project) {

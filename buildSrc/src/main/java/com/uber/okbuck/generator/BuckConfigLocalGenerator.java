@@ -14,7 +14,8 @@ public final class BuckConfigLocalGenerator {
       OkBuckExtension okbuck,
       @Nullable String groovyHome,
       @Nullable String kotlinHome,
-      @Nullable String scalaHome,
+      @Nullable String scalaCompiler,
+      @Nullable String scalaLibrary,
       @Nullable String proguardJar,
       Set<String> defs) {
 
@@ -23,7 +24,8 @@ public final class BuckConfigLocalGenerator {
         .target(okbuck.target)
         .groovyHome(groovyHome)
         .kotlinHome(kotlinHome)
-        .scalaHome(scalaHome)
+        .scalaCompiler(scalaCompiler)
+        .scalaLibrary(scalaLibrary)
         .proguardJar(proguardJar)
         .defs(defs);
   }

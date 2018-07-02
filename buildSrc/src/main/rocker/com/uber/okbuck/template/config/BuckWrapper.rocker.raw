@@ -177,7 +177,7 @@ killBuckDaemons ( ) {
 }
 
 setupBuckBinary ( ) {
-    BUCK_BINARY=$(find "$BUCK_BINARY_DIR" -name buck-*.pex)
+    BUCK_BINARY=$(find "$BUCK_BINARY_DIR" -name buck*.pex)
 
     if [[ ! -x "$BUCK_BINARY" ]]; then
         chmod +x "$BUCK_BINARY"

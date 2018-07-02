@@ -2,15 +2,14 @@ package com.uber.okbuck.core.dependency;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
-import com.uber.okbuck.core.util.FileUtil;
+import com.uber.okbuck.OkBuckGradlePlugin;
 import java.io.File;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.apache.commons.io.FilenameUtils;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.UnknownConfigurationException;
-
-import javax.annotation.Nullable;
 
 public final class DependencyUtils {
 
@@ -35,20 +34,10 @@ public final class DependencyUtils {
     return configuration != null ? (configuration.isCanBeResolved() ? configuration : null) : null;
   }
 
-  public static File createCacheDir(
-      Project project, String cacheDirPath, @Nullable String buckFile) {
-    File cacheDir = project.getRootProject().file(cacheDirPath);
+  public static File createCacheDir(Project project) {
+    File cacheDir = project.getRootProject().file(OkBuckGradlePlugin.EXTERNAL_DEPENDENCY_CACHE);
     cacheDir.mkdirs();
-
-    if (buckFile != null) {
-      FileUtil.copyResourceToProject(buckFile, new File(cacheDir, "BUCK"));
-    }
-
     return cacheDir;
-  }
-
-  public static File createCacheDir(Project project, String cacheDirPath) {
-    return DependencyUtils.createCacheDir(project, cacheDirPath, null);
   }
 
   public static boolean isWhiteListed(final File depFile) {

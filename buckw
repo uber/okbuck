@@ -66,7 +66,7 @@ OKBUCK_DIR="$SCRIPT_DIR/.okbuck"
 MAX_DISPLAY_CHANGES=10
 WATCHMAN_TIMEOUT=10
 WATCHMAN_FAILED="WATCHMAN FAILED"
-BUCK_BINARY_DIR="$OKBUCK_DIR/cache/buck_binary"
+BUCK_BINARY_DIR="3rdparty/com/github/facebook"
 
 # Timeout a call and exit early. This can be called via timeout <time> <command>.
 timeout( ) {
@@ -182,7 +182,7 @@ killBuckDaemons ( ) {
 }
 
 setupBuckBinary ( ) {
-    BUCK_BINARY=$(find "$BUCK_BINARY_DIR" -name buck-*.pex)
+    BUCK_BINARY=$(find "$BUCK_BINARY_DIR" -name buck*.pex)
 
     if [[ ! -x "$BUCK_BINARY" ]]; then
         chmod +x "$BUCK_BINARY"

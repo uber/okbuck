@@ -1,6 +1,6 @@
 package com.uber.okbuck.core.model.android;
 
-import com.uber.okbuck.core.model.base.AnnotationProcessorCache;
+import com.uber.okbuck.core.annotation.AnnotationProcessorCache;
 import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.util.ProjectUtil;
 import java.util.List;

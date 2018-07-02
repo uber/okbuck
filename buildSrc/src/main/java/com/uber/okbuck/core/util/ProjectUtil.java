@@ -3,8 +3,13 @@ package com.uber.okbuck.core.util;
 import com.android.build.gradle.AppPlugin;
 import com.android.build.gradle.LibraryPlugin;
 import com.uber.okbuck.OkBuckGradlePlugin;
+import com.uber.okbuck.core.annotation.AnnotationProcessorCache;
 import com.uber.okbuck.core.dependency.DependencyCache;
-import com.uber.okbuck.core.model.base.AnnotationProcessorCache;
+import com.uber.okbuck.core.manager.DependencyManager;
+import com.uber.okbuck.core.manager.GroovyManager;
+import com.uber.okbuck.core.manager.KotlinManager;
+import com.uber.okbuck.core.manager.LintManager;
+import com.uber.okbuck.core.manager.ScalaManager;
 import com.uber.okbuck.core.model.base.ProjectType;
 import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.model.base.Target;
@@ -61,6 +66,26 @@ public final class ProjectUtil {
     return getPlugin(project).annotationProcessorCache;
   }
 
+  public static DependencyManager getDependencyManager(Project project) {
+    return getPlugin(project).dependencyManager;
+  }
+
+  public static LintManager getLintManager(Project project) {
+    return getPlugin(project).lintManager;
+  }
+
+  public static KotlinManager getKotlinManager(Project project) {
+    return getPlugin(project).kotlinManager;
+  }
+
+  public static ScalaManager getScalaManager(Project project) {
+    return getPlugin(project).scalaManager;
+  }
+
+  public static GroovyManager getGroovyManager(Project project) {
+    return getPlugin(project).groovyManager;
+  }
+
   public static Map<String, Target> getTargets(Project project) {
     return getTargetCache(project).getTargets(project);
   }
@@ -70,15 +95,15 @@ public final class ProjectUtil {
     return getTargetCache(targetProject).getTargetForVariant(targetProject, variant);
   }
 
-  public static String getLintwConfigRule(Project project, File config) {
-    return getTargetCache(project).lintConfig(project, config);
+  public static String getLintConfigRule(Project project, File config) {
+    return getLintManager(project).lintConfig(config);
   }
 
   public static Map<Project, Map<String, Scope>> getScopes(Project project) {
     return getPlugin(project).scopes;
   }
 
-  static OkBuckGradlePlugin getPlugin(Project project) {
+  public static OkBuckGradlePlugin getPlugin(Project project) {
     return project.getRootProject().getPlugins().getPlugin(OkBuckGradlePlugin.class);
   }
 
@@ -92,7 +117,7 @@ public final class ProjectUtil {
   }
 
   @Nullable
-  static String findVersionInClasspath(Project project, String group, String module) {
+  public static String findVersionInClasspath(Project project, String group, String module) {
     return project
         .getBuildscript()
         .getConfigurations()

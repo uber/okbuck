@@ -1,15 +1,14 @@
-package com.uber.okbuck.core.model.base;
+package com.uber.okbuck.core.annotation;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.composer.java.JavaAnnotationProcessorRuleComposer;
 import com.uber.okbuck.core.dependency.DependencyUtils;
+import com.uber.okbuck.core.model.base.Scope;
+import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.template.core.Rule;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -133,24 +132,8 @@ public class AnnotationProcessorCache {
   /** Write the buck file for the java_annotation_processor rules. */
   public void finalizeProcessors() {
     List<Rule> rules = JavaAnnotationProcessorRuleComposer.compose(dependencyToScopeMap.values());
-
     File buckFile = project.getRootProject().file(processorBuckFile);
-    File parent = buckFile.getParentFile();
-    if (!parent.exists() && !parent.mkdirs()) {
-      throw new IllegalStateException("Couldn't create dir: " + parent);
-    }
-    try {
-      buckFile.createNewFile();
-      final OutputStream os = new FileOutputStream(buckFile);
-      for (Rule rule : rules) {
-        rule.render(os);
-        os.write(System.lineSeparator().getBytes());
-      }
-      os.flush();
-      os.close();
-    } catch (IOException e) {
-      throw new IllegalStateException("Couldn't create the buck file: %s", e);
-    }
+    FileUtil.writeToBuckFile(rules, buckFile);
   }
 
   private Map<Set<Dependency>, Scope> createProcessorScopes(

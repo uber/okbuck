@@ -24,12 +24,9 @@ public class OkBuckCleanTask extends DefaultTask {
 
   @Input public Set<Project> projects;
 
-  @Input public String processorBuckFile;
-
   @Inject
-  public OkBuckCleanTask(Set<Project> projects, String processorBuckFile) {
+  public OkBuckCleanTask(Set<Project> projects) {
     this.projects = projects;
-    this.processorBuckFile = processorBuckFile;
   }
 
   @TaskAction

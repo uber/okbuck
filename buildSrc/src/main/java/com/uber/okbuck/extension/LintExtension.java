@@ -1,7 +1,7 @@
 package com.uber.okbuck.extension;
 
 import com.uber.okbuck.core.annotation.Experimental;
-import com.uber.okbuck.core.util.LintUtil;
+import com.uber.okbuck.core.manager.LintManager;
 import org.gradle.api.Project;
 
 @Experimental
@@ -18,6 +18,6 @@ public class LintExtension {
   public String jvmArgs = "-Xmx1024m";
 
   LintExtension(Project project) {
-    version = LintUtil.getDefaultLintVersion(project);
+    version = LintManager.getDefaultLintVersion(project);
   }
 }

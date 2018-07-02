@@ -1,26 +1,22 @@
 package com.uber.okbuck.core.dependency;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.OkBuckGradlePlugin;
+import com.uber.okbuck.core.manager.DependencyManager;
 import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.model.base.Store;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
+import com.uber.okbuck.extension.ExternalExtension;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.JarEntry;
@@ -33,7 +29,6 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.component.ComponentIdentifier;
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier;
 import org.gradle.api.artifacts.component.ProjectComponentIdentifier;
-import org.gradle.api.file.FileTree;
 import org.gradle.api.internal.artifacts.ivyservice.DefaultLenientConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,27 +38,26 @@ public class DependencyCache {
   private static final Logger LOG = LoggerFactory.getLogger(DependencyCache.class);
   private final File cacheDir;
   private final Project rootProject;
+  private final com.uber.okbuck.core.manager.DependencyManager dependencyManager;
   private final boolean fetchSources;
-  private final Store lintJars;
   private final Store processors;
   private final Store processorExtensions;
-  private final Store sources;
-  private final Set<File> copies = ConcurrentHashMap.newKeySet();
   private final Set<ExternalDependency> requested = ConcurrentHashMap.newKeySet();
-  private final Map<File, File> links = new ConcurrentHashMap<>();
-  private final Map<ExternalDependency.VersionlessDependency, ExternalDependency> forcedDeps =
-      new HashMap<>();
+  private final Map<VersionlessDependency, ExternalDependency> forcedDeps = new HashMap<>();
 
-  public DependencyCache(Project project, File cacheDir, @Nullable String forcedConfiguration) {
+  public DependencyCache(
+      Project project,
+      File cacheDir,
+      com.uber.okbuck.core.manager.DependencyManager dependencyManager,
+      @Nullable String forcedConfiguration) {
     this.rootProject = project.getRootProject();
     this.cacheDir = cacheDir;
+    this.dependencyManager = dependencyManager;
     this.fetchSources = ProjectUtil.getOkBuckExtension(project).getIntellijExtension().sources;
 
-    sources = new Store(rootProject.file(OkBuckGradlePlugin.OKBUCK_STATE_DIR + "/SOURCES"));
     processors = new Store(rootProject.file(OkBuckGradlePlugin.OKBUCK_STATE_DIR + "/PROCESSORS"));
     processorExtensions =
         new Store(rootProject.file(OkBuckGradlePlugin.OKBUCK_STATE_DIR + "/PROCESSORS_EXTENSIONS"));
-    lintJars = new Store(rootProject.file(OkBuckGradlePlugin.OKBUCK_STATE_DIR + "/LINT_JARS"));
 
     if (forcedConfiguration != null) {
       Scope.builder(project)
@@ -78,15 +72,14 @@ public class DependencyCache {
     }
   }
 
-  public DependencyCache(Project project, File cacheDir) {
-    this(project, cacheDir, null);
+  public DependencyCache(Project project, File cacheDir, DependencyManager dependencyManager) {
+    this(project, cacheDir, dependencyManager, null);
   }
 
   public void finalizeDeps() {
     LOG.info("Finalizing Dependency Cache");
-    sources.persist();
     processors.persist();
-    lintJars.persist();
+    processorExtensions.persist();
     cleanup();
   }
 
@@ -112,111 +105,33 @@ public class DependencyCache {
         LOG.warn(message);
       }
     }
-
-    File[] stale =
-        cacheDir.listFiles(
-            pathname ->
-                pathname.isFile()
-                    && !links.keySet().contains(pathname)
-                    && !copies.contains(pathname)
-                    && (pathname.getName().endsWith(".jar")
-                        || pathname.getName().endsWith(".aar")
-                        || pathname.getName().endsWith(".pro")
-                        || pathname.getName().endsWith(".pex")));
-
-    if (stale != null) {
-      Arrays.asList(stale)
-          .forEach(
-              file -> {
-                try {
-                  Files.deleteIfExists(file.toPath());
-                } catch (IOException e) {
-                  throw new RuntimeException(e);
-                }
-              });
-    }
-
-    links.forEach(
-        (link, target) -> {
-          if (link.exists()) {
-            return;
-          }
-          try {
-            LOG.info("Creating symlink {} -> {}", link, target);
-            Files.createSymbolicLink(link.toPath(), target.toPath());
-          } catch (IOException ignored) {
-            LOG.info("Could not create symlink {} -> {}", link, target);
-          }
-        });
   }
 
-  public String get(
-      ExternalDependency externalDependency, boolean resolveOnly, boolean useFullDepName) {
+  public ExternalDependency get(ExternalDependency externalDependency, boolean resolveOnly) {
     LOG.info("Requested dependency {}", externalDependency);
     ExternalDependency dependency =
         forcedDeps.getOrDefault(externalDependency.versionless, externalDependency);
     LOG.info("Picked dependency {}", dependency);
 
-    File cachedCopy = new File(cacheDir, dependency.getCacheName(useFullDepName));
-    String key = FileUtil.getRelativePath(rootProject.getProjectDir(), cachedCopy);
-    links.put(cachedCopy, dependency.depFile);
+    dependencyManager.addDependency(dependency);
 
     if (!resolveOnly && fetchSources) {
       LOG.info("Fetching sources for {}", dependency);
-      getSources(dependency);
+      dependency.getSourceJar(rootProject);
     }
-
     requested.add(dependency);
 
-    return key;
+    return dependency;
   }
 
-  public String get(ExternalDependency externalDependency) {
-    return get(externalDependency, false, true);
+  public ExternalDependency get(ExternalDependency externalDependency) {
+    return get(externalDependency, false);
   }
 
-  /**
-   * Gets the sources jar path for a dependency if it exists.
-   *
-   * @param dependency The External dependency.
-   */
-  void getSources(ExternalDependency dependency) {
-    String key = dependency.getCacheName();
-    String sourcesJarPath = sources.get(key);
+  public String getPath(ExternalDependency dependency) {
+    File cachedCopy = cacheDir.toPath().resolve(dependency.getDepFilePath()).toFile();
 
-    if (sourcesJarPath == null || !Files.exists(Paths.get(sourcesJarPath))) {
-      sourcesJarPath = "";
-      if (!DependencyUtils.isWhiteListed(dependency.depFile)) {
-        String sourcesJarName = dependency.getSourceCacheName(false);
-        File sourcesJar = new File(dependency.depFile.getParentFile(), sourcesJarName);
-
-        if (!Files.exists(sourcesJar.toPath())) {
-          if (!dependency.isLocal) {
-            // Most likely jar is in Gradle/Maven cache directory, try to find sources jar in
-            // "jar/../..".
-            FileTree sourceJars =
-                rootProject.fileTree(
-                    ImmutableMap.of(
-                        "dir", dependency.depFile.getParentFile().getParentFile().getAbsolutePath(),
-                        "includes", ImmutableList.of("**/" + sourcesJarName)));
-
-            try {
-              sourcesJarPath = sourceJars.getSingleFile().getAbsolutePath();
-            } catch (IllegalStateException ignored) {
-              if (sourceJars.getFiles().size() > 1) {
-                throw new IllegalStateException(
-                    "Found multiple source jars: " + sourceJars + " for " + dependency);
-              }
-            }
-          }
-        }
-      }
-      sources.set(key, sourcesJarPath);
-    }
-
-    if (!sourcesJarPath.isEmpty()) {
-      links.put(new File(cacheDir, dependency.getSourceCacheName(true)), new File(sourcesJarPath));
-    }
+    return FileUtil.getRelativePath(rootProject.getProjectDir(), cachedCopy);
   }
 
   /**
@@ -302,26 +217,32 @@ public class DependencyCache {
   /**
    * Get the packaged lint jar of an aar dependency if any.
    *
-   * @param externalDependency The depenency
+   * @param externalDependency The dependency
    * @return path to the lint jar in the cache.
    */
   @Nullable
   public String getLintJar(ExternalDependency externalDependency) {
     ExternalDependency dependency =
         forcedDeps.getOrDefault(externalDependency.versionless, externalDependency);
-    return getAarEntry(dependency, lintJars, "lint.jar", "-lint.jar");
+    if (dependency.getLintJar() != null) {
+      File cachedCopy =
+          cacheDir
+              .toPath()
+              .resolve(dependency.getGroup().replace('.', File.separatorChar))
+              .resolve(dependency.getLintCacheName())
+              .toFile();
+
+      return FileUtil.getRelativePath(rootProject.getProjectDir(), cachedCopy);
+    }
+    return null;
   }
 
-  public void build(Configuration configuration, boolean cleanupDeps, boolean useFullDepname) {
-    build(Collections.singleton(configuration), cleanupDeps, useFullDepname);
+  public Set<String> build(Configuration configuration, boolean cleanupDeps) {
+    return build(Collections.singleton(configuration), cleanupDeps);
   }
 
-  public void build(Configuration configuration, boolean cleanupDeps) {
-    build(configuration, cleanupDeps, false);
-  }
-
-  public void build(Configuration configuration) {
-    build(configuration, true, false);
+  public Set<String> build(Configuration configuration) {
+    return build(configuration, true);
   }
 
   /**
@@ -331,48 +252,71 @@ public class DependencyCache {
    *
    * @param configurations The set of configurations to materialize into the dependency cache
    */
-  void build(Set<Configuration> configurations, boolean cleanupDeps, boolean useFullDepname) {
-    configurations.forEach(
-        configuration -> {
-          try {
-            configuration
-                .getIncoming()
-                .getArtifacts()
-                .getArtifacts()
-                .forEach(
-                    artifact -> {
-                      ComponentIdentifier identifier = artifact.getId().getComponentIdentifier();
-                      if (identifier instanceof ProjectComponentIdentifier
-                          || !DependencyUtils.isConsumable(artifact.getFile())) {
-                        return;
-                      }
-                      ExternalDependency dependency;
-                      if (identifier instanceof ModuleComponentIdentifier
-                          && ((ModuleComponentIdentifier) identifier).getVersion().length() > 0) {
-                        ModuleComponentIdentifier moduleIdentifier =
-                            (ModuleComponentIdentifier) identifier;
-                        dependency =
-                            new ExternalDependency(
-                                moduleIdentifier.getGroup(),
-                                moduleIdentifier.getModule(),
-                                moduleIdentifier.getVersion(),
-                                artifact.getFile());
-                      } else {
-                        dependency = ExternalDependency.fromLocal(artifact.getFile());
-                      }
-                      get(dependency, true, useFullDepname);
-                    });
-          } catch (DefaultLenientConfiguration.ArtifactResolveException e) {
-            throw new IllegalStateException(
-                "Failed to resolve an artifact. Make sure you have a repositories block defined. "
-                    + "See https://github.com/uber/okbuck/wiki/Known-caveats#could-not-resolve-all-dependencies-for-configuration for more information.",
-                e);
-          }
-        });
+  Set<String> build(Set<Configuration> configurations, boolean cleanupDeps) {
+    ExternalExtension externalExtension =
+        ProjectUtil.getOkBuckExtension(rootProject).getExternalExtension();
+    Set<String> dependencies =
+        configurations
+            .stream()
+            .map(
+                configuration -> {
+                  try {
+                    return configuration
+                        .getIncoming()
+                        .getArtifacts()
+                        .getArtifacts()
+                        .stream()
+                        .map(
+                            artifact -> {
+                              ComponentIdentifier identifier =
+                                  artifact.getId().getComponentIdentifier();
+                              if (identifier instanceof ProjectComponentIdentifier
+                                  || !DependencyUtils.isConsumable(artifact.getFile())) {
+                                return null;
+                              }
+                              ExternalDependency dependency;
+                              if (identifier instanceof ModuleComponentIdentifier
+                                  && ((ModuleComponentIdentifier) identifier).getVersion().length()
+                                      > 0) {
+                                ModuleComponentIdentifier moduleIdentifier =
+                                    (ModuleComponentIdentifier) identifier;
+                                dependency =
+                                    new ExternalDependency(
+                                        moduleIdentifier.getGroup(),
+                                        moduleIdentifier.getModule(),
+                                        moduleIdentifier.getVersion(),
+                                        artifact.getFile(),
+                                        externalExtension);
+                              } else {
+                                dependency =
+                                    ExternalDependency.fromLocal(
+                                        artifact.getFile(), externalExtension);
+                              }
+                              return get(dependency, true);
+                            })
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toSet());
+                  } catch (DefaultLenientConfiguration.ArtifactResolveException e) {
+                    throw artifactResolveException(e);
+                  }
+                })
+            .flatMap(Collection::stream)
+            .map(this::getPath)
+            .collect(Collectors.toSet());
 
     if (cleanupDeps) {
       cleanup();
     }
+
+    return dependencies;
+  }
+
+  private IllegalStateException artifactResolveException(Exception e) {
+    return new IllegalStateException(
+        "Failed to resolve an artifact. Make sure you have a repositories block defined. "
+            + "See https://github.com/uber/okbuck/wiki/Known-caveats#could-not-resolve-all-"
+            + "dependencies-for-configuration for more information.",
+        e);
   }
 
   /**
@@ -382,62 +326,7 @@ public class DependencyCache {
    *
    * @param configurations The set of configurations to materialize into the dependency cache
    */
-  public void build(Set<Configuration> configurations) {
-    build(configurations, true, false);
-  }
-
-  @Nullable
-  private String getAarEntry(
-      ExternalDependency dependency, Store store, String entry, String suffix) {
-    if (!dependency.depFile.getName().endsWith(".aar")) {
-      return null;
-    }
-
-    String key = dependency.getCacheName();
-    String entryPath = store.get(key);
-    if (entryPath == null || !Files.exists(Paths.get(entryPath))) {
-      entryPath = "";
-      try {
-        File packagedEntry =
-            getPackagedFile(dependency.depFile, new File(cacheDir, key), entry, suffix);
-        if (packagedEntry != null) {
-          entryPath = FileUtil.getRelativePath(rootProject.getProjectDir(), packagedEntry);
-        }
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-
-      store.set(key, entryPath);
-    }
-
-    if (!entryPath.isEmpty()) {
-      copies.add(new File(rootProject.getProjectDir(), entryPath));
-    }
-
-    return entryPath;
-  }
-
-  @Nullable
-  private static File getPackagedFile(File aar, File destination, String entry, String suffix)
-      throws IOException {
-    File packagedFile =
-        new File(
-            destination.getParentFile(), destination.getName().replaceFirst("\\.aar$", suffix));
-    if (Files.exists(packagedFile.toPath())) {
-      return packagedFile;
-    }
-
-    FileSystem zipFile = FileSystems.newFileSystem(aar.toPath(), null);
-    Path packagedPath = zipFile.getPath(entry);
-    if (Files.exists(packagedPath)) {
-      try {
-        Files.copy(packagedPath, packagedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-      } catch (IOException ignored) {
-        LOG.info("Could not create copy {}", packagedFile);
-      }
-      return packagedFile;
-    } else {
-      return null;
-    }
+  public Set<String> build(Set<Configuration> configurations) {
+    return build(configurations, true);
   }
 }

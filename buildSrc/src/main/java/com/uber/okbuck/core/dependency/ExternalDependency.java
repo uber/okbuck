@@ -1,13 +1,22 @@
 package com.uber.okbuck.core.dependency;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.uber.okbuck.extension.ExternalExtension;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
-
-import com.google.common.base.Strings;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.gradle.api.Project;
+import org.gradle.api.file.FileTree;
 
 /**
  * Represents a pre packaged dependency from an external source like gradle/maven cache or the
@@ -16,30 +25,56 @@ import org.apache.commons.lang3.StringUtils;
 public final class ExternalDependency {
 
   private static final String LOCAL_DEP_VERSION = "1.0.0-LOCAL";
-  private static final String SOURCES_JAR = "-sources.jar";
+  private static final String LOCAL_GROUP = "local";
+  private static final String SOURCE_FILE = "-sources.jar";
+  private static final String LINT_FILE = "-lint.jar";
+
   /**
-   * this is used to output artifacts as %GROUP%--%NAME%--%VERSION% Thus making it possible to
-   * re-construct maven coordinates.
+   * this is used to output artifacts as %GROUP%--%NAME%--%VERSION%--%CLASSIFIER% Thus making it
+   * possible to re-construct maven coordinates.
    */
   private static final String CACHE_DELIMITER = "--";
 
-  @Nullable public final String version;
+  public final String version;
   public final File depFile;
-  public final String group;
+  private final String group;
   public final String name;
   public final VersionlessDependency versionless;
-  private final Optional<String> classifier;
+  public final String packaging;
+
+  public final Optional<String> classifier;
+
+  public final ExternalExtension externalExtension;
+
+  private Path sourceJar;
+  private boolean sourceJarInitialized;
+
+  private Path lintJar;
+  private boolean lintJarInitialized;
 
   final boolean isLocal;
-  final String packaging;
 
-  public ExternalDependency(String group, String name, @Nullable String version, File depFile) {
-    this(group, name, version, null, depFile, false);
+  public ExternalDependency(
+      String group,
+      String name,
+      @Nullable String version,
+      File depFile,
+      ExternalExtension externalExtension) {
+    this(group, name, version, null, depFile, false, externalExtension);
   }
 
   public ExternalDependency(
-      String group, String name, @Nullable String version, String classifier, File depFile) {
-    this(group, name, version, classifier, depFile, false);
+      String group,
+      String name,
+      @Nullable String version,
+      String classifier,
+      File depFile,
+      ExternalExtension externalExtension) {
+    this(group, name, version, classifier, depFile, false, externalExtension);
+  }
+
+  public String getGroup() {
+    return group;
   }
 
   @Override
@@ -64,41 +99,136 @@ public final class ExternalDependency {
 
   @Override
   public String toString() {
-    return this.group
-        + ":"
-        + this.name
-        + ":"
-        + String.valueOf(this.version)
-        + " -> "
-        + this.depFile.toString();
+    return this.getMavenCoords() + " -> " + this.depFile.toString();
   }
 
-  String getCacheName() {
-    return getCacheName(true);
-  }
-
-  String getCacheName(boolean useFullDepName) {
-    if (useFullDepName) {
-      if (!StringUtils.isEmpty(group)) {
-        return group
-            + CACHE_DELIMITER
-            + name
-            + CACHE_DELIMITER
-            + String.valueOf(version)
-            + classifier.map(c -> CACHE_DELIMITER + c).orElse("")
-            + "."
-            + packaging;
-      } else {
-        return name + "." + depFile.getName();
-      }
-
-    } else {
-      return depFile.getName();
+  public String getCacheName() {
+    StringBuilder cacheName = new StringBuilder(name);
+    if (externalExtension.isAllowed(this.versionless)) {
+      cacheName.append(CACHE_DELIMITER).append(version);
     }
+    cacheName.append(classifier.map(c -> CACHE_DELIMITER + c).orElse(""));
+
+    return cacheName.toString();
   }
 
-  String getSourceCacheName(boolean useFullDepName) {
-    return getCacheName(useFullDepName).replaceFirst("\\.(jar|aar)$", SOURCES_JAR);
+  public String getVersion() {
+    return version;
+  }
+
+  public String getVersionless() {
+    return versionless.toString();
+  }
+
+  public String getLintCacheName() {
+    return getCacheName() + "-lint";
+  }
+
+  public String getMavenCoords() {
+    return group
+        + VersionlessDependency.COORD_DELIMITER
+        + name
+        + VersionlessDependency.COORD_DELIMITER
+        + packaging
+        + VersionlessDependency.COORD_DELIMITER
+        + String.valueOf(version)
+        + classifier.map(c -> VersionlessDependency.COORD_DELIMITER + c).orElse("");
+  }
+
+  public String getDepFileName() {
+    return getCacheName() + "." + packaging;
+  }
+
+  public Path getDepFilePath() {
+    return Paths.get(this.getGroup().replace('.', File.separatorChar)).resolve(this.getCacheName());
+  }
+
+  public String getSourceFileName() {
+    return sourced(getDepFileName());
+  }
+
+  public String getLintFileName() {
+    return getDepFileName().replaceFirst("\\.aar$", LINT_FILE);
+  }
+
+  private static String sourced(String name) {
+    return name.replaceFirst("\\.(jar|aar)$", SOURCE_FILE);
+  }
+
+  /**
+   * Gets the sources jar path for a dependency if it exists.
+   *
+   * @param project The Project
+   */
+  private Path computeSourceJar(Project project) {
+    if (!DependencyUtils.isWhiteListed(depFile)
+        && FilenameUtils.isExtension(depFile.getName(), ImmutableList.of("jar", "aar"))) {
+      String sourcesJarName = sourced(depFile.getName());
+      Path sourcesJar = depFile.getParentFile().toPath().resolve(sourcesJarName);
+
+      if (Files.exists(sourcesJar)) {
+        return sourcesJar;
+      } else {
+        if (!isLocal) {
+          // Most likely jar is in Gradle/Maven cache directory,
+          // try to find sources jar in "jar/../..".
+          FileTree sourceJars =
+              project.fileTree(
+                  ImmutableMap.of(
+                      "dir", depFile.getParentFile().getParentFile().getAbsolutePath(),
+                      "includes", ImmutableList.of("**/" + sourcesJarName)));
+
+          try {
+            return sourceJars.getSingleFile().toPath();
+          } catch (IllegalStateException ignored) {
+            if (sourceJars.getFiles().size() > 1) {
+              throw new IllegalStateException(
+                  "Found multiple source jars: " + sourceJars + " for " + this);
+            }
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  public Path getSourceJar(Project project) {
+    if (!sourceJarInitialized) {
+      sourceJar = computeSourceJar(project);
+      sourceJarInitialized = true;
+    }
+    return sourceJar;
+  }
+
+  public boolean hasSourceJar() {
+    return sourceJar != null;
+  }
+
+  private Path computeLintJar() {
+    if (packaging.equals("aar")) {
+      try {
+        FileSystem zipFile = FileSystems.newFileSystem(depFile.toPath(), null);
+        Path packagedPath = zipFile.getPath("lint.jar");
+        if (Files.exists(packagedPath)) {
+          return packagedPath;
+        }
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }
+    return null;
+  }
+
+  public Path getLintJar() {
+    if (!lintJarInitialized) {
+      lintJar = computeLintJar();
+      lintJarInitialized = true;
+    }
+    return lintJar;
+  }
+
+  public boolean hasLintJar() {
+    return lintJar != null;
   }
 
   private ExternalDependency(
@@ -107,11 +237,20 @@ public final class ExternalDependency {
       @Nullable String version,
       @Nullable String classifier,
       File depFile,
-      boolean isLocal) {
-    this.group = group;
+      boolean isLocal,
+      ExternalExtension externalExtension) {
+
+    // TODO find a better solution when group ends with 'buck'
+    // which can cause it to clash with BUCK files generated at that path
+    if (group.contains(".buck")) {
+      this.group = group.replace(".buck", ".buckm");
+    } else {
+      this.group = group;
+    }
+
     this.name = name;
     this.isLocal = isLocal;
-    if (!StringUtils.isEmpty(version)) {
+    if (!Strings.isNullOrEmpty(version)) {
       this.version = version;
     } else {
       this.version = LOCAL_DEP_VERSION;
@@ -119,44 +258,15 @@ public final class ExternalDependency {
     this.classifier = Optional.ofNullable(Strings.emptyToNull(classifier));
 
     this.depFile = depFile;
-    this.versionless = new VersionlessDependency(group, name);
+    this.versionless = new VersionlessDependency(group, name, this.classifier);
     this.packaging = FilenameUtils.getExtension(depFile.getName());
+
+    this.externalExtension = externalExtension;
   }
 
-  public static ExternalDependency fromLocal(File localDep) {
+  public static ExternalDependency fromLocal(File localDep, ExternalExtension externalExtension) {
     String baseName = FilenameUtils.getBaseName(localDep.getName());
-    return new ExternalDependency(baseName, baseName, LOCAL_DEP_VERSION, null, localDep, true);
-  }
-
-  public static final class VersionlessDependency {
-
-    private final String group;
-    private final String name;
-
-    public VersionlessDependency(String group, String name) {
-      this.group = group;
-      this.name = name;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) {
-        return true;
-      }
-      if (o == null || getClass() != o.getClass()) {
-        return false;
-      }
-
-      VersionlessDependency that = (VersionlessDependency) o;
-
-      return group.equals(that.group) && name.equals(that.name);
-    }
-
-    @Override
-    public int hashCode() {
-      int result = group.hashCode();
-      result = 31 * result + name.hashCode();
-      return result;
-    }
+    return new ExternalDependency(
+        LOCAL_GROUP, baseName, LOCAL_DEP_VERSION, null, localDep, true, externalExtension);
   }
 }

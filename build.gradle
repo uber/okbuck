@@ -183,6 +183,47 @@ okbuck {
         ]
     }
 
+    external {
+        allowed = [
+                "com.android.support:support-annotations": [],
+                "com.android.tools.build:builder-model": [],
+                "com.android.tools.build:builder-test-api": [],
+                "com.android.tools.build:manifest-merger": [],
+                "com.android.tools.ddms:ddmlib": [],
+                "com.android.tools.layoutlib:layoutlib-api": [],
+                "com.android.tools:annotations": [],
+                "com.android.tools:common": [],
+                "com.android.tools:dvlib": [],
+                "com.android.tools:repository": [],
+                "com.android.tools:sdk-common": [],
+                "com.android.tools:sdklib": [],
+                "com.google.auto.value:auto-value": [],
+                "com.google.auto:auto-common": [],
+                "com.google.code.findbugs:jsr305": [],
+                "com.google.code.gson:gson": [],
+                "com.google.errorprone:error_prone_annotations": [],
+                "com.google.guava:guava": [],
+                "com.google.protobuf:protobuf-java": [],
+                "com.squareup:javapoet": [],
+                "com.squareup:javawriter": [],
+                "commons-codec:commons-codec": [],
+                "commons-logging:commons-logging": [],
+                "org.apache.commons:commons-compress": [],
+                "org.apache.httpcomponents:httpclient": [],
+                "org.apache.httpcomponents:httpcore": [],
+                "org.apache.httpcomponents:httpmime": [],
+                "org.bouncycastle:bcprov-jdk15on": [],
+                "org.checkerframework:checker-compat-qual": [],
+                "org.jetbrains.kotlin:kotlin-reflect": [],
+                "org.jetbrains.kotlin:kotlin-stdlib": [],
+                "org.ow2.asm:asm": [],
+                "org.ow2.asm:asm-analysis": [],
+                "org.ow2.asm:asm-commons": [],
+                "org.ow2.asm:asm-tree": [],
+                "org.robolectric:android-all": [],
+        ]
+    }
+
     dependencies {
         transform project(":dummy-transform")
     }
