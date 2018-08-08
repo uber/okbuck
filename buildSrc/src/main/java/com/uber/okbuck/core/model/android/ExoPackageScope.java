@@ -109,7 +109,7 @@ public class ExoPackageScope extends Scope {
                         if (fullyQualified) {
                           match = dependency.getGroup().equals(first);
                         }
-                        match &= dependency.name.equals(last);
+                        match &= dependency.getName().equals(last);
                         return match;
                       })
                   .findFirst();

@@ -3,7 +3,6 @@ package com.uber.okbuck.core.manager;
 import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.core.dependency.DependencyCache;
-import com.uber.okbuck.core.dependency.DependencyUtils;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
 import java.io.IOException;
@@ -38,20 +37,15 @@ public final class RobolectricManager {
     }
 
     DependencyCache dependencyCache =
-        new DependencyCache(
-            rootProject,
-            DependencyUtils.createCacheDir(rootProject),
-            ProjectUtil.getDependencyManager(rootProject));
+        new DependencyCache(rootProject, ProjectUtil.getDependencyManager(rootProject));
 
     dependencies =
         runtimeDeps
             .build()
             .stream()
-            .map(configuration -> dependencyCache.build(configuration, false))
+            .map(dependencyCache::build)
             .flatMap(Set::stream)
             .collect(com.uber.okbuck.core.util.MoreCollectors.toImmutableSet());
-
-    dependencyCache.cleanup();
   }
 
   public void finalizeDependencies() {

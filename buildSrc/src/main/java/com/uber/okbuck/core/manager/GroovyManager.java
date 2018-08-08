@@ -2,7 +2,6 @@ package com.uber.okbuck.core.manager;
 
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.core.dependency.DependencyCache;
-import com.uber.okbuck.core.dependency.DependencyUtils;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.template.config.Groovyc;
@@ -40,10 +39,7 @@ public final class GroovyManager {
         .getDependencies()
         .add(GROOVY_DEPS_CONFIG, "org.codehaus.groovy:groovy:" + groovyVersion);
     dependencies =
-        new DependencyCache(
-                rootProject,
-                DependencyUtils.createCacheDir(rootProject),
-                ProjectUtil.getDependencyManager(rootProject))
+        new DependencyCache(rootProject, ProjectUtil.getDependencyManager(rootProject))
             .build(groovyConfig);
 
     File groovyHome = rootProject.file(GROOVY_HOME_LOCATION);

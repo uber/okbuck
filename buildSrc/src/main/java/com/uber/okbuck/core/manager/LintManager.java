@@ -3,7 +3,6 @@ package com.uber.okbuck.core.manager;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.java.LintBinaryComposer;
 import com.uber.okbuck.core.dependency.DependencyCache;
-import com.uber.okbuck.core.dependency.DependencyUtils;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.template.core.Rule;
@@ -70,10 +69,7 @@ public final class LintManager {
     OkBuckGradlePlugin okBuckGradlePlugin = ProjectUtil.getPlugin(project);
     if (okBuckGradlePlugin.lintDepCache == null) {
       okBuckGradlePlugin.lintDepCache =
-          new DependencyCache(
-              project,
-              DependencyUtils.createCacheDir(project),
-              ProjectUtil.getDependencyManager(project));
+          new DependencyCache(project, ProjectUtil.getDependencyManager(project));
 
       dependencies =
           okBuckGradlePlugin.lintDepCache.build(

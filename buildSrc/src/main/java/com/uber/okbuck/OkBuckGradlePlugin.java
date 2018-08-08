@@ -2,7 +2,6 @@ package com.uber.okbuck;
 
 import com.uber.okbuck.core.annotation.AnnotationProcessorCache;
 import com.uber.okbuck.core.dependency.DependencyCache;
-import com.uber.okbuck.core.dependency.DependencyUtils;
 import com.uber.okbuck.core.manager.DependencyManager;
 import com.uber.okbuck.core.manager.GroovyManager;
 import com.uber.okbuck.core.manager.KotlinManager;
@@ -22,7 +21,6 @@ import com.uber.okbuck.extension.ScalaExtension;
 import com.uber.okbuck.extension.WrapperExtension;
 import com.uber.okbuck.generator.BuckFileGenerator;
 import com.uber.okbuck.wrapper.BuckWrapperTask;
-import java.io.File;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -114,7 +112,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
               new DependencyManager(
                   rootBuckProject,
                   EXTERNAL_DEPENDENCY_CACHE,
-                  okbuckExt.getExternalExtension().getAllowedMap());
+                  okbuckExt.getExternalDependencyExtension());
 
           // Create Lint Manager
           lintManager = new LintManager(rootBuckProject, LINT_BUCK_FILE);
@@ -143,7 +141,6 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
           rootOkBuckTask.doLast(
               task -> {
                 annotationProcessorCache.finalizeProcessors();
-                depCache.finalizeDeps();
                 dependencyManager.finalizeDependencies();
                 lintManager.finalizeDependencies();
                 kotlinManager.finalizeDependencies();
@@ -202,10 +199,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
 
                 okbuckExt.buckProjects.forEach(p -> targetCache.getTargets(p));
 
-                File cacheDir = DependencyUtils.createCacheDir(rootBuckProject);
-                depCache =
-                    new DependencyCache(
-                        rootBuckProject, cacheDir, dependencyManager, FORCED_OKBUCK);
+                depCache = new DependencyCache(rootBuckProject, dependencyManager, FORCED_OKBUCK);
 
                 // Fetch Lint deps if needed
                 if (!okbuckExt.getLintExtension().disabled
@@ -228,17 +222,11 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
 
                 extraConfigurations.forEach(
                     (cacheName, extraConfiguration) ->
-                        new DependencyCache(
-                                rootBuckProject,
-                                DependencyUtils.createCacheDir(rootBuckProject),
-                                dependencyManager)
+                        new DependencyCache(rootBuckProject, dependencyManager)
                             .build(extraConfiguration));
 
                 // Fetch buck binary
-                new DependencyCache(
-                        rootBuckProject,
-                        DependencyUtils.createCacheDir(rootBuckProject),
-                        dependencyManager)
+                new DependencyCache(rootBuckProject, dependencyManager)
                     .build(buckBinaryConfiguration);
               });
 

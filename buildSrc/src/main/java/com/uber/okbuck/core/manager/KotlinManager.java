@@ -2,7 +2,6 @@ package com.uber.okbuck.core.manager;
 
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.core.dependency.DependencyCache;
-import com.uber.okbuck.core.dependency.DependencyUtils;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
 import java.io.IOException;
@@ -77,11 +76,7 @@ public final class KotlinManager {
         String.format(
             "%s:%s:%s", KOTLIN_GROUP, KOTLIN_ANNOTATION_PROCESSING_MODULE, kotlinVersion));
 
-    new DependencyCache(
-            project,
-            DependencyUtils.createCacheDir(project),
-            ProjectUtil.getDependencyManager(project))
-        .build(kotlinConfig);
+    new DependencyCache(project, ProjectUtil.getDependencyManager(project)).build(kotlinConfig);
   }
 
   public void finalizeDependencies() {

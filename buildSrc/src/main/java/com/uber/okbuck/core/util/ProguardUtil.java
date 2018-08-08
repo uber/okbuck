@@ -1,7 +1,6 @@
 package com.uber.okbuck.core.util;
 
 import com.uber.okbuck.core.dependency.DependencyCache;
-import com.uber.okbuck.core.dependency.DependencyUtils;
 import com.uber.okbuck.core.dependency.ExternalDependency;
 import java.nio.file.Paths;
 import java.util.Optional;
@@ -31,10 +30,7 @@ public final class ProguardUtil {
                 new DefaultExternalModuleDependency(
                     PROGUARD_GROUP, PROGUARD_MODULE, proguardVersion));
     DependencyCache proguardCache =
-        new DependencyCache(
-            project,
-            DependencyUtils.createCacheDir(project),
-            ProjectUtil.getDependencyManager(project));
+        new DependencyCache(project, ProjectUtil.getDependencyManager(project));
     proguardCache.build(proguardConfiguration);
     String proguardJarPath = null;
     try {
@@ -59,16 +55,19 @@ public final class ProguardUtil {
 
       if (artifactResult.isPresent()) {
         ExternalDependency dependency =
-            new ExternalDependency(
+            ExternalDependency.from(
                 PROGUARD_GROUP,
                 PROGUARD_MODULE,
                 proguardVersion,
                 artifactResult.get().getFile(),
-                ProjectUtil.getOkBuckExtension(project).getExternalExtension());
+                ProjectUtil.getOkBuckExtension(project).getExternalDependencyExtension());
         proguardJarPath = proguardCache.getPath(proguardCache.get(dependency, true));
 
         proguardJarPath =
-            Paths.get(proguardJarPath).getParent().resolve(dependency.getDepFileName()).toString();
+            Paths.get(proguardJarPath)
+                .getParent()
+                .resolve(dependency.getDependencyFileName())
+                .toString();
       }
     } catch (IllegalStateException ignored) {
     }

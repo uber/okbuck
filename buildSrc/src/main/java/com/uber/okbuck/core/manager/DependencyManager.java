@@ -9,6 +9,8 @@ import com.uber.okbuck.composer.java.PrebuiltRuleComposer;
 import com.uber.okbuck.core.dependency.ExternalDependency;
 import com.uber.okbuck.core.dependency.VersionlessDependency;
 import com.uber.okbuck.core.util.FileUtil;
+import com.uber.okbuck.core.util.ProjectUtil;
+import com.uber.okbuck.extension.ExternalDependencyExtension;
 import com.uber.okbuck.template.core.Rule;
 import java.io.File;
 import java.io.IOException;
@@ -18,7 +20,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
@@ -31,23 +32,30 @@ public class DependencyManager {
   private static final Logger LOG = LoggerFactory.getLogger(DependencyManager.class);
 
   private final Project project;
-  private final String publishDirName;
-  private final Map<VersionlessDependency, List<String>> allowed;
+  private final String cacheDirName;
+  private final ExternalDependencyExtension extension;
 
   public DependencyManager(
-      Project rootProject,
-      String publishDirName,
-      Map<VersionlessDependency, List<String>> allowed) {
+      Project rootProject, String cacheDirName, ExternalDependencyExtension extension) {
+
     this.project = rootProject;
-    this.publishDirName = publishDirName;
-    this.allowed = allowed;
+    this.cacheDirName = cacheDirName;
+    this.extension = extension;
   }
 
   private static SetMultimap<VersionlessDependency, ExternalDependency> dependencyMap =
       Multimaps.synchronizedSetMultimap(MultimapBuilder.hashKeys().hashSetValues().build());
 
   public void addDependency(ExternalDependency dependency) {
-    dependencyMap.put(dependency.versionless, dependency);
+    dependencyMap.put(dependency.getVersionless(), dependency);
+  }
+
+  public String getCacheDirName() {
+    return this.cacheDirName;
+  }
+
+  public File getCacheDir() {
+    return project.getRootProject().file(cacheDirName);
   }
 
   public void finalizeDependencies() {
@@ -56,82 +64,107 @@ public class DependencyManager {
   }
 
   private void validateDependencies() {
-    Map<String, Set<String>> errors =
+    Joiner.MapJoiner mapJoiner = Joiner.on(",\n").withKeyValueSeparator("=");
+
+    Map<String, Set<String>> extraDependencies =
         dependencyMap
             .asMap()
             .entrySet()
             .stream()
-            .map(
-                entry -> {
-                  VersionlessDependency key = entry.getKey();
-                  Collection<ExternalDependency> value = entry.getValue();
-
-                  if (value.size() > 1) {
-                    if (allowed.containsKey(key)) {
-                      List<String> allowedVersions = allowed.get(key);
-                      if (allowedVersions.size() != 0) {
-                        List<ExternalDependency> extraDependencies =
-                            value
-                                .stream()
-                                .filter(dependency -> !allowedVersions.contains(dependency.version))
-                                .collect(Collectors.toList());
-
-                        if (extraDependencies.size() > 0) {
-                          return extraDependencies;
-                        }
-                      } else {
-                        // All versions are allowed -- continue.
-                      }
-                    } else {
-                      return value;
-                    }
-                  }
-                  return null;
-                })
-            .filter(Objects::nonNull)
+            .filter(entry -> entry.getValue().size() > 1)
+            .map(Map.Entry::getValue)
             .flatMap(Collection::stream)
+            .filter(dependency -> !extension.isAllowed(dependency))
             .collect(
                 Collectors.groupingBy(
-                    dependency -> dependency.versionless.toString(),
-                    Collectors.mapping(i -> i.version, Collectors.toSet())));
+                    dependency -> dependency.getVersionless().mavenCoords(),
+                    Collectors.mapping(ExternalDependency::getVersion, Collectors.toSet())));
 
-    if (errors.size() > 0) {
-      Joiner.MapJoiner mapJoiner = Joiner.on(",\n").withKeyValueSeparator("=");
+    if (extraDependencies.size() > 0) {
       throw new RuntimeException(
-          "Extra versions found for external dependencies  \n" + mapJoiner.join(errors));
+          "Multiple versions found for external dependencies: \n"
+              + mapJoiner.join(extraDependencies));
+    }
+
+    Map<String, Set<String>> singleDependencies =
+        dependencyMap
+            .asMap()
+            .entrySet()
+            .stream()
+            .filter(entry -> entry.getValue().size() == 1)
+            .map(Map.Entry::getValue)
+            .flatMap(Collection::stream)
+            .filter(dependency -> extension.isVersioned(dependency.getVersionless()))
+            .collect(
+                Collectors.groupingBy(
+                    dependency -> dependency.getVersionless().mavenCoords(),
+                    Collectors.mapping(ExternalDependency::getVersion, Collectors.toSet())));
+
+    if (singleDependencies.size() > 0) {
+      throw new RuntimeException(
+          "Single version found for external dependencies, please remove them from external dependency extension: \n"
+              + mapJoiner.join(singleDependencies));
+    }
+
+    String changingDeps =
+        dependencyMap
+            .asMap()
+            .values()
+            .stream()
+            .flatMap(Collection::stream)
+            .filter(
+                dependency -> {
+                  String version = dependency.getVersion();
+                  return version.endsWith("+") || version.endsWith("-SNAPSHOT");
+                })
+            .map(ExternalDependency::getCacheName)
+            .collect(Collectors.joining("\n"));
+
+    if (!changingDeps.isEmpty()) {
+      String message =
+          "Please do not use changing dependencies. They can cause hard to reproduce builds.\n"
+              + changingDeps;
+      if (ProjectUtil.getOkBuckExtension(project).failOnChangingDependencies) {
+        throw new IllegalStateException(message);
+      } else {
+        LOG.warn(message);
+      }
     }
   }
 
   private void processDependencies() {
-    File publishDir = project.file(publishDirName);
-    if (publishDir.exists()) {
+    File cacheDir = getCacheDir();
+    if (cacheDir.exists()) {
       try {
-        FileUtils.deleteDirectory(publishDir);
+        FileUtils.deleteDirectory(cacheDir);
       } catch (IOException e) {
-        throw new RuntimeException("Could not delete dependency directory: " + publishDir);
+        throw new RuntimeException("Could not delete dependency directory: " + cacheDir);
       }
     }
 
-    if (!publishDir.mkdirs()) {
-      throw new IllegalStateException("Couldn't create dependency directory: " + publishDir);
+    if (!cacheDir.mkdirs()) {
+      throw new IllegalStateException("Couldn't create dependency directory: " + cacheDir);
     }
 
-    Path basePath = project.getProjectDir().toPath();
+    Map<Path, List<ExternalDependency>> groupToDependencyMap =
+        dependencyMap
+            .asMap()
+            .values()
+            .stream()
+            .flatMap(Collection::stream)
+            .collect(
+                Collectors.groupingBy(
+                    dependency -> cacheDir.toPath().resolve(dependency.getBasePath())));
 
-    dependencyMap
-        .asMap()
-        .values()
-        .stream()
-        .flatMap(Collection::stream)
-        .collect(Collectors.groupingBy(ExternalDependency::getGroup))
+    groupToDependencyMap.keySet().forEach(groupDirPath -> groupDirPath.toFile().mkdirs());
+
+    groupToDependencyMap
+        .entrySet()
+        .parallelStream()
         .forEach(
-            (group, dependencies) -> {
-              Path groupDirPath =
-                  basePath.resolve(publishDirName).resolve(group.replace('.', File.separatorChar));
-
-              groupDirPath.toFile().mkdirs();
-              copyOrCreateSymlinks(groupDirPath, dependencies);
-              composeBuckFile(groupDirPath, dependencies);
+            entry -> {
+              copyOrCreateSymlinks(entry.getKey(), entry.getValue());
+              composeBuckFile(entry.getKey(), entry.getValue());
             });
   }
 
@@ -139,20 +172,20 @@ public class DependencyManager {
     SetMultimap<VersionlessDependency, ExternalDependency> nameToDependencyMap =
         MultimapBuilder.hashKeys().hashSetValues().build();
     dependencies.forEach(
-        dependency -> {
-          nameToDependencyMap.put(dependency.versionless, dependency);
-        });
+        dependency -> nameToDependencyMap.put(dependency.getVersionless(), dependency));
 
     dependencies.forEach(
         dependency -> {
-          symlink(path.resolve(dependency.getDepFileName()), dependency.depFile.toPath());
+          symlink(
+              path.resolve(dependency.getDependencyFileName()),
+              dependency.getRealDependencyFile().toPath());
 
-          Path sourceJar = dependency.getSourceJar(project);
+          Path sourceJar = dependency.getRealSourceFilePath(project);
           if (sourceJar != null) {
             symlink(path.resolve(dependency.getSourceFileName()), sourceJar);
           }
 
-          Path lintJar = dependency.getLintJar();
+          Path lintJar = dependency.getRealLintFilePath();
           if (lintJar != null) {
             try {
               Files.copy(

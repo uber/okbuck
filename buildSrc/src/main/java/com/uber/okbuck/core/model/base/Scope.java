@@ -2,6 +2,7 @@ package com.uber.okbuck.core.model.base;
 
 import com.android.build.api.attributes.VariantAttr;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Streams;
@@ -125,7 +126,7 @@ public class Scope {
     return external
         .stream()
         .map(depCache::get)
-        .filter(d -> d.packaging.equals("jar"))
+        .filter(dependency -> dependency.getPackaging().equals(ExternalDependency.JAR))
         .map(depCache::getPath)
         .collect(Collectors.toSet());
   }
@@ -134,7 +135,7 @@ public class Scope {
     return external
         .stream()
         .map(depCache::get)
-        .filter(d -> d.packaging.equals("aar"))
+        .filter(dependency -> dependency.getPackaging().equals(ExternalDependency.AAR))
         .map(depCache::getPath)
         .collect(Collectors.toSet());
   }
@@ -142,10 +143,8 @@ public class Scope {
   public Set<String> getPackagedLintJars() {
     return external
         .stream()
-        .map(depCache::get)
-        .filter(d -> d.packaging.equals("aar"))
         .map(depCache::getLintJar)
-        .filter(StringUtils::isNotEmpty)
+        .filter(lintJar -> !Strings.isNullOrEmpty(lintJar))
         .collect(Collectors.toSet());
   }
 
@@ -165,17 +164,23 @@ public class Scope {
               .getAllDependencies()
               .stream()
               .map(
-                  dependency ->
-                      new VersionlessDependency(
-                          dependency.getGroup() == null ? EMPTY_GROUP : dependency.getGroup(),
-                          dependency.getName()))
+                  dependency -> {
+                    String group =
+                        dependency.getGroup() == null ? EMPTY_GROUP : dependency.getGroup();
+                    return VersionlessDependency.builder()
+                        .setGroup(group)
+                        .setName(dependency.getName())
+                        .build();
+                  })
               .collect(Collectors.toSet());
 
       annotationProcessors =
           Streams.concat(
                   external
                       .stream()
-                      .filter(dependency -> firstLevelDependencies.contains(dependency.versionless))
+                      .filter(
+                          dependency ->
+                              firstLevelDependencies.contains(dependency.getVersionless()))
                       .map(depCache::getAnnotationProcessors)
                       .flatMap(Set::stream),
                   targetDeps
@@ -183,9 +188,10 @@ public class Scope {
                       .filter(
                           target -> {
                             VersionlessDependency versionless =
-                                new VersionlessDependency(
-                                    (String) target.getProject().getGroup(),
-                                    target.getProject().getName());
+                                VersionlessDependency.builder()
+                                    .setGroup((String) target.getProject().getGroup())
+                                    .setName(target.getProject().getName())
+                                    .build();
                             return firstLevelDependencies.contains(versionless);
                           })
                       .map(
@@ -334,19 +340,13 @@ public class Scope {
               && ((ModuleComponentIdentifier) identifier).getVersion().length() > 0) {
             ModuleComponentIdentifier moduleIdentifier = (ModuleComponentIdentifier) identifier;
 
-            @Nullable
-            String classifier =
-                DependencyUtils.getModuleClassifier(
-                    artifact.getFile().getName(), moduleIdentifier.getVersion());
-
             ExternalDependency externalDependency =
-                new ExternalDependency(
+                ExternalDependency.from(
                     moduleIdentifier.getGroup(),
                     moduleIdentifier.getModule(),
                     moduleIdentifier.getVersion(),
-                    classifier,
                     artifact.getFile(),
-                    ProjectUtil.getOkBuckExtension(project).getExternalExtension());
+                    ProjectUtil.getOkBuckExtension(project).getExternalDependencyExtension());
             external.add(externalDependency);
           } else {
             String rootProjectPath = project.getRootProject().getProjectDir().getAbsolutePath();
@@ -366,7 +366,7 @@ public class Scope {
               external.add(
                   ExternalDependency.fromLocal(
                       artifact.getFile(),
-                      ProjectUtil.getOkBuckExtension(project).getExternalExtension()));
+                      ProjectUtil.getOkBuckExtension(project).getExternalDependencyExtension()));
 
             } catch (IOException e) {
               throw new RuntimeException(e);

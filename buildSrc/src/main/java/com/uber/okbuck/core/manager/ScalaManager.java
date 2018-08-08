@@ -3,7 +3,6 @@ package com.uber.okbuck.core.manager;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.base.BuckRuleComposer;
 import com.uber.okbuck.core.dependency.DependencyCache;
-import com.uber.okbuck.core.dependency.DependencyUtils;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.template.config.ScalaBuckFile;
 import java.util.Set;
@@ -33,10 +32,7 @@ public final class ScalaManager {
         .getDependencies()
         .add(SCALA_DEPS_CONFIG, "org.scala-lang:scala-compiler:" + scalaVersion);
     dependencies =
-        new DependencyCache(
-                rootProject,
-                DependencyUtils.createCacheDir(rootProject),
-                ProjectUtil.getDependencyManager(rootProject))
+        new DependencyCache(rootProject, ProjectUtil.getDependencyManager(rootProject))
             .build(scalaConfig);
   }
 

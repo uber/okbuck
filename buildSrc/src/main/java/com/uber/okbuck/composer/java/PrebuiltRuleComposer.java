@@ -1,5 +1,8 @@
 package com.uber.okbuck.composer.java;
 
+import static com.uber.okbuck.core.dependency.ExternalDependency.AAR;
+import static com.uber.okbuck.core.dependency.ExternalDependency.JAR;
+
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableList;
 import com.uber.okbuck.composer.jvm.JvmBuckRuleComposer;
@@ -12,6 +15,10 @@ import java.util.stream.Collectors;
 
 public class PrebuiltRuleComposer extends JvmBuckRuleComposer {
 
+  private static final String JAVA_PREBUILT_JAR = "prebuilt_jar";
+  private static final String ANDROID_PREBUILT_AAR = "android_prebuilt_aar";
+  private static final String BINARY_JAR = "binary_jar";
+
   /**
    * @param dependencies External Dependencies whose rule needs to be created
    * @return List of rules
@@ -19,35 +26,31 @@ public class PrebuiltRuleComposer extends JvmBuckRuleComposer {
   public static List<Rule> compose(Collection<ExternalDependency> dependencies) {
     return dependencies
         .stream()
-        .filter(
-            dependency -> dependency.packaging.equals("aar") || dependency.packaging.equals("jar"))
+        .filter(dependency -> ImmutableList.of(JAR, AAR).contains(dependency.getPackaging()))
         .sorted(
             (o1, o2) ->
                 ComparisonChain.start()
-                    .compare(o1.packaging, o2.packaging)
+                    .compare(o1.getPackaging(), o2.getPackaging())
                     .compare(o1.getCacheName(), o2.getCacheName())
                     .result())
         .map(
             dependency -> {
               String source = null;
-              if (dependency.hasSourceJar()) {
+              if (dependency.hasSourceFile()) {
                 source = dependency.getSourceFileName();
               }
 
               String ruleType;
               String prebuiltType;
-              String mavenCoords;
 
-              switch (dependency.packaging) {
-                case "jar":
-                  ruleType = "prebuilt_jar";
-                  prebuiltType = "binary_jar";
-                  mavenCoords = dependency.getMavenCoords();
+              switch (dependency.getPackaging()) {
+                case JAR:
+                  ruleType = JAVA_PREBUILT_JAR;
+                  prebuiltType = BINARY_JAR;
                   break;
-                case "aar":
-                  ruleType = "android_prebuilt_aar";
-                  prebuiltType = "aar";
-                  mavenCoords = null;
+                case AAR:
+                  ruleType = ANDROID_PREBUILT_AAR;
+                  prebuiltType = AAR;
                   break;
                 default:
                   throw new IllegalStateException("Dependency not a valid prebuilt: " + dependency);
@@ -57,18 +60,18 @@ public class PrebuiltRuleComposer extends JvmBuckRuleComposer {
               rulesBuilder.add(
                   new Prebuilt()
                       .prebuiltType(prebuiltType)
-                      .prebuilt(dependency.getDepFileName())
-                      .mavenCoords(mavenCoords)
+                      .prebuilt(dependency.getDependencyFileName())
+                      .mavenCoords(dependency.getMavenCoords())
                       .source(source)
                       .ruleType(ruleType)
                       .name(dependency.getCacheName()));
 
-              if (dependency.hasLintJar()) {
+              if (dependency.hasLintFile()) {
                 rulesBuilder.add(
                     new Prebuilt()
-                        .prebuiltType("binary_jar")
+                        .prebuiltType(BINARY_JAR)
                         .prebuilt(dependency.getLintFileName())
-                        .ruleType("prebuilt_jar")
+                        .ruleType(JAVA_PREBUILT_JAR)
                         .name(dependency.getLintCacheName()));
               }
 

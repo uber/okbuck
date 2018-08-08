@@ -1,50 +1,62 @@
 package com.uber.okbuck.core.dependency;
 
-import java.util.Objects;
+import com.google.auto.value.AutoValue;
+import com.google.auto.value.extension.memoized.Memoized;
 import java.util.Optional;
 
-public final class VersionlessDependency {
+@AutoValue
+public abstract class VersionlessDependency {
 
   static final String COORD_DELIMITER = ":";
 
-  private final String group;
-  private final String name;
-  private final Optional<String> classifier;
+  public abstract String group();
 
-  public VersionlessDependency(String group, String name, Optional<String> classifier) {
-    this.group = group;
-    this.name = name;
-    this.classifier = classifier;
+  public abstract String name();
+
+  public abstract Optional<String> classifier();
+
+  public static Builder builder() {
+    return new AutoValue_VersionlessDependency.Builder();
   }
 
-  public VersionlessDependency(String group, String name) {
-    this(group, name, Optional.empty());
+  @AutoValue.Builder
+  public abstract static class Builder {
+    public abstract Builder setGroup(String value);
+
+    public abstract Builder setName(String value);
+
+    public abstract Builder setClassifier(Optional<String> value);
+
+    public abstract Builder setClassifier(String value);
+
+    public abstract VersionlessDependency build();
   }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-
-    VersionlessDependency that = (VersionlessDependency) o;
-
-    return group.equals(that.group) && name.equals(that.name) && classifier.equals(that.classifier);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(group, name, classifier);
-  }
-
-  @Override
-  public String toString() {
-    return this.group
+  @Memoized
+  public String mavenCoords() {
+    return group()
         + COORD_DELIMITER
-        + this.name
-        + classifier.map(c -> COORD_DELIMITER + c).orElse("");
+        + name()
+        + classifier().map(c -> COORD_DELIMITER + c).orElse("");
+  }
+
+  public static VersionlessDependency fromMavenCoords(String s) {
+    String[] parts = s.split(COORD_DELIMITER);
+    VersionlessDependency versionless;
+
+    if (parts.length == 2) {
+      versionless = VersionlessDependency.builder().setGroup(parts[0]).setName(parts[1]).build();
+
+    } else if (parts.length == 3) {
+      versionless =
+          VersionlessDependency.builder()
+              .setGroup(parts[0])
+              .setName(parts[1])
+              .setClassifier(parts[2])
+              .build();
+    } else {
+      throw new RuntimeException("Invalid dependency specified: " + s);
+    }
+    return versionless;
   }
 }

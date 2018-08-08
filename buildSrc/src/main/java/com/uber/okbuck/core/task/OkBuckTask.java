@@ -85,9 +85,6 @@ public class OkBuckTask extends DefaultTask {
         hasKotlinLib ? KotlinManager.KOTLIN_HOME_LOCATION : null,
         hasScalaLib ? ScalaManager.SCALA_COMPILER_LOCATION : null,
         hasScalaLib ? ScalaManager.SCALA_LIBRARY_LOCATION : null);
-
-    // Perform dependency cache cleanup and persistence
-    ProjectUtil.getDependencyCache(getProject()).finalizeDeps();
   }
 
   @Override

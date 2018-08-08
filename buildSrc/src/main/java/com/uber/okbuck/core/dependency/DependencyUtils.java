@@ -1,15 +1,22 @@
 package com.uber.okbuck.core.dependency;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.uber.okbuck.OkBuckGradlePlugin;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FilenameUtils;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.UnknownConfigurationException;
+import org.gradle.api.file.FileTree;
 
 public final class DependencyUtils {
 
@@ -31,19 +38,16 @@ public final class DependencyUtils {
 
   @Nullable
   public static Configuration useful(@Nullable Configuration configuration) {
-    return configuration != null ? (configuration.isCanBeResolved() ? configuration : null) : null;
+    if (configuration != null && configuration.isCanBeResolved()) {
+      return configuration;
+    }
+    return null;
   }
 
-  public static File createCacheDir(Project project) {
-    File cacheDir = project.getRootProject().file(OkBuckGradlePlugin.EXTERNAL_DEPENDENCY_CACHE);
-    cacheDir.mkdirs();
-    return cacheDir;
-  }
-
-  public static boolean isWhiteListed(final File depFile) {
+  public static boolean isWhiteListed(final File dependencyFile) {
     return WHITELIST_LOCAL_PATTERNS
         .stream()
-        .anyMatch(pattern -> depFile.getPath().contains(pattern));
+        .anyMatch(pattern -> dependencyFile.getPath().contains(pattern));
   }
 
   public static boolean isConsumable(File file) {
@@ -51,7 +55,11 @@ public final class DependencyUtils {
   }
 
   @Nullable
-  public static String getModuleClassifier(String fileNameString, String version) {
+  static String getModuleClassifier(String fileNameString, @Nullable String version) {
+    if (version == null) {
+      return null;
+    }
+
     String baseFileName = FilenameUtils.getBaseName(fileNameString);
     if (baseFileName.length() > 0) {
       int versionIndex = fileNameString.lastIndexOf(version);
@@ -68,5 +76,37 @@ public final class DependencyUtils {
       throw new IllegalStateException(
           String.format("Not a valid module filename %s", fileNameString));
     }
+  }
+
+  @Nullable
+  static Path getContentPath(Path zipFilePath, String contentFileName) {
+    try {
+      FileSystem zipFile = FileSystems.newFileSystem(zipFilePath, null);
+      Path packagedPath = zipFile.getPath(contentFileName);
+      if (Files.exists(packagedPath)) {
+        return packagedPath;
+      } else {
+        return null;
+      }
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Nullable
+  static Path getFilePath(Project project, File baseDir, String toFind) {
+    FileTree files =
+        project.fileTree(
+            ImmutableMap.of(
+                "dir", baseDir.getAbsolutePath(), "includes", ImmutableList.of("**/" + toFind)));
+
+    try {
+      return files.getSingleFile().toPath();
+    } catch (IllegalStateException ignored) {
+      if (files.getFiles().size() > 1) {
+        throw new IllegalStateException("Found multiple source jars: " + files);
+      }
+    }
+    return null;
   }
 }

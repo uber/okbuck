@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.base.BuckRuleComposer;
 import com.uber.okbuck.core.dependency.DependencyCache;
-import com.uber.okbuck.core.dependency.DependencyUtils;
 import com.uber.okbuck.core.model.android.AndroidAppTarget;
 import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.util.FileUtil;
@@ -53,9 +52,8 @@ public final class TransformManager {
   }
 
   public void fetchTransformDeps() {
-    File cacheDir = DependencyUtils.createCacheDir(rootProject);
     DependencyCache dependencyCache =
-        new DependencyCache(rootProject, cacheDir, ProjectUtil.getDependencyManager(rootProject));
+        new DependencyCache(rootProject, ProjectUtil.getDependencyManager(rootProject));
 
     Scope transformScope =
         Scope.builder(rootProject)
