@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.uber.okbuck.core.util.FileUtil;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -94,17 +95,20 @@ public final class DependencyUtils {
   }
 
   @Nullable
-  static Path getFilePath(Project project, File baseDir, String toFind) {
-    FileTree files =
+  static Path getSingleZipFilePath(Project project, File baseDir, String zipToFind) {
+    FileTree zipFiles =
         project.fileTree(
             ImmutableMap.of(
-                "dir", baseDir.getAbsolutePath(), "includes", ImmutableList.of("**/" + toFind)));
+                "dir", baseDir.getAbsolutePath(), "includes", ImmutableList.of("**/" + zipToFind)));
 
     try {
-      return files.getSingleFile().toPath();
+      File maybeZipFile = zipFiles.getSingleFile();
+      if (FileUtil.isZipFile(maybeZipFile)) {
+        return maybeZipFile.toPath();
+      }
     } catch (IllegalStateException ignored) {
-      if (files.getFiles().size() > 1) {
-        throw new IllegalStateException("Found multiple source jars: " + files);
+      if (zipFiles.getFiles().size() > 1) {
+        throw new IllegalStateException("Found multiple source jars: " + zipFiles);
       }
     }
     return null;

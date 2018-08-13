@@ -152,7 +152,7 @@ public final class ExternalDependency {
       } else if (!base.isLocal()) {
         // Most likely jar is in Gradle/Maven cache directory,
         // try to find sources jar in "jar/../..".
-        return DependencyUtils.getFilePath(
+        return DependencyUtils.getSingleZipFilePath(
             project, getRealDependencyFile().getParentFile().getParentFile(), sourceFileName);
       }
     }

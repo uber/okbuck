@@ -1,7 +1,10 @@
 package com.uber.okbuck.core.util;
 
 import com.uber.okbuck.template.core.Rule;
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -93,6 +96,18 @@ public final class FileUtil {
       } catch (IOException e) {
         throw new IllegalStateException("Couldn't create the buck file: %s", e);
       }
+    }
+  }
+
+  public static boolean isZipFile(File file) {
+    if (!file.exists() || file.isDirectory() || !file.canRead() || file.length() < 4) {
+      return false;
+    }
+    try (DataInputStream in =
+        new DataInputStream(new BufferedInputStream(new FileInputStream(file)))) {
+      return in.readInt() == 0x504b0304;
+    } catch (IOException ignored) {
+      return false;
     }
   }
 }
