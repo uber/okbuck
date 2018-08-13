@@ -71,6 +71,7 @@ public final class XmlUtil {
       String xmlString =
           stringWriter
               .toString()
+              .replaceAll( "(?s)<!--.*?-->", "" )
               .replaceAll("xmlns:android=\"http://schemas.android.com/apk/res/android\"", "")
               .replaceFirst(
                   "<manifest ",
