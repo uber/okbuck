@@ -15,8 +15,7 @@ public final class ScalaManager {
 
   public static final String SCALA_COMPILER_LOCATION =
       OkBuckGradlePlugin.DEFAULT_CACHE_PATH + "/scala_installation";
-  public static final String SCALA_LIBRARY_LOCATION =
-      OkBuckGradlePlugin.EXTERNAL_DEPENDENCY_CACHE + "/org/scala-lang";
+  public static final String SCALA_LIBRARY_PATH = "/org/scala-lang";
 
   private final Project rootProject;
   private Set<String> dependencies;

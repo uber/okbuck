@@ -79,12 +79,15 @@ public class OkBuckTask extends DefaultTask {
       ProjectUtil.getKotlinManager(getProject()).setupKotlinHome(kotlinExtension.version);
     }
 
+    String scalaLibraryLocation =
+        okBuckExtension.externalDependencyCache + ScalaManager.SCALA_LIBRARY_PATH;
+
     generate(
         okBuckExtension,
         hasGroovyLib ? GroovyManager.GROOVY_HOME_LOCATION : null,
         hasKotlinLib ? KotlinManager.KOTLIN_HOME_LOCATION : null,
         hasScalaLib ? ScalaManager.SCALA_COMPILER_LOCATION : null,
-        hasScalaLib ? ScalaManager.SCALA_LIBRARY_LOCATION : null);
+        hasScalaLib ? scalaLibraryLocation : null);
   }
 
   @Override

@@ -10,7 +10,7 @@ import org.apache.commons.io.FilenameUtils;
 @AutoValue
 public abstract class BaseExternalDependency {
   /**
-   * this is used to output artifacts as %GROUP%--%NAME%--%VERSION%--%CLASSIFIER% Thus making it
+   * this is used to output artifacts as %GROUP%/%NAME%--%VERSION%--%CLASSIFIER% Thus making it
    * possible to re-construct maven coordinates.
    */
   private static final String CACHE_DELIMITER = "--";

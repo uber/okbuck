@@ -58,14 +58,11 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
 
   private static final String OKBUCK_CLEAN = "okbuckClean";
   private static final String BUCK_WRAPPER = "buckWrapper";
-  private static final String EXTRA_DEP_CACHE_PATH = ".okbuck/cache/extra";
   private static final String FORCED_OKBUCK = "forcedOkbuck";
-  private static final String BUCK_BINARY = "buck_binary";
   private static final String JITPACK_URL = "https://jitpack.io";
   private static final String BUCK_BINARY_CONFIGURATION = "buckBinary";
   private static final String PROCESSOR_BUCK_FILE = ".okbuck/cache/processor/BUCK";
   private static final String LINT_BUCK_FILE = ".okbuck/cache/lint/BUCK";
-  public static final String EXTERNAL_DEPENDENCY_CACHE = "3rdparty";
 
   public final Map<Project, Map<String, Scope>> scopes = new ConcurrentHashMap<>();
 
@@ -111,7 +108,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
           dependencyManager =
               new DependencyManager(
                   rootBuckProject,
-                  EXTERNAL_DEPENDENCY_CACHE,
+                  okbuckExt.externalDependencyCache,
                   okbuckExt.getExternalDependencyExtension());
 
           // Create Lint Manager
