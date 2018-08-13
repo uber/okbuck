@@ -215,6 +215,8 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
                     (cacheName, extraConfiguration) ->
                         new DependencyCache(rootBuckProject, dependencyManager)
                             .build(extraConfiguration));
+
+                buckManager.setupBuckBinary();
               });
 
           // Create clean task

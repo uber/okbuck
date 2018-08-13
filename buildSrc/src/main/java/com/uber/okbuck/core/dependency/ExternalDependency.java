@@ -56,72 +56,88 @@ public final class ExternalDependency {
     return this.base.toString();
   }
 
+  /** Returns the group of the dependency. */
   public String getGroup() {
     return this.base.versionless().group();
   }
 
+  /** Returns the name of the dependency. */
   public String getName() {
     return this.base.versionless().name();
   }
 
+  /** Returns the VersionlessDependency of the dependency. */
   public VersionlessDependency getVersionless() {
     return this.base.versionless();
   }
 
+  /** Returns the version of the dependency. */
   public String getVersion() {
     return this.base.version();
   }
 
+  /** Returns the real artifact file of the dependency. */
   public File getRealDependencyFile() {
     return this.base.realDependencyFile();
   }
 
+  /** Returns the packaging of the the dependency: jar, aar, pex */
   public String getPackaging() {
     return this.base.packaging();
   }
 
+  /** Returns the maven coordinates of the the dependency. */
   public String getMavenCoords() {
     return this.base.getMavenCoords();
   }
 
+  /** Returns the cached base path of the dependency. */
   public Path getBasePath() {
     return this.base.basePath();
   }
 
+  /** Returns the rule name the cached dependency file. */
   public String getCacheName() {
     return this.base.cacheName();
   }
 
+  /** Returns the rule name the cached lint jar file. */
   public String getLintCacheName() {
     return getCacheName() + "-lint";
   }
 
+  /** Returns the cached file name of the artifact of the dependency. */
   public String getDependencyFileName() {
     return getCacheName() + "." + getPackaging();
   }
 
+  /** Returns the cached file path of the artifact of the dependency. */
   public Path getDependencyFilePath() {
     return getBasePath().resolve(this.getCacheName());
   }
 
+  /** Returns the cached file name of the sources jar file. */
   public String getSourceFileName() {
     return getSourceFileNameFrom(getDependencyFileName());
   }
 
+  /** Returns the cached file path of the sources jar file. */
   public Path getSourceFilePath() {
     return getBasePath().resolve(getSourceFileName());
   }
 
+  /** Returns the cached lint file name. */
   public String getLintFileName() {
     return getDependencyFileName().replaceFirst("\\.aar$", LINT_FILE);
   }
 
+  /** Returns the cached file path of the lint jar file. */
   public Path getLintFilePath() {
     return this.base.basePath().resolve(getLintCacheName());
   }
 
   /**
-   * Gets the sources jar path for a dependency if it exists.
+   * Gets the real sources jar path for a dependency if it exists.
    *
    * @param project The Project
    */
@@ -134,8 +150,29 @@ public final class ExternalDependency {
     return realSourceFilePath;
   }
 
+  /** Check whether the dependency has a sources jar file. */
   public boolean hasSourceFile() {
     return realSourceFilePath != null;
+  }
+
+  /** Returns the real path of the lint jar file if present, null otherwise. */
+  @Nullable
+  public Path getRealLintFilePath() {
+    if (!lintFileInitialized) {
+      if (getPackaging().equals(AAR)) {
+        realLintFilePath =
+            DependencyUtils.getContentPath(getRealDependencyFile().toPath(), "lint.jar");
+      } else {
+        realLintFilePath = null;
+      }
+      lintFileInitialized = true;
+    }
+    return realLintFilePath;
+  }
+
+  /** Whether the external dependency has a lint jar file */
+  public boolean hasLintFile() {
+    return realLintFilePath != null;
   }
 
   @Nullable
@@ -159,29 +196,11 @@ public final class ExternalDependency {
     return null;
   }
 
-  @Nullable
-  public Path getRealLintFilePath() {
-    if (!lintFileInitialized) {
-      if (getPackaging().equals(AAR)) {
-        realLintFilePath =
-            DependencyUtils.getContentPath(getRealDependencyFile().toPath(), "lint.jar");
-      } else {
-        realLintFilePath = null;
-      }
-      lintFileInitialized = true;
-    }
-    return realLintFilePath;
-  }
-
-  public boolean hasLintFile() {
-    return realLintFilePath != null;
-  }
-
   private String getSourceFileNameFrom(String prebuiltName) {
     if (ImmutableList.of(JAR, AAR).contains(getPackaging())) {
       return prebuiltName.replaceFirst("\\.(jar|aar)$", SOURCE_FILE);
     }
-    throw new RuntimeException("Couldn't get source file name for " + prebuiltName);
+    throw new RuntimeException("Couldn't get sources file name for " + prebuiltName);
   }
 
   private ExternalDependency(
@@ -192,13 +211,6 @@ public final class ExternalDependency {
       File depFile,
       boolean isLocal,
       ExternalDependencyExtension extension) {
-
-    // TODO find a better solution when group ends with 'buck'
-    // which can cause it to clash with BUCK files generated at that path
-    if (group.contains(".buck")) {
-      group = group.replace(".buck", ".buckm");
-    }
-
     if (Strings.isNullOrEmpty(version)) {
       version = LOCAL_DEP_VERSION;
     }
@@ -220,6 +232,16 @@ public final class ExternalDependency {
             .build();
   }
 
+  /**
+   * Create an External Dependency
+   *
+   * @param group group of the dependency
+   * @param name name of the dependency
+   * @param version version of the dependency
+   * @param dependencyFile file of the dependency
+   * @param extension External Dependency Extension
+   * @return External Dependency
+   */
   public static ExternalDependency from(
       String group,
       String name,
@@ -231,6 +253,13 @@ public final class ExternalDependency {
         group, name, version, classifier, dependencyFile, false, extension);
   }
 
+  /**
+   * Create an External Dependency from a local dependency
+   *
+   * @param localDep local dependency file
+   * @param extension ExternalDependencyExtension
+   * @return External Dependency
+   */
   public static ExternalDependency fromLocal(File localDep, ExternalDependencyExtension extension) {
     return new ExternalDependency(
         LOCAL_GROUP,

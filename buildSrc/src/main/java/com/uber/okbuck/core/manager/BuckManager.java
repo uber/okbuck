@@ -49,6 +49,13 @@ public final class BuckManager {
     if (realBuckBinaryPath != null) {
       Path linkedBinaryPath =
           rootProject.file(BUCK_BINARY_LOCATION).toPath().resolve(realBuckBinaryPath.getFileName());
+
+      // Delete already existing folder
+      FileUtil.deleteQuietly(linkedBinaryPath.getParent());
+
+      // Make dirs
+      linkedBinaryPath.getParent().toFile().mkdirs();
+
       FileUtil.symlink(linkedBinaryPath, realBuckBinaryPath);
     }
   }
