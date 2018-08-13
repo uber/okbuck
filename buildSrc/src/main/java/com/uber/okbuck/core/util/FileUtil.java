@@ -1,12 +1,6 @@
 package com.uber.okbuck.core.util;
 
-import org.apache.commons.io.FileUtils;
-import org.gradle.api.Project;
-
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -15,6 +9,8 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
 import java.util.Set;
+import org.apache.commons.io.FileUtils;
+import org.gradle.api.Project;
 
 public final class FileUtil {
 
@@ -66,18 +62,6 @@ public final class FileUtil {
             }
           });
     } catch (IOException ignored) {
-    }
-  }
-
-  public static boolean isZipFile(File file) {
-    if (!file.exists() || file.isDirectory() || !file.canRead() || file.length() < 4) {
-      return false;
-    }
-    try (DataInputStream in = new DataInputStream(
-        new BufferedInputStream(new FileInputStream(file)))) {
-      return in.readInt() == 0x504b0304;
-    } catch (IOException ignored) {
-      return false;
     }
   }
 }

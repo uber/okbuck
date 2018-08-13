@@ -184,7 +184,7 @@ public class DependencyCache {
     String key = dependency.getCacheName();
     String sourcesJarPath = sources.get(key);
 
-    if (sourcesJarPath == null || !FileUtil.isZipFile(new File(sourcesJarPath))) {
+    if (sourcesJarPath == null || !Files.exists(Paths.get(sourcesJarPath))) {
       sourcesJarPath = "";
       if (!DependencyUtils.isWhiteListed(dependency.depFile)) {
         String sourcesJarName = dependency.getSourceCacheName(false);
@@ -201,10 +201,7 @@ public class DependencyCache {
                         "includes", ImmutableList.of("**/" + sourcesJarName)));
 
             try {
-              File maybeSourcesJar = sourceJars.getSingleFile();
-              if (FileUtil.isZipFile(maybeSourcesJar)) {
-                sourcesJarPath = maybeSourcesJar.getAbsolutePath();
-              }
+              sourcesJarPath = sourceJars.getSingleFile().getAbsolutePath();
             } catch (IllegalStateException ignored) {
               if (sourceJars.getFiles().size() > 1) {
                 throw new IllegalStateException(
