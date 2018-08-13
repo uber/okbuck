@@ -31,6 +31,10 @@ jobs:
          keys:
            - gradle-cache-{{ checksum "dependencies.gradle" }}
       - run:
+          name: Cleanup snapshot sources
+          command: rm -rf ~/.gradle/caches/modules-2/files-2.1/com.jakewharton/butterknife*
+          shell: "/bin/bash"
+      - run:
           name: Run okbuck
           command: SKIP_OKBUCK= EXTRA_OKBUCK_ARGS="-Dorg.gradle.daemon=false" ./buckw --version
           shell: "/bin/bash"
