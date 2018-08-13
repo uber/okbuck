@@ -176,13 +176,13 @@ public class DependencyManager {
 
     dependencies.forEach(
         dependency -> {
-          symlink(
+          FileUtil.symlink(
               path.resolve(dependency.getDependencyFileName()),
               dependency.getRealDependencyFile().toPath());
 
           Path sourceJar = dependency.getRealSourceFilePath(project);
           if (sourceJar != null) {
-            symlink(path.resolve(dependency.getSourceFileName()), sourceJar);
+            FileUtil.symlink(path.resolve(dependency.getSourceFileName()), sourceJar);
           }
 
           Path lintJar = dependency.getRealLintFilePath();
@@ -197,16 +197,6 @@ public class DependencyManager {
             }
           }
         });
-  }
-
-  private void symlink(Path link, Path target) {
-    try {
-      LOG.info("Creating symlink {} -> {}", link, target);
-      Files.createSymbolicLink(link, target);
-    } catch (IOException e) {
-      LOG.error("Could not create symlink {} -> {}", link, target);
-      throw new IllegalStateException(e);
-    }
   }
 
   private void composeBuckFile(Path path, Collection<ExternalDependency> dependencies) {

@@ -2,6 +2,7 @@ package com.uber.okbuck;
 
 import com.uber.okbuck.core.annotation.AnnotationProcessorCache;
 import com.uber.okbuck.core.dependency.DependencyCache;
+import com.uber.okbuck.core.manager.BuckManager;
 import com.uber.okbuck.core.manager.DependencyManager;
 import com.uber.okbuck.core.manager.GroovyManager;
 import com.uber.okbuck.core.manager.KotlinManager;
@@ -59,8 +60,6 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
   private static final String OKBUCK_CLEAN = "okbuckClean";
   private static final String BUCK_WRAPPER = "buckWrapper";
   private static final String FORCED_OKBUCK = "forcedOkbuck";
-  private static final String JITPACK_URL = "https://jitpack.io";
-  private static final String BUCK_BINARY_CONFIGURATION = "buckBinary";
   private static final String PROCESSOR_BUCK_FILE = ".okbuck/cache/processor/BUCK";
   private static final String LINT_BUCK_FILE = ".okbuck/cache/lint/BUCK";
 
@@ -77,6 +76,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
   public GroovyManager groovyManager;
   public RobolectricManager robolectricManager;
   public TransformManager transformManager;
+  public BuckManager buckManager;
 
   // Only apply to the root project
   public void apply(@NotNull Project rootProject) {
@@ -87,8 +87,6 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
     // Create configurations
     rootProject.getConfigurations().maybeCreate(TransformManager.CONFIGURATION_TRANSFORM);
     rootProject.getConfigurations().maybeCreate(FORCED_OKBUCK);
-    Configuration buckBinaryConfiguration =
-        rootProject.getConfigurations().maybeCreate(BUCK_BINARY_CONFIGURATION);
 
     rootProject.afterEvaluate(
         rootBuckProject -> {
@@ -129,6 +127,9 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
           // Create Transform Manager
           transformManager = new TransformManager(rootBuckProject);
 
+          // Create Buck Manager
+          buckManager = new BuckManager(rootBuckProject);
+
           KotlinExtension kotlin = okbuckExt.getKotlinExtension();
           ScalaExtension scala = okbuckExt.getScalaExtension();
 
@@ -145,6 +146,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
                 groovyManager.finalDependencies();
                 robolectricManager.finalizeDependencies();
                 transformManager.finalizeDependencies();
+                buckManager.finalizeDependencies();
               });
 
           WrapperExtension wrapper = okbuckExt.getWrapperExtension();
@@ -170,14 +172,6 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
                               rootBuckProject
                                   .getConfigurations()
                                   .maybeCreate(cacheName + "ExtraDepCache")));
-
-          // Create dependency cache for buck binary if needed
-          if (okbuckExt.buckBinary != null) {
-            rootBuckProject
-                .getRepositories()
-                .maven(mavenArtifactRepository -> mavenArtifactRepository.setUrl(JITPACK_URL));
-            rootBuckProject.getDependencies().add(BUCK_BINARY_CONFIGURATION, okbuckExt.buckBinary);
-          }
 
           setupOkbuck.doFirst(
               task -> {
@@ -221,10 +215,6 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
                     (cacheName, extraConfiguration) ->
                         new DependencyCache(rootBuckProject, dependencyManager)
                             .build(extraConfiguration));
-
-                // Fetch buck binary
-                new DependencyCache(rootBuckProject, dependencyManager)
-                    .build(buckBinaryConfiguration);
               });
 
           // Create clean task

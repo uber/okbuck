@@ -34,14 +34,12 @@ public class DependencyCache {
 
   private static final Logger LOG = LoggerFactory.getLogger(DependencyCache.class);
   private final Project rootProject;
-  private final com.uber.okbuck.core.manager.DependencyManager dependencyManager;
+  private final DependencyManager dependencyManager;
   private final boolean fetchSources;
   private final Map<VersionlessDependency, ExternalDependency> forcedDeps = new HashMap<>();
 
   public DependencyCache(
-      Project project,
-      com.uber.okbuck.core.manager.DependencyManager dependencyManager,
-      @Nullable String forcedConfiguration) {
+      Project project, DependencyManager dependencyManager, @Nullable String forcedConfiguration) {
     this.rootProject = project.getRootProject();
     this.dependencyManager = dependencyManager;
     this.fetchSources = ProjectUtil.getOkBuckExtension(project).getIntellijExtension().sources;

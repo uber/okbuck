@@ -18,8 +18,11 @@ import java.util.List;
 import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.Project;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class FileUtil {
+  private static final Logger LOG = LoggerFactory.getLogger(FileUtil.class);
 
   private static final byte[] NEWLINE = System.lineSeparator().getBytes();
 
@@ -108,6 +111,16 @@ public final class FileUtil {
       return in.readInt() == 0x504b0304;
     } catch (IOException ignored) {
       return false;
+    }
+  }
+
+  public static void symlink(Path link, Path target) {
+    try {
+      LOG.info("Creating symlink {} -> {}", link, target);
+      Files.createSymbolicLink(link, target);
+    } catch (IOException e) {
+      LOG.error("Could not create symlink {} -> {}", link, target);
+      throw new IllegalStateException(e);
     }
   }
 }
