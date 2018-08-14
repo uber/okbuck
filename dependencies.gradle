@@ -58,7 +58,6 @@ def external = [
         xlogAndroidIdle: "com.github.promeg:xlog-android-idle:2.1.1",
         avroIpc        : "org.apache.avro:avro-ipc:1.7.7",
         avroIpcTests   : "org.apache.avro:avro-ipc:1.7.7:tests",
-        inauth         : "com.inauth:inauth:3.1.0",
 ]
 
 def lint = [

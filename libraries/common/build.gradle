@@ -17,7 +17,6 @@ android {
 }
 
 dependencies {
-    api deps.external.inauth
     api deps.support.appCompat
     implementation project(":libraries:parcelable")
 }
