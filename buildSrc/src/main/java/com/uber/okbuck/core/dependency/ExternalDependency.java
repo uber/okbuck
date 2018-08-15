@@ -2,7 +2,7 @@ package com.uber.okbuck.core.dependency;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import com.uber.okbuck.extension.ExternalDependencyExtension;
+import com.uber.okbuck.extension.ExternalDependenciesExtension;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -210,7 +210,7 @@ public final class ExternalDependency {
       @Nullable String classifier,
       File depFile,
       boolean isLocal,
-      ExternalDependencyExtension extension) {
+      ExternalDependenciesExtension extension) {
     if (Strings.isNullOrEmpty(version)) {
       version = LOCAL_DEP_VERSION;
     }
@@ -247,7 +247,7 @@ public final class ExternalDependency {
       String name,
       @Nullable String version,
       File dependencyFile,
-      ExternalDependencyExtension extension) {
+      ExternalDependenciesExtension extension) {
     String classifier = DependencyUtils.getModuleClassifier(dependencyFile.getName(), version);
     return new ExternalDependency(
         group, name, version, classifier, dependencyFile, false, extension);
@@ -257,10 +257,11 @@ public final class ExternalDependency {
    * Create an External Dependency from a local dependency
    *
    * @param localDep local dependency file
-   * @param extension ExternalDependencyExtension
+   * @param extension ExternalDependenciesExtension
    * @return External Dependency
    */
-  public static ExternalDependency fromLocal(File localDep, ExternalDependencyExtension extension) {
+  public static ExternalDependency fromLocal(
+      File localDep, ExternalDependenciesExtension extension) {
     return new ExternalDependency(
         LOCAL_GROUP,
         FilenameUtils.getBaseName(localDep.getName()),

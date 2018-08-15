@@ -107,7 +107,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
               new DependencyManager(
                   rootBuckProject,
                   okbuckExt.externalDependencyCache,
-                  okbuckExt.getExternalDependencyExtension());
+                  okbuckExt.getExternalDependenciesExtension());
 
           // Create Lint Manager
           lintManager = new LintManager(rootBuckProject, LINT_BUCK_FILE);

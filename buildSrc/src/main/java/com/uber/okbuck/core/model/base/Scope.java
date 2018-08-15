@@ -346,7 +346,7 @@ public class Scope {
                     moduleIdentifier.getModule(),
                     moduleIdentifier.getVersion(),
                     artifact.getFile(),
-                    ProjectUtil.getOkBuckExtension(project).getExternalDependencyExtension());
+                    ProjectUtil.getOkBuckExtension(project).getExternalDependenciesExtension());
             external.add(externalDependency);
           } else {
             String rootProjectPath = project.getRootProject().getProjectDir().getAbsolutePath();
@@ -366,7 +366,7 @@ public class Scope {
               external.add(
                   ExternalDependency.fromLocal(
                       artifact.getFile(),
-                      ProjectUtil.getOkBuckExtension(project).getExternalDependencyExtension()));
+                      ProjectUtil.getOkBuckExtension(project).getExternalDependenciesExtension()));
 
             } catch (IOException e) {
               throw new RuntimeException(e);

@@ -9,10 +9,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class ExternalDependencyExtension {
+public class ExternalDependenciesExtension {
 
   /** Stores the dependencies and their allowed versions */
-  private Map<String, List<String>> allowedVersions = new HashMap<>();
+  private Map<String, List<String>> allowSpecificVersions = new HashMap<>();
 
   /** Stores the dependencies which are allowed to have more than 1 version. */
   private List<String> allowAllVersions = new ArrayList<>();
@@ -20,10 +20,10 @@ public class ExternalDependencyExtension {
   private Map<VersionlessDependency, List<String>> allowedVersionsMap;
   private Set<VersionlessDependency> allowAllVersionsSet;
 
-  public synchronized Map<VersionlessDependency, List<String>> getAllowedVersionsMap() {
+  private synchronized Map<VersionlessDependency, List<String>> getAllowedVersionsMap() {
     if (allowedVersionsMap == null) {
       allowedVersionsMap =
-          allowedVersions
+          allowSpecificVersions
               .entrySet()
               .stream()
               .collect(
@@ -34,7 +34,7 @@ public class ExternalDependencyExtension {
     return allowedVersionsMap;
   }
 
-  public synchronized Set<VersionlessDependency> getAllowAllVersionsSet() {
+  private synchronized Set<VersionlessDependency> getAllowAllVersionsSet() {
     if (allowAllVersionsSet == null) {
       allowAllVersionsSet =
           allowAllVersions

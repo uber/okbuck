@@ -1,5 +1,6 @@
 package com.uber.okbuck.core.manager;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.base.BuckRuleComposer;
@@ -8,12 +9,15 @@ import com.uber.okbuck.core.model.android.AndroidAppTarget;
 import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
+import com.uber.okbuck.template.common.ExportFile;
 import com.uber.okbuck.template.config.TransformBuckFile;
+import com.uber.okbuck.template.core.Rule;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -47,8 +51,11 @@ public final class TransformManager {
 
   private ImmutableSet<String> deps;
 
+  private Map<Path, String> configFileToPathMap;
+
   public TransformManager(Project rootProject) {
     this.rootProject = rootProject;
+    this.configFileToPathMap = new HashMap<>();
   }
 
   public void fetchTransformDeps() {
@@ -73,18 +80,50 @@ public final class TransformManager {
   }
 
   public void finalizeDependencies() {
+    Path cacheDir = rootProject.file(TRANSFORM_CACHE).toPath();
+
+    FileUtil.deleteQuietly(cacheDir);
+
     if (deps != null) {
-      Path cacheDir = rootProject.file(TRANSFORM_CACHE).toPath();
-      new TransformBuckFile()
-          .transformJar(TRANSFORM_JAR)
-          .deps(deps)
-          .render(cacheDir.resolve("BUCK"));
-      FileUtil.copyResourceToProject(
-          TRANSFORM_FOLDER + TRANSFORM_JAR, new File(cacheDir.toFile(), TRANSFORM_JAR));
+      cacheDir.toFile().mkdirs();
+
+      copyFiles(cacheDir);
+      composeBuckFile(cacheDir);
     }
   }
 
-  public static Pair<String, List<String>> getBashCommandAndTransformDeps(AndroidAppTarget target) {
+  private void copyFiles(Path cacheDir) {
+    FileUtil.copyResourceToProject(
+        TRANSFORM_FOLDER + TRANSFORM_JAR, new File(cacheDir.toFile(), TRANSFORM_JAR));
+
+    configFileToPathMap.forEach(
+        (configPath, path) -> {
+          Path configFilePath = cacheDir.resolve(path);
+          try {
+            Files.copy(configPath, configFilePath, StandardCopyOption.REPLACE_EXISTING);
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+        });
+  }
+
+  private void composeBuckFile(Path cacheDir) {
+    ImmutableList.Builder<Rule> rulesBuilder = new ImmutableList.Builder<>();
+    rulesBuilder.add(new TransformBuckFile().transformJar(TRANSFORM_JAR).deps(deps));
+
+    rulesBuilder.addAll(
+        configFileToPathMap
+            .values()
+            .stream()
+            .sorted()
+            .map(configFileName -> new ExportFile().name(configFileName))
+            .collect(Collectors.toList()));
+
+    File buckFile = cacheDir.resolve(OkBuckGradlePlugin.BUCK).toFile();
+    FileUtil.writeToBuckFile(rulesBuilder.build(), buckFile);
+  }
+
+  public Pair<String, List<String>> getBashCommandAndTransformDeps(AndroidAppTarget target) {
     List<Pair<String, String>> results =
         target
             .getTransforms()
@@ -96,7 +135,7 @@ public final class TransformManager {
         results.stream().map(Pair::getRight).filter(Objects::nonNull).collect(Collectors.toList()));
   }
 
-  private static Pair<String, String> getBashCommandAndTransformDeps(
+  private Pair<String, String> getBashCommandAndTransformDeps(
       AndroidAppTarget target, Map<String, String> options) {
     String transformClass = options.get(OPT_TRANSFORM_CLASS);
     String configFile = options.get(OPT_CONFIG_FILE);
@@ -120,14 +159,9 @@ public final class TransformManager {
     return Pair.of(bashCmd.toString(), configFileRule);
   }
 
-  private static String getTransformConfigRuleForFile(Project project, File config) {
+  private String getTransformConfigRuleForFile(Project project, File config) {
     String path = getTransformFilePathForFile(project, config);
-    File configFile =
-        new File(project.getRootDir(), TransformManager.TRANSFORM_CACHE + File.separator + path);
-    try {
-      Files.copy(config.toPath(), configFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-    } catch (IOException ignored) {
-    }
+    configFileToPathMap.put(config.toPath(), path);
     return "//" + TransformManager.TRANSFORM_CACHE + ":" + path;
   }
 

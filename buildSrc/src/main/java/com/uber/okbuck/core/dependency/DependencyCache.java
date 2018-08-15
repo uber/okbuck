@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.core.manager.DependencyManager;
 import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.util.ProjectUtil;
-import com.uber.okbuck.extension.ExternalDependencyExtension;
+import com.uber.okbuck.extension.ExternalDependenciesExtension;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -184,8 +184,8 @@ public class DependencyCache {
    * @param configurations The set of configurations to materialize into the dependency cache
    */
   private Set<String> build(Set<Configuration> configurations) {
-    ExternalDependencyExtension externalDependencyExtension =
-        ProjectUtil.getOkBuckExtension(rootProject).getExternalDependencyExtension();
+    ExternalDependenciesExtension externalDependenciesExtension =
+        ProjectUtil.getOkBuckExtension(rootProject).getExternalDependenciesExtension();
 
     return configurations
         .stream()
@@ -217,11 +217,11 @@ public class DependencyCache {
                                     moduleIdentifier.getModule(),
                                     moduleIdentifier.getVersion(),
                                     artifact.getFile(),
-                                    externalDependencyExtension);
+                                    externalDependenciesExtension);
                           } else {
                             dependency =
                                 ExternalDependency.fromLocal(
-                                    artifact.getFile(), externalDependencyExtension);
+                                    artifact.getFile(), externalDependenciesExtension);
                           }
                           return get(dependency, true);
                         })

@@ -60,7 +60,7 @@ public final class ProguardUtil {
                 PROGUARD_MODULE,
                 proguardVersion,
                 artifactResult.get().getFile(),
-                ProjectUtil.getOkBuckExtension(project).getExternalDependencyExtension());
+                ProjectUtil.getOkBuckExtension(project).getExternalDependenciesExtension());
         proguardJarPath = proguardCache.getPath(proguardCache.get(dependency, true));
 
         proguardJarPath =

@@ -10,6 +10,7 @@ import com.uber.okbuck.core.manager.GroovyManager;
 import com.uber.okbuck.core.manager.KotlinManager;
 import com.uber.okbuck.core.manager.LintManager;
 import com.uber.okbuck.core.manager.ScalaManager;
+import com.uber.okbuck.core.manager.TransformManager;
 import com.uber.okbuck.core.model.base.ProjectType;
 import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.model.base.Target;
@@ -84,6 +85,10 @@ public final class ProjectUtil {
 
   public static GroovyManager getGroovyManager(Project project) {
     return getPlugin(project).groovyManager;
+  }
+
+  public static TransformManager getTransformManager(Project project) {
+    return getPlugin(project).transformManager;
   }
 
   public static Map<String, Target> getTargets(Project project) {

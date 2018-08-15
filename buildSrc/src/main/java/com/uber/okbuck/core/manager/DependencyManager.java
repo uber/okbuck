@@ -10,7 +10,7 @@ import com.uber.okbuck.core.dependency.ExternalDependency;
 import com.uber.okbuck.core.dependency.VersionlessDependency;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
-import com.uber.okbuck.extension.ExternalDependencyExtension;
+import com.uber.okbuck.extension.ExternalDependenciesExtension;
 import com.uber.okbuck.template.core.Rule;
 import java.io.File;
 import java.io.IOException;
@@ -33,10 +33,10 @@ public class DependencyManager {
 
   private final Project project;
   private final String cacheDirName;
-  private final ExternalDependencyExtension extension;
+  private final ExternalDependenciesExtension extension;
 
   public DependencyManager(
-      Project rootProject, String cacheDirName, ExternalDependencyExtension extension) {
+      Project rootProject, String cacheDirName, ExternalDependenciesExtension extension) {
 
     this.project = rootProject;
     this.cacheDirName = cacheDirName;
@@ -156,16 +156,12 @@ public class DependencyManager {
                 Collectors.groupingBy(
                     dependency -> cacheDir.toPath().resolve(dependency.getBasePath())));
 
-    groupToDependencyMap.keySet().forEach(groupDirPath -> groupDirPath.toFile().mkdirs());
-
-    groupToDependencyMap
-        .entrySet()
-        .parallelStream()
-        .forEach(
-            entry -> {
-              copyOrCreateSymlinks(entry.getKey(), entry.getValue());
-              composeBuckFile(entry.getKey(), entry.getValue());
-            });
+    groupToDependencyMap.forEach(
+        (basePath, dependencies) -> {
+          basePath.toFile().mkdirs();
+          copyOrCreateSymlinks(basePath, dependencies);
+          composeBuckFile(basePath, dependencies);
+        });
   }
 
   private void copyOrCreateSymlinks(Path path, Collection<ExternalDependency> dependencies) {

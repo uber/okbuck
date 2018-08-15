@@ -89,8 +89,8 @@ public class OkBuckExtension {
   private TestExtension testExtension = new TestExtension();
   private TransformExtension transformExtension = new TransformExtension();
   private LintExtension lintExtension;
-  private ExternalDependencyExtension externalDependencyExtension =
-      new ExternalDependencyExtension();
+  private ExternalDependenciesExtension externalDependenciesExtension =
+      new ExternalDependenciesExtension();
 
   public OkBuckExtension(Project project) {
     buckProjects = project.getSubprojects();
@@ -162,11 +162,11 @@ public class OkBuckExtension {
     return transformExtension;
   }
 
-  public void externalDependency(Action<ExternalDependencyExtension> container) {
-    container.execute(externalDependencyExtension);
+  public void externalDependencies(Action<ExternalDependenciesExtension> container) {
+    container.execute(externalDependenciesExtension);
   }
 
-  public ExternalDependencyExtension getExternalDependencyExtension() {
-    return externalDependencyExtension;
+  public ExternalDependenciesExtension getExternalDependenciesExtension() {
+    return externalDependenciesExtension;
   }
 }
