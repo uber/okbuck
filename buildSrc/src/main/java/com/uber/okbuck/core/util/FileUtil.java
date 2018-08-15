@@ -1,24 +1,30 @@
 package com.uber.okbuck.core.util;
 
-import org.apache.commons.io.FileUtils;
-import org.gradle.api.Project;
-
+import com.uber.okbuck.template.core.Rule;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
+import org.apache.commons.io.FileUtils;
+import org.gradle.api.Project;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class FileUtil {
+  private static final Logger LOG = LoggerFactory.getLogger(FileUtil.class);
 
-  private FileUtil() {}
+  private static final byte[] NEWLINE = System.lineSeparator().getBytes();
 
   public static String getRelativePath(File root, File f) {
     Path fPath = f.toPath().toAbsolutePath();
@@ -69,15 +75,52 @@ public final class FileUtil {
     }
   }
 
+  public static void writeToBuckFile(List<Rule> rules, File buckFile) {
+    if (!rules.isEmpty()) {
+      File parent = buckFile.getParentFile();
+      if (!parent.exists() && !parent.mkdirs()) {
+        throw new IllegalStateException("Couldn't create dir: " + parent);
+      }
+
+      try {
+        buckFile.createNewFile();
+
+        final OutputStream os = new FileOutputStream(buckFile);
+
+        for (int index = 0; index < rules.size(); index++) {
+          // Don't add a new line before the first rule
+          if (index != 0) {
+            os.write(NEWLINE);
+          }
+          rules.get(index).render(os);
+        }
+        os.flush();
+        os.close();
+      } catch (IOException e) {
+        throw new IllegalStateException("Couldn't create the buck file: %s", e);
+      }
+    }
+  }
+
   public static boolean isZipFile(File file) {
     if (!file.exists() || file.isDirectory() || !file.canRead() || file.length() < 4) {
       return false;
     }
-    try (DataInputStream in = new DataInputStream(
-        new BufferedInputStream(new FileInputStream(file)))) {
+    try (DataInputStream in =
+        new DataInputStream(new BufferedInputStream(new FileInputStream(file)))) {
       return in.readInt() == 0x504b0304;
     } catch (IOException ignored) {
       return false;
+    }
+  }
+
+  public static void symlink(Path link, Path target) {
+    try {
+      LOG.info("Creating symlink {} -> {}", link, target);
+      Files.createSymbolicLink(link, target);
+    } catch (IOException e) {
+      LOG.error("Could not create symlink {} -> {}", link, target);
+      throw new IllegalStateException(e);
     }
   }
 }

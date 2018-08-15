@@ -1,23 +1,17 @@
 package com.uber.okbuck.core.model.base;
 
-import static com.uber.okbuck.core.util.LintUtil.LINT_DEPS_CACHE;
-
 import com.android.build.gradle.AppExtension;
 import com.android.build.gradle.LibraryExtension;
 import com.android.build.gradle.api.BaseVariant;
 import com.uber.okbuck.core.model.android.AndroidAppTarget;
 import com.uber.okbuck.core.model.android.AndroidLibTarget;
 import com.uber.okbuck.core.model.jvm.JvmTarget;
-import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
-import java.io.File;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nullable;
-import org.apache.commons.io.FileUtils;
 import org.gradle.api.Project;
 
 public class TargetCache {
@@ -93,20 +87,5 @@ public class TargetCache {
         result = null;
     }
     return result;
-  }
-
-  public String lintConfig(Project project, File config) {
-    String configName = FileUtil.getRelativePath(project.getRootDir(), config).replaceAll("/", "_");
-    return lintConfig.computeIfAbsent(
-        configName,
-        key -> {
-          File configFile = project.getRootProject().file(LINT_DEPS_CACHE + "/" + configName);
-          try {
-            FileUtils.copyFile(config, configFile);
-          } catch (IOException e) {
-            throw new RuntimeException(e);
-          }
-          return "//" + LINT_DEPS_CACHE + ":" + configName;
-        });
   }
 }

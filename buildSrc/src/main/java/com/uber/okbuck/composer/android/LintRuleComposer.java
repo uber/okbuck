@@ -1,10 +1,10 @@
 package com.uber.okbuck.composer.android;
 
 import com.uber.okbuck.composer.base.BuckRuleComposer;
+import com.uber.okbuck.core.manager.LintManager;
 import com.uber.okbuck.core.model.android.AndroidTarget;
 import com.uber.okbuck.core.model.base.Target;
 import com.uber.okbuck.core.model.jvm.JvmTarget;
-import com.uber.okbuck.core.util.LintUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.extension.LintExtension;
 import com.uber.okbuck.template.android.LintRule;
@@ -27,7 +27,7 @@ public final class LintRuleComposer extends AndroidBuckRuleComposer {
         && target.getLintOptions().getLintConfig() != null
         && target.getLintOptions().getLintConfig().exists()) {
       lintConfigXml =
-          ProjectUtil.getLintwConfigRule(
+          ProjectUtil.getLintConfigRule(
               target.getProject(), target.getLintOptions().getLintConfig());
     }
 
@@ -54,7 +54,7 @@ public final class LintRuleComposer extends AndroidBuckRuleComposer {
         .resources(target.getResDirs())
         .customLints(customLintRules)
         .jvmArgs(lintExtension.jvmArgs)
-        .deps(Collections.singletonList(LintUtil.LINT_DEPS_RULE))
+        .deps(Collections.singletonList(LintManager.LINT_DEPS_RULE))
         .lintConfigXml(lintConfigXml)
         .lintOptions(target.getLintOptions())
         .name("lint_" + target.getName());

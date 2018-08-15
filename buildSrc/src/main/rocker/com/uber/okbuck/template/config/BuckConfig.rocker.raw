@@ -5,7 +5,8 @@ String buildToolsVersion,
 String target,
 String groovyHome,
 String kotlinHome,
-String scalaHome,
+String scalaCompiler,
+String scalaLibrary,
 String proguardJar,
 Collection defs
 )
@@ -30,11 +31,11 @@ Collection defs
 [kotlin]
     kotlin_home = @kotlinHome
 }
-@if (valid(scalaHome)) {
+@if (valid(scalaCompiler) && valid(scalaLibrary)) {
 
 [scala]
-    compiler = //@(scalaHome):scala-compiler
-    library = //@(scalaHome):scala-library
+    compiler = //@(scalaCompiler):scala-compiler
+    library = //@(scalaLibrary):scala-library
 }
 @if (valid(proguardJar)) {
 

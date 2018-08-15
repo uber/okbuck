@@ -2,9 +2,10 @@ package com.uber.okbuck.composer.android;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.uber.okbuck.core.manager.TransformManager;
 import com.uber.okbuck.core.model.android.AndroidAppTarget;
 import com.uber.okbuck.core.model.base.RuleType;
-import com.uber.okbuck.core.util.TransformUtil;
+import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.template.android.AndroidBinaryRule;
 import com.uber.okbuck.template.core.Rule;
 import java.util.List;
@@ -37,10 +38,11 @@ public final class AndroidBinaryRuleComposer extends AndroidBuckRuleComposer {
             .filter(Objects::nonNull)
             .collect(Collectors.toSet());
 
-    Pair<String, List<String>> results = TransformUtil.getBashCommandAndTransformDeps(target);
+    TransformManager transformManager = ProjectUtil.getTransformManager(target.getProject());
+    Pair<String, List<String>> results = transformManager.getBashCommandAndTransformDeps(target);
     String bashCommand = results.getLeft();
     List<String> transformDeps = results.getRight();
-    transformDeps.add(TransformUtil.TRANSFORM_RULE);
+    transformDeps.add(TransformManager.TRANSFORM_RULE);
 
     List<String> testTargets =
         target.getAppInstrumentationTarget() != null

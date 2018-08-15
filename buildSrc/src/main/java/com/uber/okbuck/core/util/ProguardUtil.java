@@ -1,9 +1,8 @@
 package com.uber.okbuck.core.util;
 
-import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.core.dependency.DependencyCache;
-import com.uber.okbuck.core.dependency.DependencyUtils;
 import com.uber.okbuck.core.dependency.ExternalDependency;
+import java.nio.file.Paths;
 import java.util.Optional;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
@@ -17,8 +16,6 @@ public final class ProguardUtil {
 
   private static final String PROGUARD_GROUP = "net.sf.proguard";
   private static final String PROGUARD_MODULE = "proguard-base";
-  private static final String PROGUARD_DEPS_CACHE =
-      OkBuckGradlePlugin.DEFAULT_CACHE_PATH + "/proguard";
 
   private ProguardUtil() {}
 
@@ -33,7 +30,7 @@ public final class ProguardUtil {
                 new DefaultExternalModuleDependency(
                     PROGUARD_GROUP, PROGUARD_MODULE, proguardVersion));
     DependencyCache proguardCache =
-        new DependencyCache(project, DependencyUtils.createCacheDir(project, PROGUARD_DEPS_CACHE));
+        new DependencyCache(project, ProjectUtil.getDependencyManager(project));
     proguardCache.build(proguardConfiguration);
     String proguardJarPath = null;
     try {
@@ -57,15 +54,20 @@ public final class ProguardUtil {
               .findFirst();
 
       if (artifactResult.isPresent()) {
+        ExternalDependency dependency =
+            ExternalDependency.from(
+                PROGUARD_GROUP,
+                PROGUARD_MODULE,
+                proguardVersion,
+                artifactResult.get().getFile(),
+                ProjectUtil.getOkBuckExtension(project).getExternalDependenciesExtension());
+        proguardJarPath = proguardCache.getPath(proguardCache.get(dependency, true));
+
         proguardJarPath =
-            proguardCache.get(
-                new ExternalDependency(
-                    PROGUARD_GROUP,
-                    PROGUARD_MODULE,
-                    proguardVersion,
-                    artifactResult.get().getFile()),
-                true,
-                false);
+            Paths.get(proguardJarPath)
+                .getParent()
+                .resolve(dependency.getDependencyFileName())
+                .toString();
       }
     } catch (IllegalStateException ignored) {
     }

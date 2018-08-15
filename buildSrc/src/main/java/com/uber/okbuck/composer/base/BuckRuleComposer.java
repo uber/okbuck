@@ -14,7 +14,7 @@ public abstract class BuckRuleComposer {
   }
 
   public static Set<String> externalApt(final Set<String> deps) {
-    return external(deps).stream().filter(dep -> dep.endsWith(".jar")).collect(Collectors.toSet());
+    return external(deps);
   }
 
   @Nullable

@@ -4,14 +4,13 @@ import com.android.builder.model.LintOptions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.OkBuckGradlePlugin;
-import com.uber.okbuck.core.model.base.AnnotationProcessorCache;
+import com.uber.okbuck.core.annotation.AnnotationProcessorCache;
+import com.uber.okbuck.core.manager.KotlinManager;
+import com.uber.okbuck.core.manager.LintManager;
 import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.model.base.Target;
-import com.uber.okbuck.core.util.KotlinUtil;
-import com.uber.okbuck.core.util.LintUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
 import java.io.File;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -125,9 +124,10 @@ public class JvmTarget extends Target {
 
   /** Lint Scope */
   public Scope getLint() {
+    LintManager manager = ProjectUtil.getLintManager(getProject());
     return Scope.builder(getProject())
         .configuration(OkBuckGradlePlugin.BUCK_LINT)
-        .depCache(LintUtil.getLintDepsCache(getProject()))
+        .depCache(manager.getLintDepsCache())
         .build();
   }
 
@@ -262,9 +262,13 @@ public class JvmTarget extends Target {
       if (allOpenAnnotations != null) {
         ImmutableList.Builder<String> optionBuilder = ImmutableList.builder();
 
-        optionBuilder.add("-Xplugin=" + KotlinUtil.KOTLIN_LIBRARIES_LOCATION + File.separator + "kotlin-allopen.jar");
+        optionBuilder.add(
+            "-Xplugin="
+                + KotlinManager.KOTLIN_LIBRARIES_LOCATION
+                + File.separator
+                + "kotlin-allopen.jar");
 
-        for (String annotation: allOpenAnnotations.split(",")) {
+        for (String annotation : allOpenAnnotations.split(",")) {
           optionBuilder.add("-P");
           optionBuilder.add("plugin:org.jetbrains.kotlin.allopen:annotation=" + annotation);
         }

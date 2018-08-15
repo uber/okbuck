@@ -24,7 +24,7 @@ public final class ExopackageAndroidLibraryRuleComposer extends AndroidBuckRuleC
     deps.add(":" + buildConfig(target));
 
     Set<String> libraryAptDeps = new LinkedHashSet<>();
-    libraryAptDeps.addAll(externalApt(target.getApt().getExternalDeps()));
+    libraryAptDeps.addAll(externalApt(target.getApt().getExternalJarDeps()));
     libraryAptDeps.addAll(targetsApt(target.getApt().getTargetDeps()));
 
     Set<String> providedDeps = new LinkedHashSet<>();

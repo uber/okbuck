@@ -1,6 +1,5 @@
 java_binary(
-    name='scala-compiler',
-    main_class='scala.tools.nsc.Main',
+    name='okbuck_lint',
 @if (valid(deps)) {
     deps = [
     @for (dep : sorted(deps)) {
@@ -8,5 +7,10 @@ java_binary(
     }
     ],
 }
+    blacklist=[
+        'META-INF/.*\.SF',
+        'META-INF/.*\.DSA',
+        'META-INF/.*\.RSA',
+    ],
     visibility = ['PUBLIC'],
 )

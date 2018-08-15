@@ -73,10 +73,13 @@ public class OkBuckExtension {
   /** Forces okbuck to fail if the project is using dynamic or snapshot dependencies */
   @Input public boolean failOnChangingDependencies = false;
 
-  /** The prebult buck binary to use */
+  /** Specifies the folder where all external dependency rules gets generated. */
+  @Input public String externalDependencyCache = "3rdparty";
+
+  /** The prebuilt buck binary to use */
   @Input
   public String buckBinary =
-      "com.github.facebook:buck:910226716ecd215a38f27bd3dcfd7da3793e6cff@pex";
+      "com.github.facebook:buck:1885cc5bb07fff34e7deb31f3ec79d37732584d0@pex";
 
   private WrapperExtension wrapperExtension = new WrapperExtension();
   private KotlinExtension kotlinExtension;
@@ -86,6 +89,8 @@ public class OkBuckExtension {
   private TestExtension testExtension = new TestExtension();
   private TransformExtension transformExtension = new TransformExtension();
   private LintExtension lintExtension;
+  private ExternalDependenciesExtension externalDependenciesExtension =
+      new ExternalDependenciesExtension();
 
   public OkBuckExtension(Project project) {
     buckProjects = project.getSubprojects();
@@ -155,5 +160,13 @@ public class OkBuckExtension {
 
   public TransformExtension getTransformExtension() {
     return transformExtension;
+  }
+
+  public void externalDependencies(Action<ExternalDependenciesExtension> container) {
+    container.execute(externalDependenciesExtension);
+  }
+
+  public ExternalDependenciesExtension getExternalDependenciesExtension() {
+    return externalDependenciesExtension;
   }
 }

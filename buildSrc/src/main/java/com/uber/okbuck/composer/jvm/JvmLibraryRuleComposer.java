@@ -25,7 +25,7 @@ public final class JvmLibraryRuleComposer extends JvmBuckRuleComposer {
 
     Set<String> aptDeps =
         ImmutableSet.<String>builder()
-            .addAll(externalApt(target.getApt().getExternalDeps()))
+            .addAll(externalApt(target.getApt().getExternalJarDeps()))
             .addAll(targetsApt(target.getApt().getTargetDeps()))
             .build();
 

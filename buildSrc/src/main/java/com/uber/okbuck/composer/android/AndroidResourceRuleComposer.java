@@ -5,6 +5,7 @@ import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.template.android.ResourceRule;
 import com.uber.okbuck.template.core.Rule;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,14 +17,7 @@ public final class AndroidResourceRuleComposer extends AndroidBuckRuleComposer {
 
   public static Rule compose(AndroidTarget target, List<String> extraResDeps) {
     List<String> resDeps = new ArrayList<>();
-    resDeps.addAll(
-        external(
-            target
-                .getMain()
-                .getExternalDeps()
-                .stream()
-                .filter(dep -> dep.endsWith(".aar"))
-                .collect(Collectors.toSet())));
+    resDeps.addAll(external(new HashSet<>(target.getMain().getExternalAarDeps())));
     resDeps.addAll(
         getTargetDeps(target.getMain(), target.getProvided())
             .stream()

@@ -32,7 +32,7 @@ public class JavaAnnotationProcessorRuleComposer extends JvmBuckRuleComposer {
         .map(
             scope -> {
               ImmutableSet.Builder<String> depsBuilder = new ImmutableSet.Builder<>();
-              depsBuilder.addAll(externalApt(scope.getExternalDeps()));
+              depsBuilder.addAll(externalApt(scope.getExternalJarDeps()));
               depsBuilder.addAll(targetsApt(scope.getTargetDeps()));
 
               return new JavaAnnotationProcessorRule()

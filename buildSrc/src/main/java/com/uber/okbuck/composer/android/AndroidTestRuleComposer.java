@@ -1,10 +1,10 @@
 package com.uber.okbuck.composer.android;
 
 import com.google.common.collect.ImmutableSet;
+import com.uber.okbuck.core.manager.RobolectricManager;
 import com.uber.okbuck.core.model.android.AndroidLibTarget;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.util.D8Util;
-import com.uber.okbuck.core.util.RobolectricUtil;
 import com.uber.okbuck.template.android.AndroidTestRule;
 import com.uber.okbuck.template.core.Rule;
 import java.util.ArrayList;
@@ -59,7 +59,7 @@ public final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
             .jvmArgs(target.getTestOptions().getJvmArgs())
             .env(target.getTestOptions().getEnv())
             .robolectricManifest(fileRule(target.getManifest()))
-            .runtimeDependency(RobolectricUtil.ROBOLECTRIC_CACHE);
+            .runtimeDependency(RobolectricManager.ROBOLECTRIC_CACHE);
 
     if (target.getTestRuleType().equals(RuleType.KOTLIN_ROBOLECTRIC_TEST)) {
       androidTest = androidTest.language("kotlin");
