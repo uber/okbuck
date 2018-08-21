@@ -1,6 +1,5 @@
 package com.uber.okbuck.transform;
 
-import com.android.annotations.NonNull;
 import com.android.build.api.transform.DirectoryInput;
 import com.android.build.api.transform.Format;
 import com.android.build.api.transform.JarInput;
@@ -27,20 +26,17 @@ public class DummyTransform extends Transform {
     return TRANSFORM_NAME;
   }
 
-  @NonNull
   @Override
   public Set<QualifiedContent.ContentType> getInputTypes() {
     return ImmutableSet.<QualifiedContent.ContentType>of(
         QualifiedContent.DefaultContentType.CLASSES);
   }
 
-  @NonNull
   @Override
   public Set<QualifiedContent.Scope> getScopes() {
     return ImmutableSet.of(QualifiedContent.Scope.PROJECT, QualifiedContent.Scope.SUB_PROJECTS);
   }
 
-  @NonNull
   @Override
   public Set<QualifiedContent.Scope> getReferencedScopes() {
     return ImmutableSet.of(

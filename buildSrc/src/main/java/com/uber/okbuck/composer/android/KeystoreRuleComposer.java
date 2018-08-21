@@ -4,12 +4,11 @@ import com.uber.okbuck.composer.base.BuckRuleComposer;
 import com.uber.okbuck.core.model.android.AndroidAppTarget;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.template.android.KeystoreRule;
-import org.jetbrains.annotations.Nullable;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import javax.annotation.Nullable;
 
 public final class KeystoreRuleComposer extends BuckRuleComposer {
 

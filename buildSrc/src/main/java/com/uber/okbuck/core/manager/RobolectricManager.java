@@ -10,9 +10,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.EnumSet;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
-import org.jetbrains.annotations.Nullable;
 
 public final class RobolectricManager {
 

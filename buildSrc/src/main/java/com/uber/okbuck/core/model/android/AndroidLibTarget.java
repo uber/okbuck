@@ -13,8 +13,8 @@ import com.uber.okbuck.extension.TestExtension;
 import java.io.File;
 import java.util.Optional;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.gradle.api.Project;
-import org.jetbrains.annotations.Nullable;
 
 /** An Android library target */
 public class AndroidLibTarget extends AndroidTarget {

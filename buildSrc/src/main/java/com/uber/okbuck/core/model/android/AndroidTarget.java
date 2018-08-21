@@ -15,6 +15,7 @@ import com.android.builder.model.SourceProvider;
 import com.android.manifmerger.ManifestMerger2;
 import com.android.manifmerger.MergingReport;
 import com.android.utils.ILogger;
+import com.facebook.infer.annotation.Initializer;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.OkBuckGradlePlugin;
@@ -43,18 +44,17 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.api.tasks.testing.Test;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.gradle.internal.AndroidExtensionsExtension;
 import org.jetbrains.kotlin.gradle.plugin.KotlinAndroidPluginWrapper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-import com.facebook.infer.annotation.Initializer;
 
 /** An Android target */
 public abstract class AndroidTarget extends JvmTarget {
@@ -188,26 +188,34 @@ public abstract class AndroidTarget extends JvmTarget {
   public List<Scope> getAptScopes() {
     Configuration configuration = getConfigurationFromVariant(getBaseVariant());
     AnnotationProcessorCache apCache = ProjectUtil.getAnnotationProcessorCache(getProject());
-    return configuration != null ? apCache.getAnnotationProcessorScopes(getProject(), configuration) : ImmutableList.of();
+    return configuration != null
+        ? apCache.getAnnotationProcessorScopes(getProject(), configuration)
+        : ImmutableList.of();
   }
 
   @Override
   public List<Scope> getTestAptScopes() {
     Configuration configuration = getConfigurationFromVariant(getUnitTestVariant());
     AnnotationProcessorCache apCache = ProjectUtil.getAnnotationProcessorCache(getProject());
-    return configuration != null ? apCache.getAnnotationProcessorScopes(getProject(), configuration) : ImmutableList.of();
+    return configuration != null
+        ? apCache.getAnnotationProcessorScopes(getProject(), configuration)
+        : ImmutableList.of();
   }
 
   @Override
   public Scope getApt() {
     Configuration configuration = getConfigurationFromVariant(getBaseVariant());
-    return configuration != null ? getAptScopeForConfiguration(configuration) : Scope.builder(getProject()).build();
+    return configuration != null
+        ? getAptScopeForConfiguration(configuration)
+        : Scope.builder(getProject()).build();
   }
 
   @Override
   public Scope getTestApt() {
     Configuration configuration = getConfigurationFromVariant(getUnitTestVariant());
-    return configuration != null ? getAptScopeForConfiguration(configuration) : Scope.builder(getProject()).build();
+    return configuration != null
+        ? getAptScopeForConfiguration(configuration)
+        : Scope.builder(getProject()).build();
   }
 
   @Override

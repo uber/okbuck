@@ -15,9 +15,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.Project;
-import org.jetbrains.annotations.Nullable;
 
 public final class LintManager {
 
@@ -52,8 +52,8 @@ public final class LintManager {
     File lintVersionFile = project.file(LINT_VERSION_FILE);
     try {
       if (!lintVersionFile.exists()
-          || !version.equals(new String(Files.readAllBytes(lintVersionFile.toPath()),
-          StandardCharsets.UTF_8))) {
+          || !version.equals(
+              new String(Files.readAllBytes(lintVersionFile.toPath()), StandardCharsets.UTF_8))) {
         FileUtils.deleteDirectory(lintVersionFile.getParentFile());
         lintVersionFile.getParentFile().mkdirs();
         Files.write(lintVersionFile.toPath(), Collections.singleton(version));

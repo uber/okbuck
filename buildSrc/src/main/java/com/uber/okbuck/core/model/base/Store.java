@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import org.jetbrains.annotations.Nullable;
+import javax.annotation.Nullable;
 
 /**
  * A persistent data store for simple string key/value pairs that auto cleans up entries that are no

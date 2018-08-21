@@ -4,13 +4,13 @@ import com.uber.okbuck.core.dependency.DependencyCache;
 import com.uber.okbuck.core.dependency.ExternalDependency;
 import java.nio.file.Paths;
 import java.util.Optional;
+import javax.annotation.Nullable;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.component.ComponentIdentifier;
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier;
 import org.gradle.api.artifacts.result.ResolvedArtifactResult;
 import org.gradle.api.internal.artifacts.dependencies.DefaultExternalModuleDependency;
-import org.jetbrains.annotations.Nullable;
 
 public final class ProguardUtil {
 

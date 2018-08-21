@@ -1,5 +1,6 @@
 package com.uber.okbuck.core.task;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.uber.okbuck.OkBuckGradlePlugin;
@@ -42,8 +43,9 @@ public class OkBuckCleanTask extends DefaultTask {
     if (okbuckState.exists()) {
       try (Stream<String> lines = Files.lines(okbuckState.toPath())) {
         lastProjectPaths =
-            lines.map(String::trim)
-                .filter(s -> s.length() > 0)
+            lines
+                .map(String::trim)
+                .filter(s -> !Strings.isNullOrEmpty(s))
                 .collect(MoreCollectors.toImmutableSet());
       }
     } else {

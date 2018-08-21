@@ -66,9 +66,7 @@ rocker {
 }
 
 tasks.withType(JavaCompile) {
-  if (!name.toLowerCase().contains("test")) {
     options.compilerArgs += ["-Werror", "-Xep:NullAway:ERROR", "-XepOpt:NullAway:AnnotatedPackages=com.uber", "-XepOpt:NullAway:TreatGeneratedAsUnannotated=true"]
-  }
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
