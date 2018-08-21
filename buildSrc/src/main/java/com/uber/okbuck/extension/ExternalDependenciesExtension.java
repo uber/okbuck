@@ -2,6 +2,8 @@ package com.uber.okbuck.extension;
 
 import com.uber.okbuck.core.dependency.ExternalDependency;
 import com.uber.okbuck.core.dependency.VersionlessDependency;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -18,8 +20,8 @@ public class ExternalDependenciesExtension {
   /** Stores the dependencies which are allowed to have more than 1 version. */
   private List<String> allowAllVersions = new ArrayList<>();
 
-  private Map<VersionlessDependency, List<String>> allowedVersionsMap = new HashMap<>();
-  private Set<VersionlessDependency> allowAllVersionsSet = new HashSet<>();
+  @Nullable private Map<VersionlessDependency, List<String>> allowedVersionsMap;
+  @Nullable private Set<VersionlessDependency> allowAllVersionsSet;
 
   private synchronized Map<VersionlessDependency, List<String>> getAllowedVersionsMap() {
     if (allowedVersionsMap == null) {
