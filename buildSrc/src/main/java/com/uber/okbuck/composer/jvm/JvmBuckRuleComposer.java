@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 public class JvmBuckRuleComposer extends BuckRuleComposer {
 
-  private static final Map<Scope.Builder.COMPILER, String> COMPILER_OPTIONS_MAP =
+  private static final ImmutableMap<Scope.Builder.COMPILER, String> COMPILER_OPTIONS_MAP =
       ImmutableMap.of(
           Scope.Builder.COMPILER.JAVA, "extra_arguments",
           Scope.Builder.COMPILER.KOTLIN, "extra_kotlinc_arguments",

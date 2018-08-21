@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 /** An Android library target */
 public class AndroidLibTarget extends AndroidTarget {
 
-  private final AndroidLibInstrumentationTarget libInstrumentationTarget;
+  @Nullable private final AndroidLibInstrumentationTarget libInstrumentationTarget;
 
   public AndroidLibTarget(Project project, String name) {
     this(project, name, false);
@@ -81,6 +81,7 @@ public class AndroidLibTarget extends AndroidTarget {
     return null;
   }
 
+  @Nullable
   public final AndroidLibInstrumentationTarget getLibInstrumentationTarget() {
     return libInstrumentationTarget;
   }

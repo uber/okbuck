@@ -6,14 +6,16 @@ buildscript {
         gradlePluginPortal()
     }
     dependencies {
-        classpath deps.build.rockerPlugin
         classpath deps.build.bintrayPlugin
+        classpath deps.build.errorpronePlugin
+        classpath deps.build.rockerPlugin
     }
 }
 
 apply plugin: "maven-publish"
 apply plugin: "com.jfrog.bintray"
 apply plugin: "com.fizzed.rocker"
+apply plugin: "net.ltgt.errorprone"
 
 apply from: "../dependencies.gradle"
 
@@ -38,6 +40,13 @@ sourceSets.main.java.srcDirs = ["src/main/rocker", "src/main/java"]
 sourceSets.main.rocker.srcDirs = ["src/main/rocker", "src/main/java"]
 
 dependencies {
+    annotationProcessor deps.apt.autoValue
+    annotationProcessor deps.build.nullaway
+
+    errorprone deps.build.erroproneCompiler
+    compileOnly deps.external.inferAnnotations
+    compileOnly deps.apt.autoValueAnnotations
+
     implementation gradleApi()
 
     implementation deps.build.androidPlugin
@@ -54,6 +63,12 @@ rocker {
     optimize true
     extendsClass "com.uber.okbuck.template.core.RuleTemplate"
     extendsModelClass "com.uber.okbuck.template.core.Rule"
+}
+
+tasks.withType(JavaCompile) {
+  if (!name.toLowerCase().contains("test")) {
+    options.compilerArgs += ["-Werror", "-Xep:NullAway:ERROR", "-XepOpt:NullAway:AnnotatedPackages=com.uber", "-XepOpt:NullAway:TreatGeneratedAsUnannotated=true"]
+  }
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {

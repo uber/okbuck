@@ -21,8 +21,8 @@ import org.gradle.api.file.FileTree;
 
 public final class DependencyUtils {
 
-  private static final Set<String> ALLOWED_EXTENSIONS = ImmutableSet.of("jar", "aar", "pex");
-  private static final Set<String> WHITELIST_LOCAL_PATTERNS =
+  private static final ImmutableSet<String> ALLOWED_EXTENSIONS = ImmutableSet.of("jar", "aar", "pex");
+  private static final ImmutableSet<String> WHITELIST_LOCAL_PATTERNS =
       ImmutableSet.of("generated-gradle-jars/gradle-api-", "wrapper/dists");
 
   private DependencyUtils() {}

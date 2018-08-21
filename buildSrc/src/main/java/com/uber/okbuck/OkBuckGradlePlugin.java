@@ -30,7 +30,7 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
-import org.jetbrains.annotations.NotNull;
+import com.facebook.infer.annotation.Initializer;
 
 // Dependency Tree
 //
@@ -81,7 +81,10 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
   BuckManager buckManager;
 
   // Only apply to the root project
-  public void apply(@NotNull Project rootProject) {
+  @Initializer
+  @SuppressWarnings("NullAway")
+  @Override
+  public void apply(Project rootProject) {
     // Create extensions
     OkBuckExtension okbuckExt =
         rootProject.getExtensions().create(OKBUCK, OkBuckExtension.class, rootProject);

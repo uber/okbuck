@@ -17,7 +17,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 public final class AndroidBinaryRuleComposer extends AndroidBuckRuleComposer {
 
-  private static final Map<String, String> CPU_FILTER_MAP =
+  private static final ImmutableMap<String, String> CPU_FILTER_MAP =
       ImmutableMap.of(
           "armeabi", "ARM",
           "armeabi-v7a", "ARMV7",

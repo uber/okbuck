@@ -15,7 +15,7 @@ import javax.annotation.Nullable;
 
 public final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
 
-  private static final Set<String> ANDROID_TEST_LABELS =
+  private static final ImmutableSet<String> ANDROID_TEST_LABELS =
       ImmutableSet.of("unit", "android", "robolectric");
 
   private AndroidTestRuleComposer() {

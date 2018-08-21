@@ -1,6 +1,7 @@
 package com.uber.okbuck.core.model.android;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -90,9 +91,9 @@ public class ExoPackageScope extends Scope {
           boolean qualified = false;
 
           if (exoPackageDep.contains(":")) {
-            String[] parts = exoPackageDep.split(":");
-            first = parts[0];
-            last = parts[1];
+            List<String> parts = Splitter.on(':').splitToList(exoPackageDep);
+            first = parts.get(0);
+            last = parts.get(1);
             qualified = true;
           } else {
             first = last = exoPackageDep;

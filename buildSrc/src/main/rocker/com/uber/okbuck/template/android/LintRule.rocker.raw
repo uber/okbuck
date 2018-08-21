@@ -6,7 +6,6 @@ String jvmArgs,
 Collection sources,
 Collection resources,
 Collection customLints,
-Collection deps,
 String lintConfigXml,
 LintOptions lintOptions,
 )
@@ -35,13 +34,6 @@ okbuck_lint(
 }
 @if (valid(jvmArgs)) {
     jvm_args = '@jvmArgs',
-}
-@if (valid(deps)) {
-    deps = [
-    @for (dep : sorted(deps)) {
-        '@dep',
-    }
-    ],
 }
     lint_options = [
 @if (valid(sources)) {

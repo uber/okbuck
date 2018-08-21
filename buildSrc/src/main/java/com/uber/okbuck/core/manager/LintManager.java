@@ -8,6 +8,7 @@ import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.template.core.Rule;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Collections;
 import java.util.List;
@@ -20,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 
 public final class LintManager {
 
-  public static final String LINT_DEPS_CACHE = OkBuckGradlePlugin.DEFAULT_CACHE_PATH + "/lint";
+  private static final String LINT_DEPS_CACHE = OkBuckGradlePlugin.DEFAULT_CACHE_PATH + "/lint";
   public static final String LINT_DEPS_RULE = "//" + LINT_DEPS_CACHE + ":okbuck_lint";
 
   private static final String LINT_GROUP = "com.android.tools.lint";
@@ -35,6 +36,7 @@ public final class LintManager {
 
   private Set<String> dependencies;
 
+  @SuppressWarnings("NullAway")
   public LintManager(Project project, String lintBuckFile) {
     this.project = project;
     this.lintBuckFile = lintBuckFile;
@@ -50,7 +52,8 @@ public final class LintManager {
     File lintVersionFile = project.file(LINT_VERSION_FILE);
     try {
       if (!lintVersionFile.exists()
-          || !version.equals(new String(Files.readAllBytes(lintVersionFile.toPath())))) {
+          || !version.equals(new String(Files.readAllBytes(lintVersionFile.toPath()),
+          StandardCharsets.UTF_8))) {
         FileUtils.deleteDirectory(lintVersionFile.getParentFile());
         lintVersionFile.getParentFile().mkdirs();
         Files.write(lintVersionFile.toPath(), Collections.singleton(version));

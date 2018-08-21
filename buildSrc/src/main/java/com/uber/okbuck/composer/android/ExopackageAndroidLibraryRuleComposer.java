@@ -1,6 +1,7 @@
 package com.uber.okbuck.composer.android;
 
 import com.uber.okbuck.core.model.android.AndroidAppTarget;
+import com.uber.okbuck.core.model.android.ExoPackageScope;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.util.D8Util;
 import com.uber.okbuck.template.android.AndroidRule;
@@ -19,8 +20,15 @@ public final class ExopackageAndroidLibraryRuleComposer extends AndroidBuckRuleC
 
   public static Rule compose(AndroidAppTarget target) {
     List<String> deps = new ArrayList<>();
-    deps.addAll(external(target.getExopackage().getExternalDeps()));
-    deps.addAll(targets(target.getExopackage().getTargetDeps()));
+    ExoPackageScope exopackage = target.getExopackage();
+
+    Set<String> extraBuckOpts = new HashSet<>(target.getExtraOpts(RuleType.ANDROID_LIBRARY));
+    if (exopackage != null) {
+      deps.addAll(external(exopackage.getExternalDeps()));
+      deps.addAll(targets(exopackage.getTargetDeps()));
+      extraBuckOpts.add("srcs = ['" + exopackage.getAppClass() + "']");
+
+    }
     deps.add(":" + buildConfig(target));
 
     Set<String> libraryAptDeps = new LinkedHashSet<>();
@@ -42,9 +50,6 @@ public final class ExopackageAndroidLibraryRuleComposer extends AndroidBuckRuleC
     if (target.getRuleType().equals(RuleType.KOTLIN_ANDROID_LIBRARY)) {
       androidRule = androidRule.language("kotlin");
     }
-
-    Set<String> extraBuckOpts = new HashSet<>(target.getExtraOpts(RuleType.ANDROID_LIBRARY));
-    extraBuckOpts.add("srcs = ['" + target.getExopackage().getAppClass() + "']");
 
     return androidRule
         .ruleType(target.getRuleType().getBuckName())

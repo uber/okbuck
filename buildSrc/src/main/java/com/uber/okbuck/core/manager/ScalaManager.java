@@ -9,6 +9,8 @@ import java.util.Set;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 
+import javax.annotation.Nullable;
+
 public final class ScalaManager {
 
   private static final String SCALA_DEPS_CONFIG = "okbuck_scala_deps";
@@ -18,7 +20,7 @@ public final class ScalaManager {
   public static final String SCALA_LIBRARY_PATH = "/org/scala-lang";
 
   private final Project rootProject;
-  private Set<String> dependencies;
+  @Nullable private Set<String> dependencies;
 
   public ScalaManager(Project rootProject) {
     this.rootProject = rootProject;

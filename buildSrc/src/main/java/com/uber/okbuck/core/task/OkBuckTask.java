@@ -73,9 +73,8 @@ public class OkBuckTask extends DefaultTask {
       ProjectUtil.getScalaManager(getProject()).setupScalaHome(scalaExtension.version);
     }
 
-    boolean hasKotlinLib = kotlinExtension.version != null;
     // Fetch Kotlin deps if needed
-    if (hasKotlinLib) {
+    if (kotlinExtension.version != null) {
       ProjectUtil.getKotlinManager(getProject()).setupKotlinHome(kotlinExtension.version);
     }
 
@@ -85,7 +84,7 @@ public class OkBuckTask extends DefaultTask {
     generate(
         okBuckExtension,
         hasGroovyLib ? GroovyManager.GROOVY_HOME_LOCATION : null,
-        hasKotlinLib ? KotlinManager.KOTLIN_HOME_LOCATION : null,
+        kotlinExtension.version != null ? KotlinManager.KOTLIN_HOME_LOCATION : null,
         hasScalaLib ? ScalaManager.SCALA_COMPILER_LOCATION : null,
         hasScalaLib ? scalaLibraryLocation : null);
   }

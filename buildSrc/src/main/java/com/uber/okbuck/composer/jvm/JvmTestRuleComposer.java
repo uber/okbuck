@@ -11,7 +11,7 @@ import java.util.Set;
 
 public final class JvmTestRuleComposer extends JvmBuckRuleComposer {
 
-  private static final Set<String> JAVA_TEST_LABELS = ImmutableSet.of("unit", "java");
+  private static final ImmutableSet<String> JAVA_TEST_LABELS = ImmutableSet.of("unit", "java");
 
   private JvmTestRuleComposer() {
     // no instance

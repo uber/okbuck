@@ -54,6 +54,7 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinAndroidPluginWrapper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import com.facebook.infer.annotation.Initializer;
 
 /** An Android target */
 public abstract class AndroidTarget extends JvmTarget {
@@ -187,26 +188,26 @@ public abstract class AndroidTarget extends JvmTarget {
   public List<Scope> getAptScopes() {
     Configuration configuration = getConfigurationFromVariant(getBaseVariant());
     AnnotationProcessorCache apCache = ProjectUtil.getAnnotationProcessorCache(getProject());
-    return apCache.getAnnotationProcessorScopes(getProject(), configuration);
+    return configuration != null ? apCache.getAnnotationProcessorScopes(getProject(), configuration) : ImmutableList.of();
   }
 
   @Override
   public List<Scope> getTestAptScopes() {
     Configuration configuration = getConfigurationFromVariant(getUnitTestVariant());
     AnnotationProcessorCache apCache = ProjectUtil.getAnnotationProcessorCache(getProject());
-    return apCache.getAnnotationProcessorScopes(getProject(), configuration);
+    return configuration != null ? apCache.getAnnotationProcessorScopes(getProject(), configuration) : ImmutableList.of();
   }
 
   @Override
   public Scope getApt() {
     Configuration configuration = getConfigurationFromVariant(getBaseVariant());
-    return getAptScopeForConfiguration(configuration);
+    return configuration != null ? getAptScopeForConfiguration(configuration) : Scope.builder(getProject()).build();
   }
 
   @Override
   public Scope getTestApt() {
     Configuration configuration = getConfigurationFromVariant(getUnitTestVariant());
-    return getAptScopeForConfiguration(configuration);
+    return configuration != null ? getAptScopeForConfiguration(configuration) : Scope.builder(getProject()).build();
   }
 
   @Override
@@ -302,6 +303,9 @@ public abstract class AndroidTarget extends JvmTarget {
             .map(
                 key -> {
                   ClassField classField = extraBuildConfig.get(key);
+                  if (classField == null) {
+                    throw new IllegalStateException("Invalid buildconfig value!");
+                  }
                   return String.format(
                       "%s %s = %s", classField.getType(), key, classField.getValue());
                 })
@@ -387,6 +391,8 @@ public abstract class AndroidTarget extends JvmTarget {
     return manifestXml;
   }
 
+  @Initializer
+  @SuppressWarnings("NullAway")
   private void ensureManifest() {
     try {
       Set<String> manifests =
@@ -722,7 +728,7 @@ public abstract class AndroidTarget extends JvmTarget {
   }
 
   @Override
-  public <T> T getProp(Map<String, T> map, T defaultValue) {
+  public <T> T getProp(Map<String, T> map, @Nullable T defaultValue) {
     String nameKey = getIdentifier() + StringUtils.capitalize(getName());
     String flavorKey = getIdentifier() + StringUtils.capitalize(getFlavor());
     String buildTypeKey = getIdentifier() + StringUtils.capitalize(getBuildType());
