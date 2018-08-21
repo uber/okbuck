@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.EnumSet;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 
@@ -20,7 +21,7 @@ public final class RobolectricManager {
       OkBuckGradlePlugin.DEFAULT_CACHE_PATH + "/robolectric";
 
   private final Project rootProject;
-  private ImmutableSet<String> dependencies;
+  @Nullable private ImmutableSet<String> dependencies;
 
   public RobolectricManager(Project rootProject) {
     this.rootProject = rootProject;

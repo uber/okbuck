@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import javax.annotation.Nullable;
 
 public final class KeystoreRuleComposer extends BuckRuleComposer {
 
@@ -18,6 +19,7 @@ public final class KeystoreRuleComposer extends BuckRuleComposer {
     // no instance
   }
 
+  @Nullable
   public static String compose(final AndroidAppTarget target) {
     AndroidAppTarget.Keystore keystore = target.getKeystore();
     if (keystore != null) {

@@ -198,7 +198,9 @@ public final class BuckFileGenerator {
       deps.add(":" + exoPackageRule.name());
     }
 
-    rules.add(AndroidBinaryRuleComposer.compose(target, deps, keystoreRuleName));
+    if (keystoreRuleName != null) {
+      rules.add(AndroidBinaryRuleComposer.compose(target, deps, keystoreRuleName));
+    }
 
     return rules;
   }

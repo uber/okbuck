@@ -9,7 +9,6 @@ import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.template.android.AndroidBinaryRule;
 import com.uber.okbuck.template.core.Rule;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -17,7 +16,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 public final class AndroidBinaryRuleComposer extends AndroidBuckRuleComposer {
 
-  private static final Map<String, String> CPU_FILTER_MAP =
+  private static final ImmutableMap<String, String> CPU_FILTER_MAP =
       ImmutableMap.of(
           "armeabi", "ARM",
           "armeabi-v7a", "ARMV7",

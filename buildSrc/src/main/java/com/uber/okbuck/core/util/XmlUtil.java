@@ -2,11 +2,12 @@ package com.uber.okbuck.core.util;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -71,7 +72,7 @@ public final class XmlUtil {
       String xmlString =
           stringWriter
               .toString()
-              .replaceAll( "(?s)<!--.*?-->", "" )
+              .replaceAll("(?s)<!--.*?-->", "")
               .replaceAll("xmlns:android=\"http://schemas.android.com/apk/res/android\"", "")
               .replaceFirst(
                   "<manifest ",
@@ -85,7 +86,7 @@ public final class XmlUtil {
   }
 
   static void writeText(String text, File file) throws IOException {
-    BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+    BufferedWriter writer = Files.newBufferedWriter(file.toPath(), StandardCharsets.UTF_8);
     writer.write(text);
     writer.close();
   }

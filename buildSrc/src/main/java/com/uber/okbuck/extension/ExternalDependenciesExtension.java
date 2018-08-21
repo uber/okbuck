@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 
 public class ExternalDependenciesExtension {
 
@@ -17,8 +18,8 @@ public class ExternalDependenciesExtension {
   /** Stores the dependencies which are allowed to have more than 1 version. */
   private List<String> allowAllVersions = new ArrayList<>();
 
-  private Map<VersionlessDependency, List<String>> allowedVersionsMap;
-  private Set<VersionlessDependency> allowAllVersionsSet;
+  @Nullable private Map<VersionlessDependency, List<String>> allowedVersionsMap;
+  @Nullable private Set<VersionlessDependency> allowAllVersionsSet;
 
   private synchronized Map<VersionlessDependency, List<String>> getAllowedVersionsMap() {
     if (allowedVersionsMap == null) {

@@ -10,7 +10,6 @@ import com.uber.okbuck.core.util.ProjectUtil;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nullable;
 import org.gradle.api.Project;
 
@@ -18,7 +17,6 @@ public class TargetCache {
 
   private final Map<Project, Map<String, Target>> store = new HashMap<>();
   private final Map<Project, Map<String, Target>> artifactNameToTarget = new HashMap<>();
-  private final Map<String, String> lintConfig = new ConcurrentHashMap<>();
 
   public Map<String, Target> getTargets(Project project) {
     Map<String, Target> projectTargets = store.get(project);
@@ -67,11 +65,14 @@ public class TargetCache {
 
   @Nullable
   public Target getTargetForVariant(Project targetProject, @Nullable String variant) {
-    Target result;
+    Target result = null;
     ProjectType type = ProjectUtil.getType(targetProject);
     switch (type) {
       case ANDROID_LIB:
-        result = artifactNameToTarget.get(targetProject).get(variant);
+        Map<String, Target> targetMap = artifactNameToTarget.get(targetProject);
+        if (targetMap != null) {
+          result = targetMap.get(variant);
+        }
         if (result == null) {
           throw new IllegalStateException(
               "No target found for " + targetProject.getDisplayName() + " for variant " + variant);

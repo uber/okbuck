@@ -70,7 +70,7 @@ def okbuck_lint(
         inputs=[],
         custom_lints=[],
         jvm_args="",
-        deps=[],
+        lint_deps=[],
         lint_options=[]
     ):
 
@@ -91,7 +91,7 @@ def okbuck_lint(
 
     bash += 'mkdir -p $OUT; LOGFILE=$OUT/lint.log; trap "rv=\$?; if [ \$rv != 0 ] ; then cat \$LOGFILE 1>&2 ; fi ; rm -f \$LOGFILE; exit \$rv" EXIT;  java -Djava.awt.headless=true -Dcom.android.tools.lint.workdir=$PROJECT_ROOT '
     bash += "{} ".format(jvm_args)
-    bash += "-classpath {} com.android.tools.lint.Main ".format(':'.join(map(toLocation, deps)))
+    bash += "-classpath {} com.android.tools.lint.Main ".format(':'.join(map(toLocation, lint_deps)))
 
     if has_srcs:
         bash += "--classpath $(location :src_{}) --libraries `cat $CP_FILE` ".format(variant)

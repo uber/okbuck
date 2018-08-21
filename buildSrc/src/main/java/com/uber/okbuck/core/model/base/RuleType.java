@@ -1,6 +1,6 @@
 package com.uber.okbuck.core.model.base;
 
-import java.util.Arrays;
+import com.google.common.collect.ImmutableList;
 import java.util.List;
 
 public enum RuleType {
@@ -24,14 +24,14 @@ public enum RuleType {
   PREBUILT_NATIVE_LIBRARY,
   ROBOLECTRIC_TEST;
 
-  private final List<String> sourceExtensions;
+  private final ImmutableList<String> sourceExtensions;
 
   RuleType() {
     this("java");
   }
 
   RuleType(String... extensions) {
-    this.sourceExtensions = Arrays.asList(extensions);
+    this.sourceExtensions = ImmutableList.copyOf(extensions);
   }
 
   public List<String> getSourceExtensions() {

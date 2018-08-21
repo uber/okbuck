@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.apache.commons.lang3.tuple.Pair;
 import org.gradle.api.Project;
 
@@ -48,14 +49,12 @@ public final class TransformManager {
           + "com.uber.okbuck.transform.CliTransform; ";
 
   private final Project rootProject;
+  private final Map<Path, String> configFileToPathMap = new HashMap<>();
 
-  private ImmutableSet<String> deps;
-
-  private Map<Path, String> configFileToPathMap;
+  @Nullable private ImmutableSet<String> dependencies;
 
   public TransformManager(Project rootProject) {
     this.rootProject = rootProject;
-    this.configFileToPathMap = new HashMap<>();
   }
 
   public void fetchTransformDeps() {
@@ -76,7 +75,7 @@ public final class TransformManager {
 
     depsBuilder.add(TRANSFORM_JAR_RULE);
 
-    deps = depsBuilder.build();
+    dependencies = depsBuilder.build();
   }
 
   public void finalizeDependencies() {
@@ -84,7 +83,7 @@ public final class TransformManager {
 
     FileUtil.deleteQuietly(cacheDir);
 
-    if (deps != null) {
+    if (dependencies != null) {
       cacheDir.toFile().mkdirs();
 
       copyFiles(cacheDir);
@@ -109,7 +108,9 @@ public final class TransformManager {
 
   private void composeBuckFile(Path cacheDir) {
     ImmutableList.Builder<Rule> rulesBuilder = new ImmutableList.Builder<>();
-    rulesBuilder.add(new TransformBuckFile().transformJar(TRANSFORM_JAR).deps(deps));
+    if (dependencies != null) {
+      rulesBuilder.add(new TransformBuckFile().transformJar(TRANSFORM_JAR).deps(dependencies));
+    }
 
     rulesBuilder.addAll(
         configFileToPathMap

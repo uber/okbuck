@@ -2,6 +2,7 @@ package com.uber.okbuck.extension;
 
 import com.uber.okbuck.core.annotation.Experimental;
 import com.uber.okbuck.core.manager.LintManager;
+import javax.annotation.Nullable;
 import org.gradle.api.Project;
 
 @Experimental
@@ -9,6 +10,7 @@ public class LintExtension {
 
   /** Lint jar version */
   @SuppressWarnings("CanBeFinal")
+  @Nullable
   public String version;
 
   /** Set to {@code true} to disable generation of lint rules */

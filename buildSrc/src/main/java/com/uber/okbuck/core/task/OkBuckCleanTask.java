@@ -1,5 +1,6 @@
 package com.uber.okbuck.core.task;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.uber.okbuck.OkBuckGradlePlugin;
@@ -12,6 +13,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Set;
+import java.util.stream.Stream;
 import javax.inject.Inject;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
@@ -39,11 +41,13 @@ public class OkBuckCleanTask extends DefaultTask {
     // Get last project paths
     Set<String> lastProjectPaths;
     if (okbuckState.exists()) {
-      lastProjectPaths =
-          Files.lines(okbuckState.toPath())
-              .map(String::trim)
-              .filter(s -> s.length() > 0)
-              .collect(MoreCollectors.toImmutableSet());
+      try (Stream<String> lines = Files.lines(okbuckState.toPath())) {
+        lastProjectPaths =
+            lines
+                .map(String::trim)
+                .filter(s -> !Strings.isNullOrEmpty(s))
+                .collect(MoreCollectors.toImmutableSet());
+      }
     } else {
       lastProjectPaths = ImmutableSet.of();
       okbuckState.getParentFile().mkdirs();

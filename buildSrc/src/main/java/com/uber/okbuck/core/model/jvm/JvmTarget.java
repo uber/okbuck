@@ -1,6 +1,7 @@
 package com.uber.okbuck.core.model.jvm;
 
 import com.android.builder.model.LintOptions;
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.OkBuckGradlePlugin;
@@ -98,7 +99,7 @@ public class JvmTarget extends Target {
     return Scope.builder(getProject()).configuration(configurationName).build();
   }
 
-  protected Scope getAptScopeForConfiguration(@Nullable Configuration configuration) {
+  protected Scope getAptScopeForConfiguration(Configuration configuration) {
     // If using annotation processor plugin, return an empty scope if there are no annotation
     // processors so no need to have any specified in the annotation processor deps list.
     if (!ProjectUtil.getAnnotationProcessorCache(getProject())
@@ -268,7 +269,7 @@ public class JvmTarget extends Target {
                 + File.separator
                 + "kotlin-allopen.jar");
 
-        for (String annotation : allOpenAnnotations.split(",")) {
+        for (String annotation : Splitter.on(',').split(allOpenAnnotations)) {
           optionBuilder.add("-P");
           optionBuilder.add("plugin:org.jetbrains.kotlin.allopen:annotation=" + annotation);
         }

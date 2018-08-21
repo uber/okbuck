@@ -18,8 +18,8 @@ public abstract class Rule<T extends Rule> extends DefaultRockerModel {
 
   private static Set<String> DEFAULT_VISIBILITY = ImmutableSet.of("PUBLIC");
 
-  protected String ruleType;
-  protected String name;
+  protected String ruleType = "";
+  protected String name = "";
   protected Collection visibility = ImmutableSet.of();
   protected Collection deps = ImmutableSet.of();
   protected Collection labels = ImmutableSet.of();

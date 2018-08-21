@@ -8,12 +8,13 @@ import com.uber.okbuck.extension.OkBuckExtension;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 
 public final class BuckManager {
 
-  public static final String BUCK_BINARY_LOCATION =
+  private static final String BUCK_BINARY_LOCATION =
       OkBuckGradlePlugin.DEFAULT_CACHE_PATH + "/buck_binary";
 
   private static final String BUCK_BINARY_CONFIGURATION = "buckBinary";
@@ -21,7 +22,7 @@ public final class BuckManager {
 
   private final Project rootProject;
 
-  private Path realBuckBinaryPath;
+  @Nullable private Path realBuckBinaryPath;
 
   public BuckManager(Project rootProject) {
     this.rootProject = rootProject;
