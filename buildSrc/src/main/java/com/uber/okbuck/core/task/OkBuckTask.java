@@ -13,7 +13,7 @@ import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.extension.KotlinExtension;
 import com.uber.okbuck.extension.OkBuckExtension;
 import com.uber.okbuck.extension.ScalaExtension;
-import com.uber.okbuck.generator.BuckConfigLocalGenerator;
+import com.uber.okbuck.generator.OkbuckBuckConfigGenerator;
 import com.uber.okbuck.template.config.BuckDefs;
 import java.io.File;
 import java.io.IOException;
@@ -111,8 +111,8 @@ public class OkBuckTask extends DefaultTask {
   }
 
   @OutputFile
-  public File dotBuckConfigLocal() {
-    return getProject().file(".buckconfig.local");
+  public File okbuckBuckConfig() {
+    return getProject().file(OkBuckGradlePlugin.OKBUCK_CONFIG + "/okbuck.buckconfig");
   }
 
   private void generate(
@@ -148,8 +148,8 @@ public class OkBuckTask extends DefaultTask {
 
     defs.add("//" + OKBUCK_DEFS);
 
-    // generate .buckconfig.local
-    BuckConfigLocalGenerator.generate(
+    // generate .buckconfig.okbuck
+    OkbuckBuckConfigGenerator.generate(
             okbuckExt,
             groovyHome,
             kotlinHome,
@@ -157,6 +157,6 @@ public class OkBuckTask extends DefaultTask {
             scalaLibrary,
             ProguardUtil.getProguardJarPath(getProject()),
             defs)
-        .render(dotBuckConfigLocal());
+        .render(okbuckBuckConfig());
   }
 }

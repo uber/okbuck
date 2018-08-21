@@ -5,9 +5,9 @@ import com.uber.okbuck.template.config.BuckConfig;
 import java.util.Set;
 import org.jetbrains.annotations.Nullable;
 
-public final class BuckConfigLocalGenerator {
+public final class OkbuckBuckConfigGenerator {
 
-  private BuckConfigLocalGenerator() {}
+  private OkbuckBuckConfigGenerator() {}
 
   /** generate {@link BuckConfig} */
   public static BuckConfig generate(
