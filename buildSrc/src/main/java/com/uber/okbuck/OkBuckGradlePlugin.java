@@ -1,5 +1,6 @@
 package com.uber.okbuck;
 
+import com.facebook.infer.annotation.Initializer;
 import com.uber.okbuck.core.annotation.AnnotationProcessorCache;
 import com.uber.okbuck.core.dependency.DependencyCache;
 import com.uber.okbuck.core.manager.BuckManager;
@@ -30,7 +31,6 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
-import com.facebook.infer.annotation.Initializer;
 
 // Dependency Tree
 //

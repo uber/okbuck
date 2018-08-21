@@ -7,11 +7,10 @@ import com.uber.okbuck.core.util.ProjectUtil;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import javax.annotation.Nullable;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
-
-import javax.annotation.Nullable;
 
 public final class KotlinManager {
 

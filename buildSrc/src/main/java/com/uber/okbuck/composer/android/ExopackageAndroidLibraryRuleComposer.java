@@ -27,7 +27,6 @@ public final class ExopackageAndroidLibraryRuleComposer extends AndroidBuckRuleC
       deps.addAll(external(exopackage.getExternalDeps()));
       deps.addAll(targets(exopackage.getTargetDeps()));
       extraBuckOpts.add("srcs = ['" + exopackage.getAppClass() + "']");
-
     }
     deps.add(":" + buildConfig(target));
 

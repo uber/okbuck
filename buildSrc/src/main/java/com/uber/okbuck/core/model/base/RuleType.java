@@ -1,8 +1,6 @@
 package com.uber.okbuck.core.model.base;
 
 import com.google.common.collect.ImmutableList;
-
-import java.util.Arrays;
 import java.util.List;
 
 public enum RuleType {

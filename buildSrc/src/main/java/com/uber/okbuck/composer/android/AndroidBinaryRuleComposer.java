@@ -9,7 +9,6 @@ import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.template.android.AndroidBinaryRule;
 import com.uber.okbuck.template.core.Rule;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
