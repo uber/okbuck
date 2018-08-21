@@ -54,9 +54,9 @@ public final class LintRuleComposer extends AndroidBuckRuleComposer {
         .resources(target.getResDirs())
         .customLints(customLintRules)
         .jvmArgs(lintExtension.jvmArgs)
+        .lintDeps(Collections.singletonList(LintManager.LINT_DEPS_RULE))
         .lintConfigXml(lintConfigXml)
         .lintOptions(target.getLintOptions())
-        .deps(Collections.singletonList(LintManager.LINT_DEPS_RULE))
         .name("lint_" + target.getName());
   }
 }
