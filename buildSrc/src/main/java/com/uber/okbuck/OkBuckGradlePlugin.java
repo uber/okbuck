@@ -54,6 +54,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
   public static final String BUCK_LINT = "buckLint";
   public static final String OKBUCK_DEFS = ".okbuck/defs/DEFS";
   public static final String OKBUCK_GEN = ".okbuck/gen";
+  public static final String OKBUCK_CONFIG = ".okbuck/config";
 
   private static final String OKBUCK_STATE_DIR = ".okbuck/state";
   private static final String OKBUCK_CLEAN = "okbuckClean";

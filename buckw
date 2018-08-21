@@ -182,7 +182,7 @@ killBuckDaemons ( ) {
 }
 
 setupBuckBinary ( ) {
-    BUCK_BINARY=$(find "$BUCK_BINARY_DIR" -name buck-*.pex)
+    BUCK_BINARY=$(find "$BUCK_BINARY_DIR" -name buck*.pex)
 
     if [[ ! -x "$BUCK_BINARY" ]]; then
         chmod +x "$BUCK_BINARY"
@@ -233,11 +233,24 @@ setupBuckRun ( ) {
     setupBuckBinary
 }
 
+setupBuckFlags ( ) {
+    EXTRA_BUCK_CONFIG="$EXTRA_BUCK_CONFIG --config-file .okbuck/config/okbuck.buckconfig"
+}
+
 # Handle parameters and flags
 handleParams ( ) {
-   # Go directly to the kill command, help command, or --help option. Do not run okbuck.
-   if [[ "kill" == $1 || "help" == $1 || $@ == *"--help"* || $@ == *" -h "* ]]; then
-      SKIP_OKBUCK=true
+   SKIP_FLAGS=''
+   for arg in "$@"
+   do
+       case "$arg" in
+       --help|-h|help|kill) export SKIP_OKBUCK=1 && SKIP_FLAGS=1 ;; # Go directly to the kill command, help command, or --help option. Do not run okbuck.
+       --version) export SKIP_FLAGS=1;;
+       esac;
+   done
+
+   if [[ -z "$SKIP_FLAGS" ]]; then
+       # --help|-h|help|kill|--version do not support --config-file
+       setupBuckFlags
    fi
 }
 
@@ -245,4 +258,4 @@ handleParams "$@"
 setupBuckRun
 
 # Invoke buck binary with arguments
-exec "$BUCK_BINARY" "$@"
+exec "$BUCK_BINARY" "$@" $EXTRA_BUCK_CONFIG
