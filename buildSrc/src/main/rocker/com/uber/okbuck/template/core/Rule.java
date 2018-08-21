@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
+@SuppressWarnings("unchecked")
 public abstract class Rule<T extends Rule> extends DefaultRockerModel {
 
   private static Set<String> DEFAULT_VISIBILITY = ImmutableSet.of("PUBLIC");

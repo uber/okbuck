@@ -50,6 +50,7 @@ public class ExternalDependenciesExtension {
         || getAllowedVersionsMap().containsKey(versionless);
   }
 
+  @SuppressWarnings("BooleanMethodIsAlwaysInverted")
   public boolean isAllowed(ExternalDependency dependency) {
     if (getAllowAllVersionsSet().contains(dependency.getVersionless())) {
       return true;

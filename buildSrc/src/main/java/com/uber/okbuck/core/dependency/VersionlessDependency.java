@@ -44,18 +44,20 @@ public abstract class VersionlessDependency {
     String[] parts = s.split(COORD_DELIMITER);
     VersionlessDependency versionless;
 
-    if (parts.length == 2) {
-      versionless = VersionlessDependency.builder().setGroup(parts[0]).setName(parts[1]).build();
-
-    } else if (parts.length == 3) {
-      versionless =
-          VersionlessDependency.builder()
-              .setGroup(parts[0])
-              .setName(parts[1])
-              .setClassifier(parts[2])
-              .build();
-    } else {
-      throw new RuntimeException("Invalid dependency specified: " + s);
+    switch (parts.length) {
+      case 2:
+        versionless = VersionlessDependency.builder().setGroup(parts[0]).setName(parts[1]).build();
+        break;
+      case 3:
+        versionless =
+            VersionlessDependency.builder()
+                .setGroup(parts[0])
+                .setName(parts[1])
+                .setClassifier(parts[2])
+                .build();
+        break;
+      default:
+        throw new RuntimeException("Invalid dependency specified: " + s);
     }
     return versionless;
   }

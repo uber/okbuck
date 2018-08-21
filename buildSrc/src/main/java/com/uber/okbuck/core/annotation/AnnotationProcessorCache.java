@@ -107,6 +107,7 @@ public class AnnotationProcessorCache {
    * @param configurationString ConfigurationString which is used to query the deps.
    * @return A boolean whether the configuration has any empty annotation processors.
    */
+  @SuppressWarnings("BooleanMethodIsAlwaysInverted")
   public boolean hasEmptyAnnotationProcessors(Project project, String configurationString) {
     Configuration configuration = getConfiguration(project, configurationString);
     return hasEmptyAnnotationProcessors(project, configuration);

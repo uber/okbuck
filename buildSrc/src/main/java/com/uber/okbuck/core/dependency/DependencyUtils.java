@@ -45,12 +45,14 @@ public final class DependencyUtils {
     return null;
   }
 
+  @SuppressWarnings("BooleanMethodIsAlwaysInverted")
   public static boolean isWhiteListed(final File dependencyFile) {
     return WHITELIST_LOCAL_PATTERNS
         .stream()
         .anyMatch(pattern -> dependencyFile.getPath().contains(pattern));
   }
 
+  @SuppressWarnings("BooleanMethodIsAlwaysInverted")
   public static boolean isConsumable(File file) {
     // Skip artifact files which are coming from the transformed folder.
     // transforms-1 contains the contents of the resolved aar/jar and
