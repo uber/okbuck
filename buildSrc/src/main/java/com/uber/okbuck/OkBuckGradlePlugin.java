@@ -53,16 +53,16 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
   public static final String GROUP = "okbuck";
   public static final String BUCK_LINT = "buckLint";
   public static final String OKBUCK_DEFS = ".okbuck/defs/DEFS";
-  public static final String OKBUCK_STATE_DIR = ".okbuck/state";
-  public static final String OKBUCK_STATE = OKBUCK_STATE_DIR + "/STATE";
   public static final String OKBUCK_GEN = ".okbuck/gen";
 
+  private static final String OKBUCK_STATE_DIR = ".okbuck/state";
   private static final String OKBUCK_CLEAN = "okbuckClean";
   private static final String BUCK_WRAPPER = "buckWrapper";
   private static final String FORCED_OKBUCK = "forcedOkbuck";
   private static final String PROCESSOR_BUCK_FILE = ".okbuck/cache/processor/BUCK";
   private static final String LINT_BUCK_FILE = ".okbuck/cache/lint/BUCK";
 
+  public static final String OKBUCK_STATE = OKBUCK_STATE_DIR + "/STATE";
   public final Map<Project, Map<String, Scope>> scopes = new ConcurrentHashMap<>();
 
   public DependencyCache depCache;
@@ -74,9 +74,10 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
   public KotlinManager kotlinManager;
   public ScalaManager scalaManager;
   public GroovyManager groovyManager;
-  public RobolectricManager robolectricManager;
   public TransformManager transformManager;
-  public BuckManager buckManager;
+
+  RobolectricManager robolectricManager;
+  BuckManager buckManager;
 
   // Only apply to the root project
   public void apply(@NotNull Project rootProject) {

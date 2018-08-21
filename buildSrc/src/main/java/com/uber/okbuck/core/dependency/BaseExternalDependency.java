@@ -21,9 +21,9 @@ public abstract class BaseExternalDependency {
 
   public abstract boolean isLocal();
 
-  public abstract boolean isVersioned();
-
   public abstract File realDependencyFile();
+
+  abstract boolean isVersioned();
 
   public static Builder builder() {
     return new AutoValue_BaseExternalDependency.Builder();
