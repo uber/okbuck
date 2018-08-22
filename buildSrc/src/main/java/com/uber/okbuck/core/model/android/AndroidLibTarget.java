@@ -3,7 +3,6 @@ package com.uber.okbuck.core.model.android;
 import com.android.build.gradle.LibraryExtension;
 import com.android.build.gradle.api.BaseVariant;
 import com.android.build.gradle.api.LibraryVariant;
-import com.android.manifmerger.ManifestMerger2;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.core.model.base.ProjectType;
@@ -55,11 +54,6 @@ public class AndroidLibTarget extends AndroidTarget {
     Preconditions.checkArgument(baseVariantOptional.isPresent());
 
     return baseVariantOptional.get();
-  }
-
-  @Override
-  public ManifestMerger2.MergeType getMergeType() {
-    return ManifestMerger2.MergeType.LIBRARY;
   }
 
   public boolean shouldGenerateBuildConfig() {

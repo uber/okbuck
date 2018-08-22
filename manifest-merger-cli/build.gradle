@@ -1,0 +1,42 @@
+String pluginProjectPath = ":plugin"
+evaluationDependsOn(pluginProjectPath)
+
+apply plugin: "application"
+
+group = "com.uber.okbuck.transform"
+version = "1.0.0"
+
+tasks.withType(JavaCompile) {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+jar.manifest.attributes(
+        "Implementation-Title": "Okbuck Manifest Merger Cli",
+        "Implementation-Version": version,
+        "com.uber.okbuck.manifmerger.ManifestMergerCli",
+        "X-Compile-Source-JDK": "1.8",
+        "X-Compile-Target-JDK": "1.8")
+
+mainClassName = "com.uber.okbuck.manifmerger.ManifestMergerCli"
+
+dependencies {
+    compileOnly deps.build.manifestMerger
+}
+
+File copyTo = project(pluginProjectPath).file("src/main/resources/com/uber/okbuck/core/util/manifest/")
+
+task deleteExisting(type: Delete) {
+    project.fileTree(dir: copyTo, includes: ["*.jar"])
+}
+
+task copyManifestMergerCli(type: Copy) {
+    from jar.outputs.files.files[0]
+    into copyTo
+    rename { String fileName ->
+        "manifest-merger-cli.jar"
+    }
+}
+
+deleteExisting.dependsOn(jar)
+copyManifestMergerCli.dependsOn(deleteExisting)

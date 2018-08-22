@@ -5,7 +5,6 @@ import com.android.build.gradle.api.ApplicationVariant;
 import com.android.build.gradle.api.BaseVariant;
 import com.android.build.gradle.tasks.NdkCompile;
 import com.android.builder.model.SigningConfig;
-import com.android.manifmerger.ManifestMerger2;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -24,9 +23,6 @@ import javax.annotation.Nullable;
 import org.gradle.api.Project;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
 /** An Android app target */
 public class AndroidAppTarget extends AndroidLibTarget {
@@ -120,45 +116,15 @@ public class AndroidAppTarget extends AndroidLibTarget {
   }
 
   @Override
-  public ManifestMerger2.MergeType getMergeType() {
-    return ManifestMerger2.MergeType.APPLICATION;
-  }
-
-  @Override
   public boolean shouldGenerateBuildConfig() {
     // Always generate for apps
     return true;
   }
 
-  @Override
-  public Document processManifestXml(Document manifestXml) {
-    String manifestPackage;
-    if (getIsTest()) {
-      manifestPackage = getApplicationId() + getApplicationIdSuffix() + ".test";
-    } else {
-      manifestPackage = getApplicationId() + getApplicationIdSuffix();
-    }
-
-    Element documentElement = manifestXml.getDocumentElement();
-
-    documentElement.setAttribute("package", manifestPackage);
-    documentElement.setAttribute("android:versionCode", String.valueOf(getVersionCode()));
-    documentElement.setAttribute("android:versionName", getVersionName());
-
-    NodeList nodeList = manifestXml.getElementsByTagName("application");
-    Preconditions.checkArgument(nodeList.getLength() <= 1);
-    if (nodeList.getLength() == 1) {
-      Element applicationElement = (Element) nodeList.item(0);
-      applicationElement.setAttribute("android:debuggable", String.valueOf(getDebuggable()));
-    }
-
-    return super.processManifestXml(manifestXml);
-  }
-
   @Nullable
   public ExoPackageScope getExopackage() {
     if (getProp(getOkbuck().exopackage, false)) {
-      return new ExoPackageScope(getProject(), getMain(), exoPackageDependencies, getManifest());
+      return new ExoPackageScope(getProject(), getMain(), exoPackageDependencies, getMainManifest());
     } else {
       return null;
     }

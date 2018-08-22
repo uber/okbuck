@@ -29,6 +29,10 @@ public abstract class Rule<T extends Rule> extends DefaultRockerModel {
     return name;
   }
 
+  public String buckName() {
+    return ":" + name;
+  }
+
   public T ruleType(String ruleType) {
     this.ruleType = ruleType;
     return (T) this;
@@ -74,6 +78,10 @@ public abstract class Rule<T extends Rule> extends DefaultRockerModel {
 
   protected static boolean valid(String s) {
     return s != null && !s.isEmpty();
+  }
+
+  protected static boolean valid(Integer i) {
+    return i != null;
   }
 
   public void render(OutputStream os) {

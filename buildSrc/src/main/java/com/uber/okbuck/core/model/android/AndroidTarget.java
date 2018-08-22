@@ -12,9 +12,6 @@ import com.android.builder.core.VariantType;
 import com.android.builder.model.ClassField;
 import com.android.builder.model.LintOptions;
 import com.android.builder.model.SourceProvider;
-import com.android.manifmerger.ManifestMerger2;
-import com.android.manifmerger.MergingReport;
-import com.android.utils.ILogger;
 import com.facebook.infer.annotation.Initializer;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -28,6 +25,7 @@ import com.uber.okbuck.core.model.jvm.TestOptions;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.core.util.XmlUtil;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -43,8 +41,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.annotation.Nullable;
+
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
@@ -56,10 +54,11 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-/** An Android target */
+/**
+ * An Android target
+ */
 public abstract class AndroidTarget extends JvmTarget {
 
-  private static final EmptyLogger EMPTY_LOGGER = new EmptyLogger();
   private static final String KOTLIN_EXTENSIONS_OPTION = "plugin:org.jetbrains.kotlin.android:";
 
   private static final String DEFAULT_SDK = "1";
@@ -79,7 +78,12 @@ public abstract class AndroidTarget extends JvmTarget {
   private final boolean lintExclude;
   private final boolean testExclude;
   private final boolean isTest;
-  private String manifestPath;
+
+  @Nullable
+  private String mainManifest;
+  @Nullable
+  private List<String> secondaryManifests;
+  @Nullable
   private String packageName;
 
   public AndroidTarget(Project project, String name, boolean isTest) {
@@ -156,8 +160,6 @@ public abstract class AndroidTarget extends JvmTarget {
   }
 
   protected abstract BaseVariant getBaseVariant();
-
-  protected abstract ManifestMerger2.MergeType getMergeType();
 
   @Override
   public Scope getMain() {
@@ -339,7 +341,9 @@ public abstract class AndroidTarget extends JvmTarget {
         .collect(Collectors.toSet());
   }
 
-  /** Returns a map of each resource directory to its corresponding variant */
+  /**
+   * Returns a map of each resource directory to its corresponding variant
+   */
   Map<String, String> getResVariantDirs() {
     Map<String, String> variantDirs = new HashMap<>();
     for (SourceProvider provider : getBaseVariant().getSourceSets()) {
@@ -377,6 +381,7 @@ public abstract class AndroidTarget extends JvmTarget {
         .collect(Collectors.toSet());
   }
 
+  @Nullable
   public String getPackage() {
     if (packageName == null) {
       ensureManifest();
@@ -385,93 +390,41 @@ public abstract class AndroidTarget extends JvmTarget {
     return packageName;
   }
 
-  public String getManifest() {
-    if (manifestPath == null) {
+  @Nullable
+  public String getMainManifest() {
+    if (mainManifest == null) {
       ensureManifest();
     }
 
-    return manifestPath;
+    return mainManifest;
   }
 
-  Document processManifestXml(Document manifestXml) {
-    getSdkNode(manifestXml, minSdk, targetSdk);
-
-    return manifestXml;
+  @Nullable
+  public List<String> getSecondaryManifests() {
+    return secondaryManifests;
   }
 
   @Initializer
   @SuppressWarnings("NullAway")
   private void ensureManifest() {
-    try {
-      Set<String> manifests =
-          getBaseVariant()
-              .getSourceSets()
-              .stream()
-              .map(SourceProvider::getManifestFile)
-              .map(file -> getAvailable(ImmutableSet.of(file)))
-              .flatMap(Collection::stream)
-              .collect(Collectors.toCollection(LinkedHashSet::new));
+    Set<String> manifests =
+        getBaseVariant()
+            .getSourceSets()
+            .stream()
+            .map(SourceProvider::getManifestFile)
+            .map(file -> getAvailable(ImmutableSet.of(file)))
+            .flatMap(Collection::stream)
+            .collect(Collectors.toCollection(LinkedHashSet::new));
 
-      // Nothing to merge
-      if (manifests.isEmpty()) {
-        return;
-      }
-
-      File mergedManifest = getGenPath("AndroidManifest.xml");
-      mergedManifest.getParentFile().mkdirs();
-      mergedManifest.createNewFile();
-
-      File mainManifest = getProject().file(manifests.iterator().next());
-
-      if (manifests.size() == 1 && getMergeType() == ManifestMerger2.MergeType.LIBRARY) {
-        // No need to merge for libraries
-        try (Stream<String> lines = Files.lines(mainManifest.toPath())) {
-          parseManifest(lines.collect(Collectors.joining(System.lineSeparator())), mergedManifest);
-        }
-      } else {
-        // always merge if more than one manifest or its an application
-        List<File> secondaryManifests =
-            manifests.stream().map(i -> getProject().file(i)).collect(Collectors.toList());
-
-        secondaryManifests.remove(mainManifest);
-
-        // errors are reported later
-        MergingReport report =
-            ManifestMerger2.newMerger(mainManifest, EMPTY_LOGGER, getMergeType())
-                .addFlavorAndBuildTypeManifests(secondaryManifests.toArray(new File[0]))
-                .withFeatures(
-                    ManifestMerger2.Invoker.Feature.NO_PLACEHOLDER_REPLACEMENT) // handled by buck
-                .merge();
-
-        if (report.getResult().isSuccess()) {
-          parseManifest(
-              report.getMergedDocument(MergingReport.MergedManifestKind.MERGED), mergedManifest);
-        } else {
-          throw new IllegalStateException(
-              report
-                  .getLoggingRecords()
-                  .stream()
-                  .map(
-                      i ->
-                          String.format(
-                              "%s: %s at %s",
-                              i.getSeverity(), i.getMessage(), i.getSourceLocation()))
-                  .collect(Collectors.joining(System.lineSeparator())));
-        }
-      }
-      manifestPath = FileUtil.getRelativePath(getProject().getRootDir(), mergedManifest);
-    } catch (IOException | ManifestMerger2.MergeFailureException e) {
-      throw new RuntimeException(e);
+    if (manifests.isEmpty()) {
+      return;
     }
-  }
 
-  private void parseManifest(String originalManifest, File mergedManifest) {
-    Document manifestXml = XmlUtil.loadXml(originalManifest);
+    secondaryManifests = new ArrayList<>(manifests);
+    mainManifest = secondaryManifests.remove(0);
+
+    Document manifestXml = XmlUtil.loadXml(getProject().file(mainManifest));
     packageName = manifestXml.getDocumentElement().getAttribute("package").trim();
-
-    Document processedManifest = processManifestXml(manifestXml);
-
-    XmlUtil.writeToXml(processedManifest, mergedManifest);
   }
 
   static List<String> getJavaCompilerOptions(BaseVariant baseVariant) {
@@ -670,11 +623,19 @@ public abstract class AndroidTarget extends JvmTarget {
     return applicationIdSuffix;
   }
 
-  final String getVersionName() {
+  public final String getMinSdk() {
+    return minSdk;
+  }
+
+  public final String getTargetSdk() {
+    return targetSdk;
+  }
+
+  public final String getVersionName() {
     return versionName;
   }
 
-  final Integer getVersionCode() {
+  public final Integer getVersionCode() {
     return versionCode;
   }
 
@@ -709,29 +670,6 @@ public abstract class AndroidTarget extends JvmTarget {
     } else {
       int end = index + text.length();
       return s.length() > end ? s.substring(0, index) + s.substring(end) : s.substring(0, index);
-    }
-  }
-
-  private static class EmptyLogger implements ILogger {
-
-    @Override
-    public void error(Throwable throwable, String s, Object... objects) {
-      // ignore
-    }
-
-    @Override
-    public void warning(String s, Object... objects) {
-      // ignore
-    }
-
-    @Override
-    public void info(String s, Object... objects) {
-      // ignore
-    }
-
-    @Override
-    public void verbose(String s, Object... objects) {
-      // ignore
     }
   }
 

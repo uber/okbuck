@@ -2,6 +2,7 @@ package com.uber.okbuck.composer.android;
 
 import com.uber.okbuck.core.model.android.AndroidTarget;
 import com.uber.okbuck.template.android.GenAidlRule;
+import com.uber.okbuck.template.android.ManifestRule;
 import com.uber.okbuck.template.core.Rule;
 
 public final class GenAidlRuleComposer extends AndroidBuckRuleComposer {
@@ -10,11 +11,11 @@ public final class GenAidlRuleComposer extends AndroidBuckRuleComposer {
     // no instance
   }
 
-  public static Rule compose(final AndroidTarget target, final String aidlDir) {
+  public static Rule compose(AndroidTarget target, String aidlDir, String manifestRule) {
     return new GenAidlRule()
         .aidlFilePath(aidlDir)
         .importPath(target.getPath() + "/" + aidlDir)
-        .manifest(fileRule(target.getManifest()))
+        .manifest(manifestRule)
         .aidlDeps(targets(target.getMain().getTargetDeps()))
         .name(aidl(target, aidlDir));
   }

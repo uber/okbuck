@@ -22,6 +22,7 @@ public final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
 
   public static Rule compose(
       AndroidLibTarget target,
+      String manifestRule,
       List<String> deps,
       final List<String> aidlRuleNames,
       @Nullable String appClass) {
@@ -60,7 +61,7 @@ public final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
         new AndroidRule()
             .srcs(target.getMain().getSources())
             .exts(target.getRuleType().getSourceExtensions())
-            .manifest(fileRule(target.getManifest()))
+            .manifest(manifestRule)
             .proguardConfig(target.getConsumerProguardConfig())
             .apPlugins(getApPlugins(target.getApPlugins()))
             .aptDeps(libraryAptDeps)

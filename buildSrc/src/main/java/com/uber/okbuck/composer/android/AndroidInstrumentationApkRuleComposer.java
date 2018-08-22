@@ -5,6 +5,8 @@ import com.uber.okbuck.core.model.android.AndroidAppTarget;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.template.android.InstrumentationApkRule;
 import com.uber.okbuck.template.core.Rule;
+
+import javax.annotation.Nullable;
 import java.util.List;
 
 public final class AndroidInstrumentationApkRuleComposer extends AndroidBuckRuleComposer {
@@ -13,10 +15,9 @@ public final class AndroidInstrumentationApkRuleComposer extends AndroidBuckRule
     // no instance
   }
 
-  public static Rule compose(
-      List<String> deps, AndroidAppInstrumentationTarget target, AndroidAppTarget mainApkTarget) {
+  public static Rule compose(List<String> deps, AndroidAppTarget mainApkTarget, @Nullable String manifestRule) {
     return new InstrumentationApkRule()
-        .manifest(fileRule(target.getManifest()))
+        .manifest(manifestRule)
         .mainApkRuleName(bin(mainApkTarget))
         .defaultVisibility()
         .ruleType(RuleType.ANDROID_INSTRUMENTATION_APK.getBuckName())

@@ -1,0 +1,30 @@
+@import java.util.Collection
+@args (
+String mainManifest,
+String minSdk,
+String targetSdk,
+Integer versionCode,
+String versionName,
+boolean debuggable,
+Collection secondaryManifests
+)
+okbuck_manifest(
+    name = '@name',
+    main_manifest = '@mainManifest',
+    min_sdk = '@minSdk',
+    target_sdk = '@targetSdk',
+@if (valid(versionCode)) {
+    version_code = '@versionCode',
+}
+@if (valid(versionName)) {
+    version_name = '@versionName',
+}
+    debuggable = '@debuggable',
+@if (valid(secondaryManifests)) {
+    secondary_manifests = [
+    @for (secondaryManifest : secondaryManifests) {
+        '@secondaryManifest',
+    }
+    ],
+}
+)
