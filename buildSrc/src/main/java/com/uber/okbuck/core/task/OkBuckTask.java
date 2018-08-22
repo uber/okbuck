@@ -27,7 +27,7 @@ import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
 
-@SuppressWarnings({"WeakerAccess", "CanBeFinal", "unused", "ResultOfMethodCallIgnored", "NewApi"})
+@SuppressWarnings({"WeakerAccess", "unused", "ResultOfMethodCallIgnored", "NewApi"})
 public class OkBuckTask extends DefaultTask {
 
   public static final String CLASSPATH_ABI_MACRO = "classpath_abi";

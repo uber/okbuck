@@ -1,5 +1,6 @@
 package com.uber.okbuck.wrapper;
 
+import com.google.errorprone.annotations.Var;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.template.config.BuckWrapper;
@@ -85,10 +86,10 @@ public class BuckWrapperTask extends DefaultTask {
     List<String> names = new ArrayList<>();
 
     for (String wildcardPattern : wildcardPatterns) {
-      String simplifiedPattern = wildcardPattern;
-      if (wildcardPattern.startsWith("**/")) {
-        simplifiedPattern = wildcardPattern.replaceAll("\\*\\*/", "");
-      }
+      String simplifiedPattern =
+          wildcardPattern.startsWith("**/")
+              ? wildcardPattern.replaceAll("\\*\\*/", "")
+              : wildcardPattern;
       String basename = FilenameUtils.getBaseName(simplifiedPattern);
       String extension = FilenameUtils.getExtension(simplifiedPattern);
       if (!simplifiedPattern.contains("/")) {
@@ -115,6 +116,7 @@ public class BuckWrapperTask extends DefaultTask {
             .map(suffix -> "            [\"suffix\", \"" + suffix + "\"]")
             .collect(Collectors.joining(",\n"));
 
+    @Var
     String nameExpr =
         names.stream().map(name -> "\"" + name + "\"").collect(Collectors.joining(", "));
     if (!nameExpr.isEmpty()) {

@@ -1,6 +1,7 @@
 package com.uber.okbuck.core.model.base;
 
 import com.google.common.collect.ImmutableList;
+import com.google.errorprone.annotations.Var;
 import java.util.List;
 
 public enum RuleType {
@@ -39,7 +40,7 @@ public enum RuleType {
   }
 
   public String getBuckName() {
-    RuleType buckType = this;
+    @Var RuleType buckType = this;
     switch (this) {
       case KOTLIN_ANDROID_LIBRARY:
         buckType = ANDROID_LIBRARY;

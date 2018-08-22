@@ -8,7 +8,6 @@ import com.uber.okbuck.core.model.jvm.JvmTarget;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.extension.LintExtension;
 import com.uber.okbuck.template.android.LintRule;
-import com.uber.okbuck.template.android.ManifestRule;
 import com.uber.okbuck.template.core.Rule;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,13 +22,15 @@ public final class LintRuleComposer extends AndroidBuckRuleComposer {
   }
 
   public static Rule compose(AndroidTarget target, String manifestRule) {
-    String lintConfigXml = "";
+    String lintConfigXml;
     if (target.getLintOptions() != null
         && target.getLintOptions().getLintConfig() != null
         && target.getLintOptions().getLintConfig().exists()) {
       lintConfigXml =
           ProjectUtil.getLintConfigRule(
               target.getProject(), target.getLintOptions().getLintConfig());
+    } else {
+      lintConfigXml = "";
     }
 
     Set<Target> customLintTargets =
@@ -40,7 +41,7 @@ public final class LintRuleComposer extends AndroidBuckRuleComposer {
             .filter(t -> (t instanceof JvmTarget) && ((JvmTarget) t).hasLintRegistry())
             .collect(Collectors.toSet());
 
-    final List<String> customLintRules =
+    List<String> customLintRules =
         new ArrayList<>(BuckRuleComposer.external(target.getMain().getPackagedLintJars()));
 
     customLintTargets

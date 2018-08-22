@@ -13,8 +13,10 @@ import com.android.builder.model.ClassField;
 import com.android.builder.model.LintOptions;
 import com.android.builder.model.SourceProvider;
 import com.facebook.infer.annotation.Initializer;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.errorprone.annotations.Var;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.core.annotation.AnnotationProcessorCache;
 import com.uber.okbuck.core.manager.KotlinManager;
@@ -25,10 +27,7 @@ import com.uber.okbuck.core.model.jvm.TestOptions;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.core.util.XmlUtil;
-
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -42,7 +41,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
@@ -54,9 +52,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-/**
- * An Android target
- */
+/** An Android target */
 public abstract class AndroidTarget extends JvmTarget {
 
   private static final String KOTLIN_EXTENSIONS_OPTION = "plugin:org.jetbrains.kotlin.android:";
@@ -79,28 +75,19 @@ public abstract class AndroidTarget extends JvmTarget {
   private final boolean testExclude;
   private final boolean isTest;
 
-  @Nullable
-  private String mainManifest;
-  @Nullable
-  private List<String> secondaryManifests;
-  @Nullable
-  private String packageName;
+  @Nullable private String mainManifest;
+  @Nullable private List<String> secondaryManifests;
+  @Nullable private String packageName;
 
   public AndroidTarget(Project project, String name, boolean isTest) {
     super(project, name);
 
     this.isTest = isTest;
 
-    String suffix = "";
-    if (getBaseVariant().getMergedFlavor().getApplicationIdSuffix() != null) {
-      suffix += getBaseVariant().getMergedFlavor().getApplicationIdSuffix();
-    }
+    applicationIdSuffix =
+        Strings.nullToEmpty(getBaseVariant().getMergedFlavor().getApplicationIdSuffix())
+            + Strings.nullToEmpty(getBaseVariant().getBuildType().getApplicationIdSuffix());
 
-    if (getBaseVariant().getBuildType().getApplicationIdSuffix() != null) {
-      suffix += getBaseVariant().getBuildType().getApplicationIdSuffix();
-    }
-
-    applicationIdSuffix = suffix;
     if (isTest) {
       String applicationIdString =
           minus(minus(getBaseVariant().getApplicationId(), ".test"), applicationIdSuffix);
@@ -132,7 +119,7 @@ public abstract class AndroidTarget extends JvmTarget {
     lintExclude = getProp(getOkbuck().lintExclude, ImmutableList.of()).contains(name);
     testExclude = getProp(getOkbuck().testExclude, ImmutableList.of()).contains(name);
 
-    boolean hasKotlinExtension;
+    @Var boolean hasKotlinExtension;
     try {
       AndroidExtensionsExtension androidExtensions =
           project.getExtensions().getByType(AndroidExtensionsExtension.class);
@@ -341,9 +328,7 @@ public abstract class AndroidTarget extends JvmTarget {
         .collect(Collectors.toSet());
   }
 
-  /**
-   * Returns a map of each resource directory to its corresponding variant
-   */
+  /** Returns a map of each resource directory to its corresponding variant */
   Map<String, String> getResVariantDirs() {
     Map<String, String> variantDirs = new HashMap<>();
     for (SourceProvider provider : getBaseVariant().getSourceSets()) {
@@ -453,7 +438,7 @@ public abstract class AndroidTarget extends JvmTarget {
     StringBuilder options = new StringBuilder();
 
     // :root:module -> root/module/
-    final String module =
+    String module =
         getProject().getPath().replace(":", File.separator).substring(1) + File.separator;
 
     getResVariantDirs()
@@ -566,7 +551,7 @@ public abstract class AndroidTarget extends JvmTarget {
 
   @Nullable
   private Configuration getConfigurationFromVariant(@Nullable BaseVariant variant) {
-    Configuration configuration = null;
+    @Var Configuration configuration = null;
     if (isKapt) {
       configuration =
           getProject()

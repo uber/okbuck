@@ -19,15 +19,15 @@ public class JvmBuckRuleComposer extends BuckRuleComposer {
           Scope.Builder.COMPILER.KOTLIN, "extra_kotlinc_arguments",
           Scope.Builder.COMPILER.SCALA, "extra_arguments");
 
-  public static String src(final JvmTarget target) {
+  public static String src(JvmTarget target) {
     return "src_" + target.getName();
   }
 
-  public static String bin(final JvmTarget target) {
+  public static String bin(JvmTarget target) {
     return "bin_" + target.getName();
   }
 
-  public static String test(final JvmTarget target) {
+  public static String test(JvmTarget target) {
     return "test_" + target.getName();
   }
 
@@ -39,7 +39,7 @@ public class JvmBuckRuleComposer extends BuckRuleComposer {
    * @param compile CompileClasspath scope
    * @return Target deps
    */
-  public static Set<Target> getTargetDeps(final Scope runtime, final Scope compile) {
+  public static Set<Target> getTargetDeps(Scope runtime, Scope compile) {
     return Sets.intersection(runtime.getTargetDeps(), compile.getTargetDeps());
   }
 
@@ -51,7 +51,7 @@ public class JvmBuckRuleComposer extends BuckRuleComposer {
    * @param compile CompileClasspath scope
    * @return CompileOnly Target deps
    */
-  public static Set<Target> getTargetProvidedDeps(final Scope runtime, final Scope compile) {
+  public static Set<Target> getTargetProvidedDeps(Scope runtime, Scope compile) {
     return Sets.difference(compile.getTargetDeps(), runtime.getTargetDeps());
   }
 
@@ -63,7 +63,7 @@ public class JvmBuckRuleComposer extends BuckRuleComposer {
    * @param compile CompileClasspath scope
    * @return External deps
    */
-  public static Set<String> getExternalDeps(final Scope runtime, final Scope compile) {
+  public static Set<String> getExternalDeps(Scope runtime, Scope compile) {
     return Sets.intersection(runtime.getExternalDeps(), compile.getExternalDeps());
   }
 
@@ -75,7 +75,7 @@ public class JvmBuckRuleComposer extends BuckRuleComposer {
    * @param compile CompileClasspath scope
    * @return CompileOnly Target deps
    */
-  public static Set<String> getExternalProvidedDeps(final Scope runtime, final Scope compile) {
+  public static Set<String> getExternalProvidedDeps(Scope runtime, Scope compile) {
     return Sets.difference(compile.getExternalDeps(), runtime.getExternalDeps());
   }
 

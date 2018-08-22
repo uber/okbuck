@@ -49,16 +49,9 @@ public class AndroidAppTarget extends AndroidLibTarget {
 
     BaseVariant baseVariant = getBaseVariant();
     NdkCompile ndkCompile = baseVariant.getNdkCompile();
-    Set<String> filters = null;
-    if (ndkCompile != null) {
-      filters = ndkCompile.getAbiFilters();
-    }
 
-    if (filters == null) {
-      cpuFilters = ImmutableSet.of();
-    } else {
-      cpuFilters = filters;
-    }
+    Set<String> filters = ndkCompile != null ? ndkCompile.getAbiFilters() : ImmutableSet.of();
+    cpuFilters = filters != null ? filters : ImmutableSet.of();
 
     Boolean multidex = getBaseVariant().getMergedFlavor().getMultiDexEnabled();
     if (multidex == null) {
@@ -124,7 +117,8 @@ public class AndroidAppTarget extends AndroidLibTarget {
   @Nullable
   public ExoPackageScope getExopackage() {
     if (getProp(getOkbuck().exopackage, false)) {
-      return new ExoPackageScope(getProject(), getMain(), exoPackageDependencies, getMainManifest());
+      return new ExoPackageScope(
+          getProject(), getMain(), exoPackageDependencies, getMainManifest());
     } else {
       return null;
     }
@@ -187,11 +181,9 @@ public class AndroidAppTarget extends AndroidLibTarget {
 
   @Nullable
   private Keystore extractKeystore() {
-    SigningConfig config = getBaseVariant().getMergedFlavor().getSigningConfig();
-
-    if (config == null) {
-      config = getBaseVariant().getBuildType().getSigningConfig();
-    }
+    SigningConfig mergedConfig = getBaseVariant().getMergedFlavor().getSigningConfig();
+    SigningConfig config =
+        mergedConfig != null ? mergedConfig : getBaseVariant().getBuildType().getSigningConfig();
 
     if (config != null) {
       return new Keystore(

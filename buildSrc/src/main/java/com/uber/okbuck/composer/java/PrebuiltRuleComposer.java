@@ -35,10 +35,7 @@ public class PrebuiltRuleComposer extends JvmBuckRuleComposer {
                     .result())
         .map(
             dependency -> {
-              String source = null;
-              if (dependency.hasSourceFile()) {
-                source = dependency.getSourceFileName();
-              }
+              String source = dependency.hasSourceFile() ? dependency.getSourceFileName() : null;
 
               String ruleType;
               String prebuiltType;

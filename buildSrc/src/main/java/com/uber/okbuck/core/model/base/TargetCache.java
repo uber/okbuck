@@ -3,6 +3,7 @@ package com.uber.okbuck.core.model.base;
 import com.android.build.gradle.AppExtension;
 import com.android.build.gradle.LibraryExtension;
 import com.android.build.gradle.api.BaseVariant;
+import com.google.errorprone.annotations.Var;
 import com.uber.okbuck.core.model.android.AndroidAppTarget;
 import com.uber.okbuck.core.model.android.AndroidLibTarget;
 import com.uber.okbuck.core.model.jvm.JvmTarget;
@@ -19,7 +20,7 @@ public class TargetCache {
   private final Map<Project, Map<String, Target>> artifactNameToTarget = new HashMap<>();
 
   public Map<String, Target> getTargets(Project project) {
-    Map<String, Target> projectTargets = store.get(project);
+    @Var Map<String, Target> projectTargets = store.get(project);
     if (projectTargets == null) {
       ProjectType type = ProjectUtil.getType(project);
       switch (type) {
@@ -65,7 +66,7 @@ public class TargetCache {
 
   @Nullable
   public Target getTargetForVariant(Project targetProject, @Nullable String variant) {
-    Target result = null;
+    @Var Target result = null;
     ProjectType type = ProjectUtil.getType(targetProject);
     switch (type) {
       case ANDROID_LIB:

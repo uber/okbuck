@@ -26,7 +26,7 @@ public final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
       AndroidLibTarget target,
       @Nullable String manifestRule,
       List<String> deps,
-      final List<String> aidlRuleNames,
+      List<String> aidlRuleNames,
       @Nullable String appClass) {
 
     List<String> testDeps = new ArrayList<>(deps);
@@ -63,7 +63,7 @@ public final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
             .runtimeDependency(RobolectricManager.ROBOLECTRIC_CACHE);
 
     if (target.getTestRuleType().equals(RuleType.KOTLIN_ROBOLECTRIC_TEST)) {
-      androidTest = androidTest.language("kotlin");
+      androidTest.language("kotlin");
     }
 
     return androidTest

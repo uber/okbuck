@@ -3,6 +3,7 @@ package com.uber.okbuck.core.annotation;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.errorprone.annotations.Var;
 import com.uber.okbuck.composer.java.JavaAnnotationProcessorRuleComposer;
 import com.uber.okbuck.core.dependency.DependencyUtils;
 import com.uber.okbuck.core.model.base.Scope;
@@ -20,6 +21,7 @@ import org.gradle.api.artifacts.Dependency;
 
 /** Keeps a cache of the annotation processor dependencies and its scope. */
 public class AnnotationProcessorCache {
+
   public static final String AUTO_VALUE_GROUP = "com.google.auto.value";
   public static final String AUTO_VALUE_NAME = "auto-value";
 
@@ -66,6 +68,7 @@ public class AnnotationProcessorCache {
     for (Set<Dependency> dependencySet : depToScope.keySet()) {
       // Initialize with whether the dependency set contains any
       // auto value or auto-value.* dependency.
+      @Var
       boolean autoValueDependency =
           dependencySet
               .stream()
@@ -171,8 +174,8 @@ public class AnnotationProcessorCache {
     return currentBuilder.build();
   }
 
-  private Configuration getConfiguration(Project project, String configurationString) {
-    Configuration configuration = DependencyUtils.useful(project, configurationString);
+  private static Configuration getConfiguration(Project project, String configurationString) {
+    Configuration configuration = DependencyUtils.useful(configurationString, project);
 
     if (configuration == null) {
       throw new IllegalStateException(

@@ -28,7 +28,7 @@ public final class DependencyUtils {
   private DependencyUtils() {}
 
   @Nullable
-  public static Configuration useful(Project project, String configuration) {
+  public static Configuration useful(String configuration, Project project) {
     try {
       Configuration config = project.getConfigurations().getByName(configuration);
       return useful(config);
@@ -46,7 +46,7 @@ public final class DependencyUtils {
   }
 
   @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-  public static boolean isWhiteListed(final File dependencyFile) {
+  public static boolean isWhiteListed(File dependencyFile) {
     return WHITELIST_LOCAL_PATTERNS
         .stream()
         .anyMatch(pattern -> dependencyFile.getPath().contains(pattern));
@@ -75,7 +75,7 @@ public final class DependencyUtils {
       if (versionIndex > -1) {
         String classifierSuffix = baseFileName.substring(versionIndex + version.length());
         if (classifierSuffix.startsWith("-")) {
-          classifierSuffix = classifierSuffix.substring(1);
+          return Strings.emptyToNull(classifierSuffix.substring(1));
         }
         return Strings.emptyToNull(classifierSuffix);
       } else {

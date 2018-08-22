@@ -2,6 +2,7 @@ package com.uber.okbuck.core.manager;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.errorprone.annotations.Var;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.base.BuckRuleComposer;
 import com.uber.okbuck.core.dependency.DependencyCache;
@@ -142,7 +143,7 @@ public final class TransformManager {
     String configFile = options.get(OPT_CONFIG_FILE);
     StringBuilder bashCmd = new StringBuilder(PREFIX);
 
-    String configFileRule = null;
+    @Var String configFileRule = null;
     if (transformClass != null) {
       bashCmd.append("-Dokbuck.transformClass=");
       bashCmd.append(transformClass);

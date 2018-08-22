@@ -17,7 +17,7 @@ public final class JvmTestRuleComposer extends JvmBuckRuleComposer {
     // no instance
   }
 
-  public static Rule compose(final JvmTarget target, RuleType ruleType) {
+  public static Rule compose(JvmTarget target, RuleType ruleType) {
     List<String> deps =
         ImmutableList.<String>builder()
             .add(":" + src(target))

@@ -41,6 +41,7 @@ import org.gradle.api.attributes.Attribute;
 import org.gradle.api.specs.Spec;
 
 public class Scope {
+
   private static final String EMPTY_GROUP = "----empty----";
 
   private final Set<String> javaResources;
@@ -268,7 +269,7 @@ public class Scope {
   }
 
   private static Set<ResolvedArtifactResult> getArtifacts(
-      Configuration configuration, final String value, final Spec<ComponentIdentifier> filter) {
+      Configuration configuration, String value, Spec<ComponentIdentifier> filter) {
 
     return configuration
         .getIncoming()
@@ -283,9 +284,9 @@ public class Scope {
         .getArtifacts();
   }
 
-  private static Set<ResolvedArtifactResult> getArtifacts(
-      final Configuration configuration,
-      final Spec<ComponentIdentifier> filter,
+  private static ImmutableSet<ResolvedArtifactResult> getArtifacts(
+      Configuration configuration,
+      Spec<ComponentIdentifier> filter,
       ImmutableList<String> artifactTypes) {
 
     ImmutableSet.Builder<ResolvedArtifactResult> artifactResultsBuilder = ImmutableSet.builder();
@@ -306,10 +307,10 @@ public class Scope {
   private void extractConfiguration(Configuration configuration) {
     Set<ComponentIdentifier> artifactIds = new HashSet<>();
 
-    Set<ResolvedArtifactResult> artifacts =
+    Set<ResolvedArtifactResult> jarArtifacts =
         getArtifacts(configuration, PROJECT_FILTER, ImmutableList.of("jar"));
 
-    artifacts.forEach(
+    jarArtifacts.forEach(
         artifact -> {
           if (!DependencyUtils.isConsumable(artifact.getFile())) {
             return;
@@ -326,9 +327,10 @@ public class Scope {
                   project.project(identifier.getProjectPath()), variant));
         });
 
-    artifacts = getArtifacts(configuration, EXTERNAL_DEP_FILTER, ImmutableList.of("aar", "jar"));
+    Set<ResolvedArtifactResult> aarOrJarartifacts =
+        getArtifacts(configuration, EXTERNAL_DEP_FILTER, ImmutableList.of("aar", "jar"));
 
-    artifacts.forEach(
+    aarOrJarartifacts.forEach(
         artifact -> {
           if (!DependencyUtils.isConsumable(artifact.getFile())) {
             return;
@@ -420,7 +422,7 @@ public class Scope {
     private Set<File> sourceDirs = ImmutableSet.of();
     @Nullable private Configuration configuration = null;
     private DependencyCache depCache;
-    private Map<COMPILER, List<String>> compilerOptions = new LinkedHashMap<>();
+    private final Map<COMPILER, List<String>> compilerOptions = new LinkedHashMap<>();
 
     private Builder(Project project) {
       this.project = project;
@@ -443,7 +445,7 @@ public class Scope {
     }
 
     public Builder configuration(String configuration) {
-      this.configuration = DependencyUtils.useful(project, configuration);
+      this.configuration = DependencyUtils.useful(configuration, project);
       return this;
     }
 

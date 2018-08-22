@@ -35,6 +35,9 @@ public class DependencyManager {
   private final String cacheDirName;
   private final ExternalDependenciesExtension extension;
 
+  private final SetMultimap<VersionlessDependency, ExternalDependency> dependencyMap =
+      Multimaps.synchronizedSetMultimap(MultimapBuilder.hashKeys().hashSetValues().build());
+
   public DependencyManager(
       Project rootProject, String cacheDirName, ExternalDependenciesExtension extension) {
 
@@ -42,9 +45,6 @@ public class DependencyManager {
     this.cacheDirName = cacheDirName;
     this.extension = extension;
   }
-
-  private static SetMultimap<VersionlessDependency, ExternalDependency> dependencyMap =
-      Multimaps.synchronizedSetMultimap(MultimapBuilder.hashKeys().hashSetValues().build());
 
   public void addDependency(ExternalDependency dependency) {
     dependencyMap.put(dependency.getVersionless(), dependency);
@@ -54,7 +54,7 @@ public class DependencyManager {
     return this.cacheDirName;
   }
 
-  public File getCacheDir() {
+  private File getCacheDir() {
     return project.getRootProject().file(cacheDirName);
   }
 
@@ -195,7 +195,7 @@ public class DependencyManager {
         });
   }
 
-  private void composeBuckFile(Path path, Collection<ExternalDependency> dependencies) {
+  private static void composeBuckFile(Path path, Collection<ExternalDependency> dependencies) {
     List<Rule> rules = PrebuiltRuleComposer.compose(dependencies);
     File buckFile = path.resolve(OkBuckGradlePlugin.BUCK).toFile();
     FileUtil.writeToBuckFile(rules, buckFile);
