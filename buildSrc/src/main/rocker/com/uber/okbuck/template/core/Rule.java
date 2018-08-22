@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 @SuppressWarnings("unchecked")
@@ -100,5 +101,22 @@ public abstract class Rule<T extends Rule> extends DefaultRockerModel {
       builder.add(o.toString());
     }
     return builder.build();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Rule<?> rule = (Rule<?>) o;
+    return Objects.equals(name, rule.name);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(name);
   }
 }
