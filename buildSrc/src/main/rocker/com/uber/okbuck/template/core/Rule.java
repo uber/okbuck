@@ -11,12 +11,11 @@ import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 @SuppressWarnings("unchecked")
 public abstract class Rule<T extends Rule> extends DefaultRockerModel {
 
-  private static Set<String> DEFAULT_VISIBILITY = ImmutableSet.of("PUBLIC");
+  private static final ImmutableSet<String> DEFAULT_VISIBILITY = ImmutableSet.of("PUBLIC");
 
   protected String ruleType = "";
   protected String name = "";
@@ -29,17 +28,17 @@ public abstract class Rule<T extends Rule> extends DefaultRockerModel {
     return name;
   }
 
+  public T name(String name) {
+    this.name = name;
+    return (T) this;
+  }
+
   public String buckName() {
     return ":" + name;
   }
 
   public T ruleType(String ruleType) {
     this.ruleType = ruleType;
-    return (T) this;
-  }
-
-  public T name(String name) {
-    this.name = name;
     return (T) this;
   }
 
@@ -101,7 +100,7 @@ public abstract class Rule<T extends Rule> extends DefaultRockerModel {
     }
   }
 
-  protected static Collection<String> sorted(Collection c) {
+  protected static ImmutableSortedSet<String> sorted(Collection c) {
     ImmutableSortedSet.Builder<String> builder =
         new ImmutableSortedSet.Builder<>(String::compareTo);
     for (Object o : c) {

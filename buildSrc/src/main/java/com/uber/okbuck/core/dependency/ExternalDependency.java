@@ -211,10 +211,6 @@ public final class ExternalDependency {
       File depFile,
       boolean isLocal,
       ExternalDependenciesExtension extension) {
-    if (Strings.isNullOrEmpty(version)) {
-      version = LOCAL_DEP_VERSION;
-    }
-
     VersionlessDependency versionlessDependency =
         VersionlessDependency.builder()
             .setGroup(group)
@@ -225,7 +221,7 @@ public final class ExternalDependency {
     this.base =
         BaseExternalDependency.builder()
             .setVersionless(versionlessDependency)
-            .setVersion(version)
+            .setVersion(Strings.isNullOrEmpty(version) ? LOCAL_DEP_VERSION : version)
             .setIsLocal(isLocal)
             .setIsVersioned(extension.isVersioned(versionlessDependency))
             .setRealDependencyFile(depFile)

@@ -66,7 +66,27 @@ rocker {
 }
 
 tasks.withType(JavaCompile) {
-    options.compilerArgs += ["-Werror", "-Xep:NullAway:ERROR", "-XepOpt:NullAway:AnnotatedPackages=com.uber", "-XepOpt:NullAway:TreatGeneratedAsUnannotated=true"]
+    options.compilerArgs += [
+            "-Werror",
+            "-XepAllDisabledChecksAsWarnings",
+            "-XepDisableWarningsInGeneratedCode",
+            "-Xep:NullAway:ERROR",
+            "-XepOpt:NullAway:AnnotatedPackages=com.uber",
+            "-XepOpt:NullAway:TreatGeneratedAsUnannotated=true",
+            "-Xep:BooleanParameter:OFF",
+            "-Xep:ReturnMissingNullable:OFF",
+            "-Xep:ConstructorInvokesOverridable:OFF",
+            "-Xep:FieldCanBeFinal:OFF",
+            "-Xep:ConstantField:WARN",
+            "-Xep:MixedArrayDimensions:WARN",
+            "-Xep:MultipleTopLevelClasses:WARN",
+            "-Xep:MultiVariableDeclaration:WARN",
+            "-Xep:PackageLocation:WARN",
+            "-Xep:RemoveUnusedImports:OFF",
+            "-Xep:ThrowsUncheckedException:WARN",
+            "-Xep:UnnecessaryStaticImport:WARN",
+            "-Xep:WildcardImport:WARN",
+    ]
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {

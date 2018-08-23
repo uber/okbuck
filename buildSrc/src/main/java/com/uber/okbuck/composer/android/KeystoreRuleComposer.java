@@ -20,7 +20,7 @@ public final class KeystoreRuleComposer extends BuckRuleComposer {
   }
 
   @Nullable
-  public static String compose(final AndroidAppTarget target) {
+  public static String compose(AndroidAppTarget target) {
     AndroidAppTarget.Keystore keystore = target.getKeystore();
     if (keystore != null) {
       Path keyStoreGen = keystore.getPath().toPath().resolve(STORE_FILE);

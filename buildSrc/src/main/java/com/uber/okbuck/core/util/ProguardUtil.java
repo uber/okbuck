@@ -32,7 +32,6 @@ public final class ProguardUtil {
     DependencyCache proguardCache =
         new DependencyCache(project, ProjectUtil.getDependencyManager(project));
     proguardCache.build(proguardConfiguration);
-    String proguardJarPath = null;
     try {
       Optional<ResolvedArtifactResult> artifactResult =
           proguardConfiguration
@@ -61,16 +60,14 @@ public final class ProguardUtil {
                 proguardVersion,
                 artifactResult.get().getFile(),
                 ProjectUtil.getOkBuckExtension(project).getExternalDependenciesExtension());
-        proguardJarPath = proguardCache.getPath(proguardCache.get(dependency, true));
 
-        proguardJarPath =
-            Paths.get(proguardJarPath)
-                .getParent()
-                .resolve(dependency.getDependencyFileName())
-                .toString();
+        return Paths.get(proguardCache.getPath(proguardCache.get(dependency, true)))
+            .getParent()
+            .resolve(dependency.getDependencyFileName())
+            .toString();
       }
     } catch (IllegalStateException ignored) {
     }
-    return proguardJarPath;
+    return null;
   }
 }

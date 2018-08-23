@@ -162,7 +162,7 @@ public final class ProjectUtil {
    */
   // Copied from AGP 3.1.0 ArtifactDependencyGraph
   public static void downloadSources(Project project, Set<ComponentIdentifier> artifacts) {
-    final DependencyHandler dependencies = project.getDependencies();
+    DependencyHandler dependencies = project.getDependencies();
 
     try {
       ArtifactResolutionQuery query = dependencies.createArtifactResolutionQuery();

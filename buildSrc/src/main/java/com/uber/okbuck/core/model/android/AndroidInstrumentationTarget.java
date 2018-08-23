@@ -62,7 +62,7 @@ public abstract class AndroidInstrumentationTarget extends AndroidAppTarget {
     return name.replaceFirst("_test$", "");
   }
 
-  static String getInstrumentationTargetName(final String name) {
+  static String getInstrumentationTargetName(String name) {
     return name + "_test";
   }
 }

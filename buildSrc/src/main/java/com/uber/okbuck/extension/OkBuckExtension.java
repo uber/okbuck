@@ -45,9 +45,7 @@ public class OkBuckExtension {
   @Input public Map<String, List<String>> testExclude = new HashMap<>();
 
   /** Set of projects to generate buck configs for. Default is all subprojects of root project. */
-  @SuppressWarnings("CanBeFinal")
-  @Input
-  public Set<Project> buckProjects;
+  @Input public Set<Project> buckProjects;
 
   /** Extra buck options */
   @Input public Map<String, Map<String, Collection<String>>> extraBuckOpts = new HashMap<>();

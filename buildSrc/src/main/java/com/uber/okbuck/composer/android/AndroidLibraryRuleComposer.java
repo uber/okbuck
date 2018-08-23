@@ -24,7 +24,7 @@ public final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
       AndroidLibTarget target,
       String manifestRule,
       List<String> deps,
-      final List<String> aidlRuleNames,
+      List<String> aidlRuleNames,
       @Nullable String appClass) {
 
     Set<String> libraryDeps = new HashSet<>(deps);
@@ -76,7 +76,7 @@ public final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
             .options(mapOptions(target.getMain().getCompilerOptions()));
 
     if (target.getRuleType().equals(RuleType.KOTLIN_ANDROID_LIBRARY)) {
-      androidRule = androidRule.language("kotlin");
+      androidRule.language("kotlin");
     }
 
     return androidRule

@@ -77,7 +77,7 @@ public class DependencyCache {
     return dependency;
   }
 
-  public ExternalDependency get(ExternalDependency externalDependency) {
+  public final ExternalDependency get(ExternalDependency externalDependency) {
     return get(externalDependency, false);
   }
 
@@ -236,7 +236,7 @@ public class DependencyCache {
         .collect(Collectors.toSet());
   }
 
-  private IllegalStateException artifactResolveException(Exception e) {
+  private static IllegalStateException artifactResolveException(Exception e) {
     return new IllegalStateException(
         "Failed to resolve an artifact. Make sure you have a repositories block defined. "
             + "See https://github.com/uber/okbuck/wiki/Known-caveats#could-not-resolve-all-"

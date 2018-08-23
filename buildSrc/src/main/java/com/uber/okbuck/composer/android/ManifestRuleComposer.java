@@ -7,10 +7,10 @@ import com.uber.okbuck.template.core.Rule;
 public final class ManifestRuleComposer extends AndroidBuckRuleComposer {
 
   private ManifestRuleComposer() {
-    //no instance
+    // no instance
   }
 
-  public static Rule compose(final AndroidTarget target) {
+  public static Rule compose(AndroidTarget target) {
     return new ManifestRule()
         .debuggable(target.getDebuggable())
         .minSdk(target.getMinSdk())
@@ -20,5 +20,4 @@ public final class ManifestRuleComposer extends AndroidBuckRuleComposer {
         .mainManifest(target.getMainManifest())
         .name(manifest(target));
   }
-
 }

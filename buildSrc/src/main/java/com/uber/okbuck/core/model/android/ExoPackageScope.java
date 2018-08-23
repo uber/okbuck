@@ -5,18 +5,17 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.errorprone.annotations.Var;
 import com.uber.okbuck.core.dependency.ExternalDependency;
 import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.model.base.Target;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.XmlUtil;
-
 import java.io.File;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
-
 import org.gradle.api.Project;
 import org.gradle.api.file.FileTree;
 import org.w3c.dom.Document;
@@ -41,7 +40,7 @@ public class ExoPackageScope extends Scope {
     if (manifest == null) {
       return null;
     }
-    String appClass = null;
+    @Var String appClass = null;
 
     File manifestFile = project.file(manifest);
     Document manifestXml = XmlUtil.loadXml(manifestFile);
@@ -51,12 +50,12 @@ public class ExoPackageScope extends Scope {
 
       Element application = (Element) nodeList.item(0);
 
-      appClass = application.getAttribute("android:name");
-      appClass = appClass.replaceAll("\\.", "/").replaceAll("^/", "");
+      appClass =
+          application.getAttribute("android:name").replaceAll("\\.", "/").replaceAll("^/", "");
     } catch (Exception ignored) {
     }
 
-    final String finalAppClass = appClass;
+    String finalAppClass = appClass;
 
     if (appClass != null && !appClass.isEmpty()) {
       Optional<String> optionalAppClass =
@@ -93,7 +92,7 @@ public class ExoPackageScope extends Scope {
         exoPackageDep -> {
           String first; // can denote either group or project name
           String last; // can denote either module or configuration name
-          boolean qualified = false;
+          boolean qualified;
 
           if (exoPackageDep.contains(":")) {
             List<String> parts = Splitter.on(':').splitToList(exoPackageDep);
@@ -102,21 +101,20 @@ public class ExoPackageScope extends Scope {
             qualified = true;
           } else {
             first = last = exoPackageDep;
+            qualified = false;
           }
-
-          final boolean fullyQualified = qualified;
 
           Optional<ExternalDependency> externalDepOptional =
               base.getExternal()
                   .stream()
                   .filter(
                       dependency -> {
-                        boolean match = true;
-                        if (fullyQualified) {
-                          match = dependency.getGroup().equals(first);
+                        if (qualified) {
+                          return dependency.getGroup().equals(first)
+                              && dependency.getName().equals(last);
+                        } else {
+                          return dependency.getName().equals(last);
                         }
-                        match &= dependency.getName().equals(last);
-                        return match;
                       })
                   .findFirst();
 
@@ -128,12 +126,12 @@ public class ExoPackageScope extends Scope {
                     .stream()
                     .filter(
                         variant -> {
-                          boolean match = true;
-                          if (fullyQualified) {
-                            match = variant.getName().equals(last);
+                          if (qualified) {
+                            return variant.getName().equals(last)
+                                && variant.getPath().equals(first);
+                          } else {
+                            return variant.getPath().equals(first);
                           }
-                          match &= variant.getPath().equals(first);
-                          return match;
                         })
                     .findFirst();
 

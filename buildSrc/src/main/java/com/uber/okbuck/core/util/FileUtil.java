@@ -1,5 +1,6 @@
 package com.uber.okbuck.core.util;
 
+import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.template.core.Rule;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
@@ -16,7 +17,6 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.Project;
 import org.slf4j.Logger;
@@ -26,6 +26,8 @@ public final class FileUtil {
   private static final Logger LOG = LoggerFactory.getLogger(FileUtil.class);
 
   private static final byte[] NEWLINE = System.lineSeparator().getBytes(StandardCharsets.UTF_8);
+
+  private FileUtil() {}
 
   public static String getRelativePath(File root, File f) {
     Path fPath = f.toPath().toAbsolutePath();
@@ -45,7 +47,7 @@ public final class FileUtil {
     }
   }
 
-  public static Set<String> available(Project project, Collection<File> files) {
+  public static ImmutableSet<String> available(Project project, Collection<File> files) {
     return files
         .stream()
         .filter(File::exists)
@@ -86,7 +88,7 @@ public final class FileUtil {
       try {
         buckFile.createNewFile();
 
-        final OutputStream os = new FileOutputStream(buckFile);
+        OutputStream os = new FileOutputStream(buckFile);
 
         for (int index = 0; index < rules.size(); index++) {
           // Don't add a new line before the first rule

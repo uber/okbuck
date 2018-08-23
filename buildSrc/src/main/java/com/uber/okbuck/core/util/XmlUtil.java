@@ -25,6 +25,8 @@ public final class XmlUtil {
 
   private static final DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 
+  private XmlUtil() {}
+
   public static Document loadXml(String xmlString) {
     try {
       DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
