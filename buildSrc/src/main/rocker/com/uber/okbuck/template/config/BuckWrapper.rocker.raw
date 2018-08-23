@@ -117,12 +117,18 @@ EOT`
     SOURCE_ROOTS=`watchman --output-encoding=json --no-pretty -j 2>&1 <<-EOT
 ["query", "$SCRIPT_DIR", {
     "since": "n:okbuck_source_roots",
-    "expression": ["allof",
+    "expression": ["anyof",
+        ["allof",
         ["type", "d"],
         ["anyof",
 @sourceRoots
         ],
 @ignoredDirs
+    ],
+    ["allof",
+        ["type", "f"],
+        ["anyof", ["name", "AndroidManifest.xml"]]
+    ]
     ],
     "fields": ["new", "exists", "name"]
 }]
