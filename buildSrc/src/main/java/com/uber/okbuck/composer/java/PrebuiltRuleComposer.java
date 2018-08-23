@@ -15,9 +15,9 @@ import java.util.stream.Collectors;
 
 public class PrebuiltRuleComposer extends JvmBuckRuleComposer {
 
-  private static final String JAVA_PREBUILT_JAR = "prebuilt_jar";
+  public static final String JAVA_PREBUILT_JAR = "prebuilt_jar";
+  public static final String BINARY_JAR = "binary_jar";
   private static final String ANDROID_PREBUILT_AAR = "android_prebuilt_aar";
-  private static final String BINARY_JAR = "binary_jar";
 
   /**
    * @param dependencies External Dependencies whose rule needs to be created

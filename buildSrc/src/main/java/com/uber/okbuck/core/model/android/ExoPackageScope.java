@@ -10,11 +10,13 @@ import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.model.base.Target;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.XmlUtil;
+
 import java.io.File;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
+
 import org.gradle.api.Project;
 import org.gradle.api.file.FileTree;
 import org.w3c.dom.Document;
@@ -24,10 +26,10 @@ import org.w3c.dom.NodeList;
 public class ExoPackageScope extends Scope {
 
   private final Scope base;
-  private final String manifest;
+  @Nullable private final String manifest;
 
   ExoPackageScope(
-      Project project, Scope base, List<String> exoPackageDependencies, String manifest) {
+      Project project, Scope base, List<String> exoPackageDependencies, @Nullable String manifest) {
     super(project, null, ImmutableSet.of(), ImmutableSet.of(), base.getCompilerOptions());
     this.base = base;
     this.manifest = manifest;
@@ -36,9 +38,12 @@ public class ExoPackageScope extends Scope {
 
   @Nullable
   public String getAppClass() {
+    if (manifest == null) {
+      return null;
+    }
     String appClass = null;
 
-    File manifestFile = project.getRootProject().file(manifest);
+    File manifestFile = project.file(manifest);
     Document manifestXml = XmlUtil.loadXml(manifestFile);
     try {
       NodeList nodeList = manifestXml.getElementsByTagName("application");

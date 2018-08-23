@@ -8,6 +8,7 @@ import com.uber.okbuck.core.manager.DependencyManager;
 import com.uber.okbuck.core.manager.GroovyManager;
 import com.uber.okbuck.core.manager.KotlinManager;
 import com.uber.okbuck.core.manager.LintManager;
+import com.uber.okbuck.core.manager.ManifestMergerManager;
 import com.uber.okbuck.core.manager.RobolectricManager;
 import com.uber.okbuck.core.manager.ScalaManager;
 import com.uber.okbuck.core.manager.TransformManager;
@@ -77,6 +78,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
   public GroovyManager groovyManager;
   public TransformManager transformManager;
 
+  ManifestMergerManager manifestMergerManager;
   RobolectricManager robolectricManager;
   BuckManager buckManager;
 
@@ -135,6 +137,9 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
           // Create Buck Manager
           buckManager = new BuckManager(rootBuckProject);
 
+          // Create Manifest Merger Manager
+          manifestMergerManager = new ManifestMergerManager(rootBuckProject);
+
           KotlinExtension kotlin = okbuckExt.getKotlinExtension();
           ScalaExtension scala = okbuckExt.getScalaExtension();
 
@@ -152,6 +157,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
                 robolectricManager.finalizeDependencies();
                 transformManager.finalizeDependencies();
                 buckManager.finalizeDependencies();
+                manifestMergerManager.finalizeDependencies();
               });
 
           WrapperExtension wrapper = okbuckExt.getWrapperExtension();
@@ -222,6 +228,8 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
                             .build(extraConfiguration));
 
                 buckManager.setupBuckBinary();
+
+                manifestMergerManager.fetchManifestMergerDeps();
               });
 
           // Create clean task

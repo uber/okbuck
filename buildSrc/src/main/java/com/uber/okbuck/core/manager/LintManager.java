@@ -1,20 +1,25 @@
 package com.uber.okbuck.core.manager;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.OkBuckGradlePlugin;
-import com.uber.okbuck.composer.java.LintBinaryComposer;
+import com.uber.okbuck.composer.base.BuckRuleComposer;
 import com.uber.okbuck.core.dependency.DependencyCache;
+import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
+import com.uber.okbuck.template.common.ExportFile;
 import com.uber.okbuck.template.core.Rule;
+import com.uber.okbuck.template.jvm.JvmBinaryRule;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.Project;
@@ -22,12 +27,16 @@ import org.gradle.api.Project;
 public final class LintManager {
 
   private static final String LINT_DEPS_CACHE = OkBuckGradlePlugin.DEFAULT_CACHE_PATH + "/lint";
-  public static final String LINT_DEPS_RULE = "//" + LINT_DEPS_CACHE + ":okbuck_lint";
+  private static final String LINT_BINARY_RULE_NAME = "okbuck_lint";
+  public static final String LINT_DEPS_RULE = "//" + LINT_DEPS_CACHE + ":" + LINT_BINARY_RULE_NAME;
 
   private static final String LINT_GROUP = "com.android.tools.lint";
   private static final String LINT_MODULE = "lint";
   private static final String LINT_DEPS_CONFIG = OkBuckGradlePlugin.BUCK_LINT + "_deps";
   private static final String LINT_VERSION_FILE = LINT_DEPS_CACHE + "/.lintVersion";
+  private static final ImmutableSet<String> LINT_BINARY_EXCLUDES =
+      ImmutableSet.of("META-INF/.*\\.SF", "META-INF/.*\\.DSA", "META-INF/.*\\.RSA");
+  private static final String LINT_CLI_CLASS = "com.android.tools.lint.Main";
 
   private final Map<String, String> lintConfig = new ConcurrentHashMap<>();
 
@@ -99,9 +108,31 @@ public final class LintManager {
 
   public void finalizeDependencies() {
     if (dependencies != null) {
-      List<Rule> rules = LintBinaryComposer.compose(dependencies, lintConfig.keySet());
+      new JvmBinaryRule()
+          .mainClassName("")
+          .excludes(LINT_BINARY_EXCLUDES)
+          .defaultVisibility()
+          .name(LINT_BINARY_RULE_NAME)
+          .ruleType(RuleType.JAVA_BINARY.getBuckName());
+
+      ImmutableList.Builder<Rule> rulesBuilder = new ImmutableList.Builder<>();
+      rulesBuilder.addAll(
+          lintConfig
+              .keySet()
+              .stream()
+              .sorted()
+              .map(f -> new ExportFile().name(f))
+              .collect(Collectors.toList()));
+      rulesBuilder.add(
+          new JvmBinaryRule()
+              .excludes(LINT_BINARY_EXCLUDES)
+              .mainClassName(LINT_CLI_CLASS)
+              .deps(BuckRuleComposer.external(dependencies))
+              .ruleType(RuleType.JAVA_BINARY.getBuckName())
+              .name(LINT_BINARY_RULE_NAME)
+              .defaultVisibility());
       File buckFile = project.getRootProject().file(lintBuckFile);
-      FileUtil.writeToBuckFile(rules, buckFile);
+      FileUtil.writeToBuckFile(rulesBuilder.build(), buckFile);
     }
   }
 }

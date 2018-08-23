@@ -76,14 +76,7 @@ def okbuck_lint(
 
     variant = name.replace('lint_', '', 1)
 
-    manifest_copy = "manifest_copy_{}".format(variant)
-    genrule(
-        name = manifest_copy,
-        out = "{}/AndroidManifest.xml".format(get_base_path().replace('/', '_')),
-        bash = "mkdir -p `dirname $OUT`; cp {} $OUT".format(toLocation(manifest))
-    )
-
-    bash = "export ANDROID_LINT_JARS=\"{}\"; PROJECT_ROOT=`echo '{}' | sed 's|buck-out.*||'`; ".format(':'.join(map(toLocation, custom_lints)), toLocation(':' + manifest_copy))
+    bash = "export ANDROID_LINT_JARS=\"{}\"; PROJECT_ROOT=`echo '{}' | sed 's|buck-out.*||'`; ".format(':'.join(map(toLocation, custom_lints)), toLocation(manifest))
 
     if has_srcs:
         bash += "CP_FILE=`sed 's/@@//' <<< $(@@@(classpathMacro) :src_{})`; ".format(variant)
@@ -96,11 +89,46 @@ def okbuck_lint(
     if has_srcs:
         bash += "--classpath $(location :src_{}) --libraries `cat $CP_FILE` ".format(variant)
 
-    bash += "{} `dirname {}` >$LOGFILE".format(' '.join(lint_options), toLocation(':' + manifest_copy))
+    bash += "{} `dirname {}` >$LOGFILE".format(' '.join(lint_options), toLocation(manifest))
 
     genrule(
         name = name,
         srcs = inputs,
         out = "{}_out".format(name),
         bash = bash
+    )
+
+def shellquote(s):
+    return "'" + s.replace("'", "'\\''") + "'"
+
+def okbuck_manifest(
+        name,
+        main_manifest,
+        min_sdk,
+        target_sdk,
+        version_code=None,
+        version_name=None,
+        debuggable=False,
+        secondary_manifests=[],
+    ):
+    cmds =[]
+    cmds.append("java -jar -Xmx256m $(location //.okbuck/cache/manifest-merger:okbuck_manifest_merger)")
+    cmds.append("--main $SRCDIR/{}".format(main_manifest))
+    if len(secondary_manifests) > 0:
+        cmds.append("--overlays {}".format(" ".join(["$SRCDIR/" + m for m in secondary_manifests])))
+    cmds.append("--property MIN_SDK_VERSION={}".format(min_sdk))
+    cmds.append("--property TARGET_SDK_VERSION={}".format(target_sdk))
+    if version_code:
+      cmds.append("--property VERSION_CODE={}".format(version_code))
+    if version_name:
+      cmds.append("--property VERSION_NAME={}".format(version_name))
+    if debuggable:
+          cmds.append("--debuggable true")
+    cmds.append("--out $OUT")
+
+    genrule(
+        name = name,
+        srcs = [main_manifest] + secondary_manifests,
+        out = 'AndroidManifest.xml',
+        cmd = ' '.join(cmds),
     )

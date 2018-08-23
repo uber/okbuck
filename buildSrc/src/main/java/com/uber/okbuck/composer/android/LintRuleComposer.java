@@ -8,6 +8,7 @@ import com.uber.okbuck.core.model.jvm.JvmTarget;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.extension.LintExtension;
 import com.uber.okbuck.template.android.LintRule;
+import com.uber.okbuck.template.android.ManifestRule;
 import com.uber.okbuck.template.core.Rule;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,7 +22,7 @@ public final class LintRuleComposer extends AndroidBuckRuleComposer {
     // no instance
   }
 
-  public static Rule compose(AndroidTarget target) {
+  public static Rule compose(AndroidTarget target, String manifestRule) {
     String lintConfigXml = "";
     if (target.getLintOptions() != null
         && target.getLintOptions().getLintConfig() != null
@@ -49,7 +50,7 @@ public final class LintRuleComposer extends AndroidBuckRuleComposer {
 
     LintExtension lintExtension = target.getOkbuck().getLintExtension();
     return new LintRule()
-        .manifest(fileRule(target.getManifest()))
+        .manifest(manifestRule)
         .sources(target.getMain().getSources())
         .resources(target.getResDirs())
         .customLints(customLintRules)

@@ -14,7 +14,6 @@ public class WrapperExtension {
           "**/*.pro",
           "**/*.map",
           "**/*.gradle",
-          "**/src/**/AndroidManifest.xml",
           "**/gradle-wrapper.properties",
           "**/lint.xml");
 

@@ -14,5 +14,7 @@ Set excludes
     }
     ],
 }
+@if (!valid(deps)) {
     deps = [ ':src_main' ] + lib_deps,
+}
 }

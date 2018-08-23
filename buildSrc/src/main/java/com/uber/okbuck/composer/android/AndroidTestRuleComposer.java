@@ -24,6 +24,7 @@ public final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
 
   public static Rule compose(
       AndroidLibTarget target,
+      @Nullable String manifestRule,
       List<String> deps,
       final List<String> aidlRuleNames,
       @Nullable String appClass) {
@@ -58,7 +59,7 @@ public final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
             .options(mapOptions(target.getMain().getCompilerOptions()))
             .jvmArgs(target.getTestOptions().getJvmArgs())
             .env(target.getTestOptions().getEnv())
-            .robolectricManifest(fileRule(target.getManifest()))
+            .robolectricManifest(manifestRule)
             .runtimeDependency(RobolectricManager.ROBOLECTRIC_CACHE);
 
     if (target.getTestRuleType().equals(RuleType.KOTLIN_ROBOLECTRIC_TEST)) {
