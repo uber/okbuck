@@ -101,12 +101,11 @@ getChanges ( ) {
     "expression": ["allof",
         ["type", "f"],
         ["anyof",
-            ["suffix", "gradle"],
             ["suffix", "map"],
             ["suffix", "sq"],
             ["suffix", "pro"],
-            ["name", ["lint.xml", "gradle-wrapper.properties"]],
-            ["match", "**/src/**/AndroidManifest.xml", "wholename"]
+            ["suffix", "gradle"],
+            ["name", ["gradle-wrapper.properties", "lint.xml"]]
         ],
         ["not",
             ["dirname", ".okbuck"]
