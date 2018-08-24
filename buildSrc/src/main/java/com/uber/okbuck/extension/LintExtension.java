@@ -17,6 +17,9 @@ public class LintExtension {
   /** JVM arguments when invoking lint */
   public String jvmArgs = "-Xmx1024m";
 
+  /** Classpath entries matching regex to exclude during lint */
+  @Nullable public String classpathExclusionRegex = null;
+
   LintExtension(Project project) {
     version = LintManager.getDefaultLintVersion(project);
   }

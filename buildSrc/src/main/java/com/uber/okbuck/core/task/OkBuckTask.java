@@ -139,6 +139,7 @@ public class OkBuckTask extends DefaultTask {
         .lintJvmArgs(okbuckExt.getLintExtension().jvmArgs)
         .enableLint(!okbuckExt.getLintExtension().disabled)
         .externalDependencyCache(okbuckExt.externalDependencyCache)
+        .classpathExclusionRegex(okbuckExt.getLintExtension().classpathExclusionRegex)
         .render(okbuckDefs());
 
     Set<String> defs =
