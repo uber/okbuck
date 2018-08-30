@@ -44,7 +44,7 @@ public final class JvmLibraryRuleComposer extends JvmBuckRuleComposer {
     rulesBuilder.add(
         new JvmRule()
             .srcs(target.getMain().getSources())
-            .exts(ruleType.getSourceExtensions())
+            .exts(ruleType.getProperties())
             .apPlugins(getApPlugins(target.getApPlugins()))
             .aptDeps(aptDeps)
             .providedDeps(providedDeps)

@@ -1,10 +1,13 @@
 package com.uber.okbuck.composer.android;
 
 import com.google.common.collect.ImmutableSet;
+import com.uber.okbuck.composer.base.BuckRuleComposer;
 import com.uber.okbuck.core.model.android.AndroidLibTarget;
 import com.uber.okbuck.core.model.android.AndroidTarget;
 import com.uber.okbuck.core.model.base.RuleType;
+import com.uber.okbuck.core.model.jvm.JvmTarget;
 import com.uber.okbuck.core.util.D8Util;
+import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.template.android.AndroidRule;
 import com.uber.okbuck.template.core.Rule;
 import java.util.ArrayList;
@@ -60,7 +63,7 @@ public final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
     AndroidRule androidRule =
         new AndroidRule()
             .srcs(target.getMain().getSources())
-            .exts(target.getRuleType().getSourceExtensions())
+            .exts(target.getRuleType().getProperties())
             .manifest(manifestRule)
             .proguardConfig(target.getConsumerProguardConfig())
             .apPlugins(getApPlugins(target.getApPlugins()))
@@ -79,8 +82,37 @@ public final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
       androidRule.language("kotlin");
     }
 
+    if (target.getLintEnabled()) {
+      String lintConfigXml;
+      if (target.getLintOptions() != null
+          && target.getLintOptions().getLintConfig() != null
+          && target.getLintOptions().getLintConfig().exists()) {
+        lintConfigXml =
+            ProjectUtil.getLintConfigRule(
+                target.getProject(), target.getLintOptions().getLintConfig());
+      } else {
+        lintConfigXml = "";
+      }
+
+      Set<String> customLintTargets =
+          target
+              .getLint()
+              .getTargetDeps()
+              .stream()
+              .filter(t -> (t instanceof JvmTarget) && ((JvmTarget) t).hasLintRegistry())
+              .map(BuckRuleComposer::binTargets)
+              .collect(Collectors.toSet());
+
+      androidRule
+          .lintConfigXml(lintConfigXml)
+          .customLints(customLintTargets)
+          .lintOptions(target.getLintOptions());
+    } else {
+      androidRule.disableLint();
+    }
+
     return androidRule
-        .ruleType(target.getRuleType().getBuckName())
+        .ruleType("okbuck_" + target.getRuleType().getBuckName())
         .defaultVisibility()
         .deps(libraryDeps)
         .name(src(target))

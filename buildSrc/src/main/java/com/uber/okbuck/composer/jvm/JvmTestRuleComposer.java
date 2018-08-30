@@ -39,7 +39,7 @@ public final class JvmTestRuleComposer extends JvmBuckRuleComposer {
 
     return new JvmRule()
         .srcs(target.getTest().getSources())
-        .exts(ruleType.getSourceExtensions())
+        .exts(ruleType.getProperties())
         .apPlugins(getApPlugins(target.getTestApPlugins()))
         .aptDeps(aptDeps)
         .providedDeps(providedDeps)

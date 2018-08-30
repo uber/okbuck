@@ -12,7 +12,6 @@ import com.uber.okbuck.composer.android.AndroidTestRuleComposer;
 import com.uber.okbuck.composer.android.ExopackageAndroidLibraryRuleComposer;
 import com.uber.okbuck.composer.android.GenAidlRuleComposer;
 import com.uber.okbuck.composer.android.KeystoreRuleComposer;
-import com.uber.okbuck.composer.android.LintRuleComposer;
 import com.uber.okbuck.composer.android.ManifestRuleComposer;
 import com.uber.okbuck.composer.android.PreBuiltNativeLibraryRuleComposer;
 import com.uber.okbuck.composer.jvm.JvmLibraryRuleComposer;
@@ -167,11 +166,6 @@ public final class BuckFileGenerator {
       androidLibRules.add(
           AndroidTestRuleComposer.compose(
               target, manifestRule.buckName(), deps, aidlRuleNames, appClass));
-    }
-
-    // Lint
-    if (target.getLintEnabled() && !target.getIsTest()) {
-      androidLibRules.add(LintRuleComposer.compose(target, manifestRule.buckName()));
     }
 
     return new ArrayList<>(androidLibRules);

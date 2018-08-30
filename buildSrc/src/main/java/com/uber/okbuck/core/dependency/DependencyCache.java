@@ -154,24 +154,6 @@ public class DependencyCache {
     return content;
   }
 
-  /**
-   * Get the packaged lint jar of an aar dependency if any.
-   *
-   * @param externalDependency The dependency
-   * @return path to the lint jar in the cache.
-   */
-  @Nullable
-  public String getLintJar(ExternalDependency externalDependency) {
-    ExternalDependency dependency =
-        forcedDeps.getOrDefault(externalDependency.getVersionless(), externalDependency);
-    if (dependency.getRealLintFilePath() != null) {
-      return Paths.get(dependencyManager.getCacheDirName())
-          .resolve(dependency.getLintFilePath())
-          .toString();
-    }
-    return null;
-  }
-
   public Set<String> build(Configuration configuration) {
     return build(Collections.singleton(configuration));
   }

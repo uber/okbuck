@@ -1,5 +1,11 @@
 @import java.util.Collection
-@args (Collection resourceExcludes, String classpathMacro)
+@args (
+Collection resourceExcludes,
+String classpathMacro,
+String lintJvmArgs,
+String externalDependencyCache,
+boolean enableLint
+)
 import os, re
 
 
@@ -62,38 +68,52 @@ def okbuck_aidl(
 def toLocation(dep):
     return "$(location {})".format(dep)
 
-
 def okbuck_lint(
-        name,
+        variant,
         manifest,
-        has_srcs=True,
-        inputs=[],
-        custom_lints=[],
-        jvm_args="",
-        lint_deps=[],
-        lint_options=[]
+        srcs,
+        resources,
+        aar_deps,
+        custom_lints,
+        lint_options
     ):
+    name = "lint_{}".format(variant)
 
-    variant = name.replace('lint_', '', 1)
+    has_srcs = len(srcs) > 0
 
-    bash = "export ANDROID_LINT_JARS=\"{}\"; PROJECT_ROOT=`echo '{}' | sed 's|buck-out.*||'`; ".format(':'.join(map(toLocation, custom_lints)), toLocation(manifest))
+    bash = 'AAR_DEPS="{}"; '.format(";".join([toLocation(aar_dep + "#aar_unzip") for aar_dep in aar_deps]))
+
+    bash += 'for aar in ${AAR_DEPS//;/ }; do if [[ -e $aar/lint.jar ]]; then PREBUILT_AAR_LINT_JARS="$aar/lint.jar:$PREBUILT_AAR_LINT_JARS"; fi ; done; '
+
+    bash += "export ANDROID_LINT_JARS=\"$PREBUILT_AAR_LINT_JARS{}\"; PROJECT_ROOT=`echo '{}' | sed 's|buck-out.*||'`; ".format(':'.join(map(toLocation, custom_lints)), toLocation(manifest))
 
     if has_srcs:
         bash += "CP_FILE=`sed 's/@@//' <<< $(@@@(classpathMacro) :src_{})`; ".format(variant)
         bash += 'sed -i.bak -e "s|$PROJECT_ROOT||g" -e "s|\'||g" $CP_FILE; '
 
-    bash += 'mkdir -p $OUT; LOGFILE=$OUT/lint.log; trap "rv=\$?; if [ \$rv != 0 ] ; then cat \$LOGFILE 1>&2 ; fi ; rm -f \$LOGFILE; exit \$rv" EXIT;  java -Djava.awt.headless=true -Dcom.android.tools.lint.workdir=$PROJECT_ROOT '
-    bash += "{} ".format(jvm_args)
-    bash += "-classpath {} com.android.tools.lint.Main ".format(':'.join(map(toLocation, lint_deps)))
+    bash += 'mkdir -p $OUT; LOGFILE=$OUT/lint.log; trap "rv=$?; if [ \$rv != 0 ] ; then cat $LOGFILE 1>&2 ; fi ; rm -f $LOGFILE; exit $rv" EXIT;  java -Djava.awt.headless=true -Dcom.android.tools.lint.workdir=$PROJECT_ROOT '
+    bash += "@lintJvmArgs "
+    bash += "-classpath {} com.android.tools.lint.Main ".format(toLocation('//.okbuck/cache/lint:okbuck_lint'))
 
     if has_srcs:
         bash += "--classpath $(location :src_{}) --libraries `cat $CP_FILE` ".format(variant)
 
-    bash += "{} `dirname {}` >$LOGFILE".format(' '.join(lint_options), toLocation(manifest))
+    for src in srcs:
+        bash += '--sources {}/{} '.format(get_base_path(), src)
+
+    for resource in resources:
+        bash += '--resources {}/{} '.format(get_base_path(), resource)
+
+    # Implicit options
+    bash += '--xml "$OUT/lint-results.xml" '
+    bash += '--html "$OUT/lint-results.html" '
+    bash += '--fullpath '
+
+    bash += "{} `dirname {}` >$LOGFILE 2>/dev/null".format(' '.join(lint_options), toLocation(manifest))
 
     genrule(
         name = name,
-        srcs = inputs,
+        srcs = srcs + resources,
         out = "{}_out".format(name),
         bash = bash
     )
@@ -132,3 +152,46 @@ def okbuck_manifest(
         out = 'AndroidManifest.xml',
         cmd = ' '.join(cmds),
     )
+
+def isLintEnabled():
+@if(enableLint) {
+    return True
+} else {
+    return False
+}
+
+def okbuck_android_library(
+    name,
+    manifest,
+    deps=[],
+    lint_src_dirs=[],
+    lint_resource_dirs=[],
+    disable_lint = False,
+    custom_lints=[],
+    lint_options=[],
+    **kwargs
+    ):
+
+    android_library(
+        name = name,
+        manifest = manifest,
+        deps = deps,
+        **kwargs
+    )
+
+    if isLintEnabled():
+        aar_deps = []
+        for dep in deps:
+            if dep.startswith("//@externalDependencyCache/") and dep.endswith(".aar"):
+                aar_deps.append(dep)
+
+        variant = name.replace('src_', '', 1)
+        okbuck_lint(
+            variant = variant,
+            manifest = manifest,
+            srcs = lint_src_dirs,
+            resources = lint_resource_dirs,
+            aar_deps = aar_deps,
+            custom_lints = custom_lints,
+            lint_options = lint_options,
+        )

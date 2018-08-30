@@ -2,7 +2,6 @@ package com.uber.okbuck.core.model.base;
 
 import com.android.build.api.attributes.VariantAttr;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Streams;
@@ -138,14 +137,6 @@ public class Scope {
         .map(depCache::get)
         .filter(dependency -> dependency.getPackaging().equals(ExternalDependency.AAR))
         .map(depCache::getPath)
-        .collect(Collectors.toSet());
-  }
-
-  public Set<String> getPackagedLintJars() {
-    return external
-        .stream()
-        .map(depCache::getLintJar)
-        .filter(lintJar -> !Strings.isNullOrEmpty(lintJar))
         .collect(Collectors.toSet());
   }
 

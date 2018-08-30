@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.base.BuckRuleComposer;
-import com.uber.okbuck.composer.java.PrebuiltRuleComposer;
 import com.uber.okbuck.core.dependency.DependencyCache;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.util.FileUtil;
@@ -83,9 +82,9 @@ public final class ManifestMergerManager {
                   .name(MANIFEST_MERGER_RULE_NAME)
                   .defaultVisibility(),
               new Prebuilt()
-                  .prebuiltType(PrebuiltRuleComposer.BINARY_JAR)
+                  .prebuiltType(RuleType.PREBUILT_JAR.getProperties().get(0))
                   .prebuilt(MANIFEST_MERGER_CLI_JAR)
-                  .ruleType(PrebuiltRuleComposer.JAVA_PREBUILT_JAR)
+                  .ruleType(RuleType.PREBUILT_JAR.getBuckName())
                   .name(MANIFEST_MERGER_CLI_RULE_NAME));
       File buckFile = rootProject.file(MANIFEST_MERGER_BUCK_FILE);
       FileUtil.writeToBuckFile(rules, buckFile);

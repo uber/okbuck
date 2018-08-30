@@ -6,6 +6,10 @@ import java.util.function.Consumer;
 
 public class MyClass {
 
+  public void testCustomLint_fromAar_shouldFail() {
+    int dimen = R2.dimen.app_bar_height;
+  }
+
   public void testCustomLint_usingSystemTime_shouldFail() {
     System.currentTimeMillis();
   }

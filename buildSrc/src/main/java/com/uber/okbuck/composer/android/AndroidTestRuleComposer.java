@@ -47,7 +47,7 @@ public final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
     AndroidTestRule androidTest =
         new AndroidTestRule()
             .srcs(target.getTest().getSources())
-            .exts(target.getTestRuleType().getSourceExtensions())
+            .exts(target.getTestRuleType().getProperties())
             .apPlugins(getApPlugins(target.getTestApPlugins()))
             .aptDeps(testAptDeps)
             .providedDeps(providedDeps)
