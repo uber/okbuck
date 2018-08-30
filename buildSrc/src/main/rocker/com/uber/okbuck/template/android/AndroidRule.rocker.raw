@@ -1,5 +1,6 @@
 @import java.util.Collection
 @import java.util.Map
+@import com.android.builder.model.LintOptions
 @args (
 Collection srcs,
 Collection exts,
@@ -22,7 +23,11 @@ String language,
 String manifest,
 String robolectricManifest,
 String runtimeDependency,
-boolean generateR2
+boolean generateR2,
+boolean disableLint,
+Collection customLints,
+String lintConfigXml,
+LintOptions lintOptions
 )
 @com.uber.okbuck.template.jvm.JvmRule.template(
 srcs,
@@ -73,5 +78,56 @@ env
         '@extraKotlincArg',
     }
     ],
+}
+@if (!disableLint) {
+@if (valid(srcs)) {
+    lint_src_dirs = [
+    @for (src : sorted(srcs)) {
+        '@src',
+    }
+    ],
+}
+@if (valid(resources)) {
+    lint_resource_dirs = [
+    @for (resource : sorted(resources)) {
+        '@resource',
+    }
+    ],
+}
+@if (valid(customLints)) {
+    custom_lints = [
+    @for (customLint : sorted(customLints)) {
+        '@customLint',
+    }
+    ],
+}
+@if (lintOptions != null) {
+    lint_options = [
+@if (lintOptions.isAbortOnError()) {
+        '--exitcode',
+}
+@if (lintOptions.isCheckAllWarnings()) {
+        '-Wall',
+}
+@if (lintOptions.isIgnoreWarnings()) {
+        '--nowarn',
+}
+@if (lintOptions.isWarningsAsErrors()) {
+        '-Werror',
+}
+@if (lintOptions.isNoLines()) {
+        '--nolines',
+}
+@if (valid(lintOptions.getDisable())) {
+        '--disable @(String.join(",", lintOptions.getDisable()))',
+}
+@if (valid(lintOptions.getEnable())) {
+        '--enable @(String.join(",", lintOptions.getEnable()))',
+}
+@if (valid(lintConfigXml)) {
+        '--config $(location @(lintConfigXml))',
+}
+    ],
+}
 }
 }

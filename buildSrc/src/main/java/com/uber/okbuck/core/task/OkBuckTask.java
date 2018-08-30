@@ -136,6 +136,9 @@ public class OkBuckTask extends DefaultTask {
                 .map(s -> "'" + s + "'")
                 .collect(Collectors.toSet()))
         .classpathMacro(CLASSPATH_ABI_MACRO)
+        .lintJvmArgs(okbuckExt.getLintExtension().jvmArgs)
+        .enableLint(!okbuckExt.getLintExtension().disabled)
+        .externalDependencyCache(okbuckExt.externalDependencyCache)
         .render(okbuckDefs());
 
     Set<String> defs =

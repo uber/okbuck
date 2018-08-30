@@ -22,7 +22,6 @@ public final class ExternalDependency {
   public static final String JAR = "jar";
 
   private static final String SOURCE_FILE = "-sources.jar";
-  private static final String LINT_FILE = "-lint.jar";
   private static final String LOCAL_DEP_VERSION = "1.0.0-LOCAL";
   private static final String LOCAL_GROUP = "local";
 
@@ -30,9 +29,6 @@ public final class ExternalDependency {
 
   @Nullable private Path realSourceFilePath;
   private boolean sourceFileInitialized;
-
-  @Nullable private Path realLintFilePath;
-  private boolean lintFileInitialized;
 
   @Override
   public boolean equals(Object o) {
@@ -96,19 +92,14 @@ public final class ExternalDependency {
     return this.base.basePath();
   }
 
-  /** Returns the rule name the cached dependency file. */
+  /** Returns the rule name of the cached dependency file. */
   public String getCacheName() {
-    return this.base.cacheName();
-  }
-
-  /** Returns the rule name the cached lint jar file. */
-  public String getLintCacheName() {
-    return getCacheName() + "-lint";
+    return this.base.cacheName() + "." + getPackaging();
   }
 
   /** Returns the cached file name of the artifact of the dependency. */
   public String getDependencyFileName() {
-    return getCacheName() + "." + getPackaging();
+    return getCacheName();
   }
 
   /** Returns the cached file path of the artifact of the dependency. */
@@ -119,21 +110,6 @@ public final class ExternalDependency {
   /** Returns the cached file name of the sources jar file. */
   public String getSourceFileName() {
     return getSourceFileNameFrom(getDependencyFileName());
-  }
-
-  /** Returns the cached file path of the sources jar file. */
-  public Path getSourceFilePath() {
-    return getBasePath().resolve(getSourceFileName());
-  }
-
-  /** Returns the cached lint file name. */
-  public String getLintFileName() {
-    return getDependencyFileName().replaceFirst("\\.aar$", LINT_FILE);
-  }
-
-  /** Returns the cached file path of the lint jar file. */
-  public Path getLintFilePath() {
-    return this.base.basePath().resolve(getLintCacheName());
   }
 
   /**
@@ -153,26 +129,6 @@ public final class ExternalDependency {
   /** Check whether the dependency has a sources jar file. */
   public boolean hasSourceFile() {
     return realSourceFilePath != null;
-  }
-
-  /** Returns the real path of the lint jar file if present, null otherwise. */
-  @Nullable
-  public Path getRealLintFilePath() {
-    if (!lintFileInitialized) {
-      if (getPackaging().equals(AAR)) {
-        realLintFilePath =
-            DependencyUtils.getContentPath(getRealDependencyFile().toPath(), "lint.jar");
-      } else {
-        realLintFilePath = null;
-      }
-      lintFileInitialized = true;
-    }
-    return realLintFilePath;
-  }
-
-  /** Whether the external dependency has a lint jar file */
-  public boolean hasLintFile() {
-    return realLintFilePath != null;
   }
 
   @Nullable

@@ -9,34 +9,36 @@ public enum RuleType {
   ANDROID_BUILD_CONFIG,
   ANDROID_INSTRUMENTATION_APK,
   ANDROID_INSTRUMENTATION_TEST,
-  ANDROID_LIBRARY,
+  ANDROID_LIBRARY("java"),
+  ANDROID_PREBUILT_AAR("aar"),
   ANDROID_RESOURCE,
   GROOVY_LIBRARY("groovy", "java"),
   GROOVY_TEST("groovy", "java"),
   JAVA_BINARY,
-  JAVA_LIBRARY,
-  JAVA_TEST,
+  JAVA_LIBRARY("java"),
+  JAVA_TEST("java"),
   KOTLIN_ANDROID_LIBRARY("java", "kt"),
   KOTLIN_LIBRARY("java", "kt"),
   KOTLIN_ROBOLECTRIC_TEST("java", "kt"),
   KOTLIN_TEST("java", "kt"),
   SCALA_LIBRARY("java", "scala"),
   SCALA_TEST("java", "scala"),
+  PREBUILT_JAR("binary_jar"),
   PREBUILT_NATIVE_LIBRARY,
-  ROBOLECTRIC_TEST;
+  ROBOLECTRIC_TEST("java");
 
-  private final ImmutableList<String> sourceExtensions;
+  private final ImmutableList<String> properties;
 
   RuleType() {
     this("java");
   }
 
-  RuleType(String... extensions) {
-    this.sourceExtensions = ImmutableList.copyOf(extensions);
+  RuleType(String... properties) {
+    this.properties = ImmutableList.copyOf(properties);
   }
 
-  public List<String> getSourceExtensions() {
-    return sourceExtensions;
+  public List<String> getProperties() {
+    return properties;
   }
 
   public String getBuckName() {

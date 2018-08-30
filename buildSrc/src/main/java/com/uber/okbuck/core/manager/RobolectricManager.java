@@ -57,7 +57,7 @@ public final class RobolectricManager {
 
       dependencies.forEach(
           dependency -> {
-            Path fromPath = rootProject.file(dependency + ".jar").toPath();
+            Path fromPath = rootProject.file(dependency).toPath();
             Path toPath =
                 robolectricCache.resolve(fromPath.getFileName().toString().replace("--", "-"));
 

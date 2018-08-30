@@ -34,8 +34,8 @@ Collection defs
 @if (valid(scalaCompiler) && valid(scalaLibrary)) {
 
 [scala]
-    compiler = //@(scalaCompiler):scala-compiler
-    library = //@(scalaLibrary):scala-library
+    compiler = //@(scalaCompiler):scala-compiler.jar
+    library = //@(scalaLibrary):scala-library.jar
 }
 @if (valid(proguardJar)) {
 

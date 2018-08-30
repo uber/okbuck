@@ -22,7 +22,7 @@ String language,
 String manifest,
 String robolectricManifest,
 String runtimeDependency,
-boolean generateR2
+boolean generateR2,
 )
 @com.uber.okbuck.template.android.AndroidRule.template(
 srcs,
@@ -46,5 +46,9 @@ language,
 manifest,
 robolectricManifest,
 runtimeDependency,
-generateR2
+generateR2,
+true,
+null,
+null,
+null
 )

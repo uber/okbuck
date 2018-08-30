@@ -7,6 +7,7 @@ import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableList;
 import com.uber.okbuck.composer.jvm.JvmBuckRuleComposer;
 import com.uber.okbuck.core.dependency.ExternalDependency;
+import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.template.core.Rule;
 import com.uber.okbuck.template.java.Prebuilt;
 import java.util.Collection;
@@ -14,10 +15,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class PrebuiltRuleComposer extends JvmBuckRuleComposer {
-
-  public static final String JAVA_PREBUILT_JAR = "prebuilt_jar";
-  public static final String BINARY_JAR = "binary_jar";
-  private static final String ANDROID_PREBUILT_AAR = "android_prebuilt_aar";
 
   /**
    * @param dependencies External Dependencies whose rule needs to be created
@@ -37,17 +34,14 @@ public class PrebuiltRuleComposer extends JvmBuckRuleComposer {
             dependency -> {
               String source = dependency.hasSourceFile() ? dependency.getSourceFileName() : null;
 
-              String ruleType;
-              String prebuiltType;
+              RuleType ruleType;
 
               switch (dependency.getPackaging()) {
                 case JAR:
-                  ruleType = JAVA_PREBUILT_JAR;
-                  prebuiltType = BINARY_JAR;
+                  ruleType = RuleType.PREBUILT_JAR;
                   break;
                 case AAR:
-                  ruleType = ANDROID_PREBUILT_AAR;
-                  prebuiltType = AAR;
+                  ruleType = RuleType.ANDROID_PREBUILT_AAR;
                   break;
                 default:
                   throw new IllegalStateException("Dependency not a valid prebuilt: " + dependency);
@@ -56,21 +50,12 @@ public class PrebuiltRuleComposer extends JvmBuckRuleComposer {
               ImmutableList.Builder<Rule> rulesBuilder = ImmutableList.builder();
               rulesBuilder.add(
                   new Prebuilt()
-                      .prebuiltType(prebuiltType)
+                      .prebuiltType(ruleType.getProperties().get(0))
                       .prebuilt(dependency.getDependencyFileName())
                       .mavenCoords(dependency.getMavenCoords())
                       .source(source)
-                      .ruleType(ruleType)
+                      .ruleType(ruleType.getBuckName())
                       .name(dependency.getCacheName()));
-
-              if (dependency.hasLintFile()) {
-                rulesBuilder.add(
-                    new Prebuilt()
-                        .prebuiltType(BINARY_JAR)
-                        .prebuilt(dependency.getLintFileName())
-                        .ruleType(JAVA_PREBUILT_JAR)
-                        .name(dependency.getLintCacheName()));
-              }
 
               return rulesBuilder.build();
             })

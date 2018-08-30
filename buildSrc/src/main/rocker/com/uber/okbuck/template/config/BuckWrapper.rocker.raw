@@ -127,7 +127,8 @@ EOT`
     ],
     ["allof",
         ["type", "f"],
-        ["anyof", ["name", "AndroidManifest.xml"]]
+        ["anyof", ["name", "AndroidManifest.xml"]],
+        ["not", ["dirname", ".okbuck"]]
     ]
     ],
     "fields": ["new", "exists", "name"]

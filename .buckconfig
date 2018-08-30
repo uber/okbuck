@@ -23,6 +23,7 @@
 
 [java]
     jar_spool_mode = direct_to_jar
+    duplicates_log_level = fine
 
 [cache]
     dir_max_size = 512MB

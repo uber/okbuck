@@ -11,7 +11,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.gradle.api.Project;
@@ -65,20 +64,17 @@ public final class GroovyManager {
       FileUtil.deleteQuietly(groovyLibCache);
       groovyLibCache.toFile().mkdirs();
 
-      dependencies.forEach(
-          dependency -> {
-            Path fromPath = rootProject.file(dependency + ".jar").toPath();
-            Path toPath =
-                groovyLibCache.resolve(
-                    Paths.get(dependency).getFileName().toString() + "-" + groovyVersion + ".jar");
+      String groovyAll = dependencies.iterator().next();
+      Path fromPath = rootProject.file(groovyAll).toPath();
+      Path toPath =
+          groovyLibCache.resolve("groovy-" + groovyVersion + ".jar");
 
-            try {
-              toPath.toFile().getParentFile().mkdirs();
-              Files.createLink(toPath, fromPath.toRealPath());
-            } catch (IOException e) {
-              throw new RuntimeException(e);
-            }
-          });
+      try {
+        toPath.toFile().getParentFile().mkdirs();
+        Files.createLink(toPath, fromPath.toRealPath());
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
     }
   }
 }

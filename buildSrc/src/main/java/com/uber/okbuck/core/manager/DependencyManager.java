@@ -14,9 +14,7 @@ import com.uber.okbuck.extension.ExternalDependenciesExtension;
 import com.uber.okbuck.template.core.Rule;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -179,18 +177,6 @@ public class DependencyManager {
           Path sourceJar = dependency.getRealSourceFilePath(project);
           if (sourceJar != null) {
             FileUtil.symlink(path.resolve(dependency.getSourceFileName()), sourceJar);
-          }
-
-          Path lintJar = dependency.getRealLintFilePath();
-          if (lintJar != null) {
-            try {
-              Files.copy(
-                  lintJar,
-                  path.resolve(dependency.getLintFileName()),
-                  StandardCopyOption.REPLACE_EXISTING);
-            } catch (IOException e) {
-              throw new RuntimeException(e);
-            }
           }
         });
   }

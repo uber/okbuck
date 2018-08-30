@@ -10,6 +10,7 @@ import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.template.common.ExportFile;
 import com.uber.okbuck.template.core.Rule;
+import com.uber.okbuck.template.java.Prebuilt;
 import com.uber.okbuck.template.jvm.JvmBinaryRule;
 import java.io.File;
 import java.io.IOException;
@@ -28,7 +29,6 @@ public final class LintManager {
 
   private static final String LINT_DEPS_CACHE = OkBuckGradlePlugin.DEFAULT_CACHE_PATH + "/lint";
   private static final String LINT_BINARY_RULE_NAME = "okbuck_lint";
-  public static final String LINT_DEPS_RULE = "//" + LINT_DEPS_CACHE + ":" + LINT_BINARY_RULE_NAME;
 
   private static final String LINT_GROUP = "com.android.tools.lint";
   private static final String LINT_MODULE = "lint";
@@ -131,6 +131,7 @@ public final class LintManager {
               .ruleType(RuleType.JAVA_BINARY.getBuckName())
               .name(LINT_BINARY_RULE_NAME)
               .defaultVisibility());
+
       File buckFile = project.getRootProject().file(lintBuckFile);
       FileUtil.writeToBuckFile(rulesBuilder.build(), buckFile);
     }

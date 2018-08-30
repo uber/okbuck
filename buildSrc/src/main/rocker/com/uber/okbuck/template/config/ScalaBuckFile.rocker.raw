@@ -1,5 +1,5 @@
 java_binary(
-    name='scala-compiler',
+    name='scala-compiler.jar',
     main_class='scala.tools.nsc.Main',
 @if (valid(deps)) {
     deps = [
