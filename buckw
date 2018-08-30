@@ -180,37 +180,11 @@ watchmanWorkflow ( ) {
     fi
 }
 
-killBuckDaemons ( ) {
-    DAEMONS=$(ps -ef | grep "[c]om.facebook.buck.cli.Main\$DaemonBootstrap" | awk '{print $2}')
-    if [ ! -z "$DAEMONS" ]; then
-        echo "$DAEMONS" | xargs kill -9
-    fi
-}
-
 setupBuckBinary ( ) {
     BUCK_BINARY=$(find "$BUCK_BINARY_DIR" -name buck*.pex)
 
     if [[ ! -x "$BUCK_BINARY" ]]; then
         chmod +x "$BUCK_BINARY"
-    fi
-
-    # No existing daemon or clean project root
-    BUCKD_VERSION_FILE="$SCRIPT_DIR/.buckd/buckd.version"
-    if [[ ! -f "$BUCKD_VERSION_FILE" ]]; then
-        killBuckDaemons
-    else
-        BUCKD_VERSION=$(cat "$BUCKD_VERSION_FILE")
-    fi
-
-    # Unknown daemon state
-    if [[ -z "$BUCKD_VERSION" ]]; then
-        killBuckDaemons
-    fi
-
-    # Daemon version does not match
-    BUCK_BINARY_VERSION=$(basename "$BUCK_BINARY" | cut -f 1 -d "." | cut -f 2 -d "-")
-    if [[ "$BUCK_BINARY_VERSION" != "$BUCKD_VERSION" ]]; then
-        killBuckDaemons
     fi
 }
 
