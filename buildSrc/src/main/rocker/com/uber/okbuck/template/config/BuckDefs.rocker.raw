@@ -4,8 +4,10 @@ Collection resourceExcludes,
 String classpathMacro,
 String lintJvmArgs,
 String externalDependencyCache,
-boolean enableLint
+boolean enableLint,
+String classpathExclusionRegex
 )
+
 import os, re
 
 
@@ -88,7 +90,13 @@ def okbuck_lint(
     bash += "export ANDROID_LINT_JARS=\"$PREBUILT_AAR_LINT_JARS{}\"; PROJECT_ROOT=`echo '{}' | sed 's|buck-out.*||'`; ".format(':'.join(map(toLocation, custom_lints)), toLocation(manifest))
 
     if has_srcs:
+@if(classpathExclusionRegex != null) {
+        bash += "TMP_CP_FILE=`sed 's/@@//' <<< $(@@@(classpathMacro) :src_{})`; ".format(variant)
+        bash += "tr ':' '\\n' < $TMP_CP_FILE | sed -e '/@classpathExclusionRegex/d' > tmp_cp_file; tr '\\n' ':' < tmp_cp_file > cp_file; "
+        bash += "CP_FILE=cp_file; "
+} else {
         bash += "CP_FILE=`sed 's/@@//' <<< $(@@@(classpathMacro) :src_{})`; ".format(variant)
+}
         bash += 'sed -i.bak -e "s|$PROJECT_ROOT||g" -e "s|\'||g" $CP_FILE; '
 
     bash += 'mkdir -p $OUT; LOGFILE=$OUT/lint.log; trap "rv=$?; if [ \$rv != 0 ] ; then cat $LOGFILE 1>&2 ; fi ; rm -f $LOGFILE; exit $rv" EXIT;  java -Djava.awt.headless=true -Dcom.android.tools.lint.workdir=$PROJECT_ROOT '
