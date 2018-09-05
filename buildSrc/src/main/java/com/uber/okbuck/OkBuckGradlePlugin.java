@@ -24,6 +24,8 @@ import com.uber.okbuck.extension.ScalaExtension;
 import com.uber.okbuck.extension.WrapperExtension;
 import com.uber.okbuck.generator.BuckFileGenerator;
 import com.uber.okbuck.wrapper.BuckWrapperTask;
+
+import java.io.File;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -56,6 +58,8 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
   public static final String OKBUCK_DEFS = ".okbuck/defs/DEFS";
   public static final String OKBUCK_GEN = ".okbuck/gen";
   public static final String OKBUCK_CONFIG = ".okbuck/config";
+  public static final String VISIBILITY_FILE = "VISIBILITY.bzl";
+  public static final String VISIBILITY_FUNCTION = "module_visibility";
 
   private static final String OKBUCK_STATE_DIR = ".okbuck/state";
   private static final String OKBUCK_CLEAN = "okbuckClean";
@@ -120,7 +124,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
           lintManager = new LintManager(rootBuckProject, LINT_BUCK_FILE);
 
           // Create Kotlin Manager
-          kotlinManager = new KotlinManager(rootBuckProject);
+          kotlinManager = new KotlinManager(rootBuckProject, okbuckExt);
 
           // Create Scala Manager
           scalaManager = new ScalaManager(rootBuckProject);
@@ -248,7 +252,9 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
                   bp -> {
                     bp.getConfigurations().maybeCreate(BUCK_LINT);
                     Task okbuckProjectTask = bp.getTasks().maybeCreate(OKBUCK);
-                    okbuckProjectTask.doLast(task -> BuckFileGenerator.generate(bp));
+                    File moduleDir = okbuckProjectTask.getProject().getBuildFile().getParentFile();
+                    File visibilityFile = new File(moduleDir, VISIBILITY_FILE);
+                    okbuckProjectTask.doLast(task -> BuckFileGenerator.generate(bp, visibilityFile));
                     okbuckProjectTask.dependsOn(setupOkbuck);
                     okBuckClean.dependsOn(okbuckProjectTask);
                   });

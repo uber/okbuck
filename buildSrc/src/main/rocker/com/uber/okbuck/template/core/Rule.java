@@ -19,6 +19,7 @@ public abstract class Rule<T extends Rule> extends DefaultRockerModel {
 
   protected String ruleType = "";
   protected String name = "";
+  protected boolean fileConfiguredVisibility = false;
   protected Collection visibility = ImmutableSet.of();
   protected Collection deps = ImmutableSet.of();
   protected Collection labels = ImmutableSet.of();
@@ -49,6 +50,11 @@ public abstract class Rule<T extends Rule> extends DefaultRockerModel {
 
   public T labels(Collection labels) {
     this.labels = labels;
+    return (T) this;
+  }
+
+  public T fileConfiguredVisibility(boolean enable) {
+    this.fileConfiguredVisibility = enable;
     return (T) this;
   }
 

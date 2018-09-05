@@ -8,7 +8,10 @@ import com.uber.okbuck.core.util.ProjectUtil;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import javax.annotation.Nullable;
+
+import com.uber.okbuck.extension.OkBuckExtension;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
@@ -21,7 +24,7 @@ public final class KotlinManager {
   private static final String KOTLIN_ALLOPEN_MODULE = "kotlin-allopen";
   public static final String KOTLIN_KAPT_PLUGIN = "kotlin-kapt";
   public static final String KOTLIN_LIBRARIES_LOCATION = KOTLIN_HOME_LOCATION + "/libexec/lib";
-  private static final String KOTLIN_LIBRARIES_CACHE_LOCATION = "3rdparty/org/jetbrains/kotlin";
+  private static final String KOTLIN_LIBRARIES_CACHE_LOCATION = "org/jetbrains/kotlin";
 
   private static final String KOTLIN_DEPS_CONFIG = "okbuck_kotlin_deps";
   private static final String KOTLIN_GROUP = "org.jetbrains.kotlin";
@@ -37,11 +40,13 @@ public final class KotlinManager {
       "kotlin-annotation-processing-gradle";
 
   private final Project project;
+  private final OkBuckExtension okBuckExtension;
 
   @Nullable private String kotlinVersion;
 
-  public KotlinManager(Project project) {
+  public KotlinManager(Project project, OkBuckExtension okBuckExtension) {
     this.project = project;
+    this.okBuckExtension = okBuckExtension;
   }
 
   @Nullable
@@ -86,7 +91,9 @@ public final class KotlinManager {
       throw new IllegalStateException("kotlinVersion is not setup");
     }
 
-    Path fromPath = project.file(KOTLIN_LIBRARIES_CACHE_LOCATION).toPath();
+    Path fromPath = project
+        .file(Paths.get(okBuckExtension.externalDependencyCache, KOTLIN_LIBRARIES_CACHE_LOCATION))
+        .toPath();
     Path toPath = project.file(KOTLIN_LIBRARIES_LOCATION).toPath();
 
     FileUtil.deleteQuietly(toPath);

@@ -95,7 +95,6 @@ lib_deps = []
     }
     }
 }
-
 @if (valid(jvmArgs)) {
     vm_args = [
     @for (jvmArg : jvmArgs) {

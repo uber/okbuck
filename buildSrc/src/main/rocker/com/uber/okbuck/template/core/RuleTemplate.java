@@ -9,6 +9,7 @@ public abstract class RuleTemplate extends DefaultRockerTemplate {
 
   protected String ruleType;
   protected String name;
+  protected boolean fileConfiguredVisibility;
   protected Collection visibility;
   protected Collection deps;
   protected Collection labels;
@@ -20,6 +21,7 @@ public abstract class RuleTemplate extends DefaultRockerTemplate {
       Rule rule = (Rule) model;
       this.ruleType = rule.ruleType;
       this.name = rule.name;
+      this.fileConfiguredVisibility = rule.fileConfiguredVisibility;
       this.visibility = rule.visibility;
       this.deps = rule.deps;
       this.labels = rule.labels;
@@ -39,6 +41,7 @@ public abstract class RuleTemplate extends DefaultRockerTemplate {
       this.ruleType = ninjaContext.ruleType;
       this.name = ninjaContext.name;
       this.visibility = ninjaContext.visibility;
+      this.fileConfiguredVisibility = ninjaContext.fileConfiguredVisibility;
       this.deps = ninjaContext.deps;
       this.labels = ninjaContext.labels;
       this.extraBuckOpts = ninjaContext.extraBuckOpts;
