@@ -27,6 +27,7 @@ import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.model.jvm.JvmTarget;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
+import com.uber.okbuck.extension.VisibilityExtension;
 import com.uber.okbuck.template.android.AndroidRule;
 import com.uber.okbuck.template.android.ManifestRule;
 import com.uber.okbuck.template.android.ResourceRule;
@@ -45,13 +46,17 @@ public final class BuckFileGenerator {
   private BuckFileGenerator() {}
 
   /** generate {@code BUCKFile} */
-  public static void generate(Project project, File visibilityFile) {
+  public static void generate(Project project, VisibilityExtension visibilityExtension) {
     List<Rule> rules = createRules(project);
+    File moduleDir = project.getBuildFile().getParentFile();
+    File visibilityFile = new File(moduleDir, visibilityExtension.visibilityFileName);
+
     boolean hasVisibilityFile = visibilityFile.isFile();
     if (hasVisibilityFile) {
       rules.forEach(rule -> rule.fileConfiguredVisibility(true));
     }
-    Multimap<String, String> loadStatements = createLoadStatements(hasVisibilityFile);
+    Multimap<String, String> loadStatements =
+        createLoadStatements(visibilityExtension, hasVisibilityFile);
 
     File buckFile = project.file(OkBuckGradlePlugin.BUCK);
     FileUtil.writeToBuckFile(loadStatements, rules, buckFile);
@@ -259,11 +264,13 @@ public final class BuckFileGenerator {
         filterAndroidResDepRules(mainLibTargetRules)));
   }
 
-  private static TreeMultimap<String, String> createLoadStatements(boolean hasVisibilityFile) {
+  private static TreeMultimap<String, String> createLoadStatements(
+      VisibilityExtension visibilityExtension, boolean hasVisibilityFile) {
     TreeMultimap<String, String> loads = TreeMultimap.create();
 
     if (hasVisibilityFile) {
-      loads.put(":" + OkBuckGradlePlugin.VISIBILITY_FILE, OkBuckGradlePlugin.VISIBILITY_FUNCTION);
+      loads.put(
+          ":" + visibilityExtension.visibilityFileName, visibilityExtension.visibilityFunction);
     }
     return loads;
   }
