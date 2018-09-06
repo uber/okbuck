@@ -155,6 +155,7 @@ okbuck {
     test {
         espresso = true
         robolectric = true
+        espressoForLibraries = true
     }
 
     wrapper {

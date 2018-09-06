@@ -179,7 +179,10 @@ public final class BuckFileGenerator {
     return createRules(target, null, new ArrayList<>(), new ArrayList<>());
   }
 
-  private static List<Rule> createRules(AndroidAppTarget target, List<String> additionalDeps) {
+  private static List<Rule> createRules(
+      AndroidAppTarget target,
+      List<String> additionalDeps,
+      List<String> additionalResDeps) {
     List<String> deps = new ArrayList<>();
     deps.add(":" + AndroidBuckRuleComposer.src(target));
 
@@ -187,7 +190,9 @@ public final class BuckFileGenerator {
 
     List<Rule> libRules =
         createRules(
-            target, target.getExopackage() != null ? target.getExopackage().getAppClass() : null);
+            target, target.getExopackage() != null ? target.getExopackage().getAppClass() : null,
+            additionalDeps,
+            additionalResDeps);
     List<Rule> rules = new ArrayList<>(libRules);
 
     libRules.forEach(
@@ -215,7 +220,7 @@ public final class BuckFileGenerator {
   }
 
   private static List<Rule> createRules(AndroidAppTarget target) {
-    return createRules(target, new ArrayList<>());
+    return createRules(target, new ArrayList<>(), new ArrayList<>());
   }
 
   private static List<Rule> createRules(
@@ -240,21 +245,11 @@ public final class BuckFileGenerator {
 
   private static List<Rule> createRules(
       AndroidLibInstrumentationTarget target, List<Rule> mainLibTargetRules) {
-
-    List<Rule> rules = new ArrayList<>();
-
-    List<Rule> libRules =
-        createRules(
-            target,
-            null,
-            filterAndroidDepRules(mainLibTargetRules),
-            filterAndroidResDepRules(mainLibTargetRules));
-
-    rules.addAll(libRules);
-    rules.addAll(createRules(target, filterAndroidDepRules(rules)));
-    return rules;
+    return new ArrayList<>(createRules(target,
+        filterAndroidDepRules(mainLibTargetRules),
+        filterAndroidResDepRules(mainLibTargetRules)));
   }
-
+  
   private static List<String> filterAndroidDepRules(List<Rule> rules) {
     return rules
         .stream()
