@@ -3,7 +3,13 @@ package com.uber.okbuck.core.util;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.TreeMultimap;
+import com.uber.okbuck.template.common.LoadStatements;
 import com.uber.okbuck.template.core.Rule;
+import org.apache.commons.io.FileUtils;
+import org.gradle.api.Project;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
@@ -12,9 +18,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -23,14 +26,8 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import org.apache.commons.io.FileUtils;
-import org.gradle.api.Project;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public final class FileUtil {
   private static final Logger LOG = LoggerFactory.getLogger(FileUtil.class);
@@ -104,7 +101,9 @@ public final class FileUtil {
           OutputStream fos = new FileOutputStream(buckFile);
           BufferedOutputStream os = new BufferedOutputStream(fos)){
 
-        writeLoadStatements(loadStatements, os);
+        if (!loadStatements.isEmpty()) {
+          LoadStatements.template(writableLoadStatements(loadStatements)).render(os);
+        }
 
         for (int index = 0; index < rules.size(); index++) {
           // Don't add a new line before the first rule
@@ -119,22 +118,13 @@ public final class FileUtil {
     }
   }
 
-  private static void writeLoadStatements(Multimap<String, String> loadStatements, OutputStream os)
-      throws IOException {
-    if (!loadStatements.isEmpty()) {
-      OutputStreamWriter sw = new OutputStreamWriter(os, Charset.defaultCharset());
-      PrintWriter pw = new PrintWriter(sw);
-      for (Map.Entry<String, Collection<String>> loadStatement : loadStatements.asMap()
-          .entrySet()) {
-        String loadStatementString = Stream
+  private static List<String> writableLoadStatements(Multimap<String, String> loadStatements) {
+    return loadStatements.asMap().entrySet().stream()
+        .map(loadStatement -> Stream
             .concat(Stream.of(loadStatement.getKey()), loadStatement.getValue().stream())
             .map(statement -> "'" + statement + "'")
-            .collect(Collectors.joining(", ", "load(", ")"));
-        pw.println(loadStatementString);
-      }
-      pw.println();
-      sw.flush();
-    }
+            .collect(Collectors.joining(", ", "load(", ")")))
+        .collect(Collectors.toList());
   }
 
   public static boolean isZipFile(File file) {
