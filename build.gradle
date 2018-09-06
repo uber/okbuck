@@ -185,7 +185,6 @@ okbuck {
 
     externalDependencies {
         allowAllVersions = [
-            "com.android.support:support-annotations",
             "com.android.tools.build:builder-model",
             "com.android.tools.build:builder-test-api",
             "com.android.tools.build:manifest-merger",

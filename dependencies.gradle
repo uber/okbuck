@@ -1,14 +1,14 @@
 def versions = [
         androidPlugin      : "3.2.0-beta01",
         androidTools       : "26.1.2",
-        butterKnife        : "9.0.0-20180416.155017-37",
-        butterKnifeCompiler: "9.0.0-20180416.155025-37",
-        butterKnifePlugin  : "9.0.0-20180416.155029-37",
+        butterKnife        : "9.0.0-20180906.210005-45",
+        butterKnifeCompiler: "9.0.0-20180906.210025-45",
+        butterKnifePlugin  : "9.0.0-20180906.210034-45",
         dagger             : "2.15",
         kotlin             : "1.2.50",
         leakCanary         : "1.5.4",
         rocker             : "0.23.0",
-        support            : "27.1.0",
+        support            : "27.1.1",
 ]
 
 def build = [
