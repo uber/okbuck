@@ -1,5 +1,7 @@
 package com.uber.okbuck.generator;
 
+import com.google.common.collect.Multimap;
+import com.google.common.collect.TreeMultimap;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.android.AndroidBinaryRuleComposer;
 import com.uber.okbuck.composer.android.AndroidBuckRuleComposer;
@@ -25,27 +27,39 @@ import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.model.jvm.JvmTarget;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
+import com.uber.okbuck.extension.VisibilityExtension;
 import com.uber.okbuck.template.android.AndroidRule;
 import com.uber.okbuck.template.android.ManifestRule;
 import com.uber.okbuck.template.android.ResourceRule;
 import com.uber.okbuck.template.core.Rule;
+import org.gradle.api.Project;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.gradle.api.Project;
 
 public final class BuckFileGenerator {
 
   private BuckFileGenerator() {}
 
   /** generate {@code BUCKFile} */
-  public static void generate(Project project) {
+  public static void generate(Project project, VisibilityExtension visibilityExtension) {
     List<Rule> rules = createRules(project);
+    File moduleDir = project.getBuildFile().getParentFile();
+    File visibilityFile = new File(moduleDir, visibilityExtension.visibilityFileName);
+
+    boolean hasVisibilityFile = visibilityFile.isFile();
+    if (hasVisibilityFile) {
+      rules.forEach(rule -> rule.fileConfiguredVisibility(true));
+    }
+    Multimap<String, String> loadStatements =
+        createLoadStatements(visibilityExtension, hasVisibilityFile);
+
     File buckFile = project.file(OkBuckGradlePlugin.BUCK);
-    FileUtil.writeToBuckFile(rules, buckFile);
+    FileUtil.writeToBuckFile(loadStatements, rules, buckFile);
   }
 
   private static List<Rule> createRules(Project project) {
@@ -249,7 +263,18 @@ public final class BuckFileGenerator {
         filterAndroidDepRules(mainLibTargetRules),
         filterAndroidResDepRules(mainLibTargetRules)));
   }
-  
+
+  private static TreeMultimap<String, String> createLoadStatements(
+      VisibilityExtension visibilityExtension, boolean hasVisibilityFile) {
+    TreeMultimap<String, String> loads = TreeMultimap.create();
+
+    if (hasVisibilityFile) {
+      loads.put(
+          ":" + visibilityExtension.visibilityFileName, visibilityExtension.visibilityFunction);
+    }
+    return loads;
+  }
+
   private static List<String> filterAndroidDepRules(List<Rule> rules) {
     return rules
         .stream()

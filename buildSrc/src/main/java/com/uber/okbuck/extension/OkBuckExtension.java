@@ -89,6 +89,7 @@ public class OkBuckExtension {
   private LintExtension lintExtension;
   private ExternalDependenciesExtension externalDependenciesExtension =
       new ExternalDependenciesExtension();
+  private VisibilityExtension visibilityExtension = new VisibilityExtension();
 
   public OkBuckExtension(Project project) {
     buckProjects = project.getSubprojects();
@@ -166,5 +167,13 @@ public class OkBuckExtension {
 
   public ExternalDependenciesExtension getExternalDependenciesExtension() {
     return externalDependenciesExtension;
+  }
+
+  public void visibility(Action<VisibilityExtension> container) {
+    container.execute(visibilityExtension);
+  }
+
+  public VisibilityExtension getVisibilityExtension() {
+    return visibilityExtension;
   }
 }

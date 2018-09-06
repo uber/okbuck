@@ -20,11 +20,15 @@
     }
     ],
 }
-@if (valid(visibility)) {
+@if (fileConfiguredVisibility) {
+    visibility = module_visibility()
+} else {
+    @if (valid(visibility)) {
     visibility = [
     @for (v : visibility) {
         '@v',
     }
     ],
+    }
 }
 )

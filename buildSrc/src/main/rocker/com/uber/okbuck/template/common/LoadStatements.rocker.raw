@@ -1,0 +1,10 @@
+@import java.util.Collection
+
+@args (
+  Collection loadStatements
+)
+
+@for (loadStatement : loadStatements) {
+  @loadStatement
+}
+
