@@ -16,6 +16,9 @@ buildscript {
         classpath deps.build.sqlDelightPlugin
         classpath deps.build.shadowJar
     }
+    configurations.all {
+        exclude group:"com.android.tools.build", module: "transform-api"
+    }
 }
 
 allprojects { project ->
@@ -27,6 +30,9 @@ allprojects { project ->
         // Remove once butterknife is updated to a stable version
         // TODO: https://github.com/uber/okbuck/issues/570
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+    }
+    configurations.all {
+        exclude group:"com.android.tools.build", module: "transform-api"
     }
 }
 
@@ -157,7 +163,6 @@ okbuck {
     test {
         espresso = true
         robolectric = true
-        espressoForLibraries = true
     }
 
     wrapper {
@@ -221,7 +226,7 @@ okbuck {
             "org.ow2.asm:asm-analysis",
             "org.ow2.asm:asm-commons",
             "org.ow2.asm:asm-tree",
-            "org.robolectric:android-all",
+            "org.robolectric:android-all"
         ]
 
         allowSpecificVersions = [

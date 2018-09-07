@@ -1,7 +1,6 @@
 package com.uber.okbuck.core.model.jvm;
 
 import com.android.builder.model.LintOptions;
-import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.OkBuckGradlePlugin;
@@ -14,11 +13,14 @@ import com.uber.okbuck.core.util.ProjectUtil;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.gradle.api.JavaVersion;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.plugins.ApplicationPlugin;
 import org.gradle.api.plugins.ApplicationPluginConvention;
@@ -27,9 +29,13 @@ import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
+import org.gradle.api.tasks.compile.AbstractCompile;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.api.tasks.testing.Test;
 import org.gradle.jvm.tasks.Jar;
+import org.jetbrains.kotlin.allopen.gradle.AllOpenKotlinGradleSubplugin;
+import org.jetbrains.kotlin.gradle.plugin.KotlinGradleSubplugin;
+import org.jetbrains.kotlin.gradle.plugin.SubpluginOption;
 
 public class JvmTarget extends Target {
 
@@ -38,6 +44,8 @@ public class JvmTarget extends Target {
   private final String aptConfigurationName;
   private final String testAptConfigurationName;
   private final SourceSetContainer sourceSets;
+
+  @Nullable private final AbstractCompile fakeCompile;
 
   public JvmTarget(Project project, String name) {
     this(
@@ -53,6 +61,14 @@ public class JvmTarget extends Target {
     this.aptConfigurationName = aptConfigurationName;
     this.testAptConfigurationName = testAptConfigurationName;
     sourceSets = getProject().getConvention().getPlugin(JavaPluginConvention.class).getSourceSets();
+
+    Optional<Task> compileTask =
+        project.getTasks().stream().filter(it -> it instanceof AbstractCompile).findFirst();
+    if (compileTask.isPresent()) {
+      fakeCompile = (AbstractCompile) compileTask.get();
+    } else {
+      fakeCompile = null;
+    }
   }
 
   /**
@@ -257,26 +273,41 @@ public class JvmTarget extends Target {
 
   protected List<String> getKotlinCompilerOptions() {
     if (getProject().getPlugins().hasPlugin("kotlin-allopen")) {
-      String allOpenAnnotations =
-          (String)
-              getProject().getExtensions().getExtraProperties().get("kotlinAllOpenAnnotations");
-      if (allOpenAnnotations != null) {
-        ImmutableList.Builder<String> optionBuilder = ImmutableList.builder();
+      AllOpenKotlinGradleSubplugin subplugin = getAllOpenKotlinGradleSubplugin();
 
-        optionBuilder.add(
-            "-Xplugin="
-                + KotlinManager.KOTLIN_LIBRARIES_LOCATION
-                + File.separator
-                + "kotlin-allopen.jar");
-
-        for (String annotation : Splitter.on(',').split(allOpenAnnotations)) {
-          optionBuilder.add("-P");
-          optionBuilder.add("plugin:org.jetbrains.kotlin.allopen:annotation=" + annotation);
-        }
-
-        return optionBuilder.build();
+      if (subplugin == null || fakeCompile == null) {
+        return ImmutableList.of();
       }
+
+      List<SubpluginOption> options =
+          subplugin.apply(getProject(), fakeCompile, fakeCompile, null, null, null);
+      ImmutableList.Builder<String> optionBuilder = ImmutableList.builder();
+
+      optionBuilder.add(
+          "-Xplugin="
+              + KotlinManager.KOTLIN_LIBRARIES_LOCATION
+              + File.separator
+              + "kotlin-allopen.jar");
+
+      for (SubpluginOption option : options) {
+        optionBuilder.add("-P");
+        optionBuilder.add(
+            "plugin:org.jetbrains.kotlin.allopen:" + option.getKey() + "=" + option.getValue());
+      }
+
+      return optionBuilder.build();
     }
     return ImmutableList.of();
+  }
+
+  @Nullable
+  private AllOpenKotlinGradleSubplugin getAllOpenKotlinGradleSubplugin() {
+    for (KotlinGradleSubplugin subplugin :
+        ServiceLoader.load(KotlinGradleSubplugin.class, getClass().getClassLoader())) {
+      if (subplugin instanceof AllOpenKotlinGradleSubplugin) {
+        return (AllOpenKotlinGradleSubplugin) subplugin;
+      }
+    }
+    return null;
   }
 }
