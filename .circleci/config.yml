@@ -4,7 +4,7 @@ jobs:
     working_directory: ~/okbuck
     resource_class: xlarge
     docker:
-      - image: circleci/android:api-27-alpha
+      - image: circleci/android:api-28-alpha
     environment:
       SKIP_OKBUCK: true
       EXTRA_OKBUCK_ARGS: --stacktrace
