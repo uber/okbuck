@@ -64,7 +64,7 @@ public class DependencyManager {
   private void validateDependencies() {
     if (ProjectUtil.getOkBuckExtension(project)
         .getExternalDependenciesExtension()
-        .isEnableVersionLess()) {
+        .isVersionless()) {
       Joiner.MapJoiner mapJoiner = Joiner.on(",\n").withKeyValueSeparator("=");
 
       Map<String, Set<String>> extraDependencies =
