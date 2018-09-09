@@ -3,6 +3,7 @@ package com.uber.okbuck.core.task;
 import static com.uber.okbuck.OkBuckGradlePlugin.OKBUCK_DEFS;
 
 import com.uber.okbuck.OkBuckGradlePlugin;
+import com.uber.okbuck.composer.base.BuckRuleComposer;
 import com.uber.okbuck.core.manager.GroovyManager;
 import com.uber.okbuck.core.manager.KotlinManager;
 import com.uber.okbuck.core.manager.ScalaManager;
@@ -64,22 +65,26 @@ public class OkBuckTask extends DefaultTask {
     }
 
     // Fetch Scala support deps if needed
+    String scalaLibraryLocation;
     boolean hasScalaLib =
         okBuckExtension
             .buckProjects
             .stream()
             .anyMatch(project -> ProjectUtil.getType(project) == ProjectType.SCALA_LIB);
     if (hasScalaLib) {
-      ProjectUtil.getScalaManager(getProject()).setupScalaHome(scalaExtension.version);
+      Set<String> scalaDeps =
+          ProjectUtil.getScalaManager(getProject()).setupScalaHome(scalaExtension.version);
+      scalaLibraryLocation =
+          BuckRuleComposer.fileRule(
+              scalaDeps.stream().filter(it -> it.contains("scala-library")).findFirst().get());
+    } else {
+      scalaLibraryLocation = "";
     }
 
     // Fetch Kotlin deps if needed
     if (kotlinExtension.version != null) {
       ProjectUtil.getKotlinManager(getProject()).setupKotlinHome(kotlinExtension.version);
     }
-
-    String scalaLibraryLocation =
-        okBuckExtension.externalDependencyCache + ScalaManager.SCALA_LIBRARY_PATH;
 
     generate(
         okBuckExtension,

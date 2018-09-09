@@ -62,46 +62,50 @@ public class DependencyManager {
   }
 
   private void validateDependencies() {
-    Joiner.MapJoiner mapJoiner = Joiner.on(",\n").withKeyValueSeparator("=");
+    if (ProjectUtil.getOkBuckExtension(project)
+        .getExternalDependenciesExtension()
+        .isEnableVersionLess()) {
+      Joiner.MapJoiner mapJoiner = Joiner.on(",\n").withKeyValueSeparator("=");
 
-    Map<String, Set<String>> extraDependencies =
-        dependencyMap
-            .asMap()
-            .entrySet()
-            .stream()
-            .filter(entry -> entry.getValue().size() > 1)
-            .map(Map.Entry::getValue)
-            .flatMap(Collection::stream)
-            .filter(dependency -> !extension.isAllowed(dependency))
-            .collect(
-                Collectors.groupingBy(
-                    dependency -> dependency.getVersionless().mavenCoords(),
-                    Collectors.mapping(ExternalDependency::getVersion, Collectors.toSet())));
+      Map<String, Set<String>> extraDependencies =
+          dependencyMap
+              .asMap()
+              .entrySet()
+              .stream()
+              .filter(entry -> entry.getValue().size() > 1)
+              .map(Map.Entry::getValue)
+              .flatMap(Collection::stream)
+              .filter(dependency -> !extension.isAllowed(dependency))
+              .collect(
+                  Collectors.groupingBy(
+                      dependency -> dependency.getVersionless().mavenCoords(),
+                      Collectors.mapping(ExternalDependency::getVersion, Collectors.toSet())));
 
-    if (extraDependencies.size() > 0) {
-      throw new RuntimeException(
-          "Multiple versions found for external dependencies: \n"
-              + mapJoiner.join(extraDependencies));
-    }
+      if (extraDependencies.size() > 0) {
+        throw new RuntimeException(
+            "Multiple versions found for external dependencies: \n"
+                + mapJoiner.join(extraDependencies));
+      }
 
-    Map<String, Set<String>> singleDependencies =
-        dependencyMap
-            .asMap()
-            .entrySet()
-            .stream()
-            .filter(entry -> entry.getValue().size() == 1)
-            .map(Map.Entry::getValue)
-            .flatMap(Collection::stream)
-            .filter(dependency -> extension.isVersioned(dependency.getVersionless()))
-            .collect(
-                Collectors.groupingBy(
-                    dependency -> dependency.getVersionless().mavenCoords(),
-                    Collectors.mapping(ExternalDependency::getVersion, Collectors.toSet())));
+      Map<String, Set<String>> singleDependencies =
+          dependencyMap
+              .asMap()
+              .entrySet()
+              .stream()
+              .filter(entry -> entry.getValue().size() == 1)
+              .map(Map.Entry::getValue)
+              .flatMap(Collection::stream)
+              .filter(dependency -> extension.isVersioned(dependency.getVersionless()))
+              .collect(
+                  Collectors.groupingBy(
+                      dependency -> dependency.getVersionless().mavenCoords(),
+                      Collectors.mapping(ExternalDependency::getVersion, Collectors.toSet())));
 
-    if (singleDependencies.size() > 0) {
-      throw new RuntimeException(
-          "Single version found for external dependencies, please remove them from external dependency extension: \n"
-              + mapJoiner.join(singleDependencies));
+      if (singleDependencies.size() > 0) {
+        throw new RuntimeException(
+            "Single version found for external dependencies, please remove them from external dependency extension: \n"
+                + mapJoiner.join(singleDependencies));
+      }
     }
 
     String changingDeps =

@@ -16,7 +16,6 @@ public final class ScalaManager {
 
   public static final String SCALA_COMPILER_LOCATION =
       OkBuckGradlePlugin.DEFAULT_CACHE_PATH + "/scala_installation";
-  public static final String SCALA_LIBRARY_PATH = "/org/scala-lang";
 
   private final Project rootProject;
   @Nullable private Set<String> dependencies;
@@ -26,12 +25,12 @@ public final class ScalaManager {
   }
 
   @SuppressWarnings("ResultOfMethodCallIgnored")
-  public void setupScalaHome(String scalaVersion) {
+  public Set<String> setupScalaHome(String scalaVersion) {
     Configuration scalaConfig = rootProject.getConfigurations().maybeCreate(SCALA_DEPS_CONFIG);
     rootProject
         .getDependencies()
         .add(SCALA_DEPS_CONFIG, "org.scala-lang:scala-compiler:" + scalaVersion);
-    dependencies =
+    return dependencies =
         new DependencyCache(rootProject, ProjectUtil.getDependencyManager(rootProject))
             .build(scalaConfig);
   }
