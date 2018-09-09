@@ -2,6 +2,7 @@ package com.uber.okbuck.composer.jvm;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
+import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.base.BuckRuleComposer;
 import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.model.base.Target;
@@ -120,6 +121,7 @@ public class JvmBuckRuleComposer extends BuckRuleComposer {
    * @return Plugin rule path.
    */
   private static String getApPluginRulePath(String pluginUID) {
-    return String.format("//.okbuck/cache/processor:%s", getApPluginRuleName(pluginUID));
+    return String.format(
+        "//" + OkBuckGradlePlugin.WORKSPACE_PATH + "/processor:%s", getApPluginRuleName(pluginUID));
   }
 }

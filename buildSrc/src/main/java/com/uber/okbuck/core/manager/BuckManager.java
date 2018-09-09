@@ -15,7 +15,7 @@ import org.gradle.api.artifacts.Configuration;
 public final class BuckManager {
 
   private static final String BUCK_BINARY_LOCATION =
-      OkBuckGradlePlugin.DEFAULT_CACHE_PATH + "/buck_binary";
+      OkBuckGradlePlugin.WORKSPACE_PATH + "/buck_binary";
 
   private static final String BUCK_BINARY_CONFIGURATION = "buckBinary";
   private static final String JITPACK_URL = "https://jitpack.io";

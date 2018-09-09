@@ -21,7 +21,7 @@ public final class GroovyManager {
   private static final String GROOVY_DEPS_CONFIG = "okbuck_groovy_deps";
 
   public static final String GROOVY_HOME_LOCATION =
-      OkBuckGradlePlugin.DEFAULT_CACHE_PATH + "/groovy_installation";
+      OkBuckGradlePlugin.WORKSPACE_PATH + "/groovy_installation";
 
   private final Project rootProject;
   @Nullable private Set<String> dependencies;
@@ -66,8 +66,7 @@ public final class GroovyManager {
 
       String groovyAll = dependencies.iterator().next();
       Path fromPath = rootProject.file(groovyAll).toPath();
-      Path toPath =
-          groovyLibCache.resolve("groovy-" + groovyVersion + ".jar");
+      Path toPath = groovyLibCache.resolve("groovy-" + groovyVersion + ".jar");
 
       try {
         toPath.toFile().getParentFile().mkdirs();

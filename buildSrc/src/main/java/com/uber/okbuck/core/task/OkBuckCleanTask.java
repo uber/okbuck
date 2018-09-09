@@ -70,6 +70,9 @@ public class OkBuckCleanTask extends DefaultTask {
         .map(p -> rootProjectPath.resolve(p).resolve(OkBuckGradlePlugin.BUCK))
         .forEach(FileUtil::deleteQuietly);
 
+    // Delete old .okbuck/cache dir
+    FileUtil.deleteQuietly(rootProjectPath.resolve(".okbuck/cache"));
+
     // Save generated project's BUCK file path
     Files.write(
         okbuckState.toPath(),

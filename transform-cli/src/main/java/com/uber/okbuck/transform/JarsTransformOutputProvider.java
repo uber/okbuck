@@ -48,14 +48,14 @@ public class JarsTransformOutputProvider implements TransformOutputProvider {
      * path the parts in common plus the last folder (i.e. all the parts of the output folder).
      *
      * <p>Example of input path: ...mobile/okbuck/buck-out/bin/app
-     * /java_classes_preprocess_in_bin_prodDebug/buck-out/gen/.okbuck/cache/__app.rxscreenshotdetector-release
+     * /java_classes_preprocess_in_bin_prodDebug/buck-out/gen/.okbuck/workspace/__app.rxscreenshotdetector-release
      * .aar#aar_prebuilt_jar__/classes.jar
      *
      * <p>Example of output base folder: ...mobile/okbuck/buck-out/bin/app/
      * java_classes_preprocess_out_bin_prodDebug/
      *
      * <p>Example of output path: ...mobile/okbuck/buck-out/bin/app
-     * /java_classes_preprocess_out_bin_prodDebug/buck-out/gen/.okbuck/cache/__app.rxscreenshotdetector-release
+     * /java_classes_preprocess_out_bin_prodDebug/buck-out/gen/.okbuck/workspace/__app.rxscreenshotdetector-release
      * .aar#aar_prebuilt_jar__/classes.jar
      */
 

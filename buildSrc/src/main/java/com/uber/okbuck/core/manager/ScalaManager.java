@@ -15,7 +15,7 @@ public final class ScalaManager {
   private static final String SCALA_DEPS_CONFIG = "okbuck_scala_deps";
 
   public static final String SCALA_COMPILER_LOCATION =
-      OkBuckGradlePlugin.DEFAULT_CACHE_PATH + "/scala_installation";
+      OkBuckGradlePlugin.WORKSPACE_PATH + "/scala_installation";
 
   private final Project rootProject;
   @Nullable private Set<String> dependencies;

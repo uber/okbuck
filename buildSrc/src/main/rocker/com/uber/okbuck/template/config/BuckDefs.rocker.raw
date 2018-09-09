@@ -101,7 +101,7 @@ def okbuck_lint(
 
     bash += 'mkdir -p $OUT; LOGFILE=$OUT/lint.log; trap "rv=$?; if [ \$rv != 0 ] ; then cat $LOGFILE 1>&2 ; fi ; rm -f $LOGFILE; exit $rv" EXIT;  java -Djava.awt.headless=true -Dcom.android.tools.lint.workdir=$PROJECT_ROOT '
     bash += "@lintJvmArgs "
-    bash += "-classpath {} com.android.tools.lint.Main ".format(toLocation('//.okbuck/cache/lint:okbuck_lint'))
+    bash += "-classpath {} com.android.tools.lint.Main ".format(toLocation('//.okbuck/workspace/lint:okbuck_lint'))
 
     if has_srcs:
         bash += "--classpath $(location :src_{}) --libraries `cat $CP_FILE` ".format(variant)
@@ -140,7 +140,7 @@ def okbuck_manifest(
         secondary_manifests=[],
     ):
     cmds =[]
-    cmds.append("java -jar -Xmx256m $(location //.okbuck/cache/manifest-merger:okbuck_manifest_merger)")
+    cmds.append("java -jar -Xmx256m $(location //.okbuck/workspace/manifest-merger:okbuck_manifest_merger)")
     cmds.append("--main $SRCDIR/{}".format(main_manifest))
     if len(secondary_manifests) > 0:
         cmds.append("--overlays {}".format(" ".join(["$SRCDIR/" + m for m in secondary_manifests])))

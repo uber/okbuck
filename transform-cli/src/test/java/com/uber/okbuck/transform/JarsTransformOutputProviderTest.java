@@ -11,7 +11,7 @@ import org.junit.Test;
 public class JarsTransformOutputProviderTest {
 
   private static final String NAME =
-      "buck-out/bin/app/java_classes_preprocess_in_bin_prodDebug/buck-out/gen/.okbuck/cache/"
+      "buck-out/bin/app/java_classes_preprocess_in_bin_prodDebug/buck-out/gen/.okbuck/workspace/"
           + "__app.rxscreenshotdetector-release.aar#aar_prebuilt_jar__/classes.jar";
 
   private static final String INPUT = "buck-out/bin/app/java_classes_preprocess_in_bin_prodDebug/";
@@ -20,7 +20,7 @@ public class JarsTransformOutputProviderTest {
       "buck-out/bin/app/java_classes_preprocess_out_bin_prodDebug/";
 
   private static final String EXPECTED_OUTPUT_JAR =
-      "buck-out/bin/app/java_classes_preprocess_out_bin_prodDebug/buck-out/gen/.okbuck/cache/"
+      "buck-out/bin/app/java_classes_preprocess_out_bin_prodDebug/buck-out/gen/.okbuck/workspace/"
           + "__app.rxscreenshotdetector-release.aar#aar_prebuilt_jar__/classes.jar";
 
   private File inputJarFile;

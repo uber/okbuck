@@ -5,13 +5,12 @@ import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.core.dependency.DependencyCache;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
+import com.uber.okbuck.extension.OkBuckExtension;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import javax.annotation.Nullable;
-
-import com.uber.okbuck.extension.OkBuckExtension;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
@@ -19,7 +18,7 @@ import org.gradle.api.artifacts.dsl.DependencyHandler;
 public final class KotlinManager {
 
   public static final String KOTLIN_HOME_LOCATION =
-      OkBuckGradlePlugin.DEFAULT_CACHE_PATH + "/kotlin_home";
+      OkBuckGradlePlugin.WORKSPACE_PATH + "/kotlin_home";
   public static final String KOTLIN_ANDROID_EXTENSIONS_MODULE = "kotlin-android-extensions";
   private static final String KOTLIN_ALLOPEN_MODULE = "kotlin-allopen";
   public static final String KOTLIN_KAPT_PLUGIN = "kotlin-kapt";
@@ -91,9 +90,11 @@ public final class KotlinManager {
       throw new IllegalStateException("kotlinVersion is not setup");
     }
 
-    Path fromPath = project
-        .file(Paths.get(okBuckExtension.externalDependencyCache, KOTLIN_LIBRARIES_CACHE_LOCATION))
-        .toPath();
+    Path fromPath =
+        project
+            .file(
+                Paths.get(okBuckExtension.externalDependencyCache, KOTLIN_LIBRARIES_CACHE_LOCATION))
+            .toPath();
     Path toPath = project.file(KOTLIN_LIBRARIES_LOCATION).toPath();
 
     FileUtil.deleteQuietly(toPath);

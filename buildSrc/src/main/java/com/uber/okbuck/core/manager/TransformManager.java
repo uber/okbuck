@@ -29,8 +29,7 @@ import org.gradle.api.Project;
 
 public final class TransformManager {
 
-  private static final String TRANSFORM_CACHE =
-      OkBuckGradlePlugin.DEFAULT_CACHE_PATH + "/transform";
+  private static final String TRANSFORM_CACHE = OkBuckGradlePlugin.WORKSPACE_PATH + "/transform";
   public static final String TRANSFORM_RULE = "//" + TRANSFORM_CACHE + ":okbuck_transform";
 
   public static final String CONFIGURATION_TRANSFORM = "transform";
