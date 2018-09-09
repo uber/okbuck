@@ -17,8 +17,7 @@ import org.gradle.api.artifacts.Configuration;
 public final class RobolectricManager {
 
   private static final String ROBOLECTRIC_RUNTIME = "robolectricRuntime";
-  public static final String ROBOLECTRIC_CACHE =
-      OkBuckGradlePlugin.DEFAULT_CACHE_PATH + "/robolectric";
+  public static final String ROBOLECTRIC_CACHE = OkBuckGradlePlugin.WORKSPACE_PATH + "/robolectric";
 
   private final Project rootProject;
   @Nullable private ImmutableSet<String> dependencies;

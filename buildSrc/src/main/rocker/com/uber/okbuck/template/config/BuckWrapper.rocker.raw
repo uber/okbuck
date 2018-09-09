@@ -72,7 +72,7 @@ OKBUCK_DIR="$SCRIPT_DIR/.okbuck"
 MAX_DISPLAY_CHANGES=10
 WATCHMAN_TIMEOUT=10
 WATCHMAN_FAILED="WATCHMAN FAILED"
-BUCK_BINARY_DIR="$OKBUCK_DIR/cache/buck_binary"
+BUCK_BINARY_DIR="$OKBUCK_DIR/workspace/buck_binary"
 
 # Timeout a call and exit early. This can be called via timeout <time> <command>.
 timeout( ) {

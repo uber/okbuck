@@ -24,8 +24,6 @@ import com.uber.okbuck.extension.ScalaExtension;
 import com.uber.okbuck.extension.WrapperExtension;
 import com.uber.okbuck.generator.BuckFileGenerator;
 import com.uber.okbuck.wrapper.BuckWrapperTask;
-
-import java.io.File;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -52,7 +50,7 @@ import org.gradle.api.artifacts.Configuration;
 public class OkBuckGradlePlugin implements Plugin<Project> {
   public static final String BUCK = "BUCK";
   public static final String OKBUCK = "okbuck";
-  public static final String DEFAULT_CACHE_PATH = ".okbuck/cache";
+  public static final String WORKSPACE_PATH = ".okbuck/workspace";
   public static final String GROUP = "okbuck";
   public static final String BUCK_LINT = "buckLint";
   public static final String OKBUCK_DEFS = ".okbuck/defs/DEFS";
@@ -63,8 +61,8 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
   private static final String OKBUCK_CLEAN = "okbuckClean";
   private static final String BUCK_WRAPPER = "buckWrapper";
   private static final String FORCED_OKBUCK = "forcedOkbuck";
-  private static final String PROCESSOR_BUCK_FILE = ".okbuck/cache/processor/BUCK";
-  private static final String LINT_BUCK_FILE = ".okbuck/cache/lint/BUCK";
+  private static final String PROCESSOR_BUCK_FILE = WORKSPACE_PATH + "/processor/BUCK";
+  private static final String LINT_BUCK_FILE = WORKSPACE_PATH + "/lint/BUCK";
 
   public static final String OKBUCK_STATE = OKBUCK_STATE_DIR + "/STATE";
   public final Map<Project, Map<String, Scope>> scopes = new ConcurrentHashMap<>();
