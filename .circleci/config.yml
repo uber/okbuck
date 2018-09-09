@@ -1,82 +1,102 @@
 version: 2
+
+defaults: &defaults
+  working_directory: ~/okbuck
+  resource_class: xlarge
+  docker:
+    - image: circleci/android:api-28-alpha
+  environment:
+    SKIP_OKBUCK: true
+    EXTRA_OKBUCK_ARGS: --stacktrace
+    JVM_OPTS: -Xmx3200m
+
+aliases:
+  - &restore-wrapper-cache
+    restore_cache:
+        keys:
+          - gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+  - &restore-gradle-cache
+    restore_cache:
+        keys:
+          - gradle-cache-{{ checksum "dependencies.gradle" }}
+  - &setup
+    run:
+        name: Perform Setup
+        command: |-
+          ./tooling/ci/ensure-android-sdk-licenses.sh
+          rm -rf ~/.gradle/caches/modules-2/files-2.1/com.jakewharton/butterknife*
+          SKIP_OKBUCK= EXTRA_OKBUCK_ARGS="-Dorg.gradle.daemon=false" ./buckw --version
+          rm -f ~/.gradle/caches/modules-2/modules-2.lock
+        shell: "/bin/bash"
+  - &save-wrapper-cache
+    save_cache:
+        paths:
+          - ~/.gradle/caches/modules-2/
+        key: gradle-cache-{{ checksum "dependencies.gradle" }}
+  - &save-gradle-cache
+    save_cache:
+        paths:
+          - ~/.gradle/wrapper/
+        key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+
 jobs:
   build:
-    working_directory: ~/okbuck
-    resource_class: xlarge
-    docker:
-      - image: circleci/android:api-28-alpha
-    environment:
-      SKIP_OKBUCK: true
-      EXTRA_OKBUCK_ARGS: --stacktrace
-      JVM_OPTS: -Xmx3200m
+    <<: *defaults
     steps:
       - checkout
-      - run:
-          name: Ensure Android SDK licenses are accepted
-          command: ./tooling/ci/ensure-android-sdk-licenses.sh
-          shell: "/bin/bash"
-      # - run:
-      #     name: Setup emulator
-      #     command: sdkmanager "system-images;android-21;google_apis;armeabi-v7a" && echo "no" | avdmanager create avd -n test -k "system-images;android-21;google_apis;armeabi-v7a"
-      #     shell: "/bin/bash"
-      # - run:
-      #     name: Launch emulator
-      #     command: export LD_LIBRARY_PATH=${ANDROID_HOME}/emulator/lib64:${ANDROID_HOME}/emulator/lib64/qt/lib && emulator64-arm -avd test -noaudio -no-boot-anim -no-window -accel on
-      #     shell: "/bin/bash"
-      #     background: true
-      - restore_cache:
-         keys:
-           - gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
-      - restore_cache:
-         keys:
-           - gradle-cache-{{ checksum "dependencies.gradle" }}
-      - run:
-          name: Cleanup snapshot sources
-          command: rm -rf ~/.gradle/caches/modules-2/files-2.1/com.jakewharton/butterknife*
-          shell: "/bin/bash"
-      - run:
-          name: Run okbuck
-          command: SKIP_OKBUCK= EXTRA_OKBUCK_ARGS="-Dorg.gradle.daemon=false" ./buckw --version
-          shell: "/bin/bash"
-      - run:
-          name: Cleanup gradle lock file
-          command: rm -f ~/.gradle/caches/modules-2/modules-2.lock
-          shell: "/bin/bash"
-      - save_cache:
-          paths:
-            - ~/.gradle/caches/modules-2/
-          key: gradle-cache-{{ checksum "dependencies.gradle" }}
-      - save_cache:
-          paths:
-            - ~/.gradle/wrapper/
-          key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+      - *restore-wrapper-cache
+      - *restore-gradle-cache
+      - *setup
+      - *save-wrapper-cache
+      - *save-gradle-cache
       - run:
           name: Build all non lint targets
           command: ./buckw targets //... --type android_binary android_instrumentation_apk java_test groovy_test robolectric_test kotlin_test scala_test | xargs ./buckw build -v 0
           shell: "/bin/bash"
+  lint:
+    <<: *defaults
+    steps:
+      - checkout
+      - *restore-wrapper-cache
+      - *restore-gradle-cache
+      - *setup
+      - *save-wrapper-cache
+      - *save-gradle-cache
       - run:
           name: Build all lint targets, except for lint error library
           command: ./buckw targets //... --type genrule | grep -v lintErrorLibrary | xargs ./buckw build -v 0
           shell: "/bin/bash"
+  lint-integration:
+    <<: *defaults
+    steps:
+      - checkout
+      - *restore-wrapper-cache
+      - *restore-gradle-cache
+      - *setup
+      - *save-wrapper-cache
+      - *save-gradle-cache
       - run:
           name: Run lint integration test
           command: ./tooling/ci/lint_integration_test.sh
           shell: "/bin/bash"
+  unit:
+    <<: *defaults
+    steps:
+      - checkout
+      - *restore-wrapper-cache
+      - *restore-gradle-cache
+      - *setup
+      - *save-wrapper-cache
+      - *save-gradle-cache
       - run:
           name: Run unit tests
           command: ./buckw test //... --include unit --always_exclude
           shell: "/bin/bash"
-      # - run:
-      #     name: Wait for emulator
-      #     command: |
-      #       circle-android wait-for-boot
-      #       adb shell input keyevent 82
-      #     shell: "/bin/bash"
-      # - run:
-      #     name: Run ui tests
-      #     command: ./buckw test //app:instrumentation_demoDebug_test -v 0
-      #     shell: "/bin/bash"
-      # - run:
-      #     name: Kill emulator
-      #     command: adb devices | grep emulator | cut -f1 | while read line; do adb -s $line emu kill; done
-      #     shell: "bin/bash"
+workflows:
+  version: 2
+  build-test:
+    jobs:
+      - build
+      - lint
+      - lint-integration
+      - unit
