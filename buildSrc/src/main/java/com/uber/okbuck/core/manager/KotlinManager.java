@@ -113,7 +113,7 @@ public final class KotlinManager {
 
   private static void copyFile(Path fromPath, Path toPath, String name, String version) {
 
-    @Var Path fromFilePath = fromPath.resolve(name + "--" + version + ".jar");
+    @Var Path fromFilePath = fromPath.resolve(name + "-" + version + ".jar");
 
     if (!fromFilePath.toFile().exists()) {
       fromFilePath = fromPath.resolve(name + ".jar");

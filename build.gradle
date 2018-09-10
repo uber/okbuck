@@ -251,6 +251,6 @@ okbuck {
 }
 
 gradle.buildFinished {  
-    "zip -d .okbuck/ext/org/hamcrest/__hamcrest-core--1.3.jar__/hamcrest-core--1.3.jar LICENSE.txt".execute()  
-    "zip -d .okbuck/ext/org/hamcrest/__hamcrest-integration--1.3.jar__/hamcrest-integration--1.3.jar LICENSE.txt".execute()   
+    "zip -d .okbuck/ext/org/hamcrest/hamcrest-core-1.3.jar LICENSE.txt".execute()  
+    "zip -d .okbuck/ext/org/hamcrest/hamcrest-integration-1.3.jar LICENSE.txt".execute()   
 }
