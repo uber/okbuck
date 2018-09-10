@@ -1,6 +1,6 @@
 def versions = [
         androidPlugin      : "3.2.0-rc02",
-        androidTools       : "26.1.2",
+        androidTools       : "26.2.0-rc02",
         butterKnife        : "9.0.0-20180906.210005-45",
         butterKnifeCompiler: "9.0.0-20180906.210025-45",
         butterKnifePlugin  : "9.0.0-20180906.210034-45",
