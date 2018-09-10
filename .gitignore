@@ -16,5 +16,3 @@ buck-out
 **/BUCK
 
 buildSrc/bintray.properties
-
-3rdparty

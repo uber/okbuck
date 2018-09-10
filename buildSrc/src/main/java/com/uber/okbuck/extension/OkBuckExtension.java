@@ -72,7 +72,7 @@ public class OkBuckExtension {
   @Input public boolean failOnChangingDependencies = false;
 
   /** Specifies the folder where all external dependency rules gets generated. */
-  @Input public String externalDependencyCache = "3rdparty";
+  @Input public String externalDependencyCache = ".okbuck/ext";
 
   /** The prebuilt buck binary to use */
   @Input

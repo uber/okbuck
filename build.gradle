@@ -249,9 +249,3 @@ okbuck {
             ]
     ]
 }
-
-gradle.buildFinished {
-    "zip -d 3rdparty/org/hamcrest/hamcrest-core.jar LICENSE.txt".execute()
-    "zip -d 3rdparty/org/hamcrest/hamcrest-library.jar LICENSE.txt".execute()
-    "zip -d 3rdparty/org/hamcrest/hamcrest-integration.jar LICENSE.txt".execute()
-}
