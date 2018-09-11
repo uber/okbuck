@@ -7,6 +7,7 @@ defaults: &defaults
     - image: circleci/android:api-28-alpha
   environment:
     SKIP_OKBUCK: true
+    NO_BUCKD: 1
     EXTRA_OKBUCK_ARGS: --stacktrace
     JVM_OPTS: -Xmx3200m
 
@@ -64,20 +65,9 @@ jobs:
       - *save-gradle-cache
       - run:
           name: Build all lint targets, except for lint error library
-          command: ./buckw targets //... --type genrule | grep -v lintErrorLibrary | xargs ./buckw build -v 0
-          shell: "/bin/bash"
-  lint-integration:
-    <<: *defaults
-    steps:
-      - checkout
-      - *restore-wrapper-cache
-      - *restore-gradle-cache
-      - *setup
-      - *save-wrapper-cache
-      - *save-gradle-cache
-      - run:
-          name: Run lint integration test
-          command: ./tooling/ci/lint_integration_test.sh
+          command: |-
+            ./buckw targets //... --type genrule | grep -v lintErrorLibrary | xargs ./buckw build -v 0
+            ./tooling/ci/lint_integration_test.sh
           shell: "/bin/bash"
   unit:
     <<: *defaults
@@ -98,5 +88,4 @@ workflows:
     jobs:
       - build
       - lint
-      - lint-integration
       - unit
