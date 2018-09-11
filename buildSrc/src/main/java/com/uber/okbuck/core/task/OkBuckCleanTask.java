@@ -79,6 +79,9 @@ public class OkBuckCleanTask extends DefaultTask {
     // Delete old .okbuck/cache dir
     FileUtil.deleteQuietly(rootProjectPath.resolve(".okbuck/cache"));
 
+    // Delete old .okbuck/gen dir
+    FileUtil.deleteQuietly(rootProjectPath.resolve(".okbuck/gen"));
+
     // Save generated project's BUCK file path
     Files.write(
         okbuckState.toPath(),

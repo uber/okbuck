@@ -13,8 +13,6 @@ import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.extension.TestExtension;
 import com.uber.okbuck.extension.TransformExtension;
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -141,26 +139,8 @@ public class AndroidAppTarget extends AndroidLibTarget {
       File proguardFile = proguardFiles.iterator().next();
       Preconditions.checkArgument(
           proguardFile.exists(), "Proguard file %s does not exist", proguardFile);
-      File genProguardConfig = getGenPath("proguard.pro");
-      try {
-        LOG.info("Creating symlink {} -> {}", genProguardConfig, proguardFile);
-        Files.createSymbolicLink(genProguardConfig.toPath(), proguardFile.toPath());
-      } catch (IOException ignored) {
-        LOG.info("Could not create symlink {} -> {}", genProguardConfig, proguardFile);
-      }
 
-      if (proguardMappingFile != null) {
-        File genProguardMappingFile = getGenPath("proguard.map");
-        try {
-          LOG.info("Creating symlink {} -> {}", genProguardMappingFile, proguardMappingFile);
-          Files.createSymbolicLink(genProguardMappingFile.toPath(), proguardMappingFile.toPath());
-        } catch (IOException ignored) {
-          LOG.info(
-              "Could not create symlink {} -> {}", genProguardMappingFile, proguardMappingFile);
-        }
-      }
-
-      return FileUtil.getRelativePath(getProject().getRootDir(), genProguardConfig);
+      return FileUtil.getRelativePath(getProject().getRootDir(), proguardFile);
     }
 
     return null;
@@ -168,11 +148,11 @@ public class AndroidAppTarget extends AndroidLibTarget {
 
   @Nullable
   public String getProguardMapping() {
-    if (proguardMappingFile == null) {
+    if (!minifyEnabled || proguardMappingFile == null || !proguardMappingFile.exists()) {
       return null;
     }
 
-    return FileUtil.getRelativePath(getProject().getRootDir(), getGenPath("proguard.map"));
+    return FileUtil.getRelativePath(getProject().getRootDir(), proguardMappingFile);
   }
 
   public List<Map<String, String>> getTransforms() {
