@@ -86,7 +86,13 @@ def addCommonConfigurationForAndroidModules(Project project) {
         project.android {
             signingConfigs {
                 debug {
-                    storeFile project.rootProject.file("config/signing/debug.keystore")
+                    if (project.path.equals(":kotlin-app")) {
+                        storeFile project.rootProject.file("config/signing/debug_2.keystore")
+                    } else if (project.path.equals(":app")) {
+                        storeFile project.file("debug.keystore")
+                    } else {
+                        storeFile project.rootProject.file("config/signing/debug.keystore")
+                    }
                 }
             }
             buildTypes {
