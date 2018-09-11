@@ -7,6 +7,7 @@ import com.uber.okbuck.core.model.android.AndroidTarget;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.model.jvm.JvmTarget;
 import com.uber.okbuck.core.util.D8Util;
+import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.template.android.AndroidRule;
 import com.uber.okbuck.template.core.Rule;
@@ -83,15 +84,16 @@ public final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
     }
 
     if (target.getLintEnabled()) {
-      String lintConfigXml;
+      String lintConfigPath;
       if (target.getLintOptions() != null
           && target.getLintOptions().getLintConfig() != null
           && target.getLintOptions().getLintConfig().exists()) {
-        lintConfigXml =
-            ProjectUtil.getLintConfigRule(
-                target.getProject(), target.getLintOptions().getLintConfig());
+        lintConfigPath =
+            FileUtil.getRelativePath(
+                target.getRootProject().getProjectDir(), target.getLintOptions().getLintConfig());
+        ProjectUtil.getPlugin(target.getRootProject()).exportedPaths.add(lintConfigPath);
       } else {
-        lintConfigXml = "";
+        lintConfigPath = "";
       }
 
       Set<String> customLintTargets =
@@ -104,7 +106,7 @@ public final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
               .collect(Collectors.toSet());
 
       androidRule
-          .lintConfigXml(lintConfigXml)
+          .lintConfigXml(fileRule(lintConfigPath))
           .customLints(customLintTargets)
           .lintOptions(target.getLintOptions());
     } else {

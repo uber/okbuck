@@ -16,7 +16,6 @@ import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.model.base.Target;
 import com.uber.okbuck.core.model.base.TargetCache;
 import com.uber.okbuck.extension.OkBuckExtension;
-import java.io.File;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -98,10 +97,6 @@ public final class ProjectUtil {
   @Nullable
   public static Target getTargetForVariant(Project targetProject, @Nullable String variant) {
     return getTargetCache(targetProject).getTargetForVariant(targetProject, variant);
-  }
-
-  public static String getLintConfigRule(Project project, File config) {
-    return getLintManager(project).lintConfig(config);
   }
 
   public static Map<Project, Map<String, Scope>> getScopes(Project project) {
