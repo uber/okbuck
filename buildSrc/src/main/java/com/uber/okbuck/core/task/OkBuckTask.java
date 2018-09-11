@@ -2,6 +2,7 @@ package com.uber.okbuck.core.task;
 
 import static com.uber.okbuck.OkBuckGradlePlugin.OKBUCK_DEFS;
 
+import com.google.common.collect.ImmutableList;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.base.BuckRuleComposer;
 import com.uber.okbuck.core.manager.GroovyManager;
@@ -147,14 +148,14 @@ public class OkBuckTask extends DefaultTask {
         .classpathExclusionRegex(okbuckExt.getLintExtension().classpathExclusionRegex)
         .render(okbuckDefs());
 
-    Set<String> defs =
+    ImmutableList.Builder<String> defsBuilder = ImmutableList.builder();
+    defsBuilder.add("//" + OKBUCK_DEFS);
+    defsBuilder.addAll(
         okbuckExt
             .extraDefs
             .stream()
             .map(it -> "//" + FileUtil.getRelativePath(getProject().getRootDir(), it))
-            .collect(Collectors.toSet());
-
-    defs.add("//" + OKBUCK_DEFS);
+            .collect(Collectors.toSet()));
 
     // generate .buckconfig.okbuck
     OkbuckBuckConfigGenerator.generate(
@@ -164,7 +165,7 @@ public class OkBuckTask extends DefaultTask {
             scalaCompiler,
             scalaLibrary,
             ProguardUtil.getProguardJarPath(getProject()),
-            defs)
+            defsBuilder.build())
         .render(okbuckBuckConfig());
   }
 }
