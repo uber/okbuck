@@ -11,15 +11,12 @@ public class WrapperExtension {
   /** List of changed files to trigger okbuck runs on */
   public Set<String> watch =
       Sets.newHashSet(
-          "**/*.pro",
-          "**/*.map",
           "**/*.gradle",
-          "**/gradle-wrapper.properties",
-          "**/lint.xml");
+          "**/gradle-wrapper.properties");
 
   /** List of added/removed directories to trigger okbuck runs on */
   public Set<String> sourceRoots =
-      Sets.newHashSet("**/src/**/java", "**/src/**/res", "**/src/**/resources");
+      Sets.newHashSet("**/src/**/java", "**/src/**/kotlin", "**/src/**/res", "**/src/**/resources");
 
   /** List of directories to ignore when querying for changes that should trigger okbuck runs */
   public Set<String> ignoredDirs = Sets.newHashSet(".okbuck");

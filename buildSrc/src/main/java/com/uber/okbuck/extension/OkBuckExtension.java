@@ -15,10 +15,10 @@ import org.gradle.api.tasks.Input;
 public class OkBuckExtension {
 
   /** Build Tools Version */
-  @Input public String buildToolVersion = "24.0.2";
+  @Input public String buildToolVersion = "28.0.2";
 
   /** Android target sdk version */
-  @Input public String target = "android-24";
+  @Input public String target = "android-28";
 
   /** Annotation processor classes of project dependencies */
   @Input public Map<String, List<String>> annotationProcessors = new HashMap<>();

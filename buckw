@@ -101,11 +101,9 @@ getChanges ( ) {
     "expression": ["allof",
         ["type", "f"],
         ["anyof",
-            ["suffix", "map"],
             ["suffix", "sq"],
-            ["suffix", "pro"],
             ["suffix", "gradle"],
-            ["name", ["gradle-wrapper.properties", "lint.xml"]]
+            ["name", ["gradle-wrapper.properties"]]
         ],
         ["not",
             ["dirname", ".okbuck"]
@@ -123,6 +121,7 @@ EOT`
         ["anyof",
             ["match", "**/src/**/java", "wholename"],
             ["match", "**/src/**/res", "wholename"],
+            ["match", "**/src/**/kotlin", "wholename"],
             ["match", "**/src/**/resources", "wholename"]
         ],
         ["not",
