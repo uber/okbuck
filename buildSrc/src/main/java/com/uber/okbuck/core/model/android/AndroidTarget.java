@@ -17,18 +17,15 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.Var;
-import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.core.annotation.AnnotationProcessorCache;
 import com.uber.okbuck.core.manager.KotlinManager;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.model.jvm.JvmTarget;
 import com.uber.okbuck.core.model.jvm.TestOptions;
-import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.core.util.XmlUtil;
 import java.io.File;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -66,7 +63,6 @@ public abstract class AndroidTarget extends JvmTarget {
   private final String targetSdk;
   private final boolean debuggable;
   private final boolean generateR2;
-  private final String genDir;
   private final boolean isKotlin;
   private final boolean isKapt;
   private final boolean hasKotlinAndroidExtensions;
@@ -103,12 +99,6 @@ public abstract class AndroidTarget extends JvmTarget {
 
     // Butterknife support
     generateR2 = project.getPlugins().hasPlugin("com.jakewharton.butterknife");
-
-    // Create gen dir
-    genDir = Paths.get(OkBuckGradlePlugin.OKBUCK_GEN, getPath(), name).toString();
-    FileUtil.copyResourceToProject(
-        "gen/BUCK_FILE",
-        getRootProject().file(genDir).toPath().resolve(OkBuckGradlePlugin.BUCK).toFile());
 
     // Check if kotlin
     isKotlin = project.getPlugins().hasPlugin(KotlinAndroidPluginWrapper.class);
@@ -527,10 +517,6 @@ public abstract class AndroidTarget extends JvmTarget {
       }
     }
     return null;
-  }
-
-  File getGenPath(String... paths) {
-    return getRootProject().file(Paths.get(genDir, paths).toFile());
   }
 
   public RuleType getRuleType() {

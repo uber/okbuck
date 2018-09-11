@@ -28,7 +28,8 @@ public final class AndroidBinaryRuleComposer extends AndroidBuckRuleComposer {
     // no instance
   }
 
-  public static Rule compose(AndroidAppTarget target, String manifestRule, List<String> deps, String keystoreRuleName) {
+  public static Rule compose(
+      AndroidAppTarget target, String manifestRule, List<String> deps, String keystoreRuleName) {
     Set<String> mappedCpuFilters =
         target
             .getCpuFilters()
@@ -49,6 +50,15 @@ public final class AndroidBinaryRuleComposer extends AndroidBuckRuleComposer {
             : ImmutableList.of();
 
     String proguardConfig = target.getProguardConfig();
+    if (proguardConfig != null) {
+      ProjectUtil.getPlugin(target.getRootProject()).exportedPaths.add(proguardConfig);
+      String proguardMapping = target.getProguardMapping();
+      if (proguardMapping != null) {
+        ProjectUtil.getPlugin(target.getRootProject()).exportedPaths.add(proguardMapping);
+        deps.add(fileRule(proguardMapping));
+      }
+    }
+
     if (proguardConfig != null && target.getProguardMapping() != null) {
       deps.add(fileRule(target.getProguardMapping()));
     }
