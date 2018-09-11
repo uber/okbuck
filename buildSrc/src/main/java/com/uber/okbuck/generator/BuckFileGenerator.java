@@ -32,14 +32,13 @@ import com.uber.okbuck.template.android.AndroidRule;
 import com.uber.okbuck.template.android.ManifestRule;
 import com.uber.okbuck.template.android.ResourceRule;
 import com.uber.okbuck.template.core.Rule;
-import org.gradle.api.Project;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.gradle.api.Project;
 
 public final class BuckFileGenerator {
 
@@ -194,9 +193,7 @@ public final class BuckFileGenerator {
   }
 
   private static List<Rule> createRules(
-      AndroidAppTarget target,
-      List<String> additionalDeps,
-      List<String> additionalResDeps) {
+      AndroidAppTarget target, List<String> additionalDeps, List<String> additionalResDeps) {
     List<String> deps = new ArrayList<>();
     deps.add(":" + AndroidBuckRuleComposer.src(target));
 
@@ -204,7 +201,8 @@ public final class BuckFileGenerator {
 
     List<Rule> libRules =
         createRules(
-            target, target.getExopackage() != null ? target.getExopackage().getAppClass() : null,
+            target,
+            target.getExopackage() != null ? target.getExopackage().getAppClass() : null,
             additionalDeps,
             additionalResDeps);
     List<Rule> rules = new ArrayList<>(libRules);
@@ -216,7 +214,7 @@ public final class BuckFileGenerator {
           }
         });
 
-    String keystoreRuleName = KeystoreRuleComposer.compose(target);
+    Rule keystoreRule = KeystoreRuleComposer.compose(target);
 
     if (target.getExopackage() != null) {
       Rule exoPackageRule = ExopackageAndroidLibraryRuleComposer.compose(target);
@@ -224,10 +222,14 @@ public final class BuckFileGenerator {
       deps.add(exoPackageRule.buckName());
     }
 
-    if (keystoreRuleName != null) {
+    if (keystoreRule != null) {
+      rules.add(keystoreRule);
       rules.add(
           AndroidBinaryRuleComposer.compose(
-              target, ":" + AndroidBuckRuleComposer.manifest(target), deps, keystoreRuleName));
+              target,
+              ":" + AndroidBuckRuleComposer.manifest(target),
+              deps,
+              ":" + AndroidBuckRuleComposer.keystore(target)));
     }
 
     return rules;
@@ -259,9 +261,11 @@ public final class BuckFileGenerator {
 
   private static List<Rule> createRules(
       AndroidLibInstrumentationTarget target, List<Rule> mainLibTargetRules) {
-    return new ArrayList<>(createRules(target,
-        filterAndroidDepRules(mainLibTargetRules),
-        filterAndroidResDepRules(mainLibTargetRules)));
+    return new ArrayList<>(
+        createRules(
+            target,
+            filterAndroidDepRules(mainLibTargetRules),
+            filterAndroidResDepRules(mainLibTargetRules)));
   }
 
   private static TreeMultimap<String, String> createLoadStatements(

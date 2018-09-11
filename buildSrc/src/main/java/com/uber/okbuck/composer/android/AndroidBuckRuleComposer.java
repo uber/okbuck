@@ -2,7 +2,6 @@ package com.uber.okbuck.composer.android;
 
 import com.uber.okbuck.composer.jvm.JvmBuckRuleComposer;
 import com.uber.okbuck.core.model.android.AndroidAppTarget;
-import com.uber.okbuck.core.model.android.AndroidLibInstrumentationTarget;
 import com.uber.okbuck.core.model.android.AndroidTarget;
 
 public abstract class AndroidBuckRuleComposer extends JvmBuckRuleComposer {
@@ -29,6 +28,10 @@ public abstract class AndroidBuckRuleComposer extends JvmBuckRuleComposer {
 
   public static String manifest(AndroidTarget target) {
     return "manifest_" + target.getName();
+  }
+
+  public static String keystore(AndroidTarget target) {
+    return "keystore_" + target.getName();
   }
 
   static String appLib(AndroidTarget target) {
