@@ -28,11 +28,14 @@ import com.uber.okbuck.extension.ScalaExtension;
 import com.uber.okbuck.extension.WrapperExtension;
 import com.uber.okbuck.generator.BuckFileGenerator;
 import com.uber.okbuck.template.common.ExportFile;
+import com.uber.okbuck.template.core.Rule;
 import com.uber.okbuck.wrapper.BuckWrapperTask;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -76,7 +79,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
 
   public static final String OKBUCK_STATE = OKBUCK_STATE_DIR + "/STATE";
   public final Map<Project, Map<String, Scope>> scopes = new ConcurrentHashMap<>();
-  public final Set<String> keystores = Sets.newConcurrentHashSet();
+  public final Set<String> exportedPaths = Sets.newConcurrentHashSet();
 
   public DependencyCache depCache;
   public DependencyCache lintDepCache;
@@ -169,6 +172,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
                 transformManager.finalizeDependencies();
                 buckManager.finalizeDependencies();
                 manifestMergerManager.finalizeDependencies();
+                writeExportedFileRules(rootBuckProject, okbuckExt);
               });
 
           WrapperExtension wrapper = okbuckExt.getWrapperExtension();
@@ -194,20 +198,6 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
                               rootBuckProject
                                   .getConfigurations()
                                   .maybeCreate(cacheName + "ExtraDepCache")));
-
-          Set<String> currentProjectPaths =
-              okbuckExt
-                  .buckProjects
-                  .stream()
-                  .filter(project -> ProjectUtil.getType(project) != ProjectType.UNKNOWN)
-                  .map(
-                      project ->
-                          rootBuckProject
-                              .getProjectDir()
-                              .toPath()
-                              .relativize(project.getProjectDir().toPath())
-                              .toString())
-                  .collect(MoreCollectors.toImmutableSet());
 
           setupOkbuck.doFirst(
               task -> {
@@ -255,27 +245,13 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
                 buckManager.setupBuckBinary();
 
                 manifestMergerManager.fetchManifestMergerDeps();
-
-                // Write out keystore rules
-                for (String keystore : keystores) {
-                  File keystoreFile = rootBuckProject.file(keystore);
-                  File containingDir = keystoreFile.getParentFile();
-                  File buckFile = new File(containingDir, BUCK);
-                  try (OutputStream os =
-                      new FileOutputStream(
-                          buckFile, currentProjectPaths.contains(containingDir.toString()))) {
-                    new ExportFile().name(keystoreFile.getName()).render(os);
-                  } catch (IOException e) {
-                    throw new RuntimeException(e);
-                  }
-                }
               });
 
           // Create clean task
           Task okBuckClean =
               rootBuckProject
                   .getTasks()
-                  .create(OKBUCK_CLEAN, OkBuckCleanTask.class, currentProjectPaths);
+                  .create(OKBUCK_CLEAN, OkBuckCleanTask.class, okbuckExt.buckProjects);
           rootOkBuckTask.dependsOn(okBuckClean);
 
           // Create okbuck task on each project to generate their buck file
@@ -293,5 +269,41 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
                     okBuckClean.dependsOn(okbuckProjectTask);
                   });
         });
+  }
+
+  private void writeExportedFileRules(Project rootBuckProject, OkBuckExtension okBuckExtension) {
+    Set<String> currentProjectPaths =
+        okBuckExtension
+            .buckProjects
+            .stream()
+            .filter(project -> ProjectUtil.getType(project) != ProjectType.UNKNOWN)
+            .map(
+                project ->
+                    rootBuckProject
+                        .getProjectDir()
+                        .toPath()
+                        .relativize(project.getProjectDir().toPath())
+                        .toString())
+            .collect(MoreCollectors.toImmutableSet());
+    Map<String, Set<Rule>> pathToRules = new HashMap<>();
+    for (String exportedPath : exportedPaths) {
+      File exportedFile = rootBuckProject.file(exportedPath);
+      String containingPath =
+          FileUtil.getRelativePath(rootBuckProject.getProjectDir(), exportedFile.getParentFile());
+      Set<Rule> rules = pathToRules.getOrDefault(containingPath, new HashSet<>());
+      rules.add(new ExportFile().name(exportedFile.getName()));
+      pathToRules.put(containingPath, rules);
+    }
+    for (Map.Entry<String, Set<Rule>> entry : pathToRules.entrySet()) {
+      File buckFile = new File(entry.getKey(), BUCK);
+      try (OutputStream os =
+          new FileOutputStream(buckFile, currentProjectPaths.contains(entry.getKey()))) {
+        for (Rule rule : entry.getValue()) {
+          rule.render(os);
+        }
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }
   }
 }

@@ -189,7 +189,7 @@ public class AndroidAppTarget extends AndroidLibTarget {
     if (config != null) {
       String keystoreFilePath =
           FileUtil.getRelativePath(getRootProject().getProjectDir(), config.getStoreFile());
-      ProjectUtil.getPlugin(getProject()).keystores.add(keystoreFilePath);
+      ProjectUtil.getPlugin(getProject()).exportedPaths.add(keystoreFilePath);
       return Keystore.create(
           keystoreFilePath,
           config.getKeyAlias(),
