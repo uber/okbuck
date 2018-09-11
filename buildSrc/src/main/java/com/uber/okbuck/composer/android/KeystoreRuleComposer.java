@@ -1,43 +1,27 @@
 package com.uber.okbuck.composer.android;
 
-import com.uber.okbuck.composer.base.BuckRuleComposer;
 import com.uber.okbuck.core.model.android.AndroidAppTarget;
-import com.uber.okbuck.core.util.FileUtil;
+import com.uber.okbuck.core.model.android.Keystore;
 import com.uber.okbuck.template.android.KeystoreRule;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
+import com.uber.okbuck.template.core.Rule;
 import javax.annotation.Nullable;
 
-public final class KeystoreRuleComposer extends BuckRuleComposer {
-
-  private static final String STORE_FILE = "app.keystore";
-  private static final String STORE_FILE_PROPS = "app.keystore.properties";
+public final class KeystoreRuleComposer extends AndroidBuckRuleComposer {
 
   private KeystoreRuleComposer() {
     // no instance
   }
 
   @Nullable
-  public static String compose(AndroidAppTarget target) {
-    AndroidAppTarget.Keystore keystore = target.getKeystore();
+  public static Rule compose(AndroidAppTarget target) {
+    Keystore keystore = target.getKeystore();
     if (keystore != null) {
-      Path keyStoreGen = keystore.getPath().toPath().resolve(STORE_FILE);
-      try {
-        Files.copy(
-            keystore.getStoreFile().toPath(), keyStoreGen, StandardCopyOption.REPLACE_EXISTING);
-      } catch (IOException ignored) {
-      }
-
-      new KeystoreRule()
+      return new KeystoreRule()
+          .storeFile(fileRule(keystore.getStoreFile()))
           .alias(keystore.getAlias())
           .storePassword(keystore.getStorePassword())
           .keyPassword(keystore.getKeyPassword())
-          .render(keystore.getPath().toPath().resolve(STORE_FILE_PROPS));
-
-      return fileRule(
-          FileUtil.getRelativePath(target.getRootProject().getProjectDir(), keyStoreGen.toFile()));
+          .name(keystore(target));
     } else {
       throw new IllegalStateException(
           target.getName() + " of " + target.getPath() + " has no signing config set!");

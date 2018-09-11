@@ -4,10 +4,8 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.uber.okbuck.OkBuckGradlePlugin;
-import com.uber.okbuck.core.model.base.ProjectType;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.MoreCollectors;
-import com.uber.okbuck.core.util.ProjectUtil;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -24,11 +22,11 @@ import org.gradle.api.tasks.TaskAction;
 @SuppressWarnings({"WeakerAccess", "CanBeFinal", "unused", "ResultOfMethodCallIgnored", "NewApi"})
 public class OkBuckCleanTask extends DefaultTask {
 
-  @Input public Set<Project> projects;
+  @Input public Set<String> currentProjectPaths;
 
   @Inject
-  public OkBuckCleanTask(Set<Project> projects) {
-    this.projects = projects;
+  public OkBuckCleanTask(Set<String> currentProjectPaths) {
+    this.currentProjectPaths = currentProjectPaths;
   }
 
   @TaskAction
@@ -53,14 +51,6 @@ public class OkBuckCleanTask extends DefaultTask {
       okbuckState.getParentFile().mkdirs();
       okbuckState.createNewFile();
     }
-
-    // Get current project relative paths
-    Set<String> currentProjectPaths =
-        projects
-            .stream()
-            .filter(project -> ProjectUtil.getType(project) != ProjectType.UNKNOWN)
-            .map(project -> rootProjectPath.relativize(project.getProjectDir().toPath()).toString())
-            .collect(MoreCollectors.toImmutableSet());
 
     Sets.SetView<String> difference = Sets.difference(lastProjectPaths, currentProjectPaths);
 

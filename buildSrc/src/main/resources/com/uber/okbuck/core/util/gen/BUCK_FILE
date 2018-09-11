@@ -4,11 +4,3 @@ for file in glob(['proguard.pro', 'proguard.map']):
     mode = 'reference',
     visibility = ['PUBLIC'],
   )
-
-for keystoreFile in glob(['app.keystore']):
-    keystore(
-        name = keystoreFile,
-        store = keystoreFile,
-        properties = keystoreFile + '.properties',
-        visibility = ['PUBLIC'],
-    )

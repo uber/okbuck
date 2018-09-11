@@ -203,3 +203,24 @@ def okbuck_android_library(
             custom_lints = custom_lints,
             lint_options = lint_options,
         )
+
+def okbuck_keystore(
+    name,
+    storeFile,
+    alias,
+    storePassword,
+    keyPassword
+    ):
+    properties_rule = name + "_properties"
+    genrule(
+        name = properties_rule,
+        out = "keystore.properties",
+        cmd = 'printf "key.alias={}\\nkey.store.password={}\\nkey.alias.password={}\\n" > $OUT'.format(alias, storePassword, keyPassword)
+    )
+
+    keystore(
+        name = name,
+        store = storeFile,
+        properties = ':' + properties_rule,
+        visibility = ['PUBLIC'],
+    )

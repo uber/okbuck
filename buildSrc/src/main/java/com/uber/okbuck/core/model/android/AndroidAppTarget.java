@@ -9,6 +9,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.core.util.FileUtil;
+import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.extension.TestExtension;
 import com.uber.okbuck.extension.TransformExtension;
 import java.io.File;
@@ -186,12 +187,14 @@ public class AndroidAppTarget extends AndroidLibTarget {
         mergedConfig != null ? mergedConfig : getBaseVariant().getBuildType().getSigningConfig();
 
     if (config != null) {
-      return new Keystore(
-          config.getStoreFile(),
+      String keystoreFilePath =
+          FileUtil.getRelativePath(getRootProject().getProjectDir(), config.getStoreFile());
+      ProjectUtil.getPlugin(getProject()).keystores.add(keystoreFilePath);
+      return Keystore.create(
+          keystoreFilePath,
           config.getKeyAlias(),
           config.getStorePassword(),
-          config.getKeyPassword(),
-          getGenPath());
+          config.getKeyPassword());
     }
     return null;
   }
@@ -232,42 +235,5 @@ public class AndroidAppTarget extends AndroidLibTarget {
   @Nullable
   public final AndroidAppInstrumentationTarget getAppInstrumentationTarget() {
     return appInstrumentationTarget;
-  }
-
-  public static class Keystore {
-
-    Keystore(File storeFile, String alias, String storePassword, String keyPassword, File path) {
-      this.storeFile = storeFile;
-      this.alias = alias;
-      this.storePassword = storePassword;
-      this.keyPassword = keyPassword;
-      this.path = path;
-    }
-
-    public final File getStoreFile() {
-      return storeFile;
-    }
-
-    public final String getAlias() {
-      return alias;
-    }
-
-    public final String getStorePassword() {
-      return storePassword;
-    }
-
-    public final String getKeyPassword() {
-      return keyPassword;
-    }
-
-    public final File getPath() {
-      return path;
-    }
-
-    private final File storeFile;
-    private final String alias;
-    private final String storePassword;
-    private final String keyPassword;
-    private final File path;
   }
 }

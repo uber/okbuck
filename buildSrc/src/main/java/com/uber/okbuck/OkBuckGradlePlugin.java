@@ -1,6 +1,7 @@
 package com.uber.okbuck;
 
 import com.facebook.infer.annotation.Initializer;
+import com.google.common.collect.Sets;
 import com.uber.okbuck.core.annotation.AnnotationProcessorCache;
 import com.uber.okbuck.core.dependency.DependencyCache;
 import com.uber.okbuck.core.manager.BuckManager;
@@ -12,19 +13,28 @@ import com.uber.okbuck.core.manager.ManifestMergerManager;
 import com.uber.okbuck.core.manager.RobolectricManager;
 import com.uber.okbuck.core.manager.ScalaManager;
 import com.uber.okbuck.core.manager.TransformManager;
+import com.uber.okbuck.core.model.base.ProjectType;
 import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.model.base.TargetCache;
 import com.uber.okbuck.core.task.OkBuckCleanTask;
 import com.uber.okbuck.core.task.OkBuckTask;
 import com.uber.okbuck.core.util.D8Util;
 import com.uber.okbuck.core.util.FileUtil;
+import com.uber.okbuck.core.util.MoreCollectors;
+import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.extension.KotlinExtension;
 import com.uber.okbuck.extension.OkBuckExtension;
 import com.uber.okbuck.extension.ScalaExtension;
 import com.uber.okbuck.extension.WrapperExtension;
 import com.uber.okbuck.generator.BuckFileGenerator;
+import com.uber.okbuck.template.common.ExportFile;
 import com.uber.okbuck.wrapper.BuckWrapperTask;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -66,6 +76,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
 
   public static final String OKBUCK_STATE = OKBUCK_STATE_DIR + "/STATE";
   public final Map<Project, Map<String, Scope>> scopes = new ConcurrentHashMap<>();
+  public final Set<String> keystores = Sets.newConcurrentHashSet();
 
   public DependencyCache depCache;
   public DependencyCache lintDepCache;
@@ -184,6 +195,20 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
                                   .getConfigurations()
                                   .maybeCreate(cacheName + "ExtraDepCache")));
 
+          Set<String> currentProjectPaths =
+              okbuckExt
+                  .buckProjects
+                  .stream()
+                  .filter(project -> ProjectUtil.getType(project) != ProjectType.UNKNOWN)
+                  .map(
+                      project ->
+                          rootBuckProject
+                              .getProjectDir()
+                              .toPath()
+                              .relativize(project.getProjectDir().toPath())
+                              .toString())
+                  .collect(MoreCollectors.toImmutableSet());
+
           setupOkbuck.doFirst(
               task -> {
                 if (System.getProperty("okbuck.wrapper", "false").equals("false")) {
@@ -230,13 +255,27 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
                 buckManager.setupBuckBinary();
 
                 manifestMergerManager.fetchManifestMergerDeps();
+
+                // Write out keystore rules
+                for (String keystore : keystores) {
+                  File keystoreFile = rootBuckProject.file(keystore);
+                  File containingDir = keystoreFile.getParentFile();
+                  File buckFile = new File(containingDir, BUCK);
+                  try (OutputStream os =
+                      new FileOutputStream(
+                          buckFile, currentProjectPaths.contains(containingDir.toString()))) {
+                    new ExportFile().name(keystoreFile.getName()).render(os);
+                  } catch (IOException e) {
+                    throw new RuntimeException(e);
+                  }
+                }
               });
 
           // Create clean task
           Task okBuckClean =
               rootBuckProject
                   .getTasks()
-                  .create(OKBUCK_CLEAN, OkBuckCleanTask.class, okbuckExt.buckProjects);
+                  .create(OKBUCK_CLEAN, OkBuckCleanTask.class, currentProjectPaths);
           rootOkBuckTask.dependsOn(okBuckClean);
 
           // Create okbuck task on each project to generate their buck file
