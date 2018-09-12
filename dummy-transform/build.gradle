@@ -5,5 +5,5 @@ plugins {
 apply from: "../dependencies.gradle"
 
 dependencies {
-    compile deps.build.androidPlugin
+    compile deps.build.androidPluginApi
 }

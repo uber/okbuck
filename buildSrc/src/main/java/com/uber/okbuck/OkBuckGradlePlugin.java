@@ -63,14 +63,14 @@ import org.gradle.api.artifacts.Configuration;
 public class OkBuckGradlePlugin implements Plugin<Project> {
   public static final String BUCK = "BUCK";
   public static final String OKBUCK = "okbuck";
-  public static final String WORKSPACE_PATH = ".okbuck/workspace";
-  public static final String GROUP = "okbuck";
+  private static final String DOT_OKBUCK = "." + OKBUCK;
+  public static final String WORKSPACE_PATH = DOT_OKBUCK + "/workspace";
+  public static final String GROUP = OKBUCK;
   public static final String BUCK_LINT = "buckLint";
-  public static final String OKBUCK_DEFS = ".okbuck/defs/DEFS";
-  public static final String OKBUCK_GEN = ".okbuck/gen";
-  public static final String OKBUCK_CONFIG = ".okbuck/config";
+  public static final String OKBUCK_DEFS = DOT_OKBUCK + "/defs/DEFS";
+  public static final String OKBUCK_CONFIG = DOT_OKBUCK + "/config";
 
-  private static final String OKBUCK_STATE_DIR = ".okbuck/state";
+  private static final String OKBUCK_STATE_DIR = DOT_OKBUCK + "/state";
   private static final String OKBUCK_CLEAN = "okbuckClean";
   private static final String BUCK_WRAPPER = "buckWrapper";
   private static final String FORCED_OKBUCK = "forcedOkbuck";
@@ -210,10 +210,6 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
           // Configure setup task
           setupOkbuck.doLast(
               task -> {
-                // Cleanup gen folder
-                FileUtil.deleteQuietly(
-                    rootBuckProject.getProjectDir().toPath().resolve(OKBUCK_GEN));
-
                 okbuckExt.buckProjects.forEach(p -> targetCache.getTargets(p));
 
                 depCache = new DependencyCache(rootBuckProject, dependencyManager, FORCED_OKBUCK);
@@ -225,7 +221,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
                 }
 
                 // Fetch transform deps if needed
-                if (okbuckExt.getExperimentalExtension().transform) {
+                if (!okbuckExt.getTransformExtension().transforms.isEmpty()) {
                   transformManager.fetchTransformDeps();
                 }
 
