@@ -18,8 +18,8 @@ public final class KeystoreRuleComposer extends AndroidBuckRuleComposer {
     if (keystore != null) {
       return new KeystoreRule()
           .storeFile(fileRule(keystore.getStoreFile()))
-          .alias(keystore.getAlias())
           .storePassword(keystore.getStorePassword())
+          .keyAlias(keystore.getKeyAlias())
           .keyPassword(keystore.getKeyPassword())
           .name(keystore(target));
     } else {
