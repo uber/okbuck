@@ -207,15 +207,15 @@ def okbuck_android_library(
 def okbuck_keystore(
     name,
     storeFile,
-    alias,
     storePassword,
+    keyAlias,
     keyPassword
     ):
     properties_rule = name + "_properties"
     genrule(
         name = properties_rule,
         out = "keystore.properties",
-        cmd = 'printf "key.alias={}\\nkey.store.password={}\\nkey.alias.password={}\\n" > $OUT'.format(alias, storePassword, keyPassword)
+        cmd = 'printf "key.alias={}\\nkey.store.password={}\\nkey.alias.password={}\\n" > $OUT'.format(keyAlias, storePassword, keyPassword)
     )
 
     keystore(
