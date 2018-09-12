@@ -2,7 +2,7 @@ package com.uber.okbuck.generator;
 
 import com.uber.okbuck.extension.OkBuckExtension;
 import com.uber.okbuck.template.config.BuckConfig;
-import java.util.Set;
+import java.util.List;
 import javax.annotation.Nullable;
 
 public final class OkbuckBuckConfigGenerator {
@@ -17,7 +17,7 @@ public final class OkbuckBuckConfigGenerator {
       @Nullable String scalaCompiler,
       @Nullable String scalaLibrary,
       @Nullable String proguardJar,
-      Set<String> defs) {
+      List<String> defs) {
 
     return new BuckConfig()
         .buildToolsVersion(okbuck.buildToolVersion)
