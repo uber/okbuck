@@ -172,8 +172,8 @@ public class AndroidAppTarget extends AndroidLibTarget {
       ProjectUtil.getPlugin(getProject()).exportedPaths.add(keystoreFilePath);
       return Keystore.create(
           keystoreFilePath,
-          config.getKeyAlias(),
           config.getStorePassword(),
+          config.getKeyAlias(),
           config.getKeyPassword());
     }
     return null;
