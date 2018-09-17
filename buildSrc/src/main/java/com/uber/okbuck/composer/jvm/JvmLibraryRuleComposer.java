@@ -10,6 +10,7 @@ import com.uber.okbuck.template.jvm.JvmRule;
 import java.util.List;
 import java.util.Set;
 
+@SuppressWarnings("NullAway")
 public final class JvmLibraryRuleComposer extends JvmBuckRuleComposer {
 
   private JvmLibraryRuleComposer() {
