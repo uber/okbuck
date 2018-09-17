@@ -116,8 +116,7 @@ public class AndroidAppTarget extends AndroidLibTarget {
   @Nullable
   public ExoPackageScope getExopackage() {
     if (getProp(getOkbuck().exopackage, false)) {
-      return new ExoPackageScope(
-          getProject(), getMain(), exoPackageDependencies, getMainManifest());
+      return new ExoPackageScope(getProject(), getMain(), exoPackageDependencies, getExoManifest());
     } else {
       return null;
     }
@@ -177,6 +176,21 @@ public class AndroidAppTarget extends AndroidLibTarget {
           config.getKeyPassword());
     }
     return null;
+  }
+
+  @Nullable
+  private String getExoManifest() {
+    String mainManifest = getMainManifest();
+    List<String> secondaryManifests = getSecondaryManifests();
+
+    if (secondaryManifests != null) {
+      Optional<String> optionalExoManifest =
+          secondaryManifests.stream().filter(manifest -> manifest.contains(getName())).findAny();
+
+      return optionalExoManifest.orElse(mainManifest);
+    }
+
+    return mainManifest;
   }
 
   public final boolean getMultidexEnabled() {

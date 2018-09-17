@@ -120,6 +120,7 @@ public class OkBuckTask extends DefaultTask {
     return getProject().file(OkBuckGradlePlugin.OKBUCK_CONFIG + "/okbuck.buckconfig");
   }
 
+  @SuppressWarnings("NullAway")
   private void generate(
       OkBuckExtension okbuckExt,
       @Nullable String groovyHome,
