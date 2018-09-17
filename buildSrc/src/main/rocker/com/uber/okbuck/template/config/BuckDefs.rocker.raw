@@ -161,9 +161,9 @@ def okbuck_manifest(
         cmd = ' '.join(cmds),
     )
 
-def isLintEnabled():
+def isLintEnabled(manifest):
 @if(enableLint) {
-    return True
+    return manifest != None
 } else {
     return False
 }
@@ -187,7 +187,7 @@ def okbuck_android_library(
         **kwargs
     )
 
-    if isLintEnabled() and not disable_lint and manifest is not None:
+    if isLintEnabled(manifest):
         aar_deps = []
         for dep in deps:
             if dep.startswith("//@externalDependencyCache/") and dep.endswith(".aar"):

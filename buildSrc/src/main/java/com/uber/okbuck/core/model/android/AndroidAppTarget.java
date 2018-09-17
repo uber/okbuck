@@ -181,17 +181,16 @@ public class AndroidAppTarget extends AndroidLibTarget {
   @Nullable
   private String getExoManifest() {
     String mainManifest = getMainManifest();
+    List<String> secondaryManifests = getSecondaryManifests();
 
-    if (mainManifest != null) {
-      String exoManifest = mainManifest.replace("main", "exo");
+    if (secondaryManifests != null) {
+      Optional<String> optionalExoManifest =
+          secondaryManifests.stream().filter(manifest -> manifest.contains(getName())).findAny();
 
-      if (getProject().file(exoManifest).exists()) {
-        return exoManifest;
-      } else {
-        return mainManifest;
-      }
+      return optionalExoManifest.orElse(mainManifest);
     }
-    return null;
+
+    return mainManifest;
   }
 
   public final boolean getMultidexEnabled() {
