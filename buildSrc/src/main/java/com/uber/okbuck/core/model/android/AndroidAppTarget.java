@@ -116,8 +116,7 @@ public class AndroidAppTarget extends AndroidLibTarget {
   @Nullable
   public ExoPackageScope getExopackage() {
     if (getProp(getOkbuck().exopackage, false)) {
-      return new ExoPackageScope(
-          getProject(), getMain(), exoPackageDependencies, getMainManifest());
+      return new ExoPackageScope(getProject(), getMain(), exoPackageDependencies, getExoManifest());
     } else {
       return null;
     }
@@ -175,6 +174,22 @@ public class AndroidAppTarget extends AndroidLibTarget {
           config.getStorePassword(),
           config.getKeyAlias(),
           config.getKeyPassword());
+    }
+    return null;
+  }
+
+  @Nullable
+  private String getExoManifest() {
+    String mainManifest = getMainManifest();
+
+    if (mainManifest != null) {
+      String exoManifest = mainManifest.replace("main", "exo");
+
+      if (getProject().file(exoManifest).exists()) {
+        return exoManifest;
+      } else {
+        return mainManifest;
+      }
     }
     return null;
   }
