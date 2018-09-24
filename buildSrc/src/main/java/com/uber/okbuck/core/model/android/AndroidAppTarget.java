@@ -185,7 +185,7 @@ public class AndroidAppTarget extends AndroidLibTarget {
 
     if (secondaryManifests != null) {
       Optional<String> optionalExoManifest =
-          secondaryManifests.stream().filter(manifest -> manifest.contains(getName())).findAny();
+          secondaryManifests.stream().filter(manifest -> manifest.contains("/" + getName() + "/")).findAny();
 
       return optionalExoManifest.orElse(mainManifest);
     }
