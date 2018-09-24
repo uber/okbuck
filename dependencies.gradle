@@ -1,6 +1,6 @@
 def versions = [
-        androidPlugin      : "3.2.0-rc03",
-        androidTools       : "26.2.0-rc03",
+        androidPlugin      : "3.2.0",
+        androidTools       : "26.2.0",
         butterKnife        : "9.0.0-SNAPSHOT",
         dagger             : "2.15",
         kotlin             : "1.2.61",
@@ -29,7 +29,7 @@ def build = [
 ]
 
 def buildConfig = [
-        buildTools: "28.0.2",
+        buildTools: "28.0.3",
         compileSdk: 28,
         minSdk    : 16,
         targetSdk : 28,
