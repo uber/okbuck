@@ -123,6 +123,7 @@ def okbuck_lint(
         name = name,
         srcs = srcs + resources,
         out = "{}_out".format(name),
+        type = 'okbuck_lint',
         bash = bash
     )
 
@@ -158,6 +159,7 @@ def okbuck_manifest(
         name = name,
         srcs = [main_manifest] + secondary_manifests,
         out = 'AndroidManifest.xml',
+        type = 'okbuck_manifest',
         cmd = ' '.join(cmds),
     )
 
@@ -214,7 +216,8 @@ def okbuck_keystore(
     properties_rule = name + "_properties"
     genrule(
         name = properties_rule,
-        out = "keystore.properties",
+        out = 'keystore.properties',
+        type = 'okbuck_keystore',
         cmd = 'printf "key.alias={}\\nkey.store.password={}\\nkey.alias.password={}\\n" > $OUT'.format(keyAlias, storePassword, keyPassword)
     )
 
