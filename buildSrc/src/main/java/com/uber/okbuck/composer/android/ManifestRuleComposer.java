@@ -18,6 +18,7 @@ public final class ManifestRuleComposer extends AndroidBuckRuleComposer {
         .versionCode(target.getVersionCode())
         .versionName(target.getVersionName())
         .mainManifest(target.getMainManifest())
+        .secondaryManifests(target.getSecondaryManifests())
         .name(manifest(target));
   }
 }
