@@ -594,6 +594,11 @@ public abstract class AndroidTarget extends JvmTarget {
     return applicationIdSuffix;
   }
 
+  @Nullable
+  public String getApplicationPackage() {
+    return null;
+  }
+
   public final String getMinSdk() {
     return minSdk;
   }

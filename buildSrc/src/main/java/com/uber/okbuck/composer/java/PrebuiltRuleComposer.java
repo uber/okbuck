@@ -20,6 +20,7 @@ public class PrebuiltRuleComposer extends JvmBuckRuleComposer {
    * @param dependencies External Dependencies whose rule needs to be created
    * @return List of rules
    */
+  @SuppressWarnings("NullAway")
   public static List<Rule> compose(Collection<ExternalDependency> dependencies) {
     return dependencies
         .stream()
