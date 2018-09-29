@@ -82,7 +82,7 @@ def addCommonConfigurationForAndroidModules(Project project) {
     }
 
     def variants
-    if (project.plugins.hasPlugin("com.android.application") || project.plugins.hasPlugin("com.android.application")) {
+    if (project.plugins.hasPlugin("com.android.library") || project.plugins.hasPlugin("com.android.application")) {
         project.android {
             signingConfigs {
                 debug {
@@ -168,6 +168,7 @@ okbuck {
 
     test {
         espresso = true
+        espressoForLibraries = true
         robolectric = true
     }
 

@@ -29,7 +29,6 @@ import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.extension.VisibilityExtension;
 import com.uber.okbuck.template.android.AndroidRule;
-import com.uber.okbuck.template.android.ManifestRule;
 import com.uber.okbuck.template.android.ResourceRule;
 import com.uber.okbuck.template.core.Rule;
 import java.io.File;
@@ -130,7 +129,7 @@ public final class BuckFileGenerator {
       List<String> extraResDeps) {
 
     // Manifest
-    Rule manifestRule = ManifestRuleComposer.compose(target);
+    Rule manifestRule = ManifestRuleComposer.composeForLibrary(target);
     List<Rule> androidLibRules = new ArrayList<>();
 
     androidLibRules.add(manifestRule);
@@ -184,10 +183,6 @@ public final class BuckFileGenerator {
     return new ArrayList<>(androidLibRules);
   }
 
-  private static List<Rule> createRules(AndroidLibTarget target, @Nullable String appClass) {
-    return createRules(target, appClass, new ArrayList<>(), new ArrayList<>());
-  }
-
   private static List<Rule> createRules(AndroidLibTarget target) {
     return createRules(target, null, new ArrayList<>(), new ArrayList<>());
   }
@@ -224,10 +219,14 @@ public final class BuckFileGenerator {
 
     if (keystoreRule != null) {
       rules.add(keystoreRule);
+
+      Rule appManifest = ManifestRuleComposer.composeForBinary(target);
+      rules.add(appManifest);
+
       rules.add(
           AndroidBinaryRuleComposer.compose(
               target,
-              ":" + AndroidBuckRuleComposer.manifest(target),
+              appManifest.buckName(),
               deps,
               ":" + AndroidBuckRuleComposer.keystore(target)));
     }
@@ -252,9 +251,12 @@ public final class BuckFileGenerator {
             filterAndroidResDepRules(mainApkTargetRules));
     List<Rule> rules = new ArrayList<>(libRules);
 
+    Rule testAppManifest = ManifestRuleComposer.composeForBinary(target);
+    rules.add(testAppManifest);
+
     rules.add(
         AndroidInstrumentationApkRuleComposer.compose(
-            filterAndroidDepRules(rules), mainApkTarget, filterAndroidManifestRule(rules)));
+            filterAndroidDepRules(rules), mainApkTarget, testAppManifest.buckName()));
     rules.add(AndroidInstrumentationTestRuleComposer.compose(mainApkTarget));
     return rules;
   }
@@ -285,16 +287,6 @@ public final class BuckFileGenerator {
         .filter(rule -> rule instanceof AndroidRule || rule instanceof ResourceRule)
         .map(Rule::buckName)
         .collect(Collectors.toList());
-  }
-
-  @Nullable
-  private static String filterAndroidManifestRule(List<Rule> rules) {
-    return rules
-        .stream()
-        .filter(rule -> rule instanceof ManifestRule)
-        .map(Rule::buckName)
-        .findFirst()
-        .orElse(null);
   }
 
   private static List<String> filterAndroidResDepRules(List<Rule> rules) {

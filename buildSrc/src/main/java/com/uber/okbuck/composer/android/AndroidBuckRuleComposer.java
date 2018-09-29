@@ -26,8 +26,12 @@ public abstract class AndroidBuckRuleComposer extends JvmBuckRuleComposer {
     return target.getName() + "_" + aidlDir.replaceAll("[/-]", "_") + "_aidls";
   }
 
-  public static String manifest(AndroidTarget target) {
-    return "manifest_" + target.getName();
+  static String libManifest(AndroidTarget target) {
+    return "manifest_lib_" + target.getName();
+  }
+
+  static String binManifest(AndroidTarget target) {
+    return "manifest_bin_" + target.getName();
   }
 
   public static String keystore(AndroidTarget target) {

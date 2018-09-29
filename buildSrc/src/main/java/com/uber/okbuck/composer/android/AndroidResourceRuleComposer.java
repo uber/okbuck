@@ -31,7 +31,7 @@ public final class AndroidResourceRuleComposer extends AndroidBuckRuleComposer {
         .pkg(target.getPackage())
         .res(target.getResDirs())
         .assets(target.getAssetDirs())
-        .resourceUnion(target.getOkbuck().resourceUnion)
+        .resourceUnion(target.getOkbuck().resourceUnionPackage != null)
         .defaultVisibility()
         .ruleType(RuleType.ANDROID_RESOURCE.getBuckName())
         .deps(resDeps)

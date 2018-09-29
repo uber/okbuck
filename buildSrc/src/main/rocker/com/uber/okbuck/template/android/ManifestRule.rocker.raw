@@ -3,9 +3,9 @@
 String mainManifest,
 String minSdk,
 String targetSdk,
+String pkg,
 Integer versionCode,
 String versionName,
-String applicationPackage,
 boolean debuggable,
 Collection secondaryManifests
 )
@@ -14,14 +14,14 @@ okbuck_manifest(
     main_manifest = '@mainManifest',
     min_sdk = '@minSdk',
     target_sdk = '@targetSdk',
+@if (valid(pkg)) {
+    package = '@pkg',
+}
 @if (valid(versionCode)) {
     version_code = '@versionCode',
 }
 @if (valid(versionName)) {
     version_name = '@versionName',
-}
-@if (valid(applicationPackage)) {
-    application_id = '@applicationPackage',
 }
     debuggable = '@debuggable',
 @if (valid(secondaryManifests)) {

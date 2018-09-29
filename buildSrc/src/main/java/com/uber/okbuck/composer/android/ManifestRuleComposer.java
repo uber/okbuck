@@ -10,16 +10,22 @@ public final class ManifestRuleComposer extends AndroidBuckRuleComposer {
     // no instance
   }
 
-  public static Rule compose(AndroidTarget target) {
+  public static Rule composeForLibrary(AndroidTarget target) {
+    return compose(target).pkg(target.getPackage()).name(libManifest(target));
+  }
+
+  public static Rule composeForBinary(AndroidTarget target) {
+    return compose(target).pkg(target.getApplicationPackage()).name(binManifest(target));
+  }
+
+  private static ManifestRule compose(AndroidTarget target) {
     return new ManifestRule()
         .debuggable(target.getDebuggable())
         .minSdk(target.getMinSdk())
         .targetSdk(target.getTargetSdk())
         .versionCode(target.getVersionCode())
         .versionName(target.getVersionName())
-        .applicationPackage(target.getApplicationPackage())
         .mainManifest(target.getMainManifest())
-        .secondaryManifests(target.getSecondaryManifests())
-        .name(manifest(target));
+        .secondaryManifests(target.getSecondaryManifests());
   }
 }
