@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
     mTextView.setText(
         String.format(
             "%s %s, --from %s.",
-            getString(R.string.dummy_library_android_str),
+            getString(com.uber.okbuck.example.dummylibrary.R.string.dummy_library_android_str),
             mDummyAndroidClass.getAndroidWord(this),
             mDummyJavaClass.getJavaWord()));
 
@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
     GithubRepo repo = GithubRepo.create(100, "OkBuck", "auto buck");
     Toast.makeText(this, repo.name() + ": " + repo.description(), Toast.LENGTH_SHORT).show();
 
-    KotlinDataClass data = new KotlinDataClass("foo", R.string.foo);
+    KotlinDataClass data = new KotlinDataClass("foo", com.uber.okbuck.kotlin.android.R.string.foo);
     Pojo pojo = new Pojo();
   }
 
