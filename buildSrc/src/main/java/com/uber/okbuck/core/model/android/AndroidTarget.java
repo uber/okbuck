@@ -109,6 +109,8 @@ public abstract class AndroidTarget extends JvmTarget {
     lintExclude = getProp(getOkbuck().lintExclude, ImmutableList.of()).contains(name);
     testExclude = getProp(getOkbuck().testExclude, ImmutableList.of()).contains(name);
 
+    packageName = getOkbuck().resourceUnionPackage;
+
     @Var boolean hasKotlinExtension;
     try {
       AndroidExtensionsExtension androidExtensions =
@@ -360,6 +362,8 @@ public abstract class AndroidTarget extends JvmTarget {
   public String getPackage() {
     if (packageName == null) {
       ensureManifest();
+      Document manifestXml = XmlUtil.loadXml(getProject().file(mainManifest));
+      packageName = manifestXml.getDocumentElement().getAttribute("package").trim();
     }
 
     return packageName;
@@ -397,9 +401,6 @@ public abstract class AndroidTarget extends JvmTarget {
 
     secondaryManifests = new ArrayList<>(manifests);
     mainManifest = secondaryManifests.remove(0);
-
-    Document manifestXml = XmlUtil.loadXml(getProject().file(mainManifest));
-    packageName = manifestXml.getDocumentElement().getAttribute("package").trim();
   }
 
   static List<String> getJavaCompilerOptions(BaseVariant baseVariant) {
