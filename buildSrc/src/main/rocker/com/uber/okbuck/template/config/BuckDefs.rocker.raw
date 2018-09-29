@@ -137,6 +137,7 @@ def okbuck_manifest(
         target_sdk,
         version_code=None,
         version_name=None,
+        application_id=None,
         debuggable=False,
         secondary_manifests=[],
     ):
@@ -151,6 +152,8 @@ def okbuck_manifest(
       cmds.append("--property VERSION_CODE={}".format(version_code))
     if version_name:
       cmds.append("--property VERSION_NAME={}".format(version_name))
+    if applicationPackage:
+      cmds.append("--property PACKAGE={}".format(application_id))
     if debuggable:
           cmds.append("--debuggable true")
     cmds.append("--out $OUT")

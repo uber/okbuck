@@ -5,6 +5,7 @@ String minSdk,
 String targetSdk,
 Integer versionCode,
 String versionName,
+String applicationPackage,
 boolean debuggable,
 Collection secondaryManifests
 )
@@ -18,6 +19,9 @@ okbuck_manifest(
 }
 @if (valid(versionName)) {
     version_name = '@versionName',
+}
+@if (valid(applicationPackage)) {
+    application_id = '@applicationPackage',
 }
     debuggable = '@debuggable',
 @if (valid(secondaryManifests)) {

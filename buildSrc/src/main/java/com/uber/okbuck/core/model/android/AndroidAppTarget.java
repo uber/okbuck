@@ -64,13 +64,7 @@ public class AndroidAppTarget extends AndroidLibTarget {
     exoPackageDependencies = getProp(getOkbuck().appLibDependencies, ImmutableList.of());
     proguardMappingFile = getProp(getOkbuck().proguardMappingFile, null);
 
-    if (isTest) {
-      placeholders.put(
-          "applicationId", minus(getApplicationId(), ".test") + getApplicationIdSuffix() + ".test");
-    } else {
-      placeholders.put("applicationId", getApplicationId() + getApplicationIdSuffix());
-    }
-
+    placeholders.put("applicationId", getApplicationPackage());
     placeholders.putAll(getBaseVariant().getBuildType().getManifestPlaceholders());
     placeholders.putAll(getBaseVariant().getMergedFlavor().getManifestPlaceholders());
 
@@ -119,6 +113,15 @@ public class AndroidAppTarget extends AndroidLibTarget {
       return new ExoPackageScope(getProject(), getMain(), exoPackageDependencies, getExoManifest());
     } else {
       return null;
+    }
+  }
+
+  @Override
+  public String getApplicationPackage() {
+    if (getIsTest()) {
+      return minus(getApplicationId(), ".test") + getApplicationIdSuffix() + ".test";
+    } else {
+      return getApplicationId() + getApplicationIdSuffix();
     }
   }
 
@@ -185,7 +188,10 @@ public class AndroidAppTarget extends AndroidLibTarget {
 
     if (secondaryManifests != null) {
       Optional<String> optionalExoManifest =
-          secondaryManifests.stream().filter(manifest -> manifest.contains("/" + getName() + "/")).findAny();
+          secondaryManifests
+              .stream()
+              .filter(manifest -> manifest.contains("/" + getName() + "/"))
+              .findAny();
 
       return optionalExoManifest.orElse(mainManifest);
     }
