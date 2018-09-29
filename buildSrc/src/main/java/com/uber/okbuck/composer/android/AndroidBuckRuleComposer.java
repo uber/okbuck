@@ -1,7 +1,9 @@
 package com.uber.okbuck.composer.android;
 
 import com.uber.okbuck.composer.jvm.JvmBuckRuleComposer;
+import com.uber.okbuck.core.model.android.AndroidAppInstrumentationTarget;
 import com.uber.okbuck.core.model.android.AndroidAppTarget;
+import com.uber.okbuck.core.model.android.AndroidLibInstrumentationTarget;
 import com.uber.okbuck.core.model.android.AndroidTarget;
 
 public abstract class AndroidBuckRuleComposer extends JvmBuckRuleComposer {
@@ -26,8 +28,24 @@ public abstract class AndroidBuckRuleComposer extends JvmBuckRuleComposer {
     return target.getName() + "_" + aidlDir.replaceAll("[/-]", "_") + "_aidls";
   }
 
-  public static String manifest(AndroidTarget target) {
-    return "manifest_" + target.getName();
+  static String libManifest(AndroidTarget target) {
+    return "manifest_lib_" + target.getName();
+  }
+
+  static String binManifest(AndroidTarget target) {
+    return "manifest_" + getManifestTargetSuffix(target) + target.getName();
+  }
+
+  private static String getManifestTargetSuffix(AndroidTarget target) {
+    if (target instanceof AndroidAppInstrumentationTarget) {
+      return "test_";
+    } else if (target instanceof AndroidLibInstrumentationTarget) {
+      return "libtest_";
+    } else if (target instanceof AndroidAppTarget) {
+      return "bin_";
+    } else {
+      throw new IllegalStateException();
+    }
   }
 
   public static String keystore(AndroidTarget target) {

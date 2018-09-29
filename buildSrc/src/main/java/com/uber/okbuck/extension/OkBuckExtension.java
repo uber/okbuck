@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.Input;
@@ -54,7 +55,7 @@ public class OkBuckExtension {
   @Input public Set<File> extraDefs = new HashSet<>();
 
   /** Set to use buck's resource_union behavior */
-  @Input public String resourceUnionPackage;
+  @Nullable @Input public String resourceUnionPackage;
 
   /** Whether to generate android_build_config rules for library projects */
   @Input public boolean libraryBuildConfig = true;
