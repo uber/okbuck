@@ -152,7 +152,7 @@ def okbuck_manifest(
       cmds.append("--property VERSION_CODE={}".format(version_code))
     if version_name:
       cmds.append("--property VERSION_NAME={}".format(version_name))
-    if applicationPackage:
+    if application_id:
       cmds.append("--property PACKAGE={}".format(application_id))
     if debuggable:
           cmds.append("--debuggable true")
