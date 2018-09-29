@@ -16,8 +16,6 @@ okbuck_manifest(
     target_sdk = '@targetSdk',
 @if (valid(pkg)) {
     package = '@pkg',
-} else {
-    package = '',
 }
 @if (valid(versionCode)) {
     version_code = '@versionCode',

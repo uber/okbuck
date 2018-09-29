@@ -135,7 +135,7 @@ def okbuck_manifest(
         main_manifest,
         min_sdk,
         target_sdk,
-        package,
+        package=None,
         version_code=None,
         version_name=None,
         debuggable=False,
@@ -151,7 +151,8 @@ def okbuck_manifest(
         cmds.append("--overlays {}".format(" ".join(["$SRCDIR/" + m for m in secondary_manifests])))
     cmds.append("--property MIN_SDK_VERSION={}".format(min_sdk))
     cmds.append("--property TARGET_SDK_VERSION={}".format(target_sdk))
-    cmds.append("--property PACKAGE={}".format(package))
+    if package:
+      cmds.append("--property PACKAGE={}".format(package))
     if version_code:
       cmds.append("--property VERSION_CODE={}".format(version_code))
     if version_name:
