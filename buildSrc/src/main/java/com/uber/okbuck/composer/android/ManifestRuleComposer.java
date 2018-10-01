@@ -11,11 +11,11 @@ public final class ManifestRuleComposer extends AndroidBuckRuleComposer {
   }
 
   public static Rule composeForLibrary(AndroidTarget target) {
-    return compose(target).pkg(target.getPackage()).name(libManifest(target));
+    return compose(target).pkg(target.getResPackage()).name(libManifest(target));
   }
 
   public static Rule composeForBinary(AndroidTarget target) {
-    return compose(target).pkg(target.getApplicationPackage()).name(binManifest(target));
+    return compose(target).pkg(target.getApplicationIdWithSuffix()).name(binManifest(target));
   }
 
   private static ManifestRule compose(AndroidTarget target) {

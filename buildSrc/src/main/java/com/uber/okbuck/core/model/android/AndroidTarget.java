@@ -74,6 +74,7 @@ public abstract class AndroidTarget extends JvmTarget {
   @Nullable private String mainManifest;
   @Nullable private List<String> secondaryManifests;
   @Nullable private String packageName;
+  @Nullable private String resPackageName;
 
   public AndroidTarget(Project project, String name, boolean isTest) {
     super(project, name);
@@ -109,7 +110,7 @@ public abstract class AndroidTarget extends JvmTarget {
     lintExclude = getProp(getOkbuck().lintExclude, ImmutableList.of()).contains(name);
     testExclude = getProp(getOkbuck().testExclude, ImmutableList.of()).contains(name);
 
-    packageName = getOkbuck().resourceUnionPackage;
+    resPackageName = getOkbuck().resourceUnionPackage;
 
     @Var boolean hasKotlinExtension;
     try {
@@ -359,14 +360,14 @@ public abstract class AndroidTarget extends JvmTarget {
   }
 
   @Nullable
-  public String getPackage() {
-    if (packageName == null) {
+  public String getResPackage() {
+    if (resPackageName == null) {
       ensureManifest();
       Document manifestXml = XmlUtil.loadXml(getProject().file(mainManifest));
-      packageName = manifestXml.getDocumentElement().getAttribute("package").trim();
+      resPackageName = manifestXml.getDocumentElement().getAttribute("package").trim();
     }
 
-    return packageName;
+    return resPackageName;
   }
 
   @Nullable
@@ -452,7 +453,7 @@ public abstract class AndroidTarget extends JvmTarget {
     options.append(resDirs.toString());
     options.append(KOTLIN_EXTENSIONS_OPTION);
     options.append("package=");
-    options.append(getPackage());
+    options.append(getResPackage());
 
     if (getHasExperimentalKotlinAndroidExtensions()) {
       options.append(",");
@@ -587,16 +588,16 @@ public abstract class AndroidTarget extends JvmTarget {
         .collect(Collectors.toSet());
   }
 
-  final String getApplicationId() {
-    return applicationId;
-  }
-
   final String getApplicationIdSuffix() {
     return applicationIdSuffix;
   }
 
+  public final String getApplicationIdBase() {
+    return applicationId;
+  }
+
   @Nullable
-  public String getApplicationPackage() {
+  public String getApplicationIdWithSuffix() {
     return null;
   }
 

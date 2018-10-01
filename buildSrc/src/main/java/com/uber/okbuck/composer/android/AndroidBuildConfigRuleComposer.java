@@ -13,7 +13,7 @@ public final class AndroidBuildConfigRuleComposer extends AndroidBuckRuleCompose
 
   public static Rule compose(AndroidTarget target) {
     return new BuildConfigRule()
-        .pkg(target.getPackage())
+        .pkg(target.getApplicationIdBase())
         .values(target.getBuildConfigFields())
         .defaultVisibility()
         .ruleType(RuleType.ANDROID_BUILD_CONFIG.getBuckName())
