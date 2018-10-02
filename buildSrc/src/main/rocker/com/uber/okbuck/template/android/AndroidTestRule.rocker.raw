@@ -48,6 +48,7 @@ robolectricManifest,
 runtimeDependency,
 generateR2,
 true,
+true,
 null,
 null,
 null

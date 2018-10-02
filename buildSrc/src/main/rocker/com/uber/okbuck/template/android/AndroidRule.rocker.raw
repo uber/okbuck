@@ -25,6 +25,7 @@ String robolectricManifest,
 String runtimeDependency,
 boolean generateR2,
 boolean disableLint,
+boolean disableLintTemplate,
 Collection customLints,
 String lintConfigXml,
 LintOptions lintOptions
@@ -79,6 +80,7 @@ env
     }
     ],
 }
+@if (!disableLintTemplate) {
 @if (!disableLint) {
 @if (valid(srcs)) {
     lint_src_dirs = [
@@ -127,6 +129,7 @@ env
         '--config $(location @(lintConfigXml))',
 }
     ],
+}
 }
 } else {
     disable_lint = True,
