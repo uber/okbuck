@@ -116,15 +116,6 @@ public class AndroidAppTarget extends AndroidLibTarget {
     }
   }
 
-  @Override
-  public String getApplicationIdWithSuffix() {
-    if (getIsTest()) {
-      return minus(getApplicationIdBase(), ".test") + getApplicationIdSuffix() + ".test";
-    } else {
-      return getApplicationIdBase() + getApplicationIdSuffix();
-    }
-  }
-
   @Nullable
   public String getProguardConfig() {
     if (minifyEnabled) {
@@ -160,6 +151,11 @@ public class AndroidAppTarget extends AndroidLibTarget {
   public List<Map<String, String>> getTransforms() {
     TransformExtension transform = getOkbuck().getTransformExtension();
     return getProp(transform.transforms, ImmutableList.of());
+  }
+
+  @Override
+  public String getPackage() {
+    return getOriginalPackage();
   }
 
   @Nullable

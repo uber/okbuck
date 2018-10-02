@@ -4,7 +4,7 @@ apply plugin: "com.squareup.sqldelight"
 
 android {
     defaultConfig {
-        applicationId "com.uber.okbuck.example"
+        applicationId "com.uber.okbuck.app"
         multiDexEnabled true
         buildConfigField "boolean", "CAN_JUMP", "true"
         buildConfigField "boolean", "XLOG_ENABLED", "true"

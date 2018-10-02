@@ -162,6 +162,8 @@ okbuck {
     ]
     buckProjects = project.subprojects.findAll { it.name != "plugin" && it.name != "transform-cli" }
 
+    lintExclude.put("another-app", ["debug"])
+
     intellij {
         sources = true
     }
