@@ -83,7 +83,6 @@ public final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
       androidRule.language("kotlin");
     }
 
-    androidRule.isLintTarget(true);
     if (target.getLintEnabled()) {
       String lintConfigPath;
       if (target.getLintOptions() != null

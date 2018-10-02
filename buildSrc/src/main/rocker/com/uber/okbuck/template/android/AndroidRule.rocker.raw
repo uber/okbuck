@@ -24,7 +24,6 @@ String manifest,
 String robolectricManifest,
 String runtimeDependency,
 boolean generateR2,
-boolean isLintTarget,
 boolean disableLint,
 Collection customLints,
 String lintConfigXml,
@@ -80,7 +79,6 @@ env
     }
     ],
 }
-@if (isLintTarget) {
 @if (!disableLint) {
 @if (valid(srcs)) {
     lint_src_dirs = [
@@ -88,7 +86,6 @@ env
         '@src',
     }
     ],
-}
 @if (valid(resources)) {
     lint_resource_dirs = [
     @for (resource : sorted(resources)) {
