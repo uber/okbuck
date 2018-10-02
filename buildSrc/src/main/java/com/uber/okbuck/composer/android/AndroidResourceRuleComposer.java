@@ -28,7 +28,7 @@ public final class AndroidResourceRuleComposer extends AndroidBuckRuleComposer {
     resDeps.addAll(extraResDeps);
 
     return new ResourceRule()
-        .pkg(target.getPackage())
+        .pkg(target.getResPackage())
         .res(target.getResDirs())
         .assets(target.getAssetDirs())
         .resourceUnion(target.getOkbuck().resourceUnionPackage != null)

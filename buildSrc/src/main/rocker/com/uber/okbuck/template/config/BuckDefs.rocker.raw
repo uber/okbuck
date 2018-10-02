@@ -182,7 +182,7 @@ def okbuck_android_library(
     deps=None,
     lint_src_dirs=None,
     lint_resource_dirs=None,
-    disable_lint = False,
+    disable_lint=False,
     custom_lints=None,
     lint_options=None,
     **kwargs
@@ -205,7 +205,7 @@ def okbuck_android_library(
         **kwargs
     )
 
-    if isLintEnabled(manifest):
+    if not disable_lint and isLintEnabled(manifest):
         aar_deps = []
         for dep in deps:
             if dep.startswith("//@externalDependencyCache/") and dep.endswith(".aar"):

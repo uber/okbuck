@@ -44,6 +44,7 @@ public final class ExopackageAndroidLibraryRuleComposer extends AndroidBuckRuleC
             .apPlugins(getApPlugins(target.getApPlugins()))
             .aptDeps(libraryAptDeps)
             .providedDeps(providedDeps)
+            .disableLint(true)
             .options(mapOptions(target.getMain().getCompilerOptions()));
 
     if (target.getRuleType().equals(RuleType.KOTLIN_ANDROID_LIBRARY)) {

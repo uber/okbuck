@@ -110,7 +110,7 @@ public final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
           .customLints(customLintTargets)
           .lintOptions(target.getLintOptions());
     } else {
-      androidRule.disableLint();
+      androidRule.disableLint(true);
     }
 
     return androidRule

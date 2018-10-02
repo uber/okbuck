@@ -64,7 +64,7 @@ public class AndroidAppTarget extends AndroidLibTarget {
     exoPackageDependencies = getProp(getOkbuck().appLibDependencies, ImmutableList.of());
     proguardMappingFile = getProp(getOkbuck().proguardMappingFile, null);
 
-    placeholders.put("applicationId", getApplicationPackage());
+    placeholders.put("applicationId", this.getApplicationIdWithSuffix());
     placeholders.putAll(getBaseVariant().getBuildType().getManifestPlaceholders());
     placeholders.putAll(getBaseVariant().getMergedFlavor().getManifestPlaceholders());
 
@@ -116,15 +116,6 @@ public class AndroidAppTarget extends AndroidLibTarget {
     }
   }
 
-  @Override
-  public String getApplicationPackage() {
-    if (getIsTest()) {
-      return minus(getApplicationId(), ".test") + getApplicationIdSuffix() + ".test";
-    } else {
-      return getApplicationId() + getApplicationIdSuffix();
-    }
-  }
-
   @Nullable
   public String getProguardConfig() {
     if (minifyEnabled) {
@@ -160,6 +151,11 @@ public class AndroidAppTarget extends AndroidLibTarget {
   public List<Map<String, String>> getTransforms() {
     TransformExtension transform = getOkbuck().getTransformExtension();
     return getProp(transform.transforms, ImmutableList.of());
+  }
+
+  @Override
+  public String getPackage() {
+    return getOriginalPackage();
   }
 
   @Nullable

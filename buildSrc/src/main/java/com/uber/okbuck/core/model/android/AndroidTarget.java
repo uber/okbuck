@@ -46,8 +46,6 @@ import org.gradle.api.tasks.testing.Test;
 import org.jetbrains.kotlin.gradle.internal.AndroidExtensionsExtension;
 import org.jetbrains.kotlin.gradle.plugin.KotlinAndroidPluginWrapper;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
 /** An Android target */
 public abstract class AndroidTarget extends JvmTarget {
@@ -73,7 +71,8 @@ public abstract class AndroidTarget extends JvmTarget {
 
   @Nullable private String mainManifest;
   @Nullable private List<String> secondaryManifests;
-  @Nullable private String packageName;
+  @Nullable private String originalPackageName;
+  @Nullable private String resPackageName;
 
   public AndroidTarget(Project project, String name, boolean isTest) {
     super(project, name);
@@ -109,7 +108,7 @@ public abstract class AndroidTarget extends JvmTarget {
     lintExclude = getProp(getOkbuck().lintExclude, ImmutableList.of()).contains(name);
     testExclude = getProp(getOkbuck().testExclude, ImmutableList.of()).contains(name);
 
-    packageName = getOkbuck().resourceUnionPackage;
+    resPackageName = getOkbuck().resourceUnionPackage;
 
     @Var boolean hasKotlinExtension;
     try {
@@ -262,14 +261,8 @@ public abstract class AndroidTarget extends JvmTarget {
   public List<String> getBuildConfigFields() {
     List<String> buildConfig = new ArrayList<>();
 
-    if (isTest) {
-      buildConfig.add(
-          String.format(
-              "String APPLICATION_ID = \"%s%s.test\"", applicationId, applicationIdSuffix));
-    } else {
-      buildConfig.add(
-          String.format("String APPLICATION_ID = \"%s%s\"", applicationId, applicationIdSuffix));
-    }
+    buildConfig.add(String.format("String APPLICATION_ID = \"%s\"", getApplicationIdWithSuffix()));
+
     buildConfig.add(String.format("String BUILD_TYPE = \"%s\"", getBuildType()));
     buildConfig.add(String.format("String FLAVOR = \"%s\"", getFlavor()));
 
@@ -359,17 +352,6 @@ public abstract class AndroidTarget extends JvmTarget {
   }
 
   @Nullable
-  public String getPackage() {
-    if (packageName == null) {
-      ensureManifest();
-      Document manifestXml = XmlUtil.loadXml(getProject().file(mainManifest));
-      packageName = manifestXml.getDocumentElement().getAttribute("package").trim();
-    }
-
-    return packageName;
-  }
-
-  @Nullable
   public String getMainManifest() {
     if (mainManifest == null) {
       ensureManifest();
@@ -385,7 +367,7 @@ public abstract class AndroidTarget extends JvmTarget {
 
   @Initializer
   @SuppressWarnings("NullAway")
-  private void ensureManifest() {
+  void ensureManifest() {
     Set<String> manifests =
         getBaseVariant()
             .getSourceSets()
@@ -452,7 +434,7 @@ public abstract class AndroidTarget extends JvmTarget {
     options.append(resDirs.toString());
     options.append(KOTLIN_EXTENSIONS_OPTION);
     options.append("package=");
-    options.append(getPackage());
+    options.append(getResPackage());
 
     if (getHasExperimentalKotlinAndroidExtensions()) {
       options.append(",");
@@ -478,20 +460,6 @@ public abstract class AndroidTarget extends JvmTarget {
             options.remove(index);
           }
         });
-  }
-
-  private static void getSdkNode(Document manifestXml, String minSdk, String targetSdk) {
-    NodeList usesSdkNodes = manifestXml.getElementsByTagName("uses-sdk");
-
-    Element usesSdkNode;
-    if (usesSdkNodes.getLength() == 0) {
-      usesSdkNode = manifestXml.createElement("uses-sdk");
-      manifestXml.getDocumentElement().appendChild(usesSdkNode);
-    } else {
-      usesSdkNode = (Element) usesSdkNodes.item(0);
-    }
-    usesSdkNode.setAttribute("android:minSdkVersion", minSdk);
-    usesSdkNode.setAttribute("android:targetSdkVersion", targetSdk);
   }
 
   @Nullable
@@ -587,17 +555,40 @@ public abstract class AndroidTarget extends JvmTarget {
         .collect(Collectors.toSet());
   }
 
-  final String getApplicationId() {
-    return applicationId;
+  String getOriginalPackage() {
+    if (originalPackageName == null) {
+      Document manifestXml = XmlUtil.loadXml(getProject().file(getMainManifest()));
+      originalPackageName = manifestXml.getDocumentElement().getAttribute("package").trim();
+    }
+    return originalPackageName;
   }
 
   final String getApplicationIdSuffix() {
     return applicationIdSuffix;
   }
 
-  @Nullable
-  public String getApplicationPackage() {
-    return null;
+  final String getApplicationIdBase() {
+    return applicationId;
+  }
+
+  public String getApplicationIdWithSuffix() {
+    if (getIsTest()) {
+      return minus(getApplicationIdBase(), ".test") + getApplicationIdSuffix() + ".test";
+    } else {
+      return getApplicationIdBase() + getApplicationIdSuffix();
+    }
+  }
+
+  public String getPackage() {
+    return getApplicationIdBase();
+  }
+
+  public String getResPackage() {
+    if (resPackageName == null) {
+      return getOriginalPackage();
+    }
+
+    return resPackageName;
   }
 
   public final String getMinSdk() {
