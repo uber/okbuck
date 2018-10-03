@@ -82,6 +82,9 @@ public class OkBuckCleanTask extends DefaultTask {
     // Delete old .okbuck/gen dir
     FileUtil.deleteQuietly(rootProjectPath.resolve(".okbuck/gen"));
 
+    // Delete old .buckconfig.local
+    FileUtil.deleteQuietly(rootProjectPath.resolve(".buckconfig.local"));
+
     // Save generated project's BUCK file path
     Files.write(
         okbuckState.toPath(),
