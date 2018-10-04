@@ -1,5 +1,10 @@
 @import java.util.Collection
-@args (String pkg, Collection res, Collection assets, boolean resourceUnion)
+@args (
+String pkg,
+Collection res,
+String projectRes,
+Collection assets,
+boolean resourceUnion)
 @com.uber.okbuck.template.base.BuckRule.template() -> {
     package = '@pkg',
 @if (valid(res)) {
@@ -8,6 +13,9 @@
         ('@r', '**'),
     }
     ]),
+}
+@if (valid(projectRes)) {
+    project_res = '@projectRes',
 }
 @if (valid(assets)) {
     assets = subdir_glob([

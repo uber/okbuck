@@ -313,6 +313,19 @@ public abstract class AndroidTarget extends JvmTarget {
         .collect(Collectors.toSet());
   }
 
+  @Nullable
+  public String getProjectResDir() {
+    List<SourceProvider> sourceSets = getBaseVariant().getSourceSets();
+    if (!sourceSets.isEmpty()) {
+      SourceProvider main = sourceSets.get(0);
+      Set<String> mainResDirectories = getAvailable(main.getResDirectories());
+      if (mainResDirectories.size() > 0) {
+        return mainResDirectories.iterator().next();
+      }
+    }
+    return null;
+  }
+
   /** Returns a map of each resource directory to its corresponding variant */
   Map<String, String> getResVariantDirs() {
     Map<String, String> variantDirs = new HashMap<>();
