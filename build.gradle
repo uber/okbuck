@@ -125,6 +125,8 @@ okbuck {
     buildToolVersion = config.build.buildTools
     target = "android-${config.build.compileSdk}"
 
+    extraDepCachesMap << [tools:true]
+
     primaryDexPatterns = [
             "app": [
                     "^com/uber/okbuck/example/AppShell^",
@@ -197,6 +199,7 @@ okbuck {
     }
 
     externalDependencies {
+        versionless = true
         allowAllVersions = [
             "com.android.tools.build:builder-model",
             "com.android.tools.build:builder-test-api",
@@ -217,7 +220,6 @@ okbuck {
             "com.google.guava:guava",
             "com.google.protobuf:protobuf-java",
             "com.squareup:javapoet",
-            "com.squareup:javawriter",
             "commons-codec:commons-codec",
             "commons-logging:commons-logging",
             "org.apache.commons:commons-compress",
@@ -228,8 +230,6 @@ okbuck {
             "org.checkerframework:checker-compat-qual",
             "org.jetbrains.kotlin:kotlin-reflect",
             "org.jetbrains.kotlin:kotlin-stdlib",
-            "org.ow2.asm:asm-analysis",
-            "org.ow2.asm:asm-commons",
             "org.ow2.asm:asm-tree",
             "org.robolectric:android-all"
         ]
@@ -253,6 +253,12 @@ okbuck {
                     ]
             ]
     ]
+}
+
+afterEvaluate {
+    dependencies {
+        toolsExtraDepCache deps.external.saxon
+    }
 }
 
 gradle.buildFinished {  
