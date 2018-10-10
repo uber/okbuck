@@ -82,7 +82,7 @@ public class DependencyCache {
         forcedDeps.getOrDefault(externalDependency.getVersionless(), externalDependency);
     LOG.info("Picked dependency {}", dependency);
 
-    dependencyManager.addDependency(dependency, resolveOnly);
+    dependencyManager.addDependency(dependency, skipPrebuilt);
 
     if (!resolveOnly && fetchSources) {
       LOG.info("Fetching sources for {}", dependency);
