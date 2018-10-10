@@ -23,7 +23,11 @@ okbuck_manifest(
 @if (valid(versionName)) {
     version_name = '@versionName',
 }
-    debuggable = '@debuggable',
+@if (debuggable) {
+    debuggable = True,
+} else {
+    debuggable = False,
+}
 @if (valid(secondaryManifests)) {
     secondary_manifests = [
     @for (secondaryManifest : secondaryManifests) {
