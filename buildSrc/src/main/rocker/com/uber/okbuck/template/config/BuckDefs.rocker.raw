@@ -152,13 +152,15 @@ def okbuck_manifest(
     cmds.append("--property MIN_SDK_VERSION={}".format(min_sdk))
     cmds.append("--property TARGET_SDK_VERSION={}".format(target_sdk))
     if package:
-      cmds.append("--property PACKAGE={}".format(package))
+        cmds.append("--property PACKAGE={}".format(package))
     if version_code:
-      cmds.append("--property VERSION_CODE={}".format(version_code))
+        cmds.append("--property VERSION_CODE={}".format(version_code))
     if version_name:
-      cmds.append("--property VERSION_NAME={}".format(version_name))
+        cmds.append("--property VERSION_NAME={}".format(version_name))
     if debuggable:
-          cmds.append("--debuggable true")
+        cmds.append("--debuggable true")
+    else:
+        cmds.append("--debuggable false")
     cmds.append("--out $OUT")
 
     genrule(
