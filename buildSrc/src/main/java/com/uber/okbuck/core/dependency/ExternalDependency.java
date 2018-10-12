@@ -11,6 +11,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FilenameUtils;
 import org.gradle.api.Project;
+import org.gradle.api.artifacts.Dependency;
 
 /**
  * Represents a pre packaged dependency from an external source like gradle/maven cache or the
@@ -54,17 +55,22 @@ public final class ExternalDependency {
 
   /** Returns the group of the dependency. */
   public String getGroup() {
-    return this.base.versionless().group();
+    return getVersionless().group();
   }
 
   /** Returns the name of the dependency. */
   public String getName() {
-    return this.base.versionless().name();
+    return getVersionless().name();
   }
 
   /** Returns the VersionlessDependency of the dependency. */
   public VersionlessDependency getVersionless() {
     return this.base.versionless();
+  }
+
+  /** Returns the dependency as a Gradle Dependency. */
+  public Dependency getAsGradleDependency() {
+    return this.base.asGradleDependency();
   }
 
   /** Returns the version of the dependency. */

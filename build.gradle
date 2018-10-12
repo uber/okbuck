@@ -200,42 +200,41 @@ okbuck {
 
     externalDependencies {
         versionless = true
-        allowAllVersions = [
-            "com.android.tools.build:builder-model",
-            "com.android.tools.build:builder-test-api",
-            "com.android.tools.build:manifest-merger",
-            "com.android.tools.ddms:ddmlib",
-            "com.android.tools.layoutlib:layoutlib-api",
-            "com.android.tools:annotations",
-            "com.android.tools:common",
-            "com.android.tools:dvlib",
-            "com.android.tools:repository",
-            "com.android.tools:sdk-common",
-            "com.android.tools:sdklib",
+        allowLatestVersion = [
             "com.google.auto.value:auto-value",
-            "com.google.auto:auto-common",
+            "com.android.tools:sdklib",
             "com.google.code.findbugs:jsr305",
-            "com.google.code.gson:gson",
-            "com.google.errorprone:error_prone_annotations",
-            "com.google.guava:guava",
+            "com.android.tools.build:manifest-merger",
+            "com.android.tools:dvlib",
+            "org.ow2.asm:asm",
             "com.google.protobuf:protobuf-java",
-            "com.squareup:javapoet",
             "commons-codec:commons-codec",
-            "commons-logging:commons-logging",
-            "org.apache.commons:commons-compress",
-            "org.apache.httpcomponents:httpclient",
+            "com.google.errorprone:error_prone_annotations",
+            "com.google.auto:auto-common",
+            "com.android.tools:sdk-common",
+            "com.android.tools.layoutlib:layoutlib-api",
+            "com.google.guava:guava",
+            "com.android.tools:common",
             "org.apache.httpcomponents:httpcore",
-            "org.apache.httpcomponents:httpmime",
-            "org.bouncycastle:bcprov-jdk15on",
-            "org.checkerframework:checker-compat-qual",
-            "org.jetbrains.kotlin:kotlin-reflect",
+            "com.android.tools:repository",
             "org.jetbrains.kotlin:kotlin-stdlib",
             "org.ow2.asm:asm-tree",
-            "org.robolectric:android-all"
+            "org.apache.httpcomponents:httpclient",
+            "org.bouncycastle:bcprov-jdk15on",
+            "commons-logging:commons-logging",
+            "com.squareup:javapoet",
+            "org.jetbrains.kotlin:kotlin-reflect",
+            "org.checkerframework:checker-compat-qual",
+            "com.google.code.gson:gson",
+            "com.android.tools.build:builder-model",
+            "com.android.tools.ddms:ddmlib",
+            "org.apache.commons:commons-compress",
+            "com.android.tools:annotations",
+            "com.android.tools.build:builder-test-api",
+            "org.apache.httpcomponents:httpmime",
         ]
-
-        allowSpecificVersions = [
-            "org.ow2.asm:asm": ["5.1", "6.0", "5.0.1"],
+        allowAllVersions = [
+            "org.robolectric:android-all",
         ]
     }
 
@@ -261,7 +260,7 @@ afterEvaluate {
     }
 }
 
-gradle.buildFinished {  
+gradle.buildFinished {
     "zip -d .okbuck/ext/org/hamcrest/hamcrest-core.jar LICENSE.txt".execute()
     "zip -d .okbuck/ext/org/hamcrest/hamcrest-integration.jar LICENSE.txt".execute()
 }

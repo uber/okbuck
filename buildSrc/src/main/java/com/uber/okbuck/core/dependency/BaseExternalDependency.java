@@ -5,7 +5,12 @@ import com.google.auto.value.extension.memoized.Memoized;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 import org.apache.commons.io.FilenameUtils;
+import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.artifacts.DependencyArtifact;
+import org.gradle.api.internal.artifacts.dependencies.DefaultDependencyArtifact;
+import org.gradle.api.internal.artifacts.dependencies.DefaultExternalModuleDependency;
 
 @AutoValue
 public abstract class BaseExternalDependency {
@@ -78,5 +83,26 @@ public abstract class BaseExternalDependency {
   @Memoized
   Path basePath() {
     return Paths.get(versionless().group().replace('.', File.separatorChar));
+  }
+
+  @Memoized
+  Dependency asGradleDependency() {
+    // Internal class
+    DefaultExternalModuleDependency externalDependency =
+        new DefaultExternalModuleDependency(versionless().group(), versionless().name(), version());
+
+    // Set transitive to false since this should just represent itself.
+    externalDependency.setTransitive(false);
+
+    // Internal class - Taken from ModuleFactoryHelper.java in gradle.
+    Optional<String> classifier = versionless().classifier();
+    if (classifier.isPresent()) {
+      DependencyArtifact artifact =
+          new DefaultDependencyArtifact(
+              externalDependency.getName(), packaging(), packaging(), classifier.get(), null);
+      externalDependency.addArtifact(artifact);
+    }
+
+    return externalDependency;
   }
 }

@@ -44,4 +44,14 @@
     app_platform = android-27
     cpu_abis = armv7, x86
 
+[download]
+    in_build = true
+    max_number_of_retries = 3
+
+[maven_repositories]
+    jcenter = https://jcenter.bintray.com/
+    google = https://dl.google.com/dl/android/maven2/
+    maven = https://plugins.gradle.org/m2/
+    maven_snapshots = https://oss.sonatype.org/content/repositories/snapshots/
+
 <file:.okbuck/config/okbuck.buckconfig>
