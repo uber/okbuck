@@ -36,13 +36,18 @@ public class DependencyCache {
   private final Project rootProject;
   private final DependencyManager dependencyManager;
   private final boolean fetchSources;
+  private final boolean skipPrebuilt;
   private final Map<VersionlessDependency, ExternalDependency> forcedDeps = new HashMap<>();
 
   public DependencyCache(
-      Project project, DependencyManager dependencyManager, @Nullable String forcedConfiguration) {
+      Project project,
+      DependencyManager dependencyManager,
+      boolean skipPrebuilt,
+      @Nullable String forcedConfiguration) {
     this.rootProject = project.getRootProject();
     this.dependencyManager = dependencyManager;
     this.fetchSources = ProjectUtil.getOkBuckExtension(project).getIntellijExtension().sources;
+    this.skipPrebuilt = skipPrebuilt;
 
     if (forcedConfiguration != null) {
       Scope.builder(project)
@@ -57,8 +62,18 @@ public class DependencyCache {
     }
   }
 
+  public DependencyCache(
+      Project project, DependencyManager dependencyManager, @Nullable String forcedConfiguration) {
+    this(project, dependencyManager, false, forcedConfiguration);
+  }
+
   public DependencyCache(Project project, DependencyManager dependencyManager) {
-    this(project, dependencyManager, null);
+    this(project, dependencyManager, false);
+  }
+
+  public DependencyCache(
+      Project project, DependencyManager dependencyManager, boolean skipPrebuilt) {
+    this(project, dependencyManager, skipPrebuilt, null);
   }
 
   public ExternalDependency get(ExternalDependency externalDependency, boolean resolveOnly) {
@@ -67,7 +82,7 @@ public class DependencyCache {
         forcedDeps.getOrDefault(externalDependency.getVersionless(), externalDependency);
     LOG.info("Picked dependency {}", dependency);
 
-    dependencyManager.addDependency(dependency);
+    dependencyManager.addDependency(dependency, skipPrebuilt);
 
     if (!resolveOnly && fetchSources) {
       LOG.info("Fetching sources for {}", dependency);

@@ -187,9 +187,18 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
                   wrapper.sourceRoots,
                   wrapper.ignoredDirs);
 
+          // Add elements from extraDepCaches to extraDepCachesMap for backwards compatibility
+          okbuckExt.extraDepCaches.forEach(
+              depCache -> {
+                if (!okbuckExt.extraDepCachesMap.containsKey(depCache)) {
+                  okbuckExt.extraDepCachesMap.put(depCache, false);
+                }
+              });
+
           Map<String, Configuration> extraConfigurations =
               okbuckExt
-                  .extraDepCaches
+                  .extraDepCachesMap
+                  .keySet()
                   .stream()
                   .collect(
                       Collectors.toMap(
@@ -235,7 +244,10 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
 
                 extraConfigurations.forEach(
                     (cacheName, extraConfiguration) ->
-                        new DependencyCache(rootBuckProject, dependencyManager)
+                        new DependencyCache(
+                                rootBuckProject,
+                                dependencyManager,
+                                okbuckExt.extraDepCachesMap.getOrDefault(cacheName, false))
                             .build(extraConfiguration));
 
                 buckManager.setupBuckBinary();

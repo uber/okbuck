@@ -67,7 +67,15 @@ public class OkBuckExtension {
    * Additional dependency caches. Every value "entry" will create a new configuration
    * "entryExtraDepCache" that can be used to fetch and cache dependencies.
    */
-  @Input public Set<String> extraDepCaches = new HashSet<>();
+  @Deprecated @Input public Set<String> extraDepCaches = new HashSet<>();
+
+  /**
+   * Additional dependency caches. Every value "entry" will create a new configuration
+   * "entryExtraDepCache" that can be used to fetch and cache dependencies. the boolean defines
+   * weather a prebuilt rule needs to be skipped or not. { "tools": true } -> skips prebuilt rule
+   * for all tools dependencies
+   */
+  @Input public Map<String, Boolean> extraDepCachesMap = new HashMap<>();
 
   /** Forces okbuck to fail if the project is using dynamic or snapshot dependencies */
   @Input public boolean failOnChangingDependencies = false;

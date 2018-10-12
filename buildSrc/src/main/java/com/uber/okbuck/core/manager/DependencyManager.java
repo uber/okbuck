@@ -1,8 +1,8 @@
 package com.uber.okbuck.core.manager;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.MultimapBuilder;
-import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.java.PrebuiltRuleComposer;
@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,7 +35,9 @@ public class DependencyManager {
   private final ExternalDependenciesExtension extension;
 
   private final SetMultimap<VersionlessDependency, ExternalDependency> dependencyMap =
-      Multimaps.synchronizedSetMultimap(MultimapBuilder.hashKeys().hashSetValues().build());
+      LinkedHashMultimap.create();
+
+  private final HashMap<VersionlessDependency, Boolean> skipPrebuiltDependencyMap = new HashMap<>();
 
   public DependencyManager(
       Project rootProject, String cacheDirName, ExternalDependenciesExtension extension) {
@@ -44,8 +47,16 @@ public class DependencyManager {
     this.extension = extension;
   }
 
-  public void addDependency(ExternalDependency dependency) {
-    dependencyMap.put(dependency.getVersionless(), dependency);
+  public synchronized void addDependency(ExternalDependency dependency, boolean skipPrebuilt) {
+    VersionlessDependency versionless = dependency.getVersionless();
+    dependencyMap.put(versionless, dependency);
+
+    if (skipPrebuiltDependencyMap.containsKey(versionless)) {
+      skipPrebuiltDependencyMap.put(
+          versionless, skipPrebuiltDependencyMap.get(versionless) && skipPrebuilt);
+    } else {
+      skipPrebuiltDependencyMap.put(versionless, skipPrebuilt);
+    }
   }
 
   public String getCacheDirName() {
@@ -162,7 +173,16 @@ public class DependencyManager {
         (basePath, dependencies) -> {
           basePath.toFile().mkdirs();
           copyOrCreateSymlinks(basePath, dependencies);
-          composeBuckFile(basePath, dependencies);
+
+          List<ExternalDependency> filteredDependencies =
+              dependencies
+                  .stream()
+                  .filter(
+                      dependency ->
+                          !skipPrebuiltDependencyMap.getOrDefault(
+                              dependency.getVersionless(), false))
+                  .collect(Collectors.toList());
+          composeBuckFile(basePath, filteredDependencies);
         });
   }
 
