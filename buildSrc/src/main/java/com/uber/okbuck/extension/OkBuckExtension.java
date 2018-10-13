@@ -72,8 +72,8 @@ public class OkBuckExtension {
   /**
    * Additional dependency caches. Every value "entry" will create a new configuration
    * "entryExtraDepCache" that can be used to fetch and cache dependencies. the boolean defines
-   * weather a prebuilt rule needs to be skipped or not. { "tools": true } -> skips prebuilt rule
-   * for all tools dependencies
+   * weather a prebuilt rule needs to be skipped or not. { "tools": true } skips prebuilt rule for
+   * all tools dependencies
    */
   @Input public Map<String, Boolean> extraDepCachesMap = new HashMap<>();
 
@@ -96,14 +96,14 @@ public class OkBuckExtension {
   private TestExtension testExtension = new TestExtension();
   private TransformExtension transformExtension = new TransformExtension();
   private LintExtension lintExtension;
-  private ExternalDependenciesExtension externalDependenciesExtension =
-      new ExternalDependenciesExtension();
+  private ExternalDependenciesExtension externalDependenciesExtension;
   private VisibilityExtension visibilityExtension = new VisibilityExtension();
 
   public OkBuckExtension(Project project) {
     buckProjects = project.getSubprojects();
     kotlinExtension = new KotlinExtension(project);
     lintExtension = new LintExtension(project);
+    externalDependenciesExtension = new ExternalDependenciesExtension(project);
   }
 
   public void wrapper(Action<WrapperExtension> container) {

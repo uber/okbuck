@@ -5,18 +5,26 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.core.util.FileUtil;
+import com.uber.okbuck.extension.ExternalDependenciesExtension;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FilenameUtils;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.UnknownConfigurationException;
+import org.gradle.api.artifacts.component.ComponentIdentifier;
+import org.gradle.api.artifacts.component.ModuleComponentIdentifier;
+import org.gradle.api.artifacts.component.ProjectComponentIdentifier;
 import org.gradle.api.file.FileTree;
+import org.gradle.api.internal.artifacts.ivyservice.DefaultLenientConfiguration;
 
 public final class DependencyUtils {
 
@@ -76,6 +84,10 @@ public final class DependencyUtils {
         String classifierSuffix = baseFileName.substring(versionIndex + version.length());
         if (classifierSuffix.startsWith("-")) {
           return Strings.emptyToNull(classifierSuffix.substring(1));
+        } else if (classifierSuffix.length() > 0) {
+          throw new IllegalStateException(
+              String.format(
+                  "Classifier doesn't have a delimiter: %s -- %s", fileNameString, version));
         }
         return Strings.emptyToNull(classifierSuffix);
       } else {
@@ -120,5 +132,49 @@ public final class DependencyUtils {
       }
     }
     return null;
+  }
+
+  public static Set<ExternalDependency> resolveExternal(
+      Configuration configuration, ExternalDependenciesExtension extension) {
+    try {
+      return configuration
+          .getIncoming()
+          .getArtifacts()
+          .getArtifacts()
+          .stream()
+          .map(
+              artifact -> {
+                ComponentIdentifier identifier = artifact.getId().getComponentIdentifier();
+                if (identifier instanceof ProjectComponentIdentifier
+                    || !isConsumable(artifact.getFile())) {
+                  return null;
+                }
+                if (identifier instanceof ModuleComponentIdentifier
+                    && ((ModuleComponentIdentifier) identifier).getVersion().length() > 0) {
+                  ModuleComponentIdentifier moduleIdentifier =
+                      (ModuleComponentIdentifier) identifier;
+                  return ExternalDependency.from(
+                      moduleIdentifier.getGroup(),
+                      moduleIdentifier.getModule(),
+                      moduleIdentifier.getVersion(),
+                      artifact.getFile(),
+                      extension);
+                } else {
+                  return ExternalDependency.fromLocal(artifact.getFile(), extension);
+                }
+              })
+          .filter(Objects::nonNull)
+          .collect(Collectors.toSet());
+    } catch (DefaultLenientConfiguration.ArtifactResolveException e) {
+      throw artifactResolveException(e);
+    }
+  }
+
+  private static IllegalStateException artifactResolveException(Exception e) {
+    return new IllegalStateException(
+        "Failed to resolve an artifact. Make sure you have a repositories block defined. "
+            + "See https://github.com/uber/okbuck/wiki/Known-caveats#could-not-resolve-all-"
+            + "dependencies-for-configuration for more information.",
+        e);
   }
 }

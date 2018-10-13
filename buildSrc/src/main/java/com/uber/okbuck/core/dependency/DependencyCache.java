@@ -14,7 +14,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -23,10 +22,6 @@ import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.artifacts.component.ComponentIdentifier;
-import org.gradle.api.artifacts.component.ModuleComponentIdentifier;
-import org.gradle.api.artifacts.component.ProjectComponentIdentifier;
-import org.gradle.api.internal.artifacts.ivyservice.DefaultLenientConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -187,48 +182,10 @@ public class DependencyCache {
     return configurations
         .stream()
         .map(
-            configuration -> {
-              try {
-                return configuration
-                    .getIncoming()
-                    .getArtifacts()
-                    .getArtifacts()
-                    .stream()
-                    .map(
-                        artifact -> {
-                          ComponentIdentifier identifier =
-                              artifact.getId().getComponentIdentifier();
-                          if (identifier instanceof ProjectComponentIdentifier
-                              || !DependencyUtils.isConsumable(artifact.getFile())) {
-                            return null;
-                          }
-                          ExternalDependency dependency;
-                          if (identifier instanceof ModuleComponentIdentifier
-                              && ((ModuleComponentIdentifier) identifier).getVersion().length()
-                                  > 0) {
-                            ModuleComponentIdentifier moduleIdentifier =
-                                (ModuleComponentIdentifier) identifier;
-                            dependency =
-                                ExternalDependency.from(
-                                    moduleIdentifier.getGroup(),
-                                    moduleIdentifier.getModule(),
-                                    moduleIdentifier.getVersion(),
-                                    artifact.getFile(),
-                                    externalDependenciesExtension);
-                          } else {
-                            dependency =
-                                ExternalDependency.fromLocal(
-                                    artifact.getFile(), externalDependenciesExtension);
-                          }
-                          return get(dependency, true);
-                        })
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toSet());
-              } catch (DefaultLenientConfiguration.ArtifactResolveException e) {
-                throw artifactResolveException(e);
-              }
-            })
+            configuration ->
+                DependencyUtils.resolveExternal(configuration, externalDependenciesExtension))
         .flatMap(Collection::stream)
+        .map(dependency -> get(dependency, true))
         .map(this::getPath)
         .collect(Collectors.toSet());
   }

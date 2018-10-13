@@ -1,11 +1,14 @@
 package com.uber.okbuck.core.manager;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.SetMultimap;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.java.PrebuiltRuleComposer;
+import com.uber.okbuck.core.dependency.DependencyUtils;
 import com.uber.okbuck.core.dependency.ExternalDependency;
 import com.uber.okbuck.core.dependency.VersionlessDependency;
 import com.uber.okbuck.core.util.FileUtil;
@@ -23,6 +26,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.Project;
+import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.Dependency;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +39,7 @@ public class DependencyManager {
   private final String cacheDirName;
   private final ExternalDependenciesExtension extension;
 
-  private final SetMultimap<VersionlessDependency, ExternalDependency> dependencyMap =
+  private final SetMultimap<VersionlessDependency, ExternalDependency> originalDependencyMap =
       LinkedHashMultimap.create();
 
   private final HashMap<VersionlessDependency, Boolean> skipPrebuiltDependencyMap = new HashMap<>();
@@ -49,7 +54,7 @@ public class DependencyManager {
 
   public synchronized void addDependency(ExternalDependency dependency, boolean skipPrebuilt) {
     VersionlessDependency versionless = dependency.getVersionless();
-    dependencyMap.put(versionless, dependency);
+    originalDependencyMap.put(versionless, dependency);
 
     if (skipPrebuiltDependencyMap.containsKey(versionless)) {
       skipPrebuiltDependencyMap.put(
@@ -63,30 +68,77 @@ public class DependencyManager {
     return this.cacheDirName;
   }
 
+  public void finalizeDependencies() {
+    Map<VersionlessDependency, Collection<ExternalDependency>> filteredDependencyMap =
+        filterDependencies();
+    validateDependencies(filteredDependencyMap);
+    processDependencies(filteredDependencyMap);
+  }
+
   private File getCacheDir() {
     return project.getRootProject().file(cacheDirName);
   }
 
-  public void finalizeDependencies() {
-    validateDependencies();
-    processDependencies();
+  private Map<VersionlessDependency, Collection<ExternalDependency>> filterDependencies() {
+    if (!extension.allowLatestEnabled()) {
+      return originalDependencyMap.asMap();
+    }
+
+    ImmutableMap.Builder<VersionlessDependency, Collection<ExternalDependency>>
+        filteredDependencyMapBuilder = ImmutableMap.builder();
+
+    ImmutableList.Builder<ExternalDependency> dependenciesToResolveBuilder =
+        ImmutableList.builder();
+
+    originalDependencyMap
+        .asMap()
+        .forEach(
+            (key, value) -> {
+              if (value.size() == 1) {
+                // Already has one dependency, no need to resolve different versions.
+                filteredDependencyMapBuilder.put(key, value);
+              } else if (extension.isAllowLatestFor(key)) {
+                dependenciesToResolveBuilder.addAll(value);
+              } else {
+                filteredDependencyMapBuilder.put(key, value);
+              }
+            });
+
+    resolved(dependenciesToResolveBuilder.build())
+        .forEach(
+            externalDependency -> {
+              filteredDependencyMapBuilder.put(
+                  externalDependency.getVersionless(), ImmutableList.of(externalDependency));
+            });
+
+    return filteredDependencyMapBuilder.build();
   }
 
-  private void validateDependencies() {
-    if (ProjectUtil.getOkBuckExtension(project)
-        .getExternalDependenciesExtension()
-        .isVersionless()) {
+  private Set<ExternalDependency> resolved(Collection<ExternalDependency> externalDependencies) {
+    Configuration detached =
+        project
+            .getConfigurations()
+            .detachedConfiguration(
+                externalDependencies
+                    .stream()
+                    .map(ExternalDependency::getAsGradleDependency)
+                    .toArray(Dependency[]::new));
+    return DependencyUtils.resolveExternal(detached, extension);
+  }
+
+  private void validateDependencies(
+      Map<VersionlessDependency, Collection<ExternalDependency>> dependencyMap) {
+    if (extension.versionlessEnabled()) {
       Joiner.MapJoiner mapJoiner = Joiner.on(",\n").withKeyValueSeparator("=");
 
       Map<String, Set<String>> extraDependencies =
           dependencyMap
-              .asMap()
               .entrySet()
               .stream()
               .filter(entry -> entry.getValue().size() > 1)
               .map(Map.Entry::getValue)
               .flatMap(Collection::stream)
-              .filter(dependency -> !extension.isAllowed(dependency))
+              .filter(dependency -> !extension.isAllowedVersion(dependency))
               .collect(
                   Collectors.groupingBy(
                       dependency -> dependency.getVersionless().mavenCoords(),
@@ -100,7 +152,6 @@ public class DependencyManager {
 
       Map<String, Set<String>> singleDependencies =
           dependencyMap
-              .asMap()
               .entrySet()
               .stream()
               .filter(entry -> entry.getValue().size() == 1)
@@ -121,7 +172,6 @@ public class DependencyManager {
 
     String changingDeps =
         dependencyMap
-            .asMap()
             .values()
             .stream()
             .flatMap(Collection::stream)
@@ -145,7 +195,8 @@ public class DependencyManager {
     }
   }
 
-  private void processDependencies() {
+  private void processDependencies(
+      Map<VersionlessDependency, Collection<ExternalDependency>> dependencyMap) {
     File cacheDir = getCacheDir();
     if (cacheDir.exists()) {
       try {
@@ -161,7 +212,6 @@ public class DependencyManager {
 
     Map<Path, List<ExternalDependency>> groupToDependencyMap =
         dependencyMap
-            .asMap()
             .values()
             .stream()
             .flatMap(Collection::stream)
