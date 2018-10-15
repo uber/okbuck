@@ -20,6 +20,12 @@ public class LintExtension {
   /** Classpath entries matching regex to exclude during lint */
   @Nullable public String classpathExclusionRegex = null;
 
+  /**
+   * Whether to pass in the bytecode of the target being linted as an input to the lint classpath.
+   * This is typically only useful if someone wants to run lint on generated code
+   */
+  public boolean useCompilationClasspath = false;
+
   LintExtension(Project project) {
     version = LintManager.getDefaultLintVersion(project);
   }
