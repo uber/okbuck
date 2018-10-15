@@ -106,9 +106,9 @@ def okbuck_lint(
 
     if has_srcs:
 @if(useCompilationClasspath) {
-        bash += "--classpath $(location :src_{}) "
+        bash += "--classpath $(location :src_{}) ".format(variant)
 }
-        bash += "--libraries `cat $CP_FILE` ".format(variant)
+        bash += "--libraries `cat $CP_FILE` "
 
     for src in srcs:
         bash += '--sources {}/{} '.format(get_base_path(), src)
