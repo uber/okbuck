@@ -148,7 +148,8 @@ def okbuck_manifest(
     cmds.append("java -jar -Xmx256m $(location //.okbuck/workspace/manifest-merger:okbuck_manifest_merger)")
     cmds.append("--main $SRCDIR/{}".format(main_manifest))
     if len(secondary_manifests) > 0:
-        cmds.append("--overlays {}".format(" ".join(["$SRCDIR/" + m for m in secondary_manifests])))
+        for secondary_manifest in secondary_manifests:
+            cmds.append("--overlays {}".format("$SRCDIR/" + secondary_manifest))
     cmds.append("--property MIN_SDK_VERSION={}".format(min_sdk))
     cmds.append("--property TARGET_SDK_VERSION={}".format(target_sdk))
     if package:
