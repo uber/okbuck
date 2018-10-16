@@ -5,6 +5,7 @@ String classpathMacro,
 String lintJvmArgs,
 String externalDependencyCache,
 boolean enableLint,
+boolean useCompilationClasspath,
 String classpathExclusionRegex
 )
 
@@ -104,7 +105,12 @@ def okbuck_lint(
     bash += "-classpath {} com.android.tools.lint.Main ".format(toLocation('//.okbuck/workspace/lint:okbuck_lint'))
 
     if has_srcs:
-        bash += "--classpath $(location :src_{}) --libraries `cat $CP_FILE` ".format(variant)
+@if(useCompilationClasspath) {
+        bash += "--classpath $(location :src_{}) ".format(variant)
+} else {
+        bash += "--classpath $(location //.okbuck/workspace/lint:lint-dummy.jar) "
+}
+        bash += "--libraries `cat $CP_FILE` "
 
     for src in srcs:
         bash += '--sources {}/{} '.format(get_base_path(), src)

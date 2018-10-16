@@ -147,6 +147,7 @@ public class OkBuckTask extends DefaultTask {
         .enableLint(!okbuckExt.getLintExtension().disabled)
         .externalDependencyCache(okbuckExt.externalDependencyCache)
         .classpathExclusionRegex(okbuckExt.getLintExtension().classpathExclusionRegex)
+        .useCompilationClasspath(okbuckExt.getLintExtension().useCompilationClasspath)
         .render(okbuckDefs());
 
     ImmutableList.Builder<String> defsBuilder = ImmutableList.builder();
