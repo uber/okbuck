@@ -9,6 +9,7 @@ import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.template.core.Rule;
+import com.uber.okbuck.template.java.Prebuilt;
 import com.uber.okbuck.template.jvm.JvmBinaryRule;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -23,6 +24,7 @@ public final class LintManager {
 
   private static final String LINT_DEPS_CACHE = OkBuckGradlePlugin.WORKSPACE_PATH + "/lint";
   private static final String LINT_BINARY_RULE_NAME = "okbuck_lint";
+  private static final String LINT_DUMMY_JAR = "lint-dummy.jar";
 
   private static final String LINT_GROUP = "com.android.tools.lint";
   private static final String LINT_MODULE = "lint";
@@ -100,6 +102,16 @@ public final class LintManager {
               .ruleType(RuleType.JAVA_BINARY.getBuckName())
               .name(LINT_BINARY_RULE_NAME)
               .defaultVisibility());
+
+      rulesBuilder.add(
+          new Prebuilt()
+              .prebuiltType(RuleType.PREBUILT_JAR.getProperties().get(0))
+              .prebuilt(LINT_DUMMY_JAR)
+              .ruleType(RuleType.PREBUILT_JAR.getBuckName())
+              .name(LINT_DUMMY_JAR));
+
+      FileUtil.copyResourceToProject(
+          "lint/" + LINT_DUMMY_JAR, new File(LINT_DEPS_CACHE, LINT_DUMMY_JAR));
 
       File buckFile = project.getRootProject().file(lintBuckFile);
       FileUtil.writeToBuckFile(rulesBuilder.build(), buckFile);

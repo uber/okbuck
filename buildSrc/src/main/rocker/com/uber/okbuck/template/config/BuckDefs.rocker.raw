@@ -107,6 +107,8 @@ def okbuck_lint(
     if has_srcs:
 @if(useCompilationClasspath) {
         bash += "--classpath $(location :src_{}) ".format(variant)
+} else {
+        bash += "--classpath $(location //.okbuck/workspace/lint:lint-dummy.jar) "
 }
         bash += "--libraries `cat $CP_FILE` "
 
