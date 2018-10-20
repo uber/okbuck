@@ -108,7 +108,7 @@ public class JvmTarget extends Target {
   protected Scope getAptScopeForConfiguration(String configurationName) {
     // If using annotation processor plugin, return an empty scope if there are no annotation
     // processors so no need to have any specified in the annotation processor deps list.
-    if (!ProjectUtil.getAnnotationProcessorCache(getProject())
+    if (ProjectUtil.getAnnotationProcessorCache(getProject())
         .hasEmptyAnnotationProcessors(getProject(), configurationName)) {
       return Scope.builder(getProject()).build();
     }
@@ -118,7 +118,7 @@ public class JvmTarget extends Target {
   protected Scope getAptScopeForConfiguration(Configuration configuration) {
     // If using annotation processor plugin, return an empty scope if there are no annotation
     // processors so no need to have any specified in the annotation processor deps list.
-    if (!ProjectUtil.getAnnotationProcessorCache(getProject())
+    if (ProjectUtil.getAnnotationProcessorCache(getProject())
         .hasEmptyAnnotationProcessors(getProject(), configuration)) {
       return Scope.builder(getProject()).build();
     }
