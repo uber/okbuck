@@ -9,3 +9,9 @@ dependencies {
     implementation deps.support.appCompat
     implementation deps.external.butterKnife
 }
+
+android {
+    lintOptions {
+	    warningsAsErrors true
+    }
+}

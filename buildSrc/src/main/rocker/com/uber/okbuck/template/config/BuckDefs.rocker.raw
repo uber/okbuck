@@ -75,7 +75,7 @@ def okbuck_lint(
         variant,
         manifest,
         srcs,
-        resources,
+        res,
         aar_deps,
         custom_lints,
         lint_options
@@ -115,7 +115,7 @@ def okbuck_lint(
     for src in srcs:
         bash += '--sources {}/{} '.format(get_base_path(), src)
 
-    for resource in resources:
+    for resource in res:
         bash += '--resources {}/{} '.format(get_base_path(), resource)
 
     # Implicit options
@@ -127,7 +127,7 @@ def okbuck_lint(
 
     genrule(
         name = name,
-        srcs = srcs + resources,
+        srcs = srcs + res,
         out = "{}_out".format(name),
         type = 'okbuck_lint',
         bash = bash
@@ -190,7 +190,7 @@ def okbuck_android_library(
     manifest=None,
     deps=None,
     lint_src_dirs=None,
-    lint_resource_dirs=None,
+    lint_res_dirs=None,
     disable_lint=False,
     custom_lints=None,
     lint_options=None,
@@ -200,8 +200,8 @@ def okbuck_android_library(
         deps = []
     if not lint_src_dirs:
         lint_src_dirs = []
-    if not lint_resource_dirs:
-        lint_resource_dirs = []
+    if not lint_res_dirs:
+        lint_res_dirs = []
     if not custom_lints:
         custom_lints = []
     if not lint_options:
@@ -225,7 +225,7 @@ def okbuck_android_library(
             variant = variant,
             manifest = manifest,
             srcs = lint_src_dirs,
-            resources = lint_resource_dirs,
+            res = lint_res_dirs,
             aar_deps = aar_deps,
             custom_lints = custom_lints,
             lint_options = lint_options,

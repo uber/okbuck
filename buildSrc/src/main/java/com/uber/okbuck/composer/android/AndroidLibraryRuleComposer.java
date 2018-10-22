@@ -71,6 +71,7 @@ public final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
             .aptDeps(libraryAptDeps)
             .providedDeps(providedDeps)
             .resources(target.getMain().getJavaResources())
+            .resDirs(target.getResDirs())
             .sourceCompatibility(target.getSourceCompatibility())
             .targetCompatibility(target.getTargetCompatibility())
             .testTargets(testTargets)

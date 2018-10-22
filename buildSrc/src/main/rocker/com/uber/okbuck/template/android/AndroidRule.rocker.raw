@@ -5,6 +5,7 @@
 Collection srcs,
 Collection exts,
 Collection resources,
+Collection resDirs,
 Collection excludes,
 String sourceCompatibility,
 String targetCompatibility,
@@ -88,10 +89,10 @@ env
         '@src',
     }
     ],
-@if (valid(resources)) {
-    lint_resource_dirs = [
-    @for (resource : sorted(resources)) {
-        '@resource',
+@if (valid(resDirs)) {
+    lint_res_dirs = [
+    @for (resDir : sorted(resDirs)) {
+        '@resDir',
     }
     ],
 }
