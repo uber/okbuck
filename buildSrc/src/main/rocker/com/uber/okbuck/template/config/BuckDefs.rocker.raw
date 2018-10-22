@@ -75,7 +75,7 @@ def okbuck_lint(
         variant,
         manifest,
         srcs,
-        res,
+        res_dirs,
         aar_deps,
         custom_lints,
         lint_options
@@ -115,8 +115,8 @@ def okbuck_lint(
     for src in srcs:
         bash += '--sources {}/{} '.format(get_base_path(), src)
 
-    for resource in res:
-        bash += '--resources {}/{} '.format(get_base_path(), resource)
+    for res_dir in res_dirs:
+        bash += '--resources {}/{} '.format(get_base_path(), res_dir)
 
     # Implicit options
     bash += '--xml "$OUT/lint-results.xml" '
@@ -127,7 +127,7 @@ def okbuck_lint(
 
     genrule(
         name = name,
-        srcs = srcs + res,
+        srcs = srcs + res_dirs,
         out = "{}_out".format(name),
         type = 'okbuck_lint',
         bash = bash
@@ -225,7 +225,7 @@ def okbuck_android_library(
             variant = variant,
             manifest = manifest,
             srcs = lint_src_dirs,
-            res = lint_res_dirs,
+            res_dirs = lint_res_dirs,
             aar_deps = aar_deps,
             custom_lints = custom_lints,
             lint_options = lint_options,
