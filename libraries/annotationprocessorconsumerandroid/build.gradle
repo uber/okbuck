@@ -1,0 +1,11 @@
+apply plugin: "com.android.library"
+
+dependencies {
+    annotationProcessor project(":libraries:annotationprocessor")
+    annotationProcessor deps.apt.autoValue
+    annotationProcessor project(":libraries:annotationprocessoroverexistingap")
+
+    compileOnly project(":libraries:annotationprocessor")
+    compileOnly deps.apt.autoValueAnnotations
+    compileOnly deps.external.jsr250
+}

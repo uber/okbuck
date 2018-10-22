@@ -1,0 +1,7 @@
+apply plugin: "java-library"
+
+dependencies {
+    annotationProcessor deps.apt.autoService
+    compileOnly deps.apt.autoService
+    implementation deps.external.javapoet 
+}

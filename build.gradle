@@ -252,6 +252,11 @@ okbuck {
                     ]
             ]
     ]
+
+    annotationProcessors = [ 
+            "libraries:annotationprocessor": [ "com.uber.okbuck.example.annotationprocessor.DummyAnnotationProcessor" ],
+            "libraries:annotationprocessoroverexistingap": [ "com.uber.okbuck.example.annotationprocessor.DummyAnnotationProcessor2" ],
+    ]
 }
 
 afterEvaluate {
