@@ -1,12 +1,12 @@
 buildscript {
     apply from: rootProject.file("dependencies.gradle")
     repositories {
-        jcenter()
         google()
         maven { url "https://plugins.gradle.org/m2/" }
         // Remove once butterknife is updated to a stable version
         // TODO: https://github.com/uber/okbuck/issues/570
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        jcenter()
     }
     dependencies {
         classpath deps.build.androidPlugin
@@ -24,12 +24,12 @@ buildscript {
 allprojects { project ->
     project.apply from: rootProject.file("dependencies.gradle")
     repositories {
-        jcenter()
         google()
         maven { url "https://plugins.gradle.org/m2/" }
         // Remove once butterknife is updated to a stable version
         // TODO: https://github.com/uber/okbuck/issues/570
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        jcenter()
     }
     configurations.all {
         exclude group:"com.android.tools.build", module: "transform-api"
