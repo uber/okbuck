@@ -7,6 +7,7 @@ import com.uber.okbuck.core.dependency.DependencyCache;
 import com.uber.okbuck.core.manager.BuckManager;
 import com.uber.okbuck.core.manager.DependencyManager;
 import com.uber.okbuck.core.manager.GroovyManager;
+import com.uber.okbuck.core.manager.JetifierManager;
 import com.uber.okbuck.core.manager.KotlinManager;
 import com.uber.okbuck.core.manager.LintManager;
 import com.uber.okbuck.core.manager.ManifestMergerManager;
@@ -79,6 +80,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
 
   public static final String OKBUCK_STATE = OKBUCK_STATE_DIR + "/STATE";
   public final Map<Project, Map<String, Scope>> scopes = new ConcurrentHashMap<>();
+  public final Map<String, Boolean> poms = new ConcurrentHashMap<>();
   public final Set<String> exportedPaths = Sets.newConcurrentHashSet();
 
   public DependencyCache depCache;
@@ -90,6 +92,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
   public KotlinManager kotlinManager;
   public ScalaManager scalaManager;
   public GroovyManager groovyManager;
+  public JetifierManager jetifierManager;
   public TransformManager transformManager;
 
   ManifestMergerManager manifestMergerManager;
@@ -142,6 +145,9 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
           // Create Scala Manager
           groovyManager = new GroovyManager(rootBuckProject);
 
+          // Create Jetifier Manager
+          jetifierManager = new JetifierManager(rootBuckProject);
+
           // Create Robolectric Manager
           robolectricManager = new RobolectricManager(rootBuckProject);
 
@@ -164,10 +170,11 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
               task -> {
                 annotationProcessorCache.finalizeProcessors();
                 dependencyManager.finalizeDependencies();
+                jetifierManager.finalizeDependencies();
                 lintManager.finalizeDependencies();
                 kotlinManager.finalizeDependencies();
                 scalaManager.finalizeDependencies();
-                groovyManager.finalDependencies();
+                groovyManager.finalizeDependencies();
                 robolectricManager.finalizeDependencies();
                 transformManager.finalizeDependencies();
                 buckManager.finalizeDependencies();
@@ -240,6 +247,10 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
                 // Fetch robolectric deps if needed
                 if (okbuckExt.getTestExtension().robolectric) {
                   robolectricManager.download();
+                }
+
+                if (JetifierManager.isJetifierEnabled(rootProject)) {
+                    jetifierManager.setupJetifier();
                 }
 
                 extraConfigurations.forEach(

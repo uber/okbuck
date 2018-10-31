@@ -207,6 +207,7 @@ okbuck {
             "com.android.tools.build:manifest-merger",
             "com.android.tools:dvlib",
             "org.ow2.asm:asm",
+            "org.ow2.asm:asm-commons",
             "com.google.protobuf:protobuf-java",
             "commons-codec:commons-codec",
             "com.google.errorprone:error_prone_annotations",
