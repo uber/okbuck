@@ -6,7 +6,7 @@ dependencies {
 
     annotationProcessor deps.apt.butterKnifeCompiler
 
-    implementation deps.support.appCompat
+    implementation deps.androidx.appCompat
     implementation deps.external.butterKnife
 }
 

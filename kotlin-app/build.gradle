@@ -6,7 +6,7 @@ apply plugin: "kotlin-kapt"
 android {
     defaultConfig {
         applicationId "com.uber.okbuck.example"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     flavorDimensions "default"
@@ -26,13 +26,14 @@ dependencies {
     kaptAndroidTest deps.apt.daggerCompiler
     kaptAndroidTest deps.apt.daggerAndroidProcessor
 
-    implementation deps.support.appCompat
-    implementation deps.support.design
-    implementation deps.support.constraintLayout
+    implementation deps.androidx.appCompat
+    implementation deps.androidx.material
+    implementation deps.androidx.constraintLayout
 
     testImplementation deps.test.junit
     testImplementation deps.test.kotlinTest
 
     androidTestImplementation deps.test.espressoRunner
     androidTestImplementation deps.test.espressoCore
+    androidTestImplementation deps.test.espressoRules
 }

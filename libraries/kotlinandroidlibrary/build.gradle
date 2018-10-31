@@ -8,9 +8,9 @@ androidExtensions {
 
 dependencies {
     api deps.external.kotlinStdlib
-    implementation deps.support.appCompat
-    implementation deps.support.constraintLayout
-    implementation deps.support.design
+    implementation deps.androidx.appCompat
+    implementation deps.androidx.constraintLayout
+    implementation deps.androidx.material
 
     testImplementation deps.test.junit
     testImplementation deps.test.kotlinTest
@@ -29,6 +29,6 @@ android {
     }
 
     defaultConfig {
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 }

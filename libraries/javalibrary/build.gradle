@@ -7,7 +7,7 @@ dependencies {
     annotationProcessor deps.apt.javax
     annotationProcessor deps.apt.daggerCompiler
 
-    compileOnly deps.support.annotations
+    compileOnly deps.androidx.annotations
 
     testImplementation deps.test.junit
 }

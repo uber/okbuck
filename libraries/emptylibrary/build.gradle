@@ -7,9 +7,9 @@ android {
 }
 
 dependencies {
-    api deps.support.appCompat
+    api deps.androidx.appCompat
 
-    compileOnly deps.support.multidex
+    compileOnly deps.androidx.multidex
 
     testImplementation deps.test.junit
     testImplementation deps.test.robolectric
