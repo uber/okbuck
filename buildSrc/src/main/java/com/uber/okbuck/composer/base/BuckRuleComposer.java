@@ -2,10 +2,11 @@ package com.uber.okbuck.composer.base;
 
 import com.uber.okbuck.core.model.base.Target;
 import com.uber.okbuck.core.model.jvm.JvmTarget;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.apache.commons.io.FilenameUtils;
 
 public abstract class BuckRuleComposer {
 
@@ -20,18 +21,19 @@ public abstract class BuckRuleComposer {
   }
 
   @Nullable
-  public static String fileRule(@Nullable String filePath) {
-    if (filePath == null) {
+  public static String fileRule(@Nullable String fileString) {
+    if (fileString == null) {
       return null;
     }
 
-    StringBuilder ext = new StringBuilder("//");
-    ext.append(filePath);
-    int ind = FilenameUtils.indexOfLastSeparator(filePath) + 2;
-    if (ind >= 0) {
-      return ext.replace(ind, ind + 1, ":").toString();
+    Path filePath = Paths.get(fileString);
+    Path parentFilePath = filePath.getParent();
+
+    if (parentFilePath == null) {
+      return String.format("//:%s", filePath);
+    } else {
+      return String.format("//%s:%s", parentFilePath, parentFilePath.relativize(filePath));
     }
-    return ext.toString();
   }
 
   public static Set<String> targets(Set<Target> deps) {
