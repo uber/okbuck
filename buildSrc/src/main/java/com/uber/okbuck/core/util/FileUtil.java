@@ -5,11 +5,6 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.TreeMultimap;
 import com.uber.okbuck.template.common.LoadStatements;
 import com.uber.okbuck.template.core.Rule;
-import org.apache.commons.io.FileUtils;
-import org.gradle.api.Project;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
@@ -28,6 +23,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.commons.io.FileUtils;
+import org.gradle.api.Project;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class FileUtil {
   private static final Logger LOG = LoggerFactory.getLogger(FileUtil.class);
@@ -39,8 +38,9 @@ public final class FileUtil {
   public static String getRelativePath(File root, File f) {
     Path fPath = f.toPath().toAbsolutePath();
     Path rootPath = root.toPath().toAbsolutePath();
+
     if (fPath.startsWith(rootPath)) {
-      return fPath.toString().substring(rootPath.toString().length() + 1);
+      return rootPath.relativize(fPath).toString();
     } else {
       throw new IllegalStateException(fPath + " must be located inside " + rootPath);
     }
@@ -90,16 +90,16 @@ public final class FileUtil {
   }
 
   @SuppressWarnings("InconsistentOverloads")
-  public static void writeToBuckFile(Multimap<String, String> loadStatements, List<Rule> rules, File buckFile) {
+  public static void writeToBuckFile(
+      Multimap<String, String> loadStatements, List<Rule> rules, File buckFile) {
     if (!rules.isEmpty()) {
       File parent = buckFile.getParentFile();
       if (!parent.exists() && !parent.mkdirs()) {
         throw new IllegalStateException("Couldn't create dir: " + parent);
       }
 
-      try (
-          OutputStream fos = new FileOutputStream(buckFile);
-          BufferedOutputStream os = new BufferedOutputStream(fos)){
+      try (OutputStream fos = new FileOutputStream(buckFile);
+          BufferedOutputStream os = new BufferedOutputStream(fos)) {
 
         if (!loadStatements.isEmpty()) {
           LoadStatements.template(writableLoadStatements(loadStatements)).render(os);
@@ -119,11 +119,15 @@ public final class FileUtil {
   }
 
   private static List<String> writableLoadStatements(Multimap<String, String> loadStatements) {
-    return loadStatements.asMap().entrySet().stream()
-        .map(loadStatement -> Stream
-            .concat(Stream.of(loadStatement.getKey()), loadStatement.getValue().stream())
-            .map(statement -> "'" + statement + "'")
-            .collect(Collectors.joining(", ", "load(", ")")))
+    return loadStatements
+        .asMap()
+        .entrySet()
+        .stream()
+        .map(
+            loadStatement ->
+                Stream.concat(Stream.of(loadStatement.getKey()), loadStatement.getValue().stream())
+                    .map(statement -> "'" + statement + "'")
+                    .collect(Collectors.joining(", ", "load(", ")")))
         .collect(Collectors.toList());
   }
 
