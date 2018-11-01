@@ -144,7 +144,7 @@ okbuck {
             "app": [
                     "^com/uber/okbuck/example/AppShell^",
                     "^com/uber/okbuck/example/BuildConfig^",
-                    "^android/support/multidex/",
+                    "^androidx/multidex/",
                     "^com/facebook/buck/android/support/exopackage/",
                     "^com/github/promeg/xlog_android/lib/XLogConfig^",
                     "^com/squareup/leakcanary/LeakCanary^",
@@ -158,19 +158,19 @@ okbuck {
     appLibDependencies = [
             "appProd": [
                     "buck-android-support",
-                    "com.android.support:multidex",
+                    "androidx.multidex:multidex",
                     "libraries/javalibrary:main",
                     "libraries/common:paidRelease",
             ],
             "appDev" : [
                     "buck-android-support",
-                    "com.android.support:multidex",
+                    "androidx.multidex:multidex",
                     "libraries/javalibrary:main",
                     "libraries/common:freeDebug",
             ],
             "appDemo": [
                     "buck-android-support",
-                    "com.android.support:multidex",
+                    "androidx.multidex:multidex",
                     "libraries/javalibrary:main",
                     "libraries/common:paidRelease",
             ]
@@ -246,6 +246,7 @@ okbuck {
             "com.android.tools:annotations",
             "com.android.tools.build:builder-test-api",
             "org.apache.httpcomponents:httpmime",
+            "androidx.annotation:annotation",
         ]
         allowAllVersions = [
             "org.robolectric:android-all",

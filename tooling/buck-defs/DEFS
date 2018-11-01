@@ -7,3 +7,25 @@ def android_binary(
     aapt_mode=aapt_mode,
     **kwargs
   )
+
+
+original_android_prebuilt_aar = android_prebuilt_aar
+def android_prebuilt_aar(
+    name,
+    aar,
+    **kwargs
+    ):
+  jetified = name.replace('.jar', '') + "-jetified.aar"
+  genname = name + "unjetified"
+  genrule(
+      name = genname,
+      srcs = [aar],
+      out = name.replace('.jar', '') + "-jetified.aar",
+      cmd = "$(exe //.okbuck/workspace/jetifier:okbuck_jetifier) -i $SRCS -o $OUT"
+  )
+
+  original_android_prebuilt_aar(
+      name=name,
+      aar = ":{}".format(genname),
+      **kwargs
+  )
