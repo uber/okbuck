@@ -303,12 +303,15 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
       pathToRules.put(containingPath, rules);
     }
     for (Map.Entry<String, Set<Rule>> entry : pathToRules.entrySet()) {
-      File buckFile = new File(entry.getKey(), BUCK);
+      File buckFile =
+          rootBuckProject.getRootDir().toPath().resolve(entry.getKey()).resolve(BUCK).toFile();
       try (OutputStream os =
           new FileOutputStream(buckFile, currentProjectPaths.contains(entry.getKey()))) {
-        for (Rule rule : entry.getValue()) {
-          rule.render(os);
-        }
+        entry
+            .getValue()
+            .stream()
+            .sorted((rule1, rule2) -> rule1.name().compareToIgnoreCase(rule2.name()))
+            .forEach(rule -> rule.render(os));
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
