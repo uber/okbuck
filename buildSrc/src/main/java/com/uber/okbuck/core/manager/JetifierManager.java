@@ -27,9 +27,7 @@ public final class JetifierManager {
             OkBuckGradlePlugin.WORKSPACE_PATH + "/jetifier";
     private static final String JETIFIER_BUCK_FILE = JETIFIER_LOCATION + "/BUCK";
     private static final String JETIFIER_DEPS_CONFIG = "okbuck_jetifier_deps";
-    private static final String JETIFIER_CACHE_LOCATION = "com/android/tools/build/jetifier";
-    private static final String JETIFIER_GROUP = JETIFIER_CACHE_LOCATION
-            .replace("/", ".");
+    private static final String JETIFIER_GROUP = "com.android.tools.build.jetifier";
     private static final String JETIFIER_CLI_CLASS = "com.android.tools.build.jetifier.standalone.Main";
     private static final String JETIFIER_BINARY_RULE_NAME = "okbuck_jetifier";
     private static final String JETIFIER_VERSION = "1.0.0-beta02";
@@ -41,7 +39,6 @@ public final class JetifierManager {
             );
     private static final ImmutableList<String> INTERNAL_MODULES =
             ImmutableList.of(
-                    "commons-cli.jar",
                     "jetifier-standalone.jar"
             );
 
@@ -70,6 +67,7 @@ public final class JetifierManager {
                 .stream()
                 .map(module -> String.format("%s:%s:%s", JETIFIER_GROUP, module, JETIFIER_VERSION))
                 .forEach(dependency -> handler.add(JETIFIER_DEPS_CONFIG, dependency));
+        handler.add(JETIFIER_DEPS_CONFIG, "commons-cli:commons-cli:1.3.1");
 
         dependencies = new DependencyCache(project, ProjectUtil.getDependencyManager(project)).build(jetifierConfig);
     }
@@ -80,6 +78,7 @@ public final class JetifierManager {
             ImmutableSet.Builder<String> binaryDependencies = ImmutableSet.builder();
             binaryDependencies.addAll(BuckRuleComposer.external(dependencies));
 
+            new File(JETIFIER_LOCATION).mkdirs();
             for (String module : INTERNAL_MODULES) {
                 FileUtil.copyResourceToProject(
                         "jetifier/" + module, new File(JETIFIER_LOCATION, module));
