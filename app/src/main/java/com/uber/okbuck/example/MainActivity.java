@@ -21,8 +21,6 @@ import com.uber.okbuck.example.common.IMyAidlInterface;
 import com.uber.okbuck.example.dummylibrary.DummyActivity;
 import com.uber.okbuck.example.dummylibrary.DummyAndroidClass;
 import com.uber.okbuck.example.javalib.DummyJavaClass;
-import com.uber.okbuck.example.sqldelightmodel.GithubRepo;
-import com.uber.okbuck.example.sqldelightmodel.GithubUser;
 import com.uber.okbuck.java.Pojo;
 import com.uber.okbuck.kotlin.KotlinDataClass;
 import io.reactivex.Observer;
@@ -107,10 +105,6 @@ public class MainActivity extends AppCompatActivity {
               @Override
               public void onSubscribe(Disposable disposable) {}
             });
-    GithubUser user = GithubUser.create(100, "OkBuck");
-    Toast.makeText(this, user.getLogin(), Toast.LENGTH_SHORT).show();
-    GithubRepo repo = GithubRepo.create(100, "OkBuck", "auto buck");
-    Toast.makeText(this, repo.getName() + ": " + repo.getDescription(), Toast.LENGTH_SHORT).show();
 
     KotlinDataClass data = new KotlinDataClass("foo", com.uber.okbuck.kotlin.android.R.string.foo);
     Pojo pojo = new Pojo();

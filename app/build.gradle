@@ -1,8 +1,5 @@
 apply plugin: "com.android.application"
 apply plugin: "com.jakewharton.butterknife"
-apply plugin: "com.squareup.sqldelight"
-apply plugin: "kotlin-android"
-apply plugin: "kotlin-kapt"
 
 android {
     defaultConfig {
@@ -74,11 +71,11 @@ dependencies {
     implementation project(":libraries:kotlinandroidlibrary")
     implementation project(":dummylibrary")
 
-    kapt deps.apt.autoValue
-    kapt deps.apt.autoValueAnnotations
-    kapt deps.apt.butterKnifeCompiler
-    kapt deps.apt.daggerCompiler
-    kapt deps.apt.autoValueGson
+    annotationProcessor deps.apt.autoValue
+    annotationProcessor deps.apt.autoValueAnnotations
+    annotationProcessor deps.apt.butterKnifeCompiler
+    annotationProcessor deps.apt.daggerCompiler
+    annotationProcessor deps.apt.autoValueGson
 
     testImplementation deps.test.junit
     testImplementation deps.test.mockito

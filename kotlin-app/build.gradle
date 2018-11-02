@@ -1,4 +1,5 @@
 apply plugin: "com.android.application"
+apply plugin: "com.squareup.sqldelight"
 apply plugin: "kotlin-android"
 apply plugin: "kotlin-android-extensions"
 apply plugin: "kotlin-kapt"
@@ -17,9 +18,15 @@ dependencies {
     implementation deps.apt.javax
     implementation deps.external.dagger
     implementation deps.external.daggerAndroid
+    implementation deps.external.gson
 
     kapt deps.apt.daggerCompiler
     kapt deps.apt.daggerAndroidProcessor
+    kapt deps.apt.autoValue
+    kapt deps.apt.autoValueAnnotations
+    kapt deps.apt.autoValueGson
+
+    compileOnly deps.apt.autoValueAnnotations
 
     kaptTest deps.apt.daggerCompiler
 
