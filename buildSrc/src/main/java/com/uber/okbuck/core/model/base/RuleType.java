@@ -27,6 +27,8 @@ public enum RuleType {
   PREBUILT_NATIVE_LIBRARY,
   ROBOLECTRIC_TEST("java");
 
+  private static String OKBUCK_PREFIX = "okbuck_";
+
   private final ImmutableList<String> properties;
 
   RuleType() {
@@ -61,7 +63,7 @@ public enum RuleType {
         break;
     }
 
-    String prefix = insertOkBuckPrefix ? "okbuck_" : "";
+    String prefix = insertOkBuckPrefix ? OKBUCK_PREFIX : "";
     return prefix + ruleType.name().toLowerCase();
   }
 }

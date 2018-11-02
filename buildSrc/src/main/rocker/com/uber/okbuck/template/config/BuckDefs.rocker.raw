@@ -268,16 +268,14 @@ def okbuck_android_prebuilt_aar(
         out = jetified,
         cmd = "$(exe //.okbuck/workspace/jetifier:okbuck_jetifier) -i $SRCS -o $OUT"
     )
+}
 
     android_prebuilt_aar(
         name = name,
+@if(enableJetifier) {
         aar = ":{}".format(genname),
-        **kwargs
-    )
 } else {
-    android_prebuilt_aar(
-        name = name,
         aar = aar,
+}
         **kwargs
     )
-}

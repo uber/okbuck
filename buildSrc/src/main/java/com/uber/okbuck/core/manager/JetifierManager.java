@@ -65,9 +65,9 @@ public final class JetifierManager {
     }
 
     public void setupJetifier(String version) {
-        if (!version.equals(JetifierExtension.JETIFIER_VERSION)) {
+        if (!version.equals(JetifierExtension.DEFAULT_JETIFIER_VERSION)) {
             LOG.warn("Using jetifier version other than %s; This might result in problems with the tool",
-                    JetifierExtension.JETIFIER_VERSION);
+                    JetifierExtension.DEFAULT_JETIFIER_VERSION);
         }
 
         Configuration jetifierConfig = project.getConfigurations().maybeCreate(JETIFIER_DEPS_CONFIG);
