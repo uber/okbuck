@@ -27,7 +27,7 @@ public enum RuleType {
   PREBUILT_NATIVE_LIBRARY,
   ROBOLECTRIC_TEST("java");
 
-  private static String OKBUCK_PREFIX = "okbuck_";
+  private static final String OKBUCK_PREFIX = "okbuck_";
 
   private final ImmutableList<String> properties;
 
