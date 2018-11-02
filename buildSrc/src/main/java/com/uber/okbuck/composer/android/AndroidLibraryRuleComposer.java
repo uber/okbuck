@@ -115,7 +115,7 @@ public final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
     }
 
     return androidRule
-        .ruleType("okbuck_" + target.getRuleType().getBuckName())
+        .ruleType(target.getRuleType().getBuckName())
         .defaultVisibility()
         .deps(libraryDeps)
         .name(src(target))

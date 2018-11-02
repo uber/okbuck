@@ -9,6 +9,7 @@ import com.uber.okbuck.core.dependency.DependencyCache;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
+import com.uber.okbuck.extension.JetifierExtension;
 import com.uber.okbuck.template.core.Rule;
 import com.uber.okbuck.template.java.Prebuilt;
 import com.uber.okbuck.template.jvm.JvmBinaryRule;
@@ -16,12 +17,16 @@ import com.uber.okbuck.template.jvm.JvmBinaryRule;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.Map;
 import java.util.Set;
 
 public final class JetifierManager {
+
+    private static final Logger LOG = LoggerFactory.getLogger(JetifierManager.class);
 
     private static final String JETIFIER_LOCATION =
             OkBuckGradlePlugin.WORKSPACE_PATH + "/jetifier";
@@ -30,7 +35,6 @@ public final class JetifierManager {
     private static final String JETIFIER_GROUP = "com.android.tools.build.jetifier";
     private static final String JETIFIER_CLI_CLASS = "com.android.tools.build.jetifier.standalone.Main";
     private static final String JETIFIER_BINARY_RULE_NAME = "okbuck_jetifier";
-    private static final String JETIFIER_VERSION = "1.0.0-beta02";
 
     private static final ImmutableList<String> JETIFIER_MODULES =
             ImmutableList.of(
@@ -60,12 +64,17 @@ public final class JetifierManager {
         return false;
     }
 
-    public void setupJetifier() {
+    public void setupJetifier(String version) {
+        if (!version.equals(JetifierExtension.JETIFIER_VERSION)) {
+            LOG.warn("Using jetifier version other than %s; This might result in problems with the tool",
+                    JetifierExtension.JETIFIER_VERSION);
+        }
+
         Configuration jetifierConfig = project.getConfigurations().maybeCreate(JETIFIER_DEPS_CONFIG);
         DependencyHandler handler = project.getDependencies();
         JETIFIER_MODULES
                 .stream()
-                .map(module -> String.format("%s:%s:%s", JETIFIER_GROUP, module, JETIFIER_VERSION))
+                .map(module -> String.format("%s:%s:%s", JETIFIER_GROUP, module, version))
                 .forEach(dependency -> handler.add(JETIFIER_DEPS_CONFIG, dependency));
         handler.add(JETIFIER_DEPS_CONFIG, "commons-cli:commons-cli:1.3.1");
 

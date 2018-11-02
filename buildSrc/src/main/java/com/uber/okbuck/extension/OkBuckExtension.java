@@ -96,6 +96,7 @@ public class OkBuckExtension {
   private TestExtension testExtension = new TestExtension();
   private TransformExtension transformExtension = new TransformExtension();
   private LintExtension lintExtension;
+  private JetifierExtension jetifierExtension;
   private ExternalDependenciesExtension externalDependenciesExtension;
   private VisibilityExtension visibilityExtension = new VisibilityExtension();
 
@@ -103,6 +104,7 @@ public class OkBuckExtension {
     buckProjects = project.getSubprojects();
     kotlinExtension = new KotlinExtension(project);
     lintExtension = new LintExtension(project);
+    jetifierExtension = new JetifierExtension();
     externalDependenciesExtension = new ExternalDependenciesExtension(project);
   }
 
@@ -160,6 +162,14 @@ public class OkBuckExtension {
 
   public LintExtension getLintExtension() {
     return lintExtension;
+  }
+
+  public void jetifier(Action<JetifierExtension> container) {
+    container.execute(jetifierExtension);
+  }
+
+  public JetifierExtension getJetifierExtension() {
+    return jetifierExtension;
   }
 
   public void transform(Action<TransformExtension> container) {
