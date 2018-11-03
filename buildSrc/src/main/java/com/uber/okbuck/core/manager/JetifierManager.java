@@ -35,6 +35,7 @@ public final class JetifierManager {
     private static final String JETIFIER_GROUP = "com.android.tools.build.jetifier";
     private static final String JETIFIER_CLI_CLASS = "com.android.tools.build.jetifier.standalone.Main";
     private static final String JETIFIER_BINARY_RULE_NAME = "okbuck_jetifier";
+    private static final String COMMONS_CLI_DEP = "commons-cli:commons-cli:1.3.1";
 
     private static final ImmutableList<String> JETIFIER_MODULES =
             ImmutableList.of(
@@ -76,7 +77,7 @@ public final class JetifierManager {
                 .stream()
                 .map(module -> String.format("%s:%s:%s", JETIFIER_GROUP, module, version))
                 .forEach(dependency -> handler.add(JETIFIER_DEPS_CONFIG, dependency));
-        handler.add(JETIFIER_DEPS_CONFIG, "commons-cli:commons-cli:1.3.1");
+        handler.add(JETIFIER_DEPS_CONFIG, COMMONS_CLI_DEP);
 
         dependencies = new DependencyCache(project, ProjectUtil.getDependencyManager(project)).build(jetifierConfig);
     }
