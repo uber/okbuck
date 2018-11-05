@@ -1,6 +1,6 @@
 package com.uber.okbuck.example
 
-import android.support.test.rule.ActivityTestRule
+import androidx.test.rule.ActivityTestRule
 import org.junit.Rule
 import org.junit.Test
 

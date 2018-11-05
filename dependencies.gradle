@@ -2,11 +2,14 @@ def versions = [
         androidPlugin      : "3.2.0",
         androidTools       : "26.2.0",
         butterKnife        : "9.0.0-SNAPSHOT",
-        dagger             : "2.15",
-        kotlin             : "1.2.61",
+        dagger             : "2.16",
+        kotlin             : "1.3.0",
         leakCanary         : "1.5.4",
         rocker             : "0.23.0",
         support            : "28.0.0",
+        androidx           : "1.0.0",
+        androidxMultidex   : "2.0.0",
+        constraintLayout   : "1.1.0",
 ]
 
 def build = [
@@ -25,7 +28,7 @@ def build = [
         rockerPlugin     : "gradle.plugin.com.fizzed:rocker-gradle-plugin:${versions.rocker}",
         rockerRuntime    : "com.fizzed:rocker-runtime:${versions.rocker}",
         shadowJar        : "com.github.jengelman.gradle.plugins:shadow:2.0.1",
-        sqlDelightPlugin : "com.squareup.sqldelight:gradle-plugin:0.7.0",
+        sqlDelightPlugin : "com.squareup.sqldelight:gradle-plugin:1.0.0-rc2",
 ]
 
 def buildConfig = [
@@ -71,21 +74,20 @@ def lint = [
         lintTests : "com.android.tools.lint:lint-tests:${versions.androidTools}",
 ]
 
-def support = [
-        annotations     : "com.android.support:support-annotations:${versions.support}",
-        appCompat       : "com.android.support:appcompat-v7:${versions.support}",
-        design          : "com.android.support:design:${versions.support}",
-        recyclerView    : "com.android.support:recyclerview-v7:${versions.support}",
-        v4              : "com.android.support:support-v4:${versions.support}",
-        multidex        : "com.android.support:multidex:1.0.3",
-        constraintLayout: "com.android.support.constraint:constraint-layout:1.0.2",
+def androidx = [
+        material         : "com.google.android.material:material:${versions.androidx}",
+        annotations      : "androidx.annotation:annotation:${versions.androidx}",
+        appCompat        : "androidx.appcompat:appcompat:${versions.androidx}",
+        recyclerView     : "androidx.recyclerview:recyclerview:${versions.androidx}",
+        multidex         : "androidx.multidex:multidex:${versions.androidxMultidex}",
+        constraintLayout : "androidx.constraintlayout:constraintlayout:${versions.constraintLayout}"
 ]
 
 def test = [
         assertj       : "org.assertj:assertj-core:3.9.1",
-        espressoCore  : "com.android.support.test.espresso:espresso-core:3.0.1",
-        espressoRules : "com.android.support.test:rules:1.0.1",
-        espressoRunner: "com.android.support.test:runner:1.0.1",
+        espressoCore  : "androidx.test.espresso:espresso-core:3.1.0",
+        espressoRules : "androidx.test:rules:1.1.0",
+        espressoRunner: "androidx.test:runner:1.1.0-alpha3",
         junit         : "junit:junit:4.12",
         kotlinTest    : "org.jetbrains.kotlin:kotlin-test-junit:${versions.kotlin}",
         mockito       : "org.mockito:mockito-core:2.15.0",
@@ -101,7 +103,7 @@ ext.deps = [
         "build"   : build,
         "external": external,
         "lint"    : lint,
-        "support" : support,
+        "androidx": androidx,
         "test"    : test,
         "versions": versions
 ]

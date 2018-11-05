@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -21,8 +21,6 @@ import com.uber.okbuck.example.common.IMyAidlInterface;
 import com.uber.okbuck.example.dummylibrary.DummyActivity;
 import com.uber.okbuck.example.dummylibrary.DummyAndroidClass;
 import com.uber.okbuck.example.javalib.DummyJavaClass;
-import com.uber.okbuck.example.sqldelightmodel.GithubRepo;
-import com.uber.okbuck.example.sqldelightmodel.GithubUser;
 import com.uber.okbuck.java.Pojo;
 import com.uber.okbuck.kotlin.KotlinDataClass;
 import io.reactivex.Observer;
@@ -107,10 +105,6 @@ public class MainActivity extends AppCompatActivity {
               @Override
               public void onSubscribe(Disposable disposable) {}
             });
-    GithubUser user = GithubUser.create(100, "OkBuck");
-    Toast.makeText(this, user.login(), Toast.LENGTH_SHORT).show();
-    GithubRepo repo = GithubRepo.create(100, "OkBuck", "auto buck");
-    Toast.makeText(this, repo.name() + ": " + repo.description(), Toast.LENGTH_SHORT).show();
 
     KotlinDataClass data = new KotlinDataClass("foo", com.uber.okbuck.kotlin.android.R.string.foo);
     Pojo pojo = new Pojo();

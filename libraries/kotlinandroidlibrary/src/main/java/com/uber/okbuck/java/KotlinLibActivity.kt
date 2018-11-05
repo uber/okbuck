@@ -1,8 +1,8 @@
 package com.uber.okbuck.java
 
 import android.os.Bundle
-import android.support.design.widget.Snackbar
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.snackbar.Snackbar
 import com.uber.okbuck.kotlin.android.R
 
 import kotlinx.android.synthetic.main.activity_kotlin_lib.*

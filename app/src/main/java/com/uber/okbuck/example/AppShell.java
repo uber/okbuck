@@ -1,6 +1,6 @@
 package com.uber.okbuck.example;
 
-import android.support.multidex.MultiDex;
+import androidx.multidex.MultiDex;
 import android.widget.Toast;
 import com.facebook.buck.android.support.exopackage.ExopackageApplication;
 import com.uber.okbuck.example.common.Calc;

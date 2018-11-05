@@ -1,7 +1,7 @@
 package com.uber.okbuck.example;
 
 import android.app.Application;
-import android.support.v7.app.AppCompatDelegate;
+import androidx.appcompat.app.AppCompatDelegate;
 import com.facebook.buck.android.support.exopackage.DefaultApplicationLike;
 import com.github.promeg.xlog_android.lib.XLogConfig;
 import com.squareup.leakcanary.LeakCanary;

@@ -56,7 +56,7 @@ public final class GroovyManager {
     startGroovy.setExecutable(true);
   }
 
-  public void finalDependencies() {
+  public void finalizeDependencies() {
     if (dependencies != null) {
       String groovyVersion = GroovySystem.getVersion();
 

@@ -3,7 +3,7 @@
 
     <instrumentation
         android:label="Tests for com.uber.okbuck.example"
-        android:name="android.support.test.runner.AndroidJUnitRunner"
+        android:name="androidx.test.runner.AndroidJUnitRunner"
         android:targetPackage="com.uber.okbuck.example"
         android:handleProfiling="false"
         android:functionalTest="false" />

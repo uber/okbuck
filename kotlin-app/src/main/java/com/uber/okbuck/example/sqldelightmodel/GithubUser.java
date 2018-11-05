@@ -5,7 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 
 @AutoValue
-public abstract class GithubUser implements GithubUserModel {
+public abstract class GithubUser implements GithubUsers {
   public static TypeAdapter<GithubUser> typeAdapter(final Gson gson) {
     return new AutoValue_GithubUser.GsonTypeAdapter(gson);
   }

@@ -52,7 +52,7 @@ public final class ExopackageAndroidLibraryRuleComposer extends AndroidBuckRuleC
     }
 
     return androidRule
-        .ruleType("okbuck_" + target.getRuleType().getBuckName())
+        .ruleType(target.getRuleType().getBuckName())
         .defaultVisibility()
         .deps(deps)
         .name(appLib(target))

@@ -34,8 +34,7 @@ android {
 }
 
 dependencies {
-    implementation deps.support.appCompat
-    implementation deps.support.v4
+    implementation deps.androidx.appCompat
     implementation project(":libraries:javalibrary")
     implementation project(":libraries:emptylibrary")
     implementation project(":libraries:parcelable")

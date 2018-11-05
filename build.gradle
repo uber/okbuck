@@ -18,6 +18,9 @@ buildscript {
     }
     configurations.all {
         exclude group:"com.android.tools.build", module: "transform-api"
+        resolutionStrategy {
+            force "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${deps.versions.kotlin}"
+        }
     }
 }
 
@@ -33,6 +36,9 @@ allprojects { project ->
     }
     configurations.all {
         exclude group:"com.android.tools.build", module: "transform-api"
+        resolutionStrategy {
+            force "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${deps.versions.kotlin}"
+        }
     }
 }
 
@@ -113,10 +119,15 @@ def addCommonConfigurationForAndroidModules(Project project) {
 
     if (project.plugins.hasPlugin("com.squareup.sqldelight")) {
         variants.all {
-            Task okbuckTask = project.tasks.getByName("okbuck")
-            Task sqlDelightTask = project.tasks.getByName("generate${it.name.capitalize()}SqlDelightInterface")
-            okbuckTask.dependsOn(sqlDelightTask)
-            project.android.sourceSets."${it.name}".java.srcDirs += [sqlDelightTask.outputs.files[0] as String]
+
+            project.android.sourceSets."${it.name}".java.srcDir project.file("build/generated/source/sqldelight")
+            project.android.sourceSets."${it.name}".kotlin.srcDir project.file("build/generated/source/sqldelight")
+
+            project.afterEvaluate { proj ->
+                Task okbuckTask = proj.tasks.getByName("okbuck")
+                Task sqlDelightTask = proj.tasks.getByName("generate${it.name.capitalize()}SqlDelightInterface")
+                okbuckTask.dependsOn(sqlDelightTask)
+            }
         }
     }
 }
@@ -131,7 +142,7 @@ okbuck {
             "app": [
                     "^com/uber/okbuck/example/AppShell^",
                     "^com/uber/okbuck/example/BuildConfig^",
-                    "^android/support/multidex/",
+                    "^androidx/multidex/",
                     "^com/facebook/buck/android/support/exopackage/",
                     "^com/github/promeg/xlog_android/lib/XLogConfig^",
                     "^com/squareup/leakcanary/LeakCanary^",
@@ -145,19 +156,19 @@ okbuck {
     appLibDependencies = [
             "appProd": [
                     "buck-android-support",
-                    "com.android.support:multidex",
+                    "androidx.multidex:multidex",
                     "libraries/javalibrary:main",
                     "libraries/common:paidRelease",
             ],
             "appDev" : [
                     "buck-android-support",
-                    "com.android.support:multidex",
+                    "androidx.multidex:multidex",
                     "libraries/javalibrary:main",
                     "libraries/common:freeDebug",
             ],
             "appDemo": [
                     "buck-android-support",
-                    "com.android.support:multidex",
+                    "androidx.multidex:multidex",
                     "libraries/javalibrary:main",
                     "libraries/common:paidRelease",
             ]
@@ -207,6 +218,7 @@ okbuck {
             "com.android.tools.build:manifest-merger",
             "com.android.tools:dvlib",
             "org.ow2.asm:asm",
+            "org.ow2.asm:asm-commons",
             "com.google.protobuf:protobuf-java",
             "commons-codec:commons-codec",
             "com.google.errorprone:error_prone_annotations",
@@ -232,6 +244,7 @@ okbuck {
             "com.android.tools:annotations",
             "com.android.tools.build:builder-test-api",
             "org.apache.httpcomponents:httpmime",
+            "androidx.annotation:annotation",
         ]
         allowAllVersions = [
             "org.robolectric:android-all",

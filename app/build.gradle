@@ -1,6 +1,5 @@
 apply plugin: "com.android.application"
 apply plugin: "com.jakewharton.butterknife"
-apply plugin: "com.squareup.sqldelight"
 
 android {
     defaultConfig {
@@ -9,7 +8,7 @@ android {
         buildConfigField "boolean", "CAN_JUMP", "true"
         buildConfigField "boolean", "XLOG_ENABLED", "true"
         buildConfigField "int", "EXOPACKAGE_FLAGS", "0"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         // If app doesn"t specify dimensions, use missingDimensionStrategy
         // https://developer.android.com/studio/build/gradle-plugin-3-0-0-migration.html#resolve_matching_errors
@@ -61,10 +60,10 @@ dependencies {
     implementation deps.external.rxjava
     implementation deps.external.rxandroid
     implementation deps.external.rxPermissions
-    implementation deps.support.multidex
+    implementation deps.androidx.multidex
     implementation deps.external.butterKnife
-    implementation deps.support.design
-    implementation deps.support.recyclerView
+    implementation deps.androidx.material
+    implementation deps.androidx.recyclerView
     implementation deps.external.leakCanary
     implementation deps.external.xlogAndroidIdle
 
@@ -80,9 +79,10 @@ dependencies {
 
     testImplementation deps.test.junit
     testImplementation deps.test.mockito
-    testImplementation deps.support.annotations
+    testImplementation deps.androidx.annotations
 
     androidTestImplementation deps.test.espressoCore
+    androidTestImplementation deps.test.espressoRules
     androidTestImplementation deps.test.espressoRunner
 }
 

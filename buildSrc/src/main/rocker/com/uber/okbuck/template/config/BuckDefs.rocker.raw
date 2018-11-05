@@ -5,6 +5,7 @@ String classpathMacro,
 String lintJvmArgs,
 String externalDependencyCache,
 boolean enableLint,
+boolean enableJetifier,
 boolean useCompilationClasspath,
 String classpathExclusionRegex
 )
@@ -251,4 +252,30 @@ def okbuck_keystore(
         store = storeFile,
         properties = ':' + properties_rule,
         visibility = ['PUBLIC'],
+    )
+
+def okbuck_android_prebuilt_aar(
+    name,
+    aar,
+    **kwargs
+    ):
+@if(enableJetifier) {
+    jetified = name.replace('.aar', '-jetified.aar')
+    genname = "unjetified_" + name
+    genrule(
+        name = genname,
+        srcs = [aar],
+        out = jetified,
+        cmd = "$(exe //.okbuck/workspace/jetifier:okbuck_jetifier) -i $SRCS -o $OUT"
+    )
+}
+
+    android_prebuilt_aar(
+        name = name,
+@if(enableJetifier) {
+        aar = ":{}".format(genname),
+} else {
+        aar = aar,
+}
+        **kwargs
     )

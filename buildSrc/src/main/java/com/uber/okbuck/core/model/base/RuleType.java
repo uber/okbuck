@@ -27,6 +27,8 @@ public enum RuleType {
   PREBUILT_NATIVE_LIBRARY,
   ROBOLECTRIC_TEST("java");
 
+  private static final String OKBUCK_PREFIX = "okbuck_";
+
   private final ImmutableList<String> properties;
 
   RuleType() {
@@ -42,17 +44,26 @@ public enum RuleType {
   }
 
   public String getBuckName() {
-    @Var RuleType buckType = this;
+    @Var RuleType ruleType = this;
+    @Var Boolean insertOkBuckPrefix = false;
     switch (this) {
       case KOTLIN_ANDROID_LIBRARY:
-        buckType = ANDROID_LIBRARY;
+      case ANDROID_LIBRARY:
+        ruleType = ANDROID_LIBRARY;
+        insertOkBuckPrefix = true;
         break;
       case KOTLIN_ROBOLECTRIC_TEST:
-        buckType = ROBOLECTRIC_TEST;
+      case ROBOLECTRIC_TEST:
+        ruleType = ROBOLECTRIC_TEST;
+        break;
+      case ANDROID_PREBUILT_AAR:
+        insertOkBuckPrefix = true;
         break;
       default:
         break;
     }
-    return buckType.name().toLowerCase();
+
+    String prefix = insertOkBuckPrefix ? OKBUCK_PREFIX : "";
+    return prefix + ruleType.name().toLowerCase();
   }
 }

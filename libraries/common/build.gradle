@@ -17,6 +17,6 @@ android {
 }
 
 dependencies {
-    api deps.support.appCompat
+    api deps.androidx.appCompat
     implementation project(":libraries:parcelable")
 }
