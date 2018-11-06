@@ -55,14 +55,8 @@ public final class JetifierManager {
     }
 
     public static boolean isJetifierEnabled(Project project) {
-        Map<String, ?> properties = project.getProperties();
-
-        if (properties.containsKey("android.useAndroidX")
-                && properties.containsKey("android.enableJetifier")) {
-            return (Boolean.valueOf((String) properties.get("android.useAndroidX")))
-                    && (Boolean.valueOf((String) properties.get("android.enableJetifier")));
-        }
-        return false;
+        Object prop = project.findProperty("android.enableJetifier");
+        return prop != null ? Boolean.valueOf((String) prop) : false;
     }
 
     public void setupJetifier(String version) {
