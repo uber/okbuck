@@ -98,12 +98,14 @@ public class OkBuckExtension {
   private LintExtension lintExtension;
   private ExternalDependenciesExtension externalDependenciesExtension;
   private VisibilityExtension visibilityExtension = new VisibilityExtension();
+  private RuleOverridesExtension ruleOverridesExtension;
 
   public OkBuckExtension(Project project) {
     buckProjects = project.getSubprojects();
     kotlinExtension = new KotlinExtension(project);
     lintExtension = new LintExtension(project);
     externalDependenciesExtension = new ExternalDependenciesExtension(project);
+    ruleOverridesExtension = new RuleOverridesExtension(project);
   }
 
   public void wrapper(Action<WrapperExtension> container) {
@@ -184,5 +186,13 @@ public class OkBuckExtension {
 
   public VisibilityExtension getVisibilityExtension() {
     return visibilityExtension;
+  }
+
+  public void ruleOverrides(Action<RuleOverridesExtension> container) {
+    container.execute(ruleOverridesExtension);
+  }
+
+  public RuleOverridesExtension getRuleOverridesExtension() {
+    return ruleOverridesExtension;
   }
 }

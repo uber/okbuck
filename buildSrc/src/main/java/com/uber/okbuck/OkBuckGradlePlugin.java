@@ -271,8 +271,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
                   bp -> {
                     bp.getConfigurations().maybeCreate(BUCK_LINT);
                     Task okbuckProjectTask = bp.getTasks().maybeCreate(OKBUCK);
-                    okbuckProjectTask.doLast(
-                        task -> BuckFileGenerator.generate(bp, okbuckExt.getVisibilityExtension()));
+                    okbuckProjectTask.doLast(task -> BuckFileGenerator.generate(bp, okbuckExt));
                     okbuckProjectTask.dependsOn(setupOkbuck);
                     okBuckClean.dependsOn(okbuckProjectTask);
                   });
