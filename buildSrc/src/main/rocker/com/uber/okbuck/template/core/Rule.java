@@ -43,6 +43,10 @@ public abstract class Rule<T extends Rule> extends DefaultRockerModel {
     return (T) this;
   }
 
+  public String ruleType() {
+    return ruleType;
+  }
+
   public T deps(Collection deps) {
     this.deps = deps;
     return (T) this;

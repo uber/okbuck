@@ -27,6 +27,8 @@ import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.model.jvm.JvmTarget;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
+import com.uber.okbuck.extension.OkBuckExtension;
+import com.uber.okbuck.extension.RuleOverridesExtension;
 import com.uber.okbuck.extension.VisibilityExtension;
 import com.uber.okbuck.template.android.AndroidRule;
 import com.uber.okbuck.template.android.ResourceRule;
@@ -35,6 +37,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.gradle.api.Project;
@@ -44,7 +47,8 @@ public final class BuckFileGenerator {
   private BuckFileGenerator() {}
 
   /** generate {@code BUCKFile} */
-  public static void generate(Project project, VisibilityExtension visibilityExtension) {
+  public static void generate(Project project, OkBuckExtension okBuckExtension) {
+    VisibilityExtension visibilityExtension = okBuckExtension.getVisibilityExtension();
     List<Rule> rules = createRules(project);
     File moduleDir = project.getBuildFile().getParentFile();
     File visibilityFile = new File(moduleDir, visibilityExtension.visibilityFileName);
@@ -53,8 +57,19 @@ public final class BuckFileGenerator {
     if (hasVisibilityFile) {
       rules.forEach(rule -> rule.fileConfiguredVisibility(true));
     }
+
     Multimap<String, String> loadStatements =
         createLoadStatements(visibilityExtension, hasVisibilityFile);
+
+    Map<String, RuleOverridesExtension.OverrideSetting> overrides =
+        okBuckExtension.getRuleOverridesExtension().getOverrides();
+    for (Rule rule : rules) {
+      if (overrides.containsKey(rule.ruleType())) {
+        RuleOverridesExtension.OverrideSetting setting = overrides.get(rule.ruleType());
+        loadStatements.put(setting.getImportLocation(), setting.getNewRuleName());
+        rule.ruleType(setting.getNewRuleName());
+      }
+    }
 
     File buckFile = project.file(OkBuckGradlePlugin.BUCK);
     FileUtil.writeToBuckFile(loadStatements, rules, buckFile);

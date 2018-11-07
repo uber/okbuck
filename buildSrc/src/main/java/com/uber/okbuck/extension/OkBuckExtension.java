@@ -99,6 +99,7 @@ public class OkBuckExtension {
   private JetifierExtension jetifierExtension;
   private ExternalDependenciesExtension externalDependenciesExtension;
   private VisibilityExtension visibilityExtension = new VisibilityExtension();
+  private RuleOverridesExtension ruleOverridesExtension;
 
   public OkBuckExtension(Project project) {
     buckProjects = project.getSubprojects();
@@ -106,6 +107,7 @@ public class OkBuckExtension {
     lintExtension = new LintExtension(project);
     jetifierExtension = new JetifierExtension();
     externalDependenciesExtension = new ExternalDependenciesExtension(project);
+    ruleOverridesExtension = new RuleOverridesExtension(project);
   }
 
   public void wrapper(Action<WrapperExtension> container) {
@@ -194,5 +196,13 @@ public class OkBuckExtension {
 
   public VisibilityExtension getVisibilityExtension() {
     return visibilityExtension;
+  }
+
+  public void ruleOverrides(Action<RuleOverridesExtension> container) {
+    container.execute(ruleOverridesExtension);
+  }
+
+  public RuleOverridesExtension getRuleOverridesExtension() {
+    return ruleOverridesExtension;
   }
 }
