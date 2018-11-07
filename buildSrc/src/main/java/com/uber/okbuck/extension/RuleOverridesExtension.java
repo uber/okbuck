@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import javax.annotation.Nullable;
 import org.gradle.api.Project;
 
@@ -53,7 +52,7 @@ ruleOverrides {
 public class RuleOverridesExtension {
 
   private Map<String, OverrideSetting> overridesMap = Collections.emptyMap();
-  private final List<OverrideSetting> overrides = new ArrayList<>();
+  private final List<RawOverrideSetting> overrides = new ArrayList<>();
 
   /** Import location to be used by default for overrides. */
   @Nullable private String defaultImportLocation;
@@ -62,8 +61,8 @@ public class RuleOverridesExtension {
   @Nullable private String defaultRuleNamePrefix;
 
   /** Override section for the rule. */
-  protected void override(Closure<OverrideSetting> action) {
-    OverrideSetting setting = new OverrideSetting();
+  protected void override(Closure<RawOverrideSetting> action) {
+    RawOverrideSetting setting = new RawOverrideSetting();
     action.setDelegate(setting);
     action.call(setting);
     overrides.add(setting);
@@ -80,15 +79,15 @@ public class RuleOverridesExtension {
           overridesMap =
               overrides
                   .stream()
-                  .map(RuleOverridesExtension.this::applyDefaults)
+                  .map(rawOverrideSetting -> applyDefaults(rawOverrideSetting))
                   .collect(
                       ImmutableMap.toImmutableMap(
-                          OverrideSetting::getNativeRuleName, Function.identity()));
+                          RawOverrideSetting::getNativeRuleName, OverrideSetting::new));
         });
   }
 
-  private OverrideSetting applyDefaults(OverrideSetting originalSetting) {
-    return new OverrideSetting(
+  private RawOverrideSetting applyDefaults(RawOverrideSetting originalSetting) {
+    return new RawOverrideSetting(
         originalSetting.getNativeRuleName(),
         Optional.ofNullable(Strings.emptyToNull(originalSetting.getImportLocation()))
             .orElse(defaultImportLocation),
@@ -98,35 +97,61 @@ public class RuleOverridesExtension {
 
   private void validateExtension() {
     Set<String> usedOverrideKeys = new HashSet<>();
-    for (OverrideSetting baseSetting : overrides) {
-      OverrideSetting setting = applyDefaults(baseSetting);
-      if (usedOverrideKeys.contains(setting.nativeRuleName)) {
+    for (RawOverrideSetting baseSetting : overrides) {
+      RawOverrideSetting setting = applyDefaults(baseSetting);
+      Preconditions.checkNotNull(
+          Strings.emptyToNull(setting.getNativeRuleName()),
+          "nativeRuleName is required for override");
+      Preconditions.checkNotNull(
+          Strings.emptyToNull(setting.getImportLocation()),
+          setting.getNativeRuleName()
+              + ": importLocation is required for override,"
+              + " since no defaultImportLocation is specified");
+      Preconditions.checkNotNull(
+          Strings.emptyToNull(setting.getNewRuleName()),
+          setting.getNativeRuleName()
+              + ": newRuleName is required for override,"
+              + " since no defaultRuleNamePrefix is specified");
+
+      if (usedOverrideKeys.contains(setting.getNativeRuleName())) {
         throw new IllegalArgumentException(
-            "Multiple overrides specified for the same rule: " + setting.nativeRuleName);
+            "Multiple overrides specified for the same rule: " + setting.getNativeRuleName());
       } else {
-        usedOverrideKeys.add(setting.nativeRuleName);
+        usedOverrideKeys.add(setting.getNativeRuleName());
       }
-      Preconditions.checkNotNull(
-          Strings.emptyToNull(setting.nativeRuleName), "nativeRuleName is required for override");
-      Preconditions.checkNotNull(
-          Strings.emptyToNull(setting.importLocation),
-          setting.nativeRuleName
-              + ": importLocation is required for override, since no defaultImportLocation is specified");
-      Preconditions.checkNotNull(
-          Strings.emptyToNull(setting.newRuleName),
-          setting.nativeRuleName
-              + ": newRuleName is required for override, since no defaultRuleNamePrefix is specified");
     }
   }
 
   public static class OverrideSetting {
+    private String importLocation;
+    private String newRuleName;
+
+    private OverrideSetting(RawOverrideSetting rawOverrideSetting) {
+      // At this point rawOverrideSetting should be validated.
+      this.importLocation = Preconditions.checkNotNull(rawOverrideSetting.getImportLocation());
+      this.newRuleName = Preconditions.checkNotNull(rawOverrideSetting.getNewRuleName());
+    }
+
+    public String getImportLocation() {
+      return importLocation;
+    }
+
+    public String getNewRuleName() {
+      return newRuleName;
+    }
+  }
+
+  private static class RawOverrideSetting {
     @Nullable private String nativeRuleName;
     @Nullable private String importLocation;
     @Nullable private String newRuleName;
 
-    public OverrideSetting() {}
+    public RawOverrideSetting() {}
 
-    public OverrideSetting(String nativeRuleName, String importLocation, String newRuleName) {
+    private RawOverrideSetting(
+        @Nullable String nativeRuleName,
+        @Nullable String importLocation,
+        @Nullable String newRuleName) {
       this.nativeRuleName = nativeRuleName;
       this.importLocation = importLocation;
       this.newRuleName = newRuleName;
