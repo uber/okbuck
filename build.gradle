@@ -265,6 +265,14 @@ okbuck {
                     ]
             ]
     ]
+
+    ruleOverrides {
+        defaultImportLocation = "//tooling/buck-defs:project_targets.bzl"
+        defaultRuleNamePrefix = "project_"
+        override {
+            nativeRuleName = "android_binary"
+        }
+    }
 }
 
 afterEvaluate {

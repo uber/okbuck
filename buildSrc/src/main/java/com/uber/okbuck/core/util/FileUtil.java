@@ -2,7 +2,6 @@ package com.uber.okbuck.core.util;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.TreeMultimap;
 import com.uber.okbuck.template.common.LoadStatements;
 import com.uber.okbuck.template.core.Rule;
 import java.io.BufferedInputStream;
@@ -85,11 +84,6 @@ public final class FileUtil {
     }
   }
 
-  public static void writeToBuckFile(List<Rule> rules, File buckFile) {
-    writeToBuckFile(TreeMultimap.create(), rules, buckFile);
-  }
-
-  @SuppressWarnings("InconsistentOverloads")
   public static void writeToBuckFile(
       Multimap<String, String> loadStatements, List<Rule> rules, File buckFile) {
     if (!rules.isEmpty()) {
