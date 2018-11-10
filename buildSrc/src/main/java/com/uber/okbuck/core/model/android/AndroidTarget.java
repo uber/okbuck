@@ -597,7 +597,7 @@ public abstract class AndroidTarget extends JvmTarget {
   }
 
   public String getResPackage() {
-    if (resPackageName == null) {
+    if (resPackageName == null || resPackageName.isEmpty()) {
       return getOriginalPackage();
     }
 
