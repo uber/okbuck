@@ -9,10 +9,7 @@ public class WrapperExtension {
   public String repo = "";
 
   /** List of changed files to trigger okbuck runs on */
-  public Set<String> watch =
-      Sets.newHashSet(
-          "**/*.gradle",
-          "**/gradle-wrapper.properties");
+  public Set<String> watch = Sets.newHashSet("**/*.gradle", "**/gradle-wrapper.properties");
 
   /** List of added/removed directories to trigger okbuck runs on */
   public Set<String> sourceRoots =

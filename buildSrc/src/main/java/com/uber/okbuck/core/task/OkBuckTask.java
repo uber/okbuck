@@ -13,7 +13,6 @@ import com.uber.okbuck.core.model.base.ProjectType;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProguardUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
-import com.uber.okbuck.extension.JetifierExtension;
 import com.uber.okbuck.extension.KotlinExtension;
 import com.uber.okbuck.extension.OkBuckExtension;
 import com.uber.okbuck.extension.ScalaExtension;
