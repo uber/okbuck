@@ -250,7 +250,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
                 }
 
                 if (JetifierManager.isJetifierEnabled(rootProject)) {
-                    jetifierManager.setupJetifier(okbuckExt.getJetifierExtension().version);
+                  jetifierManager.setupJetifier(okbuckExt.getJetifierExtension().version);
                 }
 
                 extraConfigurations.forEach(

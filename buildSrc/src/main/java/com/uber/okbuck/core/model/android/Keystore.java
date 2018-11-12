@@ -5,7 +5,8 @@ import com.google.auto.value.AutoValue;
 @AutoValue
 public abstract class Keystore {
 
-  static Keystore create(String storeFile, String storePassword, String keyAlias, String keyPassword) {
+  static Keystore create(
+      String storeFile, String storePassword, String keyAlias, String keyPassword) {
     return new AutoValue_Keystore(storeFile, storePassword, keyAlias, keyPassword);
   }
 
