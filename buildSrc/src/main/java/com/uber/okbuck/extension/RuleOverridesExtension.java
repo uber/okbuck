@@ -2,7 +2,10 @@ package com.uber.okbuck.extension;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.uber.okbuck.OkBuckGradlePlugin;
+import com.uber.okbuck.core.model.base.RuleType;
 import groovy.lang.Closure;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.gradle.api.Project;
 
@@ -51,6 +55,17 @@ ruleOverrides {
  */
 public class RuleOverridesExtension {
 
+  // okBuck pre-defined rules
+  private static final String OKBUCK_PREFIX = "okbuck_";
+  private static final ImmutableList<RuleType> OKBUCK_DEFINED_RULES =
+      ImmutableList.of(
+          RuleType.AIDL,
+          RuleType.ANDROID_LIBRARY,
+          RuleType.ANDROID_PREBUILT_AAR,
+          RuleType.KOTLIN_ANDROID_LIBRARY,
+          RuleType.KEYSTORE,
+          RuleType.MANIFEST);
+
   private Map<String, OverrideSetting> overridesMap = Collections.emptyMap();
   private final List<RawOverrideSetting> overrides = new ArrayList<>();
 
@@ -72,18 +87,36 @@ public class RuleOverridesExtension {
     return overridesMap;
   }
 
-  public RuleOverridesExtension(Project project) {
+  RuleOverridesExtension(Project project) {
     project.afterEvaluate(
         evaluatedProject -> {
           validateExtension();
-          overridesMap =
-              overrides
-                  .stream()
-                  .map(rawOverrideSetting -> applyDefaults(rawOverrideSetting))
-                  .collect(
-                      ImmutableMap.toImmutableMap(
-                          RawOverrideSetting::getNativeRuleName, OverrideSetting::new));
+          preProcessExtension();
         });
+  }
+
+  private void preProcessExtension() {
+    Map<String, OverrideSetting> configuredOverrides =
+        overrides
+            .stream()
+            .map(this::applyDefaults)
+            .collect(Collectors.toMap(RawOverrideSetting::getNativeRuleName, OverrideSetting::new));
+
+    // Add OkBuck defaults for rules not re-defined by user.
+    OKBUCK_DEFINED_RULES
+        .stream()
+        .map(RuleType::getBuckName)
+        .distinct()
+        .forEach(
+            buckName ->
+                configuredOverrides.computeIfAbsent(
+                    buckName,
+                    nativeRuleName ->
+                        new OverrideSetting(
+                            OkBuckGradlePlugin.OKBUCK_DEFS_TARGET,
+                            OKBUCK_PREFIX + nativeRuleName)));
+
+    overridesMap = ImmutableMap.copyOf(configuredOverrides);
   }
 
   private RawOverrideSetting applyDefaults(RawOverrideSetting originalSetting) {
@@ -128,8 +161,14 @@ public class RuleOverridesExtension {
 
     private OverrideSetting(RawOverrideSetting rawOverrideSetting) {
       // At this point rawOverrideSetting should be validated.
-      this.importLocation = Preconditions.checkNotNull(rawOverrideSetting.getImportLocation());
-      this.newRuleName = Preconditions.checkNotNull(rawOverrideSetting.getNewRuleName());
+      this(
+          Preconditions.checkNotNull(rawOverrideSetting.getImportLocation()),
+          Preconditions.checkNotNull(rawOverrideSetting.getNewRuleName()));
+    }
+
+    private OverrideSetting(String importLocation, String newRuleName) {
+      this.importLocation = importLocation;
+      this.newRuleName = newRuleName;
     }
 
     public String getImportLocation() {

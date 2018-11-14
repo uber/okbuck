@@ -2,6 +2,7 @@ package com.uber.okbuck.composer.java;
 
 import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.composer.jvm.JvmBuckRuleComposer;
+import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.template.core.Rule;
 import com.uber.okbuck.template.java.JavaAnnotationProcessorRule;
@@ -38,7 +39,8 @@ public class JavaAnnotationProcessorRuleComposer extends JvmBuckRuleComposer {
               return new JavaAnnotationProcessorRule()
                   .processorClasses(scope.getAnnotationProcessors())
                   .name(getApPluginRuleName(scope.getAnnotationProcessorsUID()))
-                  .deps(depsBuilder.build());
+                  .deps(depsBuilder.build())
+                  .ruleType(RuleType.JAVA_ANNOTATION_PROCESSOR.getBuckName());
             })
         .collect(Collectors.toList());
   }

@@ -1,6 +1,6 @@
 @import java.util.Collection
 @args (Collection processorClasses)
-java_annotation_processor(
+@(ruleType)(
     name = '@name',
 @if (valid(processorClasses)) {
     processor_classes = [

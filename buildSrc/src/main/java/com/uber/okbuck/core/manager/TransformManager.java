@@ -2,22 +2,28 @@ package com.uber.okbuck.core.manager;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Multimap;
 import com.google.errorprone.annotations.Var;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.base.BuckRuleComposer;
 import com.uber.okbuck.core.dependency.DependencyCache;
 import com.uber.okbuck.core.model.android.AndroidAppTarget;
+import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.util.FileUtil;
+import com.uber.okbuck.core.util.LoadStatementsUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
+import com.uber.okbuck.extension.OkBuckExtension;
 import com.uber.okbuck.template.common.ExportFile;
-import com.uber.okbuck.template.config.TransformBuckFile;
 import com.uber.okbuck.template.core.Rule;
+import com.uber.okbuck.template.java.Prebuilt;
+import com.uber.okbuck.template.jvm.JvmBinaryRule;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,14 +53,18 @@ public final class TransformManager {
           + TransformManager.TRANSFORM_RULE
           + ") "
           + "com.uber.okbuck.transform.CliTransform; ";
+  private static final String OKBUCK_TRANSFORM_TARGET_NAME = "okbuck_transform";
+  private static final String BINARY_EXCLUDES = "META-INF";
 
   private final Project rootProject;
+  private final OkBuckExtension okbuckExt;
   private final Map<Path, String> configFileToPathMap = new HashMap<>();
 
   @Nullable private ImmutableSet<String> dependencies;
 
-  public TransformManager(Project rootProject) {
+  public TransformManager(Project rootProject, OkBuckExtension okbuckExt) {
     this.rootProject = rootProject;
+    this.okbuckExt = okbuckExt;
   }
 
   public void fetchTransformDeps() {
@@ -109,7 +119,20 @@ public final class TransformManager {
   private void composeBuckFile(Path cacheDir) {
     ImmutableList.Builder<Rule> rulesBuilder = new ImmutableList.Builder<>();
     if (dependencies != null) {
-      rulesBuilder.add(new TransformBuckFile().transformJar(TRANSFORM_JAR).deps(dependencies));
+      rulesBuilder
+          .add(
+              new Prebuilt()
+                  .prebuiltType(RuleType.PREBUILT_JAR.getProperties().get(0))
+                  .prebuilt(TRANSFORM_JAR)
+                  .ruleType(RuleType.PREBUILT_JAR.getBuckName())
+                  .name(TRANSFORM_JAR))
+          .add(
+              new JvmBinaryRule()
+                  .excludes(Collections.singleton(BINARY_EXCLUDES))
+                  .deps(dependencies)
+                  .ruleType(RuleType.JAVA_BINARY.getBuckName())
+                  .name(OKBUCK_TRANSFORM_TARGET_NAME)
+                  .defaultVisibility());
     }
 
     rulesBuilder.addAll(
@@ -120,8 +143,11 @@ public final class TransformManager {
             .map(configFileName -> new ExportFile().name(configFileName))
             .collect(Collectors.toList()));
 
+    List<Rule> rules = rulesBuilder.build();
     File buckFile = cacheDir.resolve(OkBuckGradlePlugin.BUCK).toFile();
-    FileUtil.writeToBuckFile(rulesBuilder.build(), buckFile);
+    Multimap<String, String> loadStatements =
+        LoadStatementsUtil.getLoadStatements(rules, okbuckExt);
+    FileUtil.writeToBuckFile(loadStatements, rules, buckFile);
   }
 
   public Pair<String, List<String>> getBashCommandAndTransformDeps(AndroidAppTarget target) {

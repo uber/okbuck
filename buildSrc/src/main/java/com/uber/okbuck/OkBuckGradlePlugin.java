@@ -68,7 +68,9 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
   public static final String WORKSPACE_PATH = DOT_OKBUCK + "/workspace";
   public static final String GROUP = OKBUCK;
   public static final String BUCK_LINT = "buckLint";
-  public static final String OKBUCK_DEFS = DOT_OKBUCK + "/defs/DEFS";
+  private static final String OKBUCK_TARGETS_BZL = "okbuck_targets.bzl";
+  public static final String OKBUCK_DEFS_FILE = DOT_OKBUCK + "/defs/" + OKBUCK_TARGETS_BZL;
+  public static final String OKBUCK_DEFS_TARGET = "//" + DOT_OKBUCK + "/defs:" + OKBUCK_TARGETS_BZL;
   public static final String OKBUCK_CONFIG = DOT_OKBUCK + "/config";
 
   private static final String OKBUCK_STATE_DIR = DOT_OKBUCK + "/state";
@@ -124,41 +126,37 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
 
           // Create Annotation Processor cache
           annotationProcessorCache =
-              new AnnotationProcessorCache(rootBuckProject, PROCESSOR_BUCK_FILE);
+              new AnnotationProcessorCache(rootBuckProject, okbuckExt, PROCESSOR_BUCK_FILE);
 
           // Create Dependency manager
-          dependencyManager =
-              new DependencyManager(
-                  rootBuckProject,
-                  okbuckExt.externalDependencyCache,
-                  okbuckExt.getExternalDependenciesExtension());
+          dependencyManager = new DependencyManager(rootBuckProject, okbuckExt);
 
           // Create Lint Manager
-          lintManager = new LintManager(rootBuckProject, LINT_BUCK_FILE);
+          lintManager = new LintManager(rootBuckProject, LINT_BUCK_FILE, okbuckExt);
 
           // Create Kotlin Manager
           kotlinManager = new KotlinManager(rootBuckProject, okbuckExt);
 
           // Create Scala Manager
-          scalaManager = new ScalaManager(rootBuckProject);
+          scalaManager = new ScalaManager(rootBuckProject, okbuckExt);
 
           // Create Scala Manager
           groovyManager = new GroovyManager(rootBuckProject);
 
           // Create Jetifier Manager
-          jetifierManager = new JetifierManager(rootBuckProject);
+          jetifierManager = new JetifierManager(rootBuckProject, okbuckExt);
 
           // Create Robolectric Manager
           robolectricManager = new RobolectricManager(rootBuckProject);
 
           // Create Transform Manager
-          transformManager = new TransformManager(rootBuckProject);
+          transformManager = new TransformManager(rootBuckProject, okbuckExt);
 
           // Create Buck Manager
           buckManager = new BuckManager(rootBuckProject);
 
           // Create Manifest Merger Manager
-          manifestMergerManager = new ManifestMergerManager(rootBuckProject);
+          manifestMergerManager = new ManifestMergerManager(rootBuckProject, okbuckExt);
 
           KotlinExtension kotlin = okbuckExt.getKotlinExtension();
           ScalaExtension scala = okbuckExt.getScalaExtension();
@@ -242,7 +240,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
                 }
 
                 // Setup d8 deps
-                D8Util.copyDeps();
+                D8Util.copyDeps(okbuckExt);
 
                 // Fetch robolectric deps if needed
                 if (okbuckExt.getTestExtension().robolectric) {
