@@ -4,7 +4,6 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.SetMultimap;
 import com.uber.okbuck.OkBuckGradlePlugin;
@@ -13,12 +12,9 @@ import com.uber.okbuck.core.dependency.DependencyUtils;
 import com.uber.okbuck.core.dependency.ExternalDependency;
 import com.uber.okbuck.core.dependency.VersionlessDependency;
 import com.uber.okbuck.core.util.FileUtil;
-import com.uber.okbuck.core.util.LoadStatementsUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.extension.ExternalDependenciesExtension;
 import com.uber.okbuck.extension.OkBuckExtension;
-import com.uber.okbuck.extension.RuleOverridesExtension;
-import com.uber.okbuck.template.core.Rule;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -42,19 +38,20 @@ public class DependencyManager {
   private final Project project;
   private final String cacheDirName;
   private final ExternalDependenciesExtension extension;
-  private final RuleOverridesExtension overridesExtension;
+  private final BuckFileManager buckFileManager;
 
   private final SetMultimap<VersionlessDependency, ExternalDependency> originalDependencyMap =
       LinkedHashMultimap.create();
 
   private final HashMap<VersionlessDependency, Boolean> skipPrebuiltDependencyMap = new HashMap<>();
 
-  public DependencyManager(Project rootProject, OkBuckExtension okBuckExtension) {
+  public DependencyManager(
+      Project rootProject, OkBuckExtension okBuckExtension, BuckFileManager buckFileManager) {
 
     this.project = rootProject;
     this.cacheDirName = okBuckExtension.externalDependencyCache;
     this.extension = okBuckExtension.getExternalDependenciesExtension();
-    this.overridesExtension = okBuckExtension.getRuleOverridesExtension();
+    this.buckFileManager = buckFileManager;
   }
 
   public synchronized void addDependency(ExternalDependency dependency, boolean skipPrebuilt) {
@@ -261,10 +258,7 @@ public class DependencyManager {
   }
 
   private void composeBuckFile(Path path, Collection<ExternalDependency> dependencies) {
-    List<Rule> rules = PrebuiltRuleComposer.compose(dependencies);
-    Multimap<String, String> loadStatements =
-        LoadStatementsUtil.getLoadStatements(rules, overridesExtension);
-    File buckFile = path.resolve(OkBuckGradlePlugin.BUCK).toFile();
-    FileUtil.writeToBuckFile(loadStatements, rules, buckFile);
+    buckFileManager.writeToBuckFile(
+        PrebuiltRuleComposer.compose(dependencies), path.resolve(OkBuckGradlePlugin.BUCK).toFile());
   }
 }

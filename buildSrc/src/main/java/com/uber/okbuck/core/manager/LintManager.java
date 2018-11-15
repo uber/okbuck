@@ -2,15 +2,12 @@ package com.uber.okbuck.core.manager;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Multimap;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.base.BuckRuleComposer;
 import com.uber.okbuck.core.dependency.DependencyCache;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.util.FileUtil;
-import com.uber.okbuck.core.util.LoadStatementsUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
-import com.uber.okbuck.extension.OkBuckExtension;
 import com.uber.okbuck.template.core.Rule;
 import com.uber.okbuck.template.java.Prebuilt;
 import com.uber.okbuck.template.jvm.JvmBinaryRule;
@@ -39,15 +36,15 @@ public final class LintManager {
 
   private final Project project;
   private final String lintBuckFile;
-  private final OkBuckExtension extension;
+  private final BuckFileManager buckFileManager;
 
   private Set<String> dependencies;
 
   @SuppressWarnings("NullAway")
-  public LintManager(Project project, String lintBuckFile, OkBuckExtension extension) {
+  public LintManager(Project project, String lintBuckFile, BuckFileManager buckFileManager) {
     this.project = project;
     this.lintBuckFile = lintBuckFile;
-    this.extension = extension;
+    this.buckFileManager = buckFileManager;
   }
 
   @Nullable
@@ -118,11 +115,8 @@ public final class LintManager {
       FileUtil.copyResourceToProject(
           "lint/" + LINT_DUMMY_JAR, new File(LINT_DEPS_CACHE, LINT_DUMMY_JAR));
 
-      File buckFile = project.getRootProject().file(lintBuckFile);
-      ImmutableList<Rule> rules = rulesBuilder.build();
-      Multimap<String, String> loadStatements =
-          LoadStatementsUtil.getLoadStatements(rules, extension);
-      FileUtil.writeToBuckFile(loadStatements, rules, buckFile);
+      buckFileManager.writeToBuckFile(
+          rulesBuilder.build(), project.getRootProject().file(lintBuckFile));
     }
   }
 }

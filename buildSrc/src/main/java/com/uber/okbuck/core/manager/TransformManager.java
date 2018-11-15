@@ -2,7 +2,6 @@ package com.uber.okbuck.core.manager;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Multimap;
 import com.google.errorprone.annotations.Var;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.base.BuckRuleComposer;
@@ -11,9 +10,7 @@ import com.uber.okbuck.core.model.android.AndroidAppTarget;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.util.FileUtil;
-import com.uber.okbuck.core.util.LoadStatementsUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
-import com.uber.okbuck.extension.OkBuckExtension;
 import com.uber.okbuck.template.common.ExportFile;
 import com.uber.okbuck.template.core.Rule;
 import com.uber.okbuck.template.java.Prebuilt;
@@ -57,14 +54,14 @@ public final class TransformManager {
   private static final String BINARY_EXCLUDES = "META-INF";
 
   private final Project rootProject;
-  private final OkBuckExtension okbuckExt;
+  private final BuckFileManager buckFileManager;
   private final Map<Path, String> configFileToPathMap = new HashMap<>();
 
   @Nullable private ImmutableSet<String> dependencies;
 
-  public TransformManager(Project rootProject, OkBuckExtension okbuckExt) {
+  public TransformManager(Project rootProject, BuckFileManager buckFileManager) {
     this.rootProject = rootProject;
-    this.okbuckExt = okbuckExt;
+    this.buckFileManager = buckFileManager;
   }
 
   public void fetchTransformDeps() {
@@ -143,11 +140,8 @@ public final class TransformManager {
             .map(configFileName -> new ExportFile().name(configFileName))
             .collect(Collectors.toList()));
 
-    List<Rule> rules = rulesBuilder.build();
-    File buckFile = cacheDir.resolve(OkBuckGradlePlugin.BUCK).toFile();
-    Multimap<String, String> loadStatements =
-        LoadStatementsUtil.getLoadStatements(rules, okbuckExt);
-    FileUtil.writeToBuckFile(loadStatements, rules, buckFile);
+    buckFileManager.writeToBuckFile(
+        rulesBuilder.build(), cacheDir.resolve(OkBuckGradlePlugin.BUCK).toFile());
   }
 
   public Pair<String, List<String>> getBashCommandAndTransformDeps(AndroidAppTarget target) {
