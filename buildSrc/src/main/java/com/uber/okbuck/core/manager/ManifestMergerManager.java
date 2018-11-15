@@ -2,15 +2,12 @@ package com.uber.okbuck.core.manager;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Multimap;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.base.BuckRuleComposer;
 import com.uber.okbuck.core.dependency.DependencyCache;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.util.FileUtil;
-import com.uber.okbuck.core.util.LoadStatementsUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
-import com.uber.okbuck.extension.OkBuckExtension;
 import com.uber.okbuck.template.core.Rule;
 import com.uber.okbuck.template.java.Prebuilt;
 import com.uber.okbuck.template.jvm.JvmBinaryRule;
@@ -39,13 +36,13 @@ public final class ManifestMergerManager {
   private static final String MANIFEST_MERGER_CLI_RULE_NAME = "manifest-merger-cli";
 
   private final Project rootProject;
-  private final OkBuckExtension okBuckExtension;
+  private final BuckFileManager buckFileManager;
 
   @Nullable private ImmutableSet<String> dependencies;
 
-  public ManifestMergerManager(Project rootProject, OkBuckExtension okBuckExtension) {
+  public ManifestMergerManager(Project rootProject, BuckFileManager buckFileManager) {
     this.rootProject = rootProject;
-    this.okBuckExtension = okBuckExtension;
+    this.buckFileManager = buckFileManager;
   }
 
   public void fetchManifestMergerDeps() {
@@ -91,12 +88,8 @@ public final class ManifestMergerManager {
                   .prebuilt(MANIFEST_MERGER_CLI_JAR)
                   .ruleType(RuleType.PREBUILT_JAR.getBuckName())
                   .name(MANIFEST_MERGER_CLI_RULE_NAME));
-      File buckFile = rootProject.file(MANIFEST_MERGER_BUCK_FILE);
 
-      Multimap<String, String> loadStatements =
-          LoadStatementsUtil.getLoadStatements(rules, okBuckExtension.getRuleOverridesExtension());
-
-      FileUtil.writeToBuckFile(loadStatements, rules, buckFile);
+      buckFileManager.writeToBuckFile(rules, rootProject.file(MANIFEST_MERGER_BUCK_FILE));
     }
   }
 }

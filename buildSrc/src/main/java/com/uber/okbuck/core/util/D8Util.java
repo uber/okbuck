@@ -1,9 +1,8 @@
 package com.uber.okbuck.core.util;
 
-import com.google.common.collect.Multimap;
 import com.uber.okbuck.OkBuckGradlePlugin;
+import com.uber.okbuck.core.manager.BuckFileManager;
 import com.uber.okbuck.core.model.base.RuleType;
-import com.uber.okbuck.extension.OkBuckExtension;
 import com.uber.okbuck.template.core.Rule;
 import com.uber.okbuck.template.java.Prebuilt;
 import java.io.File;
@@ -18,7 +17,7 @@ public final class D8Util {
 
   private D8Util() {}
 
-  public static void copyDeps(OkBuckExtension extension) {
+  public static void copyDeps(BuckFileManager buckFileManager) {
     FileUtil.copyResourceToProject("d8/" + RT_STUB_JAR, new File(D8_CACHE, RT_STUB_JAR));
 
     List<Rule> d8 =
@@ -29,8 +28,6 @@ public final class D8Util {
                 .ruleType(RuleType.PREBUILT_JAR.getBuckName())
                 .name(RT_STUB_JAR));
 
-    Multimap<String, String> loadStatements =
-        LoadStatementsUtil.getLoadStatements(d8, extension.getRuleOverridesExtension());
-    FileUtil.writeToBuckFile(loadStatements, d8, new File(D8_CACHE, OkBuckGradlePlugin.BUCK));
+    buckFileManager.writeToBuckFile(d8, new File(D8_CACHE, OkBuckGradlePlugin.BUCK));
   }
 }

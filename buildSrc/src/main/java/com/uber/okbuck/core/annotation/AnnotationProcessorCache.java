@@ -3,16 +3,11 @@ package com.uber.okbuck.core.annotation;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Multimap;
 import com.google.errorprone.annotations.Var;
 import com.uber.okbuck.composer.java.JavaAnnotationProcessorRuleComposer;
 import com.uber.okbuck.core.dependency.DependencyUtils;
+import com.uber.okbuck.core.manager.BuckFileManager;
 import com.uber.okbuck.core.model.base.Scope;
-import com.uber.okbuck.core.util.FileUtil;
-import com.uber.okbuck.core.util.LoadStatementsUtil;
-import com.uber.okbuck.extension.OkBuckExtension;
-import com.uber.okbuck.template.core.Rule;
-import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,15 +24,15 @@ public class AnnotationProcessorCache {
   public static final String AUTO_VALUE_NAME = "auto-value";
 
   private final Project project;
-  private final OkBuckExtension extension;
+  private final BuckFileManager buckFileManager;
   private final String processorBuckFile;
 
   private final Map<Set<Dependency>, Scope> dependencyToScopeMap = new ConcurrentHashMap<>();
 
   public AnnotationProcessorCache(
-      Project project, OkBuckExtension extension, String processorBuckFile) {
+      Project project, BuckFileManager buckFileManager, String processorBuckFile) {
     this.project = project;
-    this.extension = extension;
+    this.buckFileManager = buckFileManager;
     this.processorBuckFile = processorBuckFile;
   }
 
@@ -142,11 +137,9 @@ public class AnnotationProcessorCache {
 
   /** Write the buck file for the java_annotation_processor rules. */
   public void finalizeProcessors() {
-    List<Rule> rules = JavaAnnotationProcessorRuleComposer.compose(dependencyToScopeMap.values());
-    Multimap<String, String> loadStatements =
-        LoadStatementsUtil.getLoadStatements(rules, extension);
-    File buckFile = project.getRootProject().file(processorBuckFile);
-    FileUtil.writeToBuckFile(loadStatements, rules, buckFile);
+    buckFileManager.writeToBuckFile(
+        JavaAnnotationProcessorRuleComposer.compose(dependencyToScopeMap.values()),
+        project.getRootProject().file(processorBuckFile));
   }
 
   private Map<Set<Dependency>, Scope> createProcessorScopes(

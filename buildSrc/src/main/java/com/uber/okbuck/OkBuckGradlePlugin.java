@@ -4,6 +4,7 @@ import com.facebook.infer.annotation.Initializer;
 import com.google.common.collect.Sets;
 import com.uber.okbuck.core.annotation.AnnotationProcessorCache;
 import com.uber.okbuck.core.dependency.DependencyCache;
+import com.uber.okbuck.core.manager.BuckFileManager;
 import com.uber.okbuck.core.manager.BuckManager;
 import com.uber.okbuck.core.manager.DependencyManager;
 import com.uber.okbuck.core.manager.GroovyManager;
@@ -121,42 +122,46 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
           setupOkbuck.setGroup(GROUP);
           setupOkbuck.setDescription("Setup okbuck cache and dependencies");
 
+          // Create buck file manager.
+          BuckFileManager buckFileManager =
+              new BuckFileManager(okbuckExt.getRuleOverridesExtension());
+
           // Create target cache
           targetCache = new TargetCache();
 
           // Create Annotation Processor cache
           annotationProcessorCache =
-              new AnnotationProcessorCache(rootBuckProject, okbuckExt, PROCESSOR_BUCK_FILE);
+              new AnnotationProcessorCache(rootBuckProject, buckFileManager, PROCESSOR_BUCK_FILE);
 
           // Create Dependency manager
-          dependencyManager = new DependencyManager(rootBuckProject, okbuckExt);
+          dependencyManager = new DependencyManager(rootBuckProject, okbuckExt, buckFileManager);
 
           // Create Lint Manager
-          lintManager = new LintManager(rootBuckProject, LINT_BUCK_FILE, okbuckExt);
+          lintManager = new LintManager(rootBuckProject, LINT_BUCK_FILE, buckFileManager);
 
           // Create Kotlin Manager
           kotlinManager = new KotlinManager(rootBuckProject, okbuckExt);
 
           // Create Scala Manager
-          scalaManager = new ScalaManager(rootBuckProject, okbuckExt);
+          scalaManager = new ScalaManager(rootBuckProject, buckFileManager);
 
           // Create Scala Manager
           groovyManager = new GroovyManager(rootBuckProject);
 
           // Create Jetifier Manager
-          jetifierManager = new JetifierManager(rootBuckProject, okbuckExt);
+          jetifierManager = new JetifierManager(rootBuckProject, buckFileManager);
 
           // Create Robolectric Manager
           robolectricManager = new RobolectricManager(rootBuckProject);
 
           // Create Transform Manager
-          transformManager = new TransformManager(rootBuckProject, okbuckExt);
+          transformManager = new TransformManager(rootBuckProject, buckFileManager);
 
           // Create Buck Manager
           buckManager = new BuckManager(rootBuckProject);
 
           // Create Manifest Merger Manager
-          manifestMergerManager = new ManifestMergerManager(rootBuckProject, okbuckExt);
+          manifestMergerManager = new ManifestMergerManager(rootBuckProject, buckFileManager);
 
           KotlinExtension kotlin = okbuckExt.getKotlinExtension();
           ScalaExtension scala = okbuckExt.getScalaExtension();
@@ -240,7 +245,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
                 }
 
                 // Setup d8 deps
-                D8Util.copyDeps(okbuckExt);
+                D8Util.copyDeps(buckFileManager);
 
                 // Fetch robolectric deps if needed
                 if (okbuckExt.getTestExtension().robolectric) {
@@ -280,7 +285,10 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
                   bp -> {
                     bp.getConfigurations().maybeCreate(BUCK_LINT);
                     Task okbuckProjectTask = bp.getTasks().maybeCreate(OKBUCK);
-                    okbuckProjectTask.doLast(task -> BuckFileGenerator.generate(bp, okbuckExt));
+                    okbuckProjectTask.doLast(
+                        task ->
+                            BuckFileGenerator.generate(
+                                bp, buckFileManager, okbuckExt.getVisibilityExtension()));
                     okbuckProjectTask.dependsOn(setupOkbuck);
                     okBuckClean.dependsOn(okbuckProjectTask);
                   });

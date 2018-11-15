@@ -2,17 +2,14 @@ package com.uber.okbuck.core.manager;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Multimap;
 import com.sun.istack.Nullable;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.base.BuckRuleComposer;
 import com.uber.okbuck.core.dependency.DependencyCache;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.util.FileUtil;
-import com.uber.okbuck.core.util.LoadStatementsUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.extension.JetifierExtension;
-import com.uber.okbuck.extension.OkBuckExtension;
 import com.uber.okbuck.template.core.Rule;
 import com.uber.okbuck.template.java.Prebuilt;
 import com.uber.okbuck.template.jvm.JvmBinaryRule;
@@ -44,11 +41,11 @@ public final class JetifierManager {
 
   @Nullable private Set<String> dependencies;
   private final Project project;
-  private final OkBuckExtension okBuckExtension;
+  private final BuckFileManager buckFileManager;
 
-  public JetifierManager(Project project, OkBuckExtension okBuckExtension) {
+  public JetifierManager(Project project, BuckFileManager buckFileManager) {
     this.project = project;
-    this.okBuckExtension = okBuckExtension;
+    this.buckFileManager = buckFileManager;
   }
 
   public static boolean isJetifierEnabled(Project project) {
@@ -102,12 +99,8 @@ public final class JetifierManager {
               .name(JETIFIER_BINARY_RULE_NAME)
               .defaultVisibility());
 
-      File buckFile = project.getRootProject().file(JETIFIER_BUCK_FILE);
-      ImmutableList<Rule> rules = rulesBuilder.build();
-      Multimap<String, String> loadStatements =
-          LoadStatementsUtil.getLoadStatements(rules, okBuckExtension);
-
-      FileUtil.writeToBuckFile(loadStatements, rules, buckFile);
+      buckFileManager.writeToBuckFile(
+          rulesBuilder.build(), project.getRootProject().file(JETIFIER_BUCK_FILE));
     }
   }
 }
