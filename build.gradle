@@ -185,6 +185,7 @@ okbuck {
         espresso = true
         espressoForLibraries = true
         robolectric = true
+        robolectricApis = ["21", "27"]
     }
 
     wrapper {
