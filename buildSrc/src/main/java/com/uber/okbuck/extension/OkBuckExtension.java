@@ -105,7 +105,7 @@ public class OkBuckExtension {
     buckProjects = project.getSubprojects();
     kotlinExtension = new KotlinExtension(project);
     lintExtension = new LintExtension(project);
-    jetifierExtension = new JetifierExtension();
+    jetifierExtension = new JetifierExtension(project);
     externalDependenciesExtension = new ExternalDependenciesExtension(project);
     ruleOverridesExtension = new RuleOverridesExtension(project);
   }

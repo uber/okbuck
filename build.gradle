@@ -210,6 +210,13 @@ okbuck {
         ]
     }
 
+    jetifier {
+        aarOnly = true
+        exclude = [
+            "androidx.*"
+        ]
+    }
+
     externalDependencies {
         versionless = true
         allowLatestVersion = [

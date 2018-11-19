@@ -2,7 +2,8 @@
 String prebuiltType,
 String prebuilt,
 String source,
-String mavenCoords
+String mavenCoords,
+boolean enableJetifier,
 )
 @(ruleType)(
     name = '@name',
@@ -12,6 +13,9 @@ String mavenCoords
 }
 @if (valid(mavenCoords)) {
     maven_coords = '@mavenCoords',
+}
+@if (enableJetifier) {
+    enable_jetifier = True,
 }
     visibility = ['PUBLIC'],
 )

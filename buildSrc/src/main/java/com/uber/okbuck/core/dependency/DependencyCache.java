@@ -5,6 +5,8 @@ import com.uber.okbuck.core.manager.DependencyManager;
 import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.extension.ExternalDependenciesExtension;
+import com.uber.okbuck.extension.JetifierExtension;
+import com.uber.okbuck.extension.OkBuckExtension;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -176,14 +178,17 @@ public class DependencyCache {
    * @param configurations The set of configurations to materialize into the dependency cache
    */
   private Set<String> build(Set<Configuration> configurations) {
+    OkBuckExtension okBuckExtension = ProjectUtil.getOkBuckExtension(rootProject);
     ExternalDependenciesExtension externalDependenciesExtension =
-        ProjectUtil.getOkBuckExtension(rootProject).getExternalDependenciesExtension();
+        okBuckExtension.getExternalDependenciesExtension();
+    JetifierExtension jetifierExtension = okBuckExtension.getJetifierExtension();
 
     return configurations
         .stream()
         .map(
             configuration ->
-                DependencyUtils.resolveExternal(configuration, externalDependenciesExtension))
+                DependencyUtils.resolveExternal(
+                    configuration, externalDependenciesExtension, jetifierExtension))
         .flatMap(Collection::stream)
         .map(dependency -> get(dependency, true))
         .map(this::getPath)
