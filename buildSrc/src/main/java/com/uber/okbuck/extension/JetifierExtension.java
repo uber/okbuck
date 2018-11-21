@@ -60,6 +60,14 @@ public class JetifierExtension {
     return excludePatterns;
   }
 
+  /**
+   * Check if this dependency, described by the params, should be jetified, that is, run
+   * jetifier on it before prebuilding it.
+   * @param group - Dependency group
+   * @param name - Dependency name
+   * @param packaging - Packaging type (aar\jar)
+   * @return true if shouldJetify, false otherwise
+   */
   public boolean shouldJetify(String group, String name, String packaging) {
     if (aarOnly && packaging.equals(ExternalDependency.JAR)) {
       return false;
