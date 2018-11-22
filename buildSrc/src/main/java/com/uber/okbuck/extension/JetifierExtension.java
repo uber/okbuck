@@ -14,7 +14,13 @@ import org.gradle.api.Project;
 public class JetifierExtension {
 
   public static final String DEFAULT_JETIFIER_VERSION = "1.0.0-beta02";
-  private static final List<String> BLACKLISTED_DEPS =
+
+  /**
+   * This is the mandatory dependencies to be excluded from being jetified,
+   * as the jetifier rule itself uses those dependencies.
+   * Otherwise we'd create dependency cycles
+   */
+  private static final List<String> JETIFIER_DEPS =
       Arrays.asList(
           "com.android.tools.build.jetifier:jetifier-core",
           "com.android.tools.build.jetifier:jetifier-processor",
@@ -31,11 +37,11 @@ public class JetifierExtension {
   /** Jetifier jar version */
   public String version;
 
-  /** Enable jetify to act on aars only */
-  private boolean aarOnly;
+  /** Enable jetifier to act on aars only */
+  public boolean aarOnly;
 
-  /** Stores the dependencies which are excluded from being jetified. */
-  private List<String> exclude = new ArrayList<>();
+  /** Stores the user defined dependencies which are excluded from being jetified. */
+  public List<String> exclude = new ArrayList<>();
 
   private final boolean enableJetifier;
 
@@ -51,7 +57,7 @@ public class JetifierExtension {
       excludePatterns =
           new ImmutableSet.Builder<String>()
               .addAll(exclude)
-              .addAll(BLACKLISTED_DEPS)
+              .addAll(JETIFIER_DEPS)
               .build()
               .stream()
               .map(Pattern::compile)
@@ -69,11 +75,13 @@ public class JetifierExtension {
    * @return true if shouldJetify, false otherwise
    */
   public boolean shouldJetify(String group, String name, String packaging) {
+    if (!enableJetifier) {
+      return false;
+    }
     if (aarOnly && packaging.equals(ExternalDependency.JAR)) {
       return false;
     }
-    return enableJetifier
-        && getExcludePatterns()
+    return getExcludePatterns()
             .stream()
             .noneMatch(pattern -> pattern.matcher(group + ":" + name).matches());
   }
