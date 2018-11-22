@@ -5,7 +5,6 @@ String classpathMacro,
 String lintJvmArgs,
 String externalDependencyCache,
 boolean enableLint,
-boolean enableJetifier,
 boolean useCompilationClasspath,
 String classpathExclusionRegex
 )
@@ -319,25 +318,47 @@ def okbuck_keystore(
 def okbuck_android_prebuilt_aar(
     name,
     aar,
+    enable_jetifier=False,
     **kwargs
     ):
-@if(enableJetifier) {
-    jetified = name.replace('.aar', '-jetified.aar')
-    genname = "unjetified_" + name
-    native.genrule(
-        name = genname,
-        srcs = [aar],
-        out = jetified,
-        cmd = "$(exe //.okbuck/workspace/jetifier:okbuck_jetifier) -i $SRCS -o $OUT"
-    )
-}
+    aar_path = aar
+    if enable_jetifier:
+        jetified = name.replace('.aar', '-jetified.aar')
+        genname = "unjetified_" + name
+        aar_path =  ":{}".format(genname)
+        native.genrule(
+            name = genname,
+            srcs = [aar],
+            out = jetified,
+            cmd = "$(exe //.okbuck/workspace/jetifier:okbuck_jetifier) -i $SRCS -o $OUT"
+        )
 
     native.android_prebuilt_aar(
         name = name,
-@if(enableJetifier) {
-        aar = ":{}".format(genname),
-} else {
-        aar = aar,
-}
+        aar = aar_path,
+        **kwargs
+    )
+
+def okbuck_prebuilt_jar(
+    name,
+    binary_jar,
+    enable_jetifier=False,
+    **kwargs
+    ):
+    jar_path = binary_jar
+    if enable_jetifier:
+        jetified = name.replace('.jar', '-jetified.jar')
+        genname = "unjetified_" + name
+        jar_path =  ":{}".format(genname)
+        native.genrule(
+            name = genname,
+            srcs = [binary_jar],
+            out = jetified,
+            cmd = "$(exe //.okbuck/workspace/jetifier:okbuck_jetifier) -i $SRCS -o $OUT"
+        )
+
+    native.prebuilt_jar(
+        name = name,
+        binary_jar = binary_jar,
         **kwargs
     )

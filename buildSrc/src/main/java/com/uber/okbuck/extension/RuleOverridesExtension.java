@@ -60,6 +60,7 @@ public class RuleOverridesExtension {
   private static final ImmutableList<RuleType> OKBUCK_DEFINED_RULES =
       ImmutableList.of(
           RuleType.AIDL,
+          RuleType.PREBUILT_JAR,
           RuleType.ANDROID_LIBRARY,
           RuleType.ANDROID_PREBUILT_AAR,
           RuleType.KOTLIN_ANDROID_LIBRARY,

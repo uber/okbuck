@@ -3,6 +3,7 @@ package com.uber.okbuck.core.dependency;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.uber.okbuck.extension.ExternalDependenciesExtension;
+import com.uber.okbuck.extension.JetifierExtension;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,6 +31,7 @@ public final class ExternalDependency {
 
   @Nullable private Path realSourceFilePath;
   private boolean sourceFileInitialized;
+  private boolean enableJetifier;
 
   @Override
   public boolean equals(Object o) {
@@ -118,6 +120,11 @@ public final class ExternalDependency {
     return getSourceFileNameFrom(getDependencyFileName());
   }
 
+  /** Returns true if this dependency needs to be jetified. */
+  public boolean enableJetifier() {
+    return enableJetifier;
+  }
+
   /**
    * Gets the real sources jar path for a dependency if it exists.
    *
@@ -172,7 +179,8 @@ public final class ExternalDependency {
       @Nullable String classifier,
       File depFile,
       boolean isLocal,
-      ExternalDependenciesExtension extension) {
+      ExternalDependenciesExtension externalDependenciesExtension,
+      JetifierExtension jetifierExtension) {
     VersionlessDependency versionlessDependency =
         VersionlessDependency.builder()
             .setGroup(group)
@@ -185,9 +193,11 @@ public final class ExternalDependency {
             .setVersionless(versionlessDependency)
             .setVersion(Strings.isNullOrEmpty(version) ? LOCAL_DEP_VERSION : version)
             .setIsLocal(isLocal)
-            .setIsVersioned(extension.isVersioned(versionlessDependency))
+            .setIsVersioned(externalDependenciesExtension.isVersioned(versionlessDependency))
             .setRealDependencyFile(depFile)
             .build();
+
+    this.enableJetifier = jetifierExtension.shouldJetify(group, name, getPackaging());
   }
 
   /**
@@ -197,7 +207,8 @@ public final class ExternalDependency {
    * @param name name of the dependency
    * @param version version of the dependency
    * @param dependencyFile file of the dependency
-   * @param extension External Dependency Extension
+   * @param externalDependenciesExtension External Dependency Extension
+   * @param jetifierExtension Jetifier Extension
    * @return External Dependency
    */
   public static ExternalDependency from(
@@ -205,21 +216,32 @@ public final class ExternalDependency {
       String name,
       @Nullable String version,
       File dependencyFile,
-      ExternalDependenciesExtension extension) {
+      ExternalDependenciesExtension externalDependenciesExtension,
+      JetifierExtension jetifierExtension) {
     String classifier = DependencyUtils.getModuleClassifier(dependencyFile.getName(), version);
     return new ExternalDependency(
-        group, name, version, classifier, dependencyFile, false, extension);
+        group,
+        name,
+        version,
+        classifier,
+        dependencyFile,
+        false,
+        externalDependenciesExtension,
+        jetifierExtension);
   }
 
   /**
    * Create an External Dependency from a local dependency
    *
    * @param localDep local dependency file
-   * @param extension ExternalDependenciesExtension
+   * @param externalDependenciesExtension External Dependency Extension
+   * @param jetifierExtension Jetifier Extension
    * @return External Dependency
    */
   public static ExternalDependency fromLocal(
-      File localDep, ExternalDependenciesExtension extension) {
+      File localDep,
+      ExternalDependenciesExtension externalDependenciesExtension,
+      JetifierExtension jetifierExtension) {
     return new ExternalDependency(
         LOCAL_GROUP,
         FilenameUtils.getBaseName(localDep.getName()),
@@ -227,6 +249,7 @@ public final class ExternalDependency {
         null,
         localDep,
         true,
-        extension);
+        externalDependenciesExtension,
+        jetifierExtension);
   }
 }

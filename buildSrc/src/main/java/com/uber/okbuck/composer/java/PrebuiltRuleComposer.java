@@ -54,6 +54,7 @@ public class PrebuiltRuleComposer extends JvmBuckRuleComposer {
                       .prebuiltType(ruleType.getProperties().get(0))
                       .prebuilt(dependency.getDependencyFileName())
                       .mavenCoords(dependency.getMavenCoords())
+                      .enableJetifier(dependency.enableJetifier())
                       .source(source)
                       .ruleType(ruleType.getBuckName())
                       .name(dependency.getCacheName()));
