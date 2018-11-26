@@ -72,7 +72,7 @@ public abstract class AndroidTarget extends JvmTarget {
   @Nullable private String mainManifest;
   @Nullable private List<String> secondaryManifests;
   @Nullable private String originalPackageName;
-  @Nullable private String resPackageName;
+  @Nullable private String resourceUnionPackageName;
 
   public AndroidTarget(Project project, String name, boolean isTest) {
     super(project, name);
@@ -108,7 +108,7 @@ public abstract class AndroidTarget extends JvmTarget {
     lintExclude = getProp(getOkbuck().lintExclude, ImmutableList.of()).contains(name);
     testExclude = getProp(getOkbuck().testExclude, ImmutableList.of()).contains(name);
 
-    resPackageName = getOkbuck().resourceUnionPackage;
+    resourceUnionPackageName = getOkbuck().resourceUnionPackage;
 
     @Var boolean hasKotlinExtension;
     try {
@@ -597,11 +597,11 @@ public abstract class AndroidTarget extends JvmTarget {
   }
 
   public String getResPackage() {
-    if (resPackageName == null || resPackageName.isEmpty()) {
+    if(resourceUnionPackageName != null){
+      return resourceUnionPackageName;
+    }else{
       return getOriginalPackage();
     }
-
-    return resPackageName;
   }
 
   public final String getMinSdk() {

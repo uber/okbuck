@@ -54,7 +54,13 @@ public class OkBuckExtension {
   /** Extra buck defs */
   @Input public Set<File> extraDefs = new HashSet<>();
 
-  /** Set to use buck's resource_union behavior */
+  /**
+   * Set to use buck's resource_union behavior with the original package name or the
+   * defined by {@link OkBuckExtension#resourceUnionPackage}
+   */
+  @Input public boolean resourceUnion;
+
+  /** Set to use buck's resource_union behavior with an specific package name */
   @Nullable @Input public String resourceUnionPackage;
 
   /** Whether to generate android_build_config rules for library projects */
@@ -204,5 +210,9 @@ public class OkBuckExtension {
 
   public RuleOverridesExtension getRuleOverridesExtension() {
     return ruleOverridesExtension;
+  }
+
+  public boolean useResourceUnion(){
+    return resourceUnionPackage != null || resourceUnion;
   }
 }
