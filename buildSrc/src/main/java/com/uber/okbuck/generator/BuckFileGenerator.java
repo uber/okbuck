@@ -18,6 +18,7 @@ import com.uber.okbuck.composer.android.ManifestRuleComposer;
 import com.uber.okbuck.composer.android.PreBuiltNativeLibraryRuleComposer;
 import com.uber.okbuck.composer.jvm.JvmLibraryRuleComposer;
 import com.uber.okbuck.composer.jvm.JvmTestRuleComposer;
+import com.uber.okbuck.core.manager.BuckFileManager;
 import com.uber.okbuck.core.model.android.AndroidAppInstrumentationTarget;
 import com.uber.okbuck.core.model.android.AndroidAppTarget;
 import com.uber.okbuck.core.model.android.AndroidLibInstrumentationTarget;
@@ -25,10 +26,7 @@ import com.uber.okbuck.core.model.android.AndroidLibTarget;
 import com.uber.okbuck.core.model.base.ProjectType;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.model.jvm.JvmTarget;
-import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
-import com.uber.okbuck.extension.OkBuckExtension;
-import com.uber.okbuck.extension.RuleOverridesExtension;
 import com.uber.okbuck.extension.VisibilityExtension;
 import com.uber.okbuck.template.android.AndroidRule;
 import com.uber.okbuck.template.android.ResourceRule;
@@ -37,7 +35,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.gradle.api.Project;
@@ -47,32 +44,23 @@ public final class BuckFileGenerator {
   private BuckFileGenerator() {}
 
   /** generate {@code BUCKFile} */
-  public static void generate(Project project, OkBuckExtension okBuckExtension) {
-    VisibilityExtension visibilityExtension = okBuckExtension.getVisibilityExtension();
+  public static void generate(
+      Project project, BuckFileManager buckFileManager, VisibilityExtension visibilityExtension) {
     List<Rule> rules = createRules(project);
+
     File moduleDir = project.getBuildFile().getParentFile();
     File visibilityFile = new File(moduleDir, visibilityExtension.visibilityFileName);
-
     boolean hasVisibilityFile = visibilityFile.isFile();
+    Multimap<String, String> extraLoadStatements = TreeMultimap.create();
+
     if (hasVisibilityFile) {
       rules.forEach(rule -> rule.fileConfiguredVisibility(true));
-    }
-
-    Multimap<String, String> loadStatements =
-        createLoadStatements(visibilityExtension, hasVisibilityFile);
-
-    Map<String, RuleOverridesExtension.OverrideSetting> overrides =
-        okBuckExtension.getRuleOverridesExtension().getOverrides();
-    for (Rule rule : rules) {
-      if (overrides.containsKey(rule.ruleType())) {
-        RuleOverridesExtension.OverrideSetting setting = overrides.get(rule.ruleType());
-        loadStatements.put(setting.getImportLocation(), setting.getNewRuleName());
-        rule.ruleType(setting.getNewRuleName());
-      }
+      extraLoadStatements.put(
+          ":" + visibilityExtension.visibilityFileName, visibilityExtension.visibilityFunction);
     }
 
     File buckFile = project.file(OkBuckGradlePlugin.BUCK);
-    FileUtil.writeToBuckFile(loadStatements, rules, buckFile);
+    buckFileManager.writeToBuckFile(rules, buckFile, extraLoadStatements);
   }
 
   private static List<Rule> createRules(Project project) {
@@ -283,17 +271,6 @@ public final class BuckFileGenerator {
             target,
             filterAndroidDepRules(mainLibTargetRules),
             filterAndroidResDepRules(mainLibTargetRules)));
-  }
-
-  private static TreeMultimap<String, String> createLoadStatements(
-      VisibilityExtension visibilityExtension, boolean hasVisibilityFile) {
-    TreeMultimap<String, String> loads = TreeMultimap.create();
-
-    if (hasVisibilityFile) {
-      loads.put(
-          ":" + visibilityExtension.visibilityFileName, visibilityExtension.visibilityFunction);
-    }
-    return loads;
   }
 
   private static List<String> filterAndroidDepRules(List<Rule> rules) {

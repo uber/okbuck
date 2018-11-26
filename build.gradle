@@ -185,6 +185,7 @@ okbuck {
         espresso = true
         espressoForLibraries = true
         robolectric = true
+        robolectricApis = ["21", "27"]
     }
 
     wrapper {
@@ -206,6 +207,13 @@ okbuck {
                         [transform: "com.uber.okbuck.transform.DummyTransform"]
                 ]
 
+        ]
+    }
+
+    jetifier {
+        aarOnly = true
+        exclude = [
+            "androidx.*"
         ]
     }
 
@@ -265,6 +273,14 @@ okbuck {
                     ]
             ]
     ]
+
+    ruleOverrides {
+        defaultImportLocation = "//tooling/buck-defs:project_targets.bzl"
+        defaultRuleNamePrefix = "project_"
+        override {
+            nativeRuleName = "android_binary"
+        }
+    }
 }
 
 afterEvaluate {

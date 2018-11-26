@@ -14,7 +14,8 @@ import com.uber.okbuck.core.dependency.VersionlessDependency;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.extension.ExternalDependenciesExtension;
-import com.uber.okbuck.template.core.Rule;
+import com.uber.okbuck.extension.JetifierExtension;
+import com.uber.okbuck.extension.OkBuckExtension;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -37,7 +38,9 @@ public class DependencyManager {
 
   private final Project project;
   private final String cacheDirName;
-  private final ExternalDependenciesExtension extension;
+  private final ExternalDependenciesExtension externalDependenciesExtension;
+  private final JetifierExtension jetifierExtension;
+  private final BuckFileManager buckFileManager;
 
   private final SetMultimap<VersionlessDependency, ExternalDependency> originalDependencyMap =
       LinkedHashMultimap.create();
@@ -45,11 +48,13 @@ public class DependencyManager {
   private final HashMap<VersionlessDependency, Boolean> skipPrebuiltDependencyMap = new HashMap<>();
 
   public DependencyManager(
-      Project rootProject, String cacheDirName, ExternalDependenciesExtension extension) {
+      Project rootProject, OkBuckExtension okBuckExtension, BuckFileManager buckFileManager) {
 
     this.project = rootProject;
-    this.cacheDirName = cacheDirName;
-    this.extension = extension;
+    this.cacheDirName = okBuckExtension.externalDependencyCache;
+    this.externalDependenciesExtension = okBuckExtension.getExternalDependenciesExtension();
+    this.jetifierExtension = okBuckExtension.getJetifierExtension();
+    this.buckFileManager = buckFileManager;
   }
 
   public synchronized void addDependency(ExternalDependency dependency, boolean skipPrebuilt) {
@@ -80,7 +85,7 @@ public class DependencyManager {
   }
 
   private Map<VersionlessDependency, Collection<ExternalDependency>> filterDependencies() {
-    if (!extension.allowLatestEnabled()) {
+    if (!externalDependenciesExtension.allowLatestEnabled()) {
       return originalDependencyMap.asMap();
     }
 
@@ -97,7 +102,7 @@ public class DependencyManager {
               if (value.size() == 1) {
                 // Already has one dependency, no need to resolve different versions.
                 filteredDependencyMapBuilder.put(key, value);
-              } else if (extension.isAllowLatestFor(key)) {
+              } else if (externalDependenciesExtension.isAllowLatestFor(key)) {
                 dependenciesToResolveBuilder.addAll(value);
               } else {
                 filteredDependencyMapBuilder.put(key, value);
@@ -123,12 +128,13 @@ public class DependencyManager {
                     .stream()
                     .map(ExternalDependency::getAsGradleDependency)
                     .toArray(Dependency[]::new));
-    return DependencyUtils.resolveExternal(detached, extension);
+    return DependencyUtils.resolveExternal(
+        detached, externalDependenciesExtension, jetifierExtension);
   }
 
   private void validateDependencies(
       Map<VersionlessDependency, Collection<ExternalDependency>> dependencyMap) {
-    if (extension.versionlessEnabled()) {
+    if (externalDependenciesExtension.versionlessEnabled()) {
       Joiner.MapJoiner mapJoiner = Joiner.on(",\n").withKeyValueSeparator("=");
 
       Map<String, Set<String>> extraDependencies =
@@ -138,7 +144,7 @@ public class DependencyManager {
               .filter(entry -> entry.getValue().size() > 1)
               .map(Map.Entry::getValue)
               .flatMap(Collection::stream)
-              .filter(dependency -> !extension.isAllowedVersion(dependency))
+              .filter(dependency -> !externalDependenciesExtension.isAllowedVersion(dependency))
               .collect(
                   Collectors.groupingBy(
                       dependency -> dependency.getVersionless().mavenCoords(),
@@ -157,7 +163,9 @@ public class DependencyManager {
               .filter(entry -> entry.getValue().size() == 1)
               .map(Map.Entry::getValue)
               .flatMap(Collection::stream)
-              .filter(dependency -> extension.isVersioned(dependency.getVersionless()))
+              .filter(
+                  dependency ->
+                      externalDependenciesExtension.isVersioned(dependency.getVersionless()))
               .collect(
                   Collectors.groupingBy(
                       dependency -> dependency.getVersionless().mavenCoords(),
@@ -255,9 +263,8 @@ public class DependencyManager {
         });
   }
 
-  private static void composeBuckFile(Path path, Collection<ExternalDependency> dependencies) {
-    List<Rule> rules = PrebuiltRuleComposer.compose(dependencies);
-    File buckFile = path.resolve(OkBuckGradlePlugin.BUCK).toFile();
-    FileUtil.writeToBuckFile(rules, buckFile);
+  private void composeBuckFile(Path path, Collection<ExternalDependency> dependencies) {
+    buckFileManager.writeToBuckFile(
+        PrebuiltRuleComposer.compose(dependencies), path.resolve(OkBuckGradlePlugin.BUCK).toFile());
   }
 }

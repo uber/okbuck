@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.EnumSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
@@ -29,7 +30,16 @@ public final class RobolectricManager {
   public void download() {
     ImmutableSet.Builder<Configuration> runtimeDeps = ImmutableSet.builder();
 
-    for (API api : EnumSet.allOf(API.class)) {
+    Set<API> apisToDownload;
+    Set<String> configuredApis =
+        ProjectUtil.getOkBuckExtension(rootProject).getTestExtension().robolectricApis;
+    if (configuredApis != null) {
+      apisToDownload = configuredApis.stream().map(API::from).collect(Collectors.toSet());
+    } else {
+      apisToDownload = EnumSet.allOf(API.class);
+    }
+
+    for (API api : apisToDownload) {
       Configuration runtimeApi =
           rootProject.getConfigurations().maybeCreate(ROBOLECTRIC_RUNTIME + "_" + api.name());
       rootProject.getDependencies().add(runtimeApi.getName(), api.getCoordinates());
@@ -98,6 +108,39 @@ public final class RobolectricManager {
           + androidVersion
           + "-robolectric-"
           + frameworkSdkBuildVersion;
+    }
+
+    static API from(String apiLevel) {
+      switch (apiLevel) {
+        case "16":
+          return API_16;
+        case "17":
+          return API_17;
+        case "18":
+          return API_18;
+        case "19":
+          return API_19;
+        case "21":
+          return API_21;
+        case "22":
+          return API_22;
+        case "23":
+          return API_23;
+        case "24":
+          return API_24;
+        case "25":
+          return API_25;
+        case "26":
+          return API_26;
+        case "27":
+          return API_27;
+        case "28":
+          return API_28;
+        case "P":
+          return API_P;
+        default:
+          throw new IllegalStateException("Unknown Robolectric API Level: " + apiLevel);
+      }
     }
   }
 }

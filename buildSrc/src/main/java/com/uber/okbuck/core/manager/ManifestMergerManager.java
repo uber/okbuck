@@ -36,11 +36,13 @@ public final class ManifestMergerManager {
   private static final String MANIFEST_MERGER_CLI_RULE_NAME = "manifest-merger-cli";
 
   private final Project rootProject;
+  private final BuckFileManager buckFileManager;
 
   @Nullable private ImmutableSet<String> dependencies;
 
-  public ManifestMergerManager(Project rootProject) {
+  public ManifestMergerManager(Project rootProject, BuckFileManager buckFileManager) {
     this.rootProject = rootProject;
+    this.buckFileManager = buckFileManager;
   }
 
   public void fetchManifestMergerDeps() {
@@ -86,8 +88,8 @@ public final class ManifestMergerManager {
                   .prebuilt(MANIFEST_MERGER_CLI_JAR)
                   .ruleType(RuleType.PREBUILT_JAR.getBuckName())
                   .name(MANIFEST_MERGER_CLI_RULE_NAME));
-      File buckFile = rootProject.file(MANIFEST_MERGER_BUCK_FILE);
-      FileUtil.writeToBuckFile(rules, buckFile);
+
+      buckFileManager.writeToBuckFile(rules, rootProject.file(MANIFEST_MERGER_BUCK_FILE));
     }
   }
 }

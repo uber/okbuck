@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.extension.ExternalDependenciesExtension;
+import com.uber.okbuck.extension.JetifierExtension;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -135,7 +136,9 @@ public final class DependencyUtils {
   }
 
   public static Set<ExternalDependency> resolveExternal(
-      Configuration configuration, ExternalDependenciesExtension extension) {
+      Configuration configuration,
+      ExternalDependenciesExtension externalDependenciesExtension,
+      JetifierExtension jetifierExtension) {
     try {
       return configuration
           .getIncoming()
@@ -158,9 +161,11 @@ public final class DependencyUtils {
                       moduleIdentifier.getModule(),
                       moduleIdentifier.getVersion(),
                       artifact.getFile(),
-                      extension);
+                      externalDependenciesExtension,
+                      jetifierExtension);
                 } else {
-                  return ExternalDependency.fromLocal(artifact.getFile(), extension);
+                  return ExternalDependency.fromLocal(
+                      artifact.getFile(), externalDependenciesExtension, jetifierExtension);
                 }
               })
           .filter(Objects::nonNull)

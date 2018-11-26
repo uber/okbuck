@@ -9,7 +9,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.uber:okbuck:0.44.1'
+        classpath 'com.uber:okbuck:0.44.3'
     }
 }
 
@@ -102,5 +102,4 @@ linearAllocHardLimit和primaryDexPatterns部分，更多详细关于multidex配�
  - 指定 module 名字, flavor 名字以及 build type 的名字, 例如: 'appDemoRelease'
 
 ## Troubleshooting
-如果遇到任何问题，请[提一个issue](https://github.com/uber/okbuck/issues/new)，如果能提供错误日志，就是极好的了。如有任何OkBuck或者BUCK的使用问题，
-欢迎加入**OkBuck使用问题交流群**：`170102067`。
+如果遇到任何问题，请[提一个issue](https://github.com/uber/okbuck/issues/new)，如果能提供错误日志，就是极好的了。

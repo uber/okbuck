@@ -1,6 +1,6 @@
 @import java.util.Collection
 @args (String aidlFilePath, String importPath, String manifest, Collection aidlDeps)
-okbuck_aidl(
+@(ruleType)(
     name = '@name',
     aidls = '@aidlFilePath',
     imports = '@importPath',

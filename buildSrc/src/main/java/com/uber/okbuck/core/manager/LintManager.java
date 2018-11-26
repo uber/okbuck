@@ -36,13 +36,15 @@ public final class LintManager {
 
   private final Project project;
   private final String lintBuckFile;
+  private final BuckFileManager buckFileManager;
 
   private Set<String> dependencies;
 
   @SuppressWarnings("NullAway")
-  public LintManager(Project project, String lintBuckFile) {
+  public LintManager(Project project, String lintBuckFile, BuckFileManager buckFileManager) {
     this.project = project;
     this.lintBuckFile = lintBuckFile;
+    this.buckFileManager = buckFileManager;
   }
 
   @Nullable
@@ -113,8 +115,8 @@ public final class LintManager {
       FileUtil.copyResourceToProject(
           "lint/" + LINT_DUMMY_JAR, new File(LINT_DEPS_CACHE, LINT_DUMMY_JAR));
 
-      File buckFile = project.getRootProject().file(lintBuckFile);
-      FileUtil.writeToBuckFile(rulesBuilder.build(), buckFile);
+      buckFileManager.writeToBuckFile(
+          rulesBuilder.build(), project.getRootProject().file(lintBuckFile));
     }
   }
 }

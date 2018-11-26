@@ -1,5 +1,0 @@
-prebuilt_jar(
-  name = 'rt-stub.jar',
-  binary_jar = 'rt-stub.jar',
-  visibility = ['PUBLIC'],
-)

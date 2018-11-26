@@ -1,28 +1,17 @@
 package com.uber.okbuck.core.util;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.TreeMultimap;
-import com.uber.okbuck.template.common.LoadStatements;
-import com.uber.okbuck.template.core.Rule;
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.Project;
 import org.slf4j.Logger;
@@ -30,8 +19,6 @@ import org.slf4j.LoggerFactory;
 
 public final class FileUtil {
   private static final Logger LOG = LoggerFactory.getLogger(FileUtil.class);
-
-  private static final byte[] NEWLINE = System.lineSeparator().getBytes(StandardCharsets.UTF_8);
 
   private FileUtil() {}
 
@@ -83,52 +70,6 @@ public final class FileUtil {
           });
     } catch (IOException ignored) {
     }
-  }
-
-  public static void writeToBuckFile(List<Rule> rules, File buckFile) {
-    writeToBuckFile(TreeMultimap.create(), rules, buckFile);
-  }
-
-  @SuppressWarnings("InconsistentOverloads")
-  public static void writeToBuckFile(
-      Multimap<String, String> loadStatements, List<Rule> rules, File buckFile) {
-    if (!rules.isEmpty()) {
-      File parent = buckFile.getParentFile();
-      if (!parent.exists() && !parent.mkdirs()) {
-        throw new IllegalStateException("Couldn't create dir: " + parent);
-      }
-
-      try (OutputStream fos = new FileOutputStream(buckFile);
-          BufferedOutputStream os = new BufferedOutputStream(fos)) {
-
-        if (!loadStatements.isEmpty()) {
-          LoadStatements.template(writableLoadStatements(loadStatements)).render(os);
-        }
-
-        for (int index = 0; index < rules.size(); index++) {
-          // Don't add a new line before the first rule
-          if (index != 0) {
-            os.write(NEWLINE);
-          }
-          rules.get(index).render(os);
-        }
-      } catch (IOException e) {
-        throw new IllegalStateException("Couldn't create the buck file", e);
-      }
-    }
-  }
-
-  private static List<String> writableLoadStatements(Multimap<String, String> loadStatements) {
-    return loadStatements
-        .asMap()
-        .entrySet()
-        .stream()
-        .map(
-            loadStatement ->
-                Stream.concat(Stream.of(loadStatement.getKey()), loadStatement.getValue().stream())
-                    .map(statement -> "'" + statement + "'")
-                    .collect(Collectors.joining(", ", "load(", ")")))
-        .collect(Collectors.toList());
   }
 
   public static boolean isZipFile(File file) {

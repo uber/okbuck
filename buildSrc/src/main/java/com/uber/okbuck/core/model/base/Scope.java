@@ -12,6 +12,8 @@ import com.uber.okbuck.core.dependency.ExternalDependency;
 import com.uber.okbuck.core.dependency.VersionlessDependency;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
+import com.uber.okbuck.extension.ExternalDependenciesExtension;
+import com.uber.okbuck.extension.JetifierExtension;
 import com.uber.okbuck.extension.OkBuckExtension;
 import java.io.File;
 import java.io.IOException;
@@ -321,6 +323,11 @@ public class Scope {
     Set<ResolvedArtifactResult> aarOrJarartifacts =
         getArtifacts(configuration, EXTERNAL_DEP_FILTER, ImmutableList.of("aar", "jar"));
 
+    OkBuckExtension okBuckExtension = ProjectUtil.getOkBuckExtension(project);
+    ExternalDependenciesExtension externalDependenciesExtension =
+        okBuckExtension.getExternalDependenciesExtension();
+    JetifierExtension jetifierExtension = okBuckExtension.getJetifierExtension();
+
     aarOrJarartifacts.forEach(
         artifact -> {
           if (!DependencyUtils.isConsumable(artifact.getFile())) {
@@ -340,7 +347,8 @@ public class Scope {
                     moduleIdentifier.getModule(),
                     moduleIdentifier.getVersion(),
                     artifact.getFile(),
-                    ProjectUtil.getOkBuckExtension(project).getExternalDependenciesExtension());
+                    externalDependenciesExtension,
+                    jetifierExtension);
             external.add(externalDependency);
           } else {
             String rootProjectPath = project.getRootProject().getProjectDir().getAbsolutePath();
@@ -359,8 +367,7 @@ public class Scope {
               }
               external.add(
                   ExternalDependency.fromLocal(
-                      artifact.getFile(),
-                      ProjectUtil.getOkBuckExtension(project).getExternalDependenciesExtension()));
+                      artifact.getFile(), externalDependenciesExtension, jetifierExtension));
 
             } catch (IOException e) {
               throw new RuntimeException(e);

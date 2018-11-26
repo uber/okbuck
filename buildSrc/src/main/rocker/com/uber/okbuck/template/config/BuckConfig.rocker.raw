@@ -16,11 +16,6 @@ Collection defs
     build_tools_version = @buildToolsVersion
     target = @target
 }
-@if (valid(defs)) {
-
-[buildfile]
-    includes = @(String.join(" ", defs))
-}
 @if (valid(groovyHome)) {
 
 [groovy]
