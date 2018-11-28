@@ -43,6 +43,9 @@ public class JetifierExtension {
   /** Stores the user defined dependencies which are excluded from being jetified. */
   public List<String> exclude = new ArrayList<>();
 
+  /** Path to file containing the custom mapping file to be used on jetifier */
+  @Nullable public String customConfigFile;
+
   private final boolean enableJetifier;
 
   @Nullable private List<Pattern> excludePatterns;

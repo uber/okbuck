@@ -215,6 +215,7 @@ okbuck {
         exclude = [
             "androidx.*"
         ]
+        customConfigFile = "tooling/jetifier/custom.config"
     }
 
     externalDependencies {

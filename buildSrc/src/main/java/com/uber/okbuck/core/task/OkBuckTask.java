@@ -144,6 +144,8 @@ public class OkBuckTask extends DefaultTask {
         .classpathMacro(CLASSPATH_ABI_MACRO)
         .lintJvmArgs(okbuckExt.getLintExtension().jvmArgs)
         .enableLint(!okbuckExt.getLintExtension().disabled)
+        .hasCustomJetifierConfigurationFile(
+            okbuckExt.getJetifierExtension().customConfigFile != null)
         .externalDependencyCache(okbuckExt.externalDependencyCache)
         .classpathExclusionRegex(okbuckExt.getLintExtension().classpathExclusionRegex)
         .useCompilationClasspath(okbuckExt.getLintExtension().useCompilationClasspath)
