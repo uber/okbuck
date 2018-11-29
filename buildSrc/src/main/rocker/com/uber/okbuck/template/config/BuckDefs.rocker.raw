@@ -5,6 +5,7 @@ String classpathMacro,
 String lintJvmArgs,
 String externalDependencyCache,
 boolean enableLint,
+boolean hasCustomJetifierConfigurationFile,
 boolean useCompilationClasspath,
 String classpathExclusionRegex
 )
@@ -330,7 +331,7 @@ def okbuck_android_prebuilt_aar(
             name = genname,
             srcs = [aar],
             out = jetified,
-            cmd = "$(exe //.okbuck/workspace/jetifier:okbuck_jetifier) -i $SRCS -o $OUT"
+            cmd = "$(exe //.okbuck/workspace/jetifier:okbuck_jetifier) -i $SRCS -o $OUT@if(hasCustomJetifierConfigurationFile){ -c $(location //.okbuck/workspace/jetifier:custom_mapping.config)}"
         )
 
     native.android_prebuilt_aar(
@@ -354,7 +355,7 @@ def okbuck_prebuilt_jar(
             name = genname,
             srcs = [binary_jar],
             out = jetified,
-            cmd = "$(exe //.okbuck/workspace/jetifier:okbuck_jetifier) -i $SRCS -o $OUT"
+            cmd = "$(exe //.okbuck/workspace/jetifier:okbuck_jetifier) -i $SRCS -o $OUT@if(hasCustomJetifierConfigurationFile){ -c $(location //.okbuck/workspace/jetifier:custom_mapping.config)}"
         )
 
     native.prebuilt_jar(
