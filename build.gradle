@@ -263,7 +263,6 @@ okbuck {
         transform project(":dummy-transform")
     }
 
-    extraDefs += project.file("tooling/buck-defs/DEFS")
     libraryBuildConfig = false
 
     extraBuckOpts = [
