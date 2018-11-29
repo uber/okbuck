@@ -13,9 +13,12 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.Objects;
 import java.util.Set;
+import java.util.jar.JarFile;
 import java.util.stream.Collectors;
+import java.util.zip.ZipFile;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FilenameUtils;
 import org.gradle.api.Project;
@@ -122,17 +125,21 @@ public final class DependencyUtils {
             ImmutableMap.of(
                 "dir", baseDir.getAbsolutePath(), "includes", ImmutableList.of("**/" + zipToFind)));
 
+    return zipFiles
+        .getFiles()
+        .stream()
+        .filter(FileUtil::isZipFile)
+        .min(Comparator.comparing(DependencyUtils::jarComparisonKeyFunction))
+        .map(File::toPath)
+        .orElse(null);
+  }
+
+  private static long jarComparisonKeyFunction(File file) {
     try {
-      File maybeZipFile = zipFiles.getSingleFile();
-      if (FileUtil.isZipFile(maybeZipFile)) {
-        return maybeZipFile.toPath();
-      }
-    } catch (IllegalStateException ignored) {
-      if (zipFiles.getFiles().size() > 1) {
-        throw new IllegalStateException("Found multiple source jars: " + zipFiles);
-      }
+      return new JarFile(file).entries().nextElement().getTime();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
-    return null;
   }
 
   public static Set<ExternalDependency> resolveExternal(
