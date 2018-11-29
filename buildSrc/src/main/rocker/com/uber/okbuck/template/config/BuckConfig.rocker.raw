@@ -1,4 +1,3 @@
-@import java.util.Collection
 @import java.util.Map
 @args (
 String buildToolsVersion,
@@ -8,7 +7,7 @@ String kotlinHome,
 String scalaCompiler,
 String scalaLibrary,
 String proguardJar,
-Collection defs
+Map mavenRepositories,
 )
 @if (valid(buildToolsVersion) && valid(target)) {
 
@@ -25,6 +24,7 @@ Collection defs
 
 [kotlin]
     kotlin_home = @kotlinHome
+    target = true
 }
 @if (valid(scalaCompiler) && valid(scalaLibrary)) {
 
@@ -36,4 +36,11 @@ Collection defs
 
 [tools]
     proguard = @proguardJar
+}
+@if (valid(mavenRepositories)) {
+
+[maven_repositories]
+@for ((key, val) : mavenRepositories) {
+    @key = @val
+}
 }

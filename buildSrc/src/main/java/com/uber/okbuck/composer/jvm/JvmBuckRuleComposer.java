@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.base.BuckRuleComposer;
+import com.uber.okbuck.core.dependency.ExternalDependency;
 import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.model.base.Target;
 import com.uber.okbuck.core.model.jvm.JvmTarget;
@@ -64,7 +65,7 @@ public class JvmBuckRuleComposer extends BuckRuleComposer {
    * @param compile CompileClasspath scope
    * @return External deps
    */
-  public static Set<String> getExternalDeps(Scope runtime, Scope compile) {
+  public static Set<ExternalDependency> getExternalDeps(Scope runtime, Scope compile) {
     return Sets.intersection(runtime.getExternalDeps(), compile.getExternalDeps());
   }
 
@@ -76,7 +77,7 @@ public class JvmBuckRuleComposer extends BuckRuleComposer {
    * @param compile CompileClasspath scope
    * @return CompileOnly Target deps
    */
-  public static Set<String> getExternalProvidedDeps(Scope runtime, Scope compile) {
+  public static Set<ExternalDependency> getExternalProvidedDeps(Scope runtime, Scope compile) {
     return Sets.difference(compile.getExternalDeps(), runtime.getExternalDeps());
   }
 

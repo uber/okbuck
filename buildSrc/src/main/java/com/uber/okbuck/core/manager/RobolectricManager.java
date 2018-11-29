@@ -1,14 +1,18 @@
 package com.uber.okbuck.core.manager;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.OkBuckGradlePlugin;
+import com.uber.okbuck.composer.base.BuckRuleComposer;
 import com.uber.okbuck.core.dependency.DependencyCache;
+import com.uber.okbuck.core.dependency.ExternalDependency;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
-import java.io.IOException;
-import java.nio.file.Files;
+import com.uber.okbuck.template.config.SymlinkBuckFile;
+import com.uber.okbuck.template.core.Rule;
 import java.nio.file.Path;
 import java.util.EnumSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -18,13 +22,19 @@ import org.gradle.api.artifacts.Configuration;
 public final class RobolectricManager {
 
   private static final String ROBOLECTRIC_RUNTIME = "robolectricRuntime";
-  public static final String ROBOLECTRIC_CACHE = OkBuckGradlePlugin.WORKSPACE_PATH + "/robolectric";
+  private static final String ROBOLECTRIC_CACHE =
+      OkBuckGradlePlugin.WORKSPACE_PATH + "/robolectric";
+  private static final String ROBOLECTRIC_TARGET_NAME = "robolectric_cache";
+  public static final String ROBOLECTRIC_CACHE_TARGET =
+      "//" + ROBOLECTRIC_CACHE + ":" + ROBOLECTRIC_TARGET_NAME;
 
   private final Project rootProject;
-  @Nullable private ImmutableSet<String> dependencies;
+  private final BuckFileManager buckFileManager;
+  @Nullable private ImmutableSet<ExternalDependency> dependencies;
 
-  public RobolectricManager(Project rootProject) {
+  public RobolectricManager(Project rootProject, BuckFileManager buckFileManager) {
     this.rootProject = rootProject;
+    this.buckFileManager = buckFileManager;
   }
 
   public void download() {
@@ -59,23 +69,25 @@ public final class RobolectricManager {
   }
 
   public void finalizeDependencies() {
-    if (dependencies != null) {
+    if (dependencies != null && dependencies.size() > 0) {
       Path robolectricCache = rootProject.file(ROBOLECTRIC_CACHE).toPath();
       FileUtil.deleteQuietly(robolectricCache);
       robolectricCache.toFile().mkdirs();
 
-      dependencies.forEach(
-          dependency -> {
-            Path fromPath = rootProject.file(dependency).toPath();
-            Path toPath =
-                robolectricCache.resolve(fromPath.getFileName().toString().replace("--", "-"));
+      Map<String, String> targetsNameMap =
+          dependencies
+              .stream()
+              .collect(
+                  Collectors.toMap(BuckRuleComposer::external, ExternalDependency::getTargetName));
 
-            try {
-              Files.createLink(toPath, fromPath.toRealPath());
-            } catch (IOException e) {
-              throw new RuntimeException(e);
-            }
-          });
+      Rule fileGroup =
+          new SymlinkBuckFile()
+              .targetsNameMap(targetsNameMap)
+              .base("")
+              .name(ROBOLECTRIC_TARGET_NAME);
+
+      buckFileManager.writeToBuckFile(
+          ImmutableList.of(fileGroup), robolectricCache.resolve(OkBuckGradlePlugin.BUCK).toFile());
     }
   }
 

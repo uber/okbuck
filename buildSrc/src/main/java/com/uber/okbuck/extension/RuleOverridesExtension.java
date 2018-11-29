@@ -1,10 +1,11 @@
 package com.uber.okbuck.extension;
 
+import static com.uber.okbuck.OkBuckGradlePlugin.OKBUCK_PREBUILT_TARGET;
+import static com.uber.okbuck.OkBuckGradlePlugin.OKBUCK_TARGETS_TARGET;
+
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.core.model.base.RuleType;
 import groovy.lang.Closure;
 import java.util.ArrayList;
@@ -57,15 +58,17 @@ public class RuleOverridesExtension {
 
   // okBuck pre-defined rules
   private static final String OKBUCK_PREFIX = "okbuck_";
-  private static final ImmutableList<RuleType> OKBUCK_DEFINED_RULES =
-      ImmutableList.of(
-          RuleType.AIDL,
-          RuleType.PREBUILT_JAR,
-          RuleType.ANDROID_LIBRARY,
-          RuleType.ANDROID_PREBUILT_AAR,
-          RuleType.KOTLIN_ANDROID_LIBRARY,
-          RuleType.KEYSTORE,
-          RuleType.MANIFEST);
+  private static final ImmutableMap<RuleType, String> OKBUCK_DEFINED_RULES =
+      ImmutableMap.<RuleType, String>builder()
+          .put(RuleType.AIDL, OKBUCK_TARGETS_TARGET)
+          .put(RuleType.PREBUILT, OKBUCK_PREBUILT_TARGET)
+          .put(RuleType.PREBUILT_JAR, OKBUCK_TARGETS_TARGET)
+          .put(RuleType.ANDROID_LIBRARY, OKBUCK_TARGETS_TARGET)
+          .put(RuleType.ANDROID_PREBUILT_AAR, OKBUCK_TARGETS_TARGET)
+          .put(RuleType.KOTLIN_ANDROID_LIBRARY, OKBUCK_TARGETS_TARGET)
+          .put(RuleType.KEYSTORE, OKBUCK_TARGETS_TARGET)
+          .put(RuleType.MANIFEST, OKBUCK_TARGETS_TARGET)
+          .build();
 
   private Map<String, OverrideSetting> overridesMap = Collections.emptyMap();
   private final List<RawOverrideSetting> overrides = new ArrayList<>();
@@ -104,18 +107,13 @@ public class RuleOverridesExtension {
             .collect(Collectors.toMap(RawOverrideSetting::getNativeRuleName, OverrideSetting::new));
 
     // Add OkBuck defaults for rules not re-defined by user.
-    OKBUCK_DEFINED_RULES
-        .stream()
-        .map(RuleType::getBuckName)
-        .distinct()
-        .forEach(
-            buckName ->
-                configuredOverrides.computeIfAbsent(
-                    buckName,
-                    nativeRuleName ->
-                        new OverrideSetting(
-                            OkBuckGradlePlugin.OKBUCK_DEFS_TARGET,
-                            OKBUCK_PREFIX + nativeRuleName)));
+    OKBUCK_DEFINED_RULES.forEach(
+        ((ruleType, target) -> {
+          String buckName = ruleType.getBuckName();
+          configuredOverrides.computeIfAbsent(
+              buckName,
+              nativeRuleName -> new OverrideSetting(target, OKBUCK_PREFIX + nativeRuleName));
+        }));
 
     overridesMap = ImmutableMap.copyOf(configuredOverrides);
   }

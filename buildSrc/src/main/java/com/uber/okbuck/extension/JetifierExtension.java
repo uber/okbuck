@@ -1,7 +1,7 @@
 package com.uber.okbuck.extension;
 
 import com.google.common.collect.ImmutableSet;
-import com.uber.okbuck.core.dependency.ExternalDependency;
+import com.uber.okbuck.core.dependency.BaseExternalDependency;
 import com.uber.okbuck.core.manager.JetifierManager;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,9 +16,8 @@ public class JetifierExtension {
   public static final String DEFAULT_JETIFIER_VERSION = "1.0.0-beta02";
 
   /**
-   * This is the mandatory dependencies to be excluded from being jetified,
-   * as the jetifier rule itself uses those dependencies.
-   * Otherwise we'd create dependency cycles
+   * This is the mandatory dependencies to be excluded from being jetified, as the jetifier rule
+   * itself uses those dependencies. Otherwise we'd create dependency cycles
    */
   private static final List<String> JETIFIER_DEPS =
       Arrays.asList(
@@ -70,8 +69,9 @@ public class JetifierExtension {
   }
 
   /**
-   * Check if this dependency, described by the params, should be jetified, that is, run
-   * jetifier on it before prebuilding it.
+   * Check if this dependency, described by the params, should be jetified, that is, run jetifier on
+   * it before prebuilding it.
+   *
    * @param group - Dependency group
    * @param name - Dependency name
    * @param packaging - Packaging type (aar\jar)
@@ -81,11 +81,11 @@ public class JetifierExtension {
     if (!enableJetifier) {
       return false;
     }
-    if (aarOnly && packaging.equals(ExternalDependency.JAR)) {
+    if (aarOnly && packaging.equals(BaseExternalDependency.JAR)) {
       return false;
     }
     return getExcludePatterns()
-            .stream()
-            .noneMatch(pattern -> pattern.matcher(group + ":" + name).matches());
+        .stream()
+        .noneMatch(pattern -> pattern.matcher(group + ":" + name).matches());
   }
 }

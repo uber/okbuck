@@ -52,8 +52,8 @@ public class OkBuckExtension {
   @Input public Map<String, Map<String, Collection<String>>> extraBuckOpts = new HashMap<>();
 
   /**
-   * Set to use buck's resource_union behavior with the original package name or the
-   * defined by {@link OkBuckExtension#resourceUnionPackage}
+   * Set to use buck's resource_union behavior with the original package name or the defined by
+   * {@link OkBuckExtension#resourceUnionPackage}
    */
   @Input public boolean resourceUnion;
 
@@ -82,9 +82,6 @@ public class OkBuckExtension {
 
   /** Forces okbuck to fail if the project is using dynamic or snapshot dependencies */
   @Input public boolean failOnChangingDependencies = false;
-
-  /** Specifies the folder where all external dependency rules gets generated. */
-  @Input public String externalDependencyCache = ".okbuck/ext";
 
   /** The prebuilt buck binary to use */
   @Input
@@ -209,7 +206,7 @@ public class OkBuckExtension {
     return ruleOverridesExtension;
   }
 
-  public boolean useResourceUnion(){
+  public boolean useResourceUnion() {
     return resourceUnionPackage != null || resourceUnion;
   }
 }

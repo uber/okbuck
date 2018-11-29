@@ -67,9 +67,17 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
   public static final String WORKSPACE_PATH = DOT_OKBUCK + "/workspace";
   public static final String GROUP = OKBUCK;
   public static final String BUCK_LINT = "buckLint";
+
   private static final String OKBUCK_TARGETS_BZL = "okbuck_targets.bzl";
-  public static final String OKBUCK_DEFS_FILE = DOT_OKBUCK + "/defs/" + OKBUCK_TARGETS_BZL;
-  public static final String OKBUCK_DEFS_TARGET = "//" + DOT_OKBUCK + "/defs:" + OKBUCK_TARGETS_BZL;
+  public static final String OKBUCK_TARGETS_FILE = DOT_OKBUCK + "/defs/" + OKBUCK_TARGETS_BZL;
+  public static final String OKBUCK_TARGETS_TARGET =
+      "//" + DOT_OKBUCK + "/defs:" + OKBUCK_TARGETS_BZL;
+
+  private static final String OKBUCK_PREBUILT_BZL = "okbuck_prebuilt.bzl";
+  public static final String OKBUCK_PREBUILT_FILE = DOT_OKBUCK + "/defs/" + OKBUCK_PREBUILT_BZL;
+  public static final String OKBUCK_PREBUILT_TARGET =
+      "//" + DOT_OKBUCK + "/defs:" + OKBUCK_PREBUILT_BZL;
+
   public static final String OKBUCK_CONFIG = DOT_OKBUCK + "/config";
 
   private static final String OKBUCK_STATE_DIR = DOT_OKBUCK + "/state";
@@ -101,6 +109,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
   @SuppressWarnings("NullAway")
   @Override
   public void apply(Project rootProject) {
+
     // Create extensions
     OkBuckExtension okbuckExt =
         rootProject.getExtensions().create(OKBUCK, OkBuckExtension.class, rootProject);
@@ -131,19 +140,19 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
           lintManager = new LintManager(rootBuckProject, LINT_BUCK_FILE, buckFileManager);
 
           // Create Kotlin Manager
-          kotlinManager = new KotlinManager(rootBuckProject, okbuckExt);
+          kotlinManager = new KotlinManager(rootBuckProject, buckFileManager);
 
           // Create Scala Manager
           scalaManager = new ScalaManager(rootBuckProject, buckFileManager);
 
           // Create Scala Manager
-          groovyManager = new GroovyManager(rootBuckProject);
+          groovyManager = new GroovyManager(rootBuckProject, buckFileManager);
 
           // Create Jetifier Manager
           jetifierManager = new JetifierManager(rootBuckProject, buckFileManager, okbuckExt);
 
           // Create Robolectric Manager
-          robolectricManager = new RobolectricManager(rootBuckProject);
+          robolectricManager = new RobolectricManager(rootBuckProject, buckFileManager);
 
           // Create Transform Manager
           transformManager = new TransformManager(rootBuckProject, buckFileManager);
@@ -158,7 +167,9 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
           ScalaExtension scala = okbuckExt.getScalaExtension();
 
           Task rootOkBuckTask =
-              rootBuckProject.getTasks().create(OKBUCK, OkBuckTask.class, okbuckExt, kotlin, scala);
+              rootBuckProject
+                  .getTasks()
+                  .create(OKBUCK, OkBuckTask.class, okbuckExt, kotlin, scala, buckFileManager);
           rootOkBuckTask.dependsOn(setupOkbuck);
           rootOkBuckTask.doLast(
               task -> {

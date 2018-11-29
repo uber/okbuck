@@ -1,21 +1,18 @@
 @args (
-String prebuiltType,
-String prebuilt,
-String source,
+String ruleType,
 String mavenCoords,
+String sha256,
+String sourcesSha256,
 boolean enableJetifier,
 )
 @(ruleType)(
     name = '@name',
-    @prebuiltType = '@prebuilt',
-@if (valid(source)) {
-    source_jar = '@source',
-}
-@if (valid(mavenCoords)) {
     maven_coords = '@mavenCoords',
+    sha256 = '@sha256',
+@if (valid(sourcesSha256)) {
+    sources_sha256 = '@sourcesSha256',
 }
 @if (enableJetifier) {
     enable_jetifier = True,
 }
-    visibility = ['PUBLIC'],
 )

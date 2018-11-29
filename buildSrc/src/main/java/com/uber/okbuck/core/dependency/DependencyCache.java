@@ -9,7 +9,6 @@ import com.uber.okbuck.extension.JetifierExtension;
 import com.uber.okbuck.extension.OkBuckExtension;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -83,7 +82,7 @@ public class DependencyCache {
 
     if (!resolveOnly && fetchSources) {
       LOG.info("Fetching sources for {}", dependency);
-      dependency.getRealSourceFilePath(rootProject);
+      dependency.computeSourceFilePath(rootProject);
     }
 
     return dependency;
@@ -91,12 +90,6 @@ public class DependencyCache {
 
   public final ExternalDependency get(ExternalDependency externalDependency) {
     return get(externalDependency, false);
-  }
-
-  public String getPath(ExternalDependency dependency) {
-    return Paths.get(dependencyManager.getCacheDirName())
-        .resolve(dependency.getDependencyFilePath())
-        .toString();
   }
 
   /**
@@ -108,7 +101,7 @@ public class DependencyCache {
   public Set<String> getAnnotationProcessors(ExternalDependency externalDependency) {
     ExternalDependency dependency =
         forcedDeps.getOrDefault(externalDependency.getVersionless(), externalDependency);
-    String key = dependency.getCacheName();
+    String key = dependency.getTargetName();
 
     try {
       String processors =
@@ -166,7 +159,7 @@ public class DependencyCache {
     return content;
   }
 
-  public Set<String> build(Configuration configuration) {
+  public Set<ExternalDependency> build(Configuration configuration) {
     return build(Collections.singleton(configuration));
   }
 
@@ -177,8 +170,9 @@ public class DependencyCache {
    *
    * @param configurations The set of configurations to materialize into the dependency cache
    */
-  private Set<String> build(Set<Configuration> configurations) {
+  private Set<ExternalDependency> build(Set<Configuration> configurations) {
     OkBuckExtension okBuckExtension = ProjectUtil.getOkBuckExtension(rootProject);
+
     ExternalDependenciesExtension externalDependenciesExtension =
         okBuckExtension.getExternalDependenciesExtension();
     JetifierExtension jetifierExtension = okBuckExtension.getJetifierExtension();
@@ -191,7 +185,6 @@ public class DependencyCache {
                     configuration, externalDependenciesExtension, jetifierExtension))
         .flatMap(Collection::stream)
         .map(dependency -> get(dependency, true))
-        .map(this::getPath)
         .collect(Collectors.toSet());
   }
 

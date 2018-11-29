@@ -13,16 +13,20 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.gradle.api.Project;
+import org.gradle.api.tasks.Input;
 
 public class ExternalDependenciesExtension {
+  /** Specifies the folder where all external dependency rules gets generated. */
+  @Input private String cache = ".okbuck/ext";
+
   /** Stores the dependencies which are allowed to have latest version. */
-  private List<String> allowLatestVersion = new ArrayList<>();
+  @Input private List<String> allowLatestVersion = new ArrayList<>();
 
   /** Stores the dependencies which are allowed to have more than 1 version. */
-  private List<String> allowAllVersions = new ArrayList<>();
+  @Input private List<String> allowAllVersions = new ArrayList<>();
 
   /** Stores the dependencies and their allowed versions */
-  private Map<String, List<String>> allowSpecificVersions = new HashMap<>();
+  @Input private Map<String, List<String>> allowSpecificVersions = new HashMap<>();
 
   private boolean versionless = false;
   private boolean allowLatestForAll = false;
@@ -181,5 +185,9 @@ public class ExternalDependenciesExtension {
 
     List<String> allowedVersions = getAllowSpecificVersionsMap().get(dependency.getVersionless());
     return allowedVersions != null && allowedVersions.contains(dependency.getVersion());
+  }
+
+  public String getCache() {
+    return cache;
   }
 }

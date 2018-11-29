@@ -28,6 +28,7 @@ public enum RuleType {
   SCALA_LIBRARY("java", "scala"),
   SCALA_TEST("java", "scala"),
   PREBUILT_JAR("binary_jar"),
+  PREBUILT,
   PREBUILT_NATIVE_LIBRARY,
   ROBOLECTRIC_TEST("java");
 
@@ -55,8 +56,6 @@ public enum RuleType {
       case KOTLIN_ROBOLECTRIC_TEST:
       case ROBOLECTRIC_TEST:
         ruleType = ROBOLECTRIC_TEST;
-        break;
-      case ANDROID_PREBUILT_AAR:
         break;
       default:
         break;

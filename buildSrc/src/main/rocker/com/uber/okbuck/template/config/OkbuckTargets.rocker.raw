@@ -134,6 +134,7 @@ def okbuck_aidl(
 def toLocation(dep):
     return "$(location {})".format(dep)
 
+
 def okbuck_lint(
         variant,
         manifest,
@@ -196,8 +197,10 @@ def okbuck_lint(
         bash = bash
     )
 
+
 def shellquote(s):
     return "'" + s.replace("'", "'\\''") + "'"
+
 
 def okbuck_manifest(
         name,
@@ -240,6 +243,7 @@ def okbuck_manifest(
         type = 'okbuck_manifest',
         cmd = ' '.join(cmds),
     )
+
 
 def isLintEnabled(manifest):
 @if(enableLint) {
@@ -293,6 +297,7 @@ def okbuck_android_library(
             custom_lints = custom_lints,
             lint_options = lint_options,
         )
+
 
 def okbuck_keystore(
     name,

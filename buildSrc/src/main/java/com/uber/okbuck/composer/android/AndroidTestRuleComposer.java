@@ -60,7 +60,7 @@ public final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
             .jvmArgs(target.getTestOptions().getJvmArgs())
             .env(target.getTestOptions().getEnv())
             .robolectricManifest(manifestRule)
-            .runtimeDependency(RobolectricManager.ROBOLECTRIC_CACHE);
+            .runtimeDependency(RobolectricManager.ROBOLECTRIC_CACHE_TARGET);
 
     if (target.getTestRuleType().equals(RuleType.KOTLIN_ROBOLECTRIC_TEST)) {
       androidTest.language("kotlin");

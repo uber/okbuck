@@ -1,11 +1,14 @@
 package com.uber.okbuck.core.manager;
 
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.sun.istack.Nullable;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.base.BuckRuleComposer;
 import com.uber.okbuck.core.dependency.DependencyCache;
+import com.uber.okbuck.core.dependency.ExternalDependency;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
@@ -13,23 +16,19 @@ import com.uber.okbuck.extension.JetifierExtension;
 import com.uber.okbuck.extension.OkBuckExtension;
 import com.uber.okbuck.template.common.ExportFile;
 import com.uber.okbuck.template.core.Rule;
-import com.uber.okbuck.template.java.Prebuilt;
+import com.uber.okbuck.template.java.NativePrebuilt;
 import com.uber.okbuck.template.jvm.JvmBinaryRule;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Set;
-
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public final class JetifierManager {
 
@@ -52,16 +51,13 @@ public final class JetifierManager {
   private static final ImmutableList<String> INTERNAL_MODULES =
       ImmutableList.of("jetifier-standalone.jar");
 
-  @Nullable
-  private Set<String> dependencies;
+  @Nullable private Set<ExternalDependency> dependencies;
   private final Project project;
   private final BuckFileManager buckFileManager;
   private final OkBuckExtension okBuckExtension;
 
   public JetifierManager(
-      Project project,
-      BuckFileManager buckFileManager,
-      OkBuckExtension okBuckExtension) {
+      Project project, BuckFileManager buckFileManager, OkBuckExtension okBuckExtension) {
     this.project = project;
     this.buckFileManager = buckFileManager;
     this.okBuckExtension = okBuckExtension;
@@ -102,7 +98,7 @@ public final class JetifierManager {
       for (String module : INTERNAL_MODULES) {
         FileUtil.copyResourceToProject("jetifier/" + module, new File(JETIFIER_LOCATION, module));
         rulesBuilder.add(
-            new Prebuilt()
+            new NativePrebuilt()
                 .prebuiltType(RuleType.PREBUILT_JAR.getProperties().get(0))
                 .prebuilt(module)
                 .ruleType(RuleType.PREBUILT_JAR.getBuckName())
@@ -121,8 +117,7 @@ public final class JetifierManager {
       if (okBuckExtension.getJetifierExtension().customConfigFile != null) {
         Path fromPath =
             project
-                .file(
-                    Paths.get(okBuckExtension.getJetifierExtension().customConfigFile))
+                .file(Paths.get(okBuckExtension.getJetifierExtension().customConfigFile))
                 .toPath();
         Path toPath = project.file(JETIFIER_CONFIG_LOCATION).toPath();
         try {

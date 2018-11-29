@@ -1,0 +1,26 @@
+@import java.util.Map
+
+@args (
+    String base,
+    Map targetsNameMap
+)
+
+@if (valid(targetsNameMap)) {
+targets = @{
+@for ((key, val) : targetsNameMap) {
+    '@key': '@val',
+}
+@}
+}
+
+bash_list = (
+    ["mkdir -p $OUT{}; ".format("@base")] +
+    ['cp $(location {}) $OUT{}/{};'.format(target, "@base", name) for (target, name) in targets.items()]
+)
+
+genrule(
+    name = '@name',
+    bash = " ".join(bash_list),
+    out = ".",
+    visibility = [ 'PUBLIC' ],
+)

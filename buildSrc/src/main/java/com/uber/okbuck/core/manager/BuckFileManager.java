@@ -71,8 +71,8 @@ public class BuckFileManager {
     for (Rule rule : rules) {
       // Android resource template requires res_glob function from buck defs
       if (RuleType.ANDROID_RESOURCE.getBuckName().equals(rule.ruleType())) {
-        loadStatements.put(OkBuckGradlePlugin.OKBUCK_DEFS_TARGET, RES_GLOB);
-        loadStatements.put(OkBuckGradlePlugin.OKBUCK_DEFS_TARGET, SUBDIR_GLOB);
+        loadStatements.put(OkBuckGradlePlugin.OKBUCK_TARGETS_TARGET, RES_GLOB);
+        loadStatements.put(OkBuckGradlePlugin.OKBUCK_TARGETS_TARGET, SUBDIR_GLOB);
       }
       if (overrides.containsKey(rule.ruleType())) {
         RuleOverridesExtension.OverrideSetting setting = overrides.get(rule.ruleType());

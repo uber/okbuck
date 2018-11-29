@@ -13,7 +13,7 @@ import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.template.common.ExportFile;
 import com.uber.okbuck.template.core.Rule;
-import com.uber.okbuck.template.java.Prebuilt;
+import com.uber.okbuck.template.java.NativePrebuilt;
 import com.uber.okbuck.template.jvm.JvmBinaryRule;
 import java.io.File;
 import java.io.IOException;
@@ -74,15 +74,12 @@ public final class TransformManager {
             .depCache(dependencyCache)
             .build();
 
-    ImmutableSet.Builder<String> depsBuilder =
+    dependencies =
         new ImmutableSet.Builder<String>()
-            .addAll(BuckRuleComposer.targets(transformScope.getTargetDeps()));
-
-    depsBuilder.addAll(BuckRuleComposer.external(transformScope.getExternalDeps()));
-
-    depsBuilder.add(TRANSFORM_JAR_RULE);
-
-    dependencies = depsBuilder.build();
+            .addAll(BuckRuleComposer.targets(transformScope.getTargetDeps()))
+            .addAll(BuckRuleComposer.external(transformScope.getExternalDeps()))
+            .add(TRANSFORM_JAR_RULE)
+            .build();
   }
 
   public void finalizeDependencies() {
@@ -90,7 +87,7 @@ public final class TransformManager {
 
     FileUtil.deleteQuietly(cacheDir);
 
-    if (dependencies != null) {
+    if (dependencies != null && dependencies.size() > 0) {
       cacheDir.toFile().mkdirs();
 
       copyFiles(cacheDir);
@@ -115,10 +112,11 @@ public final class TransformManager {
 
   private void composeBuckFile(Path cacheDir) {
     ImmutableList.Builder<Rule> rulesBuilder = new ImmutableList.Builder<>();
+
     if (dependencies != null) {
       rulesBuilder
           .add(
-              new Prebuilt()
+              new NativePrebuilt()
                   .prebuiltType(RuleType.PREBUILT_JAR.getProperties().get(0))
                   .prebuilt(TRANSFORM_JAR)
                   .ruleType(RuleType.PREBUILT_JAR.getBuckName())

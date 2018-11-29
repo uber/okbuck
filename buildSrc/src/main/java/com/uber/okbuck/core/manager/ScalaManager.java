@@ -3,6 +3,7 @@ package com.uber.okbuck.core.manager;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.base.BuckRuleComposer;
 import com.uber.okbuck.core.dependency.DependencyCache;
+import com.uber.okbuck.core.dependency.ExternalDependency;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.template.core.Rule;
@@ -24,7 +25,7 @@ public final class ScalaManager {
 
   private final Project rootProject;
   private final BuckFileManager buckFileManager;
-  @Nullable private Set<String> dependencies;
+  @Nullable private Set<ExternalDependency> dependencies;
 
   public ScalaManager(Project rootProject, BuckFileManager buckFileManager) {
     this.rootProject = rootProject;
@@ -32,18 +33,20 @@ public final class ScalaManager {
   }
 
   @SuppressWarnings("ResultOfMethodCallIgnored")
-  public Set<String> setupScalaHome(String scalaVersion) {
+  public Set<ExternalDependency> setupScalaHome(String scalaVersion) {
     Configuration scalaConfig = rootProject.getConfigurations().maybeCreate(SCALA_DEPS_CONFIG);
     rootProject
         .getDependencies()
         .add(SCALA_DEPS_CONFIG, "org.scala-lang:scala-compiler:" + scalaVersion);
-    return dependencies =
+    dependencies =
         new DependencyCache(rootProject, ProjectUtil.getDependencyManager(rootProject))
             .build(scalaConfig);
+
+    return dependencies;
   }
 
   public void finalizeDependencies() {
-    if (dependencies != null) {
+    if (dependencies != null && dependencies.size() > 0) {
       List<Rule> scalaCompiler =
           Collections.singletonList(
               new JvmBinaryRule()

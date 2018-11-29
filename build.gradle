@@ -280,6 +280,9 @@ okbuck {
         override {
             nativeRuleName = "android_binary"
         }
+        override {
+            nativeRuleName = "prebuilt_jar"
+        }
     }
 }
 
@@ -287,9 +290,4 @@ afterEvaluate {
     dependencies {
         toolsExtraDepCache deps.external.saxon
     }
-}
-
-gradle.buildFinished {
-    "zip -d .okbuck/ext/org/hamcrest/hamcrest-core.jar LICENSE.txt".execute()
-    "zip -d .okbuck/ext/org/hamcrest/hamcrest-integration.jar LICENSE.txt".execute()
 }
