@@ -10,22 +10,35 @@ import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.extension.JetifierExtension;
+import com.uber.okbuck.extension.OkBuckExtension;
+import com.uber.okbuck.template.common.ExportFile;
 import com.uber.okbuck.template.core.Rule;
 import com.uber.okbuck.template.java.Prebuilt;
 import com.uber.okbuck.template.jvm.JvmBinaryRule;
+
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Set;
+
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+
 public final class JetifierManager {
 
   private static final Logger LOG = LoggerFactory.getLogger(JetifierManager.class);
 
   private static final String JETIFIER_LOCATION = OkBuckGradlePlugin.WORKSPACE_PATH + "/jetifier";
+  private static final String JETIFIER_CONFIG_FILE = "custom_mapping.config";
+  private static final String JETIFIER_CONFIG_LOCATION =
+      JETIFIER_LOCATION + "/" + JETIFIER_CONFIG_FILE;
   private static final String JETIFIER_BUCK_FILE = JETIFIER_LOCATION + "/BUCK";
   private static final String JETIFIER_DEPS_CONFIG = "okbuck_jetifier_deps";
   private static final String JETIFIER_GROUP = "com.android.tools.build.jetifier";
@@ -39,13 +52,19 @@ public final class JetifierManager {
   private static final ImmutableList<String> INTERNAL_MODULES =
       ImmutableList.of("jetifier-standalone.jar");
 
-  @Nullable private Set<String> dependencies;
+  @Nullable
+  private Set<String> dependencies;
   private final Project project;
   private final BuckFileManager buckFileManager;
+  private final OkBuckExtension okBuckExtension;
 
-  public JetifierManager(Project project, BuckFileManager buckFileManager) {
+  public JetifierManager(
+      Project project,
+      BuckFileManager buckFileManager,
+      OkBuckExtension okBuckExtension) {
     this.project = project;
     this.buckFileManager = buckFileManager;
+    this.okBuckExtension = okBuckExtension;
   }
 
   public static boolean isJetifierEnabled(Project project) {
@@ -98,6 +117,21 @@ public final class JetifierManager {
               .ruleType(RuleType.JAVA_BINARY.getBuckName())
               .name(JETIFIER_BINARY_RULE_NAME)
               .defaultVisibility());
+
+      if (okBuckExtension.getJetifierExtension().customConfigFile != null) {
+        Path fromPath =
+            project
+                .file(
+                    Paths.get(okBuckExtension.getJetifierExtension().customConfigFile))
+                .toPath();
+        Path toPath = project.file(JETIFIER_CONFIG_LOCATION).toPath();
+        try {
+          Files.copy(fromPath, toPath, REPLACE_EXISTING);
+          rulesBuilder.add(new ExportFile().name(JETIFIER_CONFIG_FILE));
+        } catch (IOException e) {
+          throw new IllegalStateException(e);
+        }
+      }
 
       buckFileManager.writeToBuckFile(
           rulesBuilder.build(), project.getRootProject().file(JETIFIER_BUCK_FILE));

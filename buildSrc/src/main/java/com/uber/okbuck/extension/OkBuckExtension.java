@@ -51,9 +51,6 @@ public class OkBuckExtension {
   /** Extra buck options */
   @Input public Map<String, Map<String, Collection<String>>> extraBuckOpts = new HashMap<>();
 
-  /** Extra buck defs */
-  @Input public Set<File> extraDefs = new HashSet<>();
-
   /**
    * Set to use buck's resource_union behavior with the original package name or the
    * defined by {@link OkBuckExtension#resourceUnionPackage}
