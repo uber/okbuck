@@ -360,6 +360,6 @@ def okbuck_prebuilt_jar(
 
     native.prebuilt_jar(
         name = name,
-        binary_jar = binary_jar,
+        binary_jar = jar_path,
         **kwargs
     )
