@@ -211,7 +211,7 @@ okbuck {
     }
 
     jetifier {
-        aarOnly = false
+        aarOnly = true
         exclude = [
             "androidx.*"
         ]
