@@ -12,7 +12,6 @@ import com.uber.okbuck.core.manager.LintManager;
 import com.uber.okbuck.core.manager.ScalaManager;
 import com.uber.okbuck.core.manager.TransformManager;
 import com.uber.okbuck.core.model.base.ProjectType;
-import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.model.base.Target;
 import com.uber.okbuck.core.model.base.TargetCache;
 import com.uber.okbuck.extension.OkBuckExtension;
@@ -97,10 +96,6 @@ public final class ProjectUtil {
   @Nullable
   public static Target getTargetForVariant(Project targetProject, @Nullable String variant) {
     return getTargetCache(targetProject).getTargetForVariant(targetProject, variant);
-  }
-
-  public static Map<Project, Map<String, Scope>> getScopes(Project project) {
-    return getPlugin(project).scopes;
   }
 
   public static OkBuckGradlePlugin getPlugin(Project project) {
