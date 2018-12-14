@@ -16,7 +16,6 @@ import com.uber.okbuck.core.manager.RobolectricManager;
 import com.uber.okbuck.core.manager.ScalaManager;
 import com.uber.okbuck.core.manager.TransformManager;
 import com.uber.okbuck.core.model.base.ProjectType;
-import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.model.base.TargetCache;
 import com.uber.okbuck.core.task.OkBuckCleanTask;
 import com.uber.okbuck.core.task.OkBuckTask;
@@ -82,8 +81,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
   private static final String LINT_BUCK_FILE = WORKSPACE_PATH + "/lint/BUCK";
 
   public static final String OKBUCK_STATE = OKBUCK_STATE_DIR + "/STATE";
-  public final Map<Project, Map<String, Scope>> scopes = new ConcurrentHashMap<>();
-  public final Map<String, Boolean> poms = new ConcurrentHashMap<>();
+  public static final String SCOPE = "okbuckScope";
   public final Set<String> exportedPaths = Sets.newConcurrentHashSet();
 
   public DependencyCache depCache;
@@ -117,6 +115,8 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
 
     rootProject.afterEvaluate(
         rootBuckProject -> {
+          initScopeProperty(rootProject);
+
           // Create tasks
           Task setupOkbuck = rootBuckProject.getTasks().create("setupOkbuck");
           setupOkbuck.setGroup(GROUP);
@@ -284,11 +284,15 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
               .forEach(
                   bp -> {
                     bp.getConfigurations().maybeCreate(BUCK_LINT);
+
                     Task okbuckProjectTask = bp.getTasks().maybeCreate(OKBUCK);
                     okbuckProjectTask.doLast(
-                        task ->
-                            BuckFileGenerator.generate(
-                                bp, buckFileManager, okbuckExt.getVisibilityExtension()));
+                        task -> {
+                          initScopeProperty(bp);
+                          BuckFileGenerator.generate(
+                              bp, buckFileManager, okbuckExt.getVisibilityExtension());
+                          resetScopeProperty(bp);
+                        });
                     okbuckProjectTask.dependsOn(setupOkbuck);
                     okBuckClean.dependsOn(okbuckProjectTask);
                   });
@@ -332,5 +336,13 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
         throw new RuntimeException(e);
       }
     }
+  }
+
+  private static void initScopeProperty(Project project) {
+    project.getExtensions().getExtraProperties().set(SCOPE, new ConcurrentHashMap<>());
+  }
+
+  private static void resetScopeProperty(Project project) {
+    project.getExtensions().getExtraProperties().set(SCOPE, null);
   }
 }

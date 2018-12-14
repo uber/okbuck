@@ -5,6 +5,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Streams;
+import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.core.annotation.AnnotationProcessorCache;
 import com.uber.okbuck.core.dependency.DependencyCache;
 import com.uber.okbuck.core.dependency.DependencyUtils;
@@ -25,7 +26,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -463,13 +463,17 @@ public class Scope {
       Configuration useful = DependencyUtils.useful(configuration);
       String key = useful != null ? useful.getName() : "--none--";
 
-      return ProjectUtil.getScopes(project)
-          .computeIfAbsent(project, t -> new ConcurrentHashMap<>())
-          .computeIfAbsent(
-              key,
-              t ->
-                  new Scope(
-                      project, useful, sourceDirs, javaResourceDirs, compilerOptions, depCache));
+      Map<String, Scope> scopeMap = (Map<String, Scope>) project.property(OkBuckGradlePlugin.SCOPE);
+      if (scopeMap != null) {
+        return scopeMap.computeIfAbsent(
+            key,
+            t ->
+                new Scope(
+                    project, useful, sourceDirs, javaResourceDirs, compilerOptions, depCache));
+      } else {
+        throw new RuntimeException(
+            "Scope Map external property '" + OkBuckGradlePlugin.SCOPE + "' is not set.");
+      }
     }
   }
 }
