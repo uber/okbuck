@@ -39,6 +39,7 @@ public final class LintManager {
   private final BuckFileManager buckFileManager;
 
   private Set<String> dependencies;
+  private DependencyCache lintDepCache;
 
   @SuppressWarnings("NullAway")
   public LintManager(Project project, String lintBuckFile, BuckFileManager buckFileManager) {
@@ -74,16 +75,14 @@ public final class LintManager {
   }
 
   public DependencyCache getLintDepsCache() {
-    OkBuckGradlePlugin okBuckGradlePlugin = ProjectUtil.getPlugin(project);
-    if (okBuckGradlePlugin.lintDepCache == null) {
-      okBuckGradlePlugin.lintDepCache =
-          new DependencyCache(project, ProjectUtil.getDependencyManager(project));
+    if (lintDepCache == null) {
+      lintDepCache = new DependencyCache(project, ProjectUtil.getDependencyManager(project));
 
       dependencies =
-          okBuckGradlePlugin.lintDepCache.build(
+          lintDepCache.build(
               project.getRootProject().getConfigurations().getByName(LINT_DEPS_CONFIG));
     }
-    return okBuckGradlePlugin.lintDepCache;
+    return lintDepCache;
   }
 
   public void finalizeDependencies() {

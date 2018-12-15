@@ -83,7 +83,6 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
   public final Set<String> exportedPaths = Sets.newConcurrentHashSet();
 
   public DependencyCache depCache;
-  public DependencyCache lintDepCache;
   public AnnotationProcessorCache annotationProcessorCache;
   public DependencyManager dependencyManager;
   public LintManager lintManager;
@@ -176,7 +175,13 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
                 manifestMergerManager.finalizeDependencies();
                 writeExportedFileRules(rootBuckProject, okbuckExt);
 
+                // Reset root project's scope cache at the very end
                 ProjectCache.resetScopeCache(rootProject);
+
+                // Reset all project's target cache at the very end.
+                // This cannot be done for a project just after its okbuck task since,
+                // the target cache is accessed by other projects and have to
+                // be available until okbuck tasks of all the projects finishes.
                 ProjectCache.resetTargetCacheForAll(rootProject);
               });
 
@@ -224,7 +229,12 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
           // Configure setup task
           setupOkbuck.doLast(
               task -> {
+                // Init all project's target cache at the very start since a project
+                // can access other project's target cache. Hence, all target cache
+                // needs to be initialized before any okbuck task starts.
                 ProjectCache.initTargetCacheForAll(rootProject);
+
+                // Init root project's scope cache.
                 ProjectCache.initScopeCache(rootProject);
 
                 depCache = new DependencyCache(rootBuckProject, dependencyManager, FORCED_OKBUCK);
