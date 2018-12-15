@@ -5,13 +5,13 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Streams;
-import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.core.annotation.AnnotationProcessorCache;
 import com.uber.okbuck.core.dependency.DependencyCache;
 import com.uber.okbuck.core.dependency.DependencyUtils;
 import com.uber.okbuck.core.dependency.ExternalDependency;
 import com.uber.okbuck.core.dependency.VersionlessDependency;
 import com.uber.okbuck.core.util.FileUtil;
+import com.uber.okbuck.core.util.ProjectCache;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.extension.ExternalDependenciesExtension;
 import com.uber.okbuck.extension.JetifierExtension;
@@ -315,12 +315,12 @@ public class Scope {
               artifact.getVariant().getAttributes().getAttribute(VariantAttr.ATTRIBUTE);
           String variant = variantAttr == null ? null : variantAttr.getName();
 
+          Project identifierProject = project.project(identifier.getProjectPath());
           targetDeps.add(
-              ProjectUtil.getTargetForVariant(
-                  project.project(identifier.getProjectPath()), variant));
+              ProjectCache.getTargetCache(identifierProject).getTargetForVariant(variant));
         });
 
-    Set<ResolvedArtifactResult> aarOrJarartifacts =
+    Set<ResolvedArtifactResult> aarOrJarArtifacts =
         getArtifacts(configuration, EXTERNAL_DEP_FILTER, ImmutableList.of("aar", "jar"));
 
     OkBuckExtension okBuckExtension = ProjectUtil.getOkBuckExtension(project);
@@ -328,7 +328,7 @@ public class Scope {
         okBuckExtension.getExternalDependenciesExtension();
     JetifierExtension jetifierExtension = okBuckExtension.getJetifierExtension();
 
-    aarOrJarartifacts.forEach(
+    aarOrJarArtifacts.forEach(
         artifact -> {
           if (!DependencyUtils.isConsumable(artifact.getFile())) {
             return;
@@ -463,17 +463,12 @@ public class Scope {
       Configuration useful = DependencyUtils.useful(configuration);
       String key = useful != null ? useful.getName() : "--none--";
 
-      Map<String, Scope> scopeMap = (Map<String, Scope>) project.property(OkBuckGradlePlugin.SCOPE);
-      if (scopeMap != null) {
-        return scopeMap.computeIfAbsent(
-            key,
-            t ->
-                new Scope(
-                    project, useful, sourceDirs, javaResourceDirs, compilerOptions, depCache));
-      } else {
-        throw new RuntimeException(
-            "Scope Map external property '" + OkBuckGradlePlugin.SCOPE + "' is not set.");
-      }
+      return ProjectCache.getScopeCache(project)
+          .computeIfAbsent(
+              key,
+              t ->
+                  new Scope(
+                      project, useful, sourceDirs, javaResourceDirs, compilerOptions, depCache));
     }
   }
 }
