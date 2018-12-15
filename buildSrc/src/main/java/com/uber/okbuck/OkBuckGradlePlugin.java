@@ -16,12 +16,12 @@ import com.uber.okbuck.core.manager.RobolectricManager;
 import com.uber.okbuck.core.manager.ScalaManager;
 import com.uber.okbuck.core.manager.TransformManager;
 import com.uber.okbuck.core.model.base.ProjectType;
-import com.uber.okbuck.core.model.base.TargetCache;
 import com.uber.okbuck.core.task.OkBuckCleanTask;
 import com.uber.okbuck.core.task.OkBuckTask;
 import com.uber.okbuck.core.util.D8Util;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.MoreCollectors;
+import com.uber.okbuck.core.util.ProjectCache;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.extension.KotlinExtension;
 import com.uber.okbuck.extension.OkBuckExtension;
@@ -39,7 +39,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.gradle.api.Plugin;
@@ -81,12 +80,10 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
   private static final String LINT_BUCK_FILE = WORKSPACE_PATH + "/lint/BUCK";
 
   public static final String OKBUCK_STATE = OKBUCK_STATE_DIR + "/STATE";
-  public static final String SCOPE = "okbuckScope";
   public final Set<String> exportedPaths = Sets.newConcurrentHashSet();
 
   public DependencyCache depCache;
   public DependencyCache lintDepCache;
-  public TargetCache targetCache;
   public AnnotationProcessorCache annotationProcessorCache;
   public DependencyManager dependencyManager;
   public LintManager lintManager;
@@ -115,8 +112,6 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
 
     rootProject.afterEvaluate(
         rootBuckProject -> {
-          initScopeProperty(rootProject);
-
           // Create tasks
           Task setupOkbuck = rootBuckProject.getTasks().create("setupOkbuck");
           setupOkbuck.setGroup(GROUP);
@@ -125,9 +120,6 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
           // Create buck file manager.
           BuckFileManager buckFileManager =
               new BuckFileManager(okbuckExt.getRuleOverridesExtension());
-
-          // Create target cache
-          targetCache = new TargetCache();
 
           // Create Annotation Processor cache
           annotationProcessorCache =
@@ -183,6 +175,9 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
                 buckManager.finalizeDependencies();
                 manifestMergerManager.finalizeDependencies();
                 writeExportedFileRules(rootBuckProject, okbuckExt);
+
+                ProjectCache.resetScopeCache(rootProject);
+                ProjectCache.resetTargetCacheForAll(rootProject);
               });
 
           WrapperExtension wrapper = okbuckExt.getWrapperExtension();
@@ -229,7 +224,8 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
           // Configure setup task
           setupOkbuck.doLast(
               task -> {
-                okbuckExt.buckProjects.forEach(p -> targetCache.getTargets(p));
+                ProjectCache.initTargetCacheForAll(rootProject);
+                ProjectCache.initScopeCache(rootProject);
 
                 depCache = new DependencyCache(rootBuckProject, dependencyManager, FORCED_OKBUCK);
 
@@ -288,10 +284,10 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
                     Task okbuckProjectTask = bp.getTasks().maybeCreate(OKBUCK);
                     okbuckProjectTask.doLast(
                         task -> {
-                          initScopeProperty(bp);
+                          ProjectCache.initScopeCache(bp);
                           BuckFileGenerator.generate(
                               bp, buckFileManager, okbuckExt.getVisibilityExtension());
-                          resetScopeProperty(bp);
+                          ProjectCache.resetScopeCache(bp);
                         });
                     okbuckProjectTask.dependsOn(setupOkbuck);
                     okBuckClean.dependsOn(okbuckProjectTask);
@@ -336,13 +332,5 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
         throw new RuntimeException(e);
       }
     }
-  }
-
-  private static void initScopeProperty(Project project) {
-    project.getExtensions().getExtraProperties().set(SCOPE, new ConcurrentHashMap<>());
-  }
-
-  private static void resetScopeProperty(Project project) {
-    project.getExtensions().getExtraProperties().set(SCOPE, null);
   }
 }

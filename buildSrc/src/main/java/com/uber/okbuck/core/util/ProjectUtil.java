@@ -12,10 +12,7 @@ import com.uber.okbuck.core.manager.LintManager;
 import com.uber.okbuck.core.manager.ScalaManager;
 import com.uber.okbuck.core.manager.TransformManager;
 import com.uber.okbuck.core.model.base.ProjectType;
-import com.uber.okbuck.core.model.base.Target;
-import com.uber.okbuck.core.model.base.TargetCache;
 import com.uber.okbuck.extension.OkBuckExtension;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -89,15 +86,6 @@ public final class ProjectUtil {
     return getPlugin(project).transformManager;
   }
 
-  public static Map<String, Target> getTargets(Project project) {
-    return getTargetCache(project).getTargets(project);
-  }
-
-  @Nullable
-  public static Target getTargetForVariant(Project targetProject, @Nullable String variant) {
-    return getTargetCache(targetProject).getTargetForVariant(targetProject, variant);
-  }
-
   public static OkBuckGradlePlugin getPlugin(Project project) {
     return project.getRootProject().getPlugins().getPlugin(OkBuckGradlePlugin.class);
   }
@@ -105,10 +93,6 @@ public final class ProjectUtil {
   public static OkBuckExtension getOkBuckExtension(Project project) {
     return (OkBuckExtension)
         project.getRootProject().getExtensions().getByName(OkBuckGradlePlugin.OKBUCK);
-  }
-
-  private static TargetCache getTargetCache(Project project) {
-    return getPlugin(project).targetCache;
   }
 
   @Nullable

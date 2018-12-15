@@ -26,6 +26,7 @@ import com.uber.okbuck.core.model.android.AndroidLibTarget;
 import com.uber.okbuck.core.model.base.ProjectType;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.model.jvm.JvmTarget;
+import com.uber.okbuck.core.util.ProjectCache;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.extension.VisibilityExtension;
 import com.uber.okbuck.template.android.AndroidRule;
@@ -66,7 +67,9 @@ public final class BuckFileGenerator {
   private static List<Rule> createRules(Project project) {
     List<Rule> rules = new ArrayList<>();
     ProjectType projectType = ProjectUtil.getType(project);
-    ProjectUtil.getTargets(project)
+
+    ProjectCache.getTargetCache(project)
+        .getTargets()
         .forEach(
             (name, target) -> {
               switch (projectType) {
