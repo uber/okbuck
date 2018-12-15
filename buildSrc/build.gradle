@@ -101,7 +101,6 @@ task sourcesJar(type: Jar) {
 }
 
 def publishVersion = "0.45.2"
-
 group = "com.uber"
 version = publishVersion
 def siteUrl = "https://github.com/uber/okbuck"
