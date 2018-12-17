@@ -1,5 +1,6 @@
 package com.uber.okbuck.core.manager;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.Var;
@@ -11,17 +12,12 @@ import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
-import com.uber.okbuck.template.common.ExportFile;
 import com.uber.okbuck.template.core.Rule;
 import com.uber.okbuck.template.java.NativePrebuilt;
 import com.uber.okbuck.template.jvm.JvmBinaryRule;
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -55,7 +51,6 @@ public final class TransformManager {
 
   private final Project rootProject;
   private final BuckFileManager buckFileManager;
-  private final Map<Path, String> configFileToPathMap = new HashMap<>();
 
   @Nullable private ImmutableSet<String> dependencies;
 
@@ -95,19 +90,9 @@ public final class TransformManager {
     }
   }
 
-  private void copyFiles(Path cacheDir) {
+  private static void copyFiles(Path cacheDir) {
     FileUtil.copyResourceToProject(
         TRANSFORM_FOLDER + TRANSFORM_JAR, new File(cacheDir.toFile(), TRANSFORM_JAR));
-
-    configFileToPathMap.forEach(
-        (configPath, path) -> {
-          Path configFilePath = cacheDir.resolve(path);
-          try {
-            Files.copy(configPath, configFilePath, StandardCopyOption.REPLACE_EXISTING);
-          } catch (IOException e) {
-            throw new RuntimeException(e);
-          }
-        });
   }
 
   private void composeBuckFile(Path cacheDir) {
@@ -130,14 +115,6 @@ public final class TransformManager {
                   .defaultVisibility());
     }
 
-    rulesBuilder.addAll(
-        configFileToPathMap
-            .values()
-            .stream()
-            .sorted()
-            .map(configFileName -> new ExportFile().name(configFileName))
-            .collect(Collectors.toList()));
-
     buckFileManager.writeToBuckFile(
         rulesBuilder.build(), cacheDir.resolve(OkBuckGradlePlugin.BUCK).toFile());
   }
@@ -154,7 +131,7 @@ public final class TransformManager {
         results.stream().map(Pair::getRight).filter(Objects::nonNull).collect(Collectors.toList()));
   }
 
-  private Pair<String, String> getBashCommandAndTransformDeps(
+  private static Pair<String, String> getBashCommandAndTransformDeps(
       AndroidAppTarget target, Map<String, String> options) {
     String transformClass = options.get(OPT_TRANSFORM_CLASS);
     String configFile = options.get(OPT_CONFIG_FILE);
@@ -162,29 +139,29 @@ public final class TransformManager {
 
     @Var String configFileRule = null;
     if (transformClass != null) {
-      bashCmd.append("-Dokbuck.transformClass=");
-      bashCmd.append(transformClass);
-      bashCmd.append(" ");
+      bashCmd.append("-Dokbuck.transformClass=").append(transformClass).append(" ");
     }
     if (configFile != null) {
       configFileRule =
           getTransformConfigRuleForFile(
               target.getProject(), target.getRootProject().file(configFile));
-      bashCmd.append("-Dokbuck.configFile=$(location ");
-      bashCmd.append(configFileRule);
-      bashCmd.append(") ");
+      bashCmd.append("-Dokbuck.configFile=$(location ").append(configFileRule).append(") ");
     }
     bashCmd.append(SUFFIX);
     return Pair.of(bashCmd.toString(), configFileRule);
   }
 
-  private String getTransformConfigRuleForFile(Project project, File config) {
-    String path = getTransformFilePathForFile(project, config);
-    configFileToPathMap.put(config.toPath(), path);
-    return "//" + TransformManager.TRANSFORM_CACHE + ":" + path;
-  }
+  private static String getTransformConfigRuleForFile(Project project, File config) {
+    String relativeConfigPath =
+        FileUtil.getRelativePath(project.getRootProject().getProjectDir(), config);
+    ProjectUtil.getPlugin(project.getRootProject()).exportedPaths.add(relativeConfigPath);
 
-  private static String getTransformFilePathForFile(Project project, File config) {
-    return FileUtil.getRelativePath(project.getRootDir(), config).replaceAll("/", "_");
+    if (project.getProjectDir().equals(config.getParentFile())) {
+      return ":" + config.getName();
+    } else {
+      String configTarget = BuckRuleComposer.fileRule(relativeConfigPath);
+      Preconditions.checkNotNull(configTarget);
+      return configTarget;
+    }
   }
 }

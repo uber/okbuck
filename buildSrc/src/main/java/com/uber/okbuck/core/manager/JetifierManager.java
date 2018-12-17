@@ -1,7 +1,5 @@
 package com.uber.okbuck.core.manager;
 
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.sun.istack.Nullable;
@@ -14,14 +12,10 @@ import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.extension.JetifierExtension;
 import com.uber.okbuck.extension.OkBuckExtension;
-import com.uber.okbuck.template.common.ExportFile;
 import com.uber.okbuck.template.core.Rule;
 import com.uber.okbuck.template.java.NativePrebuilt;
 import com.uber.okbuck.template.jvm.JvmBinaryRule;
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Set;
 import org.gradle.api.Project;
@@ -115,17 +109,12 @@ public final class JetifierManager {
               .defaultVisibility());
 
       if (okBuckExtension.getJetifierExtension().customConfigFile != null) {
-        Path fromPath =
-            project
-                .file(Paths.get(okBuckExtension.getJetifierExtension().customConfigFile))
-                .toPath();
-        Path toPath = project.file(JETIFIER_CONFIG_LOCATION).toPath();
-        try {
-          Files.copy(fromPath, toPath, REPLACE_EXISTING);
-          rulesBuilder.add(new ExportFile().name(JETIFIER_CONFIG_FILE));
-        } catch (IOException e) {
-          throw new IllegalStateException(e);
-        }
+        File configFile =
+            project.file(Paths.get(okBuckExtension.getJetifierExtension().customConfigFile));
+
+        String relativeConfigPath =
+            FileUtil.getRelativePath(project.getRootProject().getProjectDir(), configFile);
+        ProjectUtil.getPlugin(project.getRootProject()).exportedPaths.add(relativeConfigPath);
       }
 
       buckFileManager.writeToBuckFile(

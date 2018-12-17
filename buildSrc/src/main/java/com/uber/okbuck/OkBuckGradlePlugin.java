@@ -88,6 +88,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
   private static final String LINT_BUCK_FILE = WORKSPACE_PATH + "/lint/BUCK";
 
   public static final String OKBUCK_STATE = OKBUCK_STATE_DIR + "/STATE";
+
   public final Set<String> exportedPaths = Sets.newConcurrentHashSet();
 
   public DependencyCache depCache;

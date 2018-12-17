@@ -70,7 +70,7 @@ public class JetifierExtension {
 
   /**
    * Check if this dependency, described by the params, should be jetified, that is, run jetifier on
-   * it before prebuilding it.
+   * it before pre-building it.
    *
    * @param group - Dependency group
    * @param name - Dependency name
