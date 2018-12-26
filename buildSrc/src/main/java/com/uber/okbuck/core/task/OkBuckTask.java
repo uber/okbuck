@@ -212,32 +212,45 @@ public class OkBuckTask extends DefaultTask {
   }
 
   private LinkedHashMap<String, String> repositoryMap() {
-    LinkedHashMap<String, String> repositories = new LinkedHashMap<>();
-    addRepositories(getProject().getRootProject(), repositories);
+    LinkedHashMap<String, String> rawRepositories = new LinkedHashMap<>();
+    addRepositories(getProject().getRootProject(), rawRepositories);
     getProject()
         .getRootProject()
         .getSubprojects()
         .forEach(
             subProject -> {
-              addRepositories(subProject, repositories);
+              addRepositories(subProject, rawRepositories);
             });
 
-    return repositories;
+    LinkedHashMap<String, String> filteredRepositories = new LinkedHashMap<>();
+
+    rawRepositories.forEach(
+        (key, value) -> {
+          if (!filteredRepositories.values().contains(value)) {
+
+            // Add `mavenlocal` to repo list if present and skip adding
+            // any other `file:` repositories.
+            if (key.equals("mavenlocal") || !value.startsWith("file:")) {
+              filteredRepositories.put(key, value);
+            }
+          }
+        });
+
+    return filteredRepositories;
   }
 
   private static void addRepositories(Project project, LinkedHashMap<String, String> repositories) {
     project
         .getRepositories()
+        .stream()
+        .filter(repository -> repository instanceof MavenArtifactRepository)
         .forEach(
             repository -> {
-              if (repository instanceof MavenArtifactRepository) {
-                MavenArtifactRepository mavenRepository = (MavenArtifactRepository) repository;
-                String name = mavenRepository.getName().toLowerCase();
-                String url = mavenRepository.getUrl().toString();
-                if (!repositories.containsKey(name) && !url.startsWith("file")) {
-                  repositories.put(name, url);
-                }
-              }
+              MavenArtifactRepository mavenRepository = (MavenArtifactRepository) repository;
+              String name = mavenRepository.getName().toLowerCase();
+              String url = mavenRepository.getUrl().toString();
+
+              repositories.put(name, url);
             });
   }
 }

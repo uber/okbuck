@@ -1,10 +1,8 @@
 package com.uber.okbuck.core.dependency;
 
-import com.google.common.base.Strings;
 import com.uber.okbuck.extension.ExternalDependenciesExtension;
 import com.uber.okbuck.extension.JetifierExtension;
 import java.io.File;
-import javax.annotation.Nullable;
 import org.apache.commons.io.FilenameUtils;
 
 public final class DependencyFactory {
@@ -28,15 +26,27 @@ public final class DependencyFactory {
   public static ExternalDependency from(
       String group,
       String name,
-      @Nullable String version,
+      String version,
       File dependencyFile,
       ExternalDependenciesExtension externalDependenciesExtension,
       JetifierExtension jetifierExtension) {
     String classifier = DependencyUtils.getModuleClassifier(dependencyFile.getName(), version);
+
+    if (isLocalDependency(dependencyFile.getAbsolutePath())) {
+      return new LocalExternalDependency(
+          group,
+          name,
+          version,
+          classifier,
+          dependencyFile,
+          externalDependenciesExtension,
+          jetifierExtension);
+    }
+
     return new ExternalDependency(
         group,
         name,
-        Strings.isNullOrEmpty(version) ? LOCAL_DEP_VERSION : version,
+        version,
         classifier,
         dependencyFile,
         externalDependenciesExtension,
@@ -64,5 +74,22 @@ public final class DependencyFactory {
         localDep,
         externalDependenciesExtension,
         jetifierExtension);
+  }
+
+  /**
+   * Returns whether the dependency should be marked local or not. These dependencies can't be
+   * downloaded via buck. Snapshot dependencies with version suffixed with `-SNAPSHOT`. Local m2
+   * dependencies with version suffixed with `-LOCAL`.
+   *
+   * <p>Note: we need to pass in the whole dependency file instead of just the version. `-SNAPSHOT`
+   * dependencies with specific date and time in version is also not supported by buck and hence to
+   * access correctly we need to look at the whole path. eg:
+   * com/jakewharton/butterknife/9.0.0-SNAPSHOT/butterknife-9.0.0-20181220.030319-77.jar
+   *
+   * @param dependencyFilePath Absolute path string of the dependency file
+   * @return Whether the dependency should be local or not.
+   */
+  private static boolean isLocalDependency(String dependencyFilePath) {
+    return dependencyFilePath.contains("-SNAPSHOT") || dependencyFilePath.contains("-LOCAL");
   }
 }
