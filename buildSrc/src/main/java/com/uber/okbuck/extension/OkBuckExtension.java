@@ -86,7 +86,7 @@ public class OkBuckExtension {
   /** The prebuilt buck binary to use */
   @Input
   public String buckBinary =
-      "com.github.facebook:buck:33eaa0a2ad2b684a0ee126c242f64894b7a38623@pex";
+      "com.github.facebook:buck:ff25c89dae7c603c5a711959a1dd79904de3369b@pex";
 
   private WrapperExtension wrapperExtension = new WrapperExtension();
   private KotlinExtension kotlinExtension;
