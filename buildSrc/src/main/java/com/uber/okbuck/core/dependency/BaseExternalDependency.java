@@ -14,14 +14,15 @@ import org.gradle.api.internal.artifacts.dependencies.DefaultExternalModuleDepen
 
 @AutoValue
 public abstract class BaseExternalDependency {
+  public static final String AAR = "aar";
+  public static final String JAR = "jar";
 
-  private static final String CACHE_DELIMITER = "-";
+  private static final String NAME_DELIMITER = "-";
+  private static final String SOURCES = "sources";
 
   public abstract VersionlessDependency versionless();
 
   public abstract String version();
-
-  public abstract boolean isLocal();
 
   public abstract File realDependencyFile();
 
@@ -37,8 +38,6 @@ public abstract class BaseExternalDependency {
     public abstract Builder setVersionless(VersionlessDependency value);
 
     public abstract Builder setVersion(String value);
-
-    public abstract Builder setIsLocal(boolean value);
 
     public abstract Builder setIsVersioned(boolean value);
 
@@ -59,9 +58,9 @@ public abstract class BaseExternalDependency {
         + versionless().name()
         + VersionlessDependency.COORD_DELIMITER
         + packaging()
+        + versionless().classifier().map(c -> VersionlessDependency.COORD_DELIMITER + c).orElse("")
         + VersionlessDependency.COORD_DELIMITER
-        + version()
-        + versionless().classifier().map(c -> VersionlessDependency.COORD_DELIMITER + c).orElse("");
+        + version();
   }
 
   @Memoized
@@ -70,14 +69,20 @@ public abstract class BaseExternalDependency {
   }
 
   @Memoized
-  public String cacheName() {
-    StringBuilder cacheName = new StringBuilder(versionless().name());
+  public String targetName() {
+    StringBuilder targetName = new StringBuilder(versionless().name());
     if (isVersioned()) {
-      cacheName.append(CACHE_DELIMITER).append(version());
+      targetName.append(NAME_DELIMITER).append(version());
     }
-    cacheName.append(versionless().classifier().map(c -> CACHE_DELIMITER + c).orElse(""));
+    targetName.append(versionless().classifier().map(c -> NAME_DELIMITER + c).orElse(""));
 
-    return cacheName.toString();
+    return targetName.toString();
+  }
+
+  @Memoized
+  public String versionlessTargetName() {
+    return versionless().name()
+        + versionless().classifier().map(c -> NAME_DELIMITER + c).orElse("");
   }
 
   @Memoized

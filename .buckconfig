@@ -48,4 +48,8 @@
     polyglot_parsing_enabled = true
     default_build_file_syntax = SKYLARK
 
+[download]
+    in_build = true
+    max_number_of_retries = 3
+
 <file:.okbuck/config/okbuck.buckconfig>

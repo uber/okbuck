@@ -1,28 +1,41 @@
 package com.uber.okbuck.core.task;
 
-import static com.uber.okbuck.OkBuckGradlePlugin.OKBUCK_DEFS_FILE;
+import static com.uber.okbuck.OkBuckGradlePlugin.OKBUCK_PREBUILT_FILE;
+import static com.uber.okbuck.OkBuckGradlePlugin.OKBUCK_TARGETS_FILE;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.TreeMultimap;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.base.BuckRuleComposer;
+import com.uber.okbuck.core.dependency.ExternalDependency;
+import com.uber.okbuck.core.manager.BuckFileManager;
 import com.uber.okbuck.core.manager.GroovyManager;
-import com.uber.okbuck.core.manager.JetifierManager;
 import com.uber.okbuck.core.manager.KotlinManager;
 import com.uber.okbuck.core.manager.ScalaManager;
 import com.uber.okbuck.core.model.base.ProjectType;
+import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.util.ProguardUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.extension.KotlinExtension;
 import com.uber.okbuck.extension.OkBuckExtension;
+import com.uber.okbuck.extension.RuleOverridesExtension;
 import com.uber.okbuck.extension.ScalaExtension;
 import com.uber.okbuck.generator.OkbuckBuckConfigGenerator;
-import com.uber.okbuck.template.config.BuckDefs;
+import com.uber.okbuck.template.config.OkbuckPrebuilt;
+import com.uber.okbuck.template.config.OkbuckTargets;
+import com.uber.okbuck.template.core.Rule;
 import java.io.File;
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.Project;
+import org.gradle.api.artifacts.repositories.MavenArtifactRepository;
 import org.gradle.api.specs.Specs;
 import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.OutputFile;
@@ -39,14 +52,19 @@ public class OkBuckTask extends DefaultTask {
 
   @Nested public ScalaExtension scalaExtension;
 
+  private BuckFileManager buckFileManager;
+
   @Inject
   public OkBuckTask(
       OkBuckExtension okBuckExtension,
       KotlinExtension kotlinExtension,
-      ScalaExtension scalaExtension) {
+      ScalaExtension scalaExtension,
+      BuckFileManager buckFileManager) {
     this.okBuckExtension = okBuckExtension;
     this.kotlinExtension = kotlinExtension;
     this.scalaExtension = scalaExtension;
+
+    this.buckFileManager = buckFileManager;
 
     // Never up to date; this task isn't safe to run incrementally.
     getOutputs().upToDateWhen(Specs.satisfyNone());
@@ -72,11 +90,15 @@ public class OkBuckTask extends DefaultTask {
             .stream()
             .anyMatch(project -> ProjectUtil.getType(project) == ProjectType.SCALA_LIB);
     if (hasScalaLib) {
-      Set<String> scalaDeps =
+      Set<ExternalDependency> scalaDeps =
           ProjectUtil.getScalaManager(getProject()).setupScalaHome(scalaExtension.version);
       scalaLibraryLocation =
-          BuckRuleComposer.fileRule(
-              scalaDeps.stream().filter(it -> it.contains("scala-library")).findFirst().get());
+          BuckRuleComposer.external(
+              scalaDeps
+                  .stream()
+                  .filter(it -> it.getTargetName().contains("scala-library"))
+                  .findFirst()
+                  .get());
     } else {
       scalaLibraryLocation = "";
     }
@@ -88,8 +110,8 @@ public class OkBuckTask extends DefaultTask {
 
     generate(
         okBuckExtension,
-        hasGroovyLib ? GroovyManager.GROOVY_HOME_LOCATION : null,
-        kotlinExtension.version != null ? KotlinManager.KOTLIN_HOME_LOCATION : null,
+        hasGroovyLib ? GroovyManager.GROOVY_HOME_TARGET : null,
+        kotlinExtension.version != null ? KotlinManager.KOTLIN_HOME_TARGET : null,
         hasScalaLib ? ScalaManager.SCALA_COMPILER_LOCATION : null,
         hasScalaLib ? scalaLibraryLocation : null);
   }
@@ -105,8 +127,13 @@ public class OkBuckTask extends DefaultTask {
   }
 
   @OutputFile
-  public File okbuckDefs() {
-    return getProject().file(OKBUCK_DEFS_FILE);
+  public File okbuckTargets() {
+    return getProject().file(OKBUCK_TARGETS_FILE);
+  }
+
+  @OutputFile
+  public File okbuckPrebuilt() {
+    return getProject().file(OKBUCK_PREBUILT_FILE);
   }
 
   @OutputFile
@@ -133,8 +160,8 @@ public class OkBuckTask extends DefaultTask {
       throw new RuntimeException(e);
     }
 
-    // Setup defs
-    new BuckDefs()
+    // Setup okbuck_targets.bzl
+    new OkbuckTargets()
         .resourceExcludes(
             okBuckExtension
                 .excludeResources
@@ -144,12 +171,33 @@ public class OkBuckTask extends DefaultTask {
         .classpathMacro(CLASSPATH_ABI_MACRO)
         .lintJvmArgs(okbuckExt.getLintExtension().jvmArgs)
         .enableLint(!okbuckExt.getLintExtension().disabled)
-        .hasCustomJetifierConfigurationFile(
-            okbuckExt.getJetifierExtension().customConfigFile != null)
-        .externalDependencyCache(okbuckExt.externalDependencyCache)
+        .jetifierConfigurationTarget(
+            BuckRuleComposer.fileRule(okbuckExt.getJetifierExtension().customConfigFile))
+        .externalDependencyCache(okbuckExt.getExternalDependenciesExtension().getCache())
         .classpathExclusionRegex(okbuckExt.getLintExtension().classpathExclusionRegex)
         .useCompilationClasspath(okbuckExt.getLintExtension().useCompilationClasspath)
-        .render(okbuckDefs());
+        .render(okbuckTargets());
+
+    // Setup okbuck_prebuilt.bzl
+    Map<String, RuleOverridesExtension.OverrideSetting> overrides =
+        okbuckExt.getRuleOverridesExtension().getOverrides();
+    Multimap<String, String> loadStatements = TreeMultimap.create();
+
+    RuleOverridesExtension.OverrideSetting aarSetting =
+        overrides.get(RuleType.ANDROID_PREBUILT_AAR.getBuckName());
+    RuleOverridesExtension.OverrideSetting jarSetting =
+        overrides.get(RuleType.PREBUILT_JAR.getBuckName());
+
+    loadStatements.put(aarSetting.getImportLocation(), aarSetting.getNewRuleName());
+    loadStatements.put(jarSetting.getImportLocation(), jarSetting.getNewRuleName());
+
+    Rule okbuckPrebuiltRule =
+        new OkbuckPrebuilt()
+            .prebuiltAarRule(aarSetting.getNewRuleName())
+            .prebuiltJarRule(jarSetting.getNewRuleName());
+
+    buckFileManager.writeToBuckFile(
+        ImmutableList.of(okbuckPrebuiltRule), okbuckPrebuilt(), loadStatements);
 
     // generate .buckconfig.okbuck
     OkbuckBuckConfigGenerator.generate(
@@ -158,7 +206,51 @@ public class OkBuckTask extends DefaultTask {
             kotlinHome,
             scalaCompiler,
             scalaLibrary,
-            ProguardUtil.getProguardJarPath(getProject()))
+            ProguardUtil.getProguardJarPath(getProject()),
+            repositoryMap())
         .render(okbuckBuckConfig());
+  }
+
+  private LinkedHashMap<String, String> repositoryMap() {
+    LinkedHashMap<String, String> rawRepositories = new LinkedHashMap<>();
+    addRepositories(getProject().getRootProject(), rawRepositories);
+    getProject()
+        .getRootProject()
+        .getSubprojects()
+        .forEach(
+            subProject -> {
+              addRepositories(subProject, rawRepositories);
+            });
+
+    LinkedHashMap<String, String> filteredRepositories = new LinkedHashMap<>();
+
+    rawRepositories.forEach(
+        (key, value) -> {
+          if (!filteredRepositories.values().contains(value)) {
+
+            // Add `mavenlocal` to repo list if present and skip adding
+            // any other `file:` repositories.
+            if (key.equals("mavenlocal") || !value.startsWith("file:")) {
+              filteredRepositories.put(key, value);
+            }
+          }
+        });
+
+    return filteredRepositories;
+  }
+
+  private static void addRepositories(Project project, LinkedHashMap<String, String> repositories) {
+    project
+        .getRepositories()
+        .stream()
+        .filter(repository -> repository instanceof MavenArtifactRepository)
+        .forEach(
+            repository -> {
+              MavenArtifactRepository mavenRepository = (MavenArtifactRepository) repository;
+              String name = mavenRepository.getName().toLowerCase();
+              String url = mavenRepository.getUrl().toString();
+
+              repositories.put(name, url);
+            });
   }
 }

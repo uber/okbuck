@@ -1,0 +1,15 @@
+@import java.util.Collection
+
+@args (
+  Collection sources
+)
+
+filegroup(
+    name = '@name',
+    srcs = [
+    @for (source : sorted(sources)) {
+        '@source',
+    }
+    ],
+    visibility = ['PUBLIC'],
+)

@@ -272,7 +272,7 @@ public class JvmTarget extends Target {
   }
 
   protected List<String> getKotlinCompilerOptions() {
-    if (getProject().getPlugins().hasPlugin("kotlin-allopen")) {
+    if (getProject().getPlugins().hasPlugin(KotlinManager.KOTLIN_ALLOPEN_MODULE)) {
       AllOpenKotlinGradleSubplugin subplugin = getAllOpenKotlinGradleSubplugin();
 
       if (subplugin == null || fakeCompile == null) {
@@ -287,7 +287,7 @@ public class JvmTarget extends Target {
           "-Xplugin="
               + KotlinManager.KOTLIN_LIBRARIES_LOCATION
               + File.separator
-              + "kotlin-allopen.jar");
+              + KotlinManager.KOTLIN_ALLOPEN_JAR);
 
       for (SubpluginOption option : options) {
         optionBuilder.add("-P");

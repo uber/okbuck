@@ -5,11 +5,12 @@ import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.base.BuckRuleComposer;
 import com.uber.okbuck.core.dependency.DependencyCache;
+import com.uber.okbuck.core.dependency.ExternalDependency;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.template.core.Rule;
-import com.uber.okbuck.template.java.Prebuilt;
+import com.uber.okbuck.template.java.NativePrebuilt;
 import com.uber.okbuck.template.jvm.JvmBinaryRule;
 import java.io.File;
 import java.util.List;
@@ -38,7 +39,7 @@ public final class ManifestMergerManager {
   private final Project rootProject;
   private final BuckFileManager buckFileManager;
 
-  @Nullable private ImmutableSet<String> dependencies;
+  @Nullable private ImmutableSet<ExternalDependency> dependencies;
 
   public ManifestMergerManager(Project rootProject, BuckFileManager buckFileManager) {
     this.rootProject = rootProject;
@@ -66,7 +67,7 @@ public final class ManifestMergerManager {
   }
 
   public void finalizeDependencies() {
-    if (dependencies != null) {
+    if (dependencies != null && dependencies.size() > 0) {
       FileUtil.copyResourceToProject(
           "manifest/" + MANIFEST_MERGER_CLI_JAR,
           new File(MANIFEST_MERGER_CACHE, MANIFEST_MERGER_CLI_JAR));
@@ -83,7 +84,7 @@ public final class ManifestMergerManager {
                   .ruleType(RuleType.JAVA_BINARY.getBuckName())
                   .name(MANIFEST_MERGER_RULE_NAME)
                   .defaultVisibility(),
-              new Prebuilt()
+              new NativePrebuilt()
                   .prebuiltType(RuleType.PREBUILT_JAR.getProperties().get(0))
                   .prebuilt(MANIFEST_MERGER_CLI_JAR)
                   .ruleType(RuleType.PREBUILT_JAR.getBuckName())

@@ -1,0 +1,32 @@
+@args (
+String groovyAllJar,
+String groovyVersion
+)
+
+export_file(
+    name = 'groovy-starter.conf',
+    mode = 'reference',
+)
+
+export_file(
+    name = 'startGroovy',
+    mode = 'reference',
+)
+
+export_file(
+    name = 'groovyc',
+    mode = 'reference',
+)
+
+bash_list = [
+    "mkdir -p $OUT/bin; cp $(location :groovyc) $OUT/bin/groovyc; ln -s $(location :startGroovy) $OUT/bin/startGroovy;",
+    "mkdir -p $OUT/conf; cp $(location :groovy-starter.conf) $OUT/conf/groovy-starter.conf;",
+    "mkdir -p $OUT/lib; cp $(location {}) $OUT/lib/groovy-{}.jar;".format("@groovyAllJar", "@groovyVersion")
+]
+
+genrule(
+    name = '@name',
+    bash = " ".join(bash_list),
+    out = ".",
+    visibility = [ 'PUBLIC' ],
+)

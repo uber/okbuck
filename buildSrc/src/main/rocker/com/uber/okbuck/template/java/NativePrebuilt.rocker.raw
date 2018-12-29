@@ -1,0 +1,21 @@
+@args (
+String prebuiltType,
+String prebuilt,
+String source,
+String mavenCoords,
+boolean enableJetifier,
+)
+@(ruleType)(
+    name = '@name',
+    @prebuiltType = '@prebuilt',
+@if (valid(source)) {
+    source_jar = '@source',
+}
+@if (valid(mavenCoords)) {
+    maven_coords = '@mavenCoords',
+}
+    visibility = ['PUBLIC'],
+@if (enableJetifier) {
+    enable_jetifier = True,
+}
+)

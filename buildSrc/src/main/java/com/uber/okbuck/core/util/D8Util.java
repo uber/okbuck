@@ -4,7 +4,7 @@ import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.core.manager.BuckFileManager;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.template.core.Rule;
-import com.uber.okbuck.template.java.Prebuilt;
+import com.uber.okbuck.template.java.NativePrebuilt;
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
@@ -22,7 +22,7 @@ public final class D8Util {
 
     List<Rule> d8 =
         Collections.singletonList(
-            new Prebuilt()
+            new NativePrebuilt()
                 .prebuiltType(RuleType.PREBUILT_JAR.getProperties().get(0))
                 .prebuilt(RT_STUB_JAR)
                 .ruleType(RuleType.PREBUILT_JAR.getBuckName())

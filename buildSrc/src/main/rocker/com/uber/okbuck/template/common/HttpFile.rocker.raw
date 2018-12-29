@@ -1,0 +1,11 @@
+@args (
+    String mavenCoords,
+    String sha256,
+)
+
+http_file(
+    name = '@(name)',
+    urls = [ 'mvn:' + '@(mavenCoords)' ],
+    out = '@(name)',
+    sha256 = '@(sha256)',
+)

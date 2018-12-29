@@ -2,6 +2,7 @@ package com.uber.okbuck.generator;
 
 import com.uber.okbuck.extension.OkBuckExtension;
 import com.uber.okbuck.template.config.BuckConfig;
+import java.util.LinkedHashMap;
 import javax.annotation.Nullable;
 
 public final class OkbuckBuckConfigGenerator {
@@ -15,7 +16,8 @@ public final class OkbuckBuckConfigGenerator {
       @Nullable String kotlinHome,
       @Nullable String scalaCompiler,
       @Nullable String scalaLibrary,
-      @Nullable String proguardJar) {
+      @Nullable String proguardJar,
+      LinkedHashMap<String, String> repositories) {
 
     return new BuckConfig()
         .buildToolsVersion(okbuck.buildToolVersion)
@@ -24,6 +26,7 @@ public final class OkbuckBuckConfigGenerator {
         .kotlinHome(kotlinHome)
         .scalaCompiler(scalaCompiler)
         .scalaLibrary(scalaLibrary)
-        .proguardJar(proguardJar);
+        .proguardJar(proguardJar)
+        .mavenRepositories(repositories);
   }
 }

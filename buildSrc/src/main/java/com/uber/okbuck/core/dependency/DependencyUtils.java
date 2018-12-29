@@ -4,21 +4,19 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.hash.Hashing;
+import com.google.common.io.Files;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.extension.ExternalDependenciesExtension;
 import com.uber.okbuck.extension.JetifierExtension;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.Objects;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
-import java.util.zip.ZipFile;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FilenameUtils;
 import org.gradle.api.Project;
@@ -75,6 +73,14 @@ public final class DependencyUtils {
     return FilenameUtils.isExtension(file.getName(), ALLOWED_EXTENSIONS);
   }
 
+  public static String shaSum256(File file) {
+    try {
+      return Files.asByteSource(file).hash(Hashing.sha256()).toString();
+    } catch (IOException e) {
+      throw new RuntimeException(String.format("Failed to calculate shaSum256 of %s", file));
+    }
+  }
+
   @Nullable
   static String getModuleClassifier(String fileNameString, @Nullable String version) {
     if (version == null) {
@@ -100,21 +106,6 @@ public final class DependencyUtils {
     } else {
       throw new IllegalStateException(
           String.format("Not a valid module filename %s", fileNameString));
-    }
-  }
-
-  @Nullable
-  static Path getContentPath(Path zipFilePath, String contentFileName) {
-    try {
-      FileSystem zipFile = FileSystems.newFileSystem(zipFilePath, null);
-      Path packagedPath = zipFile.getPath(contentFileName);
-      if (Files.exists(packagedPath)) {
-        return packagedPath;
-      } else {
-        return null;
-      }
-    } catch (IOException e) {
-      throw new RuntimeException(e);
     }
   }
 
@@ -163,7 +154,7 @@ public final class DependencyUtils {
                     && ((ModuleComponentIdentifier) identifier).getVersion().length() > 0) {
                   ModuleComponentIdentifier moduleIdentifier =
                       (ModuleComponentIdentifier) identifier;
-                  return ExternalDependency.from(
+                  return DependencyFactory.from(
                       moduleIdentifier.getGroup(),
                       moduleIdentifier.getModule(),
                       moduleIdentifier.getVersion(),
@@ -171,7 +162,7 @@ public final class DependencyUtils {
                       externalDependenciesExtension,
                       jetifierExtension);
                 } else {
-                  return ExternalDependency.fromLocal(
+                  return DependencyFactory.fromLocal(
                       artifact.getFile(), externalDependenciesExtension, jetifierExtension);
                 }
               })

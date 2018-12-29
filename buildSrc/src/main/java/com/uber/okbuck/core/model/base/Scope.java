@@ -1,5 +1,8 @@
 package com.uber.okbuck.core.model.base;
 
+import static com.uber.okbuck.core.dependency.BaseExternalDependency.AAR;
+import static com.uber.okbuck.core.dependency.BaseExternalDependency.JAR;
+
 import com.android.build.api.attributes.VariantAttr;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -7,6 +10,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Streams;
 import com.uber.okbuck.core.annotation.AnnotationProcessorCache;
 import com.uber.okbuck.core.dependency.DependencyCache;
+import com.uber.okbuck.core.dependency.DependencyFactory;
 import com.uber.okbuck.core.dependency.DependencyUtils;
 import com.uber.okbuck.core.dependency.ExternalDependency;
 import com.uber.okbuck.core.dependency.VersionlessDependency;
@@ -120,25 +124,23 @@ public class Scope {
         ProjectUtil.getDependencyCache(project));
   }
 
-  public Set<String> getExternalDeps() {
-    return external.stream().map(depCache::get).map(depCache::getPath).collect(Collectors.toSet());
+  public Set<ExternalDependency> getExternalDeps() {
+    return external.stream().map(depCache::get).collect(Collectors.toSet());
   }
 
-  public Set<String> getExternalJarDeps() {
+  public Set<ExternalDependency> getExternalJarDeps() {
     return external
         .stream()
         .map(depCache::get)
-        .filter(dependency -> dependency.getPackaging().equals(ExternalDependency.JAR))
-        .map(depCache::getPath)
+        .filter(dependency -> dependency.getPackaging().equals(JAR))
         .collect(Collectors.toSet());
   }
 
-  public Set<String> getExternalAarDeps() {
+  public Set<ExternalDependency> getExternalAarDeps() {
     return external
         .stream()
         .map(depCache::get)
-        .filter(dependency -> dependency.getPackaging().equals(ExternalDependency.AAR))
-        .map(depCache::getPath)
+        .filter(dependency -> dependency.getPackaging().equals(AAR))
         .collect(Collectors.toSet());
   }
 
@@ -342,7 +344,7 @@ public class Scope {
             ModuleComponentIdentifier moduleIdentifier = (ModuleComponentIdentifier) identifier;
 
             ExternalDependency externalDependency =
-                ExternalDependency.from(
+                DependencyFactory.from(
                     moduleIdentifier.getGroup(),
                     moduleIdentifier.getModule(),
                     moduleIdentifier.getVersion(),
@@ -366,7 +368,7 @@ public class Scope {
                         artifact.getFile(), project.getRootProject().getProjectDir()));
               }
               external.add(
-                  ExternalDependency.fromLocal(
+                  DependencyFactory.fromLocal(
                       artifact.getFile(), externalDependenciesExtension, jetifierExtension));
 
             } catch (IOException e) {

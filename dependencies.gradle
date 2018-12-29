@@ -99,11 +99,11 @@ ext.config = [
 ]
 
 ext.deps = [
+        "androidx": androidx,
         "apt"     : apt,
         "build"   : build,
         "external": external,
         "lint"    : lint,
-        "androidx": androidx,
         "test"    : test,
         "versions": versions
 ]

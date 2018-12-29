@@ -1,0 +1,77 @@
+@args (
+String prebuiltJarRule,
+String prebuiltAarRule,
+)
+
+def okbuck_prebuilt(
+    name,
+    maven_coords,
+    sha256,
+    sources_sha256=None,
+    visibility=None,
+    enable_jetifier=False,
+    ):
+    if visibility == None:
+        visibility = ['PUBLIC']
+
+    prebuilt_type = maven_coords.split(':')[2]
+
+    if sources_sha256 != None:
+        sources_maven_coords = _get_sources_maven_coords(maven_coords)
+    else:
+        sources_maven_coords = None
+
+    name_without_type = name
+    if prebuilt_type in name:
+        name_without_type = name[:name.index('.' + prebuilt_type)]
+
+    prebuilt_file_name = name + '__downloaded'
+    native.http_file(
+        name = prebuilt_file_name,
+        urls = [ 'mvn:' + maven_coords ],
+        out = name,
+        sha256 = sha256,
+    )
+
+    prebuilt_sources_file_name = None
+    if sources_maven_coords != None:
+        prebuilt_sources_file_name = prebuilt_file_name + '_sources'
+        native.http_file(
+            name = prebuilt_sources_file_name,
+            urls = [ 'mvn:' + sources_maven_coords ],
+            out = name_without_type + '-sources.jar',
+            sha256 = sources_sha256,
+        )
+
+    if prebuilt_type == 'aar':
+        @(prebuiltAarRule)(
+            name = name,
+            aar = ':' + prebuilt_file_name,
+            source_jar = ':' + prebuilt_sources_file_name if sources_maven_coords != None else None,
+            maven_coords = maven_coords,
+            visibility = visibility,
+            enable_jetifier = enable_jetifier,
+        )
+    elif prebuilt_type == 'jar':
+        @(prebuiltJarRule)(
+            name = name,
+            binary_jar = ':' + prebuilt_file_name,
+            source_jar = ':' + prebuilt_sources_file_name if sources_maven_coords != None else None,
+            maven_coords = maven_coords,
+            visibility = visibility,
+            enable_jetifier = enable_jetifier,
+        )
+    else:
+        fail("okbuck_prebuilt not supported for type {}".format(prebuilt_type))
+
+
+def _get_sources_maven_coords(maven_coords):
+    parts = maven_coords.split(":")
+    if len(parts) == 4:
+        (group, name, _, version) = parts
+        classifier = "sources"
+    else:
+        (group, name, _, classifier, version) = parts
+        classifier = classifier + "-sources"
+
+    return ":".join([group, name, "jar", classifier, version])
