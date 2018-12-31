@@ -1,5 +1,7 @@
 package demo
 
+internal const val INTERNAL_GREETING = "Hello internal world!"
+
 fun getGreeting(): String {
     val words = mutableListOf<String>()
     words.add("Hello,")
