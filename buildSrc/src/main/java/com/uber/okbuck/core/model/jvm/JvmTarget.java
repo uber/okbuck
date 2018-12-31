@@ -20,6 +20,10 @@ import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+
+import kotlin.collections.CollectionsKt;
+import kotlin.io.FilesKt;
+import kotlin.sequences.SequencesKt;
 import org.gradle.api.JavaVersion;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -159,11 +163,27 @@ public class JvmTarget extends Target {
     return null;
   }
 
-  public boolean hasLintRegistry() {
+  public boolean producesLint() {
+    if (getOkbuck().containsLintRegistry) {
+      return true;
+    }
     Jar jarTask = (Jar) getProject().getTasks().findByName(JavaPlugin.JAR_TASK_NAME);
-    return jarTask != null
+    if (jarTask != null
         && (jarTask.getManifest().getAttributes().containsKey("Lint-Registry")
-            || jarTask.getManifest().getAttributes().containsKey("Lint-Registry-v2"));
+            || jarTask.getManifest().getAttributes().containsKey("Lint-Registry-v2"))) {
+      // Legacy Lint-Registry approach
+      return true;
+    }
+    if (getMainJavaResourceDirs().stream()
+        .anyMatch(resourceDir -> new File(resourceDir,
+            "META-INF" + File.separator + "services" + File.separator + "com.android.tools.lint.client.api.IssueRegistry")
+            .exists())) {
+      // New SPI approach. NOTE this does not cover generated services, such as with AutoService.
+      // Should use the above containsLintRegistry
+      return true;
+    } else {
+      return false;
+    }
   }
 
   /**

@@ -10,3 +10,7 @@ dependencies {
     testImplementation deps.lint.lint
     testImplementation deps.lint.lintTests
 }
+
+okbuck {
+    containsLintRegistry = true
+}

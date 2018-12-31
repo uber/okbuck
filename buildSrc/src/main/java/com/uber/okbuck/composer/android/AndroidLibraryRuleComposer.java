@@ -102,7 +102,7 @@ public final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
               .getLint()
               .getTargetDeps()
               .stream()
-              .filter(t -> (t instanceof JvmTarget) && ((JvmTarget) t).hasLintRegistry())
+              .filter(t -> (t instanceof JvmTarget) && ((JvmTarget) t).producesLint())
               .map(BuckRuleComposer::binTargets)
               .collect(Collectors.toSet());
 
