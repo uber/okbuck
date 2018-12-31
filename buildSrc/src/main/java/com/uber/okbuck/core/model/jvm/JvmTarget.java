@@ -311,7 +311,10 @@ public class JvmTarget extends Target {
       // Args from K2JVMCompilerArguments.kt and KotlinJvmOptions.kt
       optionBuilder.add("-jvm-target", options.getJvmTarget());
       optionBuilder.add("-include-runtime", Boolean.toString(options.getIncludeRuntime()));
-      optionBuilder.add("-jdk-home", options.getJdkHome());
+      String jdkHome = options.getJdkHome();
+      if (jdkHome != null) {
+        optionBuilder.add("-jdk-home", jdkHome);
+      }
       optionBuilder.add("-no-jdk", Boolean.toString(options.getNoJdk()));
       optionBuilder.add("-no-stdlib", Boolean.toString(options.getNoStdlib()));
       optionBuilder.add("-no-reflect", Boolean.toString(options.getNoReflect()));
