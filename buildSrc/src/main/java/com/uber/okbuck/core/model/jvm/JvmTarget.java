@@ -1,6 +1,7 @@
 package com.uber.okbuck.core.model.jvm;
 
 import com.android.builder.model.LintOptions;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.OkBuckGradlePlugin;
@@ -22,6 +23,7 @@ import javax.annotation.Nullable;
 import org.gradle.api.JavaVersion;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.UnknownDomainObjectException;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.plugins.ApplicationPlugin;
 import org.gradle.api.plugins.ApplicationPluginConvention;
@@ -35,9 +37,11 @@ import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.api.tasks.testing.Test;
 import org.gradle.jvm.tasks.Jar;
 import org.jetbrains.kotlin.allopen.gradle.AllOpenKotlinGradleSubplugin;
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmOptions;
 import org.jetbrains.kotlin.gradle.plugin.KotlinBasePluginWrapper;
 import org.jetbrains.kotlin.gradle.plugin.KotlinGradleSubplugin;
 import org.jetbrains.kotlin.gradle.plugin.SubpluginOption;
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile;
 
 public class JvmTarget extends Target {
 
@@ -281,6 +285,43 @@ public class JvmTarget extends Target {
       return ImmutableList.of();
     }
     ImmutableList.Builder<String> optionBuilder = ImmutableList.builder();
+
+    // Add all compiler arguments
+    String compileTaskName = isTest ? "compileTestKotlin" : "compileKotlin";
+    try {
+      // Note: this is bad juju on Gradle 5.0, which would prefer you get the provider and lazily
+      // eval.
+      Task task = getProject().getTasks().getByName(compileTaskName);
+      Preconditions.checkArgument(task instanceof KotlinCompile);
+      KotlinCompile kotlinCompileTask = (KotlinCompile) task;
+      KotlinJvmOptions options = kotlinCompileTask.getKotlinOptions();
+      optionBuilder.addAll(options.getFreeCompilerArgs());
+
+      // Args from CommonToolArguments.kt and KotlinCommonToolOptions.kt
+      if (options.getAllWarningsAsErrors()) {
+        optionBuilder.add("-Werror");
+      }
+      if (options.getSuppressWarnings()) {
+        optionBuilder.add("-nowarn");
+      }
+      if (options.getVerbose()) {
+        optionBuilder.add("-verbose");
+      }
+
+      // Args from K2JVMCompilerArguments.kt and KotlinJvmOptions.kt
+      optionBuilder.add("-jvm-target", options.getJvmTarget());
+      optionBuilder.add("-include-runtime", Boolean.toString(options.getIncludeRuntime()));
+      optionBuilder.add("-jdk-home", options.getJdkHome());
+      optionBuilder.add("-no-jdk", Boolean.toString(options.getNoJdk()));
+      optionBuilder.add("-no-stdlib", Boolean.toString(options.getNoStdlib()));
+      optionBuilder.add("-no-reflect", Boolean.toString(options.getNoReflect()));
+      optionBuilder.add("-java-parameters", Boolean.toString(options.getJavaParameters()));
+
+      // In the future, could add any other compileKotlin configurations here
+    } catch (UnknownDomainObjectException ignored) {
+      // Because why return null when you can throw an exception
+    }
+
     if (getProject().getPlugins().hasPlugin(KotlinManager.KOTLIN_ALLOPEN_MODULE)) {
       AllOpenKotlinGradleSubplugin subplugin = getAllOpenKotlinGradleSubplugin();
 
