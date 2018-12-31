@@ -413,9 +413,6 @@ public abstract class AndroidTarget extends JvmTarget {
 
   @Override
   protected List<String> getKotlinCompilerOptions(boolean testOnly) {
-    if (!isKotlin) {
-      return ImmutableList.of();
-    }
     if (!getHasKotlinAndroidExtensions()) {
       return super.getKotlinCompilerOptions(testOnly);
     }
