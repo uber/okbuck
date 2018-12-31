@@ -96,7 +96,7 @@ We'd love for you to contribute to our open source projects. Before we can accep
 
 #### Useful commands to get your dev environment up and running
 
-Force rerun of `okbuck`:
+Force rerun of `okbuck`
 
 ```console
 ❯ ./gradlew okbuck -Dokbuck.wrapper=true --stacktrace
