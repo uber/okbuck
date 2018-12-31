@@ -92,6 +92,27 @@ We'd love for you to contribute to our open source projects. Before we can accep
 - If you **have a feature request**, open an issue or submit an implementation via a pull request
 - If you **want to contribute**, submit a pull request.
 
+### Development
+
+#### Useful commands to get your dev environment up and running:
+
+Force rerun of `okbuck`:
+
+```console
+❯ ./gradlew okbuck -Dokbuck.wrapper=true --stacktrace
+```
+
+Build all targets/tests (this matches what CI does)
+
+```console
+❯ ./buckw targets //... --type android_binary android_instrumentation_apk java_test groovy_test robolectric_test kotlin_test scala_test | xargs ./buckw build
+```
+
+#### Misc
+
+* You should be able to open this in IntelliJ like a plain Gradle project.
+* If you hit ErrorProne errors when building, just rebuild. This is due to a known flakiness issue in Rocker.
+
 ## License
 ```
 Copyright (c) 2016 Uber Technologies, Inc.
