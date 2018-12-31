@@ -94,7 +94,7 @@ We'd love for you to contribute to our open source projects. Before we can accep
 
 ### Development
 
-#### Useful commands to get your dev environment up and running:
+#### Useful commands to get your dev environment up and running
 
 Force rerun of `okbuck`:
 
