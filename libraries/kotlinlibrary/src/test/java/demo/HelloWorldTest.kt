@@ -10,4 +10,7 @@ class HelloWorldTest {
     @Test fun fooVoid() {
         assertEquals("Hello, world!", JavaClass().kotlinGreeting)
     }
+    @Test fun internalUsage() {
+        assertEquals("Hello internal world!", INTERNAL_GREETING)
+    }
 }
