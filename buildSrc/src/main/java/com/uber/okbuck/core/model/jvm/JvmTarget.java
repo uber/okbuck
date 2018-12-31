@@ -4,6 +4,7 @@ import com.android.builder.model.LintOptions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.OkBuckGradlePlugin;
+import com.uber.okbuck.composer.jvm.JvmBuckRuleComposer;
 import com.uber.okbuck.core.annotation.AnnotationProcessorCache;
 import com.uber.okbuck.core.manager.KotlinManager;
 import com.uber.okbuck.core.manager.LintManager;
@@ -34,6 +35,7 @@ import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.api.tasks.testing.Test;
 import org.gradle.jvm.tasks.Jar;
 import org.jetbrains.kotlin.allopen.gradle.AllOpenKotlinGradleSubplugin;
+import org.jetbrains.kotlin.gradle.plugin.KotlinBasePluginWrapper;
 import org.jetbrains.kotlin.gradle.plugin.KotlinGradleSubplugin;
 import org.jetbrains.kotlin.gradle.plugin.SubpluginOption;
 
@@ -44,6 +46,7 @@ public class JvmTarget extends Target {
   private final String aptConfigurationName;
   private final String testAptConfigurationName;
   private final SourceSetContainer sourceSets;
+  protected final boolean isKotlin;
 
   @Nullable private final AbstractCompile fakeCompile;
 
@@ -61,6 +64,8 @@ public class JvmTarget extends Target {
     this.aptConfigurationName = aptConfigurationName;
     this.testAptConfigurationName = testAptConfigurationName;
     sourceSets = getProject().getConvention().getPlugin(JavaPluginConvention.class).getSourceSets();
+    isKotlin = project.getPlugins().stream()
+        .anyMatch(plugin -> plugin instanceof KotlinBasePluginWrapper);
 
     Optional<Task> compileTask =
         project.getTasks().stream().filter(it -> it instanceof AbstractCompile).findFirst();
@@ -193,7 +198,7 @@ public class JvmTarget extends Target {
         .javaResourceDirs(getMainJavaResourceDirs())
         .compilerOptions(
             Scope.Builder.COMPILER.JAVA, compileJavaTask.getOptions().getCompilerArgs())
-        .compilerOptions(Scope.Builder.COMPILER.KOTLIN, getKotlinCompilerOptions())
+        .compilerOptions(Scope.Builder.COMPILER.KOTLIN, getKotlinCompilerOptions(false))
         .build();
   }
 
@@ -206,7 +211,7 @@ public class JvmTarget extends Target {
         .javaResourceDirs(getTestJavaResourceDirs())
         .compilerOptions(
             Scope.Builder.COMPILER.JAVA, testCompileJavaTask.getOptions().getCompilerArgs())
-        .compilerOptions(Scope.Builder.COMPILER.KOTLIN, getKotlinCompilerOptions())
+        .compilerOptions(Scope.Builder.COMPILER.KOTLIN, getKotlinCompilerOptions(true))
         .build();
   }
 
@@ -271,17 +276,17 @@ public class JvmTarget extends Target {
     return version.getMajorVersion();
   }
 
-  protected List<String> getKotlinCompilerOptions() {
+  protected List<String> getKotlinCompilerOptions(boolean isTest) {
+    if (!isKotlin) {
+      return ImmutableList.of();
+    }
+    ImmutableList.Builder<String> optionBuilder = ImmutableList.builder();
     if (getProject().getPlugins().hasPlugin(KotlinManager.KOTLIN_ALLOPEN_MODULE)) {
       AllOpenKotlinGradleSubplugin subplugin = getAllOpenKotlinGradleSubplugin();
 
-      if (subplugin == null || fakeCompile == null) {
-        return ImmutableList.of();
-      }
-
-      List<SubpluginOption> options =
-          subplugin.apply(getProject(), fakeCompile, fakeCompile, null, null, null);
-      ImmutableList.Builder<String> optionBuilder = ImmutableList.builder();
+      if (subplugin != null && fakeCompile != null) {
+        List<SubpluginOption> options =
+            subplugin.apply(getProject(), fakeCompile, fakeCompile, null, null, null);
 
       optionBuilder.add(
           "-Xplugin="
@@ -291,13 +296,19 @@ public class JvmTarget extends Target {
 
       for (SubpluginOption option : options) {
         optionBuilder.add("-P");
-        optionBuilder.add(
-            "plugin:org.jetbrains.kotlin.allopen:" + option.getKey() + "=" + option.getValue());
+          optionBuilder.add(
+              "plugin:org.jetbrains.kotlin.allopen:" + option.getKey() + "=" + option.getValue());
+        }
       }
-
-      return optionBuilder.build();
     }
-    return ImmutableList.of();
+    if (isTest) {
+      // For Kotlin tests, a special extra friend-paths argument needs to be passed to read
+      // internal elements.
+      // https://github.com/uber/okbuck/issues/709
+
+      optionBuilder.add("-Xfriend-paths=$(location //:" + JvmBuckRuleComposer.src(this) + "[output])");
+    }
+    return optionBuilder.build();
   }
 
   @Nullable
