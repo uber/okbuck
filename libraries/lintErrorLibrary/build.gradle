@@ -3,6 +3,8 @@ apply plugin: "com.jakewharton.butterknife"
 
 dependencies {
     buckLint project (":libraries:customLintLibrary")
+    buckLint project (":libraries:customLintLibrarySpi")
+    buckLint project (":libraries:customLintLibrarySpiAuto")
 
     annotationProcessor deps.apt.butterKnifeCompiler
 

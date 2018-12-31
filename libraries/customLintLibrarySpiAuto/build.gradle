@@ -1,0 +1,12 @@
+apply plugin: "java-library"
+apply plugin: "application"
+
+dependencies {
+    annotationProcessor deps.apt.autoService
+    compileOnly deps.apt.autoService
+    compileOnly deps.lint.lintApi
+    compileOnly deps.lint.lintChecks
+
+    testImplementation deps.lint.lint
+    testImplementation deps.lint.lintTests
+}
