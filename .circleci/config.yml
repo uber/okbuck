@@ -9,7 +9,7 @@ defaults: &defaults
     SKIP_OKBUCK: true
     NO_BUCKD: 1
     EXTRA_OKBUCK_ARGS: --stacktrace
-    JVM_OPTS: -Xmx3200m
+    JVM_OPTS: -Xmx3072m
 
 aliases:
   - &restore-wrapper-cache
@@ -52,7 +52,7 @@ jobs:
       - *save-gradle-cache
       - run:
           name: Build all non lint targets
-          command: ./buckw targets //... --type android_binary android_instrumentation_apk java_test groovy_test robolectric_test kotlin_test scala_test | xargs ./buckw build -v 0
+          command: ./buckw targets //... --type android_binary android_instrumentation_apk java_test groovy_test robolectric_test kotlin_test scala_test | xargs ./buckw build
           shell: "/bin/bash"
   lint:
     <<: *defaults
@@ -66,7 +66,7 @@ jobs:
       - run:
           name: Build all lint targets, except for lint error library
           command: |-
-            ./buckw targets //... --type genrule | grep -v lintErrorLibrary | xargs ./buckw build -v 0 && \
+            ./buckw targets //... --type genrule | grep -v lintErrorLibrary | xargs ./buckw build && \
             ./tooling/ci/lint_integration_test.sh
           shell: "/bin/bash"
   unit:
