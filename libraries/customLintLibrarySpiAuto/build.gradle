@@ -11,6 +11,4 @@ dependencies {
     testImplementation deps.lint.lintTests
 }
 
-okbuck {
-    containsLintRegistry = true
-}
+ext.CONTAINS_LINT_REGISTRY = true

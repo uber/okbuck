@@ -88,10 +88,6 @@ public class OkBuckExtension {
   public String buckBinary =
       "com.github.facebook:buck:ff25c89dae7c603c5a711959a1dd79904de3369b@pex";
 
-  /** If true, designates that his library produces lint rules. */
-  @Input
-  public boolean containsLintRegistry = false;
-
   private WrapperExtension wrapperExtension = new WrapperExtension();
   private KotlinExtension kotlinExtension;
   private ScalaExtension scalaExtension = new ScalaExtension();

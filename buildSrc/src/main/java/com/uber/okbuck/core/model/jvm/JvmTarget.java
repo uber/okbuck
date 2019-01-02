@@ -21,9 +21,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
-import kotlin.collections.CollectionsKt;
-import kotlin.io.FilesKt;
-import kotlin.sequences.SequencesKt;
 import org.gradle.api.JavaVersion;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -164,7 +161,7 @@ public class JvmTarget extends Target {
   }
 
   public boolean producesLint() {
-    if (getOkbuck().containsLintRegistry) {
+    if (getProject().hasProperty("CONTAINS_LINT_REGISTRY")) {
       return true;
     }
     Jar jarTask = (Jar) getProject().getTasks().findByName(JavaPlugin.JAR_TASK_NAME);
