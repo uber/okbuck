@@ -371,9 +371,7 @@ public class JvmTarget extends Target {
       optionBuilder.add("-java-parameters", Boolean.toString(options.getJavaParameters()));
 
       // In the future, could add any other compileKotlin configurations here
-      return optionBuilder.build().stream()
-          .distinct() // Defensively de-dupe because you could add any options args to free args too
-          .collect(Collectors.toList());
+      return optionBuilder.build();
     } catch (UnknownDomainObjectException ignored) {
       // Because why return null when you can throw an exception
       return Collections.emptyList();
