@@ -297,8 +297,7 @@ public class JvmTarget extends Target {
 
       for (SubpluginOption option : options) {
         optionBuilder.add("-P");
-          optionBuilder.add(
-              "plugin:org.jetbrains.kotlin.allopen:" + option.getKey() + "=" + option.getValue());
+          optionBuilder.add("plugin:org.jetbrains.kotlin.allopen:" + option.getKey() + "=" + option.getValue());
         }
       }
     }
