@@ -1,11 +1,11 @@
 package com.uber.okbuck.example.anotherapp;
 
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
+import androidx.appcompat.app.AppCompatActivity;
 import com.example.hellojni.HelloJni;
 import com.uber.okbuck.example.common.Calc;
 import com.uber.okbuck.example.common.CalcMonitor;
