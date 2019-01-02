@@ -171,16 +171,13 @@ public class JvmTarget extends Target {
       // Legacy Lint-Registry approach
       return true;
     }
-    if (getMainJavaResourceDirs().stream()
-        .anyMatch(resourceDir -> new File(resourceDir,
-            "META-INF" + File.separator + "services" + File.separator + "com.android.tools.lint.client.api.IssueRegistry")
-            .exists())) {
-      // New SPI approach. NOTE this does not cover generated services, such as with AutoService.
-      // Should use the above containsLintRegistry
-      return true;
-    } else {
-      return false;
-    }
+    // New SPI approach. NOTE this does not cover generated services, such as with AutoService.
+    // Should use the above CONTAINS_LINT_REGISTRY
+    return getMainJavaResourceDirs().stream()
+        .anyMatch(resourceDir -> Paths.get("META-INF/services/com.android.tools.lint.client.api.IssueRegistry")
+            .resolve(resourceDir.toPath())
+            .toFile()
+            .exists());
   }
 
   /**
