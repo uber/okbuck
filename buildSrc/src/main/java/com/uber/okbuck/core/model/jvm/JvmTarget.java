@@ -306,7 +306,14 @@ public class JvmTarget extends Target {
       // internal elements.
       // https://github.com/uber/okbuck/issues/709
 
-      optionBuilder.add("-Xfriend-paths=$(location :" + JvmBuckRuleComposer.src(this) + "[output])");
+      String composedTargetName = JvmBuckRuleComposer.src(this);
+      optionBuilder.add(
+          "-Xfriend-paths="
+              + Paths.get("buck-out/gen")
+                  .resolve(getProject().getRootProject().relativePath(getProject().getProjectDir()))
+                  .resolve(String.format("lib__%s__output", composedTargetName))
+                  .resolve(composedTargetName + ".jar")
+                  .toString());
     }
     return optionBuilder.build();
   }
