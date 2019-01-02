@@ -37,7 +37,6 @@ android {
 
 tasks.withType(KotlinCompile).all {
     kotlinOptions {
-        jvmTarget = '1.7'
         allWarningsAsErrors = true
         freeCompilerArgs = ['-progressive', '-Xjsr305=strict']
     }
