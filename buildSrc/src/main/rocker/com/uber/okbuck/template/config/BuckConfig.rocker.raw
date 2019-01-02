@@ -24,7 +24,6 @@ Map mavenRepositories,
 
 [kotlin]
     kotlin_home = @kotlinHome
-    target = true
 }
 @if (valid(scalaCompiler) && valid(scalaLibrary)) {
 
