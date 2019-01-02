@@ -61,7 +61,7 @@ public abstract class AndroidTarget extends JvmTarget {
   private final String targetSdk;
   private final boolean debuggable;
   private final boolean generateR2;
-  private final boolean isKotlin;
+  private final boolean isKotlinAndroid;
   private final boolean isKapt;
   private final boolean hasKotlinAndroidExtensions;
   private final boolean hasExperimentalKotlinAndroidExtensions;
@@ -100,7 +100,7 @@ public abstract class AndroidTarget extends JvmTarget {
     generateR2 = project.getPlugins().hasPlugin("com.jakewharton.butterknife");
 
     // Check if kotlin
-    isKotlin = project.getPlugins().hasPlugin(KotlinAndroidPluginWrapper.class);
+    isKotlinAndroid = project.getPlugins().hasPlugin(KotlinAndroidPluginWrapper.class);
     isKapt = project.getPlugins().hasPlugin(KOTLIN_KAPT_PLUGIN);
     hasKotlinAndroidExtensions = project.getPlugins().hasPlugin(KOTLIN_ANDROID_EXTENSIONS_MODULE);
 
@@ -146,7 +146,7 @@ public abstract class AndroidTarget extends JvmTarget {
         .sourceDirs(getSources(getBaseVariant()))
         .javaResourceDirs(getJavaResources(getBaseVariant()))
         .compilerOptions(Scope.Builder.COMPILER.JAVA, getJavaCompilerOptions(getBaseVariant()))
-        .compilerOptions(Scope.Builder.COMPILER.KOTLIN, getKotlinCompilerOptions())
+        .compilerOptions(Scope.Builder.COMPILER.KOTLIN, getKotlinCompilerOptions(false))
         .build();
   }
 
@@ -159,7 +159,7 @@ public abstract class AndroidTarget extends JvmTarget {
       builder.sourceDirs(getSources(unitTestVariant));
       builder.javaResourceDirs(getJavaResources(unitTestVariant));
       builder.compilerOptions(Scope.Builder.COMPILER.JAVA, getJavaCompilerOptions(unitTestVariant));
-      builder.compilerOptions(Scope.Builder.COMPILER.KOTLIN, getKotlinCompilerOptions());
+      builder.compilerOptions(Scope.Builder.COMPILER.KOTLIN, getKotlinCompilerOptions(true));
     }
     return builder.build();
   }
@@ -412,9 +412,9 @@ public abstract class AndroidTarget extends JvmTarget {
   }
 
   @Override
-  protected List<String> getKotlinCompilerOptions() {
+  protected List<String> getKotlinCompilerOptions(boolean testOnly) {
     if (!getHasKotlinAndroidExtensions()) {
-      return super.getKotlinCompilerOptions();
+      return super.getKotlinCompilerOptions(testOnly);
     }
 
     ImmutableList.Builder<String> extraKotlincArgs = ImmutableList.builder();
@@ -459,7 +459,7 @@ public abstract class AndroidTarget extends JvmTarget {
     extraKotlincArgs.add("-P");
     extraKotlincArgs.add(options.toString());
 
-    extraKotlincArgs.addAll(super.getKotlinCompilerOptions());
+    extraKotlincArgs.addAll(super.getKotlinCompilerOptions(testOnly));
 
     return extraKotlincArgs.build();
   }
@@ -502,7 +502,7 @@ public abstract class AndroidTarget extends JvmTarget {
   }
 
   public RuleType getRuleType() {
-    if (isKotlin) {
+    if (isKotlinAndroid) {
       return RuleType.KOTLIN_ANDROID_LIBRARY;
     } else {
       return RuleType.ANDROID_LIBRARY;
@@ -510,7 +510,7 @@ public abstract class AndroidTarget extends JvmTarget {
   }
 
   public RuleType getTestRuleType() {
-    if (isKotlin) {
+    if (isKotlinAndroid) {
       return RuleType.KOTLIN_ROBOLECTRIC_TEST;
     } else {
       return RuleType.ROBOLECTRIC_TEST;
@@ -548,7 +548,7 @@ public abstract class AndroidTarget extends JvmTarget {
 
     srcs.addAll(javaSrcs);
 
-    if (isKotlin) {
+    if (isKotlinAndroid) {
       srcs.addAll(
           javaSrcs
               .stream()

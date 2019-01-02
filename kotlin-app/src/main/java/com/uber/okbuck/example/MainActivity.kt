@@ -24,4 +24,8 @@ class MainActivity : DaggerAppCompatActivity() {
         val repo = GithubRepo.create(100, "OkBuck", "auto buck")
         Toast.makeText(this, repo.name + ": " + repo.description, Toast.LENGTH_SHORT).show()
     }
+
+    companion object {
+      internal const val TEST_INTERNAL = ""
+    }
 }
