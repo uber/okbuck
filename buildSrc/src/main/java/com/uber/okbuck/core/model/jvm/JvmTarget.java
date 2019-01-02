@@ -307,6 +307,9 @@ public class JvmTarget extends Target {
       // internal elements.
       // https://github.com/uber/okbuck/issues/709
 
+      // Note that we hardcode the path for now as location macros can only be used in genrules
+      // at the time of writing. When location macros are supported, can simply just write
+      // optionBuilder.add("-Xfriend-paths=$(location :" + JvmBuckRuleComposer.src(this) + "[output])");
       String composedTargetName = JvmBuckRuleComposer.src(this);
       optionBuilder.add(
           "-Xfriend-paths="
