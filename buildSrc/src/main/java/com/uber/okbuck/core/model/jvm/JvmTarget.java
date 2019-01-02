@@ -1,7 +1,6 @@
 package com.uber.okbuck.core.model.jvm;
 
 import com.android.builder.model.LintOptions;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.OkBuckGradlePlugin;
@@ -14,12 +13,14 @@ import com.uber.okbuck.core.model.base.Target;
 import com.uber.okbuck.core.util.ProjectUtil;
 import java.io.File;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+
 import org.gradle.api.JavaVersion;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -286,44 +287,7 @@ public class JvmTarget extends Target {
     }
     ImmutableList.Builder<String> optionBuilder = ImmutableList.builder();
 
-    // Add all compiler arguments
-    String compileTaskName = isTest ? "compileTestKotlin" : "compileKotlin";
-    try {
-      // Note: this is bad juju on Gradle 5.0, which would prefer you get the provider and lazily
-      // eval.
-      Task task = getProject().getTasks().getByName(compileTaskName);
-      Preconditions.checkArgument(task instanceof KotlinCompile);
-      KotlinCompile kotlinCompileTask = (KotlinCompile) task;
-      KotlinJvmOptions options = kotlinCompileTask.getKotlinOptions();
-      optionBuilder.addAll(options.getFreeCompilerArgs());
-
-      // Args from CommonToolArguments.kt and KotlinCommonToolOptions.kt
-      if (options.getAllWarningsAsErrors()) {
-        optionBuilder.add("-Werror");
-      }
-      if (options.getSuppressWarnings()) {
-        optionBuilder.add("-nowarn");
-      }
-      if (options.getVerbose()) {
-        optionBuilder.add("-verbose");
-      }
-
-      // Args from K2JVMCompilerArguments.kt and KotlinJvmOptions.kt
-      optionBuilder.add("-jvm-target", options.getJvmTarget());
-      optionBuilder.add("-include-runtime", Boolean.toString(options.getIncludeRuntime()));
-      String jdkHome = options.getJdkHome();
-      if (jdkHome != null) {
-        optionBuilder.add("-jdk-home", jdkHome);
-      }
-      optionBuilder.add("-no-jdk", Boolean.toString(options.getNoJdk()));
-      optionBuilder.add("-no-stdlib", Boolean.toString(options.getNoStdlib()));
-      optionBuilder.add("-no-reflect", Boolean.toString(options.getNoReflect()));
-      optionBuilder.add("-java-parameters", Boolean.toString(options.getJavaParameters()));
-
-      // In the future, could add any other compileKotlin configurations here
-    } catch (UnknownDomainObjectException ignored) {
-      // Because why return null when you can throw an exception
-    }
+    addKotlinCompileArguments(optionBuilder, isTest);
 
     if (getProject().getPlugins().hasPlugin(KotlinManager.KOTLIN_ALLOPEN_MODULE)) {
       AllOpenKotlinGradleSubplugin subplugin = getAllOpenKotlinGradleSubplugin();
@@ -353,6 +317,51 @@ public class JvmTarget extends Target {
       optionBuilder.add("-Xfriend-paths=$(location :" + JvmBuckRuleComposer.src(this) + "[output])");
     }
     return optionBuilder.build();
+  }
+
+  private void addKotlinCompileArguments(ImmutableList.Builder<String> optionBuilder, boolean isTest) {
+    try {
+      // Note: this is bad juju on Gradle 5.0, which would prefer you get the provider and lazily
+      // eval.
+      Optional<KotlinCompile> kotlinCompileTask = getProject()
+          .getTasks()
+          .withType(KotlinCompile.class)
+          .stream()
+          .filter(task -> !isTest || task.getName().toLowerCase(Locale.US).contains("test"))
+          .findFirst();
+      if (!kotlinCompileTask.isPresent()) {
+        return;
+      }
+      KotlinJvmOptions options = kotlinCompileTask.get().getKotlinOptions();
+      optionBuilder.addAll(options.getFreeCompilerArgs());
+
+      // Args from CommonToolArguments.kt and KotlinCommonToolOptions.kt
+      if (options.getAllWarningsAsErrors()) {
+        optionBuilder.add("-Werror");
+      }
+      if (options.getSuppressWarnings()) {
+        optionBuilder.add("-nowarn");
+      }
+      if (options.getVerbose()) {
+        optionBuilder.add("-verbose");
+      }
+
+      // Args from K2JVMCompilerArguments.kt and KotlinJvmOptions.kt
+      optionBuilder.add("-jvm-target", options.getJvmTarget());
+      optionBuilder.add("-include-runtime", Boolean.toString(options.getIncludeRuntime()));
+      String jdkHome = options.getJdkHome();
+      if (jdkHome != null) {
+        optionBuilder.add("-jdk-home", jdkHome);
+      }
+      optionBuilder.add("-no-jdk", Boolean.toString(options.getNoJdk()));
+      optionBuilder.add("-no-stdlib", Boolean.toString(options.getNoStdlib()));
+      optionBuilder.add("-no-reflect", Boolean.toString(options.getNoReflect()));
+      optionBuilder.add("-java-parameters", Boolean.toString(options.getJavaParameters()));
+
+      // In the future, could add any other compileKotlin configurations here
+    } catch (UnknownDomainObjectException ignored) {
+      // Because why return null when you can throw an exception
+    }
   }
 
   @Nullable
