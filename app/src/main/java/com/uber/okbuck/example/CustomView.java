@@ -1,8 +1,8 @@
 package com.uber.okbuck.example;
 
 import android.content.Context;
-import androidx.appcompat.widget.AppCompatTextView;
 import android.util.AttributeSet;
+import androidx.appcompat.widget.AppCompatTextView;
 
 public class CustomView extends AppCompatTextView {
   public CustomView(Context context) {

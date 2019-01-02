@@ -597,9 +597,9 @@ public abstract class AndroidTarget extends JvmTarget {
   }
 
   public String getResPackage() {
-    if(resourceUnionPackageName != null){
+    if (resourceUnionPackageName != null) {
       return resourceUnionPackageName;
-    }else{
+    } else {
       return getOriginalPackage();
     }
   }

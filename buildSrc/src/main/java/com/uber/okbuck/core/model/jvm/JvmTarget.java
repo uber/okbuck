@@ -65,8 +65,8 @@ public class JvmTarget extends Target {
     this.aptConfigurationName = aptConfigurationName;
     this.testAptConfigurationName = testAptConfigurationName;
     sourceSets = getProject().getConvention().getPlugin(JavaPluginConvention.class).getSourceSets();
-    isKotlin = project.getPlugins().stream()
-        .anyMatch(plugin -> plugin instanceof KotlinBasePluginWrapper);
+    isKotlin =
+        project.getPlugins().stream().anyMatch(plugin -> plugin instanceof KotlinBasePluginWrapper);
 
     Optional<Task> compileTask =
         project.getTasks().stream().filter(it -> it instanceof AbstractCompile).findFirst();
@@ -289,15 +289,16 @@ public class JvmTarget extends Target {
         List<SubpluginOption> options =
             subplugin.apply(getProject(), fakeCompile, fakeCompile, null, null, null);
 
-      optionBuilder.add(
-          "-Xplugin="
-              + KotlinManager.KOTLIN_LIBRARIES_LOCATION
-              + File.separator
-              + KotlinManager.KOTLIN_ALLOPEN_JAR);
+        optionBuilder.add(
+            "-Xplugin="
+                + KotlinManager.KOTLIN_LIBRARIES_LOCATION
+                + File.separator
+                + KotlinManager.KOTLIN_ALLOPEN_JAR);
 
-      for (SubpluginOption option : options) {
-        optionBuilder.add("-P");
-          optionBuilder.add("plugin:org.jetbrains.kotlin.allopen:" + option.getKey() + "=" + option.getValue());
+        for (SubpluginOption option : options) {
+          optionBuilder.add("-P");
+          optionBuilder.add(
+              "plugin:org.jetbrains.kotlin.allopen:" + option.getKey() + "=" + option.getValue());
         }
       }
     }
@@ -308,7 +309,8 @@ public class JvmTarget extends Target {
 
       // Note that we hardcode the path for now as location macros can only be used in genrules
       // at the time of writing. When location macros are supported, can simply just write
-      // optionBuilder.add("-Xfriend-paths=$(location :" + JvmBuckRuleComposer.src(this) + "[output])");
+      // optionBuilder.add("-Xfriend-paths=$(location :" + JvmBuckRuleComposer.src(this) +
+      // "[output])");
       String composedTargetName = JvmBuckRuleComposer.src(this);
       optionBuilder.add(
           "-Xfriend-paths="

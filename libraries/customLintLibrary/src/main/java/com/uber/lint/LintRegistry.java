@@ -13,7 +13,8 @@ public class LintRegistry extends IssueRegistry {
     return ImmutableList.of(SystemCurrentTimeMillisDetector.ISSUE, ColorDetector.ISSUE);
   }
 
-  @Override public int getApi() {
+  @Override
+  public int getApi() {
     return ApiKt.CURRENT_API;
   }
 }
