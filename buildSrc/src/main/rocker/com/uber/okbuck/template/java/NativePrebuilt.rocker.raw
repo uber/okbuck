@@ -14,8 +14,8 @@ boolean enableJetifier,
 @if (valid(mavenCoords)) {
     maven_coords = '@mavenCoords',
 }
-    visibility = ['PUBLIC'],
 @if (enableJetifier) {
     enable_jetifier = True,
 }
+    visibility = ['PUBLIC'],
 )
