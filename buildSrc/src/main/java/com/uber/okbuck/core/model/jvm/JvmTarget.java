@@ -177,6 +177,11 @@ public class JvmTarget extends Target {
         .anyMatch(resourceDir -> Paths.get("META-INF/services/com.android.tools.lint.client.api.IssueRegistry")
             .resolve(resourceDir.toPath())
             .toFile()
+        .anyMatch(resourceDir -> resourceDir.toPath()
+            .resolve("META-INF")
+            .resolve("services")
+            .resolve("com.android.tools.lint.client.api.IssueRegistry")
+            .toFile()
             .exists());
   }
 
