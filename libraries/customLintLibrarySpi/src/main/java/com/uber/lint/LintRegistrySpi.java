@@ -10,7 +10,7 @@ public class LintRegistrySpi extends IssueRegistry {
 
   @Override
   public List<Issue> getIssues() {
-    return ImmutableList.of(SystemCurrentTimeMillisDetector.ISSUE, ColorDetector.ISSUE);
+    return ImmutableList.of(ColorDetector.ISSUE);
   }
 
   @Override public int getApi() {
