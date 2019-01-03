@@ -73,17 +73,6 @@ See the [Usage](https://github.com/uber/okbuck/blob/master/Usage.md) page for co
 
 To speed up your builds even more, you can use an implementation of [Buck's HTTP Cache API](https://github.com/uber/buck-http-cache) to take advantage of building once and using the same build artifacts on all machines.
 
-## Code Style
-We use [google-java-format](https://github.com/google/google-java-format) to format Java files.
-You can either install the IntelliJ plugin or use a pre commit hook to automatically re-format files.
-
-To add a pre commit hook:
-
-- Build `google-java-format` jar following instructions from [github page](https://github.com/google/google-java-format).
-- Copy `config/git-hooks/pre-commit.template` to `.git/hooks/pre-commit`
-- Make the script executable: `chmod +x .git/hooks/pre-commit`
-- Replace `<<PATH_TO_JAR>>` in `.git/hooks/pre-commit` with the location of google-java-format jar.
-
 ## Contributors
 
 We'd love for you to contribute to our open source projects. Before we can accept your contributions, we kindly ask you to sign our [Uber Contributor License Agreement](https://docs.google.com/a/uber.com/forms/d/1pAwS_-dA1KhPlfxzYLBqK6rsSWwRwH95OCCZrcsY5rk/viewform).
