@@ -174,9 +174,6 @@ public class JvmTarget extends Target {
     // New SPI approach. NOTE this does not cover generated services, such as with AutoService.
     // Should use the above CONTAINS_LINT_REGISTRY
     return getMainJavaResourceDirs().stream()
-        .anyMatch(resourceDir -> Paths.get("META-INF/services/com.android.tools.lint.client.api.IssueRegistry")
-            .resolve(resourceDir.toPath())
-            .toFile()
         .anyMatch(resourceDir -> resourceDir.toPath()
             .resolve("META-INF")
             .resolve("services")
