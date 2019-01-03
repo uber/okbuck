@@ -19,6 +19,9 @@ public class ExternalDependenciesExtension {
   /** Specifies the folder where all external dependency rules gets generated. */
   @Input private String cache = ".okbuck/ext";
 
+  /** Specifies whether the external dependencies should be downloaded by buck or not. */
+  @Input private boolean downloadInBuck = true;
+
   /** Stores the dependencies which are allowed to have latest version. */
   @Input private List<String> allowLatestVersion = new ArrayList<>();
 
@@ -189,5 +192,9 @@ public class ExternalDependenciesExtension {
 
   public String getCache() {
     return cache;
+  }
+
+  public boolean shouldDownloadInBuck() {
+    return downloadInBuck;
   }
 }

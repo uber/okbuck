@@ -226,21 +226,25 @@ public class DependencyManager {
 
     groupToDependencyMap.forEach(
         (basePath, dependencies) -> {
-          ImmutableList.Builder<LocalExternalDependency> localPrebuiltDependencies =
+          ImmutableList.Builder<ExternalDependency> localPrebuiltDependencies =
               ImmutableList.builder();
           ImmutableList.Builder<ExternalDependency> prebuiltDependencies = ImmutableList.builder();
           ImmutableList.Builder<ExternalDependency> httpFileDependencies = ImmutableList.builder();
 
-          dependencies.forEach(
-              dependency -> {
-                if (dependency instanceof LocalExternalDependency) {
-                  localPrebuiltDependencies.add((LocalExternalDependency) dependency);
-                } else if (isPrebuiltDependency(dependency)) {
-                  prebuiltDependencies.add(dependency);
-                } else {
-                  httpFileDependencies.add(dependency);
-                }
-              });
+          if (externalDependenciesExtension.shouldDownloadInBuck()) {
+            dependencies.forEach(
+                dependency -> {
+                  if (dependency instanceof LocalExternalDependency) {
+                    localPrebuiltDependencies.add(dependency);
+                  } else if (isPrebuiltDependency(dependency)) {
+                    prebuiltDependencies.add(dependency);
+                  } else {
+                    httpFileDependencies.add(dependency);
+                  }
+                });
+          } else {
+            localPrebuiltDependencies.addAll(dependencies);
+          }
 
           ImmutableList.Builder<Rule> rulesBuilder = ImmutableList.builder();
           rulesBuilder.addAll(LocalPrebuiltRuleComposer.compose(localPrebuiltDependencies.build()));
@@ -250,7 +254,7 @@ public class DependencyManager {
           buckFileManager.writeToBuckFile(
               rulesBuilder.build(), basePath.resolve(OkBuckGradlePlugin.BUCK).toFile());
 
-          copyOrCreateSymlinks(basePath, localPrebuiltDependencies.build());
+          createSymlinks(basePath, localPrebuiltDependencies.build());
         });
   }
 
@@ -259,9 +263,10 @@ public class DependencyManager {
         && (dependency.getPackaging().equals(AAR) || dependency.getPackaging().equals(JAR));
   }
 
-  private static void copyOrCreateSymlinks(
-      Path path, Collection<LocalExternalDependency> dependencies) {
-    path.toFile().mkdirs();
+  private static void createSymlinks(Path path, Collection<ExternalDependency> dependencies) {
+    if (!path.toFile().exists() && !path.toFile().mkdirs()) {
+      throw new RuntimeException(String.format("Couldn't create %s when creating symlinks", path));
+    }
 
     SetMultimap<VersionlessDependency, ExternalDependency> nameToDependencyMap =
         MultimapBuilder.hashKeys().hashSetValues().build();
