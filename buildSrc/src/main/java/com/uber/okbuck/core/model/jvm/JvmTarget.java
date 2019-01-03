@@ -2,7 +2,9 @@ package com.uber.okbuck.core.model.jvm;
 
 import com.android.builder.model.LintOptions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.jvm.JvmBuckRuleComposer;
 import com.uber.okbuck.core.annotation.AnnotationProcessorCache;
@@ -14,11 +16,16 @@ import com.uber.okbuck.core.util.ProjectUtil;
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.gradle.api.JavaVersion;
@@ -343,45 +350,62 @@ public class JvmTarget extends Target {
       if (!kotlinCompileTask.isPresent()) {
         return Collections.emptyList();
       }
-      ImmutableList.Builder<String> optionBuilder = ImmutableList.builder();
+      ImmutableMap.Builder<String, Optional<String>> optionBuilder = ImmutableMap.builder();
       KotlinJvmOptions options = kotlinCompileTask.get().getKotlinOptions();
-      optionBuilder.addAll(options.getFreeCompilerArgs());
+      LinkedHashMap<String, Optional<String>> freeArgs = Maps.newLinkedHashMap();
+      options.getFreeCompilerArgs()
+          .forEach(arg -> freeArgs.put(arg, Optional.empty()));
+      optionBuilder.putAll(freeArgs);
 
       // Args from CommonToolArguments.kt and KotlinCommonToolOptions.kt
       if (options.getAllWarningsAsErrors()) {
-        optionBuilder.add("-Werror");
+        optionBuilder.put("-Werror", Optional.empty());
       }
       if (options.getSuppressWarnings()) {
-        optionBuilder.add("-nowarn");
+        optionBuilder.put("-nowarn", Optional.empty());
       }
       if (options.getVerbose()) {
-        optionBuilder.add("-verbose");
+        optionBuilder.put("-verbose", Optional.empty());
       }
 
       // Args from K2JVMCompilerArguments.kt and KotlinJvmOptions.kt
-      optionBuilder.add("-jvm-target", options.getJvmTarget());
+      optionBuilder.put("-jvm-target", Optional.of(options.getJvmTarget()));
       if (options.getIncludeRuntime()) {
-        optionBuilder.add("-include-runtime");
+        optionBuilder.put("-include-runtime", Optional.empty());
       }
       String jdkHome = options.getJdkHome();
       if (jdkHome != null) {
-        optionBuilder.add("-jdk-home", jdkHome);
+        optionBuilder.put("-jdk-home", Optional.of(jdkHome));
       }
       if (options.getNoJdk()) {
-        optionBuilder.add("-no-jdk");
+        optionBuilder.put("-no-jdk", Optional.empty());
       }
       if (options.getNoStdlib()) {
-        optionBuilder.add("-no-stdlib");
+        optionBuilder.put("-no-stdlib", Optional.empty());
       }
       if (options.getNoReflect()) {
-        optionBuilder.add("-no-reflect");
+        optionBuilder.put("-no-reflect", Optional.empty());
       }
       if (options.getJavaParameters()) {
-        optionBuilder.add("-java-parameters");
+        optionBuilder.put("-java-parameters", Optional.empty());
       }
 
       // In the future, could add any other compileKotlin configurations here
-      return optionBuilder.build();
+
+      // Return de-duping keys and sorting by them.
+      return optionBuilder.build()
+          .entrySet()
+          .stream()
+          .filter(distinctByKey(Map.Entry::getKey))
+          .sorted(Comparator.comparing(Map.Entry::getKey, String.CASE_INSENSITIVE_ORDER))
+          .flatMap(entry -> {
+            if (entry.getValue().isPresent()) {
+              return ImmutableList.of(entry.getKey(), entry.getValue().get()).stream();
+            } else {
+              return ImmutableList.of(entry.getKey()).stream();
+            }
+          })
+          .collect(Collectors.toList());
     } catch (UnknownDomainObjectException ignored) {
       // Because why return null when you can throw an exception
       return Collections.emptyList();
@@ -397,5 +421,10 @@ public class JvmTarget extends Target {
       }
     }
     return null;
+  }
+
+  private static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
+    Set<Object> seen = ConcurrentHashMap.newKeySet();
+    return t -> seen.add(keyExtractor.apply(t));
   }
 }
