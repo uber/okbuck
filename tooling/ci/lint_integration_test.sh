@@ -7,7 +7,7 @@ if [ $? -eq 0 ]; then
 else
     success=y
     testfile='buck-out/gen/libraries/lintErrorLibrary/lint_debug/lint_debug_out/lint-results.xml'
-    for check in 'id=\"AndroidColorDetector\"' 'id=\"UnusedResources\"' 'id=\"MissingApplicationIcon\"' 'id=\"NewApi\"' 'id=\"DontUseSystemTime\"' 'id=\"InvalidR2Usage\"'
+    for check in 'id=\"AndroidColorDetector\"' 'id=\"AndroidColorDetector2\"' 'id=\"AndroidColorDetector3\"' 'id=\"UnusedResources\"' 'id=\"MissingApplicationIcon\"' 'id=\"NewApi\"' 'id=\"DontUseSystemTime\"' 'id=\"InvalidR2Usage\"'
     do
     if grep -q "$check" "$testfile"
     then :
