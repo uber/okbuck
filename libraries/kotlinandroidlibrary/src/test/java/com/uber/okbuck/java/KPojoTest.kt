@@ -6,6 +6,6 @@ class KPojoTest {
 
     @Test
     fun shouldCreateKPojo() {
-        val kPojo = KPojo()
+        @Suppress("UNUSED_VARIABLE") val kPojo = KPojo()
     }
 }

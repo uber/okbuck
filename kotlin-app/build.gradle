@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 apply plugin: "com.android.application"
 apply plugin: "com.squareup.sqldelight"
 apply plugin: "kotlin-android"
@@ -11,6 +13,13 @@ android {
     }
 
     flavorDimensions "default"
+}
+
+tasks.withType(KotlinCompile).all {
+    kotlinOptions {
+        allWarningsAsErrors = true
+        freeCompilerArgs = ['-progressive', '-Xjsr305=strict']
+    }
 }
 
 dependencies {

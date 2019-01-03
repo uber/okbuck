@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 apply plugin: "com.android.library"
 apply plugin: "kotlin-android"
 apply plugin: "kotlin-android-extensions"
@@ -30,5 +32,12 @@ android {
 
     defaultConfig {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+}
+
+tasks.withType(KotlinCompile).all {
+    kotlinOptions {
+        allWarningsAsErrors = true
+        freeCompilerArgs = ['-progressive', '-Xjsr305=strict']
     }
 }

@@ -16,3 +16,10 @@ allOpen {
   annotations("demo.Anno")
   annotations("demo.Anno2")
 }
+
+compileKotlin {
+  kotlinOptions {
+    allWarningsAsErrors = true
+    freeCompilerArgs = ['-progressive', '-Xjsr305=strict']
+  }
+}

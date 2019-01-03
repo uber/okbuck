@@ -2,7 +2,9 @@ package com.uber.okbuck.core.model.jvm;
 
 import com.android.builder.model.LintOptions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.jvm.JvmBuckRuleComposer;
 import com.uber.okbuck.core.annotation.AnnotationProcessorCache;
@@ -13,16 +15,23 @@ import com.uber.okbuck.core.model.base.Target;
 import com.uber.okbuck.core.util.ProjectUtil;
 import java.io.File;
 import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.gradle.api.JavaVersion;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.UnknownDomainObjectException;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.plugins.ApplicationPlugin;
 import org.gradle.api.plugins.ApplicationPluginConvention;
@@ -36,9 +45,11 @@ import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.api.tasks.testing.Test;
 import org.gradle.jvm.tasks.Jar;
 import org.jetbrains.kotlin.allopen.gradle.AllOpenKotlinGradleSubplugin;
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmOptions;
 import org.jetbrains.kotlin.gradle.plugin.KotlinBasePluginWrapper;
 import org.jetbrains.kotlin.gradle.plugin.KotlinGradleSubplugin;
 import org.jetbrains.kotlin.gradle.plugin.SubpluginOption;
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile;
 
 public class JvmTarget extends Target {
 
@@ -282,6 +293,7 @@ public class JvmTarget extends Target {
       return ImmutableList.of();
     }
     ImmutableList.Builder<String> optionBuilder = ImmutableList.builder();
+    optionBuilder.addAll(readKotlinCompilerArguments());
     if (getProject().getPlugins().hasPlugin(KotlinManager.KOTLIN_ALLOPEN_MODULE)) {
       AllOpenKotlinGradleSubplugin subplugin = getAllOpenKotlinGradleSubplugin();
 
@@ -323,6 +335,83 @@ public class JvmTarget extends Target {
     return optionBuilder.build();
   }
 
+  private List<String> readKotlinCompilerArguments() {
+    try {
+      // Note: this is bad juju on Gradle 5.0, which would prefer you get the provider and lazily
+      // eval.
+      // We don't differentiate between test and non-test right now because Android projects don't
+      // support test-only configuration. Non-android projects theoretically can, but let's wait for
+      // someone to ask for that support first as it's not very common.
+      Optional<KotlinCompile> kotlinCompileTask = getProject()
+          .getTasks()
+          .withType(KotlinCompile.class)
+          .stream()
+          .findFirst();
+      if (!kotlinCompileTask.isPresent()) {
+        return Collections.emptyList();
+      }
+      ImmutableMap.Builder<String, Optional<String>> optionBuilder = ImmutableMap.builder();
+      KotlinJvmOptions options = kotlinCompileTask.get().getKotlinOptions();
+      LinkedHashMap<String, Optional<String>> freeArgs = Maps.newLinkedHashMap();
+      options.getFreeCompilerArgs()
+          .forEach(arg -> freeArgs.put(arg, Optional.empty()));
+      optionBuilder.putAll(freeArgs);
+
+      // Args from CommonToolArguments.kt and KotlinCommonToolOptions.kt
+      if (options.getAllWarningsAsErrors()) {
+        optionBuilder.put("-Werror", Optional.empty());
+      }
+      if (options.getSuppressWarnings()) {
+        optionBuilder.put("-nowarn", Optional.empty());
+      }
+      if (options.getVerbose()) {
+        optionBuilder.put("-verbose", Optional.empty());
+      }
+
+      // Args from K2JVMCompilerArguments.kt and KotlinJvmOptions.kt
+      optionBuilder.put("-jvm-target", Optional.of(options.getJvmTarget()));
+      if (options.getIncludeRuntime()) {
+        optionBuilder.put("-include-runtime", Optional.empty());
+      }
+      String jdkHome = options.getJdkHome();
+      if (jdkHome != null) {
+        optionBuilder.put("-jdk-home", Optional.of(jdkHome));
+      }
+      if (options.getNoJdk()) {
+        optionBuilder.put("-no-jdk", Optional.empty());
+      }
+      if (options.getNoStdlib()) {
+        optionBuilder.put("-no-stdlib", Optional.empty());
+      }
+      if (options.getNoReflect()) {
+        optionBuilder.put("-no-reflect", Optional.empty());
+      }
+      if (options.getJavaParameters()) {
+        optionBuilder.put("-java-parameters", Optional.empty());
+      }
+
+      // In the future, could add any other compileKotlin configurations here
+
+      // Return de-duping keys and sorting by them.
+      return optionBuilder.build()
+          .entrySet()
+          .stream()
+          .filter(distinctByKey(Map.Entry::getKey))
+          .sorted(Comparator.comparing(Map.Entry::getKey, String.CASE_INSENSITIVE_ORDER))
+          .flatMap(entry -> {
+            if (entry.getValue().isPresent()) {
+              return ImmutableList.of(entry.getKey(), entry.getValue().get()).stream();
+            } else {
+              return ImmutableList.of(entry.getKey()).stream();
+            }
+          })
+          .collect(Collectors.toList());
+    } catch (UnknownDomainObjectException ignored) {
+      // Because why return null when you can throw an exception
+      return Collections.emptyList();
+    }
+  }
+
   @Nullable
   private AllOpenKotlinGradleSubplugin getAllOpenKotlinGradleSubplugin() {
     for (KotlinGradleSubplugin subplugin :
@@ -332,5 +421,10 @@ public class JvmTarget extends Target {
       }
     }
     return null;
+  }
+
+  private static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
+    Set<Object> seen = ConcurrentHashMap.newKeySet();
+    return t -> seen.add(keyExtractor.apply(t));
   }
 }

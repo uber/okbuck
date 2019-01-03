@@ -9,11 +9,11 @@ class CoffeeTest {
 
     @Test
     fun mainComponent() {
-        val coffee = DaggerCoffeeShop.builder().build()
+        @Suppress("UNUSED_VARIABLE") val coffee = DaggerCoffeeShop.builder().build()
     }
 
     @Test
     fun testComponent() {
-        val coffeeShop =  DaggerTestCoffeeShop.builder().build()
+        @Suppress("UNUSED_VARIABLE") val coffeeShop =  DaggerTestCoffeeShop.builder().build()
     }
 }
