@@ -360,15 +360,25 @@ public class JvmTarget extends Target {
 
       // Args from K2JVMCompilerArguments.kt and KotlinJvmOptions.kt
       optionBuilder.add("-jvm-target", options.getJvmTarget());
-      optionBuilder.add("-include-runtime", Boolean.toString(options.getIncludeRuntime()));
+      if (options.getIncludeRuntime()) {
+        optionBuilder.add("-include-runtime");
+      }
       String jdkHome = options.getJdkHome();
       if (jdkHome != null) {
         optionBuilder.add("-jdk-home", jdkHome);
       }
-      optionBuilder.add("-no-jdk", Boolean.toString(options.getNoJdk()));
-      optionBuilder.add("-no-stdlib", Boolean.toString(options.getNoStdlib()));
-      optionBuilder.add("-no-reflect", Boolean.toString(options.getNoReflect()));
-      optionBuilder.add("-java-parameters", Boolean.toString(options.getJavaParameters()));
+      if (options.getNoJdk()) {
+        optionBuilder.add("-no-jdk");
+      }
+      if (options.getNoStdlib()) {
+        optionBuilder.add("-no-stdlib");
+      }
+      if (options.getNoReflect()) {
+        optionBuilder.add("-no-reflect");
+      }
+      if (options.getJavaParameters()) {
+        optionBuilder.add("-java-parameters");
+      }
 
       // In the future, could add any other compileKotlin configurations here
       return optionBuilder.build();
