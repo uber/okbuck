@@ -117,6 +117,16 @@ public class ExternalDependency {
     return cachePath.resolve(this.base.basePath()).toString();
   }
 
+  /** Returns the cached file name of the sources jar file. */
+  public String getSourceFileName() {
+    return getSourceFileNameFrom(getDependencyFileName());
+  }
+
+  /** Returns the cached file name of the artifact of the dependency. */
+  public String getDependencyFileName() {
+    return getTargetName();
+  }
+
   /** Returns true if this dependency needs to be jetified. */
   public boolean enableJetifier() {
     return enableJetifier;

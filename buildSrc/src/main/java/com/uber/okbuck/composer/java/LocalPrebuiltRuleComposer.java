@@ -6,7 +6,6 @@ import static com.uber.okbuck.core.dependency.BaseExternalDependency.JAR;
 import com.google.common.collect.ImmutableList;
 import com.uber.okbuck.composer.jvm.JvmBuckRuleComposer;
 import com.uber.okbuck.core.dependency.ExternalDependency;
-import com.uber.okbuck.core.dependency.LocalExternalDependency;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.template.core.Rule;
 import com.uber.okbuck.template.java.NativePrebuilt;
@@ -20,7 +19,7 @@ public class LocalPrebuiltRuleComposer extends JvmBuckRuleComposer {
    * @return List of rules
    */
   @SuppressWarnings("NullAway")
-  public static List<Rule> compose(Collection<LocalExternalDependency> dependencies) {
+  public static List<Rule> compose(Collection<ExternalDependency> dependencies) {
     return dependencies
         .stream()
         .sorted(ExternalDependency.compareByName)

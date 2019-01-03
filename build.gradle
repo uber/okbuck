@@ -219,6 +219,7 @@ okbuck {
     }
 
     externalDependencies {
+        downloadInBuck = false
         versionless = true
         allowLatestVersion = [
             "com.google.auto.value:auto-value",
