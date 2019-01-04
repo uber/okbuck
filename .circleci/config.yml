@@ -25,7 +25,6 @@ aliases:
         name: Perform Setup
         command: |-
           ./tooling/ci/ensure-android-sdk-licenses.sh && \
-          rm -rf ~/.gradle/caches/modules-2/files-2.1/com.jakewharton/butterknife* && \
           SKIP_OKBUCK= EXTRA_OKBUCK_ARGS="-Dorg.gradle.daemon=false" ./buckw --version && \
           rm -f ~/.gradle/caches/modules-2/modules-2.lock
         shell: "/bin/bash"
