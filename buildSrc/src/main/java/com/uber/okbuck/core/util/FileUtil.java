@@ -1,11 +1,9 @@
 package com.uber.okbuck.core.util;
 
 import com.google.common.collect.ImmutableSet;
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -76,10 +74,10 @@ public final class FileUtil {
     if (!file.exists() || file.isDirectory() || !file.canRead() || file.length() < 4) {
       return false;
     }
-    try (DataInputStream in =
-        new DataInputStream(new BufferedInputStream(new FileInputStream(file)))) {
-      return in.readInt() == 0x504b0304;
-    } catch (IOException ignored) {
+
+    try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
+      return raf.readInt() == 0x504b0304;
+    } catch (IOException e) {
       return false;
     }
   }
