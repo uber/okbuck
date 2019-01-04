@@ -50,6 +50,7 @@ public final class KotlinManager {
   private final Project project;
   private final BuckFileManager buckFileManager;
 
+  private boolean kotlinHomeEnabled;
   @Nullable private String kotlinVersion;
   @Nullable private Set<ExternalDependency> dependencies;
 
@@ -65,6 +66,7 @@ public final class KotlinManager {
 
   @SuppressWarnings("ResultOfMethodCallIgnored")
   public void setupKotlinHome(String kotlinVersion) {
+    this.kotlinHomeEnabled = true;
     this.kotlinVersion = kotlinVersion;
 
     Configuration kotlinConfig = project.getConfigurations().maybeCreate(KOTLIN_DEPS_CONFIG);
@@ -79,12 +81,17 @@ public final class KotlinManager {
   }
 
   public void finalizeDependencies() {
+    Path path = project.file(KOTLIN_HOME_LOCATION).toPath();
+    FileUtil.deleteQuietly(path);
+
+    if (!kotlinHomeEnabled) {
+      // no-op if kotlin home is not enabled
+      return;
+    }
+
     if (kotlinVersion == null) {
       throw new IllegalStateException("kotlinVersion is not setup");
     }
-
-    Path path = project.file(KOTLIN_HOME_LOCATION).toPath();
-    FileUtil.deleteQuietly(path);
 
     if (dependencies != null && dependencies.size() > 0) {
       Map<String, String> targetsNameMap =
