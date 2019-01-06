@@ -228,9 +228,9 @@ public class OkBuckTask extends DefaultTask {
         (key, value) -> {
           if (!filteredRepositories.values().contains(value)) {
 
-            // Add `mavenlocal` to repo list if present and skip adding
-            // any other `file:` repositories.
-            if (key.equals("mavenlocal") || !value.startsWith("file:")) {
+            // Skip adding any `file:` repositories since the path would be absolute
+            // and will prevent from checking in the generated buckconfig file.
+            if (!value.startsWith("file:")) {
               filteredRepositories.put(key, value);
             }
           }
