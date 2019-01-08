@@ -42,4 +42,8 @@ Map mavenRepositories,
 @for ((key, val) : mavenRepositories) {
     @key = @val
 }
+
+[download]
+    in_build = true
+    max_number_of_retries = 3
 }
