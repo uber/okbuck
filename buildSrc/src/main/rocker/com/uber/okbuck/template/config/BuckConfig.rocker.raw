@@ -8,7 +8,6 @@ String scalaCompiler,
 String scalaLibrary,
 String proguardJar,
 Map mavenRepositories,
-boolean downloadInBuck,
 )
 @if (valid(buildToolsVersion) && valid(target)) {
 
