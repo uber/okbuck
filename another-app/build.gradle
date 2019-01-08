@@ -35,6 +35,7 @@ android {
 
 dependencies {
     implementation deps.androidx.appCompat
+    implementation deps.external.workRuntime
     implementation project(":libraries:javalibrary")
     implementation project(":libraries:emptylibrary")
     implementation project(":libraries:parcelable")

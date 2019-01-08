@@ -69,6 +69,7 @@ def external = [
         avroIpc         : "org.apache.avro:avro-ipc:1.7.7",
         avroIpcTests    : "org.apache.avro:avro-ipc:1.7.7:tests",
         saxon           : "net.sf.saxon:Saxon-HE:9.7.0-15",
+        workRuntime     : "android.arch.work:work-runtime:1.0.0-beta01"
 ]
 
 def lint = [
