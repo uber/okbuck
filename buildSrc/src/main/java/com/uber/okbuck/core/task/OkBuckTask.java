@@ -207,12 +207,17 @@ public class OkBuckTask extends DefaultTask {
             scalaCompiler,
             scalaLibrary,
             ProguardUtil.getProguardJarPath(getProject()),
-            repositoryMap())
+            repositoryMap(okbuckExt.getExternalDependenciesExtension().shouldDownloadInBuck()))
         .render(okbuckBuckConfig());
   }
 
-  private LinkedHashMap<String, String> repositoryMap() {
+  private LinkedHashMap<String, String> repositoryMap(boolean downloadInBuck) {
     LinkedHashMap<String, String> rawRepositories = new LinkedHashMap<>();
+
+    if (!downloadInBuck) {
+      return rawRepositories;
+    }
+
     addRepositories(getProject().getRootProject(), rawRepositories);
     getProject()
         .getRootProject()

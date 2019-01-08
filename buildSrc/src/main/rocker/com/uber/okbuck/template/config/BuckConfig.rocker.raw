@@ -8,6 +8,7 @@ String scalaCompiler,
 String scalaLibrary,
 String proguardJar,
 Map mavenRepositories,
+boolean downloadInBuck,
 )
 @if (valid(buildToolsVersion) && valid(target)) {
 
@@ -42,4 +43,8 @@ Map mavenRepositories,
 @for ((key, val) : mavenRepositories) {
     @key = @val
 }
+
+[download]
+    in_build = true
+    max_number_of_retries = 3
 }
