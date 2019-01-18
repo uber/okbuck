@@ -29,6 +29,8 @@ dependencies {
     implementation deps.external.daggerAndroid
     implementation deps.external.gson
 
+    implementation project(":sharedui")
+
     kapt deps.apt.daggerCompiler
     kapt deps.apt.daggerAndroidProcessor
     kapt deps.apt.autoValue

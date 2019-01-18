@@ -23,6 +23,8 @@
 
     <include layout="@layout/content_main"/>
 
+    <include layout="@layout/shared_layout"/>
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"

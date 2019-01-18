@@ -1,3 +1,4 @@
+include ':sharedui'
 include "another-app"
 include "app"
 include "dummy-transform"
