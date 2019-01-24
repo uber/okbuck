@@ -116,7 +116,7 @@ public class AnnotationProcessorCache {
   @SuppressWarnings("BooleanMethodIsAlwaysInverted")
   public boolean hasEmptyAnnotationProcessors(Project project, String configurationString) {
     Optional<Configuration> configuration = getConfiguration(project, configurationString);
-    return configuration.map(files -> hasEmptyAnnotationProcessors(project, files)).orElse(true);
+    return configuration.map(config -> hasEmptyAnnotationProcessors(project, config)).orElse(false);
   }
 
   /**
