@@ -212,6 +212,7 @@ def okbuck_manifest(
         version_name=None,
         debuggable=False,
         secondary_manifests=None,
+        visibility = ['PUBLIC'],
     ):
     if not secondary_manifests:
         secondary_manifests = []
@@ -242,6 +243,7 @@ def okbuck_manifest(
         out = 'AndroidManifest.xml',
         type = 'okbuck_manifest',
         cmd = ' '.join(cmds),
+        visibility = visibility,
     )
 
 
@@ -304,7 +306,8 @@ def okbuck_keystore(
     storeFile,
     storePassword,
     keyAlias,
-    keyPassword
+    keyPassword,
+    visibility = ['PUBLIC'],
     ):
     properties_rule = name + "_properties"
     native.genrule(
@@ -318,7 +321,7 @@ def okbuck_keystore(
         name = name,
         store = storeFile,
         properties = ':' + properties_rule,
-        visibility = ['PUBLIC'],
+        visibility = visibility,
     )
 
 def okbuck_android_prebuilt_aar(
