@@ -9,8 +9,7 @@ String versionName,
 boolean debuggable,
 Collection secondaryManifests
 )
-okbuck_manifest(
-    name = '@name',
+@com.uber.okbuck.template.base.BuckRule.template() -> {
     main_manifest = '@mainManifest',
     min_sdk = '@minSdk',
     target_sdk = '@targetSdk',
@@ -35,4 +34,4 @@ okbuck_manifest(
     }
     ],
 }
-)
+}
