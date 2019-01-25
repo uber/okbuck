@@ -9,7 +9,7 @@ String versionName,
 boolean debuggable,
 Collection secondaryManifests
 )
-@com.uber.okbuck.template.base.BuckRule.template() -> {
+@(ruleType)(
     main_manifest = '@mainManifest',
     min_sdk = '@minSdk',
     target_sdk = '@targetSdk',
@@ -34,4 +34,4 @@ Collection secondaryManifests
     }
     ],
 }
-}
+)
