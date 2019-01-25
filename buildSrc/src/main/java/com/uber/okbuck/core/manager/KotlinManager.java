@@ -10,9 +10,8 @@ import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.template.config.SymlinkBuckFile;
 import com.uber.okbuck.template.core.Rule;
 import java.nio.file.Path;
-import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.TreeMap;
 import javax.annotation.Nullable;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
@@ -94,12 +93,14 @@ public final class KotlinManager {
     }
 
     if (dependencies != null && dependencies.size() > 0) {
-      Map<String, String> targetsNameMap =
-          dependencies
-              .stream()
-              .collect(
-                  Collectors.toMap(
-                      BuckRuleComposer::external, ExternalDependency::getVersionlessTargetName));
+      TreeMap<String, String> targetsNameMap = new TreeMap<>();
+      dependencies.forEach(
+          externalDependency -> {
+            targetsNameMap.put(
+                BuckRuleComposer.external(externalDependency),
+                externalDependency.getVersionlessTargetName());
+          });
+
       Rule symlinkRule =
           new SymlinkBuckFile()
               .targetsNameMap(targetsNameMap)

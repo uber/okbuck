@@ -1,19 +1,16 @@
 package com.uber.okbuck.core.dependency;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.hash.Hashing;
 import com.google.common.io.Files;
-import com.uber.okbuck.core.util.FileUtil;
+import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.extension.ExternalDependenciesExtension;
 import com.uber.okbuck.extension.JetifierExtension;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.util.Comparator;
-import java.util.Objects;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
@@ -25,7 +22,7 @@ import org.gradle.api.artifacts.UnknownConfigurationException;
 import org.gradle.api.artifacts.component.ComponentIdentifier;
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier;
 import org.gradle.api.artifacts.component.ProjectComponentIdentifier;
-import org.gradle.api.file.FileTree;
+import org.gradle.api.artifacts.result.ResolvedArtifactResult;
 import org.gradle.api.internal.artifacts.ivyservice.DefaultLenientConfiguration;
 
 public final class DependencyUtils {
@@ -109,22 +106,6 @@ public final class DependencyUtils {
     }
   }
 
-  @Nullable
-  static Path getSingleZipFilePath(Project project, File baseDir, String zipToFind) {
-    FileTree zipFiles =
-        project.fileTree(
-            ImmutableMap.of(
-                "dir", baseDir.getAbsolutePath(), "includes", ImmutableList.of("**/" + zipToFind)));
-
-    return zipFiles
-        .getFiles()
-        .stream()
-        .filter(FileUtil::isZipFile)
-        .min(Comparator.comparing(DependencyUtils::jarComparisonKeyFunction))
-        .map(File::toPath)
-        .orElse(null);
-  }
-
   private static long jarComparisonKeyFunction(File file) {
     try {
       return new JarFile(file).entries().nextElement().getTime();
@@ -134,22 +115,35 @@ public final class DependencyUtils {
   }
 
   public static Set<ExternalDependency> resolveExternal(
+      Project project,
       Configuration configuration,
       ExternalDependenciesExtension externalDependenciesExtension,
       JetifierExtension jetifierExtension) {
     try {
-      return configuration
-          .getIncoming()
-          .getArtifacts()
-          .getArtifacts()
+      Set<ResolvedArtifactResult> consumableArtifacts =
+          configuration
+              .getIncoming()
+              .getArtifacts()
+              .getArtifacts()
+              .stream()
+              .filter(
+                  artifact ->
+                      !(artifact.getId().getComponentIdentifier()
+                          instanceof ProjectComponentIdentifier))
+              .filter(artifact -> DependencyUtils.isConsumable(artifact.getFile()))
+              .collect(Collectors.toSet());
+
+      Map<ComponentIdentifier, ResolvedArtifactResult> componentIdToSourcesArtifactMap =
+          new HashMap<>(ProjectUtil.downloadSources(project, consumableArtifacts));
+
+      return consumableArtifacts
           .stream()
           .map(
               artifact -> {
                 ComponentIdentifier identifier = artifact.getId().getComponentIdentifier();
-                if (identifier instanceof ProjectComponentIdentifier
-                    || !isConsumable(artifact.getFile())) {
-                  return null;
-                }
+                ResolvedArtifactResult sourcesArtifact =
+                    componentIdToSourcesArtifactMap.get(identifier);
+
                 if (identifier instanceof ModuleComponentIdentifier
                     && ((ModuleComponentIdentifier) identifier).getVersion().length() > 0) {
                   ModuleComponentIdentifier moduleIdentifier =
@@ -159,14 +153,17 @@ public final class DependencyUtils {
                       moduleIdentifier.getModule(),
                       moduleIdentifier.getVersion(),
                       artifact.getFile(),
+                      sourcesArtifact != null ? sourcesArtifact.getFile() : null,
                       externalDependenciesExtension,
                       jetifierExtension);
                 } else {
                   return DependencyFactory.fromLocal(
-                      artifact.getFile(), externalDependenciesExtension, jetifierExtension);
+                      artifact.getFile(),
+                      sourcesArtifact != null ? sourcesArtifact.getFile() : null,
+                      externalDependenciesExtension,
+                      jetifierExtension);
                 }
               })
-          .filter(Objects::nonNull)
           .collect(Collectors.toSet());
     } catch (DefaultLenientConfiguration.ArtifactResolveException e) {
       throw artifactResolveException(e);

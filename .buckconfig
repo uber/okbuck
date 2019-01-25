@@ -49,3 +49,8 @@
     default_build_file_syntax = SKYLARK
 
 <file:.okbuck/config/okbuck.buckconfig>
+
+; maven_repositories are tried in the ascending order of their names
+; gradle cache should be tried first so prending 1_
+[maven_repositories]
+  1_gradlecache = gradle:GRADLE_USER_HOME/caches/modules-2/files-2.1/

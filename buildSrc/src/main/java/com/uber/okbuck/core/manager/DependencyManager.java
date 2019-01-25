@@ -126,7 +126,7 @@ public class DependencyManager {
                     .map(ExternalDependency::getAsGradleDependency)
                     .toArray(Dependency[]::new));
     return DependencyUtils.resolveExternal(
-        detached, externalDependenciesExtension, jetifierExtension);
+        project, detached, externalDependenciesExtension, jetifierExtension);
   }
 
   private void validateDependencies(
@@ -279,10 +279,12 @@ public class DependencyManager {
               path.resolve(dependency.getDependencyFileName()),
               dependency.getRealDependencyFile().toPath());
 
-          File sourceJar = dependency.getRealSourceFile();
-          if (sourceJar != null) {
-            FileUtil.symlink(path.resolve(dependency.getSourceFileName()), sourceJar.toPath());
-          }
+          dependency
+              .getRealSourceFile()
+              .ifPresent(
+                  file ->
+                      FileUtil.symlink(
+                          path.resolve(dependency.getSourceFileName()), file.toPath()));
         });
   }
 }
