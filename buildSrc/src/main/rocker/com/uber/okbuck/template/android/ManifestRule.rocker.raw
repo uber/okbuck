@@ -10,6 +10,7 @@ boolean debuggable,
 Collection secondaryManifests
 )
 @(ruleType)(
+    name = '@name',
     main_manifest = '@mainManifest',
     min_sdk = '@minSdk',
     target_sdk = '@targetSdk',
