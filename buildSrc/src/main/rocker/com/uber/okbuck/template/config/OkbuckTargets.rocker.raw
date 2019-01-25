@@ -304,7 +304,7 @@ def okbuck_keystore(
     storeFile,
     storePassword,
     keyAlias,
-    keyPassword,
+    keyPassword
     ):
     properties_rule = name + "_properties"
     native.genrule(
