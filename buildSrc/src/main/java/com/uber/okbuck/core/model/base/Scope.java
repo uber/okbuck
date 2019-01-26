@@ -330,14 +330,19 @@ public class Scope {
         okBuckExtension.getExternalDependenciesExtension();
     JetifierExtension jetifierExtension = okBuckExtension.getJetifierExtension();
 
-    aarOrJarArtifacts.forEach(
-        artifact -> {
-          if (!DependencyUtils.isConsumable(artifact.getFile())) {
-            return;
-          }
+    Set<ResolvedArtifactResult> consumableArtifacts =
+        aarOrJarArtifacts
+            .stream()
+            .filter(artifact -> DependencyUtils.isConsumable(artifact.getFile()))
+            .collect(Collectors.toSet());
 
+    Map<ComponentIdentifier, ResolvedArtifactResult> componentIdToSourcesArtifactMap =
+        ProjectUtil.downloadSources(project, consumableArtifacts);
+
+    consumableArtifacts.forEach(
+        artifact -> {
           ComponentIdentifier identifier = artifact.getId().getComponentIdentifier();
-          artifactIds.add(identifier);
+          ResolvedArtifactResult sourcesArtifact = componentIdToSourcesArtifactMap.get(identifier);
 
           if (identifier instanceof ModuleComponentIdentifier
               && ((ModuleComponentIdentifier) identifier).getVersion().length() > 0) {
@@ -349,6 +354,7 @@ public class Scope {
                     moduleIdentifier.getModule(),
                     moduleIdentifier.getVersion(),
                     artifact.getFile(),
+                    sourcesArtifact != null ? sourcesArtifact.getFile() : null,
                     externalDependenciesExtension,
                     jetifierExtension);
             external.add(externalDependency);
@@ -369,17 +375,16 @@ public class Scope {
               }
               external.add(
                   DependencyFactory.fromLocal(
-                      artifact.getFile(), externalDependenciesExtension, jetifierExtension));
+                      artifact.getFile(),
+                      sourcesArtifact != null ? sourcesArtifact.getFile() : null,
+                      externalDependenciesExtension,
+                      jetifierExtension));
 
             } catch (IOException e) {
               throw new RuntimeException(e);
             }
           }
         });
-
-    if (ProjectUtil.getOkBuckExtension(project).getIntellijExtension().sources) {
-      ProjectUtil.downloadSources(project, artifactIds);
-    }
   }
 
   @Override

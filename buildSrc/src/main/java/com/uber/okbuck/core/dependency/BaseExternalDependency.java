@@ -18,13 +18,14 @@ public abstract class BaseExternalDependency {
   public static final String JAR = "jar";
 
   private static final String NAME_DELIMITER = "-";
-  private static final String SOURCES = "sources";
 
   public abstract VersionlessDependency versionless();
 
   public abstract String version();
 
   public abstract File realDependencyFile();
+
+  public abstract Optional<File> realDependencySourceFile();
 
   abstract boolean isVersioned();
 
@@ -42,6 +43,8 @@ public abstract class BaseExternalDependency {
     public abstract Builder setIsVersioned(boolean value);
 
     public abstract Builder setRealDependencyFile(File value);
+
+    public abstract Builder setRealDependencySourceFile(Optional<File> value);
 
     public abstract BaseExternalDependency build();
   }

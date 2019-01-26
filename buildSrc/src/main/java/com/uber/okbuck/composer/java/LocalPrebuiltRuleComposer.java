@@ -38,7 +38,12 @@ public class LocalPrebuiltRuleComposer extends JvmBuckRuleComposer {
                   throw new IllegalStateException("Dependency not a valid prebuilt: " + dependency);
               }
 
-              String source = dependency.hasSourceFile() ? dependency.getSourceFileName() : null;
+              String source;
+              if (dependency.getRealSourceFile().isPresent()) {
+                source = dependency.getSourceFileName();
+              } else {
+                source = null;
+              }
 
               ImmutableList.Builder<Rule> rulesBuilder = ImmutableList.builder();
               rulesBuilder.add(

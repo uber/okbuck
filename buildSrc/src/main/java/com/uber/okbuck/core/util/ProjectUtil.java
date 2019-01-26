@@ -1,10 +1,15 @@
 package com.uber.okbuck.core.util;
 
+import static com.uber.okbuck.core.dependency.BaseExternalDependency.AAR;
+import static com.uber.okbuck.core.dependency.BaseExternalDependency.JAR;
+
 import com.android.build.gradle.AppPlugin;
 import com.android.build.gradle.LibraryPlugin;
+import com.google.common.collect.ImmutableList;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.core.annotation.AnnotationProcessorCache;
 import com.uber.okbuck.core.dependency.DependencyCache;
+import com.uber.okbuck.core.dependency.DependencyUtils;
 import com.uber.okbuck.core.manager.DependencyManager;
 import com.uber.okbuck.core.manager.GroovyManager;
 import com.uber.okbuck.core.manager.KotlinManager;
@@ -13,15 +18,20 @@ import com.uber.okbuck.core.manager.ScalaManager;
 import com.uber.okbuck.core.manager.TransformManager;
 import com.uber.okbuck.core.model.base.ProjectType;
 import com.uber.okbuck.extension.OkBuckExtension;
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import org.apache.commons.io.FilenameUtils;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.component.ComponentIdentifier;
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
-import org.gradle.api.artifacts.query.ArtifactResolutionQuery;
-import org.gradle.api.artifacts.result.ArtifactResolutionResult;
+import org.gradle.api.artifacts.result.ComponentArtifactsResult;
+import org.gradle.api.artifacts.result.ResolvedArtifactResult;
 import org.gradle.api.component.Artifact;
 import org.gradle.api.plugins.GroovyPlugin;
 import org.gradle.api.plugins.JavaPlugin;
@@ -135,25 +145,65 @@ public final class ProjectUtil {
    * limitations under the License.
    */
   // Copied from AGP 3.1.0 ArtifactDependencyGraph
-  public static void downloadSources(Project project, Set<ComponentIdentifier> artifacts) {
+  public static Map<ComponentIdentifier, ResolvedArtifactResult> downloadSources(
+      Project project, Set<ResolvedArtifactResult> artifacts) {
+
+    // Download sources if enabled via intellij extension
+    if (!ProjectUtil.getOkBuckExtension(project).getIntellijExtension().downloadSources()) {
+      return new HashMap<>();
+    }
+
     DependencyHandler dependencies = project.getDependencies();
 
     try {
-      ArtifactResolutionQuery query = dependencies.createArtifactResolutionQuery();
-      query.forComponents(artifacts);
+      Set<ComponentIdentifier> identifiers =
+          artifacts
+              .stream()
+              .filter(artifact -> canHaveSources(artifact.getFile()))
+              .map(artifact -> artifact.getId().getComponentIdentifier())
+              .collect(Collectors.toSet());
 
       @SuppressWarnings("unchecked")
       Class<? extends Artifact>[] artifactTypesArray =
           (Class<? extends Artifact>[]) new Class<?>[] {SourcesArtifact.class};
-      query.withArtifacts(JvmLibrary.class, artifactTypesArray);
-      ArtifactResolutionResult queryResult = query.execute();
-      queryResult.getResolvedComponents();
+
+      Set<ComponentArtifactsResult> results =
+          dependencies
+              .createArtifactResolutionQuery()
+              .forComponents(identifiers)
+              .withArtifacts(JvmLibrary.class, artifactTypesArray)
+              .execute()
+              .getResolvedComponents();
+
+      // Only has one type.
+      Class<? extends Artifact> type = artifactTypesArray[0];
+
+      return results
+          .stream()
+          .map(artifactsResult -> artifactsResult.getArtifacts(type))
+          .flatMap(Set::stream)
+          .filter(artifactResult -> artifactResult instanceof ResolvedArtifactResult)
+          .map(artifactResult -> (ResolvedArtifactResult) artifactResult)
+          .filter(artifactResult -> FileUtil.isZipFile(artifactResult.getFile()))
+          .collect(
+              Collectors.toMap(
+                  resolvedArtifact -> resolvedArtifact.getId().getComponentIdentifier(),
+                  resolvedArtifact -> resolvedArtifact));
+
     } catch (Throwable t) {
       System.out.println(
           "Unable to download sources for project "
               + project.toString()
               + " with error "
               + t.toString());
+
+      return new HashMap<>();
     }
+  }
+
+  public static boolean canHaveSources(File dependencyFile) {
+    return !DependencyUtils.isWhiteListed(dependencyFile)
+        && ImmutableList.of(JAR, AAR)
+            .contains(FilenameUtils.getExtension(dependencyFile.getName()));
   }
 }

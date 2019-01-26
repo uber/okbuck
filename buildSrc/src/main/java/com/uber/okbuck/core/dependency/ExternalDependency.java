@@ -9,14 +9,12 @@ import com.google.common.collect.ImmutableList;
 import com.uber.okbuck.extension.ExternalDependenciesExtension;
 import com.uber.okbuck.extension.JetifierExtension;
 import java.io.File;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
-import org.gradle.api.Project;
 import org.gradle.api.artifacts.Dependency;
 
 /**
@@ -30,7 +28,6 @@ public class ExternalDependency {
   private final Path cachePath;
 
   @Nullable private Path realSourceFilePath;
-  private boolean sourceFileInitialized;
   private boolean enableJetifier;
 
   public static Comparator<ExternalDependency> compareByName =
@@ -92,6 +89,16 @@ public class ExternalDependency {
     return this.base.realDependencyFile();
   }
 
+  /** Gets the real sources jar file for the dependency. */
+  public Optional<File> getRealSourceFile() {
+    // Doesn't support sources for artifacts with classifier
+    if (this.base.versionless().classifier().isPresent()) {
+      return Optional.empty();
+    } else {
+      return this.base.realDependencySourceFile();
+    }
+  }
+
   /** Returns the packaging of the the dependency: jar, aar, pex */
   public String getPackaging() {
     return this.base.packaging();
@@ -132,52 +139,6 @@ public class ExternalDependency {
     return enableJetifier;
   }
 
-  /**
-   * Gets the real sources jar path for a dependency if it exists.
-   *
-   * @param project The Project
-   */
-  void computeSourceFilePath(Project project) {
-    if (!sourceFileInitialized) {
-      realSourceFilePath = computeSourceFile(project);
-      sourceFileInitialized = true;
-    }
-  }
-
-  /** Gets the real sources jar file for the dependency if it exists. */
-  @Nullable
-  public File getRealSourceFile() {
-    if (realSourceFilePath != null) {
-      return realSourceFilePath.toFile();
-    }
-    return null;
-  }
-
-  /** Check whether the dependency has a sources jar file. */
-  public boolean hasSourceFile() {
-    return realSourceFilePath != null;
-  }
-
-  @Nullable
-  Path computeSourceFile(Project project) {
-    if (!DependencyUtils.isWhiteListed(getRealDependencyFile())
-        && ImmutableList.of(JAR, AAR).contains(getPackaging())) {
-
-      String sourceFileName = getSourceFileNameFrom(getRealDependencyFile().getName());
-      Path sourcesJar = getRealDependencyFile().getParentFile().toPath().resolve(sourceFileName);
-
-      if (Files.exists(sourcesJar)) {
-        return sourcesJar;
-      } else {
-        // Most likely jar is in Gradle/Maven cache directory,
-        // try to find sources jar in "jar/../..".
-        return DependencyUtils.getSingleZipFilePath(
-            project, getRealDependencyFile().getParentFile().getParentFile(), sourceFileName);
-      }
-    }
-    return null;
-  }
-
   String getSourceFileNameFrom(String prebuiltName) {
     if (ImmutableList.of(JAR, AAR).contains(getPackaging())) {
       return prebuiltName.replaceFirst("\\.(jar|aar)$", SOURCE_FILE);
@@ -190,7 +151,8 @@ public class ExternalDependency {
       String name,
       String version,
       @Nullable String classifier,
-      File depFile,
+      File dependencyFile,
+      @Nullable File dependencySourceFile,
       ExternalDependenciesExtension externalDependenciesExtension,
       JetifierExtension jetifierExtension) {
     VersionlessDependency versionlessDependency =
@@ -205,7 +167,8 @@ public class ExternalDependency {
             .setVersionless(versionlessDependency)
             .setVersion(version)
             .setIsVersioned(externalDependenciesExtension.isVersioned(versionlessDependency))
-            .setRealDependencyFile(depFile)
+            .setRealDependencyFile(dependencyFile)
+            .setRealDependencySourceFile(Optional.ofNullable(dependencySourceFile))
             .build();
 
     this.enableJetifier = jetifierExtension.shouldJetify(group, name, getPackaging());

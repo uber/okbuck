@@ -3,6 +3,7 @@ package com.uber.okbuck.core.dependency;
 import com.uber.okbuck.extension.ExternalDependenciesExtension;
 import com.uber.okbuck.extension.JetifierExtension;
 import java.io.File;
+import javax.annotation.Nullable;
 import org.apache.commons.io.FilenameUtils;
 
 public final class DependencyFactory {
@@ -28,6 +29,7 @@ public final class DependencyFactory {
       String name,
       String version,
       File dependencyFile,
+      @Nullable File dependencySourceFile,
       ExternalDependenciesExtension externalDependenciesExtension,
       JetifierExtension jetifierExtension) {
     String classifier = DependencyUtils.getModuleClassifier(dependencyFile.getName(), version);
@@ -39,6 +41,7 @@ public final class DependencyFactory {
           version,
           classifier,
           dependencyFile,
+          dependencySourceFile,
           externalDependenciesExtension,
           jetifierExtension);
     }
@@ -49,6 +52,7 @@ public final class DependencyFactory {
         version,
         classifier,
         dependencyFile,
+        dependencySourceFile,
         externalDependenciesExtension,
         jetifierExtension);
   }
@@ -56,22 +60,24 @@ public final class DependencyFactory {
   /**
    * Create an External Dependency from a local dependency
    *
-   * @param localDep local dependency file
+   * @param localDependency local dependency file
    * @param externalDependenciesExtension External Dependency Extension
    * @param jetifierExtension Jetifier Extension
    * @return External Dependency
    */
   public static LocalExternalDependency fromLocal(
-      File localDep,
+      File localDependency,
+      @Nullable File localSourceDependency,
       ExternalDependenciesExtension externalDependenciesExtension,
       JetifierExtension jetifierExtension) {
 
     return new LocalExternalDependency(
         LOCAL_GROUP,
-        FilenameUtils.getBaseName(localDep.getName()),
+        FilenameUtils.getBaseName(localDependency.getName()),
         LOCAL_DEP_VERSION,
         null,
-        localDep,
+        localDependency,
+        localSourceDependency,
         externalDependenciesExtension,
         jetifierExtension);
   }

@@ -31,7 +31,6 @@ public class DependencyCache {
   private static final Logger LOG = LoggerFactory.getLogger(DependencyCache.class);
   private final Project rootProject;
   private final DependencyManager dependencyManager;
-  private final boolean fetchSources;
   private final boolean skipPrebuilt;
   private final Map<VersionlessDependency, ExternalDependency> forcedDeps = new HashMap<>();
 
@@ -42,7 +41,6 @@ public class DependencyCache {
       @Nullable String forcedConfiguration) {
     this.rootProject = project.getRootProject();
     this.dependencyManager = dependencyManager;
-    this.fetchSources = ProjectUtil.getOkBuckExtension(project).getIntellijExtension().sources;
     this.skipPrebuilt = skipPrebuilt;
 
     if (forcedConfiguration != null) {
@@ -72,7 +70,7 @@ public class DependencyCache {
     this(project, dependencyManager, skipPrebuilt, null);
   }
 
-  public ExternalDependency get(ExternalDependency externalDependency, boolean resolveOnly) {
+  public final ExternalDependency get(ExternalDependency externalDependency) {
     LOG.info("Requested dependency {}", externalDependency);
     ExternalDependency dependency =
         forcedDeps.getOrDefault(externalDependency.getVersionless(), externalDependency);
@@ -80,16 +78,7 @@ public class DependencyCache {
 
     dependencyManager.addDependency(dependency, skipPrebuilt);
 
-    if (!resolveOnly && fetchSources) {
-      LOG.info("Fetching sources for {}", dependency);
-      dependency.computeSourceFilePath(rootProject);
-    }
-
     return dependency;
-  }
-
-  public final ExternalDependency get(ExternalDependency externalDependency) {
-    return get(externalDependency, false);
   }
 
   /**
@@ -182,17 +171,9 @@ public class DependencyCache {
         .map(
             configuration ->
                 DependencyUtils.resolveExternal(
-                    configuration, externalDependenciesExtension, jetifierExtension))
+                    rootProject, configuration, externalDependenciesExtension, jetifierExtension))
         .flatMap(Collection::stream)
-        .map(dependency -> get(dependency, true))
+        .map(this::get)
         .collect(Collectors.toSet());
-  }
-
-  private static IllegalStateException artifactResolveException(Exception e) {
-    return new IllegalStateException(
-        "Failed to resolve an artifact. Make sure you have a repositories block defined. "
-            + "See https://github.com/uber/okbuck/wiki/Known-caveats#could-not-resolve-all-"
-            + "dependencies-for-configuration for more information.",
-        e);
   }
 }
