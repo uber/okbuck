@@ -9,7 +9,7 @@ String versionName,
 boolean debuggable,
 Collection secondaryManifests
 )
-okbuck_manifest(
+@(ruleType)(
     name = '@name',
     main_manifest = '@mainManifest',
     min_sdk = '@minSdk',
