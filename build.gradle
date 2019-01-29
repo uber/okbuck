@@ -15,9 +15,6 @@ buildscript {
     }
     configurations.all {
         exclude group:"com.android.tools.build", module: "transform-api"
-        resolutionStrategy {
-            force "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${deps.versions.kotlin}"
-        }
     }
 }
 
@@ -30,9 +27,6 @@ allprojects { project ->
     }
     configurations.all {
         exclude group:"com.android.tools.build", module: "transform-api"
-        resolutionStrategy {
-            force "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${deps.versions.kotlin}"
-        }
     }
 }
 
@@ -233,12 +227,14 @@ okbuck {
             "org.apache.httpcomponents:httpcore",
             "com.android.tools:repository",
             "org.jetbrains.kotlin:kotlin-stdlib",
+            "org.jetbrains.kotlin:kotlin-reflect",
+            "org.jetbrains.kotlin:kotlin-stdlib-common",
+            "org.jetbrains.kotlin:kotlin-stdlib-jdk7",
             "org.ow2.asm:asm-tree",
             "org.apache.httpcomponents:httpclient",
             "org.bouncycastle:bcprov-jdk15on",
             "commons-logging:commons-logging",
             "com.squareup:javapoet",
-            "org.jetbrains.kotlin:kotlin-reflect",
             "org.checkerframework:checker-compat-qual",
             "com.google.code.gson:gson",
             "com.android.tools.build:builder-model",
