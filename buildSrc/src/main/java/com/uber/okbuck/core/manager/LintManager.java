@@ -13,12 +13,8 @@ import com.uber.okbuck.template.core.Rule;
 import com.uber.okbuck.template.java.NativePrebuilt;
 import com.uber.okbuck.template.jvm.JvmBinaryRule;
 import java.io.File;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.util.Collections;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.apache.commons.io.FileUtils;
 import org.gradle.api.Project;
 
 public final class LintManager {
@@ -30,7 +26,6 @@ public final class LintManager {
   private static final String LINT_GROUP = "com.android.tools.lint";
   private static final String LINT_MODULE = "lint";
   private static final String LINT_DEPS_CONFIG = OkBuckGradlePlugin.BUCK_LINT + "_deps";
-  private static final String LINT_VERSION_FILE = LINT_DEPS_CACHE + "/.lintVersion";
   private static final ImmutableSet<String> LINT_BINARY_EXCLUDES =
       ImmutableSet.of("META-INF/.*\\.SF", "META-INF/.*\\.DSA", "META-INF/.*\\.RSA");
   private static final String LINT_CLI_CLASS = "com.android.tools.lint.Main";
@@ -55,20 +50,6 @@ public final class LintManager {
   }
 
   public void fetchLintDeps(String version) {
-    // Invalidate lint deps when versions change
-    File lintVersionFile = project.file(LINT_VERSION_FILE);
-    try {
-      if (!lintVersionFile.exists()
-          || !version.equals(
-              new String(Files.readAllBytes(lintVersionFile.toPath()), StandardCharsets.UTF_8))) {
-        FileUtils.deleteDirectory(lintVersionFile.getParentFile());
-        lintVersionFile.getParentFile().mkdirs();
-        Files.write(lintVersionFile.toPath(), Collections.singleton(version));
-      }
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-
     project.getConfigurations().maybeCreate(LINT_DEPS_CONFIG);
     project.getDependencies().add(LINT_DEPS_CONFIG, LINT_GROUP + ":" + LINT_MODULE + ":" + version);
 
@@ -87,7 +68,12 @@ public final class LintManager {
   }
 
   public void finalizeDependencies() {
+    Path lintCache = project.file(LINT_DEPS_CACHE).toPath();
+    FileUtil.deleteQuietly(lintCache);
+
     if (dependencies != null && dependencies.size() > 0) {
+      lintCache.toFile().mkdirs();
+
       new JvmBinaryRule()
           .mainClassName("")
           .excludes(LINT_BINARY_EXCLUDES)
