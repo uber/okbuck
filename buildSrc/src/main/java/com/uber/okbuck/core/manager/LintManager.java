@@ -13,6 +13,7 @@ import com.uber.okbuck.template.core.Rule;
 import com.uber.okbuck.template.java.NativePrebuilt;
 import com.uber.okbuck.template.jvm.JvmBinaryRule;
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.gradle.api.Project;

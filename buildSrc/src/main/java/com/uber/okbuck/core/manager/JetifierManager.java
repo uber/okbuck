@@ -16,6 +16,7 @@ import com.uber.okbuck.template.core.Rule;
 import com.uber.okbuck.template.java.NativePrebuilt;
 import com.uber.okbuck.template.jvm.JvmBinaryRule;
 import java.io.File;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Set;
 import org.gradle.api.Project;
@@ -83,15 +84,15 @@ public final class JetifierManager {
   }
 
   public void finalizeDependencies() {
-    Path jetifierCache = rootProject.file(JETIFIER_LOCATION).toPath();
+    Path jetifierCache = project.file(JETIFIER_LOCATION).toPath();
     FileUtil.deleteQuietly(jetifierCache);
 
     if (dependencies != null && dependencies.size() > 0) {
+      jetifierCache.toFile().mkdirs();
+
       ImmutableList.Builder<Rule> rulesBuilder = new ImmutableList.Builder<>();
       ImmutableSet.Builder<String> binaryDependencies = ImmutableSet.builder();
       binaryDependencies.addAll(BuckRuleComposer.external(dependencies));
-
-      jetifierCache.toFile().mkdirs();
 
       for (String module : INTERNAL_MODULES) {
         FileUtil.copyResourceToProject("jetifier/" + module, new File(JETIFIER_LOCATION, module));
