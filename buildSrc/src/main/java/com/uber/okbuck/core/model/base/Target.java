@@ -34,7 +34,8 @@ public abstract class Target {
     this.project = project;
     this.name = name;
     identifier = project.getPath().replaceFirst(":", "");
-    path = identifier.replaceAll(":", File.separator);
+    // Replacement parameter of replaceAll should have backslashes escaped
+    path = identifier.replaceAll(":", File.separator.replace("\\", "\\\\"));
     rootProject = project.getRootProject();
   }
 
