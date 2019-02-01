@@ -69,9 +69,10 @@ public final class RobolectricManager {
   }
 
   public void finalizeDependencies() {
+    Path robolectricCache = rootProject.file(ROBOLECTRIC_CACHE).toPath();
+    FileUtil.deleteQuietly(robolectricCache);
+
     if (dependencies != null && dependencies.size() > 0) {
-      Path robolectricCache = rootProject.file(ROBOLECTRIC_CACHE).toPath();
-      FileUtil.deleteQuietly(robolectricCache);
       robolectricCache.toFile().mkdirs();
 
       Map<String, String> targetsNameMap =
