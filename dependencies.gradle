@@ -33,6 +33,8 @@ def build = [
         rockerRuntime    : "com.fizzed:rocker-runtime:${versions.rocker}",
         shadowJar        : "com.github.jengelman.gradle.plugins:shadow:2.0.1",
         sqlDelightPlugin : "com.squareup.sqldelight:gradle-plugin:1.0.2",
+        jna              : "net.java.dev.jna:jna:5.2.0",
+        jnaPlatform      : "net.java.dev.jna:jna-platform:5.2.0",
 ]
 
 def buildConfig = [

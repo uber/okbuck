@@ -10,6 +10,9 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
+
+import com.google.errorprone.annotations.Var;
+import com.uber.okbuck.core.util.windowsfs.WindowsFS;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.Project;
 import org.slf4j.Logger;
@@ -82,10 +85,16 @@ public final class FileUtil {
     }
   }
 
-  public static void symlink(Path link, Path target) {
+  public static void symlink(Path link, @Var Path target) {
     try {
       LOG.info("Creating symlink {} -> {}", link, target);
-      Files.createSymbolicLink(link, target);
+      if (System.getProperty("os.name").startsWith("Windows")) {
+        target = link.getParent().resolve(target).normalize();
+        WindowsFS windowsFS = new WindowsFS();
+        windowsFS.createSymbolicLink(link, target, Files.isDirectory(target));
+      } else {
+        Files.createSymbolicLink(link, target);
+      }
     } catch (IOException e) {
       LOG.error("Could not create symlink {} -> {}", link, target);
       throw new IllegalStateException(e);
