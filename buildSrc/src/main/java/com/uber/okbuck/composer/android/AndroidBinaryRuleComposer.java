@@ -20,6 +20,7 @@ public final class AndroidBinaryRuleComposer extends AndroidBuckRuleComposer {
       ImmutableMap.of(
           "armeabi", "ARM",
           "armeabi-v7a", "ARMV7",
+          "arm64-v8a",
           "x86", "X86",
           "x86_64", "X86_64",
           "mips", "MIPS");
