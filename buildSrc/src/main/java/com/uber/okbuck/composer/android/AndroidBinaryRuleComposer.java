@@ -17,13 +17,14 @@ import org.apache.commons.lang3.tuple.Pair;
 public final class AndroidBinaryRuleComposer extends AndroidBuckRuleComposer {
 
   private static final ImmutableMap<String, String> CPU_FILTER_MAP =
-      ImmutableMap.of(
-          "armeabi", "ARM",
-          "armeabi-v7a", "ARMV7",
-          "arm64-v8a", "ARMV8_64",
-          "x86", "X86",
-          "x86_64", "X86_64",
-          "mips", "MIPS");
+      new ImmutableMap.Builder<>()
+          .put("armeabi", "ARM")
+          .put("armeabi-v7a", "ARMV7")
+          .put("arm64-v8a", "ARM64")
+          .put("x86", "X86")
+          .put("x86_64", "X86_64")
+          .put("mips", "MIPS")
+          .build();
 
   private AndroidBinaryRuleComposer() {
     // no instance
