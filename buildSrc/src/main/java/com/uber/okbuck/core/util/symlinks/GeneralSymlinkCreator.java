@@ -6,8 +6,8 @@ import java.nio.file.Path;
 
 public class GeneralSymlinkCreator implements SymlinkCreator {
 
-    @Override
-    public void createSymbolicLink(Path symlink, Path target) throws IOException {
-        Files.createSymbolicLink(symlink, target);
-    }
+  @Override
+  public void createSymbolicLink(Path symlink, Path target) throws IOException {
+    Files.createSymbolicLink(symlink, target);
+  }
 }

@@ -119,7 +119,7 @@ public class WindowsFS {
         nativeResult = unPrivilegedCreateSymbolicLink(symlinkPathString, targetPathString, dirLink);
         if (!nativeResult.getResult()
             && (nativeResult.getErrorCode() == WindowsFSLibrary.INVALID_PARAMETER_ERROR
-            || nativeResult.getErrorCode() == WindowsFSLibrary.ERROR_PRIVILEGE_NOT_HELD)) {
+                || nativeResult.getErrorCode() == WindowsFSLibrary.ERROR_PRIVILEGE_NOT_HELD)) {
           // Failed! Try without the NON_PRIVILEGED flag (this requires elevated run).
           NativeCreateSymlinkResult nativeResultPrivileged =
               privilegedCreateSymbolicLink(symlinkPathString, targetPathString, dirLink);
@@ -145,12 +145,13 @@ public class WindowsFS {
         nativeResult = privilegedCreateSymbolicLink(symlinkPathString, targetPathString, dirLink);
         break;
       default:
-//        nativeResult = new NativeCreateSymlinkResult(false, -1);
+        //        nativeResult = new NativeCreateSymlinkResult(false, -1);
         throw new AssertionError("Invalid WindowsPrivilegedApiUsage value!");
     }
 
     if (!nativeResult.getResult()) {
-      @Var String message =
+      @Var
+      String message =
           "Tried to link "
               + symlinkPathString
               + " to "
