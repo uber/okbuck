@@ -1,5 +1,7 @@
 package com.uber.okbuck.core.util;
 
+import com.uber.okbuck.core.util.symlinks.SymlinkCreator;
+import com.uber.okbuck.core.util.symlinks.SymlinkCreatorFactory;
 import com.google.common.collect.ImmutableSet;
 import java.io.File;
 import java.io.IOException;
@@ -11,8 +13,6 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
 
-import com.google.errorprone.annotations.Var;
-import com.uber.okbuck.core.util.windowsfs.WindowsFS;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.Project;
 import org.slf4j.Logger;
@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 public final class FileUtil {
   private static final Logger LOG = LoggerFactory.getLogger(FileUtil.class);
+  private static final SymlinkCreator symlinkCreator = SymlinkCreatorFactory.getSymlinkCreator();
 
   private FileUtil() {}
 
@@ -85,16 +86,10 @@ public final class FileUtil {
     }
   }
 
-  public static void symlink(Path link, @Var Path target) {
+  public static void symlink(Path link, Path target) {
     try {
       LOG.info("Creating symlink {} -> {}", link, target);
-      if (System.getProperty("os.name").startsWith("Windows")) {
-        target = link.getParent().resolve(target).normalize();
-        WindowsFS windowsFS = new WindowsFS();
-        windowsFS.createSymbolicLink(link, target, Files.isDirectory(target));
-      } else {
-        Files.createSymbolicLink(link, target);
-      }
+      symlinkCreator.createSymbolicLink(link, target);
     } catch (IOException e) {
       LOG.error("Could not create symlink {} -> {}", link, target);
       throw new IllegalStateException(e);
