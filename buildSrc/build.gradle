@@ -52,6 +52,8 @@ dependencies {
     implementation deps.build.kotlinPlugin
     implementation deps.build.kotlinAllOpen
     implementation deps.build.rockerRuntime
+    implementation deps.build.jna
+    implementation deps.build.jnaPlatform
 
     testImplementation deps.test.junit
 }
@@ -97,7 +99,7 @@ task sourcesJar(type: Jar) {
     classifier = "sources"
 }
 
-def publishVersion = "0.46.4"
+def publishVersion = "0.46.6"
 group = "com.uber"
 version = publishVersion
 def siteUrl = "https://github.com/uber/okbuck"

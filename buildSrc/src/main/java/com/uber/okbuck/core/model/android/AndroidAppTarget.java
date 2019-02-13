@@ -47,9 +47,9 @@ public class AndroidAppTarget extends AndroidLibTarget {
     keystore = extractKeystore();
 
     BaseVariant baseVariant = getBaseVariant();
-    NdkCompile ndkCompile = baseVariant.getNdkCompile();
+    NdkCompile ndkCompile = baseVariant.getNdkCompileProvider().get();
 
-    Set<String> filters = ndkCompile != null ? ndkCompile.getAbiFilters() : ImmutableSet.of();
+    Set<String> filters = ndkCompile.getAbiFilters();
     cpuFilters = filters != null ? filters : ImmutableSet.of();
 
     Boolean multidex = getBaseVariant().getMergedFlavor().getMultiDexEnabled();

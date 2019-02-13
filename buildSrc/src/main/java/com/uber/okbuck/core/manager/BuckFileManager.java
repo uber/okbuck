@@ -5,6 +5,7 @@ import com.google.common.collect.TreeMultimap;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.extension.RuleOverridesExtension;
+import com.uber.okbuck.template.common.GeneratedHeader;
 import com.uber.okbuck.template.common.LoadStatements;
 import com.uber.okbuck.template.core.Rule;
 import java.io.BufferedOutputStream;
@@ -47,6 +48,7 @@ public class BuckFileManager {
       try (OutputStream fos = new FileOutputStream(buckFile);
           BufferedOutputStream os = new BufferedOutputStream(fos)) {
 
+        GeneratedHeader.template().render(os);
         if (!loadStatements.isEmpty()) {
           LoadStatements.template(writableLoadStatements(loadStatements)).render(os);
         }

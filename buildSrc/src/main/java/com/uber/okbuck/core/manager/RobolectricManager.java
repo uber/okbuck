@@ -106,7 +106,7 @@ public final class RobolectricManager {
     API_26("8.0.0_r4", "r1"),
     API_27("8.1.0", "4611349"),
     API_P("P", "4651975"),
-    API_28("9", "4799589");
+    API_28("9", "4913185-2");
 
     private final String androidVersion;
     private final String frameworkSdkBuildVersion;

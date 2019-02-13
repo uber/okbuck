@@ -140,6 +140,13 @@ public class DependencyManager {
               .stream()
               .filter(entry -> entry.getValue().size() > 1)
               .map(Map.Entry::getValue)
+              .filter(
+                  deps ->
+                      deps.stream()
+                              .map(ExternalDependency::getMavenCoordsForValidation)
+                              .collect(Collectors.toSet())
+                              .size()
+                          > 1)
               .flatMap(Collection::stream)
               .filter(dependency -> !externalDependenciesExtension.isAllowedVersion(dependency))
               .collect(

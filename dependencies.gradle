@@ -3,8 +3,8 @@
 // Gradle Cache Version 1
 
 def versions = [
-        androidPlugin      : "3.2.0",
-        androidTools       : "26.2.0",
+        androidPlugin      : "3.3.1",
+        androidTools       : "26.3.1",
         butterKnife        : "10.0.0",
         dagger             : "2.16",
         kotlin             : "1.3.20",
@@ -27,12 +27,14 @@ def build = [
         errorpronePlugin : "net.ltgt.gradle:gradle-errorprone-plugin:0.0.16",
         kotlinPlugin     : "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}",
         kotlinAllOpen    : "org.jetbrains.kotlin:kotlin-allopen:${versions.kotlin}",
-        manifestMerger   : "com.android.tools.build:manifest-merger:26.1.2",
+        manifestMerger   : "com.android.tools.build:manifest-merger:${versions.androidTools}",
         nullaway         : "com.uber.nullaway:nullaway:0.5.3",
         rockerPlugin     : "gradle.plugin.com.fizzed:rocker-gradle-plugin:${versions.rocker}",
         rockerRuntime    : "com.fizzed:rocker-runtime:${versions.rocker}",
         shadowJar        : "com.github.jengelman.gradle.plugins:shadow:2.0.1",
         sqlDelightPlugin : "com.squareup.sqldelight:gradle-plugin:1.0.2",
+        jna              : "net.java.dev.jna:jna:5.2.0",
+        jnaPlatform      : "net.java.dev.jna:jna-platform:5.2.0",
 ]
 
 def buildConfig = [

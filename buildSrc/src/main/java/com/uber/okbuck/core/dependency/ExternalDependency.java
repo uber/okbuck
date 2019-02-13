@@ -49,6 +49,14 @@ public class ExternalDependency {
     return Objects.equals(base, that.base);
   }
 
+  /**
+   * Retruns the maven coordinates used for version validation. This excludes the classifier and
+   * packaging attributes
+   */
+  public String getMavenCoordsForValidation() {
+    return base.getMavenCoordsForValidation();
+  }
+
   @Override
   public int hashCode() {
     return this.base.hashCode();
