@@ -40,7 +40,6 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Project;
-import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.api.tasks.testing.Test;
@@ -400,12 +399,16 @@ public abstract class AndroidTarget extends JvmTarget {
   }
 
   static List<String> getJavaCompilerOptions(BaseVariant baseVariant) {
-    JavaCompile javaCompiler = baseVariant.getJavaCompileProvider().get();
-    List<String> options = javaCompiler.getOptions().getCompilerArgs();
+    if (baseVariant != null && baseVariant.getJavaCompiler() instanceof JavaCompile) {
+      List<String> options =
+          ((JavaCompile) baseVariant.getJavaCompiler()).getOptions().getCompilerArgs();
 
-    // Remove options added by apt plugin since they are handled by apt scope separately
-    filterOptions(options, ImmutableList.of("-s", "-processorpath"));
-    return options;
+      // Remove options added by apt plugin since they are handled by apt scope separately
+      filterOptions(options, ImmutableList.of("-s", "-processorpath"));
+      return options;
+    } else {
+      return ImmutableList.of();
+    }
   }
 
   @Override
