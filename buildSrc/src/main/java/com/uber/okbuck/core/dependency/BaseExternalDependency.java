@@ -67,6 +67,15 @@ public abstract class BaseExternalDependency {
   }
 
   @Memoized
+  String getMavenCoordsForValidation() {
+    return versionless().group()
+        + VersionlessDependency.COORD_DELIMITER
+        + versionless().name()
+        + VersionlessDependency.COORD_DELIMITER
+        + version();
+  }
+
+  @Memoized
   public String packaging() {
     return FilenameUtils.getExtension(realDependencyFile().getName());
   }
