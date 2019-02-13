@@ -26,6 +26,6 @@ class MainActivity : DaggerAppCompatActivity() {
     }
 
     companion object {
-      internal const val TEST_INTERNAL = ""
+      const val TEST_INTERNAL = ""
     }
 }
