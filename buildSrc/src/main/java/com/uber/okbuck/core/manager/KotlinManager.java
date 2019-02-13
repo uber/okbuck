@@ -1,14 +1,17 @@
 package com.uber.okbuck.core.manager;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.base.BuckRuleComposer;
 import com.uber.okbuck.core.dependency.DependencyCache;
 import com.uber.okbuck.core.dependency.ExternalDependency;
+import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.template.config.SymlinkBuckFile;
 import com.uber.okbuck.template.core.Rule;
+import com.uber.okbuck.template.jvm.JvmBinaryRule;
 import java.nio.file.Path;
 import java.util.Set;
 import java.util.TreeMap;
@@ -33,10 +36,12 @@ public final class KotlinManager {
   private static final String KOTLIN_GROUP = "org.jetbrains.kotlin";
   private static final String KOTLIN_GRADLE_MODULE = "kotlin-gradle-plugin";
   private static final String KOTLIN_DEPS_CONFIG = "okbuck_kotlin_deps";
+  private static final String KOTLIN_EMBEDDABLE_COMPILER = "kotlin-compiler-embeddable";
+  private static final String KOTLIN_EMBEDDABLE_COMPILER_RULE_NAME = "kotlin_compiler_embeddable";
 
   private static final ImmutableList<String> kotlinModules =
       ImmutableList.of(
-          "kotlin-compiler-embeddable",
+          KOTLIN_EMBEDDABLE_COMPILER,
           "kotlin-stdlib",
           KOTLIN_ANDROID_EXTENSIONS_MODULE,
           KOTLIN_ALLOPEN_MODULE,
@@ -45,6 +50,9 @@ public final class KotlinManager {
           "kotlin-annotation-processing-gradle",
           "kotlin-gradle-plugin-api",
           "kotlin-stdlib-common");
+
+  private static final ImmutableSet<String> embeddableCompilerJars =
+      ImmutableSet.of(KOTLIN_EMBEDDABLE_COMPILER + ".jar", "trove4j.jar");
 
   private final Project project;
   private final BuckFileManager buckFileManager;
@@ -94,12 +102,25 @@ public final class KotlinManager {
 
     if (dependencies != null && dependencies.size() > 0) {
       TreeMap<String, String> targetsNameMap = new TreeMap<>();
+      ImmutableList.Builder<String> embeddableCompilerDepsBuilder = ImmutableList.builder();
       dependencies.forEach(
           externalDependency -> {
-            targetsNameMap.put(
-                BuckRuleComposer.external(externalDependency),
-                externalDependency.getVersionlessTargetName());
+            if (!embeddableCompilerJars.contains(externalDependency.getVersionlessTargetName())) {
+              targetsNameMap.put(
+                  BuckRuleComposer.external(externalDependency),
+                  externalDependency.getVersionlessTargetName());
+            } else {
+              embeddableCompilerDepsBuilder.add(BuckRuleComposer.external(externalDependency));
+            }
           });
+
+      Rule embeddableCompilerRule =
+          new JvmBinaryRule()
+              .deps(embeddableCompilerDepsBuilder.build())
+              .name(KOTLIN_EMBEDDABLE_COMPILER_RULE_NAME)
+              .ruleType(RuleType.JAVA_BINARY.getBuckName());
+
+      targetsNameMap.put(embeddableCompilerRule.buckName(), KOTLIN_EMBEDDABLE_COMPILER + ".jar");
 
       Rule symlinkRule =
           new SymlinkBuckFile()
@@ -107,7 +128,8 @@ public final class KotlinManager {
               .base(KOTLIN_HOME_BASE)
               .name(KOTLIN_HOME);
       buckFileManager.writeToBuckFile(
-          ImmutableList.of(symlinkRule), path.resolve(OkBuckGradlePlugin.BUCK).toFile());
+          ImmutableList.of(embeddableCompilerRule, symlinkRule),
+          path.resolve(OkBuckGradlePlugin.BUCK).toFile());
     }
   }
 }
