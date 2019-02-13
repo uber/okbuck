@@ -1,6 +1,6 @@
 package demo
 
-internal const val INTERNAL_GREETING = "Hello internal world!"
+const val INTERNAL_GREETING = "Hello internal world!"
 
 fun getGreeting(): String {
     val words = mutableListOf<String>()
