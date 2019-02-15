@@ -54,7 +54,7 @@ public final class JvmLibraryRuleComposer extends JvmBuckRuleComposer {
             .targetCompatibility(target.getTargetCompatibility())
             .mavenCoords(target.getMavenCoords())
             .testTargets(testTargets)
-            .options(mapOptions(target.getMain().getCompilerOptions()))
+            .options(target.getMain().getCustomOptions())
             .libDeps(target.hasApplication() ? deps : ImmutableSet.of())
             .ruleType(ruleType.getBuckName())
             .defaultVisibility()

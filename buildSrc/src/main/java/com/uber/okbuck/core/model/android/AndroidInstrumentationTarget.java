@@ -49,7 +49,9 @@ public abstract class AndroidInstrumentationTarget extends AndroidAppTarget {
         .configuration(getBaseVariant().getRuntimeConfiguration())
         .sourceDirs(getSources(getBaseVariant()))
         .javaResourceDirs(getJavaResources(getBaseVariant()))
-        .compilerOptions(Scope.Builder.COMPILER.JAVA, getJavaCompilerOptions(getBaseVariant()))
+        .customOptions(JAVA_COMPILER_EXTRA_ARGUMENTS, getJavaCompilerOptions(getBaseVariant()))
+        .customOptions(KOTLIN_COMPILER_EXTRA_ARGUMENTS, getKotlinCompilerOptions())
+        .customOptions(getKotlinFriendPaths(true))
         .build();
   }
 

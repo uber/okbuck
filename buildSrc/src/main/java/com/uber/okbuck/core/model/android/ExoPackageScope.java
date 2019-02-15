@@ -29,7 +29,7 @@ public class ExoPackageScope extends Scope {
 
   ExoPackageScope(
       Project project, Scope base, List<String> exoPackageDependencies, @Nullable String manifest) {
-    super(project, null, ImmutableSet.of(), ImmutableSet.of(), base.getCompilerOptions());
+    super(project, null, ImmutableSet.of(), ImmutableSet.of(), base.getCustomOptions());
     this.base = base;
     this.manifest = manifest;
     extractDependencies(base, exoPackageDependencies);
