@@ -29,7 +29,7 @@ aliases:
           rm -f ~/.gradle/caches/modules-2/modules-2.lock
           # Temporary till #798 is resolved upstream
           RESOLVED_KOTLIN_HOME=$(./buckw build //.okbuck/workspace/kotlin_home:kotlin_home --show-output | awk '{print $2}')
-          sed -i.bak "s:.okbuck/config/okbuck.buckconfig:${RESOLVED_KOTLIN_HOME}:g" .okbuck/config/okbuck.buckconfig
+          sed -i.bak "s://.okbuck/workspace/kotlin_home:kotlin_home:${RESOLVED_KOTLIN_HOME}:g" .okbuck/config/okbuck.buckconfig
         shell: "/bin/bash"
   - &save-wrapper-cache
     save_cache:
