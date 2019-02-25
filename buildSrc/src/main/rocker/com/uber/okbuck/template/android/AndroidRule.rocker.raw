@@ -19,7 +19,7 @@ Map options,
 Collection jvmArgs,
 Map env,
 Collection exportedDeps,
-Collection extraKotlincArgs,
+Collection friendPaths,
 String language,
 String manifest,
 String robolectricManifest,
@@ -73,13 +73,6 @@ env
 }
 @if (valid(language)) {
     language = '@language',
-}
-@if (valid(extraKotlincArgs)) {
-    extra_kotlinc_arguments = [
-    @for (extraKotlincArg : extraKotlincArgs) {
-        '@extraKotlincArg',
-    }
-    ],
 }
 @if (!disableLintTemplate) {
 @if (!disableLint) {

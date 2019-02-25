@@ -14,7 +14,6 @@ import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.model.base.Target;
 import com.uber.okbuck.core.util.ProjectUtil;
 import java.io.File;
-import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -54,6 +53,9 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile;
 public class JvmTarget extends Target {
 
   public static final String MAIN = "main";
+
+  protected static final String JAVA_COMPILER_EXTRA_ARGUMENTS = "extra_arguments";
+  protected static final String KOTLIN_COMPILER_EXTRA_ARGUMENTS = "extra_kotlinc_arguments";
 
   private final String aptConfigurationName;
   private final String testAptConfigurationName;
@@ -208,9 +210,10 @@ public class JvmTarget extends Target {
         .configuration(JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME)
         .sourceDirs(getMainSrcDirs())
         .javaResourceDirs(getMainJavaResourceDirs())
-        .compilerOptions(
-            Scope.Builder.COMPILER.JAVA, compileJavaTask.getOptions().getCompilerArgs())
-        .compilerOptions(Scope.Builder.COMPILER.KOTLIN, getKotlinCompilerOptions(false))
+        .customOptions(
+            JAVA_COMPILER_EXTRA_ARGUMENTS, compileJavaTask.getOptions().getCompilerArgs())
+        .customOptions(KOTLIN_COMPILER_EXTRA_ARGUMENTS, getKotlinCompilerOptions())
+        .customOptions(getKotlinFriendPaths(false))
         .build();
   }
 
@@ -221,9 +224,10 @@ public class JvmTarget extends Target {
         .configuration(JavaPlugin.TEST_RUNTIME_CLASSPATH_CONFIGURATION_NAME)
         .sourceDirs(getTestSrcDirs())
         .javaResourceDirs(getTestJavaResourceDirs())
-        .compilerOptions(
-            Scope.Builder.COMPILER.JAVA, testCompileJavaTask.getOptions().getCompilerArgs())
-        .compilerOptions(Scope.Builder.COMPILER.KOTLIN, getKotlinCompilerOptions(true))
+        .customOptions(
+            JAVA_COMPILER_EXTRA_ARGUMENTS, testCompileJavaTask.getOptions().getCompilerArgs())
+        .customOptions(KOTLIN_COMPILER_EXTRA_ARGUMENTS, getKotlinCompilerOptions())
+        .customOptions(getKotlinFriendPaths(true))
         .build();
   }
 
@@ -288,7 +292,22 @@ public class JvmTarget extends Target {
     return version.getMajorVersion();
   }
 
-  protected List<String> getKotlinCompilerOptions(boolean isTest) {
+  /**
+   * For Kotlin tests, a special extra friend-paths argument needs to be passed to read
+   * internal elements. See https://github.com/uber/okbuck/issues/709
+   *
+   * @param isTest
+   * @return the list with all friend paths
+   */
+  public Map<String, List<String>> getKotlinFriendPaths(boolean isTest) {
+    if (!isKotlin || !isTest) {
+      return ImmutableMap.of();
+    }
+
+    return ImmutableMap.of("friend_paths", ImmutableList.of(":" + JvmBuckRuleComposer.src(this)));
+  }
+
+  protected List<String> getKotlinCompilerOptions() {
     if (!isKotlin) {
       return ImmutableList.of();
     }
@@ -313,24 +332,6 @@ public class JvmTarget extends Target {
               "plugin:org.jetbrains.kotlin.allopen:" + option.getKey() + "=" + option.getValue());
         }
       }
-    }
-    if (isTest) {
-      // For Kotlin tests, a special extra friend-paths argument needs to be passed to read
-      // internal elements.
-      // https://github.com/uber/okbuck/issues/709
-
-      // Note that we hardcode the path for now as location macros can only be used in genrules
-      // at the time of writing. When location macros are supported, can simply just write
-      // optionBuilder.add("-Xfriend-paths=$(location :" + JvmBuckRuleComposer.src(this) +
-      // "[output])");
-      String composedTargetName = JvmBuckRuleComposer.src(this);
-      optionBuilder.add(
-          "-Xfriend-paths="
-              + Paths.get("buck-out/gen")
-                  .resolve(getProject().getRootProject().relativePath(getProject().getProjectDir()))
-                  .resolve(String.format("lib__%s__output", composedTargetName))
-                  .resolve(composedTargetName + ".jar")
-                  .toString());
     }
     return optionBuilder.build();
   }

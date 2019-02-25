@@ -53,7 +53,7 @@ public class Scope {
   private final Set<String> sources;
   @Nullable private final Configuration configuration;
   private final DependencyCache depCache;
-  private final Map<Builder.COMPILER, List<String>> compilerOptions;
+  private final Map<String, List<String>> customOptions;
   protected final Project project;
 
   private final Set<Target> targetDeps = new HashSet<>();
@@ -73,8 +73,8 @@ public class Scope {
     return targetDeps;
   }
 
-  public Map<Builder.COMPILER, List<String>> getCompilerOptions() {
-    return compilerOptions;
+  public Map<String, List<String>> getCustomOptions() {
+    return customOptions;
   }
 
   public final Set<ExternalDependency> getExternal() {
@@ -94,13 +94,13 @@ public class Scope {
       @Nullable Configuration configuration,
       Set<File> sourceDirs,
       Set<File> javaResourceDirs,
-      Map<Builder.COMPILER, List<String>> compilerOptions,
+      Map<String, List<String>> customOptions,
       DependencyCache depCache) {
 
     this.project = project;
     this.sources = FileUtil.available(project, sourceDirs);
     this.javaResources = FileUtil.available(project, javaResourceDirs);
-    this.compilerOptions = compilerOptions;
+    this.customOptions = customOptions;
     this.depCache = depCache;
     this.configuration = configuration;
 
@@ -114,13 +114,13 @@ public class Scope {
       @Nullable Configuration configuration,
       Set<File> sourceDirs,
       Set<File> javaResourceDirs,
-      Map<Builder.COMPILER, List<String>> compilerOptions) {
+      Map<String, List<String>> customOptions) {
     this(
         project,
         configuration,
         sourceDirs,
         javaResourceDirs,
-        compilerOptions,
+        customOptions,
         ProjectUtil.getDependencyCache(project));
   }
 
@@ -399,14 +399,14 @@ public class Scope {
     return Objects.equals(javaResources, scope.javaResources)
         && Objects.equals(sources, scope.sources)
         && Objects.equals(configuration, scope.configuration)
-        && Objects.equals(compilerOptions, scope.compilerOptions)
+        && Objects.equals(customOptions, scope.customOptions)
         && Objects.equals(project, scope.project);
   }
 
   @Override
   public int hashCode() {
 
-    return Objects.hash(javaResources, sources, configuration, compilerOptions, project);
+    return Objects.hash(javaResources, sources, configuration, customOptions, project);
   }
 
   public static Builder builder(Project project) {
@@ -415,19 +415,13 @@ public class Scope {
 
   public static final class Builder {
 
-    public enum COMPILER {
-      JAVA,
-      KOTLIN,
-      SCALA
-    }
-
     private final Project project;
 
     private Set<File> javaResourceDirs = ImmutableSet.of();
     private Set<File> sourceDirs = ImmutableSet.of();
     @Nullable private Configuration configuration = null;
     private DependencyCache depCache;
-    private final Map<COMPILER, List<String>> compilerOptions = new LinkedHashMap<>();
+    private final Map<String, List<String>> compilerOptions = new LinkedHashMap<>();
 
     private Builder(Project project) {
       this.project = project;
@@ -459,10 +453,20 @@ public class Scope {
       return this;
     }
 
-    public Builder compilerOptions(COMPILER compiler, List<String> options) {
+    public Builder customOptions(String key, List<String> values) {
       List<String> existingOptions =
-          compilerOptions.computeIfAbsent(compiler, compiler1 -> new ArrayList<>());
-      existingOptions.addAll(options);
+          compilerOptions.computeIfAbsent(key, key1 -> new ArrayList<>());
+      existingOptions.addAll(values);
+      return this;
+    }
+
+    public Builder customOptions(Map<String, List<String>> options) {
+      options.keySet()
+          .forEach(key -> {
+            List<String> existingOptions =
+                compilerOptions.computeIfAbsent(key, key1 -> new ArrayList<>());
+            existingOptions.addAll(options.get(key));
+          });
       return this;
     }
 

@@ -45,7 +45,7 @@ public final class ExopackageAndroidLibraryRuleComposer extends AndroidBuckRuleC
             .aptDeps(libraryAptDeps)
             .providedDeps(providedDeps)
             .disableLint(true)
-            .options(mapOptions(target.getMain().getCompilerOptions()));
+            .options(target.getMain().getCustomOptions());
 
     if (target.getRuleType().equals(RuleType.KOTLIN_ANDROID_LIBRARY)) {
       androidRule.language("kotlin");

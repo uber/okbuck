@@ -145,8 +145,9 @@ public abstract class AndroidTarget extends JvmTarget {
         .configuration(getBaseVariant().getRuntimeConfiguration())
         .sourceDirs(getSources(getBaseVariant()))
         .javaResourceDirs(getJavaResources(getBaseVariant()))
-        .compilerOptions(Scope.Builder.COMPILER.JAVA, getJavaCompilerOptions(getBaseVariant()))
-        .compilerOptions(Scope.Builder.COMPILER.KOTLIN, getKotlinCompilerOptions(false))
+        .customOptions(JAVA_COMPILER_EXTRA_ARGUMENTS, getJavaCompilerOptions(getBaseVariant()))
+        .customOptions(KOTLIN_COMPILER_EXTRA_ARGUMENTS, getKotlinCompilerOptions())
+        .customOptions(getKotlinFriendPaths(false))
         .build();
   }
 
@@ -158,8 +159,9 @@ public abstract class AndroidTarget extends JvmTarget {
       builder.configuration(unitTestVariant.getRuntimeConfiguration());
       builder.sourceDirs(getSources(unitTestVariant));
       builder.javaResourceDirs(getJavaResources(unitTestVariant));
-      builder.compilerOptions(Scope.Builder.COMPILER.JAVA, getJavaCompilerOptions(unitTestVariant));
-      builder.compilerOptions(Scope.Builder.COMPILER.KOTLIN, getKotlinCompilerOptions(true));
+      builder.customOptions(JAVA_COMPILER_EXTRA_ARGUMENTS, getJavaCompilerOptions(unitTestVariant));
+      builder.customOptions(KOTLIN_COMPILER_EXTRA_ARGUMENTS, getKotlinCompilerOptions());
+      builder.customOptions(getKotlinFriendPaths(true));
     }
     return builder.build();
   }
@@ -412,9 +414,9 @@ public abstract class AndroidTarget extends JvmTarget {
   }
 
   @Override
-  protected List<String> getKotlinCompilerOptions(boolean testOnly) {
+  protected List<String> getKotlinCompilerOptions() {
     if (!getHasKotlinAndroidExtensions()) {
-      return super.getKotlinCompilerOptions(testOnly);
+      return super.getKotlinCompilerOptions();
     }
 
     ImmutableList.Builder<String> extraKotlincArgs = ImmutableList.builder();
@@ -459,7 +461,7 @@ public abstract class AndroidTarget extends JvmTarget {
     extraKotlincArgs.add("-P");
     extraKotlincArgs.add(options.toString());
 
-    extraKotlincArgs.addAll(super.getKotlinCompilerOptions(testOnly));
+    extraKotlincArgs.addAll(super.getKotlinCompilerOptions());
 
     return extraKotlincArgs.build();
   }
