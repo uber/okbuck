@@ -1,0 +1,1 @@
+-keep class com.uber.okbuck.example.common.Person { *; }
