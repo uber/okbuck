@@ -52,12 +52,9 @@ public class AndroidAppTarget extends AndroidLibTarget {
     Set<String> filters = ndkCompile != null ? ndkCompile.getAbiFilters() : ImmutableSet.of();
     cpuFilters = filters != null ? filters : ImmutableSet.of();
 
-    Boolean multidex = getBaseVariant().getMergedFlavor().getMultiDexEnabled();
-    if (multidex == null) {
-      multidexEnabled = false;
-    } else {
-      multidexEnabled = multidex;
-    }
+    multidexEnabled = Optional.ofNullable(getBaseVariant().getBuildType().getMultiDexEnabled())
+            .orElse(Optional.ofNullable(getBaseVariant().getMergedFlavor().getMultiDexEnabled())
+                    .orElse(false));
 
     primaryDexPatterns = getProp(getOkbuck().primaryDexPatterns, ImmutableList.of());
     linearAllocHardLimit = getProp(getOkbuck().linearAllocHardLimit, DEFAULT_LINEARALLOC_LIMIT);
