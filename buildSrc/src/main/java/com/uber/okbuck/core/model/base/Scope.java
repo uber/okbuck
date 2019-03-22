@@ -461,12 +461,14 @@ public class Scope {
     }
 
     public Builder customOptions(Map<String, List<String>> options) {
-      options.keySet()
-          .forEach(key -> {
-            List<String> existingOptions =
-                compilerOptions.computeIfAbsent(key, key1 -> new ArrayList<>());
-            existingOptions.addAll(options.get(key));
-          });
+      options
+          .keySet()
+          .forEach(
+              key -> {
+                List<String> existingOptions =
+                    compilerOptions.computeIfAbsent(key, key1 -> new ArrayList<>());
+                existingOptions.addAll(options.get(key));
+              });
       return this;
     }
 

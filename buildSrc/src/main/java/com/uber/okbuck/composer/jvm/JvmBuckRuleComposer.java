@@ -1,6 +1,5 @@
 package com.uber.okbuck.composer.jvm;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.base.BuckRuleComposer;
@@ -8,8 +7,6 @@ import com.uber.okbuck.core.dependency.ExternalDependency;
 import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.model.base.Target;
 import com.uber.okbuck.core.model.jvm.JvmTarget;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 

@@ -52,8 +52,10 @@ public class AndroidAppTarget extends AndroidLibTarget {
     Set<String> filters = ndkCompile != null ? ndkCompile.getAbiFilters() : ImmutableSet.of();
     cpuFilters = filters != null ? filters : ImmutableSet.of();
 
-    multidexEnabled = Optional.ofNullable(getBaseVariant().getBuildType().getMultiDexEnabled())
-            .orElse(Optional.ofNullable(getBaseVariant().getMergedFlavor().getMultiDexEnabled())
+    multidexEnabled =
+        Optional.ofNullable(getBaseVariant().getBuildType().getMultiDexEnabled())
+            .orElse(
+                Optional.ofNullable(getBaseVariant().getMergedFlavor().getMultiDexEnabled())
                     .orElse(false));
 
     primaryDexPatterns = getProp(getOkbuck().primaryDexPatterns, ImmutableList.of());
