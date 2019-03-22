@@ -293,8 +293,8 @@ public class JvmTarget extends Target {
   }
 
   /**
-   * For Kotlin tests, a special extra friend-paths argument needs to be passed to read
-   * internal elements. See https://github.com/uber/okbuck/issues/709
+   * For Kotlin tests, a special extra friend-paths argument needs to be passed to read internal
+   * elements. See https://github.com/uber/okbuck/issues/709
    *
    * @param isTest
    * @return the list with all friend paths
@@ -343,19 +343,15 @@ public class JvmTarget extends Target {
       // We don't differentiate between test and non-test right now because Android projects don't
       // support test-only configuration. Non-android projects theoretically can, but let's wait for
       // someone to ask for that support first as it's not very common.
-      Optional<KotlinCompile> kotlinCompileTask = getProject()
-          .getTasks()
-          .withType(KotlinCompile.class)
-          .stream()
-          .findFirst();
+      Optional<KotlinCompile> kotlinCompileTask =
+          getProject().getTasks().withType(KotlinCompile.class).stream().findFirst();
       if (!kotlinCompileTask.isPresent()) {
         return Collections.emptyList();
       }
       ImmutableMap.Builder<String, Optional<String>> optionBuilder = ImmutableMap.builder();
       KotlinJvmOptions options = kotlinCompileTask.get().getKotlinOptions();
       LinkedHashMap<String, Optional<String>> freeArgs = Maps.newLinkedHashMap();
-      options.getFreeCompilerArgs()
-          .forEach(arg -> freeArgs.put(arg, Optional.empty()));
+      options.getFreeCompilerArgs().forEach(arg -> freeArgs.put(arg, Optional.empty()));
       optionBuilder.putAll(freeArgs);
 
       // Args from CommonToolArguments.kt and KotlinCommonToolOptions.kt
@@ -394,18 +390,20 @@ public class JvmTarget extends Target {
       // In the future, could add any other compileKotlin configurations here
 
       // Return de-duping keys and sorting by them.
-      return optionBuilder.build()
+      return optionBuilder
+          .build()
           .entrySet()
           .stream()
           .filter(distinctByKey(Map.Entry::getKey))
           .sorted(Comparator.comparing(Map.Entry::getKey, String.CASE_INSENSITIVE_ORDER))
-          .flatMap(entry -> {
-            if (entry.getValue().isPresent()) {
-              return ImmutableList.of(entry.getKey(), entry.getValue().get()).stream();
-            } else {
-              return ImmutableList.of(entry.getKey()).stream();
-            }
-          })
+          .flatMap(
+              entry -> {
+                if (entry.getValue().isPresent()) {
+                  return ImmutableList.of(entry.getKey(), entry.getValue().get()).stream();
+                } else {
+                  return ImmutableList.of(entry.getKey()).stream();
+                }
+              })
           .collect(Collectors.toList());
     } catch (UnknownDomainObjectException ignored) {
       // Because why return null when you can throw an exception

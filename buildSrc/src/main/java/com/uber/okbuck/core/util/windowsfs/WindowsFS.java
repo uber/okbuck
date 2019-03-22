@@ -17,7 +17,6 @@
 package com.uber.okbuck.core.util.windowsfs;
 
 import com.google.errorprone.annotations.Var;
-
 import java.io.IOException;
 import java.nio.file.Path;
 

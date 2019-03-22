@@ -176,7 +176,8 @@ public class AnnotationProcessorCache {
     return currentBuilder.build();
   }
 
-  private static Optional<Configuration> getConfiguration(Project project, String configurationString) {
+  private static Optional<Configuration> getConfiguration(
+      Project project, String configurationString) {
     Configuration configuration = DependencyUtils.useful(configurationString, project);
     return Optional.ofNullable(configuration);
   }

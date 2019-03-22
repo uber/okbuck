@@ -1,8 +1,8 @@
 package com.uber.okbuck.core.util;
 
+import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.core.util.symlinks.SymlinkCreator;
 import com.uber.okbuck.core.util.symlinks.SymlinkCreatorFactory;
-import com.google.common.collect.ImmutableSet;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -12,7 +12,6 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
-
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.Project;
 import org.slf4j.Logger;
