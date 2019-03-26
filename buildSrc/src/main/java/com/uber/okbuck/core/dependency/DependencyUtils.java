@@ -35,13 +35,18 @@ public final class DependencyUtils {
   private DependencyUtils() {}
 
   @Nullable
-  public static Configuration useful(String configuration, Project project) {
+  public static Configuration getConfiguration(String configuration, Project project) {
     try {
-      Configuration config = project.getConfigurations().getByName(configuration);
-      return useful(config);
+      return project.getConfigurations().getByName(configuration);
     } catch (UnknownConfigurationException ignored) {
       return null;
     }
+  }
+
+  @Nullable
+  public static Configuration useful(String configuration, Project project) {
+    Configuration config = getConfiguration(configuration, project);
+    return useful(config);
   }
 
   @Nullable

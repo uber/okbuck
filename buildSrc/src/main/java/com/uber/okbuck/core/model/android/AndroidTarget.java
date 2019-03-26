@@ -168,7 +168,7 @@ public abstract class AndroidTarget extends JvmTarget {
 
   @Override
   public List<Scope> getAptScopes() {
-    Configuration configuration = getConfigurationFromVariant(getBaseVariant());
+    Configuration configuration = getAptConfigurationFromVariant(getBaseVariant());
     AnnotationProcessorCache apCache = ProjectUtil.getAnnotationProcessorCache(getProject());
     return configuration != null
         ? apCache.getAnnotationProcessorScopes(getProject(), configuration)
@@ -177,7 +177,7 @@ public abstract class AndroidTarget extends JvmTarget {
 
   @Override
   public List<Scope> getTestAptScopes() {
-    Configuration configuration = getConfigurationFromVariant(getUnitTestVariant());
+    Configuration configuration = getAptConfigurationFromVariant(getUnitTestVariant());
     AnnotationProcessorCache apCache = ProjectUtil.getAnnotationProcessorCache(getProject());
     return configuration != null
         ? apCache.getAnnotationProcessorScopes(getProject(), configuration)
@@ -186,7 +186,7 @@ public abstract class AndroidTarget extends JvmTarget {
 
   @Override
   public Scope getApt() {
-    Configuration configuration = getConfigurationFromVariant(getBaseVariant());
+    Configuration configuration = getAptConfigurationFromVariant(getBaseVariant());
     return configuration != null
         ? getAptScopeForConfiguration(configuration)
         : Scope.builder(getProject()).build();
@@ -194,7 +194,7 @@ public abstract class AndroidTarget extends JvmTarget {
 
   @Override
   public Scope getTestApt() {
-    Configuration configuration = getConfigurationFromVariant(getUnitTestVariant());
+    Configuration configuration = getAptConfigurationFromVariant(getUnitTestVariant());
     return configuration != null
         ? getAptScopeForConfiguration(configuration)
         : Scope.builder(getProject()).build();
@@ -520,7 +520,7 @@ public abstract class AndroidTarget extends JvmTarget {
   }
 
   @Nullable
-  private Configuration getConfigurationFromVariant(@Nullable BaseVariant variant) {
+  private Configuration getAptConfigurationFromVariant(@Nullable BaseVariant variant) {
     @Var Configuration configuration = null;
     if (isKapt) {
       configuration =

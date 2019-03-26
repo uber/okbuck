@@ -20,20 +20,26 @@ public final class JvmLibraryRuleComposer extends JvmBuckRuleComposer {
   public static ImmutableList<Rule> compose(JvmTarget target, RuleType ruleType) {
     List<String> deps =
         ImmutableList.<String>builder()
-            .addAll(external(getExternalDeps(target.getMain(), target.getProvided())))
-            .addAll(targets(getTargetDeps(target.getMain(), target.getProvided())))
+            .addAll(external(target.getExternalDeps(false)))
+            .addAll(targets(target.getTargetDeps(false)))
             .build();
 
     Set<String> aptDeps =
         ImmutableSet.<String>builder()
-            .addAll(externalApt(target.getApt().getExternalJarDeps()))
-            .addAll(targetsApt(target.getApt().getTargetDeps()))
+            .addAll(externalApt(target.getExternalAptDeps(false)))
+            .addAll(targetsApt(target.getTargetAptDeps(false)))
             .build();
 
     Set<String> providedDeps =
         ImmutableSet.<String>builder()
-            .addAll(external(getExternalProvidedDeps(target.getMain(), target.getProvided())))
-            .addAll(targets(getTargetProvidedDeps(target.getMain(), target.getProvided())))
+            .addAll(external(target.getExternalProvidedDeps(false)))
+            .addAll(targets(target.getTargetProvidedDeps(false)))
+            .build();
+
+    Set<String> exportedDeps =
+        ImmutableSet.<String>builder()
+            .addAll(external(target.getExternalExportedDeps(false)))
+            .addAll(targets(target.getTargetExportedDeps(false)))
             .build();
 
     List<String> testTargets =
@@ -49,6 +55,7 @@ public final class JvmLibraryRuleComposer extends JvmBuckRuleComposer {
             .apPlugins(getApPlugins(target.getApPlugins()))
             .aptDeps(aptDeps)
             .providedDeps(providedDeps)
+            .exportedDeps(exportedDeps)
             .resources(target.getMain().getJavaResources())
             .sourceCompatibility(target.getSourceCompatibility())
             .targetCompatibility(target.getTargetCompatibility())

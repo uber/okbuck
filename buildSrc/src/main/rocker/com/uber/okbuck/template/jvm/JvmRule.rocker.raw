@@ -12,6 +12,7 @@ Collection testTargets,
 Collection apPlugins,
 Collection aptDeps,
 Collection providedDeps,
+Collection exportedDeps,
 Collection libDeps,
 Map options,
 Collection jvmArgs,
@@ -81,6 +82,13 @@ lib_deps = []
     provided_deps = [
     @for (providedDep : sorted(providedDeps)) {
         '@providedDep',
+    }
+    ],
+}
+@if (valid(exportedDeps)) {
+    exported_deps = [
+    @for (exportedDep : sorted(exportedDeps)) {
+        '@exportedDep',
     }
     ],
 }

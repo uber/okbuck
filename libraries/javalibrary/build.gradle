@@ -1,7 +1,7 @@
 apply plugin: "java-library"
 
 dependencies {
-    implementation deps.external.gson
+    api deps.external.gson
     implementation deps.external.dagger
 
     annotationProcessor deps.apt.javax

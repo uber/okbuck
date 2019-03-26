@@ -5,6 +5,7 @@ import com.uber.okbuck.extension.JetifierExtension;
 import java.io.File;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FilenameUtils;
+import org.gradle.api.artifacts.Dependency;
 
 public final class DependencyFactory {
 
@@ -80,6 +81,27 @@ public final class DependencyFactory {
         localSourceDependency,
         externalDependenciesExtension,
         jetifierExtension);
+  }
+
+  /**
+   * Returns a versionless dependency from the given gradle dependency.
+   *
+   * @param dependency gradle dependency
+   * @return VersionlessDependency object
+   */
+  public static VersionlessDependency fromDependency(Dependency dependency) {
+    VersionlessDependency.Builder vDependency =
+        VersionlessDependency.builder().setName(dependency.getName());
+
+    String group = dependency.getGroup();
+    if (group == null) {
+      vDependency.setGroup(LOCAL_GROUP);
+    } else {
+      vDependency.setGroup(group);
+    }
+
+    // TODO: Add support of specifying classifier
+    return vDependency.build();
   }
 
   /**

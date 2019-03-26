@@ -19,7 +19,8 @@ public final class AndroidResourceRuleComposer extends AndroidBuckRuleComposer {
     List<String> resDeps = new ArrayList<>();
     resDeps.addAll(external(new HashSet<>(target.getMain().getExternalAarDeps())));
     resDeps.addAll(
-        getTargetDeps(target.getMain(), target.getProvided())
+        target
+            .getTargetDeps(false)
             .stream()
             .filter(targetDep -> targetDep instanceof AndroidTarget)
             .map(targetDep -> resRule((AndroidTarget) targetDep))

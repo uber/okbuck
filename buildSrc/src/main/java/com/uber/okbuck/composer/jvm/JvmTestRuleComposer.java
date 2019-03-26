@@ -21,20 +21,20 @@ public final class JvmTestRuleComposer extends JvmBuckRuleComposer {
     List<String> deps =
         ImmutableList.<String>builder()
             .add(":" + src(target))
-            .addAll(external(getExternalDeps(target.getTest(), target.getTestProvided())))
-            .addAll(targets(getTargetDeps(target.getTest(), target.getTestProvided())))
+            .addAll(external(target.getExternalDeps(true)))
+            .addAll(targets(target.getTargetDeps(true)))
             .build();
 
     Set<String> aptDeps =
         ImmutableSet.<String>builder()
-            .addAll(external(target.getTestApt().getExternalDeps()))
-            .addAll(targets(target.getTestApt().getTargetDeps()))
+            .addAll(external(target.getExternalAptDeps(true)))
+            .addAll(targets(target.getTargetAptDeps(true)))
             .build();
 
     Set<String> providedDeps =
         ImmutableSet.<String>builder()
-            .addAll(external(getExternalProvidedDeps(target.getTest(), target.getTestProvided())))
-            .addAll(targets(getTargetProvidedDeps(target.getTest(), target.getTestProvided())))
+            .addAll(external(target.getExternalProvidedDeps(true)))
+            .addAll(targets(target.getTargetProvidedDeps(true)))
             .build();
 
     return new JvmRule()
