@@ -5,9 +5,14 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.jvm.JvmBuckRuleComposer;
 import com.uber.okbuck.core.annotation.AnnotationProcessorCache;
+import com.uber.okbuck.core.dependency.DependencyFactory;
+import com.uber.okbuck.core.dependency.DependencyUtils;
+import com.uber.okbuck.core.dependency.ExternalDependency;
+import com.uber.okbuck.core.dependency.VersionlessDependency;
 import com.uber.okbuck.core.manager.KotlinManager;
 import com.uber.okbuck.core.manager.LintManager;
 import com.uber.okbuck.core.model.base.Scope;
@@ -32,6 +37,7 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.UnknownDomainObjectException;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.ProjectDependency;
 import org.gradle.api.plugins.ApplicationPlugin;
 import org.gradle.api.plugins.ApplicationPluginConvention;
 import org.gradle.api.plugins.BasePluginConvention;
@@ -83,11 +89,7 @@ public class JvmTarget extends Target {
 
     Optional<Task> compileTask =
         project.getTasks().stream().filter(it -> it instanceof AbstractCompile).findFirst();
-    if (compileTask.isPresent()) {
-      fakeCompile = (AbstractCompile) compileTask.get();
-    } else {
-      fakeCompile = null;
-    }
+    fakeCompile = (AbstractCompile) compileTask.orElse(null);
   }
 
   /**
@@ -156,6 +158,54 @@ public class JvmTarget extends Target {
     return Scope.builder(getProject())
         .configuration(JavaPlugin.TEST_COMPILE_CLASSPATH_CONFIGURATION_NAME)
         .build();
+  }
+
+  /** api external deps */
+  public Set<ExternalDependency> getApiExternalDeps() {
+    Configuration apiConfiguration =
+        DependencyUtils.getConfiguration(JavaPlugin.API_ELEMENTS_CONFIGURATION_NAME, getProject());
+
+    if (apiConfiguration != null) {
+      Set<VersionlessDependency> versionlessApiDependencies =
+          apiConfiguration
+              .getAllDependencies()
+              .withType(org.gradle.api.artifacts.ExternalDependency.class)
+              .stream()
+              .map(DependencyFactory::fromDependency)
+              .collect(Collectors.toSet());
+
+      return getMain()
+          .getExternalDeps()
+          .stream()
+          .filter(dependency -> versionlessApiDependencies.contains(dependency.getVersionless()))
+          .collect(Collectors.toSet());
+    } else {
+      return ImmutableSet.of();
+    }
+  }
+
+  /** api target deps */
+  public Set<Target> getApiTargetDeps() {
+    Configuration apiConfiguration =
+        DependencyUtils.getConfiguration(JavaPlugin.API_ELEMENTS_CONFIGURATION_NAME, getProject());
+
+    if (apiConfiguration != null) {
+      Set<String> projectApiDependencies =
+          apiConfiguration
+              .getAllDependencies()
+              .withType(ProjectDependency.class)
+              .stream()
+              .map(p -> p.getDependencyProject().getPath())
+              .collect(Collectors.toSet());
+
+      return getMain()
+          .getTargetDeps()
+          .stream()
+          .filter(dependency -> projectApiDependencies.contains(dependency.getProject().getPath()))
+          .collect(Collectors.toSet());
+    } else {
+      return ImmutableSet.of();
+    }
   }
 
   /** Lint Scope */
@@ -425,5 +475,117 @@ public class JvmTarget extends Target {
   private static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
     Set<Object> seen = ConcurrentHashMap.newKeySet();
     return t -> seen.add(keyExtractor.apply(t));
+  }
+
+  /**
+   * Get implementation target deps. deps = (runtimeClasspath(api + implementation + runtimeOnly)
+   * intersection compileClasspath(api + implementation + compileOnly)) - api
+   *
+   * @return Target deps
+   */
+  public Set<Target> getTargetDeps(boolean test) {
+    if (test) {
+      return Sets.intersection(getTest().getTargetDeps(), getTestProvided().getTargetDeps());
+    } else {
+      return Sets.difference(
+          Sets.intersection(getMain().getTargetDeps(), getProvided().getTargetDeps()),
+          getApiTargetDeps());
+    }
+  }
+
+  /**
+   * Get api target deps. exportedDeps = api
+   *
+   * @return Target deps
+   */
+  public Set<Target> getTargetExportedDeps(boolean test) {
+    if (test) {
+      return ImmutableSet.of();
+    } else {
+      return getApiTargetDeps();
+    }
+  }
+
+  /**
+   * Get apt target deps. exportedDeps = apt
+   *
+   * @return Target deps
+   */
+  public Set<Target> getTargetAptDeps(boolean test) {
+    if (test) {
+      return getTestApt().getTargetDeps();
+    } else {
+      return getApt().getTargetDeps();
+    }
+  }
+
+  /**
+   * Get compileOnly target deps. compileOnlyDeps = compileClasspath(api + implementation +
+   * compileOnly) - runtimeClasspath(api + implementation + runtimeOnly)
+   *
+   * @return CompileOnly Target deps
+   */
+  public Set<Target> getTargetProvidedDeps(boolean test) {
+    if (test) {
+      return Sets.difference(getTestProvided().getTargetDeps(), getTest().getTargetDeps());
+    } else {
+      return Sets.difference(getProvided().getTargetDeps(), getMain().getTargetDeps());
+    }
+  }
+
+  /**
+   * Get implementation target deps. deps = (runtimeClasspath(api + implementation + runtimeOnly)
+   * intersection compileClasspath(api + implementation + compileOnly)) - api
+   *
+   * @return Target deps
+   */
+  public Set<ExternalDependency> getExternalDeps(boolean test) {
+    if (test) {
+      return Sets.intersection(getTest().getExternalDeps(), getTestProvided().getExternalDeps());
+    } else {
+      return Sets.difference(
+          Sets.intersection(getMain().getExternalDeps(), getProvided().getExternalDeps()),
+          getApiExternalDeps());
+    }
+  }
+
+  /**
+   * Get api target deps. exportedDeps = api
+   *
+   * @return Target deps
+   */
+  public Set<ExternalDependency> getExternalExportedDeps(boolean test) {
+    if (test) {
+      return ImmutableSet.of();
+    } else {
+      return getApiExternalDeps();
+    }
+  }
+
+  /**
+   * Get apt target deps. exportedDeps = apt
+   *
+   * @return Target deps
+   */
+  public Set<ExternalDependency> getExternalAptDeps(boolean test) {
+    if (test) {
+      return getTestApt().getExternalJarDeps();
+    } else {
+      return getApt().getExternalJarDeps();
+    }
+  }
+
+  /**
+   * Get compileOnly target deps. compileOnlyDeps = compileClasspath(api + implementation +
+   * compileOnly) - runtimeClasspath(api + implementation + runtimeOnly)
+   *
+   * @return CompileOnly Target deps
+   */
+  public Set<ExternalDependency> getExternalProvidedDeps(boolean test) {
+    if (test) {
+      return Sets.difference(getTestProvided().getExternalDeps(), getTest().getExternalDeps());
+    } else {
+      return Sets.difference(getProvided().getExternalDeps(), getMain().getExternalDeps());
+    }
   }
 }

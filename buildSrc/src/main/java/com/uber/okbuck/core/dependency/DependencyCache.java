@@ -47,7 +47,7 @@ public class DependencyCache {
       Scope.builder(project)
           .configuration(forcedConfiguration)
           .build()
-          .getExternal()
+          .getAllExternal()
           .forEach(
               dependency -> {
                 get(dependency);

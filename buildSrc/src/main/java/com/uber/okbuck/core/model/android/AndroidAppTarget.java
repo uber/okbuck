@@ -8,6 +8,8 @@ import com.android.builder.model.SigningConfig;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.uber.okbuck.core.dependency.ExternalDependency;
+import com.uber.okbuck.core.model.base.Target;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.extension.TestExtension;
@@ -98,6 +100,18 @@ public class AndroidAppTarget extends AndroidLibTarget {
     Preconditions.checkArgument(optionalBaseVariant.isPresent());
 
     return optionalBaseVariant.get();
+  }
+
+  @Override
+  public Set<ExternalDependency> getApiExternalDeps() {
+    // App targets don't have any deps to export
+    return ImmutableSet.of();
+  }
+
+  @Override
+  public Set<Target> getApiTargetDeps() {
+    // App targets don't have any deps to export
+    return ImmutableSet.of();
   }
 
   @Override

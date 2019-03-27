@@ -32,24 +32,28 @@ public final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
       @Nullable String appClass) {
 
     Set<String> libraryDeps = new HashSet<>(deps);
-    libraryDeps.addAll(external(getExternalDeps(target.getMain(), target.getProvided())));
-    libraryDeps.addAll(targets(getTargetDeps(target.getMain(), target.getProvided())));
-
-    List<String> libraryAptDeps = new ArrayList<>();
-    libraryAptDeps.addAll(externalApt(target.getApt().getExternalJarDeps()));
-    libraryAptDeps.addAll(targetsApt(target.getApt().getTargetDeps()));
-
-    Set<String> providedDeps = new HashSet<>();
-    providedDeps.addAll(external(getExternalProvidedDeps(target.getMain(), target.getProvided())));
-    providedDeps.addAll(targets(getTargetProvidedDeps(target.getMain(), target.getProvided())));
-    providedDeps.add(D8Util.RT_STUB_JAR_RULE);
-
+    libraryDeps.addAll(external(target.getExternalDeps(false)));
+    libraryDeps.addAll(targets(target.getTargetDeps(false)));
     libraryDeps.addAll(
-        getTargetDeps(target.getMain(), target.getProvided())
+        target
+            .getTargetDeps(false)
             .stream()
             .filter(targetDep -> targetDep instanceof AndroidTarget)
             .map(targetDep -> resRule((AndroidTarget) targetDep))
             .collect(Collectors.toSet()));
+
+    List<String> libraryAptDeps = new ArrayList<>();
+    libraryAptDeps.addAll(externalApt(target.getExternalAptDeps(false)));
+    libraryAptDeps.addAll(targetsApt(target.getTargetAptDeps(false)));
+
+    Set<String> providedDeps = new HashSet<>();
+    providedDeps.addAll(external(target.getExternalProvidedDeps(false)));
+    providedDeps.addAll(targets(target.getTargetProvidedDeps(false)));
+    providedDeps.add(D8Util.RT_STUB_JAR_RULE);
+
+    Set<String> libraryExportedDeps = new HashSet<>();
+    libraryExportedDeps.addAll(external(target.getExternalExportedDeps(false)));
+    libraryExportedDeps.addAll(targets(target.getTargetExportedDeps(false)));
 
     List<String> testTargets = new ArrayList<>();
     if (target.getRobolectricEnabled() && !target.getTest().getSources().isEmpty()) {
@@ -70,6 +74,7 @@ public final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
             .apPlugins(getApPlugins(target.getApPlugins()))
             .aptDeps(libraryAptDeps)
             .providedDeps(providedDeps)
+            .exportedDeps(libraryExportedDeps)
             .resources(target.getMain().getJavaResources())
             .resDirs(target.getResDirs())
             .sourceCompatibility(target.getSourceCompatibility())

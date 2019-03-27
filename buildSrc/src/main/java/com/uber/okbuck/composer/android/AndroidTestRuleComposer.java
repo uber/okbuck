@@ -31,17 +31,16 @@ public final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
 
     List<String> testDeps = new ArrayList<>(deps);
     testDeps.add(":" + src(target));
-    testDeps.addAll(external(getExternalDeps(target.getTest(), target.getTestProvided())));
-    testDeps.addAll(targets(getTargetDeps(target.getTest(), target.getTestProvided())));
+    testDeps.addAll(external(target.getExternalDeps(true)));
+    testDeps.addAll(targets(target.getTargetDeps(true)));
 
     List<String> testAptDeps = new ArrayList<>();
-    testAptDeps.addAll(external(target.getTestApt().getExternalDeps()));
-    testAptDeps.addAll(targets(target.getTestApt().getTargetDeps()));
+    testAptDeps.addAll(external(target.getExternalAptDeps(true)));
+    testAptDeps.addAll(targets(target.getTargetAptDeps(true)));
 
     Set<String> providedDeps = new LinkedHashSet<>();
-    providedDeps.addAll(
-        external(getExternalProvidedDeps(target.getTest(), target.getTestProvided())));
-    providedDeps.addAll(targets(getTargetProvidedDeps(target.getTest(), target.getTestProvided())));
+    providedDeps.addAll(external(target.getExternalProvidedDeps(true)));
+    providedDeps.addAll(targets(target.getTargetProvidedDeps(true)));
     providedDeps.add(D8Util.RT_STUB_JAR_RULE);
 
     AndroidTestRule androidTest =

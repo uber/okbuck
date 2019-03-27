@@ -43,6 +43,7 @@ testTargets,
 apPlugins,
 aptDeps,
 providedDeps,
+exportedDeps,
 libDeps,
 options,
 jvmArgs,
@@ -53,13 +54,6 @@ env
 }
 @if (valid(robolectricManifest)) {
     robolectric_manifest = '@robolectricManifest',
-}
-@if (valid(exportedDeps)) {
-    exported_deps = [
-    @for (exportedDep : sorted(exportedDeps)) {
-        '@exportedDep',
-    }
-    ],
 }
 @if (generateR2) {
     final_r_name = 'R2',

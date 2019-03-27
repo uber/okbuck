@@ -69,15 +69,11 @@ public class Scope {
     return sources;
   }
 
-  public final Set<Target> getTargetDeps() {
-    return targetDeps;
-  }
-
   public Map<String, List<String>> getCustomOptions() {
     return customOptions;
   }
 
-  public final Set<ExternalDependency> getExternal() {
+  public final Set<ExternalDependency> getAllExternal() {
     return external;
   }
 
@@ -124,22 +120,24 @@ public class Scope {
         ProjectUtil.getDependencyCache(project));
   }
 
+  public final Set<Target> getTargetDeps() {
+    return targetDeps;
+  }
+
   public Set<ExternalDependency> getExternalDeps() {
-    return external.stream().map(depCache::get).collect(Collectors.toSet());
+    return getAllExternal().stream().map(depCache::get).collect(Collectors.toSet());
   }
 
   public Set<ExternalDependency> getExternalJarDeps() {
-    return external
+    return getExternalDeps()
         .stream()
-        .map(depCache::get)
         .filter(dependency -> dependency.getPackaging().equals(JAR))
         .collect(Collectors.toSet());
   }
 
   public Set<ExternalDependency> getExternalAarDeps() {
-    return external
+    return getExternalDeps()
         .stream()
-        .map(depCache::get)
         .filter(dependency -> dependency.getPackaging().equals(AAR))
         .collect(Collectors.toSet());
   }
@@ -172,7 +170,7 @@ public class Scope {
 
       annotationProcessors =
           Streams.concat(
-                  external
+                  getExternalDeps()
                       .stream()
                       .filter(
                           dependency ->
@@ -209,7 +207,7 @@ public class Scope {
    * @return boolean whether the scope has any auto value extension.
    */
   public boolean hasAutoValueExtensions() {
-    return external.stream().anyMatch(depCache::hasAutoValueExtensions);
+    return getExternalDeps().stream().anyMatch(depCache::hasAutoValueExtensions);
   }
 
   /**
@@ -300,8 +298,6 @@ public class Scope {
   }
 
   private void extractConfiguration(Configuration configuration) {
-    Set<ComponentIdentifier> artifactIds = new HashSet<>();
-
     Set<ResolvedArtifactResult> jarArtifacts =
         getArtifacts(configuration, PROJECT_FILTER, ImmutableList.of("jar"));
 
