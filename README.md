@@ -30,15 +30,6 @@ repositories {
 }
 
 apply plugin: 'com.uber.okbuck'
-okbuck {
-
-    lint {
-        disabled = true
-    }
-    externalDependencies {
-        downloadInBuck = false
-    }
-}
 
 ```
 
