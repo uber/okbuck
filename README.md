@@ -30,7 +30,6 @@ repositories {
 }
 
 apply plugin: 'com.uber.okbuck'
-
 ```
 
 After applying the plugin, the following tasks will be added to the root project
