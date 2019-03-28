@@ -55,7 +55,7 @@ Please make sure you have watchman installed for `buckw` to run `okbuck` only wh
 
 ```bash
 # List all buck targets
-./buckw targets
+./buckw targets //...
 
 # Build a target
 ./buckw build <target>
