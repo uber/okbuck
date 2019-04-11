@@ -1,6 +1,7 @@
 package com.uber.okbuck.core.model.jvm;
 
-import static com.uber.okbuck.core.dependency.BaseExternalDependency.AAR;
+import static com.uber.okbuck.core.dependency.ExternalDependency.filterAar;
+import static com.uber.okbuck.core.dependency.ExternalDependency.filterJar;
 
 import com.android.builder.model.LintOptions;
 import com.google.common.collect.ImmutableList;
@@ -21,6 +22,7 @@ import com.uber.okbuck.core.manager.LintManager;
 import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.model.base.Target;
 import com.uber.okbuck.core.util.ProjectUtil;
+import com.uber.okbuck.extension.ExternalDependenciesExtension;
 import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
@@ -166,14 +168,7 @@ public class JvmTarget extends Target {
 
   /** api external deps */
   public Set<ExternalDependency> getApiExternalDeps() {
-    @Var
-    Configuration apiConfiguration =
-        DependencyUtils.getConfiguration(JavaPlugin.API_ELEMENTS_CONFIGURATION_NAME, getProject());
-
-    if (apiConfiguration == null) {
-      apiConfiguration =
-          DependencyUtils.getConfiguration(JavaPlugin.API_CONFIGURATION_NAME, getProject());
-    }
+    Configuration apiConfiguration = getApiConfiguration();
 
     if (apiConfiguration != null) {
       Set<VersionlessDependency> versionlessApiDependencies =
@@ -197,14 +192,7 @@ public class JvmTarget extends Target {
 
   /** api target deps */
   public Set<Target> getApiTargetDeps() {
-    @Var
-    Configuration apiConfiguration =
-        DependencyUtils.getConfiguration(JavaPlugin.API_ELEMENTS_CONFIGURATION_NAME, getProject());
-
-    if (apiConfiguration == null) {
-      apiConfiguration =
-          DependencyUtils.getConfiguration(JavaPlugin.API_CONFIGURATION_NAME, getProject());
-    }
+    Configuration apiConfiguration = getApiConfiguration();
 
     if (apiConfiguration != null) {
       Set<String> projectApiDependencies =
@@ -222,6 +210,28 @@ public class JvmTarget extends Target {
           .collect(Collectors.toSet());
     } else {
       return ImmutableSet.of();
+    }
+  }
+
+  @Nullable
+  private Configuration getApiConfiguration() {
+    ExternalDependenciesExtension extension =
+        ProjectUtil.getExternalDependencyExtension(getProject());
+
+    if (extension.exportedDepsEnabled()) {
+      @Var
+      Configuration apiConfiguration =
+          DependencyUtils.getConfiguration(
+              JavaPlugin.API_ELEMENTS_CONFIGURATION_NAME, getProject());
+
+      if (apiConfiguration == null) {
+        apiConfiguration =
+            DependencyUtils.getConfiguration(JavaPlugin.API_CONFIGURATION_NAME, getProject());
+      }
+
+      return apiConfiguration;
+    } else {
+      return null;
     }
   }
 
@@ -594,9 +604,9 @@ public class JvmTarget extends Target {
    */
   public Set<ExternalDependency> getExternalAptDeps(boolean test) {
     if (test) {
-      return getTestApt().getExternalJarDeps();
+      return filterJar(getTestApt().getExternalDeps());
     } else {
-      return getApt().getExternalJarDeps();
+      return filterJar(getApt().getExternalDeps());
     }
   }
 
@@ -612,12 +622,5 @@ public class JvmTarget extends Target {
     } else {
       return Sets.difference(getProvided().getExternalDeps(), getMain().getExternalDeps());
     }
-  }
-
-  private static Set<ExternalDependency> filterAar(Set<ExternalDependency> dependencies) {
-    return dependencies
-        .stream()
-        .filter(dependency -> dependency.getPackaging().equals(AAR))
-        .collect(Collectors.toSet());
   }
 }

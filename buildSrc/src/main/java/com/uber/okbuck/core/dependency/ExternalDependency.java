@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.gradle.api.artifacts.Dependency;
 
@@ -191,5 +192,19 @@ public class ExternalDependency {
 
     this.enableJetifier = jetifierExtension.shouldJetify(group, name, getPackaging());
     this.cachePath = Paths.get(externalDependenciesExtension.getCache());
+  }
+
+  public static Set<ExternalDependency> filterAar(Set<ExternalDependency> dependencies) {
+    return dependencies
+        .stream()
+        .filter(dependency -> dependency.getPackaging().equals(AAR))
+        .collect(Collectors.toSet());
+  }
+
+  public static Set<ExternalDependency> filterJar(Set<ExternalDependency> dependencies) {
+    return dependencies
+        .stream()
+        .filter(dependency -> dependency.getPackaging().equals(JAR))
+        .collect(Collectors.toSet());
   }
 }

@@ -185,11 +185,11 @@ okbuck {
     }
 
     kotlin {
-        version = config.versions.kotlin
+        version = deps.versions.kotlin
     }
 
     lint {
-        version = config.versions.androidTools
+        version = deps.versions.androidTools
         jvmArgs = '-Xmx1g'
     }
 

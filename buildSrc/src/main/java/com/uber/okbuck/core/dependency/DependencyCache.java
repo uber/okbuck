@@ -21,6 +21,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.DependencySet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,8 +76,14 @@ public class DependencyCache {
     return dependency;
   }
 
-  public final void addDependencies(Set<org.gradle.api.artifacts.ExternalDependency> dependencies) {
-    dependencyManager.addDependencies(dependencies);
+  public final void addDependencies(DependencySet dependencySet) {
+    this.dependencyManager.addDependencies(
+        dependencySet
+            .stream()
+            .filter(dependency -> dependency instanceof org.gradle.api.artifacts.ExternalDependency)
+            .filter(dependency -> dependency.getGroup() != null && dependency.getVersion() != null)
+            .map(dependency -> (org.gradle.api.artifacts.ExternalDependency) dependency)
+            .collect(Collectors.toSet()));
   }
 
   /**
@@ -159,13 +166,7 @@ public class DependencyCache {
         okBuckExtension.getExternalDependenciesExtension();
     JetifierExtension jetifierExtension = okBuckExtension.getJetifierExtension();
 
-    dependencyManager.addDependencies(
-        configuration
-            .getAllDependencies()
-            .stream()
-            .filter(i -> i instanceof org.gradle.api.artifacts.ExternalDependency)
-            .map(i -> (org.gradle.api.artifacts.ExternalDependency) i)
-            .collect(Collectors.toSet()));
+    addDependencies(configuration.getAllDependencies());
 
     return DependencyUtils.resolveExternal(
             rootProject, configuration, externalDependenciesExtension, jetifierExtension)

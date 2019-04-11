@@ -1,5 +1,7 @@
 package com.uber.okbuck.composer.java;
 
+import static com.uber.okbuck.core.dependency.ExternalDependency.filterJar;
+
 import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.composer.jvm.JvmBuckRuleComposer;
 import com.uber.okbuck.core.model.base.RuleType;
@@ -33,7 +35,7 @@ public class JavaAnnotationProcessorRuleComposer extends JvmBuckRuleComposer {
         .map(
             scope -> {
               ImmutableSet.Builder<String> depsBuilder = new ImmutableSet.Builder<>();
-              depsBuilder.addAll(externalApt(scope.getExternalJarDeps()));
+              depsBuilder.addAll(externalApt(filterJar(scope.getExternalDeps())));
               depsBuilder.addAll(targetsApt(scope.getTargetDeps()));
 
               return new JavaAnnotationProcessorRule()

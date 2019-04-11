@@ -17,11 +17,10 @@ import com.uber.okbuck.core.manager.LintManager;
 import com.uber.okbuck.core.manager.ScalaManager;
 import com.uber.okbuck.core.manager.TransformManager;
 import com.uber.okbuck.core.model.base.ProjectType;
+import com.uber.okbuck.extension.ExternalDependenciesExtension;
 import com.uber.okbuck.extension.OkBuckExtension;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -29,28 +28,16 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FilenameUtils;
 import org.gradle.api.Project;
-import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.artifacts.Dependency;
-import org.gradle.api.artifacts.ModuleVersionIdentifier;
-import org.gradle.api.artifacts.ProjectDependency;
-import org.gradle.api.artifacts.ResolvedArtifact;
-import org.gradle.api.artifacts.SelfResolvingDependency;
 import org.gradle.api.artifacts.component.ComponentIdentifier;
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
-import org.gradle.api.artifacts.result.ArtifactResult;
 import org.gradle.api.artifacts.result.ComponentArtifactsResult;
-import org.gradle.api.artifacts.result.DependencyResult;
 import org.gradle.api.artifacts.result.ResolvedArtifactResult;
-import org.gradle.api.artifacts.result.ResolvedDependencyResult;
 import org.gradle.api.component.Artifact;
-import org.gradle.api.internal.artifacts.result.DefaultResolvedArtifactResult;
 import org.gradle.api.plugins.GroovyPlugin;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.PluginContainer;
 import org.gradle.api.plugins.scala.ScalaPlugin;
-import org.gradle.api.specs.Specs;
-import org.gradle.internal.component.external.model.DefaultModuleComponentSelector;
 import org.gradle.jvm.JvmLibrary;
 import org.gradle.language.base.artifact.SourcesArtifact;
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper;
@@ -117,6 +104,13 @@ public final class ProjectUtil {
   public static OkBuckExtension getOkBuckExtension(Project project) {
     return (OkBuckExtension)
         project.getRootProject().getExtensions().getByName(OkBuckGradlePlugin.OKBUCK);
+  }
+
+  public static ExternalDependenciesExtension getExternalDependencyExtension(Project project) {
+    OkBuckExtension okBuckExtension =
+        (OkBuckExtension)
+            project.getRootProject().getExtensions().getByName(OkBuckGradlePlugin.OKBUCK);
+    return okBuckExtension.getExternalDependenciesExtension();
   }
 
   @Nullable
@@ -219,98 +213,5 @@ public final class ProjectUtil {
     return !DependencyUtils.isWhiteListed(dependencyFile)
         && ImmutableList.of(JAR, AAR)
             .contains(FilenameUtils.getExtension(dependencyFile.getName()));
-  }
-
-  /**
-   * @param project
-   * @return - A list of all binary dependencies, including transitives of both binary dependencies
-   *     and project dependencies
-   */
-  @SuppressWarnings({"unchecked", "NullAway"})
-  private static List<ExtDependency> buildExternalDependencies(
-      Project project, Configuration conf) {
-    Map<String, ExtDependency> externalDependenciesById = new HashMap<>();
-
-    List<ComponentIdentifier> binaryDependencies = new ArrayList<>();
-    for (DependencyResult dep : conf.getIncoming().getResolutionResult().getAllDependencies()) {
-      if (dep instanceof ResolvedDependencyResult
-          && dep.getRequested() instanceof DefaultModuleComponentSelector)
-        binaryDependencies.add(((ResolvedDependencyResult) dep).getSelected().getId());
-    }
-
-    List<String> binaryDependenciesAsStrings = new ArrayList<>();
-    for (ComponentIdentifier binaryDependency : binaryDependencies)
-      binaryDependenciesAsStrings.add(binaryDependency.toString());
-
-    Set<ComponentArtifactsResult> artifactsResults =
-        project
-            .getDependencies()
-            .createArtifactResolutionQuery()
-            .forComponents(binaryDependencies)
-            .withArtifacts(JvmLibrary.class, SourcesArtifact.class)
-            .execute()
-            .getResolvedComponents();
-
-    for (ResolvedArtifact artifact :
-        conf.getResolvedConfiguration()
-            .getLenientConfiguration()
-            .getArtifacts(Specs.SATISFIES_ALL)) {
-      ModuleVersionIdentifier id = artifact.getModuleVersion().getId();
-      if (binaryDependenciesAsStrings.contains(id.toString())) {
-        externalDependenciesById.put(
-            id.toString(), new ExtDependency().setFile(artifact.getFile()).setModuleVersion(id));
-      }
-    }
-
-    for (ComponentArtifactsResult artifactResult : artifactsResults) {
-      ExtDependency externalDependency =
-          externalDependenciesById.get(artifactResult.getId().toString());
-      for (ArtifactResult sourcesResult : artifactResult.getArtifacts(SourcesArtifact.class)) {
-        if (sourcesResult instanceof DefaultResolvedArtifactResult)
-          externalDependency.setSource(((DefaultResolvedArtifactResult) sourcesResult).getFile());
-      }
-    }
-
-    // this grabs "local file dependencies" (e.g. gradleApi(), localGroovy())
-    for (Dependency dependency : conf.getAllDependencies()) {
-      if (dependency instanceof SelfResolvingDependency
-          && !(dependency instanceof ProjectDependency)) {
-        Set<File> resolvedFiles = ((SelfResolvingDependency) dependency).resolve();
-
-        for (File resolvedFile : resolvedFiles) {
-          // these type of dependencies do not have a module version identifier, the file path is
-          // unique enough
-          externalDependenciesById.put(
-              resolvedFile.getAbsolutePath(), new ExtDependency().setFile(resolvedFile));
-        }
-      }
-    }
-
-    // must create new list because Map.values() is not Serializable
-    return new ArrayList<>(externalDependenciesById.values());
-  }
-
-  @SuppressWarnings({"unchecked", "NullAway"})
-  private static class ExtDependency {
-    private File file;
-    private ModuleVersionIdentifier id;
-    private File source;
-
-    ExtDependency() {}
-
-    ExtDependency setFile(File file) {
-      this.file = file;
-      return this;
-    }
-
-    ExtDependency setModuleVersion(ModuleVersionIdentifier id) {
-      this.id = id;
-      return this;
-    }
-
-    ExtDependency setSource(File source) {
-      this.source = source;
-      return this;
-    }
   }
 }

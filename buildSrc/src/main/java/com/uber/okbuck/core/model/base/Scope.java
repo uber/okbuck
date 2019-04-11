@@ -1,7 +1,5 @@
 package com.uber.okbuck.core.model.base;
 
-import static com.uber.okbuck.core.dependency.BaseExternalDependency.JAR;
-
 import com.android.build.api.attributes.VariantAttr;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -116,9 +114,8 @@ public class Scope {
   }
 
   public Set<Target> getTargetDeps(boolean firstLevel) {
-    OkBuckExtension okBuckExtension = ProjectUtil.getOkBuckExtension(project);
-    ExternalDependenciesExtension externalDependenciesExtension =
-        okBuckExtension.getExternalDependenciesExtension();
+    ExternalDependenciesExtension okBuckExtension =
+        ProjectUtil.getExternalDependencyExtension(project);
 
     if (configuration != null && firstLevel) {
       Set<String> firstLevelProjects =
@@ -139,9 +136,8 @@ public class Scope {
   }
 
   public final Set<Target> getTargetDeps() {
-    OkBuckExtension okBuckExtension = ProjectUtil.getOkBuckExtension(project);
     ExternalDependenciesExtension externalDependenciesExtension =
-        okBuckExtension.getExternalDependenciesExtension();
+        ProjectUtil.getExternalDependencyExtension(project);
 
     return getTargetDeps(externalDependenciesExtension.exportedDepsEnabled());
   }
@@ -157,14 +153,14 @@ public class Scope {
               .flatMap(Collection::stream)
               .collect(Collectors.toSet());
 
-      // TODO: Handle first level local deps correctly
-
       return external
           .stream()
           .map(depCache::get)
           .filter(
               dependency -> {
                 VersionlessDependency vDependency = dependency.getVersionless();
+
+                // Always include local dependencies
                 if (vDependency.group().equals(DependencyFactory.LOCAL_GROUP)) {
                   return true;
                 }
@@ -182,13 +178,6 @@ public class Scope {
         okBuckExtension.getExternalDependenciesExtension();
 
     return getExternalDeps(externalDependenciesExtension.exportedDepsEnabled());
-  }
-
-  public Set<ExternalDependency> getExternalJarDeps() {
-    return getExternalDeps()
-        .stream()
-        .filter(dependency -> dependency.getPackaging().equals(JAR))
-        .collect(Collectors.toSet());
   }
 
   /**
@@ -320,14 +309,7 @@ public class Scope {
   }
 
   private void extractConfiguration(Configuration configuration) {
-
-    depCache.addDependencies(
-        configuration
-            .getAllDependencies()
-            .stream()
-            .filter(i -> i instanceof org.gradle.api.artifacts.ExternalDependency)
-            .map(i -> (org.gradle.api.artifacts.ExternalDependency) i)
-            .collect(Collectors.toSet()));
+    depCache.addDependencies(configuration.getAllDependencies());
 
     Set<ResolvedArtifactResult> jarArtifacts =
         getArtifacts(configuration, PROJECT_FILTER, ImmutableList.of("jar"));
@@ -400,13 +382,12 @@ public class Scope {
                             + ". Please move dependency: %s inside %s",
                         artifact.getFile(), project.getRootProject().getProjectDir()));
               }
-              ExternalDependency localExternalDependency =
+              external.add(
                   DependencyFactory.fromLocal(
                       artifact.getFile(),
                       sourcesArtifact != null ? sourcesArtifact.getFile() : null,
                       externalDependenciesExtension,
-                      jetifierExtension);
-              external.add(localExternalDependency);
+                      jetifierExtension));
 
             } catch (IOException e) {
               throw new RuntimeException(e);

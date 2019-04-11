@@ -104,7 +104,6 @@ def test = [
 
 ext.config = [
         "build":    buildConfig,
-        "versions": versions
 ]
 
 ext.deps = [
@@ -114,4 +113,5 @@ ext.deps = [
         "external": external,
         "lint"    : lint,
         "test"    : test,
+        "versions": versions,
 ]

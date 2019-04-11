@@ -4,6 +4,7 @@ import static com.uber.okbuck.core.dependency.BaseExternalDependency.AAR;
 import static com.uber.okbuck.core.dependency.BaseExternalDependency.JAR;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.LinkedHashMultimap;
@@ -39,6 +40,8 @@ import org.apache.commons.io.FileUtils;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.artifacts.ResolvedConfiguration;
+import org.gradle.api.artifacts.ResolvedDependency;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -212,58 +215,82 @@ public class DependencyManager {
     }
   }
 
-  @SuppressWarnings("NullAway")
   private void updateDependencies(
       Map<VersionlessDependency, Collection<ExternalDependency>> dependencyMap) {
 
-    Configuration config = project.getConfigurations().create("resolver");
+    ExternalDependenciesExtension extension = ProjectUtil.getExternalDependencyExtension(project);
+    // Don't create exported deps if not enabled.
+    if (!extension.exportedDepsEnabled()) {
+      return;
+    }
 
-    rawDependencies.forEach(
-        i -> {
-          config.getDependencies().add(i);
-        });
+    if (!extension.versionlessEnabled()) {
+      throw new RuntimeException(
+          "Exported deps only works when resolutionAction is latest or single");
+    }
 
-    config
-        .getResolvedConfiguration()
+    Configuration config = project.getConfigurations().create("okbuckDependencyResolver");
+    config.getDependencies().addAll(rawDependencies);
+
+    ResolvedConfiguration resolvedConfiguration = config.getResolvedConfiguration();
+
+    if (resolvedConfiguration.hasError()) {
+      // Throw failure if there was one during resolution
+      resolvedConfiguration.rethrowFailure();
+    }
+
+    resolvedConfiguration
         .getLenientConfiguration()
         .getAllModuleDependencies()
         .forEach(
-            resolvedRootDependency -> {
-              DependencyFactory.fromDependency(resolvedRootDependency)
-                  .forEach(
-                      vRootDependency -> {
-                        if (!vRootDependency.classifier().isPresent()
-                            && dependencyMap.containsKey(vRootDependency)) {
-                          Set<ExternalDependency> dependencies =
-                              resolvedRootDependency
-                                  .getChildren()
-                                  .stream()
-                                  .map(
-                                      resolvedDependency ->
-                                          DependencyFactory.fromDependency(resolvedDependency)
-                                              .stream()
-                                              .filter(dependencyMap::containsKey)
-                                              .map(
-                                                  it ->
-                                                      dependencyMap
-                                                          .get(it)
-                                                          .stream()
-                                                          .findAny()
-                                                          .get())
-                                              .collect(Collectors.toSet()))
-                                  .flatMap(Collection::stream)
-                                  .filter(Objects::nonNull)
-                                  .collect(Collectors.toSet());
+            rDependency -> {
+              Set<ExternalDependency> childDependencies =
+                  childDependencies(rDependency, dependencyMap);
 
-                          dependencyMap
-                              .get(vRootDependency)
-                              .stream()
-                              .findAny()
-                              .get()
-                              .setDeps(dependencies);
-                        }
-                      });
+              if (childDependencies.size() == 0) {
+                return;
+              }
+
+              DependencyFactory.fromDependency(rDependency)
+                  .stream()
+                  .filter(it -> !it.classifier().isPresent())
+                  .map(dependencyMap::get)
+                  .filter(Objects::nonNull)
+                  .map(
+                      dependencies -> {
+                        Preconditions.checkArgument(
+                            dependencies.size() == 1,
+                            "Dependency having multiple versions can't have deps: " + dependencies);
+
+                        return dependencies.stream().findAny().get();
+                      })
+                  .forEach(dependency -> dependency.setDeps(childDependencies));
             });
+  }
+
+  private static Set<ExternalDependency> childDependencies(
+      ResolvedDependency rDependency,
+      Map<VersionlessDependency, Collection<ExternalDependency>> dependencyMap) {
+    return rDependency
+        .getChildren()
+        .stream()
+        .map(
+            cDependency ->
+                DependencyFactory.fromDependency(cDependency)
+                    .stream()
+                    .map(dependencyMap::get)
+                    .filter(Objects::nonNull)
+                    .map(
+                        dependencies -> {
+                          Preconditions.checkArgument(
+                              dependencies.size() == 1,
+                              "Child dependencies can't have multiple versions: " + dependencies);
+
+                          return dependencies.stream().findAny().get();
+                        })
+                    .collect(Collectors.toSet()))
+        .flatMap(Collection::stream)
+        .collect(Collectors.toSet());
   }
 
   private void processDependencies(

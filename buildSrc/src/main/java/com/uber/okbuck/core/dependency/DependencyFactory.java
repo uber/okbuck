@@ -89,21 +89,21 @@ public final class DependencyFactory {
   }
 
   /**
-   * Returns a versionless dependency from the given gradle dependency.
+   * Returns a set of versionless dependencies from the given gradle dependency.
    *
    * @param dependency gradle dependency
    * @return VersionlessDependency object
    */
   public static Set<VersionlessDependency> fromDependency(
       org.gradle.api.artifacts.ExternalDependency dependency) {
-    VersionlessDependency.Builder vDependency =
+    VersionlessDependency.Builder vDependencyBuilder =
         VersionlessDependency.builder().setName(dependency.getName());
 
     String group = dependency.getGroup();
     if (group == null) {
-      vDependency.setGroup(LOCAL_GROUP);
+      vDependencyBuilder.setGroup(LOCAL_GROUP);
     } else {
-      vDependency.setGroup(group);
+      vDependencyBuilder.setGroup(group);
     }
 
     if (dependency.getArtifacts().size() > 0) {
@@ -112,19 +112,19 @@ public final class DependencyFactory {
           .stream()
           .map(
               dependencyArtifact ->
-                  vDependency
+                  vDependencyBuilder
                       .setClassifier(Optional.ofNullable(dependencyArtifact.getClassifier()))
                       .build())
           .collect(Collectors.toSet());
     } else {
       Set<VersionlessDependency> dependencies = new HashSet<>();
-      dependencies.add(vDependency.build());
+      dependencies.add(vDependencyBuilder.build());
       return dependencies;
     }
   }
 
   /**
-   * Returns a versionless dependency from the given gradle resolved dependency.
+   * Returns a set of versionless dependency from the given gradle resolved dependency.
    *
    * @param dependency gradle dependency
    * @return VersionlessDependency object
