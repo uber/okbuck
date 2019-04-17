@@ -97,7 +97,8 @@ public class OkBuckExtension {
   private TransformExtension transformExtension = new TransformExtension();
   private LintExtension lintExtension;
   private JetifierExtension jetifierExtension;
-  private ExternalDependenciesExtension externalDependenciesExtension;
+  private ExternalDependenciesExtension externalDependenciesExtension =
+      new ExternalDependenciesExtension();
   private VisibilityExtension visibilityExtension = new VisibilityExtension();
   private RuleOverridesExtension ruleOverridesExtension;
 
@@ -106,7 +107,6 @@ public class OkBuckExtension {
     kotlinExtension = new KotlinExtension(project);
     lintExtension = new LintExtension(project);
     jetifierExtension = new JetifierExtension(project);
-    externalDependenciesExtension = new ExternalDependenciesExtension(project);
     ruleOverridesExtension = new RuleOverridesExtension(project);
   }
 

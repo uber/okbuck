@@ -50,7 +50,7 @@ public class ExternalDependency {
   }
 
   /**
-   * Retruns the maven coordinates used for version validation. This excludes the classifier and
+   * Return the maven coordinates used for version validation. This excludes the classifier and
    * packaging attributes
    */
   public String getMavenCoordsForValidation() {
