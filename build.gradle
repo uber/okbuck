@@ -211,35 +211,7 @@ okbuck {
     }
 
     externalDependencies {
-        versionless = true
-        allowLatestVersion = [
-            "com.google.auto.value:auto-value",
-            "com.google.code.findbugs:jsr305",
-            "org.ow2.asm:asm",
-            "org.ow2.asm:asm-commons",
-            "com.google.protobuf:protobuf-java",
-            "commons-codec:commons-codec",
-            "com.google.errorprone:error_prone_annotations",
-            "com.google.auto:auto-common",
-            "com.google.guava:guava",
-            "org.apache.httpcomponents:httpcore",
-            "org.jetbrains.kotlin:kotlin-stdlib",
-            "org.jetbrains.kotlin:kotlin-reflect",
-            "org.jetbrains.kotlin:kotlin-stdlib-common",
-            "org.jetbrains.kotlin:kotlin-stdlib-jdk7",
-            "org.ow2.asm:asm-tree",
-            "org.apache.httpcomponents:httpclient",
-            "org.bouncycastle:bcprov-jdk15on",
-            "commons-logging:commons-logging",
-            "com.squareup:javapoet",
-            "org.checkerframework:checker-compat-qual",
-            "com.google.code.gson:gson",
-            "org.apache.commons:commons-compress",
-            "org.apache.httpcomponents:httpmime",
-        ]
-        allowAllVersions = [
-            "org.robolectric:android-all",
-        ]
+        resolutionAction = "latest"
     }
 
     dependencies {

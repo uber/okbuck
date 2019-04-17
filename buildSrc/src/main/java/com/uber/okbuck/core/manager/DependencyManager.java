@@ -82,7 +82,7 @@ public class DependencyManager {
   }
 
   private Map<VersionlessDependency, Collection<ExternalDependency>> filterDependencies() {
-    if (!externalDependenciesExtension.allowLatestEnabled()) {
+    if (!externalDependenciesExtension.useLatest()) {
       return originalDependencyMap.asMap();
     }
 
@@ -99,7 +99,7 @@ public class DependencyManager {
               if (value.size() == 1) {
                 // Already has one dependency, no need to resolve different versions.
                 filteredDependencyMapBuilder.put(key, value);
-              } else if (externalDependenciesExtension.isAllowLatestFor(key)) {
+              } else if (externalDependenciesExtension.useLatest(key)) {
                 dependenciesToResolveBuilder.addAll(value);
               } else {
                 filteredDependencyMapBuilder.put(key, value);
@@ -139,16 +139,9 @@ public class DependencyManager {
               .entrySet()
               .stream()
               .filter(entry -> entry.getValue().size() > 1)
+              .filter(entry -> !externalDependenciesExtension.isVersioned(entry.getKey()))
               .map(Map.Entry::getValue)
-              .filter(
-                  deps ->
-                      deps.stream()
-                              .map(ExternalDependency::getMavenCoordsForValidation)
-                              .collect(Collectors.toSet())
-                              .size()
-                          > 1)
               .flatMap(Collection::stream)
-              .filter(dependency -> !externalDependenciesExtension.isAllowedVersion(dependency))
               .collect(
                   Collectors.groupingBy(
                       dependency -> dependency.getVersionless().mavenCoords(),
