@@ -71,6 +71,7 @@ def external = [
         avroIpc         : "org.apache.avro:avro-ipc:1.7.7",
         avroIpcTests    : "org.apache.avro:avro-ipc:1.7.7:tests",
         saxon           : "net.sf.saxon:Saxon-HE:9.7.0-15",
+        scalaLibrary    : "org.scala-lang:scala-library:2.12.4"
 ]
 
 def lint = [
@@ -98,10 +99,12 @@ def test = [
         kotlinTest    : "org.jetbrains.kotlin:kotlin-test-junit:${versions.kotlin}",
         mockito       : "org.mockito:mockito-core:2.15.0",
         robolectric   : "org.robolectric:robolectric:3.8",
+        scalaTest     : "org.scalatest:scalatest_2.12:3.0.5"
 ]
 
 ext.config = [
-        "build": buildConfig,
+        "build":    buildConfig,
+        "versions": versions
 ]
 
 ext.deps = [
@@ -111,5 +114,4 @@ ext.deps = [
         "external": external,
         "lint"    : lint,
         "test"    : test,
-        "versions": versions
 ]

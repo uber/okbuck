@@ -3,13 +3,18 @@ package com.uber.okbuck.core.dependency;
 import com.uber.okbuck.extension.ExternalDependenciesExtension;
 import com.uber.okbuck.extension.JetifierExtension;
 import java.io.File;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FilenameUtils;
-import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.artifacts.ResolvedDependency;
 
 public final class DependencyFactory {
 
-  private static final String LOCAL_GROUP = "local";
+  public static final String LOCAL_GROUP = "local";
+
   private static final String LOCAL_DEP_VERSION = "1.0.0-LOCAL";
 
   private DependencyFactory() {}
@@ -89,7 +94,8 @@ public final class DependencyFactory {
    * @param dependency gradle dependency
    * @return VersionlessDependency object
    */
-  public static VersionlessDependency fromDependency(Dependency dependency) {
+  public static Set<VersionlessDependency> fromDependency(
+      org.gradle.api.artifacts.ExternalDependency dependency) {
     VersionlessDependency.Builder vDependency =
         VersionlessDependency.builder().setName(dependency.getName());
 
@@ -100,8 +106,41 @@ public final class DependencyFactory {
       vDependency.setGroup(group);
     }
 
-    // TODO: Add support of specifying classifier
-    return vDependency.build();
+    if (dependency.getArtifacts().size() > 0) {
+      return dependency
+          .getArtifacts()
+          .stream()
+          .map(
+              dependencyArtifact ->
+                  vDependency
+                      .setClassifier(Optional.ofNullable(dependencyArtifact.getClassifier()))
+                      .build())
+          .collect(Collectors.toSet());
+    } else {
+      Set<VersionlessDependency> dependencies = new HashSet<>();
+      dependencies.add(vDependency.build());
+      return dependencies;
+    }
+  }
+
+  /**
+   * Returns a versionless dependency from the given gradle resolved dependency.
+   *
+   * @param dependency gradle dependency
+   * @return VersionlessDependency object
+   */
+  public static Set<VersionlessDependency> fromDependency(ResolvedDependency dependency) {
+    return dependency
+        .getModuleArtifacts()
+        .stream()
+        .map(
+            resolvedArtifact ->
+                VersionlessDependency.builder()
+                    .setName(dependency.getModuleName())
+                    .setGroup(dependency.getModuleGroup())
+                    .setClassifier(Optional.ofNullable(resolvedArtifact.getClassifier()))
+                    .build())
+        .collect(Collectors.toSet());
   }
 
   /**

@@ -5,3 +5,7 @@ android {
 		consumerProguardFiles "proguard.txt"
 	}
 }
+
+dependencies {
+    api deps.androidx.material
+}

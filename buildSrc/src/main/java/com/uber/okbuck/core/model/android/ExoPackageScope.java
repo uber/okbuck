@@ -105,7 +105,7 @@ public class ExoPackageScope extends Scope {
           }
 
           Optional<ExternalDependency> externalDepOptional =
-              base.getAllExternal()
+              base.getExternalDeps(false)
                   .stream()
                   .filter(
                       dependency -> {
@@ -119,10 +119,10 @@ public class ExoPackageScope extends Scope {
                   .findFirst();
 
           if (externalDepOptional.isPresent()) {
-            getAllExternal().add(externalDepOptional.get());
+            this.external.add(externalDepOptional.get());
           } else {
             Optional<Target> variantDepOptional =
-                base.getTargetDeps()
+                base.getTargetDeps(false)
                     .stream()
                     .filter(
                         variant -> {
@@ -135,7 +135,7 @@ public class ExoPackageScope extends Scope {
                         })
                     .findFirst();
 
-            variantDepOptional.ifPresent(target -> getTargetDeps().add(target));
+            variantDepOptional.ifPresent(targetDeps::add);
           }
         });
   }

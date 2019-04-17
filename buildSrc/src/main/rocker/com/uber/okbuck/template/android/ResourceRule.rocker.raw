@@ -4,6 +4,7 @@ String pkg,
 Collection res,
 String projectRes,
 Collection assets,
+Collection exportedDeps,
 boolean resourceUnion)
 @com.uber.okbuck.template.base.BuckRule.template() -> {
     package = '@pkg',
@@ -23,6 +24,13 @@ boolean resourceUnion)
         ('@a', '**'),
     }
     ]),
+}
+@if (valid(exportedDeps)) {
+    exported_deps = [
+    @for (dep : sorted(exportedDeps)) {
+        '@dep',
+    }
+    ],
 }
 @if (resourceUnion) {
     resource_union = True,

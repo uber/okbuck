@@ -3,6 +3,9 @@ package com.uber.okbuck.composer.android;
 import com.uber.okbuck.composer.jvm.JvmBuckRuleComposer;
 import com.uber.okbuck.core.model.android.AndroidAppTarget;
 import com.uber.okbuck.core.model.android.AndroidTarget;
+import com.uber.okbuck.core.model.base.Target;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public abstract class AndroidBuckRuleComposer extends JvmBuckRuleComposer {
 
@@ -52,5 +55,13 @@ public abstract class AndroidBuckRuleComposer extends JvmBuckRuleComposer {
 
   static String instrumentationTest(AndroidAppTarget target) {
     return "instrumentation_" + target.getName() + "_test";
+  }
+
+  static Set<String> resources(Set<Target> targets) {
+    return targets
+        .stream()
+        .filter(targetDep -> targetDep instanceof AndroidTarget)
+        .map(targetDep -> resRule((AndroidTarget) targetDep))
+        .collect(Collectors.toSet());
   }
 }

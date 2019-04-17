@@ -1,11 +1,14 @@
 package com.uber.okbuck.core.model.jvm;
 
+import static com.uber.okbuck.core.dependency.BaseExternalDependency.AAR;
+
 import com.android.builder.model.LintOptions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.errorprone.annotations.Var;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.jvm.JvmBuckRuleComposer;
 import com.uber.okbuck.core.annotation.AnnotationProcessorCache;
@@ -19,6 +22,7 @@ import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.model.base.Target;
 import com.uber.okbuck.core.util.ProjectUtil;
 import java.io.File;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -162,8 +166,14 @@ public class JvmTarget extends Target {
 
   /** api external deps */
   public Set<ExternalDependency> getApiExternalDeps() {
+    @Var
     Configuration apiConfiguration =
         DependencyUtils.getConfiguration(JavaPlugin.API_ELEMENTS_CONFIGURATION_NAME, getProject());
+
+    if (apiConfiguration == null) {
+      apiConfiguration =
+          DependencyUtils.getConfiguration(JavaPlugin.API_CONFIGURATION_NAME, getProject());
+    }
 
     if (apiConfiguration != null) {
       Set<VersionlessDependency> versionlessApiDependencies =
@@ -172,6 +182,7 @@ public class JvmTarget extends Target {
               .withType(org.gradle.api.artifacts.ExternalDependency.class)
               .stream()
               .map(DependencyFactory::fromDependency)
+              .flatMap(Collection::stream)
               .collect(Collectors.toSet());
 
       return getMain()
@@ -186,8 +197,14 @@ public class JvmTarget extends Target {
 
   /** api target deps */
   public Set<Target> getApiTargetDeps() {
+    @Var
     Configuration apiConfiguration =
         DependencyUtils.getConfiguration(JavaPlugin.API_ELEMENTS_CONFIGURATION_NAME, getProject());
+
+    if (apiConfiguration == null) {
+      apiConfiguration =
+          DependencyUtils.getConfiguration(JavaPlugin.API_CONFIGURATION_NAME, getProject());
+    }
 
     if (apiConfiguration != null) {
       Set<String> projectApiDependencies =
@@ -549,6 +566,10 @@ public class JvmTarget extends Target {
     }
   }
 
+  public Set<ExternalDependency> getExternalAarDeps(boolean test) {
+    return filterAar(getExternalDeps(test));
+  }
+
   /**
    * Get api target deps. exportedDeps = api
    *
@@ -560,6 +581,10 @@ public class JvmTarget extends Target {
     } else {
       return getApiExternalDeps();
     }
+  }
+
+  public Set<ExternalDependency> getExternalExportedAarDeps(boolean test) {
+    return filterAar(getExternalExportedDeps(test));
   }
 
   /**
@@ -587,5 +612,12 @@ public class JvmTarget extends Target {
     } else {
       return Sets.difference(getProvided().getExternalDeps(), getMain().getExternalDeps());
     }
+  }
+
+  private static Set<ExternalDependency> filterAar(Set<ExternalDependency> dependencies) {
+    return dependencies
+        .stream()
+        .filter(dependency -> dependency.getPackaging().equals(AAR))
+        .collect(Collectors.toSet());
   }
 }

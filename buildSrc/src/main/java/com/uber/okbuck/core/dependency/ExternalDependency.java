@@ -12,8 +12,10 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.gradle.api.artifacts.Dependency;
 
@@ -27,8 +29,8 @@ public class ExternalDependency {
   private final BaseExternalDependency base;
   private final Path cachePath;
 
-  @Nullable private Path realSourceFilePath;
   private boolean enableJetifier;
+  private Set<ExternalDependency> dependencies = new HashSet<>();
 
   public static Comparator<ExternalDependency> compareByName =
       (o1, o2) ->
@@ -145,6 +147,14 @@ public class ExternalDependency {
   /** Returns true if this dependency needs to be jetified. */
   public boolean enableJetifier() {
     return enableJetifier;
+  }
+
+  public void setDeps(Set<ExternalDependency> dependencies) {
+    this.dependencies = dependencies;
+  }
+
+  public Set<ExternalDependency> getDeps() {
+    return dependencies;
   }
 
   String getSourceFileNameFrom(String prebuiltName) {

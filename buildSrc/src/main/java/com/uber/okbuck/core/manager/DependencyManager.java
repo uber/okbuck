@@ -13,6 +13,7 @@ import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.common.HttpFileRuleComposer;
 import com.uber.okbuck.composer.java.LocalPrebuiltRuleComposer;
 import com.uber.okbuck.composer.java.PrebuiltRuleComposer;
+import com.uber.okbuck.core.dependency.DependencyFactory;
 import com.uber.okbuck.core.dependency.DependencyUtils;
 import com.uber.okbuck.core.dependency.ExternalDependency;
 import com.uber.okbuck.core.dependency.LocalExternalDependency;
@@ -28,8 +29,10 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
@@ -48,6 +51,8 @@ public class DependencyManager {
   private final JetifierExtension jetifierExtension;
   private final BuckFileManager buckFileManager;
 
+  private final Set<org.gradle.api.artifacts.ExternalDependency> rawDependencies = new HashSet<>();
+
   private final SetMultimap<VersionlessDependency, ExternalDependency> originalDependencyMap =
       LinkedHashMultimap.create();
 
@@ -60,6 +65,11 @@ public class DependencyManager {
     this.externalDependenciesExtension = okBuckExtension.getExternalDependenciesExtension();
     this.jetifierExtension = okBuckExtension.getJetifierExtension();
     this.buckFileManager = buckFileManager;
+  }
+
+  public synchronized void addDependencies(
+      Set<org.gradle.api.artifacts.ExternalDependency> dependencies) {
+    rawDependencies.addAll(dependencies);
   }
 
   public synchronized void addDependency(ExternalDependency dependency, boolean skipPrebuilt) {
@@ -77,7 +87,9 @@ public class DependencyManager {
   public void finalizeDependencies() {
     Map<VersionlessDependency, Collection<ExternalDependency>> filteredDependencyMap =
         filterDependencies();
+
     validateDependencies(filteredDependencyMap);
+    updateDependencies(filteredDependencyMap);
     processDependencies(filteredDependencyMap);
   }
 
@@ -198,6 +210,60 @@ public class DependencyManager {
         LOG.warn(message);
       }
     }
+  }
+
+  @SuppressWarnings("NullAway")
+  private void updateDependencies(
+      Map<VersionlessDependency, Collection<ExternalDependency>> dependencyMap) {
+
+    Configuration config = project.getConfigurations().create("resolver");
+
+    rawDependencies.forEach(
+        i -> {
+          config.getDependencies().add(i);
+        });
+
+    config
+        .getResolvedConfiguration()
+        .getLenientConfiguration()
+        .getAllModuleDependencies()
+        .forEach(
+            resolvedRootDependency -> {
+              DependencyFactory.fromDependency(resolvedRootDependency)
+                  .forEach(
+                      vRootDependency -> {
+                        if (!vRootDependency.classifier().isPresent()
+                            && dependencyMap.containsKey(vRootDependency)) {
+                          Set<ExternalDependency> dependencies =
+                              resolvedRootDependency
+                                  .getChildren()
+                                  .stream()
+                                  .map(
+                                      resolvedDependency ->
+                                          DependencyFactory.fromDependency(resolvedDependency)
+                                              .stream()
+                                              .filter(dependencyMap::containsKey)
+                                              .map(
+                                                  it ->
+                                                      dependencyMap
+                                                          .get(it)
+                                                          .stream()
+                                                          .findAny()
+                                                          .get())
+                                              .collect(Collectors.toSet()))
+                                  .flatMap(Collection::stream)
+                                  .filter(Objects::nonNull)
+                                  .collect(Collectors.toSet());
+
+                          dependencyMap
+                              .get(vRootDependency)
+                              .stream()
+                              .findAny()
+                              .get()
+                              .setDeps(dependencies);
+                        }
+                      });
+            });
   }
 
   private void processDependencies(

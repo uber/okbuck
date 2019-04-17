@@ -18,6 +18,9 @@ public class ExternalDependenciesExtension {
   /** Specifies what resolution action to use for external dependencies. */
   @Input private ResolutionAction resolutionAction = ResolutionAction.ALL;
 
+  /** Specifies whether to enable exported_deps for external dependencies or not. */
+  @Input private boolean enableExportedDeps = false;
+
   /**
    * Stores the dependencies which are allowed to have more than 1 version. This is needed for few
    * dependencies like robolectric runtime deps.
@@ -82,5 +85,9 @@ public class ExternalDependenciesExtension {
 
   public boolean shouldDownloadInBuck() {
     return downloadInBuck;
+  }
+
+  public boolean exportedDepsEnabled() {
+    return enableExportedDeps;
   }
 }
