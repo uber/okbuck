@@ -213,9 +213,6 @@ okbuck {
     externalDependencies {
         resolutionAction = "latest"
         allowAllVersions = [
-                "org.ow2.asm:asm",
-                "org.ow2.asm:asm-commons",
-                "com.google.guava:guava",
                 "org.robolectric:android-all",
         ]
     }
