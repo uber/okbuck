@@ -62,10 +62,9 @@ public final class JvmLibraryRuleComposer extends JvmBuckRuleComposer {
             .mavenCoords(target.getMavenCoords())
             .testTargets(testTargets)
             .options(target.getMain().getCustomOptions())
-            .libDeps(target.hasApplication() ? deps : ImmutableSet.of())
             .ruleType(ruleType.getBuckName())
             .defaultVisibility()
-            .deps(target.hasApplication() ? ImmutableSet.of() : deps)
+            .deps(deps)
             .name(src(target))
             .extraBuckOpts(target.getExtraOpts(ruleType)));
 
@@ -76,6 +75,7 @@ public final class JvmLibraryRuleComposer extends JvmBuckRuleComposer {
               .excludes(target.getExcludes())
               .defaultVisibility()
               .name(bin(target))
+              .deps(ImmutableSet.of(":" + src(target)))
               .ruleType(RuleType.JAVA_BINARY.getBuckName())
               .extraBuckOpts(target.getExtraOpts(RuleType.JAVA_BINARY)));
     }

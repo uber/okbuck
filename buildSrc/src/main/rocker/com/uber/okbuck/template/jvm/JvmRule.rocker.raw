@@ -13,23 +13,11 @@ Collection apPlugins,
 Collection aptDeps,
 Collection providedDeps,
 Collection exportedDeps,
-Collection libDeps,
 Map options,
 Collection jvmArgs,
 Map env,
 RockerBody content
 )
-@if (valid(libDeps)) {
-lib_deps = [
-@for (libDep : sorted(libDeps)) {
-    '@libDep',
-}
-]
-
-} else {
-lib_deps = []
-
-}
 @com.uber.okbuck.template.base.BuckRule.template() -> {
 @if (valid(srcs)) {
     srcs = glob([
@@ -119,9 +107,6 @@ lib_deps = []
         '@key': '@val',
     }
     @},
-}
-@if (valid(libDeps)) {
-    deps = lib_deps,
 }
 @if (content != null) {
 @content
