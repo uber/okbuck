@@ -3,7 +3,7 @@
 // Gradle Cache Version 1
 
 def versions = [
-        androidPlugin      : "3.2.0",
+        androidPlugin      : "3.4.0",
         androidTools       : "26.2.0",
         butterKnife        : "10.0.0",
         dagger             : "2.16",
