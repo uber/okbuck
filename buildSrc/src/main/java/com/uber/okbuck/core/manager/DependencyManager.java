@@ -4,6 +4,7 @@ import static com.uber.okbuck.core.dependency.BaseExternalDependency.AAR;
 import static com.uber.okbuck.core.dependency.BaseExternalDependency.JAR;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.LinkedHashMultimap;
@@ -13,6 +14,7 @@ import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.common.HttpFileRuleComposer;
 import com.uber.okbuck.composer.java.LocalPrebuiltRuleComposer;
 import com.uber.okbuck.composer.java.PrebuiltRuleComposer;
+import com.uber.okbuck.core.dependency.DependencyFactory;
 import com.uber.okbuck.core.dependency.DependencyUtils;
 import com.uber.okbuck.core.dependency.ExternalDependency;
 import com.uber.okbuck.core.dependency.LocalExternalDependency;
@@ -28,14 +30,18 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.artifacts.ResolvedConfiguration;
+import org.gradle.api.artifacts.ResolvedDependency;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +53,8 @@ public class DependencyManager {
   private final ExternalDependenciesExtension externalDependenciesExtension;
   private final JetifierExtension jetifierExtension;
   private final BuckFileManager buckFileManager;
+
+  private final Set<org.gradle.api.artifacts.ExternalDependency> rawDependencies = new HashSet<>();
 
   private final SetMultimap<VersionlessDependency, ExternalDependency> originalDependencyMap =
       LinkedHashMultimap.create();
@@ -60,6 +68,11 @@ public class DependencyManager {
     this.externalDependenciesExtension = okBuckExtension.getExternalDependenciesExtension();
     this.jetifierExtension = okBuckExtension.getJetifierExtension();
     this.buckFileManager = buckFileManager;
+  }
+
+  public synchronized void addDependencies(
+      Set<org.gradle.api.artifacts.ExternalDependency> dependencies) {
+    rawDependencies.addAll(dependencies);
   }
 
   public synchronized void addDependency(ExternalDependency dependency, boolean skipPrebuilt) {
@@ -77,7 +90,9 @@ public class DependencyManager {
   public void finalizeDependencies() {
     Map<VersionlessDependency, Collection<ExternalDependency>> filteredDependencyMap =
         filterDependencies();
+
     validateDependencies(filteredDependencyMap);
+    updateDependencies(filteredDependencyMap);
     processDependencies(filteredDependencyMap);
   }
 
@@ -198,6 +213,84 @@ public class DependencyManager {
         LOG.warn(message);
       }
     }
+  }
+
+  private void updateDependencies(
+      Map<VersionlessDependency, Collection<ExternalDependency>> dependencyMap) {
+
+    ExternalDependenciesExtension extension = ProjectUtil.getExternalDependencyExtension(project);
+    // Don't create exported deps if not enabled.
+    if (!extension.exportedDepsEnabled()) {
+      return;
+    }
+
+    if (!extension.versionlessEnabled()) {
+      throw new RuntimeException(
+          "Exported deps only works when resolutionAction is latest or single");
+    }
+
+    Configuration config = project.getConfigurations().create("okbuckDependencyResolver");
+    config.getDependencies().addAll(rawDependencies);
+
+    ResolvedConfiguration resolvedConfiguration = config.getResolvedConfiguration();
+
+    if (resolvedConfiguration.hasError()) {
+      // Throw failure if there was one during resolution
+      resolvedConfiguration.rethrowFailure();
+    }
+
+    resolvedConfiguration
+        .getLenientConfiguration()
+        .getAllModuleDependencies()
+        .forEach(
+            rDependency -> {
+              Set<ExternalDependency> childDependencies =
+                  childDependencies(rDependency, dependencyMap);
+
+              if (childDependencies.size() == 0) {
+                return;
+              }
+
+              DependencyFactory.fromDependency(rDependency)
+                  .stream()
+                  .filter(it -> !it.classifier().isPresent())
+                  .map(dependencyMap::get)
+                  .filter(Objects::nonNull)
+                  .map(
+                      dependencies -> {
+                        Preconditions.checkArgument(
+                            dependencies.size() == 1,
+                            "Dependency having multiple versions can't have deps: " + dependencies);
+
+                        return dependencies.stream().findAny().get();
+                      })
+                  .forEach(dependency -> dependency.setDeps(childDependencies));
+            });
+  }
+
+  private static Set<ExternalDependency> childDependencies(
+      ResolvedDependency rDependency,
+      Map<VersionlessDependency, Collection<ExternalDependency>> dependencyMap) {
+    return rDependency
+        .getChildren()
+        .stream()
+        .map(
+            cDependency ->
+                DependencyFactory.fromDependency(cDependency)
+                    .stream()
+                    .map(dependencyMap::get)
+                    .filter(Objects::nonNull)
+                    .map(
+                        dependencies -> {
+                          Preconditions.checkArgument(
+                              dependencies.size() == 1,
+                              "Child dependencies can't have multiple versions: " + dependencies);
+
+                          return dependencies.stream().findAny().get();
+                        })
+                    .collect(Collectors.toSet()))
+        .flatMap(Collection::stream)
+        .collect(Collectors.toSet());
   }
 
   private void processDependencies(

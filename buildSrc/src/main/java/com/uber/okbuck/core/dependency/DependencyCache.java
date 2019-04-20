@@ -1,8 +1,8 @@
 package com.uber.okbuck.core.dependency;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.core.manager.DependencyManager;
-import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.extension.ExternalDependenciesExtension;
 import com.uber.okbuck.extension.JetifierExtension;
@@ -10,8 +10,6 @@ import com.uber.okbuck.extension.OkBuckExtension;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +21,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.DependencySet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,13 +43,9 @@ public class DependencyCache {
     this.skipPrebuilt = skipPrebuilt;
 
     if (forcedConfiguration != null) {
-      Scope.builder(project)
-          .configuration(forcedConfiguration)
-          .build()
-          .getAllExternal()
+      build(forcedConfiguration)
           .forEach(
               dependency -> {
-                get(dependency);
                 forcedDeps.put(dependency.getVersionless(), dependency);
               });
     }
@@ -81,6 +76,16 @@ public class DependencyCache {
     return dependency;
   }
 
+  public final void addDependencies(DependencySet dependencySet) {
+    this.dependencyManager.addDependencies(
+        dependencySet
+            .stream()
+            .filter(dependency -> dependency instanceof org.gradle.api.artifacts.ExternalDependency)
+            .filter(dependency -> dependency.getGroup() != null && dependency.getVersion() != null)
+            .map(dependency -> (org.gradle.api.artifacts.ExternalDependency) dependency)
+            .collect(Collectors.toSet()));
+  }
+
   /**
    * Get the list of annotation processor classes provided by a dependency.
    *
@@ -90,7 +95,6 @@ public class DependencyCache {
   public Set<String> getAnnotationProcessors(ExternalDependency externalDependency) {
     ExternalDependency dependency =
         forcedDeps.getOrDefault(externalDependency.getVersionless(), externalDependency);
-    String key = dependency.getTargetName();
 
     try {
       String processors =
@@ -148,32 +152,34 @@ public class DependencyCache {
     return content;
   }
 
-  public Set<ExternalDependency> build(Configuration configuration) {
-    return build(Collections.singleton(configuration));
-  }
-
   /**
    * Use this method to populate dependency caches of tools/languages etc. This is not meant to be
    * used across multiple threads/gradle task executions which can run in parallel. This method is
    * fully synchronous.
    *
-   * @param configurations The set of configurations to materialize into the dependency cache
+   * @param configuration The configuration to materialize into the dependency cache
    */
-  private Set<ExternalDependency> build(Set<Configuration> configurations) {
+  public Set<ExternalDependency> build(Configuration configuration) {
     OkBuckExtension okBuckExtension = ProjectUtil.getOkBuckExtension(rootProject);
 
     ExternalDependenciesExtension externalDependenciesExtension =
         okBuckExtension.getExternalDependenciesExtension();
     JetifierExtension jetifierExtension = okBuckExtension.getJetifierExtension();
 
-    return configurations
+    addDependencies(configuration.getAllDependencies());
+
+    return DependencyUtils.resolveExternal(
+            rootProject, configuration, externalDependenciesExtension, jetifierExtension)
         .stream()
-        .map(
-            configuration ->
-                DependencyUtils.resolveExternal(
-                    rootProject, configuration, externalDependenciesExtension, jetifierExtension))
-        .flatMap(Collection::stream)
         .map(this::get)
         .collect(Collectors.toSet());
+  }
+
+  private Set<ExternalDependency> build(String configuration) {
+    Configuration useful = DependencyUtils.useful(configuration, rootProject);
+
+    Preconditions.checkNotNull(useful);
+
+    return build(useful);
   }
 }

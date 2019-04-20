@@ -8,11 +8,15 @@ def okbuck_prebuilt(
     maven_coords,
     sha256,
     sources_sha256=None,
+    deps=None,
     visibility=None,
     enable_jetifier=False,
     ):
     if visibility == None:
         visibility = ['PUBLIC']
+
+    if deps == None:
+        deps = []
 
     prebuilt_type = maven_coords.split(':')[2]
 
@@ -49,6 +53,7 @@ def okbuck_prebuilt(
             aar = ':' + prebuilt_file_name,
             source_jar = ':' + prebuilt_sources_file_name if sources_maven_coords != None else None,
             maven_coords = maven_coords,
+            deps = deps,
             visibility = visibility,
             enable_jetifier = enable_jetifier,
         )
@@ -58,6 +63,7 @@ def okbuck_prebuilt(
             binary_jar = ':' + prebuilt_file_name,
             source_jar = ':' + prebuilt_sources_file_name if sources_maven_coords != None else None,
             maven_coords = maven_coords,
+            deps = deps,
             visibility = visibility,
             enable_jetifier = enable_jetifier,
         )

@@ -1,8 +1,5 @@
 package com.uber.okbuck.core.model.base;
 
-import static com.uber.okbuck.core.dependency.BaseExternalDependency.AAR;
-import static com.uber.okbuck.core.dependency.BaseExternalDependency.JAR;
-
 import com.android.build.api.attributes.VariantAttr;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -23,6 +20,7 @@ import com.uber.okbuck.extension.OkBuckExtension;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -38,6 +36,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.DependencySet;
+import org.gradle.api.artifacts.ProjectDependency;
 import org.gradle.api.artifacts.component.ComponentIdentifier;
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier;
 import org.gradle.api.artifacts.component.ProjectComponentIdentifier;
@@ -47,8 +46,6 @@ import org.gradle.api.specs.Spec;
 
 public class Scope {
 
-  private static final String EMPTY_GROUP = "----empty----";
-
   private final Set<String> javaResources;
   private final Set<String> sources;
   @Nullable private final Configuration configuration;
@@ -56,8 +53,8 @@ public class Scope {
   private final Map<String, List<String>> customOptions;
   protected final Project project;
 
-  private final Set<Target> targetDeps = new HashSet<>();
-  private final Set<ExternalDependency> external = new HashSet<>();
+  protected final Set<Target> targetDeps = new HashSet<>();
+  protected final Set<ExternalDependency> external = new HashSet<>();
 
   @Nullable private Set<String> annotationProcessors;
 
@@ -71,10 +68,6 @@ public class Scope {
 
   public Map<String, List<String>> getCustomOptions() {
     return customOptions;
-  }
-
-  public final Set<ExternalDependency> getAllExternal() {
-    return external;
   }
 
   /** Used to filter out only project dependencies when resolving a configuration. */
@@ -120,26 +113,71 @@ public class Scope {
         ProjectUtil.getDependencyCache(project));
   }
 
+  public Set<Target> getTargetDeps(boolean firstLevel) {
+    ExternalDependenciesExtension okBuckExtension =
+        ProjectUtil.getExternalDependencyExtension(project);
+
+    if (configuration != null && firstLevel) {
+      Set<String> firstLevelProjects =
+          configuration
+              .getAllDependencies()
+              .withType(ProjectDependency.class)
+              .stream()
+              .map(dependency -> dependency.getDependencyProject().getPath())
+              .collect(Collectors.toSet());
+
+      return targetDeps
+          .stream()
+          .filter(target -> firstLevelProjects.contains(target.getProject().getPath()))
+          .collect(Collectors.toSet());
+    } else {
+      return targetDeps;
+    }
+  }
+
   public final Set<Target> getTargetDeps() {
-    return targetDeps;
+    ExternalDependenciesExtension externalDependenciesExtension =
+        ProjectUtil.getExternalDependencyExtension(project);
+
+    return getTargetDeps(externalDependenciesExtension.exportedDepsEnabled());
   }
 
-  public Set<ExternalDependency> getExternalDeps() {
-    return getAllExternal().stream().map(depCache::get).collect(Collectors.toSet());
+  public Set<ExternalDependency> getExternalDeps(boolean firstLevel) {
+    if (configuration != null && firstLevel) {
+      Set<VersionlessDependency> firstLevelDependencies =
+          configuration
+              .getAllDependencies()
+              .withType(org.gradle.api.artifacts.ExternalDependency.class)
+              .stream()
+              .map(DependencyFactory::fromDependency)
+              .flatMap(Collection::stream)
+              .collect(Collectors.toSet());
+
+      return external
+          .stream()
+          .map(depCache::get)
+          .filter(
+              dependency -> {
+                VersionlessDependency vDependency = dependency.getVersionless();
+
+                // Always include local dependencies
+                if (vDependency.group().equals(DependencyFactory.LOCAL_GROUP)) {
+                  return true;
+                }
+                return firstLevelDependencies.contains(vDependency);
+              })
+          .collect(Collectors.toSet());
+    } else {
+      return external.stream().map(depCache::get).collect(Collectors.toSet());
+    }
   }
 
-  public Set<ExternalDependency> getExternalJarDeps() {
-    return getExternalDeps()
-        .stream()
-        .filter(dependency -> dependency.getPackaging().equals(JAR))
-        .collect(Collectors.toSet());
-  }
+  public final Set<ExternalDependency> getExternalDeps() {
+    OkBuckExtension okBuckExtension = ProjectUtil.getOkBuckExtension(project);
+    ExternalDependenciesExtension externalDependenciesExtension =
+        okBuckExtension.getExternalDependenciesExtension();
 
-  public Set<ExternalDependency> getExternalAarDeps() {
-    return getExternalDeps()
-        .stream()
-        .filter(dependency -> dependency.getPackaging().equals(AAR))
-        .collect(Collectors.toSet());
+    return getExternalDeps(externalDependenciesExtension.exportedDepsEnabled());
   }
 
   /**
@@ -153,41 +191,14 @@ public class Scope {
     }
 
     if (annotationProcessors == null) {
-      Set<VersionlessDependency> firstLevelDependencies =
-          configuration
-              .getAllDependencies()
-              .stream()
-              .map(
-                  dependency -> {
-                    String group =
-                        dependency.getGroup() == null ? EMPTY_GROUP : dependency.getGroup();
-                    return VersionlessDependency.builder()
-                        .setGroup(group)
-                        .setName(dependency.getName())
-                        .build();
-                  })
-              .collect(Collectors.toSet());
-
       annotationProcessors =
           Streams.concat(
-                  getExternalDeps()
+                  getExternalDeps(true)
                       .stream()
-                      .filter(
-                          dependency ->
-                              firstLevelDependencies.contains(dependency.getVersionless()))
                       .map(depCache::getAnnotationProcessors)
                       .flatMap(Set::stream),
-                  targetDeps
+                  getTargetDeps(true)
                       .stream()
-                      .filter(
-                          target -> {
-                            VersionlessDependency versionless =
-                                VersionlessDependency.builder()
-                                    .setGroup((String) target.getProject().getGroup())
-                                    .setName(target.getProject().getName())
-                                    .build();
-                            return firstLevelDependencies.contains(versionless);
-                          })
                       .map(
                           target -> {
                             OkBuckExtension okBuckExtension = target.getOkbuck();
@@ -298,6 +309,8 @@ public class Scope {
   }
 
   private void extractConfiguration(Configuration configuration) {
+    depCache.addDependencies(configuration.getAllDependencies());
+
     Set<ResolvedArtifactResult> jarArtifacts =
         getArtifacts(configuration, PROJECT_FILTER, ImmutableList.of("jar"));
 

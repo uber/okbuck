@@ -12,6 +12,13 @@ boolean enableJetifier,
 @if (valid(sourcesSha256)) {
     sources_sha256 = '@sourcesSha256',
 }
+@if (valid(deps)) {
+    deps = [
+    @for (dep : sorted(deps)) {
+        '@dep',
+    }
+    ],
+}
 @if (enableJetifier) {
     enable_jetifier = True,
 }

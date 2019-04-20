@@ -17,6 +17,7 @@ import com.uber.okbuck.core.manager.LintManager;
 import com.uber.okbuck.core.manager.ScalaManager;
 import com.uber.okbuck.core.manager.TransformManager;
 import com.uber.okbuck.core.model.base.ProjectType;
+import com.uber.okbuck.extension.ExternalDependenciesExtension;
 import com.uber.okbuck.extension.OkBuckExtension;
 import java.io.File;
 import java.util.HashMap;
@@ -103,6 +104,13 @@ public final class ProjectUtil {
   public static OkBuckExtension getOkBuckExtension(Project project) {
     return (OkBuckExtension)
         project.getRootProject().getExtensions().getByName(OkBuckGradlePlugin.OKBUCK);
+  }
+
+  public static ExternalDependenciesExtension getExternalDependencyExtension(Project project) {
+    OkBuckExtension okBuckExtension =
+        (OkBuckExtension)
+            project.getRootProject().getExtensions().getByName(OkBuckGradlePlugin.OKBUCK);
+    return okBuckExtension.getExternalDependenciesExtension();
   }
 
   @Nullable

@@ -3,7 +3,6 @@ package com.uber.okbuck.composer.java;
 import static com.uber.okbuck.core.dependency.BaseExternalDependency.AAR;
 import static com.uber.okbuck.core.dependency.BaseExternalDependency.JAR;
 
-import com.google.common.collect.ImmutableList;
 import com.uber.okbuck.composer.jvm.JvmBuckRuleComposer;
 import com.uber.okbuck.core.dependency.ExternalDependency;
 import com.uber.okbuck.core.model.base.RuleType;
@@ -45,20 +44,16 @@ public class LocalPrebuiltRuleComposer extends JvmBuckRuleComposer {
                 source = null;
               }
 
-              ImmutableList.Builder<Rule> rulesBuilder = ImmutableList.builder();
-              rulesBuilder.add(
-                  new NativePrebuilt()
-                      .prebuiltType(ruleType.getProperties().get(0))
-                      .prebuilt(dependency.getDependencyFileName())
-                      .mavenCoords(dependency.getMavenCoords())
-                      .enableJetifier(dependency.enableJetifier())
-                      .source(source)
-                      .ruleType(ruleType.getBuckName())
-                      .name(dependency.getTargetName()));
-
-              return rulesBuilder.build();
+              return new NativePrebuilt()
+                  .prebuiltType(ruleType.getProperties().get(0))
+                  .prebuilt(dependency.getDependencyFileName())
+                  .mavenCoords(dependency.getMavenCoords())
+                  .enableJetifier(dependency.enableJetifier())
+                  .source(source)
+                  .ruleType(ruleType.getBuckName())
+                  .deps(dependency.getDeps())
+                  .name(dependency.getTargetName());
             })
-        .flatMap(Collection::stream)
         .collect(Collectors.toList());
   }
 }

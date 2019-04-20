@@ -3,7 +3,6 @@ package com.uber.okbuck.composer.android;
 import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.composer.base.BuckRuleComposer;
 import com.uber.okbuck.core.model.android.AndroidLibTarget;
-import com.uber.okbuck.core.model.android.AndroidTarget;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.model.jvm.JvmTarget;
 import com.uber.okbuck.core.util.D8Util;
@@ -34,13 +33,8 @@ public final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
     Set<String> libraryDeps = new HashSet<>(deps);
     libraryDeps.addAll(external(target.getExternalDeps(false)));
     libraryDeps.addAll(targets(target.getTargetDeps(false)));
-    libraryDeps.addAll(
-        target
-            .getTargetDeps(false)
-            .stream()
-            .filter(targetDep -> targetDep instanceof AndroidTarget)
-            .map(targetDep -> resRule((AndroidTarget) targetDep))
-            .collect(Collectors.toSet()));
+    libraryDeps.addAll(resources(target.getTargetDeps(false)));
+    libraryDeps.addAll(resources(target.getTargetExportedDeps(false)));
 
     List<String> libraryAptDeps = new ArrayList<>();
     libraryAptDeps.addAll(externalApt(target.getExternalAptDeps(false)));
@@ -54,6 +48,7 @@ public final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
     Set<String> libraryExportedDeps = new HashSet<>();
     libraryExportedDeps.addAll(external(target.getExternalExportedDeps(false)));
     libraryExportedDeps.addAll(targets(target.getTargetExportedDeps(false)));
+    libraryExportedDeps.addAll(aidlRuleNames);
 
     List<String> testTargets = new ArrayList<>();
     if (target.getRobolectricEnabled() && !target.getTest().getSources().isEmpty()) {
@@ -80,7 +75,6 @@ public final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
             .sourceCompatibility(target.getSourceCompatibility())
             .targetCompatibility(target.getTargetCompatibility())
             .testTargets(testTargets)
-            .exportedDeps(aidlRuleNames)
             .excludes(appClass != null ? ImmutableSet.of(appClass) : ImmutableSet.of())
             .generateR2(target.getGenerateR2())
             .options(target.getMain().getCustomOptions());

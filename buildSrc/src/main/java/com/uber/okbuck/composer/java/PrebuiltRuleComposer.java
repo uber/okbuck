@@ -45,8 +45,10 @@ public class PrebuiltRuleComposer extends JvmBuckRuleComposer {
                   .getRealSourceFile()
                   .ifPresent(file -> rule.sourcesSha256(DependencyUtils.shaSum256(file)));
 
-              rule.name(dependency.getTargetName());
-              rule.ruleType(RuleType.PREBUILT.getBuckName());
+              rule.ruleType(RuleType.PREBUILT.getBuckName())
+                  .deps(external(dependency.getDeps()))
+                  .name(dependency.getTargetName());
+
               return rule;
             })
         .collect(Collectors.toList());
