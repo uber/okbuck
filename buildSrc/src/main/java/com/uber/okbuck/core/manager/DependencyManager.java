@@ -33,7 +33,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
@@ -254,8 +253,13 @@ public class DependencyManager {
               DependencyFactory.fromDependency(rDependency)
                   .stream()
                   .filter(it -> !it.classifier().isPresent())
+                  .peek(
+                      it -> {
+                        if (!dependencyMap.containsKey(it)) {
+                          throw dependencyException(rDependency);
+                        }
+                      })
                   .map(dependencyMap::get)
-                  .filter(Objects::nonNull)
                   .map(
                       dependencies -> {
                         Preconditions.checkArgument(
@@ -278,8 +282,13 @@ public class DependencyManager {
             cDependency ->
                 DependencyFactory.fromDependency(cDependency)
                     .stream()
+                    .peek(
+                        it -> {
+                          if (!dependencyMap.containsKey(it)) {
+                            throw dependencyException(cDependency);
+                          }
+                        })
                     .map(dependencyMap::get)
-                    .filter(Objects::nonNull)
                     .map(
                         dependencies -> {
                           Preconditions.checkArgument(
@@ -291,6 +300,15 @@ public class DependencyManager {
                     .collect(Collectors.toSet()))
         .flatMap(Collection::stream)
         .collect(Collectors.toSet());
+  }
+
+  private static RuntimeException dependencyException(ResolvedDependency dependency) {
+    return new RuntimeException(
+        "Couldn't find "
+            + dependency
+            + " child of parents -> "
+            + dependency.getParents()
+            + " in final resolved deps.");
   }
 
   private void processDependencies(
