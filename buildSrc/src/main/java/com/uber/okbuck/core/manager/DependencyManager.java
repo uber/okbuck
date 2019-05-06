@@ -12,13 +12,16 @@ import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.SetMultimap;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.common.HttpFileRuleComposer;
+import com.uber.okbuck.composer.java.JavaAnnotationProcessorRuleComposer;
 import com.uber.okbuck.composer.java.LocalPrebuiltRuleComposer;
 import com.uber.okbuck.composer.java.PrebuiltRuleComposer;
+import com.uber.okbuck.core.annotation.AnnotationProcessorCache;
 import com.uber.okbuck.core.dependency.DependencyFactory;
 import com.uber.okbuck.core.dependency.DependencyUtils;
 import com.uber.okbuck.core.dependency.ExternalDependency;
 import com.uber.okbuck.core.dependency.LocalExternalDependency;
 import com.uber.okbuck.core.dependency.VersionlessDependency;
+import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.extension.ExternalDependenciesExtension;
@@ -335,6 +338,11 @@ public class DependencyManager {
             .collect(
                 Collectors.groupingBy(dependency -> rootPath.resolve(dependency.getTargetPath())));
 
+    AnnotationProcessorCache annotationProcessorCache =
+        ProjectUtil.getAnnotationProcessorCache(project);
+    Map<Path, List<Scope>> basePathToScopeMap =
+        annotationProcessorCache.getBasePathToExternalDependencyScopeMap();
+
     groupToDependencyMap.forEach(
         (basePath, dependencies) -> {
           ImmutableList.Builder<ExternalDependency> localPrebuiltDependencies =
@@ -361,6 +369,12 @@ public class DependencyManager {
           rulesBuilder.addAll(LocalPrebuiltRuleComposer.compose(localPrebuiltDependencies.build()));
           rulesBuilder.addAll(PrebuiltRuleComposer.compose(prebuiltDependencies.build()));
           rulesBuilder.addAll(HttpFileRuleComposer.compose(httpFileDependencies.build()));
+
+          // Add annotation processor rules
+          List<Scope> scopeList = basePathToScopeMap.get(basePath);
+          if (scopeList != null) {
+            rulesBuilder.addAll(JavaAnnotationProcessorRuleComposer.compose(scopeList));
+          }
 
           buckFileManager.writeToBuckFile(
               rulesBuilder.build(), basePath.resolve(OkBuckGradlePlugin.BUCK).toFile());

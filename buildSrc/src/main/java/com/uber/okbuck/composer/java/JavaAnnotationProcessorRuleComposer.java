@@ -30,8 +30,9 @@ public class JavaAnnotationProcessorRuleComposer extends JvmBuckRuleComposer {
         .sorted(
             (scope1, scope2) ->
                 scope1
-                    .getAnnotationProcessorsUID()
-                    .compareToIgnoreCase(scope2.getAnnotationProcessorsUID()))
+                    .getAnnotationProcessorPlugin()
+                    .pluginUID()
+                    .compareToIgnoreCase(scope2.getAnnotationProcessorPlugin().pluginUID()))
         .map(
             scope -> {
               ImmutableSet.Builder<String> depsBuilder = new ImmutableSet.Builder<>();
@@ -40,7 +41,7 @@ public class JavaAnnotationProcessorRuleComposer extends JvmBuckRuleComposer {
 
               return new JavaAnnotationProcessorRule()
                   .processorClasses(scope.getAnnotationProcessors())
-                  .name(getApPluginRuleName(scope.getAnnotationProcessorsUID()))
+                  .name(getApPluginRuleName(scope.getAnnotationProcessorPlugin()))
                   .deps(depsBuilder.build())
                   .ruleType(RuleType.JAVA_ANNOTATION_PROCESSOR.getBuckName());
             })

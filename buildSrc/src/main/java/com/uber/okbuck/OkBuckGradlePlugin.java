@@ -92,8 +92,8 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
   public final Set<String> exportedPaths = Sets.newConcurrentHashSet();
 
   public DependencyCache depCache;
-  public AnnotationProcessorCache annotationProcessorCache;
   public DependencyManager dependencyManager;
+  public AnnotationProcessorCache annotationProcessorCache;
   public LintManager lintManager;
   public KotlinManager kotlinManager;
   public ScalaManager scalaManager;
@@ -121,6 +121,13 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
 
     rootProject.afterEvaluate(
         rootBuckProject -> {
+          // Create autovalue extension configurations
+          Set<String> configs =
+              okbuckExt.getExternalDependenciesExtension().getAutoValueConfigurations();
+          for (String config : configs) {
+            rootBuckProject.getConfigurations().maybeCreate(config);
+          }
+
           // Create tasks
           Task setupOkbuck = rootBuckProject.getTasks().create("setupOkbuck");
           setupOkbuck.setGroup(GROUP);

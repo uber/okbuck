@@ -1,11 +1,13 @@
 package com.uber.okbuck.core.model.base;
 
 import com.android.build.api.attributes.VariantAttr;
+import com.google.common.base.CaseFormat;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Streams;
 import com.uber.okbuck.core.annotation.AnnotationProcessorCache;
+import com.uber.okbuck.core.annotation.JvmPlugin;
 import com.uber.okbuck.core.dependency.DependencyCache;
 import com.uber.okbuck.core.dependency.DependencyFactory;
 import com.uber.okbuck.core.dependency.DependencyUtils;
@@ -30,12 +32,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.artifacts.DependencySet;
 import org.gradle.api.artifacts.ProjectDependency;
 import org.gradle.api.artifacts.component.ComponentIdentifier;
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier;
@@ -114,9 +114,6 @@ public class Scope {
   }
 
   public Set<Target> getTargetDeps(boolean firstLevel) {
-    ExternalDependenciesExtension okBuckExtension =
-        ProjectUtil.getExternalDependencyExtension(project);
-
     if (configuration != null && firstLevel) {
       Set<String> firstLevelProjects =
           configuration
@@ -218,58 +215,51 @@ public class Scope {
    * @return boolean whether the scope has any auto value extension.
    */
   public boolean hasAutoValueExtensions() {
-    return getExternalDeps().stream().anyMatch(depCache::hasAutoValueExtensions);
+    return getExternalDeps().stream().anyMatch(depCache::hasAutoValueExtension);
   }
 
   /**
-   * Returns the UID for the annotation processors of the scope.
+   * Returns the JvmPlugin for the annotation processor of the scope.
    *
-   * @return String UID
+   * @return JvmPlugin
    */
-  public String getAnnotationProcessorsUID() {
-    Preconditions.checkNotNull(configuration);
-    DependencySet dependencies = configuration.getAllDependencies();
-    String processorsUID =
-        dependencies
-            .stream()
-            .map(
-                dep -> {
-                  if (dep.getVersion() == null || dep.getVersion().length() == 0) {
-                    return String.format("%s-%s", dep.getGroup(), dep.getName());
-                  } else {
-                    return String.format(
-                        "%s-%s-%s", dep.getGroup(), dep.getName(), dep.getVersion());
-                  }
-                })
-            .filter(name -> name.length() > 0)
-            .sorted()
-            .collect(Collectors.joining("-"));
+  public JvmPlugin getAnnotationProcessorPlugin() {
+    JvmPlugin.Builder jvmPluginBuilder = JvmPlugin.builder();
+
+    Set<ExternalDependency> dependencies = getExternalDeps(true);
 
     if (dependencies.size() > 1) {
-      // Use md5 hash when there are multiple dependencies along with auto value.
-      // Multiple dependencies will only happen when auto value extensions are present.
-
-      Optional<String> autoValueUID =
+      Optional<ExternalDependency> optionalAutoValue =
           dependencies
               .stream()
               .filter(
                   dep ->
-                      dep.getGroup() != null
-                          && dep.getGroup().equals(AnnotationProcessorCache.AUTO_VALUE_GROUP)
+                      dep.getGroup().equals(AnnotationProcessorCache.AUTO_VALUE_GROUP)
                           && dep.getName().equals(AnnotationProcessorCache.AUTO_VALUE_NAME))
-              .map(
-                  dep -> String.format("%s-%s-%s", dep.getGroup(), dep.getName(), dep.getVersion()))
               .findAny();
-
       Preconditions.checkArgument(
-          autoValueUID.isPresent(),
+          optionalAutoValue.isPresent(),
           "Multiple annotation processor dependencies should have auto value");
 
-      String md5Hash = DigestUtils.md5Hex(processorsUID);
-      return String.format("%s__%s", autoValueUID.get(), md5Hash);
+      Preconditions.checkNotNull(configuration);
+      String configurationName = configuration.getName();
+
+      ExternalDependency autoValue = optionalAutoValue.get();
+      String processorUID = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_HYPHEN, configurationName);
+
+      jvmPluginBuilder.setPluginUID(processorUID).setPluginDependency(autoValue);
+
+    } else if (dependencies.size() == 1) {
+      ExternalDependency dependency = dependencies.stream().findAny().get();
+      jvmPluginBuilder.setPluginUID(dependency.getBaseTargetName()).setPluginDependency(dependency);
+
     } else {
-      return processorsUID;
+      // Can have only one target dependency
+      Optional<Target> target = getTargetDeps(true).stream().findAny();
+      String processorUID = target.get().getIdentifier().replace(":", "-");
+      jvmPluginBuilder.setPluginUID(processorUID).setPluginTarget(target);
     }
+    return jvmPluginBuilder.build();
   }
 
   private static Set<ResolvedArtifactResult> getArtifacts(

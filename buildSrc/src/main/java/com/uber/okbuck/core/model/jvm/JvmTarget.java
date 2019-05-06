@@ -13,6 +13,7 @@ import com.google.errorprone.annotations.Var;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.jvm.JvmBuckRuleComposer;
 import com.uber.okbuck.core.annotation.AnnotationProcessorCache;
+import com.uber.okbuck.core.annotation.JvmPlugin;
 import com.uber.okbuck.core.dependency.DependencyFactory;
 import com.uber.okbuck.core.dependency.DependencyUtils;
 import com.uber.okbuck.core.dependency.ExternalDependency;
@@ -260,11 +261,11 @@ public class JvmTarget extends Target {
    * List of annotation processor classes. If annotation processor plugin is enabled returns the
    * annotation processor's UID.
    */
-  public Set<String> getApPlugins() {
+  public Set<JvmPlugin> getApPlugins() {
     return getAptScopes()
         .stream()
         .filter(scope -> !scope.getAnnotationProcessors().isEmpty())
-        .map(Scope::getAnnotationProcessorsUID)
+        .map(Scope::getAnnotationProcessorPlugin)
         .collect(Collectors.toSet());
   }
 
@@ -272,11 +273,11 @@ public class JvmTarget extends Target {
    * List of test annotation processor classes. If annotation processor plugin is enabled returns
    * the annotation processor's UID.
    */
-  public Set<String> getTestApPlugins() {
+  public Set<JvmPlugin> getTestApPlugins() {
     return getTestAptScopes()
         .stream()
         .filter(scope -> !scope.getAnnotationProcessors().isEmpty())
-        .map(Scope::getAnnotationProcessorsUID)
+        .map(Scope::getAnnotationProcessorPlugin)
         .collect(Collectors.toSet());
   }
 

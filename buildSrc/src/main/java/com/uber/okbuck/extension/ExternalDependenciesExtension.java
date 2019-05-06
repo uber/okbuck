@@ -3,6 +3,7 @@ package com.uber.okbuck.extension;
 import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.core.dependency.VersionlessDependency;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
@@ -20,6 +21,8 @@ public class ExternalDependenciesExtension {
 
   /** Specifies whether to enable exported_deps for external dependencies or not. */
   @Input private boolean enableExportedDeps = false;
+
+  @Input private Set<String> autoValueConfigurations = new HashSet<>();
 
   /**
    * Stores the dependencies which are allowed to have more than 1 version. This is needed for few
@@ -89,5 +92,9 @@ public class ExternalDependenciesExtension {
 
   public boolean exportedDepsEnabled() {
     return enableExportedDeps;
+  }
+
+  public Set<String> getAutoValueConfigurations() {
+    return autoValueConfigurations;
   }
 }
