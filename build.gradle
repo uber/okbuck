@@ -215,6 +215,11 @@ okbuck {
         allowAllVersions = [
                 "org.robolectric:android-all",
         ]
+        autoValueConfigurations = [
+            "autoValueAnnotations",
+            "autoValueGson",
+            "autoValueParcel",
+        ]
     }
 
     dependencies {
@@ -243,8 +248,16 @@ okbuck {
     }
 }
 
+def autoValueDeps = [deps.apt.autoValue, deps.apt.autoValueAnnotations]
+def autoValueGsonDeps = autoValueDeps + [deps.apt.autoValueGson]
+def autoValueParcelDeps = autoValueDeps + [deps.apt.autoValueParcel]
+
 afterEvaluate {
     dependencies {
         toolsExtraDepCache deps.external.saxon
+
+        autoValueAnnotations autoValueDeps
+        autoValueGson autoValueGsonDeps
+        autoValueParcel autoValueParcelDeps
     }
 }

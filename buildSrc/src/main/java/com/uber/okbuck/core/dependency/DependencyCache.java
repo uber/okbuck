@@ -115,7 +115,7 @@ public class DependencyCache {
    * @param externalDependency The dependency
    * @return Whether the dependency has auto value extension.
    */
-  public boolean hasAutoValueExtensions(ExternalDependency externalDependency) {
+  public boolean hasAutoValueExtension(ExternalDependency externalDependency) {
     ExternalDependency dependency =
         forcedDeps.getOrDefault(externalDependency.getVersionless(), externalDependency);
     try {

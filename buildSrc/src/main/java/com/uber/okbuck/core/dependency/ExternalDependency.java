@@ -125,6 +125,11 @@ public class ExternalDependency {
     return this.base.targetName() + "." + getPackaging();
   }
 
+  /** Returns the target name of the dependency without packaging. */
+  public String getBaseTargetName() {
+    return this.base.targetName();
+  }
+
   /** Returns the versionless target name of the dependency. */
   public String getVersionlessTargetName() {
     return this.base.versionlessTargetName() + "." + getPackaging();

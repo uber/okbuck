@@ -48,6 +48,7 @@ def apt = [
         autoValue             : "com.google.auto.value:auto-value:1.6",
         autoValueAnnotations  : "com.google.auto.value:auto-value-annotations:1.6",
         autoValueGson         : "com.ryanharter.auto.value:auto-value-gson:0.7.0",
+        autoValueParcel       : "com.ryanharter.auto.value:auto-value-parcel:0.2.6",
         butterKnifeCompiler   : "com.jakewharton:butterknife-compiler:${versions.butterKnife}",
         daggerCompiler        : "com.google.dagger:dagger-compiler:${versions.dagger}",
         daggerAndroidProcessor: "com.google.dagger:dagger-android-processor:${versions.dagger}",
