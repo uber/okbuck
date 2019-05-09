@@ -52,7 +52,7 @@ public final class KotlinManager {
           "kotlin-stdlib-common");
 
   private static final ImmutableSet<String> embeddableCompilerJars =
-      ImmutableSet.of(KOTLIN_EMBEDDABLE_COMPILER + ".jar", "trove4j.jar");
+      ImmutableSet.of(KOTLIN_EMBEDDABLE_COMPILER + ".jar", "trove4j.jar", "annotations.jar");
 
   private final Project project;
   private final BuckFileManager buckFileManager;
