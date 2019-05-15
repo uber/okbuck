@@ -14,6 +14,13 @@ boolean enableJetifier,
 @if (valid(mavenCoords)) {
     maven_coords = '@mavenCoords',
 }
+@if (valid(deps)) {
+    deps = [
+    @for (dep : sorted(deps)) {
+        '@dep',
+    }
+    ],
+}
 @if (enableJetifier) {
     enable_jetifier = True,
 }

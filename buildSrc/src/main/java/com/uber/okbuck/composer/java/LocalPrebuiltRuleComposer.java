@@ -51,7 +51,7 @@ public class LocalPrebuiltRuleComposer extends JvmBuckRuleComposer {
                   .enableJetifier(dependency.enableJetifier())
                   .source(source)
                   .ruleType(ruleType.getBuckName())
-                  .deps(dependency.getDeps())
+                  .deps(external(dependency.getDeps()))
                   .name(dependency.getTargetName());
             })
         .collect(Collectors.toList());
