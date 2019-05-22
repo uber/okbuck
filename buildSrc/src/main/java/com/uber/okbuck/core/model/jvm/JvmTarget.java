@@ -250,13 +250,6 @@ public class JvmTarget extends Target {
     return null;
   }
 
-  public boolean hasLintRegistry() {
-    Jar jarTask = (Jar) getProject().getTasks().findByName(JavaPlugin.JAR_TASK_NAME);
-    return jarTask != null
-        && (jarTask.getManifest().getAttributes().containsKey("Lint-Registry")
-            || jarTask.getManifest().getAttributes().containsKey("Lint-Registry-v2"));
-  }
-
   /**
    * List of annotation processor classes. If annotation processor plugin is enabled returns the
    * annotation processor's UID.
