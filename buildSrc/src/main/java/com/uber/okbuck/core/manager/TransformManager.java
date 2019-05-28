@@ -78,11 +78,10 @@ public final class TransformManager {
   }
 
   public void finalizeDependencies() {
-    Path cacheDir = rootProject.file(TRANSFORM_CACHE).toPath();
-
-    FileUtil.deleteQuietly(cacheDir);
-
     if (dependencies != null && dependencies.size() > 0) {
+      Path cacheDir = rootProject.file(TRANSFORM_CACHE).toPath();
+      FileUtil.deleteQuietly(cacheDir);
+
       cacheDir.toFile().mkdirs();
 
       copyFiles(cacheDir);
