@@ -1,0 +1,62 @@
+@args (
+String androidResourceRule,
+String androidLibraryRule,
+)
+
+# Macro that represents a union of all common rules to for an android_library
+def unified_android_library(
+        name,
+        ## common args
+        visibility = None,
+        package=None,
+        ## Manifest related args
+        manifest_main_manifest = None,
+        manifest_min_sdk = None,
+        manifest_target_sdk = None,
+        manifest_version_code=None,
+        manifest_version_name=None,
+        manifest_debuggable=False,
+        manifest_secondary_manifests=None,
+        ## Resources related args
+        res_res = None,
+        res_project_res = None,
+        res_assets = None,
+        res_resource_union=False,
+        res_exported_deps = None,
+        res_deps = None,
+        ## Android library related args
+        **kwargs
+    ):
+
+    manifest_rule_name = name.replace("src", "manifest_lib", 1)
+    okbuck_manifest(
+        name = manifest_rule_name,
+        main_manifest = manifest_main_manifest,
+        min_sdk = manifest_min_sdk,
+        target_sdk = manifest_target_sdk,
+        package = package,
+        version_code = manifest_version_code,
+        version_name = manifest_version_name,
+        debuggable = manifest_debuggable,
+        secondary_manifests = manifest_secondary_manifests,
+    )
+
+    res_rule_name = name.replace("src", "res", 1)
+    @(androidResourceRule)(
+        name = res_rule_name,
+        deps = res_deps,
+        res = res_res,
+        exported_deps = res_exported_deps,
+        assets = res_assets,
+        project_res = res_project_res,
+        package = package,
+        resource_union = res_resource_union,
+        visibility = visibility,
+    )
+
+    @(androidLibraryRule)(
+        name = name,
+        visibility = visibility,
+        manifest = ':{}'.format(manifest_rule_name),
+        **kwargs
+    )

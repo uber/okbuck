@@ -78,6 +78,11 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
   public static final String OKBUCK_PREBUILT_TARGET =
       "//" + DOT_OKBUCK + "/defs:" + OKBUCK_PREBUILT_BZL;
 
+  private static final String OKBUCK_UNIFIED_TARGETS_BZL = "okbuck_unified_targets.bzl";
+  public static final String OKBUCK_UNIFIED_TARGETS_FILE = DOT_OKBUCK + "/defs/" + OKBUCK_UNIFIED_TARGETS_BZL;
+  public static final String OKBUCK_UNIFIED_TARGETS_TARGET =
+      "//" + DOT_OKBUCK + "/defs:" + OKBUCK_UNIFIED_TARGETS_BZL;
+
   public static final String OKBUCK_CONFIG = DOT_OKBUCK + "/config";
 
   private static final String OKBUCK_STATE_DIR = DOT_OKBUCK + "/state";
