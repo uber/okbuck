@@ -93,7 +93,7 @@ public final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
                 target.getRootProject().getProjectDir(), target.getLintOptions().getLintConfig());
         ProjectUtil.getPlugin(target.getRootProject()).exportedPaths.add(lintConfigPath);
       } else {
-        lintConfigPath = "";
+        lintConfigPath = null;
       }
 
       Set<String> customLintTargets =
@@ -105,8 +105,12 @@ public final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
               .map(BuckRuleComposer::binTargets)
               .collect(Collectors.toSet());
 
+      if (lintConfigPath != null) {
+        androidRule
+          .lintConfigXml(fileRule(lintConfigPath));
+      }
+
       androidRule
-          .lintConfigXml(fileRule(lintConfigPath))
           .customLints(customLintTargets)
           .lintOptions(target.getLintOptions());
     } else {
