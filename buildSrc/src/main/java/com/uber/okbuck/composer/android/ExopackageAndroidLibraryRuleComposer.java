@@ -1,5 +1,6 @@
 package com.uber.okbuck.composer.android;
 
+import com.google.errorprone.annotations.Var;
 import com.uber.okbuck.core.model.android.AndroidAppTarget;
 import com.uber.okbuck.core.model.android.ExoPackageScope;
 import com.uber.okbuck.core.model.base.RuleType;
@@ -48,12 +49,15 @@ public final class ExopackageAndroidLibraryRuleComposer extends AndroidBuckRuleC
             .disableLint(true)
             .options(target.getMain().getCustomOptions());
 
-    if (target.getRuleType().equals(RuleType.KOTLIN_ANDROID_LIBRARY)) {
+    @Var
+    String ruleType = RuleType.ANDROID_LIBRARY.getBuckName();
+    if (target.isKotlin()) {
       androidRule.language("kotlin");
+      ruleType = RuleType.KOTLIN_ANDROID_LIBRARY.getBuckName();
     }
 
     return androidRule
-        .ruleType(target.getRuleType().getBuckName())
+        .ruleType(ruleType)
         .defaultVisibility()
         .deps(deps)
         .name(appLib(target))

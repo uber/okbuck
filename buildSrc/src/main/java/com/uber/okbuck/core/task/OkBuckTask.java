@@ -214,6 +214,8 @@ public class OkBuckTask extends DefaultTask {
         overrides.get(RuleType.ANDROID_RESOURCE.getBuckName());
     RuleOverridesExtension.OverrideSetting androidLibrarySetting =
         overrides.get(RuleType.ANDROID_LIBRARY.getBuckName());
+    RuleOverridesExtension.OverrideSetting manifestSetting =
+        overrides.get(RuleType.MANIFEST.getBuckName());
 
     // might be null as okbuck doesn't define a custom override for this.
     if (androidResourceSetting != null) {
@@ -221,6 +223,7 @@ public class OkBuckTask extends DefaultTask {
           .put(androidResourceSetting.getImportLocation(), androidResourceSetting.getNewRuleName());
     }
     unifiedLibsLoadStatements.put(androidLibrarySetting.getImportLocation(), androidLibrarySetting.getNewRuleName());
+    unifiedLibsLoadStatements.put(manifestSetting.getImportLocation(), manifestSetting.getNewRuleName());
 
     Rule okbuckUnifiedTargets = new OkbuckUnifiedTargets()
         .androidLibraryRule(androidLibrarySetting.getNewRuleName())
