@@ -3,22 +3,26 @@ String androidResourceRule,
 String androidLibraryRule,
 )
 
+def get_rule_dep(rule_name):
+    return ':{}'.format(rule_name)
+
+def get_exts_aar_deps(src_deps):
+    return [dep for dep in src_deps if dep.endswith('.aar')]
+
 def src_to_res(str):
     return str.replace(":src_", ":res_", 1)
 
-def get_res_deps(src_deps):
-    unmapped_res_deps = [dep for dep in src_deps if dep.endswith('.aar') or ':_src' in dep]
+def get_libs_res_deps(src_deps):
     mapped_res_deps = []
     for dep in src_deps:
-        if (dep.endswith('.aar') or
-            (':src_' in dep and not dep.endswith(':src_main'))):
+        if (':src_' in dep and not dep.endswith(':src_main')):
             mapped_res_deps.append(src_to_res(dep))
     return mapped_res_deps
 
 # Macro that represents a union of all common rules to for an android_library
 def okbuck_unified_android_library(
         name,
-        language = 'java',
+        language = None,
         ## common args
         visibility = None,
         package=None,
@@ -55,29 +59,49 @@ def okbuck_unified_android_library(
         secondary_manifests = manifest_secondary_manifests,
     )
 
-    res_deps = get_res_deps(deps)
-    res_deps += res_extra_deps
-    res_exported_deps = get_res_deps(exported_deps)
+    res_ext_aar_deps = get_exts_aar_deps(deps)
+    res_lib_deps = get_libs_res_deps(deps)
+    res_deps = res_ext_aar_deps + res_lib_deps + res_extra_deps
+
+    res_exported_ext_aar_deps = get_exts_aar_deps(exported_deps)
+    res_exported_lib_deps = get_libs_res_deps(exported_deps)
+    res_exported_deps = res_exported_ext_aar_deps + res_exported_lib_deps
 
     res_rule_name = name.replace("src", "res", 1)
-    @(androidResourceRule)(
+    res_kwargs = dict(
         name = res_rule_name,
         deps = res_deps if res_deps else None,
         res = res_res,
-        exported_deps = res_exported_deps if res_exported_deps else None,
         assets = res_assets,
         project_res = res_project_res,
         package = package,
         resource_union = res_resource_union,
-        visibility = visibility,
+        visibility = visibility
     )
+    if res_deps:
+      res_kwargs.update({'deps' : res_deps})
+    if res_exported_deps:
+      res_kwargs.update({'exported_deps' : res_exported_deps})
 
-    @(androidLibraryRule)(
+    @(androidResourceRule)(**res_kwargs)
+
+    src_kwargs = dict(
         name = name,
         visibility = visibility,
-        manifest = ':{}'.format(manifest_rule_name),
-        **kwargs
+        manifest = get_rule_dep(manifest_rule_name),
     )
+    src_kwargs.update(kwargs)
+
+    src_deps = deps + res_lib_deps + [get_rule_dep(res_rule_name)]
+    src_exported_deps = exported_deps + res_exported_lib_deps
+
+    src_kwargs.update({'deps' : src_deps})
+    if src_exported_deps:
+        src_kwargs.update({'exported_deps' : src_exported_deps})
+    if language:
+        src_kwargs.update({'language' : language})
+
+    @(androidLibraryRule)(**src_kwargs)
 
 def okbuck_unified_kotlin_android_library(
         language = 'kotlin',
