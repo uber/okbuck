@@ -207,7 +207,7 @@ public class OkBuckTask extends DefaultTask {
     buckFileManager.writeToBuckFile(
         ImmutableList.of(okbuckPrebuiltRule), okbuckPrebuilt(), prebuiltLoadStatements);
 
-    // Setup okbuck_unified_targets.bzl
+    // Setup okbuck_android_modules.bzl
     Multimap<String, String> unifiedLibsLoadStatements = TreeMultimap.create();
 
     RuleOverridesExtension.OverrideSetting androidResourceSetting =

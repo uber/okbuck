@@ -78,7 +78,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
   public static final String OKBUCK_PREBUILT_TARGET =
       "//" + DOT_OKBUCK + "/defs:" + OKBUCK_PREBUILT_BZL;
 
-  private static final String OKBUCK_ANDROID_MODULES_BZL = "okbuck_unified_targets.bzl";
+  private static final String OKBUCK_ANDROID_MODULES_BZL = "okbuck_android_modules.bzl";
   public static final String OKBUCK_ANDROID_MODULES_FILE = DOT_OKBUCK + "/defs/" + OKBUCK_ANDROID_MODULES_BZL;
   public static final String OKBUCK_ANDROID_MODULES_TARGET =
       "//" + DOT_OKBUCK + "/defs:" + OKBUCK_ANDROID_MODULES_BZL;
