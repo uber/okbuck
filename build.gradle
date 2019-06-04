@@ -245,6 +245,9 @@ okbuck {
         override {
             nativeRuleName = "prebuilt_jar"
         }
+        override {
+            nativeRuleName = "android_module"
+        }
     }
 }
 
