@@ -4,8 +4,9 @@ String androidLibraryRule,
 )
 
 # Macro that represents a union of all common rules to for an android_library
-def unified_android_library(
+def okbuck_unified_android_library(
         name,
+        language = 'java',
         ## common args
         visibility = None,
         package=None,
@@ -58,5 +59,14 @@ def unified_android_library(
         name = name,
         visibility = visibility,
         manifest = ':{}'.format(manifest_rule_name),
+        **kwargs
+    )
+
+def okbuck_unified_kotlin_android_library(
+        language = 'kotlin',
+        **kwargs
+    ):
+    okbuck_unified_android_library(
+        language = language,
         **kwargs
     )

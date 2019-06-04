@@ -80,10 +80,6 @@ public final class UnifiedAndroidLibraryRuleComposer  extends AndroidBuckRuleCom
             .generateR2(target.getGenerateR2())
             .options(target.getMain().getCustomOptions());
 
-    if (target.getRuleType().equals(RuleType.KOTLIN_ANDROID_LIBRARY)) {
-      unifiedAndroid.language("kotlin");
-    }
-
     if (target.getLintEnabled()) {
       String lintConfigPath;
       if (target.getLintOptions() != null

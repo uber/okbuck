@@ -19,7 +19,6 @@ Collection jvmArgs,
 Map env,
 Collection exportedDeps,
 Collection friendPaths,
-String language,
 String robolectricManifest,
 String runtimeDependency,
 boolean generateR2,
@@ -72,9 +71,6 @@ env
 @if (valid(runtimeDependency)) {
     force_final_resource_ids = False,
     robolectric_runtime_dependency = '@runtimeDependency',
-}
-@if (valid(language)) {
-    language = '@language',
 }
 @if (!disableLintTemplate) {
 @if (!disableLint) {

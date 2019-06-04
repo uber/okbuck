@@ -2,6 +2,7 @@ package com.uber.okbuck.extension;
 
 import static com.uber.okbuck.OkBuckGradlePlugin.OKBUCK_PREBUILT_TARGET;
 import static com.uber.okbuck.OkBuckGradlePlugin.OKBUCK_TARGETS_TARGET;
+import static com.uber.okbuck.OkBuckGradlePlugin.OKBUCK_UNIFIED_TARGETS_TARGET;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -66,6 +67,8 @@ public class RuleOverridesExtension {
           .put(RuleType.ANDROID_LIBRARY, OKBUCK_TARGETS_TARGET)
           .put(RuleType.ANDROID_PREBUILT_AAR, OKBUCK_TARGETS_TARGET)
           .put(RuleType.KOTLIN_ANDROID_LIBRARY, OKBUCK_TARGETS_TARGET)
+          .put(RuleType.UNIFIED_ANDROID_LIBRARY, OKBUCK_UNIFIED_TARGETS_TARGET)
+          .put(RuleType.UNIFIED_KOTLIN_ANDROID_LIBRARY, OKBUCK_UNIFIED_TARGETS_TARGET)
           .put(RuleType.KEYSTORE, OKBUCK_TARGETS_TARGET)
           .put(RuleType.MANIFEST, OKBUCK_TARGETS_TARGET)
           .build();
