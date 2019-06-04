@@ -9,7 +9,6 @@ import com.uber.okbuck.core.util.D8Util;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.template.android.AndroidModuleRule;
-import com.uber.okbuck.template.android.UnifiedAndroidRule;
 import com.uber.okbuck.template.core.Rule;
 
 import javax.annotation.Nullable;
