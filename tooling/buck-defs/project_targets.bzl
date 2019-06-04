@@ -25,5 +25,5 @@ def project_prebuilt_jar(
     **kwargs
   )
 
-def project_android_module(**kwargs)
+def project_android_module(**kwargs):
   okbuck_android_module(**kwargs)
