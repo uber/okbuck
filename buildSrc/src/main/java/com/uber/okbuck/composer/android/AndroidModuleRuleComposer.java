@@ -8,6 +8,7 @@ import com.uber.okbuck.core.model.jvm.JvmTarget;
 import com.uber.okbuck.core.util.D8Util;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
+import com.uber.okbuck.template.android.AndroidModuleRule;
 import com.uber.okbuck.template.android.UnifiedAndroidRule;
 import com.uber.okbuck.template.core.Rule;
 
@@ -18,9 +19,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public final class UnifiedAndroidLibraryRuleComposer  extends AndroidBuckRuleComposer {
+public final class AndroidModuleRuleComposer extends AndroidBuckRuleComposer {
 
-  private UnifiedAndroidLibraryRuleComposer() {
+  private AndroidModuleRuleComposer() {
     // no instance
   }
 
@@ -59,8 +60,8 @@ public final class UnifiedAndroidLibraryRuleComposer  extends AndroidBuckRuleCom
       testTargets.add(":" + AndroidBuckRuleComposer.bin(target.getLibInstrumentationTarget()));
     }
 
-    UnifiedAndroidRule unifiedAndroid =
-        new UnifiedAndroidRule()
+    AndroidModuleRule unifiedAndroid =
+        new AndroidModuleRule()
             .srcs(target.getMain().getSources())
             .exts(target.getRuleType().getProperties())
             .proguardConfig(target.getConsumerProguardConfig())
