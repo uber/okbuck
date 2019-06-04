@@ -2,7 +2,7 @@ package com.uber.okbuck.core.task;
 
 import static com.uber.okbuck.OkBuckGradlePlugin.OKBUCK_PREBUILT_FILE;
 import static com.uber.okbuck.OkBuckGradlePlugin.OKBUCK_TARGETS_FILE;
-import static com.uber.okbuck.OkBuckGradlePlugin.OKBUCK_UNIFIED_TARGETS_FILE;
+import static com.uber.okbuck.OkBuckGradlePlugin.OKBUCK_ANDROID_MODULES_FILE;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
@@ -23,9 +23,9 @@ import com.uber.okbuck.extension.OkBuckExtension;
 import com.uber.okbuck.extension.RuleOverridesExtension;
 import com.uber.okbuck.extension.ScalaExtension;
 import com.uber.okbuck.generator.OkbuckBuckConfigGenerator;
+import com.uber.okbuck.template.config.OkbuckAndroidModules;
 import com.uber.okbuck.template.config.OkbuckPrebuilt;
 import com.uber.okbuck.template.config.OkbuckTargets;
-import com.uber.okbuck.template.config.OkbuckUnifiedTargets;
 import com.uber.okbuck.template.core.Rule;
 import java.io.File;
 import java.io.IOException;
@@ -139,8 +139,8 @@ public class OkBuckTask extends DefaultTask {
   }
 
   @OutputFile
-  public File okbuckUnifiedTargets() {
-    return getProject().file(OKBUCK_UNIFIED_TARGETS_FILE);
+  public File okbuckAndroidModules() {
+    return getProject().file(OKBUCK_ANDROID_MODULES_FILE);
   }
 
   @OutputFile
@@ -225,7 +225,7 @@ public class OkBuckTask extends DefaultTask {
     unifiedLibsLoadStatements.put(androidLibrarySetting.getImportLocation(), androidLibrarySetting.getNewRuleName());
     unifiedLibsLoadStatements.put(manifestSetting.getImportLocation(), manifestSetting.getNewRuleName());
 
-    Rule okbuckUnifiedTargets = new OkbuckUnifiedTargets()
+    Rule okbuckAndroidModules = new OkbuckAndroidModules()
         .androidLibraryRule(androidLibrarySetting.getNewRuleName())
         .androidResourceRule(
             androidResourceSetting != null ?
@@ -233,7 +233,7 @@ public class OkBuckTask extends DefaultTask {
                 "native." + RuleType.ANDROID_RESOURCE.getBuckName());
 
     buckFileManager.writeToBuckFile(
-        ImmutableList.of(okbuckUnifiedTargets), okbuckUnifiedTargets(), unifiedLibsLoadStatements);
+        ImmutableList.of(okbuckAndroidModules), okbuckAndroidModules(), unifiedLibsLoadStatements);
 
     // generate .buckconfig.okbuck
     OkbuckBuckConfigGenerator.generate(

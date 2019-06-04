@@ -20,7 +20,7 @@ def get_libs_res_deps(src_deps):
     return mapped_res_deps
 
 # Macro that represents a union of all common rules to for an android_library
-def okbuck_unified_android_library(
+def okbuck_android_module(
         name,
         language = None,
         ## common args
@@ -103,11 +103,11 @@ def okbuck_unified_android_library(
 
     @(androidLibraryRule)(**src_kwargs)
 
-def okbuck_unified_kotlin_android_library(
+def okbuck_kotlin_android_module(
         language = 'kotlin',
         **kwargs
     ):
-    okbuck_unified_android_library(
+    okbuck_android_module(
         language = language,
         **kwargs
     )

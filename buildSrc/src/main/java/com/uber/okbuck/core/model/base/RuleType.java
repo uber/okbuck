@@ -11,6 +11,7 @@ public enum RuleType {
   ANDROID_INSTRUMENTATION_APK,
   ANDROID_INSTRUMENTATION_TEST,
   ANDROID_LIBRARY("java"),
+  ANDROID_MODULE("java"),
   ANDROID_PREBUILT_AAR("aar"),
   ANDROID_RESOURCE,
   GROOVY_LIBRARY("groovy", "java"),
@@ -21,6 +22,7 @@ public enum RuleType {
   JAVA_TEST("java"),
   KEYSTORE,
   KOTLIN_ANDROID_LIBRARY("java", "kt"),
+  KOTLIN_ANDROID_MODULE("java", "kt"),
   KOTLIN_LIBRARY("java", "kt"),
   KOTLIN_ROBOLECTRIC_TEST("java", "kt"),
   KOTLIN_TEST("java", "kt"),
@@ -30,9 +32,7 @@ public enum RuleType {
   PREBUILT_JAR("binary_jar"),
   PREBUILT,
   PREBUILT_NATIVE_LIBRARY,
-  ROBOLECTRIC_TEST("java"),
-  UNIFIED_ANDROID_LIBRARY("java"),
-  UNIFIED_KOTLIN_ANDROID_LIBRARY("java", "kt");
+  ROBOLECTRIC_TEST("java");
 
   private final ImmutableList<String> properties;
 
