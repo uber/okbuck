@@ -30,7 +30,6 @@ import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.extension.VisibilityExtension;
 import com.uber.okbuck.template.android.AndroidModuleRule;
 import com.uber.okbuck.template.android.AndroidRule;
-import com.uber.okbuck.template.android.ResourceRule;
 import com.uber.okbuck.template.core.Rule;
 import java.io.File;
 import java.util.ArrayList;
@@ -205,8 +204,8 @@ public final class BuckFileGenerator {
 
     libRules.forEach(
         rule -> {
-          if (rule instanceof ResourceRule && rule.name() != null) {
-            deps.add(rule.buckName());
+          if (rule instanceof AndroidModuleRule && rule.name() != null) {
+            deps.add(rule.buckName().replace(":src_", ":res_"));
           }
         });
 
