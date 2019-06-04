@@ -8,7 +8,6 @@ import com.uber.okbuck.core.model.jvm.JvmTarget;
 import com.uber.okbuck.core.util.D8Util;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
-import com.uber.okbuck.template.android.AndroidRule;
 import com.uber.okbuck.template.android.UnifiedAndroidRule;
 import com.uber.okbuck.template.core.Rule;
 
@@ -35,8 +34,6 @@ public final class UnifiedAndroidLibraryRuleComposer  extends AndroidBuckRuleCom
     Set<String> libraryDeps = new HashSet<>(deps);
     libraryDeps.addAll(external(target.getExternalDeps(false)));
     libraryDeps.addAll(targets(target.getTargetDeps(false)));
-    libraryDeps.addAll(resources(target.getTargetDeps(false)));
-    libraryDeps.addAll(resources(target.getTargetExportedDeps(false)));
 
     List<String> libraryAptDeps = new ArrayList<>();
     libraryAptDeps.addAll(externalApt(target.getExternalAptDeps(false)));
@@ -127,15 +124,6 @@ public final class UnifiedAndroidLibraryRuleComposer  extends AndroidBuckRuleCom
         .manifestMainManifest(target.getMainManifest())
         .manifestSecondaryManifests(target.getSecondaryManifests());
 
-    Set<String> resDeps = new HashSet<>();
-    resDeps.addAll(external(target.getExternalAarDeps(false)));
-    resDeps.addAll(resources(target.getTargetDeps(false)));
-    resDeps.addAll(extraResDeps);
-
-    Set<String> resExportedDeps = new HashSet<>();
-    resExportedDeps.addAll(external(target.getExternalExportedAarDeps(false)));
-    resExportedDeps.addAll(resources(target.getTargetExportedDeps(false)));
-
     // Resource related arguments
     return unifiedAndroid
         .pkg(target.getResPackage())
@@ -143,7 +131,6 @@ public final class UnifiedAndroidLibraryRuleComposer  extends AndroidBuckRuleCom
         .resProjectRes(target.getProjectResDir())
         .resAssets(target.getAssetDirs())
         .resResourceUnion(target.getOkbuck().useResourceUnion())
-        .resExportedDeps(resExportedDeps)
-        .resDeps(resDeps);
+        .resExtraDeps(extraResDeps);
   }
 }

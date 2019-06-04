@@ -30,7 +30,9 @@ public enum RuleType {
   PREBUILT_JAR("binary_jar"),
   PREBUILT,
   PREBUILT_NATIVE_LIBRARY,
-  ROBOLECTRIC_TEST("java");
+  ROBOLECTRIC_TEST("java"),
+  UNIFIED_ANDROID_LIBRARY("java"),
+  UNIFIED_KOTLIN_ANDROID_LIBRARY("java", "kt");
 
   private final ImmutableList<String> properties;
 

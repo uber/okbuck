@@ -38,8 +38,7 @@ Collection manifestSecondaryManifests,
 Collection resRes,
 String resProjectRes,
 Collection resAssets,
-Collection resDeps,
-Collection resExportedDeps,
+Collection resExtraDeps,
 boolean resResourceUnion
 )
 @com.uber.okbuck.template.jvm.JvmRule.template(
@@ -174,16 +173,9 @@ env
     }
     ]),
 }
-@if (valid(resDeps)) {
-    res_deps = [
-    @for (resDep : sorted(resDeps)) {
-        '@resDep',
-    }
-    ],
-}
-@if (valid(resExportedDeps)) {
-    res_exported_deps = [
-    @for (dep : sorted(resExportedDeps)) {
+@if (valid(resExtraDeps)) {
+    res_extra_deps = [
+    @for (dep : sorted(resExtraDeps)) {
         '@dep',
     }
     ],

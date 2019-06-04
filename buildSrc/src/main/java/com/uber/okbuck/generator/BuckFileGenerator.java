@@ -16,6 +16,7 @@ import com.uber.okbuck.composer.android.GenAidlRuleComposer;
 import com.uber.okbuck.composer.android.KeystoreRuleComposer;
 import com.uber.okbuck.composer.android.ManifestRuleComposer;
 import com.uber.okbuck.composer.android.PreBuiltNativeLibraryRuleComposer;
+import com.uber.okbuck.composer.android.UnifiedAndroidLibraryRuleComposer;
 import com.uber.okbuck.composer.jvm.JvmLibraryRuleComposer;
 import com.uber.okbuck.composer.jvm.JvmTestRuleComposer;
 import com.uber.okbuck.core.manager.BuckFileManager;
@@ -134,27 +135,21 @@ public final class BuckFileGenerator {
       List<String> extraDeps,
       List<String> extraResDeps) {
 
-    // Manifest
-    Rule manifestRule = ManifestRuleComposer.composeForLibrary(target);
+    String manifestRuleName = ":" +  AndroidBuckRuleComposer.libManifest(target);
     List<Rule> androidLibRules = new ArrayList<>();
-
-    androidLibRules.add(manifestRule);
 
     // Aidl
     List<Rule> aidlRules =
         target
             .getAidl()
             .stream()
-            .map(aidlDir -> GenAidlRuleComposer.compose(target, aidlDir, manifestRule.buckName()))
+            .map(aidlDir -> GenAidlRuleComposer.compose(target, aidlDir, manifestRuleName))
             .collect(Collectors.toList());
 
     List<String> aidlRuleNames =
         aidlRules.stream().map(Rule::buckName).collect(Collectors.toList());
 
     androidLibRules.addAll(aidlRules);
-
-    // Res
-    androidLibRules.add(AndroidResourceRuleComposer.compose(target, extraResDeps));
 
     // BuildConfig
     if (target.shouldGenerateBuildConfig()) {
@@ -172,10 +167,11 @@ public final class BuckFileGenerator {
     List<String> deps = androidLibRules.stream().map(Rule::buckName).collect(Collectors.toList());
     deps.addAll(extraDeps);
 
-    // Lib
+
+    // Unified android lib
     androidLibRules.add(
-        AndroidLibraryRuleComposer.compose(
-            target, manifestRule.buckName(), deps, aidlRuleNames, appClass));
+        UnifiedAndroidLibraryRuleComposer.compose(
+            target, deps, aidlRuleNames, appClass, extraResDeps));
 
     // Test
     if (target.getRobolectricEnabled()
@@ -183,7 +179,7 @@ public final class BuckFileGenerator {
         && !target.getIsTest()) {
       androidLibRules.add(
           AndroidTestRuleComposer.compose(
-              target, manifestRule.buckName(), deps, aidlRuleNames, appClass));
+              target, manifestRuleName, deps, aidlRuleNames, appClass));
     }
 
     return new ArrayList<>(androidLibRules);

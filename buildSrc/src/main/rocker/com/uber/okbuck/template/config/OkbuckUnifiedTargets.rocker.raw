@@ -3,6 +3,13 @@ String androidResourceRule,
 String androidLibraryRule,
 )
 
+def src_to_res(str):
+    return str.replace(":src_", ":res_", 1)
+
+def get_res_deps(src_deps):
+    unmapped_res_deps = [dep for dep in src_deps if dep.endswith('.aar') or ':_src' in dep]
+    return map(src_to_res, unmapped_res_deps)
+
 # Macro that represents a union of all common rules to for an android_library
 def okbuck_unified_android_library(
         name,
@@ -23,9 +30,10 @@ def okbuck_unified_android_library(
         res_project_res = None,
         res_assets = None,
         res_resource_union=False,
-        res_exported_deps = None,
-        res_deps = None,
+        res_extra_deps = [],
         ## Android library related args
+        deps = [],
+        exported_deps = [],
         **kwargs
     ):
 
@@ -41,6 +49,10 @@ def okbuck_unified_android_library(
         debuggable = manifest_debuggable,
         secondary_manifests = manifest_secondary_manifests,
     )
+
+    res_deps = get_res_deps(deps, res_extra_deps)
+    res_deps += res_extra_deps
+    res_exported_deps = get_res_deps(exported_deps)
 
     res_rule_name = name.replace("src", "res", 1)
     @(androidResourceRule)(
