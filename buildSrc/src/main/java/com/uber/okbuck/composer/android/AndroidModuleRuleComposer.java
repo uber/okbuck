@@ -53,7 +53,6 @@ public final class AndroidModuleRuleComposer extends AndroidBuckRuleComposer {
     if (target.getRobolectricEnabled() && !target.getTest().getSources().isEmpty()) {
       testTargets.add(":" + test(target));
     }
-
     if (target.getLibInstrumentationTarget() != null
         && !target.getLibInstrumentationTarget().getMain().getSources().isEmpty()) {
       testTargets.add(":" + AndroidBuckRuleComposer.bin(target.getLibInstrumentationTarget()));
