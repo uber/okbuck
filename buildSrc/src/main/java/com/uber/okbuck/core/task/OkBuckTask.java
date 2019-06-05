@@ -2,6 +2,7 @@ package com.uber.okbuck.core.task;
 
 import static com.uber.okbuck.OkBuckGradlePlugin.OKBUCK_PREBUILT_FILE;
 import static com.uber.okbuck.OkBuckGradlePlugin.OKBUCK_TARGETS_FILE;
+import static com.uber.okbuck.OkBuckGradlePlugin.OKBUCK_ANDROID_MODULES_FILE;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
@@ -22,6 +23,7 @@ import com.uber.okbuck.extension.OkBuckExtension;
 import com.uber.okbuck.extension.RuleOverridesExtension;
 import com.uber.okbuck.extension.ScalaExtension;
 import com.uber.okbuck.generator.OkbuckBuckConfigGenerator;
+import com.uber.okbuck.template.config.OkbuckAndroidModules;
 import com.uber.okbuck.template.config.OkbuckPrebuilt;
 import com.uber.okbuck.template.config.OkbuckTargets;
 import com.uber.okbuck.template.core.Rule;
@@ -137,6 +139,11 @@ public class OkBuckTask extends DefaultTask {
   }
 
   @OutputFile
+  public File okbuckAndroidModules() {
+    return getProject().file(OKBUCK_ANDROID_MODULES_FILE);
+  }
+
+  @OutputFile
   public File dotBuckConfig() {
     return getProject().file(".buckconfig");
   }
@@ -160,6 +167,9 @@ public class OkBuckTask extends DefaultTask {
       throw new RuntimeException(e);
     }
 
+    Map<String, RuleOverridesExtension.OverrideSetting> overrides =
+        okbuckExt.getRuleOverridesExtension().getOverrides();
+
     // Setup okbuck_targets.bzl
     new OkbuckTargets()
         .resourceExcludes(
@@ -179,17 +189,15 @@ public class OkBuckTask extends DefaultTask {
         .render(okbuckTargets());
 
     // Setup okbuck_prebuilt.bzl
-    Map<String, RuleOverridesExtension.OverrideSetting> overrides =
-        okbuckExt.getRuleOverridesExtension().getOverrides();
-    Multimap<String, String> loadStatements = TreeMultimap.create();
+    Multimap<String, String> prebuiltLoadStatements = TreeMultimap.create();
 
     RuleOverridesExtension.OverrideSetting aarSetting =
         overrides.get(RuleType.ANDROID_PREBUILT_AAR.getBuckName());
     RuleOverridesExtension.OverrideSetting jarSetting =
         overrides.get(RuleType.PREBUILT_JAR.getBuckName());
 
-    loadStatements.put(aarSetting.getImportLocation(), aarSetting.getNewRuleName());
-    loadStatements.put(jarSetting.getImportLocation(), jarSetting.getNewRuleName());
+    prebuiltLoadStatements.put(aarSetting.getImportLocation(), aarSetting.getNewRuleName());
+    prebuiltLoadStatements.put(jarSetting.getImportLocation(), jarSetting.getNewRuleName());
 
     Rule okbuckPrebuiltRule =
         new OkbuckPrebuilt()
@@ -197,7 +205,36 @@ public class OkBuckTask extends DefaultTask {
             .prebuiltJarRule(jarSetting.getNewRuleName());
 
     buckFileManager.writeToBuckFile(
-        ImmutableList.of(okbuckPrebuiltRule), okbuckPrebuilt(), loadStatements);
+        ImmutableList.of(okbuckPrebuiltRule), okbuckPrebuilt(), prebuiltLoadStatements);
+
+    // Setup okbuck_android_modules.bzl
+    Multimap<String, String> unifiedLibsLoadStatements = TreeMultimap.create();
+
+    RuleOverridesExtension.OverrideSetting androidResourceSetting =
+        overrides.get(RuleType.ANDROID_RESOURCE.getBuckName());
+    RuleOverridesExtension.OverrideSetting androidLibrarySetting =
+        overrides.get(RuleType.ANDROID_LIBRARY.getBuckName());
+    RuleOverridesExtension.OverrideSetting manifestSetting =
+        overrides.get(RuleType.MANIFEST.getBuckName());
+
+    // might be null as okbuck doesn't define a custom override for this.
+    if (androidResourceSetting != null) {
+      unifiedLibsLoadStatements
+          .put(androidResourceSetting.getImportLocation(), androidResourceSetting.getNewRuleName());
+    }
+    unifiedLibsLoadStatements.put(androidLibrarySetting.getImportLocation(), androidLibrarySetting.getNewRuleName());
+    unifiedLibsLoadStatements.put(manifestSetting.getImportLocation(), manifestSetting.getNewRuleName());
+
+    Rule okbuckAndroidModules = new OkbuckAndroidModules()
+        .androidLibraryRule(androidLibrarySetting.getNewRuleName())
+        .manifestRule(manifestSetting.getNewRuleName())
+        .androidResourceRule(
+            androidResourceSetting != null ?
+                androidResourceSetting.getNewRuleName() :
+                "native." + RuleType.ANDROID_RESOURCE.getBuckName());
+
+    buckFileManager.writeToBuckFile(
+        ImmutableList.of(okbuckAndroidModules), okbuckAndroidModules(), unifiedLibsLoadStatements);
 
     // generate .buckconfig.okbuck
     OkbuckBuckConfigGenerator.generate(

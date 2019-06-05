@@ -1,0 +1,113 @@
+@args (
+String androidResourceRule,
+String androidLibraryRule,
+String manifestRule
+)
+
+def get_rule_dep(rule_name):
+    return ':{}'.format(rule_name)
+
+def get_exts_aar_deps(src_deps):
+    return [dep for dep in src_deps if dep.endswith('.aar')]
+
+def src_to_res(str):
+    return str.replace(":src_", ":res_", 1)
+
+def get_libs_res_deps(src_deps):
+    mapped_res_deps = []
+    for dep in src_deps:
+        if (':src_' in dep and not dep.endswith(':src_main')):
+            mapped_res_deps.append(src_to_res(dep))
+    return mapped_res_deps
+
+# Macro that represents a union of all common rules to for an android_library
+def okbuck_android_module(
+        name,
+        language = None,
+        ## common args
+        visibility = None,
+        package=None,
+        ## Manifest related args
+        manifest_main_manifest = None,
+        manifest_min_sdk = None,
+        manifest_target_sdk = None,
+        manifest_version_code=None,
+        manifest_version_name=None,
+        manifest_debuggable=False,
+        manifest_secondary_manifests=None,
+        ## Resources related args
+        res_res = None,
+        res_project_res = None,
+        res_assets = None,
+        res_resource_union=None,
+        res_extra_deps = [],
+        ## Android library related args
+        deps = [],
+        exported_deps = [],
+        **kwargs
+    ):
+
+    manifest_rule_name = name.replace("src", "manifest_lib", 1)
+    @(manifestRule)(
+        name = manifest_rule_name,
+        main_manifest = manifest_main_manifest,
+        min_sdk = manifest_min_sdk,
+        target_sdk = manifest_target_sdk,
+        package = package,
+        version_code = manifest_version_code,
+        version_name = manifest_version_name,
+        debuggable = manifest_debuggable,
+        secondary_manifests = manifest_secondary_manifests,
+    )
+
+    res_ext_aar_deps = get_exts_aar_deps(deps)
+    res_lib_deps = get_libs_res_deps(deps)
+    res_deps = res_ext_aar_deps + res_lib_deps + res_extra_deps
+
+    res_exported_ext_aar_deps = get_exts_aar_deps(exported_deps)
+    res_exported_lib_deps = get_libs_res_deps(exported_deps)
+    res_exported_deps = res_exported_ext_aar_deps + res_exported_lib_deps
+
+    res_rule_name = name.replace("src", "res", 1)
+    res_kwargs = dict(
+        name = res_rule_name,
+        deps = res_deps if res_deps else None,
+        res = res_res,
+        assets = res_assets,
+        project_res = res_project_res,
+        package = package,
+        resource_union = res_resource_union,
+        visibility = visibility
+    )
+    if res_deps:
+      res_kwargs.update({'deps' : sorted(res_deps)})
+    if res_exported_deps:
+      res_kwargs.update({'exported_deps' : sorted(res_exported_deps)})
+
+    @(androidResourceRule)(**res_kwargs)
+
+    src_kwargs = dict(
+        name = name,
+        visibility = visibility,
+        manifest = get_rule_dep(manifest_rule_name),
+    )
+    src_kwargs.update(kwargs)
+
+    src_deps = deps + res_lib_deps + [get_rule_dep(res_rule_name), get_rule_dep(manifest_rule_name)]
+
+    src_kwargs.update({'deps' : sorted(src_deps)})
+    if exported_deps:
+        src_kwargs.update({'exported_deps' : sorted(exported_deps)})
+    if language:
+        src_kwargs.update({'language' : language})
+
+    @(androidLibraryRule)(**src_kwargs)
+
+def okbuck_kotlin_android_module(
+        language = 'kotlin',
+        **kwargs
+    ):
+    okbuck_android_module(
+        language = language,
+        **kwargs
+    )

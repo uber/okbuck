@@ -1,0 +1,186 @@
+@import java.util.Collection
+@import java.util.Map
+@import com.android.builder.model.LintOptions
+@args (
+Collection srcs,
+Collection exts,
+Collection resources,
+Collection resDirs,
+Collection excludes,
+String sourceCompatibility,
+String targetCompatibility,
+String proguardConfig,
+Collection testTargets,
+Collection apPlugins,
+Collection aptDeps,
+Collection providedDeps,
+Map options,
+Collection jvmArgs,
+Map env,
+Collection exportedDeps,
+Collection friendPaths,
+String robolectricManifest,
+String runtimeDependency,
+boolean generateR2,
+boolean disableLint,
+boolean disableLintTemplate,
+Collection customLints,
+String lintConfigXml,
+LintOptions lintOptions,
+String pkg,
+String manifestMainManifest,
+String manifestMinSdk,
+String manifestTargetSdk,
+Integer manifestVersionCode,
+String manifestVersionName,
+boolean manifestDebuggable,
+Collection manifestSecondaryManifests,
+Collection resRes,
+String resProjectRes,
+Collection resAssets,
+Collection resExtraDeps,
+boolean resResourceUnion
+)
+@com.uber.okbuck.template.jvm.JvmRule.template(
+srcs,
+exts,
+resources,
+excludes,
+sourceCompatibility,
+targetCompatibility,
+"",
+testTargets,
+apPlugins,
+aptDeps,
+providedDeps,
+exportedDeps,
+options,
+jvmArgs,
+env
+) -> {
+@if (valid(robolectricManifest)) {
+    robolectric_manifest = '@robolectricManifest',
+}
+@if (generateR2) {
+    final_r_name = 'R2',
+}
+@if (valid(proguardConfig)) {
+    proguard_config = '@proguardConfig',
+}
+@if (valid(runtimeDependency)) {
+    force_final_resource_ids = False,
+    robolectric_runtime_dependency = '@runtimeDependency',
+}
+@if (!disableLintTemplate) {
+@if (!disableLint) {
+@if (valid(srcs)) {
+    lint_src_dirs = [
+    @for (src : sorted(srcs)) {
+        '@src',
+    }
+    ],
+@if (valid(resDirs)) {
+    lint_res_dirs = [
+    @for (resDir : sorted(resDirs)) {
+        '@resDir',
+    }
+    ],
+}
+@if (valid(customLints)) {
+    custom_lints = [
+    @for (customLint : sorted(customLints)) {
+        '@customLint',
+    }
+    ],
+}
+@if (lintOptions != null) {
+    lint_options = [
+@if (lintOptions.isAbortOnError()) {
+        '--exitcode',
+}
+@if (lintOptions.isCheckAllWarnings()) {
+        '-Wall',
+}
+@if (lintOptions.isIgnoreWarnings()) {
+        '--nowarn',
+}
+@if (lintOptions.isWarningsAsErrors()) {
+        '-Werror',
+}
+@if (lintOptions.isNoLines()) {
+        '--nolines',
+}
+@if (valid(lintOptions.getDisable())) {
+        '--disable @(String.join(",", lintOptions.getDisable()))',
+}
+@if (valid(lintOptions.getEnable())) {
+        '--enable @(String.join(",", lintOptions.getEnable()))',
+}
+@if (valid(lintConfigXml)) {
+        '--config $(location @(lintConfigXml))',
+}
+    ],
+}
+}
+} else {
+    disable_lint = True,
+}
+}
+@if (valid(pkg)) {
+    package = '@pkg',
+}
+@if (valid(manifestMainManifest)) {
+    manifest_main_manifest = '@manifestMainManifest',
+}
+@if (valid(manifestMinSdk)) {
+    manifest_min_sdk = '@manifestMinSdk',
+}
+@if (valid(manifestTargetSdk)) {
+    manifest_target_sdk = '@manifestTargetSdk',
+}
+@if (valid(manifestVersionCode)) {
+    manifest_version_code = '@manifestVersionCode',
+}
+@if (valid(manifestVersionName)) {
+    manifest_version_name = '@manifestVersionName',
+}
+@if (manifestDebuggable) {
+    manifest_debuggable = True,
+} else {
+    manifest_debuggable = False,
+}
+@if (valid(manifestSecondaryManifests)) {
+    manifest_secondary_manifests = [
+    @for (manifestSecondaryManifest : manifestSecondaryManifests) {
+        '@manifestSecondaryManifest',
+    }
+    ],
+}
+@if (valid(resRes)) {
+    res_res = res_glob([
+    @for (r : sorted(resRes)) {
+        ('@r', '**'),
+    }
+    ]),
+}
+@if (valid(resProjectRes)) {
+    res_project_res = '@resProjectRes',
+}
+@if (valid(resAssets)) {
+    res_assets = subdir_glob([
+    @for (a : sorted(resAssets)) {
+        ('@a', '**'),
+    }
+    ]),
+}
+@if (valid(resExtraDeps)) {
+    res_extra_deps = [
+    @for (dep : sorted(resExtraDeps)) {
+        '@dep',
+    }
+    ],
+}
+@if (resResourceUnion) {
+    res_resource_union = True,
+}
+}

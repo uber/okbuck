@@ -504,19 +504,23 @@ public abstract class AndroidTarget extends JvmTarget {
   }
 
   public RuleType getRuleType() {
-    if (isKotlinAndroid) {
-      return RuleType.KOTLIN_ANDROID_LIBRARY;
+    if (isKotlin()) {
+      return RuleType.KOTLIN_ANDROID_MODULE;
     } else {
-      return RuleType.ANDROID_LIBRARY;
+      return RuleType.ANDROID_MODULE;
     }
   }
 
   public RuleType getTestRuleType() {
-    if (isKotlinAndroid) {
+    if (isKotlin()) {
       return RuleType.KOTLIN_ROBOLECTRIC_TEST;
     } else {
       return RuleType.ROBOLECTRIC_TEST;
     }
+  }
+
+  public boolean isKotlin() {
+    return isKotlinAndroid;
   }
 
   @Nullable
