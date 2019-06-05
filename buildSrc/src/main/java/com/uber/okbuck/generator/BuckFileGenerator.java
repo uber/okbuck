@@ -171,6 +171,7 @@ public final class BuckFileGenerator {
         AndroidModuleRuleComposer.compose(
             target, deps, aidlRuleNames, appClass, extraResDeps));
 
+    // Adding resource and manig
     // Test
     if (target.getRobolectricEnabled()
         && !target.getTest().getSources().isEmpty()
@@ -254,9 +255,12 @@ public final class BuckFileGenerator {
     Rule testAppManifest = ManifestRuleComposer.composeForBinary(target);
     rules.add(testAppManifest);
 
+    List<String> srcAndResDeps = filterAndroidDepRules(rules);
+    srcAndResDeps.addAll(filterAndroidResDepRules(rules));
+
     rules.add(
         AndroidInstrumentationApkRuleComposer.compose(
-            filterAndroidDepRules(rules), mainApkTarget, testAppManifest.buckName()));
+            srcAndResDeps, mainApkTarget, testAppManifest.buckName()));
     rules.add(AndroidInstrumentationTestRuleComposer.compose(mainApkTarget));
     return rules;
   }
