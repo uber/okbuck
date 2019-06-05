@@ -93,7 +93,10 @@ def okbuck_android_module(
     )
     src_kwargs.update(kwargs)
 
-    src_deps = deps + res_lib_deps + [get_rule_dep(res_rule_name), get_rule_dep(manifest_rule_name)]
+    src_deps = deps + \
+               res_lib_deps + \
+               res_exported_lib_deps + \
+               [get_rule_dep(res_rule_name), get_rule_dep(manifest_rule_name)]
 
     src_kwargs.update({'deps' : sorted(src_deps)})
     if exported_deps:
