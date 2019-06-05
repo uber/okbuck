@@ -227,6 +227,7 @@ public class OkBuckTask extends DefaultTask {
 
     Rule okbuckAndroidModules = new OkbuckAndroidModules()
         .androidLibraryRule(androidLibrarySetting.getNewRuleName())
+        .manifestRule(manifestSetting.getNewRuleName())
         .androidResourceRule(
             androidResourceSetting != null ?
                 androidResourceSetting.getNewRuleName() :
