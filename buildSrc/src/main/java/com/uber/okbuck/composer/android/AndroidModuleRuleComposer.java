@@ -97,9 +97,13 @@ public final class AndroidModuleRuleComposer extends AndroidBuckRuleComposer {
               .filter(t -> (t instanceof JvmTarget))
               .map(BuckRuleComposer::binTargets)
               .collect(Collectors.toSet());
+              
+      if (lintConfigPath != null) {
+        unifiedAndroid
+          .lintConfigXml(fileRule(lintConfigPath));
+      }
 
       unifiedAndroid
-          .lintConfigXml(fileRule(lintConfigPath))
           .customLints(customLintTargets)
           .lintOptions(target.getLintOptions());
     } else {
