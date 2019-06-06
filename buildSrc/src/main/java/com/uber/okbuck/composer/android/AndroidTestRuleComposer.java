@@ -31,8 +31,6 @@ public final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
 
     List<String> testDeps = new ArrayList<>(deps);
     testDeps.add(":" + src(target));
-    testDeps.add(manifestRule);
-    testDeps.add(":" + res(target));
     testDeps.addAll(external(target.getExternalDeps(true)));
     testDeps.addAll(targets(target.getTargetDeps(true)));
 
