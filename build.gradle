@@ -169,6 +169,8 @@ okbuck {
 
     lintExclude.put("another-app", ["debug"])
 
+    legacyAnnotationProcessorSupport = false
+
     intellij {
         sources = true
     }
