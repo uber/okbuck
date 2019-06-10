@@ -86,7 +86,7 @@ public final class AndroidModuleRuleComposer extends AndroidBuckRuleComposer {
                 target.getRootProject().getProjectDir(), target.getLintOptions().getLintConfig());
         ProjectUtil.getPlugin(target.getRootProject()).exportedPaths.add(lintConfigPath);
       } else {
-        lintConfigPath = "";
+        lintConfigPath = null;
       }
 
       Set<String> customLintTargets =
