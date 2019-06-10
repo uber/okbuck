@@ -83,6 +83,9 @@ public class OkBuckExtension {
   /** Forces okbuck to fail if the project is using dynamic or snapshot dependencies */
   @Input public boolean failOnChangingDependencies = false;
 
+  /** Controls output of legacy annotation processor dependencies in generated BUCK files */
+  @Input public boolean legacyAnnotationProcessorSupport = true;
+
   /** The prebuilt buck binary to use */
   @Input
   public String buckBinary =
