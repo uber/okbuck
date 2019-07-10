@@ -3,7 +3,7 @@ evaluationDependsOn(pluginProjectPath)
 
 apply plugin: "application"
 
-group = "com.uber.okbuck.android.lint"
+group = "com.uber.okbuck.transform"
 version = "1.0.0"
 
 tasks.withType(JavaCompile) {
@@ -24,7 +24,7 @@ dependencies {
     compileOnly deps.lint.lint
 }
 
-File copyTo = project(pluginProjectPath).file("src/main/resources/com/uber/okbuck/core/util/lintcli/")
+File copyTo = project(pluginProjectPath).file("src/main/resources/com/uber/okbuck/core/util/lint/")
 
 task deleteExisting(type: Delete) {
     project.fileTree(dir: copyTo, includes: ["*.jar"])

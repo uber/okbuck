@@ -115,7 +115,7 @@ public final class LintManager {
               .name(LINT_DUMMY_JAR));
 
       FileUtil.copyResourceToProject(
-          "lintcli/" + ANDROID_LINT_CLI_JAR, new File(LINT_DEPS_CACHE, ANDROID_LINT_CLI_JAR));
+          "lint/" + ANDROID_LINT_CLI_JAR, new File(LINT_DEPS_CACHE, ANDROID_LINT_CLI_JAR));
 
       FileUtil.copyResourceToProject(
           "lint/" + LINT_DUMMY_JAR, new File(LINT_DEPS_CACHE, LINT_DUMMY_JAR));
