@@ -24,7 +24,7 @@ dependencies {
     compileOnly deps.lint.lint
 }
 
-File copyTo = project(pluginProjectPath).file("src/main/resources/com/uber/okbuck/android/lint/")
+File copyTo = project(pluginProjectPath).file("src/main/resources/com/uber/okbuck/core/util/lintcli/")
 
 task deleteExisting(type: Delete) {
     project.fileTree(dir: copyTo, includes: ["*.jar"])

@@ -30,7 +30,7 @@ public final class LintManager {
   private static final String LINT_DEPS_CONFIG = OkBuckGradlePlugin.BUCK_LINT + "_deps";
   private static final ImmutableSet<String> LINT_BINARY_EXCLUDES =
       ImmutableSet.of("META-INF/.*\\.SF", "META-INF/.*\\.DSA", "META-INF/.*\\.RSA");
-  private static final String LINT_CLI_CLASS = "com.uber.okbuck.tools.lint.AndroidLintCli";
+  private static final String LINT_CLI_CLASS = "com.uber.okbuck.android.lint.AndroidLintCli";
 
   private static final String ANDROID_LINT_CLI_JAR = "android-lint-cli.jar";
   private static final String ANDROID_LINT_CLI_RULE_NAME = "android-lint-cli";
@@ -95,7 +95,7 @@ public final class LintManager {
           new JvmBinaryRule()
               .excludes(LINT_BINARY_EXCLUDES)
               .mainClassName(LINT_CLI_CLASS)
-              .deps(BuckRuleComposer.external(dependencies))
+              .deps(stringifiedDependenies)
               .ruleType(RuleType.JAVA_BINARY.getBuckName())
               .name(LINT_BINARY_RULE_NAME)
               .defaultVisibility());
@@ -113,6 +113,9 @@ public final class LintManager {
               .prebuilt(LINT_DUMMY_JAR)
               .ruleType(RuleType.PREBUILT_JAR.getBuckName())
               .name(LINT_DUMMY_JAR));
+
+      FileUtil.copyResourceToProject(
+          "lintcli/" + ANDROID_LINT_CLI_JAR, new File(LINT_DEPS_CACHE, ANDROID_LINT_CLI_JAR));
 
       FileUtil.copyResourceToProject(
           "lint/" + LINT_DUMMY_JAR, new File(LINT_DEPS_CACHE, LINT_DUMMY_JAR));
