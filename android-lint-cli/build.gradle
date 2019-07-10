@@ -3,7 +3,7 @@ evaluationDependsOn(pluginProjectPath)
 
 apply plugin: "application"
 
-group = "com.uber.okbuck.transform"
+group = "com.uber.okbuck.android.lint"
 version = "1.0.0"
 
 tasks.withType(JavaCompile) {
