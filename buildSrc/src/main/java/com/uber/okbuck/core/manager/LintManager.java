@@ -88,14 +88,14 @@ public final class LintManager {
 
       ImmutableList.Builder<Rule> rulesBuilder = new ImmutableList.Builder<>();
 
-      Set<String> stringifiedDependenies = BuckRuleComposer.external(dependencies);
-      stringifiedDependenies.add(":" + ANDROID_LINT_CLI_JAR);
+      Set<String> stringDependencies = BuckRuleComposer.external(dependencies);
+      stringDependencies.add(":" + ANDROID_LINT_CLI_RULE_NAME);
 
       rulesBuilder.add(
           new JvmBinaryRule()
               .excludes(LINT_BINARY_EXCLUDES)
               .mainClassName(LINT_CLI_CLASS)
-              .deps(stringifiedDependenies)
+              .deps(stringDependencies)
               .ruleType(RuleType.JAVA_BINARY.getBuckName())
               .name(LINT_BINARY_RULE_NAME)
               .defaultVisibility());

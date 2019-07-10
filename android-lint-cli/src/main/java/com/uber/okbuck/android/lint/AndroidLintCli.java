@@ -1,4 +1,4 @@
-package com.okbuck.lint;
+package com.uber.okbuck.android.lint;
 
 import com.android.annotations.Nullable;
 
