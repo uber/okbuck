@@ -154,13 +154,15 @@ def okbuck_lint(
 
     bash += "export ANDROID_LINT_JARS=\"$PREBUILT_AAR_LINT_JARS{}\"; PROJECT_ROOT=`echo '{}' | sed 's|buck-out.*||'`; ".format(':'.join([toLocation(custom_lint) for custom_lint in custom_lints]), toLocation(manifest))
 
+    bash += "CP_FILE=`mktemp`; "
     if has_srcs:
+        bash += "ORIGINAL_CP_FILE=`sed 's/@@//' <<< $(@@@(classpathMacro) :src_{})`; ".format(variant)
 @if(classpathExclusionRegex != null) {
-        bash += "TMP_CP_FILE=`sed 's/@@//' <<< $(@@@(classpathMacro) :src_{})`; ".format(variant)
-        bash += "tr ':' '\\n' < $TMP_CP_FILE | sed -e '/@classpathExclusionRegex/d' > tmp_cp_file; tr '\\n' ':' < tmp_cp_file > cp_file; "
-        bash += "CP_FILE=cp_file; "
+        bash += "TMP_CP_FILE=`mktemp`; "
+        bash += "tr ':' '\\n' < $ORIGINAL_CP_FILE | sed -e '/@classpathExclusionRegex/d' > $TMP_CP_FILE; tr '\\n' ':' < $TMP_CP_FILE > $CP_FILE; "
+        bash += "rm $TMP_CP_FILE; "
 } else {
-        bash += "CP_FILE=`sed 's/@@//' <<< $(@@@(classpathMacro) :src_{})`; ".format(variant)
+        bash += "cp $ORIGINAL_CP_FILE $CP_FILE; "
 }
         bash += 'sed -i.bak -e "s|$PROJECT_ROOT||g" -e "s|\'||g" $CP_FILE; '
 
@@ -187,7 +189,8 @@ def okbuck_lint(
     bash += '--html "$OUT/lint-results.html" '
     bash += '--fullpath '
 
-    bash += "{} `dirname {}` >$LOGFILE 2>/dev/null".format(' '.join(lint_options), toLocation(manifest))
+    bash += "{} `dirname {}` >$LOGFILE 2>/dev/null; ".format(' '.join(lint_options), toLocation(manifest))
+    bash += "rm $CP_FILE; "
 
     native.genrule(
         name = name,
