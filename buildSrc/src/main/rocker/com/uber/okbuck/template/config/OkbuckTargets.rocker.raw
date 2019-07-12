@@ -154,19 +154,21 @@ def okbuck_lint(
 
     bash += "export ANDROID_LINT_JARS=\"$PREBUILT_AAR_LINT_JARS{}\"; PROJECT_ROOT=`echo '{}' | sed 's|buck-out.*||'`; ".format(':'.join([toLocation(custom_lint) for custom_lint in custom_lints]), toLocation(manifest))
 
+    bash += "CP_FILE=`mktemp`; "
     if has_srcs:
+        bash += "ORIGINAL_CP_FILE=`sed 's/@@//' <<< $(@@@(classpathMacro) :src_{})`; ".format(variant)
 @if(classpathExclusionRegex != null) {
-        bash += "TMP_CP_FILE=`sed 's/@@//' <<< $(@@@(classpathMacro) :src_{})`; ".format(variant)
-        bash += "tr ':' '\\n' < $TMP_CP_FILE | sed -e '/@classpathExclusionRegex/d' > tmp_cp_file; tr '\\n' ':' < tmp_cp_file > cp_file; "
-        bash += "CP_FILE=cp_file; "
+        bash += "TMP_CP_FILE=`mktemp`; "
+        bash += "tr ':' '\\n' < $ORIGINAL_CP_FILE | sed -e '/@classpathExclusionRegex/d' > $TMP_CP_FILE; tr '\\n' ':' < $TMP_CP_FILE > $CP_FILE; "
+        bash += "rm $TMP_CP_FILE; "
 } else {
-        bash += "CP_FILE=`sed 's/@@//' <<< $(@@@(classpathMacro) :src_{})`; ".format(variant)
+        bash += "cp $ORIGINAL_CP_FILE $CP_FILE; "
 }
         bash += 'sed -i.bak -e "s|$PROJECT_ROOT||g" -e "s|\'||g" $CP_FILE; '
 
     bash += 'mkdir -p $OUT; LOGFILE=$OUT/lint.log; trap "rv=\$?; if [ \$rv != 0 ] ; then cat $LOGFILE 1>&2 ; fi ; rm -f $LOGFILE; exit $rv" EXIT;  java -Djava.awt.headless=true -Dcom.android.tools.lint.workdir=$PROJECT_ROOT '
     bash += "@lintJvmArgs "
-    bash += "-classpath {} com.android.tools.lint.Main ".format(toLocation('//.okbuck/workspace/lint:okbuck_lint'))
+    bash += "-classpath {} com.uber.okbuck.android.lint.AndroidLintCli ".format(toLocation('//.okbuck/workspace/lint:okbuck_lint'))
 
     if has_srcs:
 @if(useCompilationClasspath) {
@@ -174,7 +176,7 @@ def okbuck_lint(
 } else {
         bash += "--classpath $(location //.okbuck/workspace/lint:lint-dummy.jar) "
 }
-        bash += "--libraries `cat $CP_FILE` "
+        bash += '--libraries "$CP_FILE" '
 
     for src in srcs:
         bash += '--sources {}/{} '.format(native.package_name(), src)
@@ -187,7 +189,8 @@ def okbuck_lint(
     bash += '--html "$OUT/lint-results.html" '
     bash += '--fullpath '
 
-    bash += "{} `dirname {}` >$LOGFILE 2>/dev/null".format(' '.join(lint_options), toLocation(manifest))
+    bash += "{} `dirname {}` >$LOGFILE 2>/dev/null; ".format(' '.join(lint_options), toLocation(manifest))
+    bash += "rm $CP_FILE; "
 
     native.genrule(
         name = name,

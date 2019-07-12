@@ -1,5 +1,6 @@
 package com.uber.okbuck.core.manager;
 
+import com.android.projectmodel.JavaLibrary;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.OkBuckGradlePlugin;
@@ -29,7 +30,10 @@ public final class LintManager {
   private static final String LINT_DEPS_CONFIG = OkBuckGradlePlugin.BUCK_LINT + "_deps";
   private static final ImmutableSet<String> LINT_BINARY_EXCLUDES =
       ImmutableSet.of("META-INF/.*\\.SF", "META-INF/.*\\.DSA", "META-INF/.*\\.RSA");
-  private static final String LINT_CLI_CLASS = "com.android.tools.lint.Main";
+  private static final String LINT_CLI_CLASS = "com.uber.okbuck.android.lint.AndroidLintCli";
+
+  private static final String ANDROID_LINT_CLI_JAR = "android-lint-cli.jar";
+  private static final String ANDROID_LINT_CLI_RULE_NAME = "android-lint-cli";
 
   private final Project project;
   private final String lintBuckFile;
@@ -83,11 +87,15 @@ public final class LintManager {
           .ruleType(RuleType.JAVA_BINARY.getBuckName());
 
       ImmutableList.Builder<Rule> rulesBuilder = new ImmutableList.Builder<>();
+
+      Set<String> stringDependencies = BuckRuleComposer.external(dependencies);
+      stringDependencies.add(":" + ANDROID_LINT_CLI_RULE_NAME);
+
       rulesBuilder.add(
           new JvmBinaryRule()
               .excludes(LINT_BINARY_EXCLUDES)
               .mainClassName(LINT_CLI_CLASS)
-              .deps(BuckRuleComposer.external(dependencies))
+              .deps(stringDependencies)
               .ruleType(RuleType.JAVA_BINARY.getBuckName())
               .name(LINT_BINARY_RULE_NAME)
               .defaultVisibility());
@@ -95,9 +103,19 @@ public final class LintManager {
       rulesBuilder.add(
           new NativePrebuilt()
               .prebuiltType(RuleType.PREBUILT_JAR.getProperties().get(0))
+              .prebuilt(ANDROID_LINT_CLI_JAR)
+              .ruleType(RuleType.PREBUILT_JAR.getBuckName())
+              .name(ANDROID_LINT_CLI_RULE_NAME));
+
+      rulesBuilder.add(
+          new NativePrebuilt()
+              .prebuiltType(RuleType.PREBUILT_JAR.getProperties().get(0))
               .prebuilt(LINT_DUMMY_JAR)
               .ruleType(RuleType.PREBUILT_JAR.getBuckName())
               .name(LINT_DUMMY_JAR));
+
+      FileUtil.copyResourceToProject(
+          "lint/" + ANDROID_LINT_CLI_JAR, new File(LINT_DEPS_CACHE, ANDROID_LINT_CLI_JAR));
 
       FileUtil.copyResourceToProject(
           "lint/" + LINT_DUMMY_JAR, new File(LINT_DEPS_CACHE, LINT_DUMMY_JAR));

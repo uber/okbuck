@@ -1,3 +1,4 @@
+include "android-lint-cli"
 include "another-app"
 include "app"
 include "dummy-transform"
