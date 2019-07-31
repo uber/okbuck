@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
@@ -63,6 +64,8 @@ public class DependencyManager {
 
   private final HashMap<VersionlessDependency, Boolean> skipPrebuiltDependencyMap = new HashMap<>();
 
+  private final HashMap<String, String> sha256Cache;
+
   public DependencyManager(
       Project rootProject, OkBuckExtension okBuckExtension, BuckFileManager buckFileManager) {
 
@@ -70,6 +73,7 @@ public class DependencyManager {
     this.externalDependenciesExtension = okBuckExtension.getExternalDependenciesExtension();
     this.jetifierExtension = okBuckExtension.getJetifierExtension();
     this.buckFileManager = buckFileManager;
+    this.sha256Cache = initSha256Cache(rootProject);
   }
 
   public synchronized void addDependencies(
@@ -96,6 +100,8 @@ public class DependencyManager {
     validateDependencies(filteredDependencyMap);
     updateDependencies(filteredDependencyMap);
     processDependencies(filteredDependencyMap);
+
+    persistSha256Cache(project, sha256Cache);
   }
 
   private Map<VersionlessDependency, Collection<ExternalDependency>> filterDependencies() {
@@ -365,10 +371,15 @@ public class DependencyManager {
             localPrebuiltDependencies.addAll(dependencies);
           }
 
+          preComputeSha256(prebuiltDependencies.build(), sha256Cache);
+          preComputeSha256(httpFileDependencies.build(), sha256Cache);
+
           ImmutableList.Builder<Rule> rulesBuilder = ImmutableList.builder();
           rulesBuilder.addAll(LocalPrebuiltRuleComposer.compose(localPrebuiltDependencies.build()));
-          rulesBuilder.addAll(PrebuiltRuleComposer.compose(prebuiltDependencies.build()));
-          rulesBuilder.addAll(HttpFileRuleComposer.compose(httpFileDependencies.build()));
+          rulesBuilder.addAll(
+              PrebuiltRuleComposer.compose(prebuiltDependencies.build(), sha256Cache));
+          rulesBuilder.addAll(
+              HttpFileRuleComposer.compose(httpFileDependencies.build(), sha256Cache));
 
           // Add annotation processor rules
           List<Scope> scopeList = basePathToScopeMap.get(basePath);
@@ -411,5 +422,39 @@ public class DependencyManager {
                       FileUtil.symlink(
                           path.resolve(dependency.getSourceFileName()), file.toPath()));
         });
+  }
+
+  private static void preComputeSha256(
+      List<ExternalDependency> dependencies, HashMap<String, String> sha256Map) {
+    dependencies.forEach(
+        dependency -> {
+          computeSha256IfAbsent(dependency.getRealDependencyFile(), sha256Map);
+
+          Optional<File> sourcesFile = dependency.getRealSourceFile();
+          sourcesFile.ifPresent(file -> computeSha256IfAbsent(file, sha256Map));
+        });
+  }
+
+  private static void computeSha256IfAbsent(File file, HashMap<String, String> sha256Map) {
+    String key = ExternalDependency.getGradleSha(file);
+    sha256Map.computeIfAbsent(key, k -> DependencyUtils.shaSum256(file));
+  }
+
+  private static HashMap<String, String> initSha256Cache(Project rootProject) {
+    File projectMappingFile = rootProject.file(OkBuckGradlePlugin.OKBUCK_SHA256);
+    try {
+      return FileUtil.readMapFromJsonFile(projectMappingFile);
+    } catch (IOException e) {
+      return new HashMap<>();
+    }
+  }
+
+  private static void persistSha256Cache(Project rootProject, HashMap<String, String> sha256Map) {
+    File projectMappingFile = rootProject.file(OkBuckGradlePlugin.OKBUCK_SHA256);
+    try {
+      FileUtil.persistMapToJsonFile(sha256Map, projectMappingFile);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

@@ -110,6 +110,10 @@ public class ExternalDependency {
     }
   }
 
+  public static String getGradleSha(File file) {
+    return file.getParentFile().getName();
+  }
+
   /** Returns the packaging of the the dependency: jar, aar, pex */
   public String getPackaging() {
     return this.base.packaging();

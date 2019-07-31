@@ -1,17 +1,25 @@
 package com.uber.okbuck.core.util;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import com.google.common.collect.ImmutableSet;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.uber.okbuck.core.util.symlinks.SymlinkCreator;
 import com.uber.okbuck.core.util.symlinks.SymlinkCreatorFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.io.Reader;
+import java.io.Writer;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
+import java.util.HashMap;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.Project;
 import org.slf4j.Logger;
@@ -93,5 +101,20 @@ public final class FileUtil {
       LOG.error("Could not create symlink {} -> {}", link, target);
       throw new IllegalStateException(e);
     }
+  }
+
+  public static HashMap<String, String> readMapFromJsonFile(File file) throws IOException {
+    Reader fileReader = Files.newBufferedReader(file.toPath(), UTF_8);
+    Gson gson = new Gson();
+    return gson.fromJson(fileReader, new TypeToken<HashMap<String, String>>() {}.getType());
+  }
+
+  public static void persistMapToJsonFile(HashMap<String, String> map, File file)
+      throws IOException {
+    Writer writer = Files.newBufferedWriter(file.toPath(), UTF_8);
+    Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    gson.toJson(map, writer);
+    writer.flush();
+    writer.close();
   }
 }
