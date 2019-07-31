@@ -14,4 +14,8 @@ dependencies {
 
 test {
     environment "TEST_ENV", "true"
+    environment "CACHE_CASSANDRA_PORT", "1234"
+    environment "CACHE_CASSANDRA_CONTACT_POINTS", "[testhost]"
+    environment "OKBUCK_DATACENTER", "testdc1"
+    environment "OKBUCK_PORT_HTTP", "4321"
 }
