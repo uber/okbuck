@@ -1,6 +1,6 @@
 // CI keeps gradle home cached based on the SHA of this file.
 // Update below to invalidate the cache.
-// Gradle Cache Version 2
+// Gradle Cache Version 3
 
 def versions = [
         androidPlugin      : "3.2.0",
