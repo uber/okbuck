@@ -79,7 +79,8 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
       "//" + DOT_OKBUCK + "/defs:" + OKBUCK_PREBUILT_BZL;
 
   private static final String OKBUCK_ANDROID_MODULES_BZL = "okbuck_android_modules.bzl";
-  public static final String OKBUCK_ANDROID_MODULES_FILE = DOT_OKBUCK + "/defs/" + OKBUCK_ANDROID_MODULES_BZL;
+  public static final String OKBUCK_ANDROID_MODULES_FILE =
+      DOT_OKBUCK + "/defs/" + OKBUCK_ANDROID_MODULES_BZL;
   public static final String OKBUCK_ANDROID_MODULES_TARGET =
       "//" + DOT_OKBUCK + "/defs:" + OKBUCK_ANDROID_MODULES_BZL;
 
@@ -93,6 +94,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
   private static final String LINT_BUCK_FILE = WORKSPACE_PATH + "/lint/BUCK";
 
   public static final String OKBUCK_STATE = OKBUCK_STATE_DIR + "/STATE";
+  public static final String OKBUCK_SHA256 = OKBUCK_STATE_DIR + "/SHA256";
 
   public final Set<String> exportedPaths = Sets.newConcurrentHashSet();
 

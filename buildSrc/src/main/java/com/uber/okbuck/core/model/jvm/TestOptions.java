@@ -18,7 +18,7 @@ public final class TestOptions {
     return jvmArgs;
   }
 
-  public Map<String, Object> getEnv() {
+  public TreeMap<String, Object> getEnv() {
     return env;
   }
 }
