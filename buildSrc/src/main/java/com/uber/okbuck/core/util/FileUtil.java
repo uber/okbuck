@@ -20,6 +20,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.Project;
 import org.slf4j.Logger;
@@ -28,6 +29,8 @@ import org.slf4j.LoggerFactory;
 public final class FileUtil {
   private static final Logger LOG = LoggerFactory.getLogger(FileUtil.class);
   private static final SymlinkCreator symlinkCreator = SymlinkCreatorFactory.getSymlinkCreator();
+
+  private static final String DS_STORE = ".DS_Store";
 
   private FileUtil() {}
 
@@ -53,7 +56,25 @@ public final class FileUtil {
   public static ImmutableSet<String> available(Project project, Collection<File> files) {
     return files
         .stream()
-        .filter(File::exists)
+        .filter(
+            rootFile -> {
+              if (rootFile.isDirectory() && rootFile.exists()) {
+                try (Stream<Path> fileTree = Files.walk(rootFile.toPath())) {
+                  return fileTree
+                      .filter(
+                          currentFilePath -> {
+                            File currentFile = currentFilePath.toFile();
+                            return !currentFile.isDirectory()
+                                && !currentFile.getName().equals(DS_STORE);
+                          })
+                      .iterator()
+                      .hasNext();
+                } catch (IOException e) {
+                  throw new RuntimeException(e);
+                }
+              }
+              return rootFile.exists();
+            })
         .map(f -> getRelativePath(project.getProjectDir(), f))
         .collect(MoreCollectors.toImmutableSet());
   }
