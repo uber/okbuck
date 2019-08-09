@@ -59,6 +59,7 @@ public final class FileUtil {
         .filter(
             rootFile -> {
               if (rootFile.isDirectory() && rootFile.exists()) {
+                // Check if the directory contains any valid file
                 try (Stream<Path> fileTree = Files.walk(rootFile.toPath())) {
                   return fileTree
                       .filter(
