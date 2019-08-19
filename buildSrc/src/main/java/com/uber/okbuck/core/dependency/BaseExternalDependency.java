@@ -5,7 +5,10 @@ import com.google.auto.value.extension.memoized.Memoized;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 import org.apache.commons.io.FilenameUtils;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.DependencyArtifact;
@@ -84,7 +87,11 @@ public abstract class BaseExternalDependency {
   public String targetName() {
     StringBuilder targetName = new StringBuilder(versionless().name());
     if (isVersioned()) {
-      targetName.append(NAME_DELIMITER).append(version());
+      String paddedOVersion = Arrays.stream(version().split("\\."))
+          .filter(version -> version.length() < 3)
+          .map(version -> "000".substring(version.length()) + version)
+          .collect(Collectors.joining("."));
+      targetName.append(NAME_DELIMITER).append(paddedOVersion);
     }
     targetName.append(versionless().classifier().map(c -> NAME_DELIMITER + c).orElse(""));
 
