@@ -69,6 +69,9 @@ public class JvmTarget extends Target {
 
   protected static final String JAVA_COMPILER_EXTRA_ARGUMENTS = "extra_arguments";
   protected static final String KOTLIN_COMPILER_EXTRA_ARGUMENTS = "extra_kotlinc_arguments";
+  private static final String INTEGRATION_TEST_SOURCE_SET_NAME = "integrationTest";
+  public static final String INTEGRATION_TEST_RUNTIME_CLASSPATH_CONFIGURATION_NAME = "integrationTestRuntimeClasspath";
+  public static final String INTEGRATION_TEST_COMPILE_CLASSPATH_CONFIGURATION_NAME = "integrationTestCompileClasspath";
 
   private final String aptConfigurationName;
   private final String testAptConfigurationName;
@@ -296,6 +299,18 @@ public class JvmTarget extends Target {
         .build();
   }
 
+  public Scope getIntegrationTest() {
+    return Scope.builder(getProject())
+        .configuration(INTEGRATION_TEST_RUNTIME_CLASSPATH_CONFIGURATION_NAME)
+        .sourceDirs(getIntegrationTestSrcDirs())
+        .javaResourceDirs(getIntegrationTestJavaResourceDirs())
+//        .customOptions(
+//            JAVA_COMPILER_EXTRA_ARGUMENTS, integrationTestCompileJavaTask.getOptions().getCompilerArgs())
+        .customOptions(KOTLIN_COMPILER_EXTRA_ARGUMENTS, getKotlinCompilerOptions())
+        .customOptions(getKotlinFriendPaths(true))
+        .build();
+  }
+
   public String getSourceCompatibility() {
     return javaVersion(
         getProject()
@@ -351,6 +366,14 @@ public class JvmTarget extends Target {
 
   private Set<File> getTestJavaResourceDirs() {
     return sourceSets.getByName(SourceSet.TEST_SOURCE_SET_NAME).getResources().getSrcDirs();
+  }
+
+  private Set<File> getIntegrationTestSrcDirs() {
+    return sourceSets.getByName(INTEGRATION_TEST_SOURCE_SET_NAME).getAllJava().getSrcDirs();
+  }
+
+  private Set<File> getIntegrationTestJavaResourceDirs() {
+    return sourceSets.getByName(INTEGRATION_TEST_SOURCE_SET_NAME).getResources().getSrcDirs();
   }
 
   public static String javaVersion(JavaVersion version) {

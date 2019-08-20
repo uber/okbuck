@@ -15,6 +15,7 @@ import com.uber.okbuck.composer.android.KeystoreRuleComposer;
 import com.uber.okbuck.composer.android.ManifestRuleComposer;
 import com.uber.okbuck.composer.android.PreBuiltNativeLibraryRuleComposer;
 import com.uber.okbuck.composer.android.AndroidModuleRuleComposer;
+import com.uber.okbuck.composer.jvm.JvmIntegrationTestRuleComposer;
 import com.uber.okbuck.composer.jvm.JvmLibraryRuleComposer;
 import com.uber.okbuck.composer.jvm.JvmTestRuleComposer;
 import com.uber.okbuck.core.manager.BuckFileManager;
@@ -37,7 +38,21 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import javax.xml.transform.Source;
+
+import groovy.lang.Closure;
+import org.gradle.api.Action;
 import org.gradle.api.Project;
+import org.gradle.api.file.FileCollection;
+import org.gradle.api.file.SourceDirectorySet;
+import org.gradle.api.plugins.ExtensionContainer;
+import org.gradle.api.plugins.JavaPlugin;
+import org.gradle.api.plugins.JavaPluginConvention;
+import org.gradle.api.tasks.SourceSet;
+import org.gradle.api.tasks.SourceSetOutput;
+
+import static com.uber.okbuck.core.model.jvm.JvmTarget.INTEGRATION_TEST_COMPILE_CLASSPATH_CONFIGURATION_NAME;
+import static com.uber.okbuck.core.model.jvm.JvmTarget.INTEGRATION_TEST_RUNTIME_CLASSPATH_CONFIGURATION_NAME;
 
 public final class BuckFileGenerator {
 
@@ -122,6 +137,10 @@ public final class BuckFileGenerator {
 
     if (!target.getTest().getSources().isEmpty()) {
       rules.add(JvmTestRuleComposer.compose(target, testRuleType));
+    }
+    // TODO: Check extension on integrationTests
+    if (!target.getIntegrationTest().getSources().isEmpty()) {
+      rules.add(JvmIntegrationTestRuleComposer.compose(target, testRuleType));
     }
 
     return rules;

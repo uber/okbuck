@@ -24,6 +24,7 @@ allprojects {
 
 allprojects { project ->
     project.apply from: rootProject.file("dependencies.gradle")
+
     repositories {
         google()
         maven { url "https://plugins.gradle.org/m2/" }
@@ -54,6 +55,7 @@ subprojects { project ->
 def addCommonConfigurationForJavaModules(Project project) {
     project.sourceCompatibility = JavaVersion.VERSION_1_8
     project.targetCompatibility = JavaVersion.VERSION_1_8
+//    project.apply from: rootProject.file("tooling/gradle/integration_tests.gradle")
 }
 
 def addCommonConfigurationForAndroidModules(Project project) {
@@ -180,6 +182,7 @@ okbuck {
         espressoForLibraries = true
         robolectric = true
         robolectricApis = ["21", "27"]
+        enableIntegrationTests = true
     }
 
     wrapper {

@@ -1,4 +1,13 @@
 apply plugin: "java-library"
+apply from: rootProject.file("tooling/gradle/integration_tests.gradle")
+
+test {
+    environment "TEST_ENV", "true"
+    environment "CACHE_CASSANDRA_PORT", "1234"
+    environment "CACHE_CASSANDRA_CONTACT_POINTS", "[testhost]"
+    environment "OKBUCK_DATACENTER", "testdc1"
+    environment "OKBUCK_PORT_HTTP", "4321"
+}
 
 dependencies {
     api deps.external.gson
@@ -10,12 +19,8 @@ dependencies {
     compileOnly deps.androidx.annotations
 
     testImplementation deps.test.junit
-}
 
-test {
-    environment "TEST_ENV", "true"
-    environment "CACHE_CASSANDRA_PORT", "1234"
-    environment "CACHE_CASSANDRA_CONTACT_POINTS", "[testhost]"
-    environment "OKBUCK_DATACENTER", "testdc1"
-    environment "OKBUCK_PORT_HTTP", "4321"
+    integrationTestImplementation deps.test.junit
+    integrationTestImplementation deps.external.dagger
+    integrationTestAnnotationProcessor deps.apt.daggerCompiler
 }
