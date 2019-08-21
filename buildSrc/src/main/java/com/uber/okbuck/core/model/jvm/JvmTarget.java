@@ -72,13 +72,13 @@ public class JvmTarget extends Target {
 
   protected static final String JAVA_COMPILER_EXTRA_ARGUMENTS = "extra_arguments";
   protected static final String KOTLIN_COMPILER_EXTRA_ARGUMENTS = "extra_kotlinc_arguments";
-  private static final String INTEGRATION_TEST_SOURCE_SET_NAME = "integrationTest";
-  public static final String INTEGRATION_TEST_RUNTIME_CLASSPATH_CONFIGURATION_NAME = "integrationTestRuntimeClasspath";
 
-  public static final String INTEGRATION_TEST_TASK_NAME = "integrationTest";
-  public static final String INTEGRATION_TEST_ANNOTATION_PROCESSOR_CONFIGURATION_NAME = "integrationTestAnnotationProcessor";
-  public static final String INTEGRATION_TEST_COMPILE_CLASSPATH_CONFIGURATION_NAME = "integrationTestCompileClasspath";
-  public static final String COMPILE_INTEGRATION_TEST_JAVA_TASK_NAME = "compileIntegrationTestJava";
+  private static final String INTEGRATION_TEST_SOURCE_SET_NAME = "integrationTest";
+  private static final String INTEGRATION_TEST_TASK_NAME = "integrationTest";
+  private static final String INTEGRATION_TEST_ANNOTATION_PROCESSOR_CONFIGURATION_NAME = "integrationTestAnnotationProcessor";
+  private static final String INTEGRATION_TEST_RUNTIME_CLASSPATH_CONFIGURATION_NAME = "integrationTestRuntimeClasspath";
+  private static final String INTEGRATION_TEST_COMPILE_CLASSPATH_CONFIGURATION_NAME = "integrationTestCompileClasspath";
+  private static final String COMPILE_INTEGRATION_TEST_JAVA_TASK_NAME = "compileIntegrationTestJava";
 
   private final String aptConfigurationName;
   private final String testAptConfigurationName;
