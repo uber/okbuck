@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.composer.base.BuckRuleComposer;
 import com.uber.okbuck.core.model.android.AndroidLibTarget;
 import com.uber.okbuck.core.model.base.RuleType;
+import com.uber.okbuck.core.model.base.SourceSetType;
 import com.uber.okbuck.core.model.jvm.JvmTarget;
 import com.uber.okbuck.core.util.D8Util;
 import com.uber.okbuck.core.util.FileUtil;
@@ -31,23 +32,23 @@ public final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
       @Nullable String appClass) {
 
     Set<String> libraryDeps = new HashSet<>(deps);
-    libraryDeps.addAll(external(target.getExternalDeps(false)));
-    libraryDeps.addAll(targets(target.getTargetDeps(false)));
-    libraryDeps.addAll(resources(target.getTargetDeps(false)));
-    libraryDeps.addAll(resources(target.getTargetExportedDeps(false)));
+    libraryDeps.addAll(external(target.getExternalDeps(SourceSetType.MAIN)));
+    libraryDeps.addAll(targets(target.getTargetDeps(SourceSetType.MAIN)));
+    libraryDeps.addAll(resources(target.getTargetDeps(SourceSetType.MAIN)));
+    libraryDeps.addAll(resources(target.getTargetExportedDeps(SourceSetType.MAIN)));
 
     List<String> libraryAptDeps = new ArrayList<>();
-    libraryAptDeps.addAll(externalApt(target.getExternalAptDeps(false)));
-    libraryAptDeps.addAll(targetsApt(target.getTargetAptDeps(false)));
+    libraryAptDeps.addAll(externalApt(target.getExternalAptDeps(SourceSetType.MAIN)));
+    libraryAptDeps.addAll(targetsApt(target.getTargetAptDeps(SourceSetType.MAIN)));
 
     Set<String> providedDeps = new HashSet<>();
-    providedDeps.addAll(external(target.getExternalProvidedDeps(false)));
-    providedDeps.addAll(targets(target.getTargetProvidedDeps(false)));
+    providedDeps.addAll(external(target.getExternalProvidedDeps(SourceSetType.MAIN)));
+    providedDeps.addAll(targets(target.getTargetProvidedDeps(SourceSetType.MAIN)));
     providedDeps.add(D8Util.RT_STUB_JAR_RULE);
 
     Set<String> libraryExportedDeps = new HashSet<>();
-    libraryExportedDeps.addAll(external(target.getExternalExportedDeps(false)));
-    libraryExportedDeps.addAll(targets(target.getTargetExportedDeps(false)));
+    libraryExportedDeps.addAll(external(target.getExternalExportedDeps(SourceSetType.MAIN)));
+    libraryExportedDeps.addAll(targets(target.getTargetExportedDeps(SourceSetType.MAIN)));
     libraryExportedDeps.addAll(aidlRuleNames);
 
     List<String> testTargets = new ArrayList<>();

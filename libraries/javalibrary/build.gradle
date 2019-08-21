@@ -9,6 +9,10 @@ test {
     environment "OKBUCK_PORT_HTTP", "4321"
 }
 
+integrationTest {
+    environment "ANOTHER", "true"
+}
+
 dependencies {
     api deps.external.gson
     implementation deps.external.dagger
@@ -21,6 +25,5 @@ dependencies {
     testImplementation deps.test.junit
 
     integrationTestImplementation deps.test.junit
-    integrationTestImplementation deps.external.dagger
-    integrationTestAnnotationProcessor deps.apt.daggerCompiler
+    integrationTestImplementation deps.external.avroIpc
 }

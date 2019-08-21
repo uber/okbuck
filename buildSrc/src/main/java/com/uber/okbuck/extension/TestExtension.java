@@ -21,4 +21,5 @@ public class TestExtension {
 
   /** Enable creation of integration-test rules for modules with `integration-test` folder */
   public boolean enableIntegrationTests = false;
+  public String integrationTestDir = "src/integration-test";
 }

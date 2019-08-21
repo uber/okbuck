@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.core.manager.RobolectricManager;
 import com.uber.okbuck.core.model.android.AndroidLibTarget;
 import com.uber.okbuck.core.model.base.RuleType;
+import com.uber.okbuck.core.model.base.SourceSetType;
 import com.uber.okbuck.core.util.D8Util;
 import com.uber.okbuck.template.android.AndroidTestRule;
 import com.uber.okbuck.template.core.Rule;
@@ -31,16 +32,16 @@ public final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
 
     List<String> testDeps = new ArrayList<>(deps);
     testDeps.add(":" + src(target));
-    testDeps.addAll(external(target.getExternalDeps(true)));
-    testDeps.addAll(targets(target.getTargetDeps(true)));
+    testDeps.addAll(external(target.getExternalDeps(SourceSetType.TEST)));
+    testDeps.addAll(targets(target.getTargetDeps(SourceSetType.TEST)));
 
     List<String> testAptDeps = new ArrayList<>();
-    testAptDeps.addAll(external(target.getExternalAptDeps(true)));
-    testAptDeps.addAll(targets(target.getTargetAptDeps(true)));
+    testAptDeps.addAll(external(target.getExternalAptDeps(SourceSetType.TEST)));
+    testAptDeps.addAll(targets(target.getTargetAptDeps(SourceSetType.TEST)));
 
     Set<String> providedDeps = new LinkedHashSet<>();
-    providedDeps.addAll(external(target.getExternalProvidedDeps(true)));
-    providedDeps.addAll(targets(target.getTargetProvidedDeps(true)));
+    providedDeps.addAll(external(target.getExternalProvidedDeps(SourceSetType.TEST)));
+    providedDeps.addAll(targets(target.getTargetProvidedDeps(SourceSetType.TEST)));
     providedDeps.add(D8Util.RT_STUB_JAR_RULE);
 
     AndroidTestRule androidTest =

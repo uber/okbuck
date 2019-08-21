@@ -1,6 +1,7 @@
 apply plugin: "kotlin"
 apply plugin: "kotlin-kapt"
 apply plugin: "kotlin-allopen"
+apply from: rootProject.file("tooling/gradle/integration_tests.gradle")
 
 dependencies {
   implementation deps.external.kotlinStdlib
@@ -10,6 +11,8 @@ dependencies {
   testImplementation deps.test.junit
   testImplementation deps.test.kotlinTest
   testImplementation deps.test.mockito
+
+  integrationTestImplementation deps.test.kotlinTest
 }
 
 allOpen {

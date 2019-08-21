@@ -3,6 +3,7 @@ package com.uber.okbuck.composer.jvm;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.core.model.base.RuleType;
+import com.uber.okbuck.core.model.base.SourceSetType;
 import com.uber.okbuck.core.model.jvm.JvmTarget;
 import com.uber.okbuck.template.core.Rule;
 import com.uber.okbuck.template.jvm.JvmRule;
@@ -21,20 +22,20 @@ public final class JvmTestRuleComposer extends JvmBuckRuleComposer {
     List<String> deps =
         ImmutableList.<String>builder()
             .add(":" + src(target))
-            .addAll(external(target.getExternalDeps(true)))
-            .addAll(targets(target.getTargetDeps(true)))
+            .addAll(external(target.getExternalDeps(SourceSetType.TEST)))
+            .addAll(targets(target.getTargetDeps(SourceSetType.TEST)))
             .build();
 
     Set<String> aptDeps =
         ImmutableSet.<String>builder()
-            .addAll(external(target.getExternalAptDeps(true)))
-            .addAll(targets(target.getTargetAptDeps(true)))
+            .addAll(external(target.getExternalAptDeps(SourceSetType.TEST)))
+            .addAll(targets(target.getTargetAptDeps(SourceSetType.TEST)))
             .build();
 
     Set<String> providedDeps =
         ImmutableSet.<String>builder()
-            .addAll(external(target.getExternalProvidedDeps(true)))
-            .addAll(targets(target.getTargetProvidedDeps(true)))
+            .addAll(external(target.getExternalProvidedDeps(SourceSetType.TEST)))
+            .addAll(targets(target.getTargetProvidedDeps(SourceSetType.TEST)))
             .build();
 
     return new JvmRule()

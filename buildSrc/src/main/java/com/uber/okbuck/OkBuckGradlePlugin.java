@@ -322,7 +322,10 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
                         task -> {
                           ProjectCache.initScopeCache(bp);
                           BuckFileGenerator.generate(
-                              bp, buckFileManager, okbuckExt.getVisibilityExtension());
+                              bp,
+                              buckFileManager,
+                              okbuckExt.getVisibilityExtension(),
+                              okbuckExt.getTestExtension());
                           ProjectCache.resetScopeCache(bp);
                         });
                     okbuckProjectTask.dependsOn(setupOkbuck);
