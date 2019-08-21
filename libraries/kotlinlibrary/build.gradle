@@ -1,6 +1,7 @@
 apply plugin: "kotlin"
 apply plugin: "kotlin-kapt"
 apply plugin: "kotlin-allopen"
+
 dependencies {
   implementation deps.external.kotlinStdlib
   implementation deps.external.dagger

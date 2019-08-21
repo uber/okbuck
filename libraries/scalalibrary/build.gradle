@@ -4,10 +4,10 @@ plugins {
 }
 
 dependencies {
-    implementation deps.external.scalaLibrary
+    compile deps.external.scalaLibrary
 
-    testImplementation deps.test.scalaTest
-    testImplementation deps.test.junit
+    testCompile deps.test.scalaTest
+    testCompile deps.test.junit
 }
 
 mainClassName = "com.uber.okbuck.scala.example.Hello"
