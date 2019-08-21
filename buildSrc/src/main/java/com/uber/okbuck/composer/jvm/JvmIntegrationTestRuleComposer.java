@@ -20,23 +20,29 @@ public final class JvmIntegrationTestRuleComposer extends JvmBuckRuleComposer {
   }
 
   public static Rule compose(JvmTarget target, RuleType ruleType) {
-    List<String> deps =
-        ImmutableList.<String>builder()
+    Set<String> deps =
+        ImmutableSet.<String>builder()
             .add(":" + src(target))
             .addAll(external(target.getExternalDeps(SourceSetType.INTEGRATION_TEST)))
+            .addAll(external(target.getExternalDeps(SourceSetType.TEST)))
             .addAll(targets(target.getTargetDeps(SourceSetType.INTEGRATION_TEST)))
+            .addAll(targets(target.getTargetDeps(SourceSetType.TEST)))
             .build();
 
     Set<String> aptDeps =
         ImmutableSet.<String>builder()
             .addAll(external(target.getExternalAptDeps(SourceSetType.INTEGRATION_TEST)))
+            .addAll(external(target.getExternalAptDeps(SourceSetType.TEST)))
             .addAll(targets(target.getTargetAptDeps(SourceSetType.INTEGRATION_TEST)))
+            .addAll(targets(target.getTargetAptDeps(SourceSetType.TEST)))
             .build();
 
     Set<String> providedDeps =
         ImmutableSet.<String>builder()
             .addAll(external(target.getExternalProvidedDeps(SourceSetType.INTEGRATION_TEST)))
+            .addAll(external(target.getExternalProvidedDeps(SourceSetType.TEST)))
             .addAll(targets(target.getTargetProvidedDeps(SourceSetType.INTEGRATION_TEST)))
+            .addAll(targets(target.getTargetProvidedDeps(SourceSetType.TEST)))
             .build();
 
     return new JvmRule()

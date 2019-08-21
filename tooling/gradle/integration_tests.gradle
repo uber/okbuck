@@ -1,25 +1,5 @@
-apply plugin: "idea"
-
 sourceSets {
-    integrationTest {
-        java {
-            srcDir 'src/integration-test/java'
-        }
-        resources {
-            srcDir 'src/integration-test/resources'
-        }
-
-        compileClasspath += sourceSets.test.runtimeClasspath
-        runtimeClasspath += sourceSets.test.runtimeClasspath
-    }
-}
-
-idea {
-    module {
-        testSourceDirs += sourceSets.integrationTest.java.srcDirs
-        testResourceDirs += sourceSets.integrationTest.resources.srcDirs
-        scopes.TEST.plus += [ configurations.integrationTestCompile ]
-    }
+    integrationTest
 }
 
 // define custom test task for running integration tests

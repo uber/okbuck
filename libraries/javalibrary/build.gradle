@@ -25,5 +25,6 @@ dependencies {
     testImplementation deps.test.junit
 
     integrationTestImplementation deps.test.junit
+    integrationTestAnnotationProcessor deps.apt.daggerCompiler
     integrationTestImplementation deps.external.avroIpc
 }

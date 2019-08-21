@@ -46,6 +46,7 @@ import org.gradle.api.JavaVersion;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.UnknownDomainObjectException;
+import org.gradle.api.UnknownTaskException;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ProjectDependency;
 import org.gradle.api.plugins.ApplicationPlugin;
@@ -377,8 +378,16 @@ public class JvmTarget extends Target {
   }
 
   public Scope getIntegrationTest() {
-    JavaCompile integrationTestCompileJavaTask =
-        (JavaCompile) getProject().getTasks().getByName(COMPILE_INTEGRATION_TEST_JAVA_TASK_NAME);
+    @Var
+    JavaCompile integrationTestCompileJavaTask;
+    try {
+      // This task might not exist to the module
+      integrationTestCompileJavaTask =
+          (JavaCompile) getProject().getTasks().getByName(COMPILE_INTEGRATION_TEST_JAVA_TASK_NAME);
+    } catch (UnknownTaskException e) {
+      integrationTestCompileJavaTask =
+          (JavaCompile) getProject().getTasks().getByName(JavaPlugin.COMPILE_TEST_JAVA_TASK_NAME);
+    }
     return Scope.builder(getProject())
         .configuration(INTEGRATION_TEST_RUNTIME_CLASSPATH_CONFIGURATION_NAME)
         .sourceDirs(getIntegrationTestSrcDirs())
@@ -449,11 +458,21 @@ public class JvmTarget extends Target {
   }
 
   private Set<File> getIntegrationTestSrcDirs() {
-    return sourceSets.getByName(INTEGRATION_TEST_SOURCE_SET_NAME).getAllJava().getSrcDirs();
+    // SourceSet might not be available to module
+    try {
+      return sourceSets.getByName(INTEGRATION_TEST_SOURCE_SET_NAME).getAllJava().getSrcDirs();
+    } catch (UnknownDomainObjectException e) {
+      return Collections.emptySet();
+    }
   }
 
   private Set<File> getIntegrationTestJavaResourceDirs() {
-    return sourceSets.getByName(INTEGRATION_TEST_SOURCE_SET_NAME).getResources().getSrcDirs();
+    // SourceSet might not be available to module
+    try {
+      return sourceSets.getByName(INTEGRATION_TEST_SOURCE_SET_NAME).getResources().getSrcDirs();
+    } catch (UnknownDomainObjectException e) {
+      return Collections.emptySet();
+    }
   }
 
   public static String javaVersion(JavaVersion version) {

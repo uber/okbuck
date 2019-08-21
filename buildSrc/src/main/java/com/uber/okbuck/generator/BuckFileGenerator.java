@@ -54,9 +54,7 @@ public final class BuckFileGenerator {
     File moduleDir = project.getBuildFile().getParentFile();
     File visibilityFile = new File(moduleDir, visibilityExtension.visibilityFileName);
     boolean hasVisibilityFile = visibilityFile.isFile();
-
-    File integrationTestsFile = new File(moduleDir, testExtension.integrationTestDir);
-    boolean hasIntegrationTests = testExtension.enableIntegrationTests && integrationTestsFile.isDirectory();
+    boolean hasIntegrationTests = testExtension.enableIntegrationTests;
 
     List<Rule> rules = createRules(project, hasIntegrationTests);
 
@@ -136,7 +134,7 @@ public final class BuckFileGenerator {
     if (!target.getTest().getSources().isEmpty()) {
       rules.add(JvmTestRuleComposer.compose(target, testRuleType));
     }
-    if (hasIntegrationTests) {
+    if (hasIntegrationTests && !target.getIntegrationTest().getSources().isEmpty()) {
       rules.add(JvmIntegrationTestRuleComposer.compose(target, testRuleType));
     }
 
