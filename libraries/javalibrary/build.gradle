@@ -11,6 +11,7 @@ test {
 
 integrationTest {
     environment "ANOTHER", "true"
+    environment "YET_ANOTHER", "true"
 }
 
 dependencies {
