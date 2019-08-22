@@ -15,6 +15,7 @@ import com.uber.okbuck.composer.android.KeystoreRuleComposer;
 import com.uber.okbuck.composer.android.ManifestRuleComposer;
 import com.uber.okbuck.composer.android.PreBuiltNativeLibraryRuleComposer;
 import com.uber.okbuck.composer.android.AndroidModuleRuleComposer;
+import com.uber.okbuck.composer.jvm.JvmIntegrationTestRuleComposer;
 import com.uber.okbuck.composer.jvm.JvmLibraryRuleComposer;
 import com.uber.okbuck.composer.jvm.JvmTestRuleComposer;
 import com.uber.okbuck.core.manager.BuckFileManager;
@@ -27,6 +28,7 @@ import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.model.jvm.JvmTarget;
 import com.uber.okbuck.core.util.ProjectCache;
 import com.uber.okbuck.core.util.ProjectUtil;
+import com.uber.okbuck.extension.TestExtension;
 import com.uber.okbuck.extension.VisibilityExtension;
 import com.uber.okbuck.template.android.AndroidModuleRule;
 import com.uber.okbuck.template.android.AndroidRule;
@@ -45,12 +47,17 @@ public final class BuckFileGenerator {
 
   /** generate {@code BUCKFile} */
   public static void generate(
-      Project project, BuckFileManager buckFileManager, VisibilityExtension visibilityExtension) {
-    List<Rule> rules = createRules(project);
-
+      Project project,
+      BuckFileManager buckFileManager,
+      VisibilityExtension visibilityExtension,
+      TestExtension testExtension) {
     File moduleDir = project.getBuildFile().getParentFile();
     File visibilityFile = new File(moduleDir, visibilityExtension.visibilityFileName);
     boolean hasVisibilityFile = visibilityFile.isFile();
+    boolean hasIntegrationTests = testExtension.enableIntegrationTests;
+
+    List<Rule> rules = createRules(project, hasIntegrationTests);
+
     Multimap<String, String> extraLoadStatements = TreeMultimap.create();
 
     if (hasVisibilityFile) {
@@ -63,7 +70,7 @@ public final class BuckFileGenerator {
     buckFileManager.writeToBuckFile(rules, buckFile, extraLoadStatements);
   }
 
-  private static List<Rule> createRules(Project project) {
+  private static List<Rule> createRules(Project project, boolean hasIntegrationTests) {
     List<Rule> rules = new ArrayList<>();
     ProjectType projectType = ProjectUtil.getType(project);
 
@@ -80,7 +87,8 @@ public final class BuckFileGenerator {
                       createRules(
                           (JvmTarget) target,
                           projectType.getMainRuleType(),
-                          projectType.getTestRuleType()));
+                          projectType.getTestRuleType(),
+                          hasIntegrationTests));
                   break;
                 case ANDROID_LIB:
                   AndroidLibTarget androidLibTarget = (AndroidLibTarget) target;
@@ -117,11 +125,17 @@ public final class BuckFileGenerator {
   }
 
   private static List<Rule> createRules(
-      JvmTarget target, RuleType mainRuleType, RuleType testRuleType) {
+      JvmTarget target,
+      RuleType mainRuleType,
+      RuleType testRuleType,
+      boolean hasIntegrationTests) {
     List<Rule> rules = new ArrayList<>(JvmLibraryRuleComposer.compose(target, mainRuleType));
 
     if (!target.getTest().getSources().isEmpty()) {
       rules.add(JvmTestRuleComposer.compose(target, testRuleType));
+    }
+    if (hasIntegrationTests && !target.getIntegrationTest().getSources().isEmpty()) {
+      rules.add(JvmIntegrationTestRuleComposer.compose(target, testRuleType));
     }
 
     return rules;

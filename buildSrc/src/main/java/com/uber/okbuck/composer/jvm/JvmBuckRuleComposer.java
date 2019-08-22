@@ -21,6 +21,10 @@ public class JvmBuckRuleComposer extends BuckRuleComposer {
     return "test_" + target.getName();
   }
 
+  public static String integrationTest(JvmTarget target) {
+    return "integration_test_" + target.getName();
+  }
+
   /**
    * Returns the ap's plugin rules path
    *

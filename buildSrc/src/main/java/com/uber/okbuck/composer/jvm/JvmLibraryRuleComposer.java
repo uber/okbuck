@@ -3,6 +3,7 @@ package com.uber.okbuck.composer.jvm;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.core.model.base.RuleType;
+import com.uber.okbuck.core.model.base.SourceSetType;
 import com.uber.okbuck.core.model.jvm.JvmTarget;
 import com.uber.okbuck.template.core.Rule;
 import com.uber.okbuck.template.jvm.JvmBinaryRule;
@@ -20,26 +21,26 @@ public final class JvmLibraryRuleComposer extends JvmBuckRuleComposer {
   public static ImmutableList<Rule> compose(JvmTarget target, RuleType ruleType) {
     List<String> deps =
         ImmutableList.<String>builder()
-            .addAll(external(target.getExternalDeps(false)))
-            .addAll(targets(target.getTargetDeps(false)))
+            .addAll(external(target.getExternalDeps(SourceSetType.MAIN)))
+            .addAll(targets(target.getTargetDeps(SourceSetType.MAIN)))
             .build();
 
     Set<String> aptDeps =
         ImmutableSet.<String>builder()
-            .addAll(externalApt(target.getExternalAptDeps(false)))
-            .addAll(targetsApt(target.getTargetAptDeps(false)))
+            .addAll(externalApt(target.getExternalAptDeps(SourceSetType.MAIN)))
+            .addAll(targetsApt(target.getTargetAptDeps(SourceSetType.MAIN)))
             .build();
 
     Set<String> providedDeps =
         ImmutableSet.<String>builder()
-            .addAll(external(target.getExternalProvidedDeps(false)))
-            .addAll(targets(target.getTargetProvidedDeps(false)))
+            .addAll(external(target.getExternalProvidedDeps(SourceSetType.MAIN)))
+            .addAll(targets(target.getTargetProvidedDeps(SourceSetType.MAIN)))
             .build();
 
     Set<String> exportedDeps =
         ImmutableSet.<String>builder()
-            .addAll(external(target.getExternalExportedDeps(false)))
-            .addAll(targets(target.getTargetExportedDeps(false)))
+            .addAll(external(target.getExternalExportedDeps(SourceSetType.MAIN)))
+            .addAll(targets(target.getTargetExportedDeps(SourceSetType.MAIN)))
             .build();
 
     List<String> testTargets =

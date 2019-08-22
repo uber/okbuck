@@ -21,9 +21,11 @@ import com.uber.okbuck.core.dependency.VersionlessDependency;
 import com.uber.okbuck.core.manager.KotlinManager;
 import com.uber.okbuck.core.manager.LintManager;
 import com.uber.okbuck.core.model.base.Scope;
+import com.uber.okbuck.core.model.base.SourceSetType;
 import com.uber.okbuck.core.model.base.Target;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.extension.ExternalDependenciesExtension;
+
 import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
@@ -39,10 +41,12 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+
 import org.gradle.api.JavaVersion;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.UnknownDomainObjectException;
+import org.gradle.api.UnknownTaskException;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ProjectDependency;
 import org.gradle.api.plugins.ApplicationPlugin;
@@ -70,26 +74,41 @@ public class JvmTarget extends Target {
   protected static final String JAVA_COMPILER_EXTRA_ARGUMENTS = "extra_arguments";
   protected static final String KOTLIN_COMPILER_EXTRA_ARGUMENTS = "extra_kotlinc_arguments";
 
+  private static final String INTEGRATION_TEST_SOURCE_SET_NAME = "integrationTest";
+  private static final String INTEGRATION_TEST_TASK_NAME = "integrationTest";
+  private static final String INTEGRATION_TEST_ANNOTATION_PROCESSOR_CONFIGURATION_NAME = "integrationTestAnnotationProcessor";
+  private static final String INTEGRATION_TEST_RUNTIME_CLASSPATH_CONFIGURATION_NAME = "integrationTestRuntimeClasspath";
+  private static final String INTEGRATION_TEST_COMPILE_CLASSPATH_CONFIGURATION_NAME = "integrationTestCompileClasspath";
+  private static final String COMPILE_INTEGRATION_TEST_JAVA_TASK_NAME = "compileIntegrationTestJava";
+
   private final String aptConfigurationName;
   private final String testAptConfigurationName;
+  private final String integrationTestAptConfigurationName;
   private final SourceSetContainer sourceSets;
   protected final boolean isKotlin;
 
-  @Nullable private final AbstractCompile fakeCompile;
+  @Nullable
+  private final AbstractCompile fakeCompile;
 
   public JvmTarget(Project project, String name) {
     this(
         project,
         name,
         JavaPlugin.ANNOTATION_PROCESSOR_CONFIGURATION_NAME,
-        JavaPlugin.TEST_ANNOTATION_PROCESSOR_CONFIGURATION_NAME);
+        JavaPlugin.TEST_ANNOTATION_PROCESSOR_CONFIGURATION_NAME,
+        INTEGRATION_TEST_ANNOTATION_PROCESSOR_CONFIGURATION_NAME);
   }
 
   public JvmTarget(
-      Project project, String name, String aptConfigurationName, String testAptConfigurationName) {
+      Project project,
+      String name,
+      String aptConfigurationName,
+      String testAptConfigurationName,
+      String integrationTestAptConfigurationName) {
     super(project, name);
     this.aptConfigurationName = aptConfigurationName;
     this.testAptConfigurationName = testAptConfigurationName;
+    this.integrationTestAptConfigurationName = integrationTestAptConfigurationName;
     sourceSets = getProject().getConvention().getPlugin(JavaPluginConvention.class).getSourceSets();
     isKotlin =
         project.getPlugins().stream().anyMatch(plugin -> plugin instanceof KotlinBasePluginWrapper);
@@ -111,32 +130,63 @@ public class JvmTarget extends Target {
     return new TestOptions(testTask.getAllJvmArgs(), testTask.getEnvironment());
   }
 
-  /** Apt Scopes */
+  public TestOptions getIntegrationTestOptions() {
+    Test testTask = (Test) getProject().getTasks().getByName(INTEGRATION_TEST_TASK_NAME);
+    Map<String, Object> env = testTask.getEnvironment();
+    env.keySet().removeAll(System.getenv().keySet());
+    return new TestOptions(testTask.getAllJvmArgs(), testTask.getEnvironment());
+  }
+
+  /**
+   * Apt Scopes
+   */
   public List<Scope> getAptScopes() {
     AnnotationProcessorCache apCache = ProjectUtil.getAnnotationProcessorCache(getProject());
     return apCache.getAnnotationProcessorScopes(getProject(), aptConfigurationName);
   }
 
-  /** Test Apt Scopes */
+  /**
+   * Test Apt Scopes
+   */
   public List<Scope> getTestAptScopes() {
     AnnotationProcessorCache apCache = ProjectUtil.getAnnotationProcessorCache(getProject());
     return apCache.getAnnotationProcessorScopes(getProject(), testAptConfigurationName);
   }
 
-  /** Apt Scope Used to get the annotation processor deps of the target. */
+  /**
+   * Integration Test Apt Scopes
+   */
+  public List<Scope> getIntegrationTestAptScopes() {
+    AnnotationProcessorCache apCache = ProjectUtil.getAnnotationProcessorCache(getProject());
+    return apCache.getAnnotationProcessorScopes(getProject(), integrationTestAptConfigurationName);
+  }
+
+  /**
+   * Apt Scope Used to get the annotation processor deps of the target.
+   */
   public Scope getApt() {
     return getAptScopeForConfiguration(aptConfigurationName);
   }
 
-  /** Test Apt Scope */
+  /**
+   * Test Apt Scope
+   */
   public Scope getTestApt() {
     return getAptScopeForConfiguration(testAptConfigurationName);
+  }
+
+  /**
+   * Integration Test Apt Scope
+   */
+  public Scope getIntegrationTestApt() {
+    return getAptScopeForConfiguration(integrationTestAptConfigurationName);
   }
 
   protected Scope getAptScopeForConfiguration(String configurationName) {
     // If using annotation processor plugin, return an empty scope if there are no annotation
     // processors so no need to have any specified in the annotation processor deps list.
-    if (!getOkbuck().legacyAnnotationProcessorSupport || !ProjectUtil.getAnnotationProcessorCache(getProject())
+    if (!getOkbuck().legacyAnnotationProcessorSupport || !ProjectUtil
+        .getAnnotationProcessorCache(getProject())
         .hasEmptyAnnotationProcessors(getProject(), configurationName)) {
       return Scope.builder(getProject()).build();
     }
@@ -147,21 +197,36 @@ public class JvmTarget extends Target {
     return getAptScopeForConfiguration(configuration.getName());
   }
 
-  /** Provided Scope */
+  /**
+   * Provided Scope
+   */
   public Scope getProvided() {
     return Scope.builder(getProject())
         .configuration(JavaPlugin.COMPILE_CLASSPATH_CONFIGURATION_NAME)
         .build();
   }
 
-  /** Test Provided Scope */
+  /**
+   * Test Provided Scope
+   */
   public Scope getTestProvided() {
     return Scope.builder(getProject())
         .configuration(JavaPlugin.TEST_COMPILE_CLASSPATH_CONFIGURATION_NAME)
         .build();
   }
 
-  /** api external deps */
+  /**
+   * Integration Test Provided Scope
+   */
+  public Scope getIntegrationTestProvided() {
+    return Scope.builder(getProject())
+        .configuration(INTEGRATION_TEST_COMPILE_CLASSPATH_CONFIGURATION_NAME)
+        .build();
+  }
+
+  /**
+   * api external deps
+   */
   public Set<ExternalDependency> getApiExternalDeps() {
     Configuration apiConfiguration = getApiConfiguration();
 
@@ -185,7 +250,9 @@ public class JvmTarget extends Target {
     }
   }
 
-  /** api target deps */
+  /**
+   * api target deps
+   */
   public Set<Target> getApiTargetDeps() {
     Configuration apiConfiguration = getApiConfiguration();
 
@@ -230,7 +297,9 @@ public class JvmTarget extends Target {
     }
   }
 
-  /** Lint Scope */
+  /**
+   * Lint Scope
+   */
   public Scope getLint() {
     LintManager manager = ProjectUtil.getLintManager(getProject());
     return Scope.builder(getProject())
@@ -268,6 +337,18 @@ public class JvmTarget extends Target {
         .collect(Collectors.toSet());
   }
 
+  /**
+   * List of integration test annotation processor classes. If annotation processor plugin is
+   * enabled returns the annotation processor's UID.
+   */
+  public Set<JvmPlugin> getIntegrationTestApPlugins() {
+    return getIntegrationTestAptScopes()
+        .stream()
+        .filter(scope -> !scope.getAnnotationProcessors().isEmpty())
+        .map(Scope::getAnnotationProcessorPlugin)
+        .collect(Collectors.toSet());
+  }
+
   public Scope getMain() {
     JavaCompile compileJavaTask =
         (JavaCompile) getProject().getTasks().getByName(JavaPlugin.COMPILE_JAVA_TASK_NAME);
@@ -291,6 +372,29 @@ public class JvmTarget extends Target {
         .javaResourceDirs(getTestJavaResourceDirs())
         .customOptions(
             JAVA_COMPILER_EXTRA_ARGUMENTS, testCompileJavaTask.getOptions().getCompilerArgs())
+        .customOptions(KOTLIN_COMPILER_EXTRA_ARGUMENTS, getKotlinCompilerOptions())
+        .customOptions(getKotlinFriendPaths(true))
+        .build();
+  }
+
+  public Scope getIntegrationTest() {
+    @Var
+    JavaCompile integrationTestCompileJavaTask;
+    try {
+      // This task might not exist to the module
+      integrationTestCompileJavaTask =
+          (JavaCompile) getProject().getTasks().getByName(COMPILE_INTEGRATION_TEST_JAVA_TASK_NAME);
+    } catch (UnknownTaskException e) {
+      integrationTestCompileJavaTask =
+          (JavaCompile) getProject().getTasks().getByName(JavaPlugin.COMPILE_TEST_JAVA_TASK_NAME);
+    }
+    return Scope.builder(getProject())
+        .configuration(INTEGRATION_TEST_RUNTIME_CLASSPATH_CONFIGURATION_NAME)
+        .sourceDirs(getIntegrationTestSrcDirs())
+        .javaResourceDirs(getIntegrationTestJavaResourceDirs())
+        .customOptions(
+            JAVA_COMPILER_EXTRA_ARGUMENTS,
+            integrationTestCompileJavaTask.getOptions().getCompilerArgs())
         .customOptions(KOTLIN_COMPILER_EXTRA_ARGUMENTS, getKotlinCompilerOptions())
         .customOptions(getKotlinFriendPaths(true))
         .build();
@@ -351,6 +455,24 @@ public class JvmTarget extends Target {
 
   private Set<File> getTestJavaResourceDirs() {
     return sourceSets.getByName(SourceSet.TEST_SOURCE_SET_NAME).getResources().getSrcDirs();
+  }
+
+  private Set<File> getIntegrationTestSrcDirs() {
+    // SourceSet might not be available to module
+    try {
+      return sourceSets.getByName(INTEGRATION_TEST_SOURCE_SET_NAME).getAllJava().getSrcDirs();
+    } catch (UnknownDomainObjectException e) {
+      return Collections.emptySet();
+    }
+  }
+
+  private Set<File> getIntegrationTestJavaResourceDirs() {
+    // SourceSet might not be available to module
+    try {
+      return sourceSets.getByName(INTEGRATION_TEST_SOURCE_SET_NAME).getResources().getSrcDirs();
+    } catch (UnknownDomainObjectException e) {
+      return Collections.emptySet();
+    }
   }
 
   public static String javaVersion(JavaVersion version) {
@@ -498,13 +620,19 @@ public class JvmTarget extends Target {
    *
    * @return Target deps
    */
-  public Set<Target> getTargetDeps(boolean test) {
-    if (test) {
-      return Sets.intersection(getTest().getTargetDeps(), getTestProvided().getTargetDeps());
-    } else {
-      return Sets.difference(
-          Sets.intersection(getMain().getTargetDeps(), getProvided().getTargetDeps()),
-          getApiTargetDeps());
+  public Set<Target> getTargetDeps(SourceSetType sourceSetType) {
+    switch (sourceSetType) {
+      case TEST:
+        return Sets.intersection(getTest().getTargetDeps(), getTestProvided().getTargetDeps());
+
+      case INTEGRATION_TEST:
+        return Sets.intersection(getIntegrationTest().getTargetDeps(),
+            getIntegrationTestProvided().getTargetDeps());
+
+      default:
+        return Sets.difference(
+            Sets.intersection(getMain().getTargetDeps(), getProvided().getTargetDeps()),
+            getApiTargetDeps());
     }
   }
 
@@ -513,11 +641,14 @@ public class JvmTarget extends Target {
    *
    * @return Target deps
    */
-  public Set<Target> getTargetExportedDeps(boolean test) {
-    if (test) {
-      return ImmutableSet.of();
-    } else {
-      return getApiTargetDeps();
+  public Set<Target> getTargetExportedDeps(SourceSetType sourceSetType) {
+    switch (sourceSetType) {
+      case TEST:
+      case INTEGRATION_TEST:
+        return ImmutableSet.of();
+
+      default:
+        return getApiTargetDeps();
     }
   }
 
@@ -526,11 +657,15 @@ public class JvmTarget extends Target {
    *
    * @return Target deps
    */
-  public Set<Target> getTargetAptDeps(boolean test) {
-    if (test) {
-      return getTestApt().getTargetDeps();
-    } else {
-      return getApt().getTargetDeps();
+  public Set<Target> getTargetAptDeps(SourceSetType sourceSetType) {
+    switch (sourceSetType) {
+      case TEST:
+        return getTestApt().getTargetDeps();
+      case INTEGRATION_TEST:
+        return getIntegrationTestApt().getTargetDeps();
+
+      default:
+        return getApt().getTargetDeps();
     }
   }
 
@@ -540,11 +675,16 @@ public class JvmTarget extends Target {
    *
    * @return CompileOnly Target deps
    */
-  public Set<Target> getTargetProvidedDeps(boolean test) {
-    if (test) {
-      return Sets.difference(getTestProvided().getTargetDeps(), getTest().getTargetDeps());
-    } else {
-      return Sets.difference(getProvided().getTargetDeps(), getMain().getTargetDeps());
+  public Set<Target> getTargetProvidedDeps(SourceSetType sourceSetType) {
+    switch (sourceSetType) {
+      case TEST:
+        return Sets.difference(getTestProvided().getTargetDeps(), getTest().getTargetDeps());
+      case INTEGRATION_TEST:
+        return Sets.difference(getIntegrationTestProvided().getTargetDeps(),
+            getIntegrationTest().getTargetDeps());
+
+      default:
+        return Sets.difference(getProvided().getTargetDeps(), getMain().getTargetDeps());
     }
   }
 
@@ -554,18 +694,23 @@ public class JvmTarget extends Target {
    *
    * @return Target deps
    */
-  public Set<ExternalDependency> getExternalDeps(boolean test) {
-    if (test) {
-      return Sets.intersection(getTest().getExternalDeps(), getTestProvided().getExternalDeps());
-    } else {
-      return Sets.difference(
-          Sets.intersection(getMain().getExternalDeps(), getProvided().getExternalDeps()),
-          getApiExternalDeps());
+  public Set<ExternalDependency> getExternalDeps(SourceSetType sourceSetType) {
+    switch (sourceSetType) {
+      case TEST:
+        return Sets.intersection(getTest().getExternalDeps(), getTestProvided().getExternalDeps());
+      case INTEGRATION_TEST:
+        return Sets.intersection(getIntegrationTest().getExternalDeps(),
+            getIntegrationTestProvided().getExternalDeps());
+
+      default:
+        return Sets.difference(
+            Sets.intersection(getMain().getExternalDeps(), getProvided().getExternalDeps()),
+            getApiExternalDeps());
     }
   }
 
-  public Set<ExternalDependency> getExternalAarDeps(boolean test) {
-    return filterAar(getExternalDeps(test));
+  public Set<ExternalDependency> getExternalAarDeps(SourceSetType sourceSetType) {
+    return filterAar(getExternalDeps(sourceSetType));
   }
 
   /**
@@ -573,16 +718,19 @@ public class JvmTarget extends Target {
    *
    * @return Target deps
    */
-  public Set<ExternalDependency> getExternalExportedDeps(boolean test) {
-    if (test) {
-      return ImmutableSet.of();
-    } else {
-      return getApiExternalDeps();
+  public Set<ExternalDependency> getExternalExportedDeps(SourceSetType sourceSetType) {
+    switch (sourceSetType) {
+      case TEST:
+      case INTEGRATION_TEST:
+        return ImmutableSet.of();
+
+      default:
+        return getApiExternalDeps();
     }
   }
 
-  public Set<ExternalDependency> getExternalExportedAarDeps(boolean test) {
-    return filterAar(getExternalExportedDeps(test));
+  public Set<ExternalDependency> getExternalExportedAarDeps(SourceSetType sourceSetType) {
+    return filterAar(getExternalExportedDeps(sourceSetType));
   }
 
   /**
@@ -590,11 +738,15 @@ public class JvmTarget extends Target {
    *
    * @return Target deps
    */
-  public Set<ExternalDependency> getExternalAptDeps(boolean test) {
-    if (test) {
-      return filterJar(getTestApt().getExternalDeps());
-    } else {
-      return filterJar(getApt().getExternalDeps());
+  public Set<ExternalDependency> getExternalAptDeps(SourceSetType sourceSetType) {
+    switch (sourceSetType) {
+      case TEST:
+        return filterJar(getTestApt().getExternalDeps());
+      case INTEGRATION_TEST:
+        return filterJar(getIntegrationTestApt().getExternalDeps());
+
+      default:
+        return filterJar(getApt().getExternalDeps());
     }
   }
 
@@ -604,11 +756,16 @@ public class JvmTarget extends Target {
    *
    * @return CompileOnly Target deps
    */
-  public Set<ExternalDependency> getExternalProvidedDeps(boolean test) {
-    if (test) {
-      return Sets.difference(getTestProvided().getExternalDeps(), getTest().getExternalDeps());
-    } else {
-      return Sets.difference(getProvided().getExternalDeps(), getMain().getExternalDeps());
+  public Set<ExternalDependency> getExternalProvidedDeps(SourceSetType sourceSetType) {
+    switch (sourceSetType) {
+      case TEST:
+        return Sets.difference(getTestProvided().getExternalDeps(), getTest().getExternalDeps());
+      case INTEGRATION_TEST:
+        return Sets.difference(getIntegrationTestProvided().getExternalDeps(),
+            getIntegrationTest().getExternalDeps());
+
+      default:
+        return Sets.difference(getProvided().getExternalDeps(), getMain().getExternalDeps());
     }
   }
 }

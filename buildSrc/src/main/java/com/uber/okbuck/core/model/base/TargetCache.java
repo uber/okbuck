@@ -52,7 +52,13 @@ public final class TargetCache {
         case KOTLIN_LIB:
           targets =
               ImmutableMap.of(
-                  JvmTarget.MAIN, new JvmTarget(project, JvmTarget.MAIN, "kapt", "kaptTest"));
+                  JvmTarget.MAIN,
+                  new JvmTarget(
+                      project,
+                      JvmTarget.MAIN,
+                      "kapt",
+                      "kaptTest",
+                      "kaptIntegrationTest"));
           break;
         case GROOVY_LIB:
         case SCALA_LIB:

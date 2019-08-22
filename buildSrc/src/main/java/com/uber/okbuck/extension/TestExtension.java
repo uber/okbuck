@@ -18,4 +18,7 @@ public class TestExtension {
 
   /** Enable generation of espresso test rules on android libraries. */
   public boolean espressoForLibraries = false;
+
+  /** Enable creation of integrationTest rules for modules with `integrationTest` folder */
+  public boolean enableIntegrationTests = false;
 }

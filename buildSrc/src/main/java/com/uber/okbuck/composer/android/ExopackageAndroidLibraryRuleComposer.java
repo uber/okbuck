@@ -4,6 +4,7 @@ import com.google.errorprone.annotations.Var;
 import com.uber.okbuck.core.model.android.AndroidAppTarget;
 import com.uber.okbuck.core.model.android.ExoPackageScope;
 import com.uber.okbuck.core.model.base.RuleType;
+import com.uber.okbuck.core.model.base.SourceSetType;
 import com.uber.okbuck.core.util.D8Util;
 import com.uber.okbuck.template.android.AndroidRule;
 import com.uber.okbuck.template.core.Rule;
@@ -33,8 +34,8 @@ public final class ExopackageAndroidLibraryRuleComposer extends AndroidBuckRuleC
 
     Set<String> libraryAptDeps = new LinkedHashSet<>();
 
-    libraryAptDeps.addAll(externalApt(target.getExternalAptDeps(false)));
-    libraryAptDeps.addAll(targetsApt(target.getTargetAptDeps(false)));
+    libraryAptDeps.addAll(externalApt(target.getExternalAptDeps(SourceSetType.MAIN)));
+    libraryAptDeps.addAll(targetsApt(target.getTargetAptDeps(SourceSetType.MAIN)));
 
     Set<String> providedDeps = new LinkedHashSet<>();
     providedDeps.add(D8Util.RT_STUB_JAR_RULE);

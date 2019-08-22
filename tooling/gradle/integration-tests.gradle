@@ -1,0 +1,13 @@
+sourceSets {
+    integrationTest
+}
+
+// define custom test task for running integration tests
+// This is used by okbuck in order to determine vm args and env variables
+task integrationTest(type: Test) {
+    description = 'Runs the integration tests.'
+    group = 'verification'
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    classpath = sourceSets.integrationTest.runtimeClasspath
+    outputs.upToDateWhen { false }
+}
