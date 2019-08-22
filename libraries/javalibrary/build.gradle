@@ -1,5 +1,5 @@
 apply plugin: "java-library"
-apply from: rootProject.file("tooling/gradle/integration_tests.gradle")
+apply from: rootProject.file("tooling/gradle/integration-tests.gradle")
 
 test {
     environment "TEST_ENV", "true"
