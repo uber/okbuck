@@ -213,7 +213,8 @@ setupBuckRun ( ) {
 }
 
 setupBuckFlags ( ) {
-    EXTRA_BUCK_CONFIG="$EXTRA_BUCK_CONFIG --config-file .okbuck/config/okbuck.buckconfig"
+    # Temporary use resolved kotlin home until #798 is resolved upstream
+    EXTRA_BUCK_CONFIG="$EXTRA_BUCK_CONFIG --config-file .okbuck/config/okbuck.buckconfig --config kotlin.kotlin_home=$SCRIPT_DIR/buck-out/gen/.okbuck/workspace/kotlin_home/kotlin_home"
 }
 
 # Handle parameters and flags

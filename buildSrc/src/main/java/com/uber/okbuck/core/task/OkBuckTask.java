@@ -12,7 +12,7 @@ import com.uber.okbuck.composer.base.BuckRuleComposer;
 import com.uber.okbuck.core.dependency.OExternalDependency;
 import com.uber.okbuck.core.manager.BuckFileManager;
 import com.uber.okbuck.core.manager.GroovyManager;
-import com.uber.okbuck.core.manager.KotlinManager;
+import com.uber.okbuck.core.manager.KotlinHomeManager;
 import com.uber.okbuck.core.manager.ScalaManager;
 import com.uber.okbuck.core.model.base.ProjectType;
 import com.uber.okbuck.core.model.base.RuleType;
@@ -108,13 +108,14 @@ public class OkBuckTask extends DefaultTask {
 
     // Fetch Kotlin deps if needed
     if (kotlinExtension.version != null) {
-      ProjectUtil.getKotlinManager(getProject()).setupKotlinHome(kotlinExtension.version);
+      ProjectUtil.getKotlinHomeManager(getProject()).setup(kotlinExtension.version);
+      ProjectUtil.getKotlinPluginManager(getProject()).setup(kotlinExtension.version);
     }
 
     generate(
         okBuckExtension,
         hasGroovyLib ? GroovyManager.GROOVY_HOME_TARGET : null,
-        kotlinExtension.version != null ? KotlinManager.KOTLIN_HOME_TARGET : null,
+        kotlinExtension.version != null ? KotlinHomeManager.KOTLIN_HOME_TARGET : null,
         hasScalaLib ? ScalaManager.SCALA_COMPILER_LOCATION : null,
         hasScalaLib ? scalaLibraryLocation : null);
   }

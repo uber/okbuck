@@ -18,7 +18,7 @@ import com.uber.okbuck.core.dependency.DependencyFactory;
 import com.uber.okbuck.core.dependency.DependencyUtils;
 import com.uber.okbuck.core.dependency.OExternalDependency;
 import com.uber.okbuck.core.dependency.VersionlessDependency;
-import com.uber.okbuck.core.manager.KotlinManager;
+import com.uber.okbuck.core.manager.KotlinPluginManager;
 import com.uber.okbuck.core.manager.LintManager;
 import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.model.base.SourceSetType;
@@ -477,7 +477,7 @@ public class JvmTarget extends Target {
     }
     ImmutableList.Builder<String> optionBuilder = ImmutableList.builder();
     optionBuilder.addAll(readKotlinCompilerArguments());
-    if (getProject().getPlugins().hasPlugin(KotlinManager.KOTLIN_ALLOPEN_MODULE)) {
+    if (getProject().getPlugins().hasPlugin(KotlinPluginManager.KOTLIN_ALLOPEN_MODULE)) {
       AllOpenKotlinGradleSubplugin subplugin = getAllOpenKotlinGradleSubplugin();
 
       if (subplugin != null && fakeCompile != null) {
@@ -486,9 +486,9 @@ public class JvmTarget extends Target {
 
         optionBuilder.add(
             "-Xplugin="
-                + KotlinManager.KOTLIN_LIBRARIES_LOCATION
+                + KotlinPluginManager.KOTLIN_LIBRARIES_LOCATION
                 + File.separator
-                + KotlinManager.KOTLIN_ALLOPEN_JAR);
+                + KotlinPluginManager.KOTLIN_ALLOPEN_JAR);
 
         for (SubpluginOption option : options) {
           optionBuilder.add("-P");

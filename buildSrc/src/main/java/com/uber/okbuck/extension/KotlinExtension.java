@@ -1,6 +1,6 @@
 package com.uber.okbuck.extension;
 
-import com.uber.okbuck.core.manager.KotlinManager;
+import com.uber.okbuck.core.manager.KotlinHomeManager;
 import javax.annotation.Nullable;
 import org.gradle.api.Project;
 
@@ -10,6 +10,6 @@ public class KotlinExtension {
   @Nullable public String version;
 
   KotlinExtension(Project project) {
-    version = KotlinManager.getDefaultKotlinVersion(project);
+    version = KotlinHomeManager.getDefaultKotlinVersion(project);
   }
 }

@@ -10,7 +10,8 @@ import com.uber.okbuck.core.manager.BuckManager;
 import com.uber.okbuck.core.manager.DependencyManager;
 import com.uber.okbuck.core.manager.GroovyManager;
 import com.uber.okbuck.core.manager.JetifierManager;
-import com.uber.okbuck.core.manager.KotlinManager;
+import com.uber.okbuck.core.manager.KotlinHomeManager;
+import com.uber.okbuck.core.manager.KotlinPluginManager;
 import com.uber.okbuck.core.manager.LintManager;
 import com.uber.okbuck.core.manager.ManifestMergerManager;
 import com.uber.okbuck.core.manager.RobolectricManager;
@@ -104,7 +105,8 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
   public DependencyManager dependencyManager;
   public AnnotationProcessorCache annotationProcessorCache;
   public LintManager lintManager;
-  public KotlinManager kotlinManager;
+  public KotlinHomeManager kotlinHomeManager;
+  public KotlinPluginManager kotlinPluginManager;
   public ScalaManager scalaManager;
   public GroovyManager groovyManager;
   public JetifierManager jetifierManager;
@@ -158,8 +160,11 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
           // Create Lint Manager
           lintManager = new LintManager(rootBuckProject, LINT_BUCK_FILE, buckFileManager);
 
-          // Create Kotlin Manager
-          kotlinManager = new KotlinManager(rootBuckProject, buckFileManager);
+          // Create Kotlin Home Manager
+          kotlinHomeManager = new KotlinHomeManager(rootBuckProject, buckFileManager);
+
+          // Create Kotlin Home Manager
+          kotlinPluginManager = new KotlinPluginManager(rootBuckProject, buckFileManager);
 
           // Create Scala Manager
           scalaManager = new ScalaManager(rootBuckProject, buckFileManager);
@@ -197,7 +202,8 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
                 dependencyManager.finalizeDependencies();
                 jetifierManager.finalizeDependencies();
                 lintManager.finalizeDependencies();
-                kotlinManager.finalizeDependencies();
+                kotlinHomeManager.finalizeDependencies();
+                kotlinPluginManager.finalizeDependencies();
                 scalaManager.finalizeDependencies();
                 groovyManager.finalizeDependencies();
                 robolectricManager.finalizeDependencies();

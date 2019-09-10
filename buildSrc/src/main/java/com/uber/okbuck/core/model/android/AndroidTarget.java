@@ -1,7 +1,7 @@
 package com.uber.okbuck.core.model.android;
 
-import static com.uber.okbuck.core.manager.KotlinManager.KOTLIN_ANDROID_EXTENSIONS_MODULE;
-import static com.uber.okbuck.core.manager.KotlinManager.KOTLIN_KAPT_PLUGIN;
+import static com.uber.okbuck.core.manager.KotlinBaseManager.KOTLIN_ANDROID_EXTENSIONS_MODULE;
+import static com.uber.okbuck.core.manager.KotlinBaseManager.KOTLIN_KAPT_PLUGIN;
 
 import com.android.build.gradle.BaseExtension;
 import com.android.build.gradle.api.BaseVariant;
@@ -18,7 +18,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.Var;
 import com.uber.okbuck.core.annotation.AnnotationProcessorCache;
-import com.uber.okbuck.core.manager.KotlinManager;
+import com.uber.okbuck.core.manager.KotlinPluginManager;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.model.jvm.JvmTarget;
@@ -442,7 +442,7 @@ public abstract class AndroidTarget extends JvmTarget {
             });
 
     plugin.append("-Xplugin=");
-    plugin.append(KotlinManager.KOTLIN_LIBRARIES_LOCATION);
+    plugin.append(KotlinPluginManager.KOTLIN_LIBRARIES_LOCATION);
     plugin.append(File.separator);
     plugin.append("kotlin-android-extensions.jar");
 

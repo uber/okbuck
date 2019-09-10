@@ -1,6 +1,6 @@
 apply plugin: "kotlin"
 apply plugin: "kotlin-kapt"
-apply plugin: "kotlin-allopen"
+//apply plugin: "kotlin-allopen"
 
 dependencies {
   implementation deps.external.kotlinStdlib
@@ -12,10 +12,10 @@ dependencies {
   testImplementation deps.test.mockito
 }
 
-allOpen {
-  annotations("demo.Anno")
-  annotations("demo.Anno2")
-}
+//allOpen {
+//  annotations("demo.Anno")
+//  annotations("demo.Anno2")
+//}
 
 compileKotlin {
   kotlinOptions {

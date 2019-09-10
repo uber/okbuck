@@ -13,7 +13,8 @@ import com.uber.okbuck.core.dependency.DependencyFactory;
 import com.uber.okbuck.core.dependency.DependencyUtils;
 import com.uber.okbuck.core.manager.DependencyManager;
 import com.uber.okbuck.core.manager.GroovyManager;
-import com.uber.okbuck.core.manager.KotlinManager;
+import com.uber.okbuck.core.manager.KotlinHomeManager;
+import com.uber.okbuck.core.manager.KotlinPluginManager;
 import com.uber.okbuck.core.manager.LintManager;
 import com.uber.okbuck.core.manager.ScalaManager;
 import com.uber.okbuck.core.manager.TransformManager;
@@ -86,8 +87,12 @@ public final class ProjectUtil {
     return getPlugin(project).lintManager;
   }
 
-  public static KotlinManager getKotlinManager(Project project) {
-    return getPlugin(project).kotlinManager;
+  public static KotlinHomeManager getKotlinHomeManager(Project project) {
+    return getPlugin(project).kotlinHomeManager;
+  }
+
+  public static KotlinPluginManager getKotlinPluginManager(Project project) {
+    return getPlugin(project).kotlinPluginManager;
   }
 
   public static ScalaManager getScalaManager(Project project) {
