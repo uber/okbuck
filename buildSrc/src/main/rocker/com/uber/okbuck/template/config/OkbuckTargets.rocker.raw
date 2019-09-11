@@ -371,3 +371,15 @@ def okbuck_prebuilt_jar(
         binary_jar = jar_path,
         **kwargs
     )
+
+def okbuck_java_integration_test(**kwargs):
+    native.java_test(**kwargs)
+
+def okbuck_scala_integration_test(**kwargs):
+    native.scala_test(**kwargs)
+
+def okbuck_kotlin_integration_test(**kwargs):
+    native.kotlin_test(**kwargs)
+
+def okbuck_groovy_integration_test(**kwargs):
+    native.groovy_test(**kwargs)
