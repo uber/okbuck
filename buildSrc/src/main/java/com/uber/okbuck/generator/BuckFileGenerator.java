@@ -88,6 +88,7 @@ public final class BuckFileGenerator {
                           (JvmTarget) target,
                           projectType.getMainRuleType(),
                           projectType.getTestRuleType(),
+                          projectType.getIntegrationTestRuleType(),
                           hasIntegrationTests));
                   break;
                 case ANDROID_LIB:
@@ -128,6 +129,7 @@ public final class BuckFileGenerator {
       JvmTarget target,
       RuleType mainRuleType,
       RuleType testRuleType,
+      RuleType integrationTestRuleType,
       boolean hasIntegrationTests) {
     List<Rule> rules = new ArrayList<>(JvmLibraryRuleComposer.compose(target, mainRuleType));
 
@@ -135,7 +137,7 @@ public final class BuckFileGenerator {
       rules.add(JvmTestRuleComposer.compose(target, testRuleType));
     }
     if (hasIntegrationTests && !target.getIntegrationTest().getSources().isEmpty()) {
-      rules.add(JvmIntegrationTestRuleComposer.compose(target, testRuleType));
+      rules.add(JvmIntegrationTestRuleComposer.compose(target, integrationTestRuleType));
     }
 
     return rules;

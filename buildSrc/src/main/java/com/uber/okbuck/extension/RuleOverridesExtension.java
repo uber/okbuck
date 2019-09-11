@@ -71,6 +71,10 @@ public class RuleOverridesExtension {
           .put(RuleType.KOTLIN_ANDROID_MODULE, OKBUCK_ANDROID_MODULES_TARGET)
           .put(RuleType.KEYSTORE, OKBUCK_TARGETS_TARGET)
           .put(RuleType.MANIFEST, OKBUCK_TARGETS_TARGET)
+          .put(RuleType.JAVA_INTEGRATION_TEST, OKBUCK_TARGETS_TARGET)
+          .put(RuleType.SCALA_INTEGRATION_TEST, OKBUCK_TARGETS_TARGET)
+          .put(RuleType.GROOVY_INTEGRATION_TEST, OKBUCK_TARGETS_TARGET)
+          .put(RuleType.KOTLIN_INTEGRATION_TEST, OKBUCK_TARGETS_TARGET)
           .build();
 
   private Map<String, OverrideSetting> overridesMap = Collections.emptyMap();
