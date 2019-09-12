@@ -23,9 +23,7 @@ public final class JvmLibraryRuleComposer extends JvmBuckRuleComposer {
   }
 
   public static ImmutableList<Rule> compose(
-      JvmTarget target,
-      RuleType ruleType,
-      boolean integrationTestsEnabled) {
+      JvmTarget target, RuleType ruleType, boolean integrationTestsEnabled) {
     List<String> deps =
         ImmutableList.<String>builder()
             .addAll(external(target.getExternalDeps(SourceSetType.MAIN)))
