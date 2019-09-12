@@ -33,19 +33,24 @@ import com.uber.okbuck.extension.VisibilityExtension;
 import com.uber.okbuck.template.android.AndroidModuleRule;
 import com.uber.okbuck.template.android.AndroidRule;
 import com.uber.okbuck.template.core.Rule;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+
 import org.gradle.api.Project;
 
 public final class BuckFileGenerator {
 
-  private BuckFileGenerator() {}
+  private BuckFileGenerator() {
+  }
 
-  /** generate {@code BUCKFile} */
+  /**
+   * generate {@code BUCKFile}
+   */
   public static void generate(
       Project project,
       BuckFileManager buckFileManager,
@@ -54,9 +59,9 @@ public final class BuckFileGenerator {
     File moduleDir = project.getBuildFile().getParentFile();
     File visibilityFile = new File(moduleDir, visibilityExtension.visibilityFileName);
     boolean hasVisibilityFile = visibilityFile.isFile();
-    boolean hasIntegrationTests = testExtension.enableIntegrationTests;
+    boolean integrationTestsEnabled = testExtension.enableIntegrationTests;
 
-    List<Rule> rules = createRules(project, hasIntegrationTests);
+    List<Rule> rules = createRules(project, integrationTestsEnabled);
 
     Multimap<String, String> extraLoadStatements = TreeMultimap.create();
 
@@ -70,7 +75,7 @@ public final class BuckFileGenerator {
     buckFileManager.writeToBuckFile(rules, buckFile, extraLoadStatements);
   }
 
-  private static List<Rule> createRules(Project project, boolean hasIntegrationTests) {
+  private static List<Rule> createRules(Project project, boolean integrationTestsEnabled) {
     List<Rule> rules = new ArrayList<>();
     ProjectType projectType = ProjectUtil.getType(project);
 
@@ -89,7 +94,7 @@ public final class BuckFileGenerator {
                           projectType.getMainRuleType(),
                           projectType.getTestRuleType(),
                           projectType.getIntegrationTestRuleType(),
-                          hasIntegrationTests));
+                          integrationTestsEnabled));
                   break;
                 case ANDROID_LIB:
                   AndroidLibTarget androidLibTarget = (AndroidLibTarget) target;
@@ -130,13 +135,14 @@ public final class BuckFileGenerator {
       RuleType mainRuleType,
       RuleType testRuleType,
       RuleType integrationTestRuleType,
-      boolean hasIntegrationTests) {
-    List<Rule> rules = new ArrayList<>(JvmLibraryRuleComposer.compose(target, mainRuleType));
+      boolean integrationTestsEnabled) {
+    List<Rule> rules = new ArrayList<>(
+        JvmLibraryRuleComposer.compose(target, mainRuleType, integrationTestsEnabled));
 
     if (!target.getTest().getSources().isEmpty()) {
       rules.add(JvmTestRuleComposer.compose(target, testRuleType));
     }
-    if (hasIntegrationTests && !target.getIntegrationTest().getSources().isEmpty()) {
+    if (integrationTestsEnabled && !target.getIntegrationTest().getSources().isEmpty()) {
       rules.add(JvmIntegrationTestRuleComposer.compose(target, integrationTestRuleType));
     }
 
@@ -149,7 +155,7 @@ public final class BuckFileGenerator {
       List<String> extraDeps,
       List<String> extraResDeps) {
 
-    String manifestRuleName = ":" +  AndroidBuckRuleComposer.libManifest(target);
+    String manifestRuleName = ":" + AndroidBuckRuleComposer.libManifest(target);
     List<Rule> androidLibRules = new ArrayList<>();
 
     // Aidl
@@ -180,7 +186,6 @@ public final class BuckFileGenerator {
 
     List<String> deps = androidLibRules.stream().map(Rule::buckName).collect(Collectors.toList());
     deps.addAll(extraDeps);
-
 
     // Unified android lib
     androidLibRules.add(

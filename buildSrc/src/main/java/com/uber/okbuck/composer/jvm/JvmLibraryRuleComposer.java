@@ -19,6 +19,13 @@ public final class JvmLibraryRuleComposer extends JvmBuckRuleComposer {
   }
 
   public static ImmutableList<Rule> compose(JvmTarget target, RuleType ruleType) {
+    return compose(target, ruleType, false);
+  }
+
+  public static ImmutableList<Rule> compose(
+      JvmTarget target,
+      RuleType ruleType,
+      boolean integrationTestsEnabled) {
     List<String> deps =
         ImmutableList.<String>builder()
             .addAll(external(target.getExternalDeps(SourceSetType.MAIN)))
@@ -43,10 +50,13 @@ public final class JvmLibraryRuleComposer extends JvmBuckRuleComposer {
             .addAll(targets(target.getTargetExportedDeps(SourceSetType.MAIN)))
             .build();
 
-    List<String> testTargets =
-        !target.getTest().getSources().isEmpty()
-            ? ImmutableList.of(":" + test(target))
-            : ImmutableList.of();
+    ImmutableList.Builder<String> testTargetsBuilder = ImmutableList.builder();
+    if (!target.getTest().getSources().isEmpty()) {
+      testTargetsBuilder.add(":" + test(target));
+    }
+    if (integrationTestsEnabled && !target.getIntegrationTest().getSources().isEmpty()) {
+      testTargetsBuilder.add(":" + integrationTest(target));
+    }
 
     ImmutableList.Builder<Rule> rulesBuilder = new ImmutableList.Builder<>();
     rulesBuilder.add(
@@ -61,7 +71,7 @@ public final class JvmLibraryRuleComposer extends JvmBuckRuleComposer {
             .sourceCompatibility(target.getSourceCompatibility())
             .targetCompatibility(target.getTargetCompatibility())
             .mavenCoords(target.getMavenCoords())
-            .testTargets(testTargets)
+            .testTargets(testTargetsBuilder.build())
             .options(target.getMain().getCustomOptions())
             .ruleType(ruleType.getBuckName())
             .defaultVisibility()
