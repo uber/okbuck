@@ -8,13 +8,13 @@ import com.uber.okbuck.composer.android.AndroidBuckRuleComposer;
 import com.uber.okbuck.composer.android.AndroidBuildConfigRuleComposer;
 import com.uber.okbuck.composer.android.AndroidInstrumentationApkRuleComposer;
 import com.uber.okbuck.composer.android.AndroidInstrumentationTestRuleComposer;
+import com.uber.okbuck.composer.android.AndroidModuleRuleComposer;
 import com.uber.okbuck.composer.android.AndroidTestRuleComposer;
 import com.uber.okbuck.composer.android.ExopackageAndroidLibraryRuleComposer;
 import com.uber.okbuck.composer.android.GenAidlRuleComposer;
 import com.uber.okbuck.composer.android.KeystoreRuleComposer;
 import com.uber.okbuck.composer.android.ManifestRuleComposer;
 import com.uber.okbuck.composer.android.PreBuiltNativeLibraryRuleComposer;
-import com.uber.okbuck.composer.android.AndroidModuleRuleComposer;
 import com.uber.okbuck.composer.jvm.JvmIntegrationTestRuleComposer;
 import com.uber.okbuck.composer.jvm.JvmLibraryRuleComposer;
 import com.uber.okbuck.composer.jvm.JvmTestRuleComposer;
@@ -54,9 +54,9 @@ public final class BuckFileGenerator {
     File moduleDir = project.getBuildFile().getParentFile();
     File visibilityFile = new File(moduleDir, visibilityExtension.visibilityFileName);
     boolean hasVisibilityFile = visibilityFile.isFile();
-    boolean hasIntegrationTests = testExtension.enableIntegrationTests;
+    boolean integrationTestsEnabled = testExtension.enableIntegrationTests;
 
-    List<Rule> rules = createRules(project, hasIntegrationTests);
+    List<Rule> rules = createRules(project, integrationTestsEnabled);
 
     Multimap<String, String> extraLoadStatements = TreeMultimap.create();
 
@@ -70,7 +70,7 @@ public final class BuckFileGenerator {
     buckFileManager.writeToBuckFile(rules, buckFile, extraLoadStatements);
   }
 
-  private static List<Rule> createRules(Project project, boolean hasIntegrationTests) {
+  private static List<Rule> createRules(Project project, boolean integrationTestsEnabled) {
     List<Rule> rules = new ArrayList<>();
     ProjectType projectType = ProjectUtil.getType(project);
 
@@ -89,7 +89,7 @@ public final class BuckFileGenerator {
                           projectType.getMainRuleType(),
                           projectType.getTestRuleType(),
                           projectType.getIntegrationTestRuleType(),
-                          hasIntegrationTests));
+                          integrationTestsEnabled));
                   break;
                 case ANDROID_LIB:
                   AndroidLibTarget androidLibTarget = (AndroidLibTarget) target;
@@ -130,13 +130,15 @@ public final class BuckFileGenerator {
       RuleType mainRuleType,
       RuleType testRuleType,
       RuleType integrationTestRuleType,
-      boolean hasIntegrationTests) {
-    List<Rule> rules = new ArrayList<>(JvmLibraryRuleComposer.compose(target, mainRuleType));
+      boolean integrationTestsEnabled) {
+    List<Rule> rules =
+        new ArrayList<>(
+            JvmLibraryRuleComposer.compose(target, mainRuleType, integrationTestsEnabled));
 
     if (!target.getTest().getSources().isEmpty()) {
       rules.add(JvmTestRuleComposer.compose(target, testRuleType));
     }
-    if (hasIntegrationTests && !target.getIntegrationTest().getSources().isEmpty()) {
+    if (integrationTestsEnabled && !target.getIntegrationTest().getSources().isEmpty()) {
       rules.add(JvmIntegrationTestRuleComposer.compose(target, integrationTestRuleType));
     }
 
@@ -149,14 +151,12 @@ public final class BuckFileGenerator {
       List<String> extraDeps,
       List<String> extraResDeps) {
 
-    String manifestRuleName = ":" +  AndroidBuckRuleComposer.libManifest(target);
+    String manifestRuleName = ":" + AndroidBuckRuleComposer.libManifest(target);
     List<Rule> androidLibRules = new ArrayList<>();
 
     // Aidl
     List<Rule> aidlRules =
-        target
-            .getAidl()
-            .stream()
+        target.getAidl().stream()
             .map(aidlDir -> GenAidlRuleComposer.compose(target, aidlDir, manifestRuleName))
             .collect(Collectors.toList());
 
@@ -172,28 +172,23 @@ public final class BuckFileGenerator {
 
     // Jni
     androidLibRules.addAll(
-        target
-            .getJniLibs()
-            .stream()
+        target.getJniLibs().stream()
             .map(jniLib -> PreBuiltNativeLibraryRuleComposer.compose(target, jniLib))
             .collect(Collectors.toList()));
 
     List<String> deps = androidLibRules.stream().map(Rule::buckName).collect(Collectors.toList());
     deps.addAll(extraDeps);
 
-
     // Unified android lib
     androidLibRules.add(
-        AndroidModuleRuleComposer.compose(
-            target, deps, aidlRuleNames, appClass, extraResDeps));
+        AndroidModuleRuleComposer.compose(target, deps, aidlRuleNames, appClass, extraResDeps));
 
     // Test
     if (target.getRobolectricEnabled()
         && !target.getTest().getSources().isEmpty()
         && !target.getIsTest()) {
       androidLibRules.add(
-          AndroidTestRuleComposer.compose(
-              target, manifestRuleName, deps, aidlRuleNames, appClass));
+          AndroidTestRuleComposer.compose(target, manifestRuleName, deps, aidlRuleNames, appClass));
     }
 
     return new ArrayList<>(androidLibRules);
@@ -289,8 +284,7 @@ public final class BuckFileGenerator {
   // android rules now accept only other android rules as deps, and okbuck_android_module
   // macro infers what resources rules to depend on
   private static List<String> filterAndroidDepRules(List<Rule> rules) {
-    return rules
-        .stream()
+    return rules.stream()
         .filter(rule -> rule instanceof AndroidRule || rule instanceof AndroidModuleRule)
         .map(Rule::buckName)
         .collect(Collectors.toList());
@@ -298,8 +292,7 @@ public final class BuckFileGenerator {
 
   // Same logic as above, so to get the actual resource rule, we derive from the src one
   private static List<String> filterAndroidResDepRules(List<Rule> rules) {
-    return rules
-        .stream()
+    return rules.stream()
         .filter(rule -> rule instanceof AndroidRule || rule instanceof AndroidModuleRule)
         .map(Rule::buckName)
         .map(ruleName -> ruleName.replace(":src_", ":res_"))
