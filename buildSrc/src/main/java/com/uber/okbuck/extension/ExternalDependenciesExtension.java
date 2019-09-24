@@ -3,8 +3,10 @@ package com.uber.okbuck.extension;
 import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.core.dependency.VersionlessDependency;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.gradle.api.tasks.Input;
@@ -30,6 +32,12 @@ public class ExternalDependenciesExtension {
    */
   @Input
   private List<String> allowAllVersions = Collections.singletonList("org.robolectric:android-all");
+
+  /**
+   * Stores the dependency versions to be used for dynamic notations that have , or + in their
+   * versions
+   */
+  @Input private Map<String, String> dynamicDependencyVersionMap = new HashMap<>();
 
   @Nullable private Set<VersionlessDependency> allowAllVersionsSet;
 
@@ -96,5 +104,9 @@ public class ExternalDependenciesExtension {
 
   public Set<String> getAutoValueConfigurations() {
     return autoValueConfigurations;
+  }
+
+  public Map<String, String> getDynamicDependencyVersionMap() {
+    return dynamicDependencyVersionMap;
   }
 }

@@ -206,7 +206,7 @@ public class DependencyManager {
             .filter(
                 dependency -> {
                   String version = dependency.getVersion();
-                  return version.endsWith("+") || version.endsWith("-SNAPSHOT");
+                  return version.endsWith("+") || version.contains("[") || version.endsWith("-SNAPSHOT");
                 })
             .map(ExternalDependency::getTargetName)
             .collect(Collectors.joining("\n"));

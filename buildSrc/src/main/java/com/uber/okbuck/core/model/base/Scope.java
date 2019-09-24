@@ -94,6 +94,7 @@ public class Scope {
     this.configuration = configuration;
 
     if (configuration != null) {
+      enforceChangingDeps(project, configuration);
       extractConfiguration(configuration);
     }
   }
@@ -296,6 +297,35 @@ public class Scope {
                     .collect(Collectors.toSet())));
 
     return artifactResultsBuilder.build();
+  }
+
+  private static void enforceChangingDeps(Project project, Configuration configuration) {
+    Map<String, String> dynamicDependencyVersionMap =
+        ProjectUtil.getOkBuckExtension(project).getExternalDependenciesExtension()
+            .getDynamicDependencyVersionMap();
+    configuration.resolutionStrategy(
+        strategy -> {
+          strategy.eachDependency(
+              details -> {
+                String requested = details.getRequested().getVersion();
+                if (requested != null) {
+                  if (requested.startsWith("+") || requested.contains(",")) {
+                    String useVersion =
+                        dynamicDependencyVersionMap.get(details.getRequested().toString());
+                    if (useVersion != null) {
+                      details.useVersion(useVersion);
+                    } else {
+                      throw new RuntimeException(
+                          "Please do not use changing dependencies. They can cause hard to reproduce builds.\n"
+                              + "Found changing dependency "
+                              + details.getRequested()
+                              + " in Project: "
+                              + project);
+                    }
+                  }
+                }
+              });
+        });
   }
 
   private void extractConfiguration(Configuration configuration) {
