@@ -94,6 +94,7 @@ public class Scope {
     this.configuration = configuration;
 
     if (configuration != null) {
+      DependencyUtils.enforceChangingDeps(project, configuration);
       extractConfiguration(configuration);
     }
   }

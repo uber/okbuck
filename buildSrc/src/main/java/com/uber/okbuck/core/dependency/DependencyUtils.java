@@ -124,6 +124,7 @@ public final class DependencyUtils {
       Configuration configuration,
       ExternalDependenciesExtension externalDependenciesExtension,
       JetifierExtension jetifierExtension) {
+    enforceChangingDeps(project, configuration);
     try {
       Set<ResolvedArtifactResult> consumableArtifacts =
           configuration
@@ -173,6 +174,43 @@ public final class DependencyUtils {
     } catch (DefaultLenientConfiguration.ArtifactResolveException e) {
       throw artifactResolveException(e);
     }
+  }
+
+  public static void enforceChangingDeps(Project project, Configuration configuration) {
+    ExternalDependenciesExtension externalDependenciesExtension =
+        ProjectUtil.getOkBuckExtension(project).getExternalDependenciesExtension();
+    configuration.resolutionStrategy(
+        strategy -> {
+          strategy.eachDependency(
+              details -> {
+                String requested = details.getRequested().getVersion();
+                if (requested != null) {
+                  if (requested.startsWith("+")
+                      || requested.contains(",")
+                      || requested.endsWith("-SNAPSHOT")) {
+                    String dependency = details.getRequested().toString();
+                    if (!externalDependenciesExtension
+                        .getDynamicDependenciesToIgnore()
+                        .contains(dependency)) {
+                      String useVersion =
+                          externalDependenciesExtension
+                              .getDynamicDependencyVersionMap()
+                              .get(dependency);
+                      if (useVersion != null) {
+                        details.useVersion(useVersion);
+                      } else {
+                        throw new RuntimeException(
+                            "Please do not use changing dependencies. They can cause hard to reproduce builds.\n"
+                                + "Found changing dependency "
+                                + details.getRequested()
+                                + " in Configuration "
+                                + configuration);
+                      }
+                    }
+                  }
+                }
+              });
+        });
   }
 
   private static IllegalStateException artifactResolveException(Exception e) {
