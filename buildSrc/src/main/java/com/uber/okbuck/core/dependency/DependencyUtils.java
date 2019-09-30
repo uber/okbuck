@@ -177,10 +177,8 @@ public final class DependencyUtils {
   }
 
   public static void enforceChangingDeps(Project project, Configuration configuration) {
-    Map<String, String> dynamicDependencyVersionMap =
-        ProjectUtil.getOkBuckExtension(project)
-            .getExternalDependenciesExtension()
-            .getDynamicDependencyVersionMap();
+    ExternalDependenciesExtension externalDependenciesExtension =
+        ProjectUtil.getOkBuckExtension(project).getExternalDependenciesExtension();
     configuration.resolutionStrategy(
         strategy -> {
           strategy.eachDependency(
@@ -190,17 +188,24 @@ public final class DependencyUtils {
                   if (requested.startsWith("+")
                       || requested.contains(",")
                       || requested.endsWith("-SNAPSHOT")) {
-                    String useVersion =
-                        dynamicDependencyVersionMap.get(details.getRequested().toString());
-                    if (useVersion != null) {
-                      details.useVersion(useVersion);
-                    } else {
-                      throw new RuntimeException(
-                          "Please do not use changing dependencies. They can cause hard to reproduce builds.\n"
-                              + "Found changing dependency "
-                              + details.getRequested()
-                              + " in Configuration "
-                              + configuration);
+                    String dependency = details.getRequested().toString();
+                    if (!externalDependenciesExtension
+                        .getDynamicDependenciesToIgnore()
+                        .contains(dependency)) {
+                      String useVersion =
+                          externalDependenciesExtension
+                              .getDynamicDependencyVersionMap()
+                              .get(dependency);
+                      if (useVersion != null) {
+                        details.useVersion(useVersion);
+                      } else {
+                        throw new RuntimeException(
+                            "Please do not use changing dependencies. They can cause hard to reproduce builds.\n"
+                                + "Found changing dependency "
+                                + details.getRequested()
+                                + " in Configuration "
+                                + configuration);
+                      }
                     }
                   }
                 }

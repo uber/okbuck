@@ -39,6 +39,12 @@ public class ExternalDependenciesExtension {
    */
   @Input private Map<String, String> dynamicDependencyVersionMap = new HashMap<>();
 
+  /**
+   * Stores the dynamic dependencies to ignore if they are resolved with other gradle resolution
+   * mechanisms
+   */
+  @Input private Set<String> dynamicDependenciesToIgnore = new HashSet<>();
+
   @Nullable private Set<VersionlessDependency> allowAllVersionsSet;
 
   public ExternalDependenciesExtension() {}
@@ -108,5 +114,9 @@ public class ExternalDependenciesExtension {
 
   public Map<String, String> getDynamicDependencyVersionMap() {
     return dynamicDependencyVersionMap;
+  }
+
+  public Set<String> getDynamicDependenciesToIgnore() {
+    return dynamicDependenciesToIgnore;
   }
 }
