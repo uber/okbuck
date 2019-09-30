@@ -45,12 +45,8 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.ResolvedConfiguration;
 import org.gradle.api.artifacts.ResolvedDependency;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class DependencyManager {
-
-  private static final Logger LOG = LoggerFactory.getLogger(DependencyManager.class);
 
   private final Project project;
   private final ExternalDependenciesExtension externalDependenciesExtension;
@@ -195,30 +191,6 @@ public class DependencyManager {
         throw new RuntimeException(
             "Single version found for external dependencies, please remove them from external dependency extension: \n"
                 + mapJoiner.join(singleDependencies));
-      }
-    }
-
-    String changingDeps =
-        dependencyMap
-            .values()
-            .stream()
-            .flatMap(Collection::stream)
-            .filter(
-                dependency -> {
-                  String version = dependency.getVersion();
-                  return version.endsWith("+") || version.contains("[") || version.endsWith("-SNAPSHOT");
-                })
-            .map(ExternalDependency::getTargetName)
-            .collect(Collectors.joining("\n"));
-
-    if (!changingDeps.isEmpty()) {
-      String message =
-          "Please do not use changing dependencies. They can cause hard to reproduce builds.\n"
-              + changingDeps;
-      if (ProjectUtil.getOkBuckExtension(project).failOnChangingDependencies) {
-        throw new IllegalStateException(message);
-      } else {
-        LOG.warn(message);
       }
     }
   }
