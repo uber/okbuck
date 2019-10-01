@@ -16,7 +16,7 @@ def src_to_res(str):
 def get_libs_res_deps(src_deps):
     mapped_res_deps = []
     for dep in src_deps:
-        if (':src_' in dep and not dep.endswith(':src_main')):
+        if (dep.endswith(':src_release')):
             mapped_res_deps.append(src_to_res(dep))
     return mapped_res_deps
 
