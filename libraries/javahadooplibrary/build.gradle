@@ -1,0 +1,9 @@
+apply plugin: "java-library"
+
+dependencies {
+    // spark is provided by spark-submit
+    compileOnly deps.external.sparkCore
+    compileOnly deps.external.sparkSql
+
+    implementation deps.external.log4j
+}

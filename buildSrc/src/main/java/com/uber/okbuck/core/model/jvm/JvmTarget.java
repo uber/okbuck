@@ -25,7 +25,6 @@ import com.uber.okbuck.core.model.base.SourceSetType;
 import com.uber.okbuck.core.model.base.Target;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.extension.ExternalDependenciesExtension;
-
 import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
@@ -41,7 +40,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-
 import org.gradle.api.JavaVersion;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -76,10 +74,14 @@ public class JvmTarget extends Target {
 
   private static final String INTEGRATION_TEST_SOURCE_SET_NAME = "integrationTest";
   private static final String INTEGRATION_TEST_TASK_NAME = "integrationTest";
-  private static final String INTEGRATION_TEST_ANNOTATION_PROCESSOR_CONFIGURATION_NAME = "integrationTestAnnotationProcessor";
-  private static final String INTEGRATION_TEST_RUNTIME_CLASSPATH_CONFIGURATION_NAME = "integrationTestRuntimeClasspath";
-  private static final String INTEGRATION_TEST_COMPILE_CLASSPATH_CONFIGURATION_NAME = "integrationTestCompileClasspath";
-  private static final String COMPILE_INTEGRATION_TEST_JAVA_TASK_NAME = "compileIntegrationTestJava";
+  private static final String INTEGRATION_TEST_ANNOTATION_PROCESSOR_CONFIGURATION_NAME =
+      "integrationTestAnnotationProcessor";
+  private static final String INTEGRATION_TEST_RUNTIME_CLASSPATH_CONFIGURATION_NAME =
+      "integrationTestRuntimeClasspath";
+  private static final String INTEGRATION_TEST_COMPILE_CLASSPATH_CONFIGURATION_NAME =
+      "integrationTestCompileClasspath";
+  private static final String COMPILE_INTEGRATION_TEST_JAVA_TASK_NAME =
+      "compileIntegrationTestJava";
 
   private final String aptConfigurationName;
   private final String testAptConfigurationName;
@@ -87,8 +89,7 @@ public class JvmTarget extends Target {
   private final SourceSetContainer sourceSets;
   protected final boolean isKotlin;
 
-  @Nullable
-  private final AbstractCompile fakeCompile;
+  @Nullable private final AbstractCompile fakeCompile;
 
   public JvmTarget(Project project, String name) {
     this(
@@ -137,47 +138,35 @@ public class JvmTarget extends Target {
     return new TestOptions(testTask.getAllJvmArgs(), testTask.getEnvironment());
   }
 
-  /**
-   * Apt Scopes
-   */
+  /** Apt Scopes */
   public List<Scope> getAptScopes() {
     AnnotationProcessorCache apCache = ProjectUtil.getAnnotationProcessorCache(getProject());
     return apCache.getAnnotationProcessorScopes(getProject(), aptConfigurationName);
   }
 
-  /**
-   * Test Apt Scopes
-   */
+  /** Test Apt Scopes */
   public List<Scope> getTestAptScopes() {
     AnnotationProcessorCache apCache = ProjectUtil.getAnnotationProcessorCache(getProject());
     return apCache.getAnnotationProcessorScopes(getProject(), testAptConfigurationName);
   }
 
-  /**
-   * Integration Test Apt Scopes
-   */
+  /** Integration Test Apt Scopes */
   public List<Scope> getIntegrationTestAptScopes() {
     AnnotationProcessorCache apCache = ProjectUtil.getAnnotationProcessorCache(getProject());
     return apCache.getAnnotationProcessorScopes(getProject(), integrationTestAptConfigurationName);
   }
 
-  /**
-   * Apt Scope Used to get the annotation processor deps of the target.
-   */
+  /** Apt Scope Used to get the annotation processor deps of the target. */
   public Scope getApt() {
     return getAptScopeForConfiguration(aptConfigurationName);
   }
 
-  /**
-   * Test Apt Scope
-   */
+  /** Test Apt Scope */
   public Scope getTestApt() {
     return getAptScopeForConfiguration(testAptConfigurationName);
   }
 
-  /**
-   * Integration Test Apt Scope
-   */
+  /** Integration Test Apt Scope */
   public Scope getIntegrationTestApt() {
     return getAptScopeForConfiguration(integrationTestAptConfigurationName);
   }
@@ -185,9 +174,9 @@ public class JvmTarget extends Target {
   protected Scope getAptScopeForConfiguration(String configurationName) {
     // If using annotation processor plugin, return an empty scope if there are no annotation
     // processors so no need to have any specified in the annotation processor deps list.
-    if (!getOkbuck().legacyAnnotationProcessorSupport || !ProjectUtil
-        .getAnnotationProcessorCache(getProject())
-        .hasEmptyAnnotationProcessors(getProject(), configurationName)) {
+    if (!getOkbuck().legacyAnnotationProcessorSupport
+        || !ProjectUtil.getAnnotationProcessorCache(getProject())
+            .hasEmptyAnnotationProcessors(getProject(), configurationName)) {
       return Scope.builder(getProject()).build();
     }
     return Scope.builder(getProject()).configuration(configurationName).build();
@@ -197,36 +186,28 @@ public class JvmTarget extends Target {
     return getAptScopeForConfiguration(configuration.getName());
   }
 
-  /**
-   * Provided Scope
-   */
+  /** Provided Scope */
   public Scope getProvided() {
     return Scope.builder(getProject())
         .configuration(JavaPlugin.COMPILE_CLASSPATH_CONFIGURATION_NAME)
         .build();
   }
 
-  /**
-   * Test Provided Scope
-   */
+  /** Test Provided Scope */
   public Scope getTestProvided() {
     return Scope.builder(getProject())
         .configuration(JavaPlugin.TEST_COMPILE_CLASSPATH_CONFIGURATION_NAME)
         .build();
   }
 
-  /**
-   * Integration Test Provided Scope
-   */
+  /** Integration Test Provided Scope */
   public Scope getIntegrationTestProvided() {
     return Scope.builder(getProject())
         .configuration(INTEGRATION_TEST_COMPILE_CLASSPATH_CONFIGURATION_NAME)
         .build();
   }
 
-  /**
-   * api external deps
-   */
+  /** api external deps */
   public Set<ExternalDependency> getApiExternalDeps() {
     Configuration apiConfiguration = getApiConfiguration();
 
@@ -250,9 +231,7 @@ public class JvmTarget extends Target {
     }
   }
 
-  /**
-   * api target deps
-   */
+  /** api target deps */
   public Set<Target> getApiTargetDeps() {
     Configuration apiConfiguration = getApiConfiguration();
 
@@ -297,9 +276,7 @@ public class JvmTarget extends Target {
     }
   }
 
-  /**
-   * Lint Scope
-   */
+  /** Lint Scope */
   public Scope getLint() {
     LintManager manager = ProjectUtil.getLintManager(getProject());
     return Scope.builder(getProject())
@@ -378,8 +355,7 @@ public class JvmTarget extends Target {
   }
 
   public Scope getIntegrationTest() {
-    @Var
-    JavaCompile integrationTestCompileJavaTask;
+    @Var JavaCompile integrationTestCompileJavaTask;
     try {
       // This task might not exist to the module
       integrationTestCompileJavaTask =
@@ -626,8 +602,8 @@ public class JvmTarget extends Target {
         return Sets.intersection(getTest().getTargetDeps(), getTestProvided().getTargetDeps());
 
       case INTEGRATION_TEST:
-        return Sets.intersection(getIntegrationTest().getTargetDeps(),
-            getIntegrationTestProvided().getTargetDeps());
+        return Sets.intersection(
+            getIntegrationTest().getTargetDeps(), getIntegrationTestProvided().getTargetDeps());
 
       default:
         return Sets.difference(
@@ -680,8 +656,8 @@ public class JvmTarget extends Target {
       case TEST:
         return Sets.difference(getTestProvided().getTargetDeps(), getTest().getTargetDeps());
       case INTEGRATION_TEST:
-        return Sets.difference(getIntegrationTestProvided().getTargetDeps(),
-            getIntegrationTest().getTargetDeps());
+        return Sets.difference(
+            getIntegrationTestProvided().getTargetDeps(), getIntegrationTest().getTargetDeps());
 
       default:
         return Sets.difference(getProvided().getTargetDeps(), getMain().getTargetDeps());
@@ -697,14 +673,14 @@ public class JvmTarget extends Target {
   public Set<ExternalDependency> getExternalDeps(SourceSetType sourceSetType) {
     switch (sourceSetType) {
       case TEST:
-        return Sets.intersection(getTest().getExternalDeps(), getTestProvided().getExternalDeps());
+        return versionlessIntersection(getTest().getExternalDeps(), getTestProvided().getExternalDeps());
       case INTEGRATION_TEST:
-        return Sets.intersection(getIntegrationTest().getExternalDeps(),
-            getIntegrationTestProvided().getExternalDeps());
+        return versionlessIntersection(
+            getIntegrationTest().getExternalDeps(), getIntegrationTestProvided().getExternalDeps());
 
       default:
-        return Sets.difference(
-            Sets.intersection(getMain().getExternalDeps(), getProvided().getExternalDeps()),
+        return versionlessDifference(
+            versionlessIntersection(getMain().getExternalDeps(), getProvided().getExternalDeps()),
             getApiExternalDeps());
     }
   }
@@ -759,13 +735,43 @@ public class JvmTarget extends Target {
   public Set<ExternalDependency> getExternalProvidedDeps(SourceSetType sourceSetType) {
     switch (sourceSetType) {
       case TEST:
-        return Sets.difference(getTestProvided().getExternalDeps(), getTest().getExternalDeps());
+        return versionlessDifference(
+            getTestProvided().getExternalDeps(), getTest().getExternalDeps());
       case INTEGRATION_TEST:
-        return Sets.difference(getIntegrationTestProvided().getExternalDeps(),
-            getIntegrationTest().getExternalDeps());
+        return versionlessDifference(
+            getIntegrationTestProvided().getExternalDeps(), getIntegrationTest().getExternalDeps());
 
       default:
-        return Sets.difference(getProvided().getExternalDeps(), getMain().getExternalDeps());
+        return versionlessDifference(getProvided().getExternalDeps(), getMain().getExternalDeps());
     }
+  }
+
+
+  /*
+    Returns entries in set1 whose versionless counterparts are not in set2
+   */
+  private static Set<ExternalDependency> versionlessDifference(
+      Set<ExternalDependency> set1, Set<ExternalDependency> set2) {
+    Set<VersionlessDependency> versionlessSet2 =
+        set2.stream().map(ExternalDependency::getVersionless).collect(Collectors.toSet());
+
+    return set1.stream()
+        .filter(
+            externalDependency -> !versionlessSet2.contains(externalDependency.getVersionless()))
+        .collect(Collectors.toSet());
+  }
+
+  /*
+    Returns entries in set1 whose versionless counterparts are in set2
+   */
+  private static Set<ExternalDependency> versionlessIntersection(
+      Set<ExternalDependency> set1, Set<ExternalDependency> set2) {
+    Set<VersionlessDependency> versionlessSet2 =
+        set2.stream().map(ExternalDependency::getVersionless).collect(Collectors.toSet());
+
+    return set1.stream()
+        .filter(
+            externalDependency -> versionlessSet2.contains(externalDependency.getVersionless()))
+        .collect(Collectors.toSet());
   }
 }
