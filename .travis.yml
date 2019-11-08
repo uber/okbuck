@@ -12,6 +12,7 @@ cache:
     - $HOME/android-sdk
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
+  timeout: 300
 
 branches:
   only:
