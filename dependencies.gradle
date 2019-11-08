@@ -2,6 +2,20 @@
 // Update below to invalidate the cache.
 // Gradle Cache Version 3
 
+def exclude = { dep, String... excludes  ->
+    return dependencies.create(dep) {
+        for(e in excludes) {
+            if (e.contains(":")) {
+                throw new RuntimeException(
+                        "Error while parsing exclusion " + e + " in dependency " + dep + "\n"
+                                + "Should specify either group name or module name, but never group:module.")
+            }
+        }
+        for(e in excludes) exclude group: e
+        for(e in excludes) exclude module: e
+    }
+}
+
 def versions = [
         androidPlugin      : "3.2.0",
         androidTools       : "26.2.0",
@@ -14,6 +28,9 @@ def versions = [
         androidx           : "1.0.0",
         androidxMultidex   : "2.0.0",
         constraintLayout   : "1.1.0",
+        scalaMajor         : "2.11",
+        spark              : "2.1.0"
+
 ]
 
 def build = [
@@ -72,7 +89,11 @@ def external = [
         avroIpc         : "org.apache.avro:avro-ipc:1.7.7",
         avroIpcTests    : "org.apache.avro:avro-ipc:1.7.7:tests",
         saxon           : "net.sf.saxon:Saxon-HE:9.7.0-15",
-        scalaLibrary    : "org.scala-lang:scala-library:2.12.4"
+        scalaLibrary    : "org.scala-lang:scala-library:2.12.4",
+        sparkCore       : exclude("org.apache.spark:spark-core_${versions.scalaMajor}:${versions.spark}", "commons-beanutils-core", "commons-collections", "hadoop-yarn-common", "pmml-evaluator", "pmml-model", "pmml-schema", "org.scalatest"),
+        sparkSql        : exclude("org.apache.spark:spark-sql_${versions.scalaMajor}:${versions.spark}", "org.scalatest"),
+        log4j           : exclude("log4j:log4j:1.2.15", "jline", "jms", "jmxtools", "jmxri"),
+        guava           : "com.google.guava:guava:26.0-jre",
 ]
 
 def lint = [
