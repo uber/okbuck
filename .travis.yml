@@ -22,15 +22,20 @@ install:
   - if test ! -e $HOME/android-sdk-dl/sdk-tools.zip ; then curl https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip > $HOME/android-sdk-dl/sdk-tools.zip ; fi
   - unzip -qq -n $HOME/android-sdk-dl/sdk-tools.zip -d $HOME/android-sdk
 
-  - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'platform-tools' > /dev/null
-  - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'build-tools;28.0.3' > /dev/null
-  - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'platforms;android-28' > /dev/null
+  - yes | $HOME/android-sdk/tools/bin/sdkmanager --licenses
+
+  - $HOME/android-sdk/tools/bin/sdkmanager 'platform-tools' > /dev/null
+  - $HOME/android-sdk/tools/bin/sdkmanager 'build-tools;28.0.3' > /dev/null
+  - $HOME/android-sdk/tools/bin/sdkmanager 'platforms;android-28' > /dev/null
 
 script:
   - export ANDROID_HOME="$HOME/android-sdk"
   - export SKIP_OKBUCK=true
   - EXTRA_OKBUCK_ARGS="--quiet --stacktrace"
   - SKIP_OKBUCK= ./buckw --version
+  - export RESOLVED_KOTLIN_HOME=$(./buckw build //.okbuck/workspace/kotlin_home:kotlin_home --show-output | awk '{print $2}')
+  - sed -i.bak "s://.okbuck/workspace/kotlin_home\:kotlin_home:${RESOLVED_KOTLIN_HOME}:g" .okbuck/config/okbuck.buckconfig
+
   - ./buckw targets //... --type android_binary android_instrumentation_apk java_test groovy_test robolectric_test kotlin_test scala_test | xargs ./buckw build
   - ./buckw targets //... --type genrule | grep -v lintErrorLibrary | xargs ./buckw build && ./tooling/ci/lint_integration_test.sh
   - ./buckw test //... --include unit --always_exclude
