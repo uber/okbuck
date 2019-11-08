@@ -26,12 +26,10 @@ install:
   - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'build-tools;28.0.3' > /dev/null
   - echo y | $HOME/android-sdk/tools/bin/sdkmanager 'platforms;android-28' > /dev/null
 
-env:
-  - ANDROID_HOME=$HOME/android-sdk
-  - SKIP_OKBUCK=true
-  - EXTRA_OKBUCK_ARGS="--quiet --stacktrace"
-
 script:
+  - export ANDROID_HOME="$HOME/android-sdk"
+  - export SKIP_OKBUCK=true
+  - EXTRA_OKBUCK_ARGS="--quiet --stacktrace"
   - SKIP_OKBUCK= ./buckw --version
   - ./buckw targets //... --type android_binary android_instrumentation_apk java_test groovy_test robolectric_test kotlin_test scala_test | xargs ./buckw build
   - ./buckw targets //... --type genrule | grep -v lintErrorLibrary | xargs ./buckw build && ./tooling/ci/lint_integration_test.sh
