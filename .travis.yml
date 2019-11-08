@@ -8,10 +8,7 @@ before_cache:
 
 cache:
   directories:
-    - $HOME/android-sdk-dl
-    - $HOME/android-sdk
     - $HOME/.gradle/caches/
-    - $HOME/.gradle/wrapper/
   timeout: 300
 
 branches:
@@ -30,7 +27,9 @@ env:
     - BUILD_CMD=test
 
 install:
-  - if test ! -e $HOME/android-sdk-dl/sdk-tools.zip ; then curl https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip > $HOME/android-sdk-dl/sdk-tools.zip ; fi
+  - mkdir -p $HOME/android-sdk-dl
+  - mkdir -p $HOME/android-sdk
+  - curl https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip > $HOME/android-sdk-dl/sdk-tools.zip ; fi
   - unzip -qq -n $HOME/android-sdk-dl/sdk-tools.zip -d $HOME/android-sdk
 
   - yes | $HOME/android-sdk/tools/bin/sdkmanager --licenses
