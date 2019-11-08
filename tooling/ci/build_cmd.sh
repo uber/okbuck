@@ -12,7 +12,7 @@ sed -i.bak "s://.okbuck/workspace/kotlin_home\:kotlin_home:${RESOLVED_KOTLIN_HOM
 echo "Running BUILD_CMD: $BUILD_CMD"
 
 if [ "$BUILD_CMD" = "build" ]; then
-	./buckw targets //... --type android_binary android_instrumentation_apk java_test groovy_test robolectric_test kotlin_test scala_test | xargs ./buckw build
+	./buckw targets //... --type android_binary android_instrumentation_apk java_binary | xargs ./buckw build
 elif [ "$BUILD_CMD" = "lint" ]; then
 	./buckw targets //... --type genrule | grep -v lintErrorLibrary | xargs ./buckw build && ./tooling/ci/lint_integration_test.sh
 elif [ "$BUILD_CMD" = "test" ]; then

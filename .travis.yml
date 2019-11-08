@@ -22,6 +22,7 @@ env:
     - ANDROID_HOME="$HOME/android-sdk"
     - SKIP_OKBUCK=true
     - EXTRA_OKBUCK_ARGS="--quiet --stacktrace"
+    - EXTRA_BUCK_ARGD="-v 0"
   matrix:
     - BUILD_CMD=build
     - BUILD_CMD=lint
