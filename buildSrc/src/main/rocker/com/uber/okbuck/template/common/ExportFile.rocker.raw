@@ -1,5 +1,5 @@
 export_file(
-  name = '@name',
-  mode = 'reference',
-  visibility = ['PUBLIC'],
+  name = "@name",
+  mode = "reference",
+  visibility = ["PUBLIC"],
 )

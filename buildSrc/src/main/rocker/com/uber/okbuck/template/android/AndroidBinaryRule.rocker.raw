@@ -18,11 +18,11 @@ boolean minifyEnabled,
 boolean multidexEnabled,
 )
 @com.uber.okbuck.template.base.BuckRule.template() -> {
-    manifest_skeleton = '@manifestSkeleton',
-    keystore = '@keystore',
-    dex_tool = 'd8',
+    manifest_skeleton = "@manifestSkeleton",
+    keystore = "@keystore",
+    dex_tool = "d8",
 @if (exopackage) {
-    exopackage_modes = ['secondary_dex'],
+    exopackage_modes = ["secondary_dex"],
 }
 @if (multidexEnabled) {
     use_split_dex = True,
@@ -30,17 +30,17 @@ boolean multidexEnabled,
 @if(valid(primaryDexPatterns)) {
     primary_dex_patterns = [
     @for (primaryDexPattern : primaryDexPatterns) {
-        '@primaryDexPattern',
+        "@primaryDexPattern",
     }
     ],
 }
 }
 @if (valid(preprocessJavaClassesBash)) {
-    preprocess_java_classes_bash = '@preprocessJavaClassesBash',
+    preprocess_java_classes_bash = "@preprocessJavaClassesBash",
 @if (valid(preprocessJavaClassesDeps)) {
     preprocess_java_classes_deps = [
     @for (preprocessJavaClassesDep : sorted(preprocessJavaClassesDeps)) {
-        '@preprocessJavaClassesDep',
+        "@preprocessJavaClassesDep",
     }
     ],
 }
@@ -48,27 +48,27 @@ boolean multidexEnabled,
 @if (valid(cpuFilters)) {
     cpu_filters = [
     @for (cpuFilter : sorted(cpuFilters)) {
-        '@cpuFilter',
+        "@cpuFilter",
     }
     ],
 }
 @if (minifyEnabled) {
-    android_sdk_proguard_config = 'none',
-    proguard_config = '@proguardConfig',
+    android_sdk_proguard_config = "none",
+    proguard_config = "@proguardConfig",
 }
 @if (debuggable) {
-    package_type = 'debug',
+    package_type = "debug",
 } else {
-    package_type = 'release',
+    package_type = "release",
 }
 @if (includesVectorDrawables) {
     includes_vector_drawables = True,
 }
 @if (valid(placeholders)) {
     manifest_entries = @{
-        'placeholders': @{
+        "placeholders": @{
         @for ((key, val) : placeholders) {
-            '@key': '@val',
+            "@key": "@val",
         }
         @},
     @},
@@ -76,7 +76,7 @@ boolean multidexEnabled,
 @if (valid(testTargets)) {
     tests = [
     @for (testTarget : testTargets) {
-        '@testTarget',
+        "@testTarget",
     }
     ],
 }

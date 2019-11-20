@@ -5,12 +5,12 @@ Set excludes
 )
 @com.uber.okbuck.template.base.BuckRule.template() -> {
 @if (mainClassName != null) {
-    main_class = '@mainClassName',
+    main_class = "@mainClassName",
 }
 @if (valid(excludes)) {
     blacklist = [
     @for (exclude : excludes) {
-        '@exclude',
+        "@exclude",
     }
     ],
 }

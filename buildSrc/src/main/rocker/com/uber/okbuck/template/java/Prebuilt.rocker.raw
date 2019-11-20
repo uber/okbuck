@@ -6,16 +6,16 @@ String sourcesSha256,
 boolean enableJetifier,
 )
 @(ruleType)(
-    name = '@name',
-    maven_coords = '@mavenCoords',
-    sha256 = '@sha256',
+    name = "@name",
+    maven_coords = "@mavenCoords",
+    sha256 = "@sha256",
 @if (valid(sourcesSha256)) {
-    sources_sha256 = '@sourcesSha256',
+    sources_sha256 = "@sourcesSha256",
 }
 @if (valid(deps)) {
     deps = [
     @for (dep : sorted(deps)) {
-        '@dep',
+        "@dep",
     }
     ],
 }

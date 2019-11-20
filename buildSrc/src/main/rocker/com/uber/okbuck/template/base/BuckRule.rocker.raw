@@ -1,6 +1,6 @@
 @args (RockerBody content)
 @(ruleType)(
-    name = '@name',
+    name = "@name",
 @content @if (valid(extraBuckOpts)) {
 @for (extraBuckOpt : extraBuckOpts) {
     @extraBuckOpt,
@@ -9,14 +9,14 @@
 @if (valid(deps)) {
     deps = [
     @for (dep : sorted(deps)) {
-        '@dep',
+        "@dep",
     }
     ],
 }
 @if (valid(labels)) {
     labels = [
     @for (label : labels) {
-        '@label',
+        "@label",
     }
     ],
 }
@@ -26,7 +26,7 @@
     @if (valid(visibility)) {
     visibility = [
     @for (v : visibility) {
-        '@v',
+        "@v",
     }
     ],
     }

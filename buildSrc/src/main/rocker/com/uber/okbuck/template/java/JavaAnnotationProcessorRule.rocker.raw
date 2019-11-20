@@ -1,20 +1,20 @@
 @import java.util.Collection
 @args (Collection processorClasses)
 @(ruleType)(
-    name = '@name',
+    name = "@name",
 @if (valid(processorClasses)) {
     processor_classes = [
     @for (processorClass : sorted(processorClasses)) {
-        '@processorClass',
+        "@processorClass",
     }
     ],
 }
 @if (valid(deps)) {
     deps = [
     @for (dep : sorted(deps)) {
-        '@dep',
+        "@dep",
     }
     ],
 }
-    visibility = ['PUBLIC'],
+    visibility = ["PUBLIC"],
 )
