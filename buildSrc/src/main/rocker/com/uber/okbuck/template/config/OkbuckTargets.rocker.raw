@@ -100,19 +100,19 @@ def res_glob(glob_specs):
     results = {}
 
     for dirpath, glob_pattern in glob_specs:
-        results[dirpath] = subdir_glob([(dirpath, glob_pattern)],
-        exclude=[@(String.join(",", resourceExcludes))])
+        results[dirpath] = subdir_glob(
+            [(dirpath, glob_pattern)],
+            exclude = [@(String.join(",", resourceExcludes))],
+        )
 
     return merge_maps(**results)
-
 
 def okbuck_aidl(
         name,
         aidls,
         imports,
-        manifest=None,
-        deps=[],
-    ):
+        manifest = None,
+        deps = []):
     gen = []
     for aidl_file in native.glob(["{}/**/*.aidl".format(aidls)]):
         rule_name = "{}__".format(name) + _basename(aidl_file).replace(".aidl", "")
@@ -127,13 +127,11 @@ def okbuck_aidl(
         name = name,
         srcs = gen,
         manifest = manifest,
-        deps = deps
+        deps = deps,
     )
-
 
 def toLocation(dep):
     return "$(location {})".format(dep)
-
 
 def okbuck_lint(
         variant,
@@ -142,84 +140,80 @@ def okbuck_lint(
         res_dirs,
         aar_deps,
         custom_lints,
-        lint_options
-    ):
+        lint_options):
     name = "lint_{}".format(variant)
 
     has_srcs = len(srcs) > 0
 
-    bash = 'AAR_DEPS="{}"; '.format(";".join([toLocation(aar_dep + "#aar_unzip") for aar_dep in aar_deps]))
+    cmd = 'AAR_DEPS="{}"; '.format(";".join([toLocation(aar_dep + "#aar_unzip") for aar_dep in aar_deps]))
 
-    bash += 'for aar in ${AAR_DEPS//;/ }; do if [[ -e $aar/lint.jar ]]; then PREBUILT_AAR_LINT_JARS="$aar/lint.jar:$PREBUILT_AAR_LINT_JARS"; fi ; done; '
+    cmd += 'for aar in ${AAR_DEPS//;/ }; do if [[ -e $aar/lint.jar ]]; then PREBUILT_AAR_LINT_JARS="$aar/lint.jar:$PREBUILT_AAR_LINT_JARS"; fi ; done; '
 
-    bash += "export ANDROID_LINT_JARS=\"$PREBUILT_AAR_LINT_JARS{}\"; PROJECT_ROOT=`echo '{}' | sed 's|buck-out.*||'`; ".format(':'.join([toLocation(custom_lint) for custom_lint in custom_lints]), toLocation(manifest))
+    cmd += "export ANDROID_LINT_JARS=\"$PREBUILT_AAR_LINT_JARS{}\"; PROJECT_ROOT=`echo '{}' | sed 's|buck-out.*||'`; ".format(":".join([toLocation(custom_lint) for custom_lint in custom_lints]), toLocation(manifest))
 
-    bash += "CP_FILE=`mktemp`; "
+    cmd += "CP_FILE=`mktemp`; "
     if has_srcs:
-        bash += "ORIGINAL_CP_FILE=`sed 's/@@//' <<< $(@@@(classpathMacro) :src_{})`; ".format(variant)
+        cmd += "ORIGINAL_CP_FILE=`sed 's/@@//' <<< $(@@@(classpathMacro) :src_{})`; ".format(variant)
 @if(classpathExclusionRegex != null) {
-        bash += "TMP_CP_FILE=`mktemp`; "
-        bash += "tr ':' '\\n' < $ORIGINAL_CP_FILE | sed -e '/@classpathExclusionRegex/d' > $TMP_CP_FILE; tr '\\n' ':' < $TMP_CP_FILE > $CP_FILE; "
-        bash += "rm $TMP_CP_FILE; "
+        cmd += "TMP_CP_FILE=`mktemp`; "
+        cmd += "tr ':' '\\n' < $ORIGINAL_CP_FILE | sed -e '/@classpathExclusionRegex/d' > $TMP_CP_FILE; tr '\\n' ':' < $TMP_CP_FILE > $CP_FILE; "
+        cmd += "rm $TMP_CP_FILE; "
 } else {
-        bash += "cp $ORIGINAL_CP_FILE $CP_FILE; "
+        cmd += "cp $ORIGINAL_CP_FILE $CP_FILE; "
 }
-        bash += 'sed -i.bak -e "s|$PROJECT_ROOT||g" -e "s|\'||g" $CP_FILE; '
+        cmd += 'sed -i.bak -e "s|$PROJECT_ROOT||g" -e "s|\'||g" $CP_FILE; '
 
-    bash += 'mkdir -p $OUT; LOGFILE=$OUT/lint.log; trap "rv=\$?; if [ \$rv != 0 ] ; then cat $LOGFILE 1>&2 ; fi ; rm -f $LOGFILE; exit $rv" EXIT;  java -Djava.awt.headless=true -Dcom.android.tools.lint.workdir=$PROJECT_ROOT '
-    bash += "@lintJvmArgs "
-    bash += "-classpath {} com.uber.okbuck.android.lint.AndroidLintCli ".format(toLocation("//.okbuck/workspace/lint:okbuck_lint"))
+    cmd += 'mkdir -p $OUT; LOGFILE=$OUT/lint.log; trap "rv=\$?; if [ \$rv != 0 ] ; then cat $LOGFILE 1>&2 ; fi ; rm -f $LOGFILE; exit $rv" EXIT;  java -Djava.awt.headless=true -Dcom.android.tools.lint.workdir=$PROJECT_ROOT '
+    cmd += "@lintJvmArgs "
+    cmd += "-classpath {} com.uber.okbuck.android.lint.AndroidLintCli ".format(toLocation("//.okbuck/workspace/lint:okbuck_lint"))
 
     if has_srcs:
 @if(useCompilationClasspath) {
-        bash += "--classpath $(location :src_{}) ".format(variant)
+        cmd += "--classpath $(location :src_{}) ".format(variant)
 } else {
-        bash += "--classpath $(location //.okbuck/workspace/lint:lint-dummy.jar) "
+        cmd += "--classpath $(location //.okbuck/workspace/lint:lint-dummy.jar) "
 }
-        bash += '--libraries "$CP_FILE" '
+        cmd += '--libraries "$CP_FILE" '
 
     for src in srcs:
-        bash += '--sources {}/{} '.format(native.package_name(), src)
+        cmd += "--sources {}/{} ".format(native.package_name(), src)
 
     for res_dir in res_dirs:
-        bash += '--resources {}/{} '.format(native.package_name(), res_dir)
+        cmd += "--resources {}/{} ".format(native.package_name(), res_dir)
 
     # Implicit options
-    bash += '--xml "$OUT/lint-results.xml" '
-    bash += '--html "$OUT/lint-results.html" '
-    bash += '--fullpath '
+    cmd += '--xml "$OUT/lint-results.xml" '
+    cmd += '--html "$OUT/lint-results.html" '
+    cmd += "--fullpath "
 
-    bash += "{} `dirname {}` >$LOGFILE 2>/dev/null; ".format(" ".join(lint_options), toLocation(manifest))
-    bash += "rm $CP_FILE; "
+    cmd += "{} `dirname {}` >$LOGFILE 2>/dev/null; ".format(" ".join(lint_options), toLocation(manifest))
+    cmd += "rm $CP_FILE; "
 
     native.genrule(
         name = name,
         srcs = srcs + res_dirs,
         out = "{}_out".format(name),
         type = "okbuck_lint",
-        bash = bash
+        cmd = cmd,
     )
-
 
 def shellquote(s):
     return "'" + s.replace("'", "'\\''") + "'"
-
 
 def okbuck_manifest(
         name,
         main_manifest,
         min_sdk,
         target_sdk,
-        package=None,
-        version_code=None,
-        version_name=None,
-        debuggable=False,
-        secondary_manifests=None,
-    ):
+        package = None,
+        version_code = None,
+        version_name = None,
+        debuggable = False,
+        secondary_manifests = None):
     if not secondary_manifests:
         secondary_manifests = []
 
-    cmds =[]
+    cmds = []
     cmds.append("java -jar -Xmx256m $(location //.okbuck/workspace/manifest-merger:okbuck_manifest_merger)")
     cmds.append("--main $SRCDIR/{}".format(main_manifest))
     if len(secondary_manifests) > 0:
@@ -247,7 +241,6 @@ def okbuck_manifest(
         cmd = " ".join(cmds),
     )
 
-
 def isLintEnabled(manifest):
 @if(enableLint) {
     return manifest != None
@@ -256,16 +249,15 @@ def isLintEnabled(manifest):
 }
 
 def okbuck_android_library(
-    name,
-    manifest=None,
-    deps=None,
-    lint_src_dirs=None,
-    lint_res_dirs=None,
-    disable_lint=False,
-    custom_lints=None,
-    lint_options=None,
-    **kwargs
-    ):
+        name,
+        manifest = None,
+        deps = None,
+        lint_src_dirs = None,
+        lint_res_dirs = None,
+        disable_lint = False,
+        custom_lints = None,
+        lint_options = None,
+        **kwargs):
     if not deps:
         deps = []
     if not lint_src_dirs:
@@ -301,20 +293,18 @@ def okbuck_android_library(
             lint_options = lint_options,
         )
 
-
 def okbuck_keystore(
-    name,
-    storeFile,
-    storePassword,
-    keyAlias,
-    keyPassword
-    ):
+        name,
+        storeFile,
+        storePassword,
+        keyAlias,
+        keyPassword):
     properties_rule = name + "_properties"
     native.genrule(
         name = properties_rule,
         out = "keystore.properties",
         type = "okbuck_keystore",
-        cmd = 'printf "key.alias={}\\nkey.store.password={}\\nkey.alias.password={}\\n" > $OUT'.format(keyAlias, storePassword, keyPassword)
+        cmd = 'printf "key.alias={}\\nkey.store.password={}\\nkey.alias.password={}\\n" > $OUT'.format(keyAlias, storePassword, keyPassword),
     )
 
     native.keystore(
@@ -325,21 +315,20 @@ def okbuck_keystore(
     )
 
 def okbuck_android_prebuilt_aar(
-    name,
-    aar,
-    enable_jetifier=False,
-    **kwargs
-    ):
+        name,
+        aar,
+        enable_jetifier = False,
+        **kwargs):
     aar_path = aar
     if enable_jetifier:
         jetified = name.replace(".aar", "-jetified.aar")
         genname = "unjetified_" + name
-        aar_path =  ":{}".format(genname)
+        aar_path = ":{}".format(genname)
         native.genrule(
             name = genname,
             srcs = [aar],
             out = jetified,
-            cmd = "$(exe //.okbuck/workspace/jetifier:okbuck_jetifier) -i $SRCS -o $OUT@if(valid(jetifierConfigurationTarget)){ -c $(location @jetifierConfigurationTarget)}"
+            cmd = "$(exe //.okbuck/workspace/jetifier:okbuck_jetifier) -i $SRCS -o $OUT@if(valid(jetifierConfigurationTarget)){ -c $(location @jetifierConfigurationTarget)}",
         )
 
     native.android_prebuilt_aar(
@@ -349,21 +338,20 @@ def okbuck_android_prebuilt_aar(
     )
 
 def okbuck_prebuilt_jar(
-    name,
-    binary_jar,
-    enable_jetifier=False,
-    **kwargs
-    ):
+        name,
+        binary_jar,
+        enable_jetifier = False,
+        **kwargs):
     jar_path = binary_jar
     if enable_jetifier:
         jetified = name.replace(".jar", "-jetified.jar")
         genname = "unjetified_" + name
-        jar_path =  ":{}".format(genname)
+        jar_path = ":{}".format(genname)
         native.genrule(
             name = genname,
             srcs = [binary_jar],
             out = jetified,
-            cmd = "$(exe //.okbuck/workspace/jetifier:okbuck_jetifier) -i $SRCS -o $OUT@if(valid(jetifierConfigurationTarget)){ -c $(location @jetifierConfigurationTarget)}"
+            cmd = "$(exe //.okbuck/workspace/jetifier:okbuck_jetifier) -i $SRCS -o $OUT@if(valid(jetifierConfigurationTarget)){ -c $(location @jetifierConfigurationTarget)}",
         )
 
     native.prebuilt_jar(

@@ -18,7 +18,7 @@ export_file(
     mode = "reference",
 )
 
-bash_list = [
+cmd_list = [
     "mkdir -p $OUT/bin; cp $(location :groovyc) $OUT/bin/groovyc; ln -s $(location :startGroovy) $OUT/bin/startGroovy;",
     "mkdir -p $OUT/conf; cp $(location :groovy-starter.conf) $OUT/conf/groovy-starter.conf;",
     "mkdir -p $OUT/lib; cp $(location {}) $OUT/lib/groovy-{}.jar;".format("@groovyAllJar", "@groovyVersion")
@@ -26,7 +26,7 @@ bash_list = [
 
 genrule(
     name = "@name",
-    bash = " ".join(bash_list),
+    cmd = " ".join(cmd_list),
     out = ".",
     visibility = [ "PUBLIC" ],
 )

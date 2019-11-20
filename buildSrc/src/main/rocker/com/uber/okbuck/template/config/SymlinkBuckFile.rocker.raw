@@ -13,14 +13,14 @@ targets = @{
 @}
 }
 
-bash_list = (
+cmd_list = (
     ["mkdir -p $OUT{}; ".format("@base")] +
     ["cp $(location {}) $OUT{}/{};".format(target, "@base", name) for (target, name) in targets.items()]
 )
 
 genrule(
     name = "@name",
-    bash = " ".join(bash_list),
+    cmd = " ".join(cmd_list),
     out = ".",
     visibility = [ "PUBLIC" ],
 )
