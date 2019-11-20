@@ -10,18 +10,18 @@ boolean debuggable,
 Collection secondaryManifests
 )
 @(ruleType)(
-    name = '@name',
-    main_manifest = '@mainManifest',
-    min_sdk = '@minSdk',
-    target_sdk = '@targetSdk',
+    name = "@name",
+    main_manifest = "@mainManifest",
+    min_sdk = "@minSdk",
+    target_sdk = "@targetSdk",
 @if (valid(pkg)) {
-    package = '@pkg',
+    package = "@pkg",
 }
 @if (valid(versionCode)) {
-    version_code = '@versionCode',
+    version_code = "@versionCode",
 }
 @if (valid(versionName)) {
-    version_name = '@versionName',
+    version_name = "@versionName",
 }
 @if (debuggable) {
     debuggable = True,
@@ -31,7 +31,7 @@ Collection secondaryManifests
 @if (valid(secondaryManifests)) {
     secondary_manifests = [
     @for (secondaryManifest : secondaryManifests) {
-        '@secondaryManifest',
+        "@secondaryManifest",
     }
     ],
 }

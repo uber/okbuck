@@ -23,60 +23,60 @@ RockerBody content
     srcs = glob([
     @for (src : sorted(srcs)) {
     @for (ext : sorted(exts)) {
-        '@src/**/*.@ext',
+        "@src/**/*.@ext",
     }
     }
 @if (valid(excludes)) {
     ], exclude = [
     @for (exclude : sorted(excludes)) {
-        '@exclude',
+        "@exclude",
     }
 }
     ]),
 }
-    source = '@sourceCompatibility',
-    target = '@targetCompatibility',
+    source = "@sourceCompatibility",
+    target = "@targetCompatibility",
 @if (valid(resources)) {
     resources = glob([
     @for (res : sorted(resources)) {
-        '@res/**',
+        "@res/**",
     }
     ]),
-    resources_root = '@resources.iterator().next()',
-    unbundled_resources_root = '@resources.iterator().next()',
+    resources_root = "@resources.iterator().next()",
+    unbundled_resources_root = "@resources.iterator().next()",
 }
 @if (valid(testTargets)) {
     tests = [
     @for (testTarget : testTargets) {
-        '@testTarget',
+        "@testTarget",
     }
     ],
 }
 @if (valid(apPlugins)) {
     plugins = [
     @for (apPlugin : sorted(apPlugins)) {
-        '@apPlugin',
+        "@apPlugin",
     }
     ],
 }
 @if (valid(aptDeps)) {
     annotation_processor_deps = [
     @for (aptDep : sorted(aptDeps)) {
-        '@aptDep',
+        "@aptDep",
     }
     ],
 }
 @if (valid(providedDeps)) {
     provided_deps = [
     @for (providedDep : sorted(providedDeps)) {
-        '@providedDep',
+        "@providedDep",
     }
     ],
 }
 @if (valid(exportedDeps)) {
     exported_deps = [
     @for (exportedDep : sorted(exportedDeps)) {
-        '@exportedDep',
+        "@exportedDep",
     }
     ],
 }
@@ -85,7 +85,7 @@ RockerBody content
     @if (valid((Collection) val)) {
     @key = [
     @for (value : (Collection) val) {
-        '@value',
+        "@value",
     }
     ],
     }
@@ -94,17 +94,17 @@ RockerBody content
 @if (valid(jvmArgs)) {
     vm_args = [
     @for (jvmArg : jvmArgs) {
-        '@jvmArg',
+        "@jvmArg",
     }
     ],
 }
 @if (valid(mavenCoords)) {
-    maven_coords = '@mavenCoords',
+    maven_coords = "@mavenCoords",
 }
 @if (valid(env)) {
     env = @{
     @for ((key, val) : env) {
-        '@key': '@val',
+        "@key": "@val",
     }
     @},
 }

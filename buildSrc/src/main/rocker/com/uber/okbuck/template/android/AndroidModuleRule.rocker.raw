@@ -59,65 +59,65 @@ jvmArgs,
 env
 ) -> {
 @if (valid(robolectricManifest)) {
-    robolectric_manifest = '@robolectricManifest',
+    robolectric_manifest = "@robolectricManifest",
 }
 @if (generateR2) {
-    final_r_name = 'R2',
+    final_r_name = "R2",
 }
 @if (valid(proguardConfig)) {
-    proguard_config = '@proguardConfig',
+    proguard_config = "@proguardConfig",
 }
 @if (valid(runtimeDependency)) {
     force_final_resource_ids = False,
-    robolectric_runtime_dependency = '@runtimeDependency',
+    robolectric_runtime_dependency = "@runtimeDependency",
 }
 @if (!disableLintTemplate) {
 @if (!disableLint) {
 @if (valid(srcs)) {
     lint_src_dirs = [
     @for (src : sorted(srcs)) {
-        '@src',
+        "@src",
     }
     ],
 @if (valid(resDirs)) {
     lint_res_dirs = [
     @for (resDir : sorted(resDirs)) {
-        '@resDir',
+        "@resDir",
     }
     ],
 }
 @if (valid(customLints)) {
     custom_lints = [
     @for (customLint : sorted(customLints)) {
-        '@customLint',
+        "@customLint",
     }
     ],
 }
 @if (lintOptions != null) {
     lint_options = [
 @if (lintOptions.isAbortOnError()) {
-        '--exitcode',
+        "--exitcode",
 }
 @if (lintOptions.isCheckAllWarnings()) {
-        '-Wall',
+        "-Wall",
 }
 @if (lintOptions.isIgnoreWarnings()) {
-        '--nowarn',
+        "--nowarn",
 }
 @if (lintOptions.isWarningsAsErrors()) {
-        '-Werror',
+        "-Werror",
 }
 @if (lintOptions.isNoLines()) {
-        '--nolines',
+        "--nolines",
 }
 @if (valid(lintOptions.getDisable())) {
-        '--disable @(String.join(",", lintOptions.getDisable()))',
+        "--disable @(String.join(",", lintOptions.getDisable()))",
 }
 @if (valid(lintOptions.getEnable())) {
-        '--enable @(String.join(",", lintOptions.getEnable()))',
+        "--enable @(String.join(",", lintOptions.getEnable()))",
 }
 @if (valid(lintConfigXml)) {
-        '--config $(location @(lintConfigXml))',
+        "--config $(location @(lintConfigXml))",
 }
     ],
 }
@@ -127,22 +127,22 @@ env
 }
 }
 @if (valid(pkg)) {
-    package = '@pkg',
+    package = "@pkg",
 }
 @if (valid(manifestMainManifest)) {
-    manifest_main_manifest = '@manifestMainManifest',
+    manifest_main_manifest = "@manifestMainManifest",
 }
 @if (valid(manifestMinSdk)) {
-    manifest_min_sdk = '@manifestMinSdk',
+    manifest_min_sdk = "@manifestMinSdk",
 }
 @if (valid(manifestTargetSdk)) {
-    manifest_target_sdk = '@manifestTargetSdk',
+    manifest_target_sdk = "@manifestTargetSdk",
 }
 @if (valid(manifestVersionCode)) {
-    manifest_version_code = '@manifestVersionCode',
+    manifest_version_code = "@manifestVersionCode",
 }
 @if (valid(manifestVersionName)) {
-    manifest_version_name = '@manifestVersionName',
+    manifest_version_name = "@manifestVersionName",
 }
 @if (manifestDebuggable) {
     manifest_debuggable = True,
@@ -152,31 +152,31 @@ env
 @if (valid(manifestSecondaryManifests)) {
     manifest_secondary_manifests = [
     @for (manifestSecondaryManifest : manifestSecondaryManifests) {
-        '@manifestSecondaryManifest',
+        "@manifestSecondaryManifest",
     }
     ],
 }
 @if (valid(resRes)) {
     res_res = res_glob([
     @for (r : sorted(resRes)) {
-        ('@r', '**'),
+        ("@r", "**"),
     }
     ]),
 }
 @if (valid(resProjectRes)) {
-    res_project_res = '@resProjectRes',
+    res_project_res = "@resProjectRes",
 }
 @if (valid(resAssets)) {
     res_assets = subdir_glob([
     @for (a : sorted(resAssets)) {
-        ('@a', '**'),
+        ("@a", "**"),
     }
     ]),
 }
 @if (valid(resExtraDeps)) {
     res_extra_deps = [
     @for (dep : sorted(resExtraDeps)) {
-        '@dep',
+        "@dep",
     }
     ],
 }

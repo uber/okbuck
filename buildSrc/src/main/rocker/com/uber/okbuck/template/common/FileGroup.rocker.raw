@@ -5,11 +5,11 @@
 )
 
 filegroup(
-    name = '@name',
+    name = "@name",
     srcs = [
     @for (source : sorted(sources)) {
-        '@source',
+        "@source",
     }
     ],
-    visibility = ['PUBLIC'],
+    visibility = ["PUBLIC"],
 )

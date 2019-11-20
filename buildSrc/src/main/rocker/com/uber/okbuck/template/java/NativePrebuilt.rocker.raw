@@ -6,23 +6,23 @@ String mavenCoords,
 boolean enableJetifier,
 )
 @(ruleType)(
-    name = '@name',
-    @prebuiltType = '@prebuilt',
+    name = "@name",
+    @prebuiltType = "@prebuilt",
 @if (valid(source)) {
-    source_jar = '@source',
+    source_jar = "@source",
 }
 @if (valid(mavenCoords)) {
-    maven_coords = '@mavenCoords',
+    maven_coords = "@mavenCoords",
 }
 @if (valid(deps)) {
     deps = [
     @for (dep : sorted(deps)) {
-        '@dep',
+        "@dep",
     }
     ],
 }
 @if (enableJetifier) {
     enable_jetifier = True,
 }
-    visibility = ['PUBLIC'],
+    visibility = ["PUBLIC"],
 )

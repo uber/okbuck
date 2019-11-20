@@ -8,19 +8,19 @@
 @if (valid(targetsNameMap)) {
 targets = @{
 @for ((key, val) : targetsNameMap) {
-    '@key': '@val',
+    "@key": "@val",
 }
 @}
 }
 
 bash_list = (
     ["mkdir -p $OUT{}; ".format("@base")] +
-    ['cp $(location {}) $OUT{}/{};'.format(target, "@base", name) for (target, name) in targets.items()]
+    ["cp $(location {}) $OUT{}/{};".format(target, "@base", name) for (target, name) in targets.items()]
 )
 
 genrule(
-    name = '@name',
+    name = "@name",
     bash = " ".join(bash_list),
     out = ".",
-    visibility = [ 'PUBLIC' ],
+    visibility = [ "PUBLIC" ],
 )

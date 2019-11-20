@@ -37,7 +37,7 @@ def merge_maps(**res_maps):
             if key in result and result[key] != res_map[key]:
                 dir_name = _dirname(key)
                 base_name = _basename(key)
-                new_key = '/'.join([dir_name, path.replace('/', '_') + '_' + base_name])
+                new_key = "/".join([dir_name, path.replace("/", "_") + "_" + base_name])
                 result[new_key] = res_map[key]
             else:
                 result[key] = res_map[key]
@@ -115,8 +115,8 @@ def okbuck_aidl(
     ):
     gen = []
     for aidl_file in native.glob(["{}/**/*.aidl".format(aidls)]):
-        rule_name = '{}__'.format(name) + _basename(aidl_file).replace(".aidl", "")
-        gen.append(':' + rule_name)
+        rule_name = "{}__".format(name) + _basename(aidl_file).replace(".aidl", "")
+        gen.append(":" + rule_name)
         native.gen_aidl(
             name = rule_name,
             aidl = aidl_file,
@@ -168,7 +168,7 @@ def okbuck_lint(
 
     bash += 'mkdir -p $OUT; LOGFILE=$OUT/lint.log; trap "rv=\$?; if [ \$rv != 0 ] ; then cat $LOGFILE 1>&2 ; fi ; rm -f $LOGFILE; exit $rv" EXIT;  java -Djava.awt.headless=true -Dcom.android.tools.lint.workdir=$PROJECT_ROOT '
     bash += "@lintJvmArgs "
-    bash += "-classpath {} com.uber.okbuck.android.lint.AndroidLintCli ".format(toLocation('//.okbuck/workspace/lint:okbuck_lint'))
+    bash += "-classpath {} com.uber.okbuck.android.lint.AndroidLintCli ".format(toLocation("//.okbuck/workspace/lint:okbuck_lint"))
 
     if has_srcs:
 @if(useCompilationClasspath) {
@@ -189,14 +189,14 @@ def okbuck_lint(
     bash += '--html "$OUT/lint-results.html" '
     bash += '--fullpath '
 
-    bash += "{} `dirname {}` >$LOGFILE 2>/dev/null; ".format(' '.join(lint_options), toLocation(manifest))
+    bash += "{} `dirname {}` >$LOGFILE 2>/dev/null; ".format(" ".join(lint_options), toLocation(manifest))
     bash += "rm $CP_FILE; "
 
     native.genrule(
         name = name,
         srcs = srcs + res_dirs,
         out = "{}_out".format(name),
-        type = 'okbuck_lint',
+        type = "okbuck_lint",
         bash = bash
     )
 
@@ -242,9 +242,9 @@ def okbuck_manifest(
     native.genrule(
         name = name,
         srcs = [main_manifest] + secondary_manifests,
-        out = 'AndroidManifest.xml',
-        type = 'okbuck_manifest',
-        cmd = ' '.join(cmds),
+        out = "AndroidManifest.xml",
+        type = "okbuck_manifest",
+        cmd = " ".join(cmds),
     )
 
 
@@ -290,7 +290,7 @@ def okbuck_android_library(
             if dep.startswith("//@externalDependencyCache/") and dep.endswith(".aar"):
                 aar_deps.append(dep)
 
-        variant = name.replace('src_', '', 1)
+        variant = name.replace("src_", "", 1)
         okbuck_lint(
             variant = variant,
             manifest = manifest,
@@ -312,16 +312,16 @@ def okbuck_keystore(
     properties_rule = name + "_properties"
     native.genrule(
         name = properties_rule,
-        out = 'keystore.properties',
-        type = 'okbuck_keystore',
+        out = "keystore.properties",
+        type = "okbuck_keystore",
         cmd = 'printf "key.alias={}\\nkey.store.password={}\\nkey.alias.password={}\\n" > $OUT'.format(keyAlias, storePassword, keyPassword)
     )
 
     native.keystore(
         name = name,
         store = storeFile,
-        properties = ':' + properties_rule,
-        visibility = ['PUBLIC'],
+        properties = ":" + properties_rule,
+        visibility = ["PUBLIC"],
     )
 
 def okbuck_android_prebuilt_aar(
@@ -332,7 +332,7 @@ def okbuck_android_prebuilt_aar(
     ):
     aar_path = aar
     if enable_jetifier:
-        jetified = name.replace('.aar', '-jetified.aar')
+        jetified = name.replace(".aar", "-jetified.aar")
         genname = "unjetified_" + name
         aar_path =  ":{}".format(genname)
         native.genrule(
@@ -356,7 +356,7 @@ def okbuck_prebuilt_jar(
     ):
     jar_path = binary_jar
     if enable_jetifier:
-        jetified = name.replace('.jar', '-jetified.jar')
+        jetified = name.replace(".jar", "-jetified.jar")
         genname = "unjetified_" + name
         jar_path =  ":{}".format(genname)
         native.genrule(

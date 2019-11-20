@@ -48,71 +48,71 @@ jvmArgs,
 env
 ) -> {
 @if (valid(manifest)) {
-    manifest = '@manifest',
+    manifest = "@manifest",
 }
 @if (valid(robolectricManifest)) {
-    robolectric_manifest = '@robolectricManifest',
+    robolectric_manifest = "@robolectricManifest",
 }
 @if (generateR2) {
-    final_r_name = 'R2',
+    final_r_name = "R2",
 }
 @if (valid(proguardConfig)) {
-    proguard_config = '@proguardConfig',
+    proguard_config = "@proguardConfig",
 }
 @if (valid(runtimeDependency)) {
     force_final_resource_ids = False,
-    robolectric_runtime_dependency = '@runtimeDependency',
+    robolectric_runtime_dependency = "@runtimeDependency",
 }
 @if (valid(language)) {
-    language = '@language',
+    language = "@language",
 }
 @if (!disableLintTemplate) {
 @if (!disableLint) {
 @if (valid(srcs)) {
     lint_src_dirs = [
     @for (src : sorted(srcs)) {
-        '@src',
+        "@src",
     }
     ],
 @if (valid(resDirs)) {
     lint_res_dirs = [
     @for (resDir : sorted(resDirs)) {
-        '@resDir',
+        "@resDir",
     }
     ],
 }
 @if (valid(customLints)) {
     custom_lints = [
     @for (customLint : sorted(customLints)) {
-        '@customLint',
+        "@customLint",
     }
     ],
 }
 @if (lintOptions != null) {
     lint_options = [
 @if (lintOptions.isAbortOnError()) {
-        '--exitcode',
+        "--exitcode",
 }
 @if (lintOptions.isCheckAllWarnings()) {
-        '-Wall',
+        "-Wall",
 }
 @if (lintOptions.isIgnoreWarnings()) {
-        '--nowarn',
+        "--nowarn",
 }
 @if (lintOptions.isWarningsAsErrors()) {
-        '-Werror',
+        "-Werror",
 }
 @if (lintOptions.isNoLines()) {
-        '--nolines',
+        "--nolines",
 }
 @if (valid(lintOptions.getDisable())) {
-        '--disable @(String.join(",", lintOptions.getDisable()))',
+        "--disable @(String.join(",", lintOptions.getDisable()))",
 }
 @if (valid(lintOptions.getEnable())) {
-        '--enable @(String.join(",", lintOptions.getEnable()))',
+        "--enable @(String.join(",", lintOptions.getEnable()))",
 }
 @if (valid(lintConfigXml)) {
-        '--config $(location @(lintConfigXml))',
+        "--config $(location @(lintConfigXml))",
 }
     ],
 }

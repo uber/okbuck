@@ -5,10 +5,10 @@ String manifestRule
 )
 
 def get_rule_dep(rule_name):
-    return ':{}'.format(rule_name)
+    return ":{}".format(rule_name)
 
 def get_exts_aar_deps(src_deps):
-    return [dep for dep in src_deps if dep.endswith('.aar')]
+    return [dep for dep in src_deps if dep.endswith(".aar")]
 
 def src_to_res(str):
     return str.replace(":src_", ":res_", 1)
@@ -16,7 +16,7 @@ def src_to_res(str):
 def get_libs_res_deps(src_deps):
     mapped_res_deps = []
     for dep in src_deps:
-        if (':src_' in dep and not dep.endswith(':src_main')):
+        if (":src_" in dep and not dep.endswith(":src_main")):
             mapped_res_deps.append(src_to_res(dep))
     return mapped_res_deps
 
@@ -80,9 +80,9 @@ def okbuck_android_module(
         visibility = visibility
     )
     if res_deps:
-      res_kwargs.update({'deps' : sorted(res_deps)})
+      res_kwargs.update({"deps" : sorted(res_deps)})
     if res_exported_deps:
-      res_kwargs.update({'exported_deps' : sorted(res_exported_deps)})
+      res_kwargs.update({"exported_deps" : sorted(res_exported_deps)})
 
     @(androidResourceRule)(**res_kwargs)
 
@@ -98,16 +98,16 @@ def okbuck_android_module(
                res_exported_lib_deps + \
                [get_rule_dep(res_rule_name), get_rule_dep(manifest_rule_name)]
 
-    src_kwargs.update({'deps' : sorted(src_deps)})
+    src_kwargs.update({"deps" : sorted(src_deps)})
     if exported_deps:
-        src_kwargs.update({'exported_deps' : sorted(exported_deps)})
+        src_kwargs.update({"exported_deps" : sorted(exported_deps)})
     if language:
-        src_kwargs.update({'language' : language})
+        src_kwargs.update({"language" : language})
 
     @(androidLibraryRule)(**src_kwargs)
 
 def okbuck_kotlin_android_module(
-        language = 'kotlin',
+        language = "kotlin",
         **kwargs
     ):
     okbuck_android_module(
