@@ -1,7 +1,7 @@
 package com.uber.okbuck.core.model.jvm;
 
-import static com.uber.okbuck.core.dependency.ExternalDependency.filterAar;
-import static com.uber.okbuck.core.dependency.ExternalDependency.filterJar;
+import static com.uber.okbuck.core.dependency.OExternalDependency.filterAar;
+import static com.uber.okbuck.core.dependency.OExternalDependency.filterJar;
 
 import com.android.builder.model.LintOptions;
 import com.google.common.collect.ImmutableList;
@@ -16,7 +16,7 @@ import com.uber.okbuck.core.annotation.AnnotationProcessorCache;
 import com.uber.okbuck.core.annotation.JvmPlugin;
 import com.uber.okbuck.core.dependency.DependencyFactory;
 import com.uber.okbuck.core.dependency.DependencyUtils;
-import com.uber.okbuck.core.dependency.ExternalDependency;
+import com.uber.okbuck.core.dependency.OExternalDependency;
 import com.uber.okbuck.core.dependency.VersionlessDependency;
 import com.uber.okbuck.core.manager.KotlinManager;
 import com.uber.okbuck.core.manager.LintManager;
@@ -208,7 +208,7 @@ public class JvmTarget extends Target {
   }
 
   /** api external deps */
-  public Set<ExternalDependency> getApiExternalDeps() {
+  public Set<OExternalDependency> getApiExternalDeps() {
     Configuration apiConfiguration = getApiConfiguration();
 
     if (apiConfiguration != null) {
@@ -670,10 +670,11 @@ public class JvmTarget extends Target {
    *
    * @return Target deps
    */
-  public Set<ExternalDependency> getExternalDeps(SourceSetType sourceSetType) {
+  public Set<OExternalDependency> getExternalDeps(SourceSetType sourceSetType) {
     switch (sourceSetType) {
       case TEST:
-        return versionlessIntersection(getTest().getExternalDeps(), getTestProvided().getExternalDeps());
+        return versionlessIntersection(
+            getTest().getExternalDeps(), getTestProvided().getExternalDeps());
       case INTEGRATION_TEST:
         return versionlessIntersection(
             getIntegrationTest().getExternalDeps(), getIntegrationTestProvided().getExternalDeps());
@@ -685,7 +686,7 @@ public class JvmTarget extends Target {
     }
   }
 
-  public Set<ExternalDependency> getExternalAarDeps(SourceSetType sourceSetType) {
+  public Set<OExternalDependency> getExternalAarDeps(SourceSetType sourceSetType) {
     return filterAar(getExternalDeps(sourceSetType));
   }
 
@@ -694,7 +695,7 @@ public class JvmTarget extends Target {
    *
    * @return Target deps
    */
-  public Set<ExternalDependency> getExternalExportedDeps(SourceSetType sourceSetType) {
+  public Set<OExternalDependency> getExternalExportedDeps(SourceSetType sourceSetType) {
     switch (sourceSetType) {
       case TEST:
       case INTEGRATION_TEST:
@@ -705,7 +706,7 @@ public class JvmTarget extends Target {
     }
   }
 
-  public Set<ExternalDependency> getExternalExportedAarDeps(SourceSetType sourceSetType) {
+  public Set<OExternalDependency> getExternalExportedAarDeps(SourceSetType sourceSetType) {
     return filterAar(getExternalExportedDeps(sourceSetType));
   }
 
@@ -714,7 +715,7 @@ public class JvmTarget extends Target {
    *
    * @return Target deps
    */
-  public Set<ExternalDependency> getExternalAptDeps(SourceSetType sourceSetType) {
+  public Set<OExternalDependency> getExternalAptDeps(SourceSetType sourceSetType) {
     switch (sourceSetType) {
       case TEST:
         return filterJar(getTestApt().getExternalDeps());
@@ -732,7 +733,7 @@ public class JvmTarget extends Target {
    *
    * @return CompileOnly Target deps
    */
-  public Set<ExternalDependency> getExternalProvidedDeps(SourceSetType sourceSetType) {
+  public Set<OExternalDependency> getExternalProvidedDeps(SourceSetType sourceSetType) {
     switch (sourceSetType) {
       case TEST:
         return versionlessDifference(
@@ -746,14 +747,13 @@ public class JvmTarget extends Target {
     }
   }
 
-
   /*
-    Returns entries in set1 whose versionless counterparts are not in set2
-   */
-  private static Set<ExternalDependency> versionlessDifference(
-      Set<ExternalDependency> set1, Set<ExternalDependency> set2) {
+   Returns entries in set1 whose versionless counterparts are not in set2
+  */
+  private static Set<OExternalDependency> versionlessDifference(
+      Set<OExternalDependency> set1, Set<OExternalDependency> set2) {
     Set<VersionlessDependency> versionlessSet2 =
-        set2.stream().map(ExternalDependency::getVersionless).collect(Collectors.toSet());
+        set2.stream().map(OExternalDependency::getVersionless).collect(Collectors.toSet());
 
     return set1.stream()
         .filter(
@@ -762,16 +762,15 @@ public class JvmTarget extends Target {
   }
 
   /*
-    Returns entries in set1 whose versionless counterparts are in set2
-   */
-  private static Set<ExternalDependency> versionlessIntersection(
-      Set<ExternalDependency> set1, Set<ExternalDependency> set2) {
+   Returns entries in set1 whose versionless counterparts are in set2
+  */
+  private static Set<OExternalDependency> versionlessIntersection(
+      Set<OExternalDependency> set1, Set<OExternalDependency> set2) {
     Set<VersionlessDependency> versionlessSet2 =
-        set2.stream().map(ExternalDependency::getVersionless).collect(Collectors.toSet());
+        set2.stream().map(OExternalDependency::getVersionless).collect(Collectors.toSet());
 
     return set1.stream()
-        .filter(
-            externalDependency -> versionlessSet2.contains(externalDependency.getVersionless()))
+        .filter(externalDependency -> versionlessSet2.contains(externalDependency.getVersionless()))
         .collect(Collectors.toSet());
   }
 }

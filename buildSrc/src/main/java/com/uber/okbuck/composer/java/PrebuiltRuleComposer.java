@@ -1,12 +1,12 @@
 package com.uber.okbuck.composer.java;
 
-import static com.uber.okbuck.core.dependency.BaseExternalDependency.AAR;
-import static com.uber.okbuck.core.dependency.BaseExternalDependency.JAR;
+import static com.uber.okbuck.core.dependency.OResolvedDependency.AAR;
+import static com.uber.okbuck.core.dependency.OResolvedDependency.JAR;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.composer.jvm.JvmBuckRuleComposer;
-import com.uber.okbuck.core.dependency.ExternalDependency;
+import com.uber.okbuck.core.dependency.OExternalDependency;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.template.core.Rule;
 import com.uber.okbuck.template.java.Prebuilt;
@@ -25,7 +25,7 @@ public class PrebuiltRuleComposer extends JvmBuckRuleComposer {
    */
   @SuppressWarnings("NullAway")
   public static List<Rule> compose(
-      Collection<ExternalDependency> dependencies, HashMap<String, String> shaSum256) {
+      Collection<OExternalDependency> dependencies, HashMap<String, String> shaSum256) {
     return dependencies
         .stream()
         .peek(
@@ -34,11 +34,11 @@ public class PrebuiltRuleComposer extends JvmBuckRuleComposer {
                 throw new IllegalStateException("Dependency not a valid prebuilt: " + dependency);
               }
             })
-        .sorted(ExternalDependency.compareByName)
+        .sorted(OExternalDependency.compareByName)
         .map(
             dependency -> {
               String sha256Key =
-                  ExternalDependency.getGradleSha(dependency.getRealDependencyFile());
+                  OExternalDependency.getGradleSha(dependency.getRealDependencyFile());
               String sha256 = Preconditions.checkNotNull(shaSum256.get(sha256Key));
 
               Prebuilt rule =
@@ -51,7 +51,7 @@ public class PrebuiltRuleComposer extends JvmBuckRuleComposer {
                   .getRealSourceFile()
                   .ifPresent(
                       file -> {
-                        String sourcesSha256Key = ExternalDependency.getGradleSha(file);
+                        String sourcesSha256Key = OExternalDependency.getGradleSha(file);
                         String sourcesSha256 =
                             Preconditions.checkNotNull(shaSum256.get(sourcesSha256Key));
                         rule.sourcesSha256(sourcesSha256);

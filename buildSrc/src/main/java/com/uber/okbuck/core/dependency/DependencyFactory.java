@@ -1,21 +1,34 @@
 package com.uber.okbuck.core.dependency;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.extension.ExternalDependenciesExtension;
 import com.uber.okbuck.extension.JetifierExtension;
 import java.io.File;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FilenameUtils;
+import org.gradle.api.artifacts.ExternalDependency;
 import org.gradle.api.artifacts.ResolvedDependency;
+import org.gradle.api.artifacts.component.ProjectComponentIdentifier;
 
 public final class DependencyFactory {
 
   public static final String LOCAL_GROUP = "local";
 
   private static final String LOCAL_DEP_VERSION = "1.0.0-LOCAL";
+
+  // Use instance of Dependency Factory and clean it up b/w runs
+  private static HashMap<ExternalDependency, Set<VersionlessDependency>> unresolvedToVersionless =
+      new HashMap<>();
+
+  private static HashMap<OResolvedDependency, OExternalDependency> externalDependencyCache =
+      new HashMap<>();
 
   private DependencyFactory() {}
 
@@ -30,7 +43,7 @@ public final class DependencyFactory {
    * @param jetifierExtension Jetifier Extension
    * @return External Dependency
    */
-  public static ExternalDependency from(
+  public static synchronized OExternalDependency from(
       String group,
       String name,
       String version,
@@ -40,27 +53,40 @@ public final class DependencyFactory {
       JetifierExtension jetifierExtension) {
     String classifier = DependencyUtils.getModuleClassifier(dependencyFile.getName(), version);
 
-    if (isLocalDependency(dependencyFile.getAbsolutePath())) {
-      return new LocalExternalDependency(
-          group,
-          name,
-          version,
-          classifier,
-          dependencyFile,
-          dependencySourceFile,
-          externalDependenciesExtension,
-          jetifierExtension);
+    VersionlessDependency versionlessDependency =
+        VersionlessDependency.builder()
+            .setGroup(group)
+            .setName(name)
+            .setClassifier(Optional.ofNullable(Strings.emptyToNull(classifier)))
+            .build();
+
+    OResolvedDependency resolvedDependency =
+        OResolvedDependency.builder()
+            .setVersionless(versionlessDependency)
+            .setVersion(version)
+            .setIsVersioned(externalDependenciesExtension.isVersioned(versionlessDependency))
+            .setRealDependencyFile(dependencyFile)
+            .setRealDependencySourceFile(Optional.ofNullable(dependencySourceFile))
+            .build();
+
+    if (externalDependencyCache.containsKey(resolvedDependency)) {
+      return externalDependencyCache.get(resolvedDependency);
     }
 
-    return new ExternalDependency(
-        group,
-        name,
-        version,
-        classifier,
-        dependencyFile,
-        dependencySourceFile,
-        externalDependenciesExtension,
-        jetifierExtension);
+    OExternalDependency externalDependency;
+
+    if (group.equals(LOCAL_GROUP) || isLocalDependency(dependencyFile.getAbsolutePath())) {
+      externalDependency =
+          new LocalOExternalDependency(
+              resolvedDependency, externalDependenciesExtension, jetifierExtension);
+    } else {
+      externalDependency =
+          new OExternalDependency(
+              resolvedDependency, externalDependenciesExtension, jetifierExtension);
+    }
+
+    externalDependencyCache.put(resolvedDependency, externalDependency);
+    return externalDependency;
   }
 
   /**
@@ -71,21 +97,22 @@ public final class DependencyFactory {
    * @param jetifierExtension Jetifier Extension
    * @return External Dependency
    */
-  public static LocalExternalDependency fromLocal(
+  public static LocalOExternalDependency fromLocal(
       File localDependency,
       @Nullable File localSourceDependency,
       ExternalDependenciesExtension externalDependenciesExtension,
       JetifierExtension jetifierExtension) {
 
-    return new LocalExternalDependency(
-        LOCAL_GROUP,
-        FilenameUtils.getBaseName(localDependency.getName()),
-        LOCAL_DEP_VERSION,
-        null,
-        localDependency,
-        localSourceDependency,
-        externalDependenciesExtension,
-        jetifierExtension);
+    String name = FilenameUtils.getBaseName(localDependency.getName());
+    return (LocalOExternalDependency)
+        from(
+            LOCAL_GROUP,
+            name,
+            LOCAL_DEP_VERSION,
+            localDependency,
+            localSourceDependency,
+            externalDependenciesExtension,
+            jetifierExtension);
   }
 
   /**
@@ -94,12 +121,20 @@ public final class DependencyFactory {
    * @param dependency gradle dependency
    * @return VersionlessDependency object
    */
-  public static Set<VersionlessDependency> fromDependency(
-      org.gradle.api.artifacts.ExternalDependency dependency) {
+  public static Set<OUnresolvedDependency> fromDependency1(ExternalDependency dependency) {
+    if (dependency.getVersion() == null) {
+      return ImmutableSet.of();
+    }
+
+    OUnresolvedDependency.Builder uDependencyBuilder =
+        OUnresolvedDependency.builder()
+            .setExcludeRules(dependency.getExcludeRules())
+            .setVersion(dependency.getVersion());
     VersionlessDependency.Builder vDependencyBuilder =
         VersionlessDependency.builder().setName(dependency.getName());
 
     String group = dependency.getGroup();
+
     if (group == null) {
       vDependencyBuilder.setGroup(LOCAL_GROUP);
     } else {
@@ -111,15 +146,56 @@ public final class DependencyFactory {
           .getArtifacts()
           .stream()
           .map(
-              dependencyArtifact ->
-                  vDependencyBuilder
-                      .setClassifier(Optional.ofNullable(dependencyArtifact.getClassifier()))
-                      .build())
+              dependencyArtifact -> {
+                VersionlessDependency versionlessDependency =
+                    vDependencyBuilder
+                        .setClassifier(Optional.ofNullable(dependencyArtifact.getClassifier()))
+                        .build();
+                return uDependencyBuilder.setVersionless(versionlessDependency).build();
+              })
           .collect(Collectors.toSet());
     } else {
-      Set<VersionlessDependency> dependencies = new HashSet<>();
-      dependencies.add(vDependencyBuilder.build());
+      Set<OUnresolvedDependency> dependencies = new HashSet<>();
+      VersionlessDependency versionlessDependency = vDependencyBuilder.build();
+      dependencies.add(uDependencyBuilder.setVersionless(versionlessDependency).build());
       return dependencies;
+    }
+  }
+
+  public static synchronized Set<VersionlessDependency> fromDependency(
+      ExternalDependency dependency) {
+    if (unresolvedToVersionless.containsKey(dependency)) {
+      return unresolvedToVersionless.get(dependency);
+    } else {
+      VersionlessDependency.Builder vDependencyBuilder =
+          VersionlessDependency.builder().setName(dependency.getName());
+      String group = dependency.getGroup();
+
+      if (group == null) {
+        vDependencyBuilder.setGroup(LOCAL_GROUP);
+      } else {
+        vDependencyBuilder.setGroup(group);
+      }
+
+      Set<VersionlessDependency> vDeps = new HashSet<>();
+
+      if (dependency.getArtifacts().size() > 0) {
+        vDeps.addAll(
+            dependency
+                .getArtifacts()
+                .stream()
+                .map(
+                    dependencyArtifact ->
+                        vDependencyBuilder
+                            .setClassifier(Optional.ofNullable(dependencyArtifact.getClassifier()))
+                            .build())
+                .collect(Collectors.toSet()));
+      } else {
+        vDeps.add(vDependencyBuilder.build());
+      }
+
+      unresolvedToVersionless.put(dependency, vDeps);
+      return vDeps;
     }
   }
 
@@ -134,12 +210,19 @@ public final class DependencyFactory {
         .getModuleArtifacts()
         .stream()
         .map(
-            resolvedArtifact ->
-                VersionlessDependency.builder()
+            resolvedArtifact -> {
+              if (resolvedArtifact.getId().getComponentIdentifier()
+                  instanceof ProjectComponentIdentifier) {
+                return null;
+              } else {
+                return VersionlessDependency.builder()
                     .setName(dependency.getModuleName())
                     .setGroup(dependency.getModuleGroup())
                     .setClassifier(Optional.ofNullable(resolvedArtifact.getClassifier()))
-                    .build())
+                    .build();
+              }
+            })
+        .filter(Objects::nonNull)
         .collect(Collectors.toSet());
   }
 
@@ -158,5 +241,10 @@ public final class DependencyFactory {
    */
   private static boolean isLocalDependency(String dependencyFilePath) {
     return dependencyFilePath.contains("-SNAPSHOT") || dependencyFilePath.contains("-LOCAL");
+  }
+
+  public static void cleanup() {
+    unresolvedToVersionless = new HashMap<>();
+    externalDependencyCache = new HashMap<>();
   }
 }

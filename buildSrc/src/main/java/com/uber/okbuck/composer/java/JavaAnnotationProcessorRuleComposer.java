@@ -1,6 +1,6 @@
 package com.uber.okbuck.composer.java;
 
-import static com.uber.okbuck.core.dependency.ExternalDependency.filterJar;
+import static com.uber.okbuck.core.dependency.OExternalDependency.filterJar;
 
 import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.composer.jvm.JvmBuckRuleComposer;

@@ -3,7 +3,7 @@ package com.uber.okbuck.core.manager;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.base.BuckRuleComposer;
 import com.uber.okbuck.core.dependency.DependencyCache;
-import com.uber.okbuck.core.dependency.ExternalDependency;
+import com.uber.okbuck.core.dependency.OExternalDependency;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.template.core.Rule;
@@ -25,7 +25,7 @@ public final class ScalaManager {
 
   private final Project rootProject;
   private final BuckFileManager buckFileManager;
-  @Nullable private Set<ExternalDependency> dependencies;
+  @Nullable private Set<OExternalDependency> dependencies;
 
   public ScalaManager(Project rootProject, BuckFileManager buckFileManager) {
     this.rootProject = rootProject;
@@ -33,7 +33,7 @@ public final class ScalaManager {
   }
 
   @SuppressWarnings("ResultOfMethodCallIgnored")
-  public Set<ExternalDependency> setupScalaHome(String scalaVersion) {
+  public Set<OExternalDependency> setupScalaHome(String scalaVersion) {
     Configuration scalaConfig = rootProject.getConfigurations().maybeCreate(SCALA_DEPS_CONFIG);
     rootProject
         .getDependencies()

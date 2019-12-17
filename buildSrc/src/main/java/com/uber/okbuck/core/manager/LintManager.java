@@ -1,12 +1,11 @@
 package com.uber.okbuck.core.manager;
 
-import com.android.projectmodel.JavaLibrary;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.base.BuckRuleComposer;
 import com.uber.okbuck.core.dependency.DependencyCache;
-import com.uber.okbuck.core.dependency.ExternalDependency;
+import com.uber.okbuck.core.dependency.OExternalDependency;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
@@ -39,7 +38,7 @@ public final class LintManager {
   private final String lintBuckFile;
   private final BuckFileManager buckFileManager;
 
-  private Set<ExternalDependency> dependencies;
+  private Set<OExternalDependency> dependencies;
   private DependencyCache lintDepCache;
 
   @SuppressWarnings("NullAway")

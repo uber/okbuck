@@ -13,7 +13,7 @@ import org.gradle.api.internal.artifacts.dependencies.DefaultDependencyArtifact;
 import org.gradle.api.internal.artifacts.dependencies.DefaultExternalModuleDependency;
 
 @AutoValue
-public abstract class BaseExternalDependency {
+public abstract class OResolvedDependency {
   public static final String AAR = "aar";
   public static final String JAR = "jar";
 
@@ -30,7 +30,7 @@ public abstract class BaseExternalDependency {
   abstract boolean isVersioned();
 
   public static Builder builder() {
-    return new AutoValue_BaseExternalDependency.Builder();
+    return new AutoValue_OResolvedDependency.Builder();
   }
 
   @AutoValue.Builder
@@ -46,7 +46,7 @@ public abstract class BaseExternalDependency {
 
     public abstract Builder setRealDependencySourceFile(Optional<File> value);
 
-    public abstract BaseExternalDependency build();
+    public abstract OResolvedDependency build();
   }
 
   @Override
@@ -83,9 +83,9 @@ public abstract class BaseExternalDependency {
   @Memoized
   public String targetName() {
     StringBuilder targetName = new StringBuilder(versionless().name());
-    if (isVersioned()) {
-      targetName.append(NAME_DELIMITER).append(version());
-    }
+    //    if (isVersioned()) {
+    targetName.append(NAME_DELIMITER).append(version());
+    //    }
     targetName.append(versionless().classifier().map(c -> NAME_DELIMITER + c).orElse(""));
 
     return targetName.toString();

@@ -6,12 +6,13 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Streams;
+import com.google.errorprone.annotations.Var;
 import com.uber.okbuck.core.annotation.AnnotationProcessorCache;
 import com.uber.okbuck.core.annotation.JvmPlugin;
 import com.uber.okbuck.core.dependency.DependencyCache;
 import com.uber.okbuck.core.dependency.DependencyFactory;
 import com.uber.okbuck.core.dependency.DependencyUtils;
-import com.uber.okbuck.core.dependency.ExternalDependency;
+import com.uber.okbuck.core.dependency.OExternalDependency;
 import com.uber.okbuck.core.dependency.VersionlessDependency;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectCache;
@@ -23,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -53,8 +55,12 @@ public class Scope {
   private final Map<String, List<String>> customOptions;
   protected final Project project;
 
-  protected final Set<Target> targetDeps = new HashSet<>();
-  protected final Set<ExternalDependency> external = new HashSet<>();
+  protected final Set<Target> firstLevelTargetDeps = new HashSet<>();
+  protected final Map<VersionlessDependency, OExternalDependency> firstLevelExternal =
+      new HashMap<>();
+
+  protected final Set<Target> allTargetDeps = new HashSet<>();
+  protected final Map<VersionlessDependency, OExternalDependency> allExternal = new HashMap<>();
 
   @Nullable private Set<String> annotationProcessors;
 
@@ -116,20 +122,9 @@ public class Scope {
 
   public Set<Target> getTargetDeps(boolean firstLevel) {
     if (configuration != null && firstLevel) {
-      Set<String> firstLevelProjects =
-          configuration
-              .getAllDependencies()
-              .withType(ProjectDependency.class)
-              .stream()
-              .map(dependency -> dependency.getDependencyProject().getPath())
-              .collect(Collectors.toSet());
-
-      return targetDeps
-          .stream()
-          .filter(target -> firstLevelProjects.contains(target.getProject().getPath()))
-          .collect(Collectors.toSet());
+      return firstLevelTargetDeps;
     } else {
-      return targetDeps;
+      return allTargetDeps;
     }
   }
 
@@ -140,37 +135,15 @@ public class Scope {
     return getTargetDeps(externalDependenciesExtension.exportedDepsEnabled());
   }
 
-  public Set<ExternalDependency> getExternalDeps(boolean firstLevel) {
+  public Set<OExternalDependency> getExternalDeps(boolean firstLevel) {
     if (configuration != null && firstLevel) {
-      Set<VersionlessDependency> firstLevelDependencies =
-          configuration
-              .getAllDependencies()
-              .withType(org.gradle.api.artifacts.ExternalDependency.class)
-              .stream()
-              .map(DependencyFactory::fromDependency)
-              .flatMap(Collection::stream)
-              .collect(Collectors.toSet());
-
-      return external
-          .stream()
-          .map(depCache::get)
-          .filter(
-              dependency -> {
-                VersionlessDependency vDependency = dependency.getVersionless();
-
-                // Always include local dependencies
-                if (vDependency.group().equals(DependencyFactory.LOCAL_GROUP)) {
-                  return true;
-                }
-                return firstLevelDependencies.contains(vDependency);
-              })
-          .collect(Collectors.toSet());
+      return new HashSet<>(firstLevelExternal.values());
     } else {
-      return external.stream().map(depCache::get).collect(Collectors.toSet());
+      return new HashSet<>(allExternal.values());
     }
   }
 
-  public final Set<ExternalDependency> getExternalDeps() {
+  public final Set<OExternalDependency> getExternalDeps() {
     OkBuckExtension okBuckExtension = ProjectUtil.getOkBuckExtension(project);
     ExternalDependenciesExtension externalDependenciesExtension =
         okBuckExtension.getExternalDependenciesExtension();
@@ -227,10 +200,10 @@ public class Scope {
   public JvmPlugin getAnnotationProcessorPlugin() {
     JvmPlugin.Builder jvmPluginBuilder = JvmPlugin.builder();
 
-    Set<ExternalDependency> dependencies = getExternalDeps(true);
+    Set<OExternalDependency> dependencies = getExternalDeps(true);
 
     if (dependencies.size() > 1) {
-      Optional<ExternalDependency> optionalAutoValue =
+      Optional<OExternalDependency> optionalAutoValue =
           dependencies
               .stream()
               .filter(
@@ -240,18 +213,19 @@ public class Scope {
               .findAny();
       Preconditions.checkArgument(
           optionalAutoValue.isPresent(),
-          "Multiple annotation processor dependencies should have auto value");
+          "Multiple annotation processor dependencies should have auto value %s",
+          dependencies);
 
       Preconditions.checkNotNull(configuration);
       String configurationName = configuration.getName();
 
-      ExternalDependency autoValue = optionalAutoValue.get();
+      OExternalDependency autoValue = optionalAutoValue.get();
       String processorUID = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_HYPHEN, configurationName);
 
       jvmPluginBuilder.setPluginUID(processorUID).setPluginDependency(autoValue);
 
     } else if (dependencies.size() == 1) {
-      ExternalDependency dependency = dependencies.stream().findAny().get();
+      OExternalDependency dependency = dependencies.stream().findAny().get();
       jvmPluginBuilder.setPluginUID(dependency.getBaseTargetName()).setPluginDependency(dependency);
 
     } else {
@@ -300,8 +274,35 @@ public class Scope {
   }
 
   private void extractConfiguration(Configuration configuration) {
+    ExternalDependenciesExtension externalDependenciesExtension =
+        ProjectUtil.getExternalDependencyExtension(project);
+
     depCache.addDependencies(configuration.getAllDependencies());
 
+    Set<String> projectFirstLevel =
+        configuration
+            .getAllDependencies()
+            .withType(ProjectDependency.class)
+            .stream()
+            .map(dependency -> dependency.getDependencyProject().getPath())
+            .collect(Collectors.toSet());
+
+    Set<VersionlessDependency> externalFirstLevel =
+        configuration
+            .getAllDependencies()
+            .withType(org.gradle.api.artifacts.ExternalDependency.class)
+            .stream()
+            .map(DependencyFactory::fromDependency)
+            .flatMap(Collection::stream)
+            .collect(Collectors.toSet());
+
+    extractConfigurationImpl(configuration, projectFirstLevel, externalFirstLevel);
+  }
+
+  private void extractConfigurationImpl(
+      Configuration configuration,
+      Set<String> projectFirstLevel,
+      Set<VersionlessDependency> externalFirstLevel) {
     Set<ResolvedArtifactResult> jarArtifacts =
         getArtifacts(configuration, PROJECT_FILTER, ImmutableList.of("jar"));
 
@@ -318,8 +319,14 @@ public class Scope {
           String variant = variantAttr == null ? null : variantAttr.getName();
 
           Project identifierProject = project.project(identifier.getProjectPath());
-          targetDeps.add(
-              ProjectCache.getTargetCache(identifierProject).getTargetForVariant(variant));
+
+          Target target =
+              ProjectCache.getTargetCache(identifierProject).getTargetForVariant(variant);
+          allTargetDeps.add(target);
+
+          if (projectFirstLevel.contains(identifierProject.getPath())) {
+            firstLevelTargetDeps.add(target);
+          }
         });
 
     Set<ResolvedArtifactResult> aarOrJarArtifacts =
@@ -348,7 +355,8 @@ public class Scope {
               && ((ModuleComponentIdentifier) identifier).getVersion().length() > 0) {
             ModuleComponentIdentifier moduleIdentifier = (ModuleComponentIdentifier) identifier;
 
-            ExternalDependency externalDependency =
+            @Var
+            OExternalDependency externalDependency =
                 DependencyFactory.from(
                     moduleIdentifier.getGroup(),
                     moduleIdentifier.getModule(),
@@ -357,7 +365,14 @@ public class Scope {
                     sourcesArtifact != null ? sourcesArtifact.getFile() : null,
                     externalDependenciesExtension,
                     jetifierExtension);
-            external.add(externalDependency);
+
+            externalDependency = depCache.get(externalDependency);
+            allExternal.put(externalDependency.getVersionless(), externalDependency);
+
+            if (externalFirstLevel.contains(externalDependency.getVersionless())) {
+              firstLevelExternal.put(externalDependency.getVersionless(), externalDependency);
+            }
+
           } else {
             String rootProjectPath = project.getRootProject().getProjectDir().getAbsolutePath();
             String artifactPath = artifact.getFile().getAbsolutePath();
@@ -373,13 +388,20 @@ public class Scope {
                             + ". Please move dependency: %s inside %s",
                         artifact.getFile(), project.getRootProject().getProjectDir()));
               }
-              external.add(
+              @Var
+              OExternalDependency localExternalDependency =
                   DependencyFactory.fromLocal(
                       artifact.getFile(),
                       sourcesArtifact != null ? sourcesArtifact.getFile() : null,
                       externalDependenciesExtension,
-                      jetifierExtension));
+                      jetifierExtension);
 
+              localExternalDependency = depCache.get(localExternalDependency);
+              allExternal.put(localExternalDependency.getVersionless(), localExternalDependency);
+
+              // All all local deps to first level
+              firstLevelExternal.put(
+                  localExternalDependency.getVersionless(), localExternalDependency);
             } catch (IOException e) {
               throw new RuntimeException(e);
             }

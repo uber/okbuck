@@ -1,9 +1,8 @@
 package com.uber.okbuck.core.dependency;
 
-import static com.uber.okbuck.core.dependency.BaseExternalDependency.AAR;
-import static com.uber.okbuck.core.dependency.BaseExternalDependency.JAR;
+import static com.uber.okbuck.core.dependency.OResolvedDependency.AAR;
+import static com.uber.okbuck.core.dependency.OResolvedDependency.JAR;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableList;
 import com.uber.okbuck.extension.ExternalDependenciesExtension;
@@ -11,29 +10,34 @@ import com.uber.okbuck.extension.JetifierExtension;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.artifacts.ExcludeRule;
 
 /**
  * Represents a pre packaged dependency from an external source like gradle/maven cache or the
  * filesystem
  */
-public class ExternalDependency {
+public class OExternalDependency {
   private static final String SOURCE_FILE = "-sources.jar";
 
-  private final BaseExternalDependency base;
+  private final OResolvedDependency base;
   private final Path cachePath;
 
   private boolean enableJetifier;
-  private Set<ExternalDependency> dependencies = new HashSet<>();
+  private Map<VersionlessDependency, Set<OExternalDependency>> dependencies = new HashMap<>();
+  private Set<ExcludeRule> excludeRules = new HashSet<>();
 
-  public static Comparator<ExternalDependency> compareByName =
+  public static Comparator<OExternalDependency> compareByName =
       (o1, o2) ->
           ComparisonChain.start()
               .compare(o1.getPackaging(), o2.getPackaging())
@@ -48,7 +52,7 @@ public class ExternalDependency {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    ExternalDependency that = (ExternalDependency) o;
+    OExternalDependency that = (OExternalDependency) o;
     return Objects.equals(base, that.base);
   }
 
@@ -159,12 +163,30 @@ public class ExternalDependency {
     return enableJetifier;
   }
 
-  public void setDeps(Set<ExternalDependency> dependencies) {
-    this.dependencies = dependencies;
+  public synchronized void addExcludeRules(Set<ExcludeRule> excludeRules) {
+    this.excludeRules.addAll(excludeRules);
   }
 
-  public Set<ExternalDependency> getDeps() {
-    return dependencies;
+  public synchronized void addDeps(Set<OExternalDependency> dependencies) {
+    Map<VersionlessDependency, List<OExternalDependency>> dependenciesMap =
+        dependencies.stream().collect(Collectors.groupingBy(OExternalDependency::getVersionless));
+
+    dependenciesMap.entrySet().forEach(entry -> addDep(entry.getKey(), entry.getValue()));
+  }
+
+  private void addDep(VersionlessDependency vDep, List<OExternalDependency> eDeps) {
+    Set<OExternalDependency> externalDependencies;
+    if (this.dependencies.containsKey(vDep)) {
+      externalDependencies = this.dependencies.get(vDep);
+    } else {
+      externalDependencies = new HashSet<>();
+      this.dependencies.put(vDep, externalDependencies);
+    }
+    externalDependencies.addAll(eDeps);
+  }
+
+  public Set<OExternalDependency> getDeps() {
+    return dependencies.values().stream().flatMap(Collection::stream).collect(Collectors.toSet());
   }
 
   String getSourceFileNameFrom(String prebuiltName) {
@@ -174,43 +196,28 @@ public class ExternalDependency {
     throw new RuntimeException("Couldn't get sources file name for " + prebuiltName);
   }
 
-  ExternalDependency(
-      String group,
-      String name,
-      String version,
-      @Nullable String classifier,
-      File dependencyFile,
-      @Nullable File dependencySourceFile,
+  protected OExternalDependency(
+      OResolvedDependency resolvedDependency,
       ExternalDependenciesExtension externalDependenciesExtension,
       JetifierExtension jetifierExtension) {
-    VersionlessDependency versionlessDependency =
-        VersionlessDependency.builder()
-            .setGroup(group)
-            .setName(name)
-            .setClassifier(Optional.ofNullable(Strings.emptyToNull(classifier)))
-            .build();
 
-    this.base =
-        BaseExternalDependency.builder()
-            .setVersionless(versionlessDependency)
-            .setVersion(version)
-            .setIsVersioned(externalDependenciesExtension.isVersioned(versionlessDependency))
-            .setRealDependencyFile(dependencyFile)
-            .setRealDependencySourceFile(Optional.ofNullable(dependencySourceFile))
-            .build();
-
-    this.enableJetifier = jetifierExtension.shouldJetify(group, name, getPackaging());
+    this.base = resolvedDependency;
+    this.enableJetifier =
+        jetifierExtension.shouldJetify(
+            resolvedDependency.versionless().group(),
+            resolvedDependency.versionless().name(),
+            getPackaging());
     this.cachePath = Paths.get(externalDependenciesExtension.getCache());
   }
 
-  public static Set<ExternalDependency> filterAar(Set<ExternalDependency> dependencies) {
+  public static Set<OExternalDependency> filterAar(Set<OExternalDependency> dependencies) {
     return dependencies
         .stream()
         .filter(dependency -> dependency.getPackaging().equals(AAR))
         .collect(Collectors.toSet());
   }
 
-  public static Set<ExternalDependency> filterJar(Set<ExternalDependency> dependencies) {
+  public static Set<OExternalDependency> filterJar(Set<OExternalDependency> dependencies) {
     return dependencies
         .stream()
         .filter(dependency -> dependency.getPackaging().equals(JAR))

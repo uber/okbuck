@@ -6,7 +6,7 @@ import com.sun.istack.Nullable;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.base.BuckRuleComposer;
 import com.uber.okbuck.core.dependency.DependencyCache;
-import com.uber.okbuck.core.dependency.ExternalDependency;
+import com.uber.okbuck.core.dependency.OExternalDependency;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
@@ -46,7 +46,7 @@ public final class JetifierManager {
   private static final ImmutableList<String> INTERNAL_MODULES =
       ImmutableList.of("jetifier-standalone.jar");
 
-  @Nullable private Set<ExternalDependency> dependencies;
+  @Nullable private Set<OExternalDependency> dependencies;
   private final Project project;
   private final BuckFileManager buckFileManager;
   private final OkBuckExtension okBuckExtension;

@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.base.BuckRuleComposer;
 import com.uber.okbuck.core.dependency.DependencyCache;
-import com.uber.okbuck.core.dependency.ExternalDependency;
+import com.uber.okbuck.core.dependency.OExternalDependency;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.template.config.SymlinkBuckFile;
@@ -30,7 +30,7 @@ public final class RobolectricManager {
 
   private final Project rootProject;
   private final BuckFileManager buckFileManager;
-  @Nullable private ImmutableSet<ExternalDependency> dependencies;
+  @Nullable private ImmutableSet<OExternalDependency> dependencies;
 
   public RobolectricManager(Project rootProject, BuckFileManager buckFileManager) {
     this.rootProject = rootProject;
@@ -79,7 +79,7 @@ public final class RobolectricManager {
           dependencies
               .stream()
               .collect(
-                  Collectors.toMap(BuckRuleComposer::external, ExternalDependency::getTargetName));
+                  Collectors.toMap(BuckRuleComposer::external, OExternalDependency::getTargetName));
 
       Rule fileGroup =
           new SymlinkBuckFile()

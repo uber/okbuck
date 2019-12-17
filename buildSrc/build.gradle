@@ -54,6 +54,7 @@ dependencies {
     implementation deps.build.rockerRuntime
     implementation deps.build.jna
     implementation deps.build.jnaPlatform
+    implementation deps.external.guava
 
     testImplementation deps.test.junit
 }
@@ -99,7 +100,8 @@ task sourcesJar(type: Jar) {
     classifier = "sources"
 }
 
-def publishVersion = "0.49.3"
+def publishVersion = "0.50.3-LOCAL"
+
 group = "com.uber"
 version = publishVersion
 def siteUrl = "https://github.com/uber/okbuck"

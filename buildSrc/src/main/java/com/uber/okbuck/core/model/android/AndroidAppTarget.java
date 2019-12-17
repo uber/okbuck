@@ -8,7 +8,7 @@ import com.android.builder.model.SigningConfig;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.uber.okbuck.core.dependency.ExternalDependency;
+import com.uber.okbuck.core.dependency.OExternalDependency;
 import com.uber.okbuck.core.model.base.Target;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
@@ -103,7 +103,7 @@ public class AndroidAppTarget extends AndroidLibTarget {
   }
 
   @Override
-  public Set<ExternalDependency> getApiExternalDeps() {
+  public Set<OExternalDependency> getApiExternalDeps() {
     // App targets don't have any deps to export
     return ImmutableSet.of();
   }
