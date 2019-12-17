@@ -83,9 +83,9 @@ public abstract class OResolvedDependency {
   @Memoized
   public String targetName() {
     StringBuilder targetName = new StringBuilder(versionless().name());
-    //    if (isVersioned()) {
-    targetName.append(NAME_DELIMITER).append(version());
-    //    }
+    if (isVersioned()) {
+      targetName.append(NAME_DELIMITER).append(version());
+    }
     targetName.append(versionless().classifier().map(c -> NAME_DELIMITER + c).orElse(""));
 
     return targetName.toString();
