@@ -1,7 +1,6 @@
 package com.uber.okbuck.core.dependency;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.extension.ExternalDependenciesExtension;
 import com.uber.okbuck.extension.JetifierExtension;
 import java.io.File;
@@ -113,53 +112,6 @@ public final class DependencyFactory {
             localSourceDependency,
             externalDependenciesExtension,
             jetifierExtension);
-  }
-
-  /**
-   * Returns a set of versionless dependencies from the given gradle dependency.
-   *
-   * @param dependency gradle dependency
-   * @return VersionlessDependency object
-   */
-  public static Set<OUnresolvedDependency> fromDependency1(ExternalDependency dependency) {
-    if (dependency.getVersion() == null) {
-      return ImmutableSet.of();
-    }
-
-    OUnresolvedDependency.Builder uDependencyBuilder =
-        OUnresolvedDependency.builder()
-            .setExcludeRules(dependency.getExcludeRules())
-            .setVersion(dependency.getVersion());
-    VersionlessDependency.Builder vDependencyBuilder =
-        VersionlessDependency.builder().setName(dependency.getName());
-
-    String group = dependency.getGroup();
-
-    if (group == null) {
-      vDependencyBuilder.setGroup(LOCAL_GROUP);
-    } else {
-      vDependencyBuilder.setGroup(group);
-    }
-
-    if (dependency.getArtifacts().size() > 0) {
-      return dependency
-          .getArtifacts()
-          .stream()
-          .map(
-              dependencyArtifact -> {
-                VersionlessDependency versionlessDependency =
-                    vDependencyBuilder
-                        .setClassifier(Optional.ofNullable(dependencyArtifact.getClassifier()))
-                        .build();
-                return uDependencyBuilder.setVersionless(versionlessDependency).build();
-              })
-          .collect(Collectors.toSet());
-    } else {
-      Set<OUnresolvedDependency> dependencies = new HashSet<>();
-      VersionlessDependency versionlessDependency = vDependencyBuilder.build();
-      dependencies.add(uDependencyBuilder.setVersionless(versionlessDependency).build());
-      return dependencies;
-    }
   }
 
   public static synchronized Set<VersionlessDependency> fromDependency(
