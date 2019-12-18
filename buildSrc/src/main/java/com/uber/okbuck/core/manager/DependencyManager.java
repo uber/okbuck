@@ -1,7 +1,7 @@
 package com.uber.okbuck.core.manager;
 
-import static com.uber.okbuck.core.dependency.BaseExternalDependency.AAR;
-import static com.uber.okbuck.core.dependency.BaseExternalDependency.JAR;
+import static com.uber.okbuck.core.dependency.OResolvedDependency.AAR;
+import static com.uber.okbuck.core.dependency.OResolvedDependency.JAR;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
@@ -18,8 +18,8 @@ import com.uber.okbuck.composer.java.PrebuiltRuleComposer;
 import com.uber.okbuck.core.annotation.AnnotationProcessorCache;
 import com.uber.okbuck.core.dependency.DependencyFactory;
 import com.uber.okbuck.core.dependency.DependencyUtils;
-import com.uber.okbuck.core.dependency.ExternalDependency;
-import com.uber.okbuck.core.dependency.LocalExternalDependency;
+import com.uber.okbuck.core.dependency.LocalOExternalDependency;
+import com.uber.okbuck.core.dependency.OExternalDependency;
 import com.uber.okbuck.core.dependency.VersionlessDependency;
 import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.util.FileUtil;
@@ -43,6 +43,7 @@ import org.apache.commons.io.FileUtils;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.artifacts.ExternalDependency;
 import org.gradle.api.artifacts.ResolvedConfiguration;
 import org.gradle.api.artifacts.ResolvedDependency;
 
@@ -53,9 +54,9 @@ public class DependencyManager {
   private final JetifierExtension jetifierExtension;
   private final BuckFileManager buckFileManager;
 
-  private final Set<org.gradle.api.artifacts.ExternalDependency> rawDependencies = new HashSet<>();
+  private final Set<ExternalDependency> rawDependencies = new HashSet<>();
 
-  private final SetMultimap<VersionlessDependency, ExternalDependency> originalDependencyMap =
+  private final SetMultimap<VersionlessDependency, OExternalDependency> originalDependencyMap =
       LinkedHashMultimap.create();
 
   private final HashMap<VersionlessDependency, Boolean> skipPrebuiltDependencyMap = new HashMap<>();
@@ -72,12 +73,11 @@ public class DependencyManager {
     this.sha256Cache = initSha256Cache(rootProject);
   }
 
-  public synchronized void addDependencies(
-      Set<org.gradle.api.artifacts.ExternalDependency> dependencies) {
+  public synchronized void addDependencies(Set<ExternalDependency> dependencies) {
     rawDependencies.addAll(dependencies);
   }
 
-  public synchronized void addDependency(ExternalDependency dependency, boolean skipPrebuilt) {
+  public synchronized void addDependency(OExternalDependency dependency, boolean skipPrebuilt) {
     VersionlessDependency versionless = dependency.getVersionless();
     originalDependencyMap.put(versionless, dependency);
 
@@ -90,7 +90,7 @@ public class DependencyManager {
   }
 
   public void finalizeDependencies() {
-    Map<VersionlessDependency, Collection<ExternalDependency>> filteredDependencyMap =
+    Map<VersionlessDependency, Collection<OExternalDependency>> filteredDependencyMap =
         filterDependencies();
 
     validateDependencies(filteredDependencyMap);
@@ -100,15 +100,15 @@ public class DependencyManager {
     persistSha256Cache(project, sha256Cache);
   }
 
-  private Map<VersionlessDependency, Collection<ExternalDependency>> filterDependencies() {
+  private Map<VersionlessDependency, Collection<OExternalDependency>> filterDependencies() {
     if (!externalDependenciesExtension.useLatest()) {
       return originalDependencyMap.asMap();
     }
 
-    ImmutableMap.Builder<VersionlessDependency, Collection<ExternalDependency>>
+    ImmutableMap.Builder<VersionlessDependency, Collection<OExternalDependency>>
         filteredDependencyMapBuilder = ImmutableMap.builder();
 
-    ImmutableList.Builder<ExternalDependency> dependenciesToResolveBuilder =
+    ImmutableList.Builder<OExternalDependency> dependenciesToResolveBuilder =
         ImmutableList.builder();
 
     originalDependencyMap
@@ -127,29 +127,29 @@ public class DependencyManager {
 
     resolved(dependenciesToResolveBuilder.build())
         .forEach(
-            externalDependency -> {
+            OexternalDependency -> {
               filteredDependencyMapBuilder.put(
-                  externalDependency.getVersionless(), ImmutableList.of(externalDependency));
+                  OexternalDependency.getVersionless(), ImmutableList.of(OexternalDependency));
             });
 
     return filteredDependencyMapBuilder.build();
   }
 
-  private Set<ExternalDependency> resolved(Collection<ExternalDependency> externalDependencies) {
+  private Set<OExternalDependency> resolved(Collection<OExternalDependency> externalDependencies) {
     Configuration detached =
         project
             .getConfigurations()
             .detachedConfiguration(
                 externalDependencies
                     .stream()
-                    .map(ExternalDependency::getAsGradleDependency)
+                    .map(OExternalDependency::getAsGradleDependency)
                     .toArray(Dependency[]::new));
     return DependencyUtils.resolveExternal(
         project, detached, externalDependenciesExtension, jetifierExtension);
   }
 
   private void validateDependencies(
-      Map<VersionlessDependency, Collection<ExternalDependency>> dependencyMap) {
+      Map<VersionlessDependency, Collection<OExternalDependency>> dependencyMap) {
     if (externalDependenciesExtension.versionlessEnabled()) {
       Joiner.MapJoiner mapJoiner = Joiner.on(",\n").withKeyValueSeparator("=");
 
@@ -164,7 +164,7 @@ public class DependencyManager {
               .collect(
                   Collectors.groupingBy(
                       dependency -> dependency.getVersionless().mavenCoords(),
-                      Collectors.mapping(ExternalDependency::getVersion, Collectors.toSet())));
+                      Collectors.mapping(OExternalDependency::getVersion, Collectors.toSet())));
 
       if (extraDependencies.size() > 0) {
         throw new RuntimeException(
@@ -185,7 +185,7 @@ public class DependencyManager {
               .collect(
                   Collectors.groupingBy(
                       dependency -> dependency.getVersionless().mavenCoords(),
-                      Collectors.mapping(ExternalDependency::getVersion, Collectors.toSet())));
+                      Collectors.mapping(OExternalDependency::getVersion, Collectors.toSet())));
 
       if (singleDependencies.size() > 0) {
         throw new RuntimeException(
@@ -196,7 +196,7 @@ public class DependencyManager {
   }
 
   private void updateDependencies(
-      Map<VersionlessDependency, Collection<ExternalDependency>> dependencyMap) {
+      Map<VersionlessDependency, Collection<OExternalDependency>> dependencyMap) {
 
     ExternalDependenciesExtension extension = ProjectUtil.getExternalDependencyExtension(project);
     // Don't create exported deps if not enabled.
@@ -224,7 +224,7 @@ public class DependencyManager {
         .getAllModuleDependencies()
         .forEach(
             rDependency -> {
-              Set<ExternalDependency> childDependencies =
+              Set<OExternalDependency> childDependencies =
                   childDependencies(rDependency, dependencyMap);
 
               if (childDependencies.size() == 0) {
@@ -249,13 +249,13 @@ public class DependencyManager {
 
                         return dependencies.stream().findAny().get();
                       })
-                  .forEach(dependency -> dependency.setDeps(childDependencies));
+                  .forEach(dependency -> dependency.addDeps(childDependencies));
             });
   }
 
-  private static Set<ExternalDependency> childDependencies(
+  private static Set<OExternalDependency> childDependencies(
       ResolvedDependency rDependency,
-      Map<VersionlessDependency, Collection<ExternalDependency>> dependencyMap) {
+      Map<VersionlessDependency, Collection<OExternalDependency>> dependencyMap) {
     return rDependency
         .getChildren()
         .stream()
@@ -293,7 +293,7 @@ public class DependencyManager {
   }
 
   private void processDependencies(
-      Map<VersionlessDependency, Collection<ExternalDependency>> dependencyMap) {
+      Map<VersionlessDependency, Collection<OExternalDependency>> dependencyMap) {
     Path rootPath = project.getRootDir().toPath();
     File cacheDir = rootPath.resolve(externalDependenciesExtension.getCache()).toFile();
     if (cacheDir.exists()) {
@@ -308,7 +308,7 @@ public class DependencyManager {
       throw new IllegalStateException("Couldn't create dependency directory: " + cacheDir);
     }
 
-    Map<Path, List<ExternalDependency>> groupToDependencyMap =
+    Map<Path, List<OExternalDependency>> groupToDependencyMap =
         dependencyMap
             .values()
             .stream()
@@ -323,15 +323,15 @@ public class DependencyManager {
 
     groupToDependencyMap.forEach(
         (basePath, dependencies) -> {
-          ImmutableList.Builder<ExternalDependency> localPrebuiltDependencies =
+          ImmutableList.Builder<OExternalDependency> localPrebuiltDependencies =
               ImmutableList.builder();
-          ImmutableList.Builder<ExternalDependency> prebuiltDependencies = ImmutableList.builder();
-          ImmutableList.Builder<ExternalDependency> httpFileDependencies = ImmutableList.builder();
+          ImmutableList.Builder<OExternalDependency> prebuiltDependencies = ImmutableList.builder();
+          ImmutableList.Builder<OExternalDependency> httpFileDependencies = ImmutableList.builder();
 
           if (externalDependenciesExtension.shouldDownloadInBuck()) {
             dependencies.forEach(
                 dependency -> {
-                  if (dependency instanceof LocalExternalDependency) {
+                  if (dependency instanceof LocalOExternalDependency) {
                     localPrebuiltDependencies.add(dependency);
                   } else if (isPrebuiltDependency(dependency)) {
                     prebuiltDependencies.add(dependency);
@@ -366,17 +366,17 @@ public class DependencyManager {
         });
   }
 
-  private boolean isPrebuiltDependency(ExternalDependency dependency) {
+  private boolean isPrebuiltDependency(OExternalDependency dependency) {
     return !skipPrebuiltDependencyMap.getOrDefault(dependency.getVersionless(), false)
         && (dependency.getPackaging().equals(AAR) || dependency.getPackaging().equals(JAR));
   }
 
-  private static void createSymlinks(Path path, Collection<ExternalDependency> dependencies) {
+  private static void createSymlinks(Path path, Collection<OExternalDependency> dependencies) {
     if (!path.toFile().exists() && !path.toFile().mkdirs()) {
       throw new RuntimeException(String.format("Couldn't create %s when creating symlinks", path));
     }
 
-    SetMultimap<VersionlessDependency, ExternalDependency> nameToDependencyMap =
+    SetMultimap<VersionlessDependency, OExternalDependency> nameToDependencyMap =
         MultimapBuilder.hashKeys().hashSetValues().build();
     dependencies.forEach(
         dependency -> nameToDependencyMap.put(dependency.getVersionless(), dependency));
@@ -397,7 +397,7 @@ public class DependencyManager {
   }
 
   private static void preComputeSha256(
-      List<ExternalDependency> dependencies, HashMap<String, String> sha256Map) {
+      List<OExternalDependency> dependencies, HashMap<String, String> sha256Map) {
     dependencies.forEach(
         dependency -> {
           computeSha256IfAbsent(dependency.getRealDependencyFile(), sha256Map);
@@ -408,7 +408,7 @@ public class DependencyManager {
   }
 
   private static void computeSha256IfAbsent(File file, HashMap<String, String> sha256Map) {
-    String key = ExternalDependency.getGradleSha(file);
+    String key = OExternalDependency.getGradleSha(file);
     sha256Map.computeIfAbsent(key, k -> DependencyUtils.shaSum256(file));
   }
 

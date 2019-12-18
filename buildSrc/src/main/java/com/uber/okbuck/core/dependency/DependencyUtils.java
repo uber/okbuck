@@ -119,7 +119,7 @@ public final class DependencyUtils {
     }
   }
 
-  public static Set<ExternalDependency> resolveExternal(
+  public static Set<OExternalDependency> resolveExternal(
       Project project,
       Configuration configuration,
       ExternalDependenciesExtension externalDependenciesExtension,

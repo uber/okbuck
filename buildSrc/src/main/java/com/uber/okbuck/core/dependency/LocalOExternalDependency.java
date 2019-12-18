@@ -1,7 +1,7 @@
 package com.uber.okbuck.core.dependency;
 
-import static com.uber.okbuck.core.dependency.BaseExternalDependency.AAR;
-import static com.uber.okbuck.core.dependency.BaseExternalDependency.JAR;
+import static com.uber.okbuck.core.dependency.OResolvedDependency.AAR;
+import static com.uber.okbuck.core.dependency.OResolvedDependency.JAR;
 
 import com.google.common.collect.ImmutableList;
 import com.uber.okbuck.core.util.ProjectUtil;
@@ -14,7 +14,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import org.gradle.api.Project;
 
-public final class LocalExternalDependency extends ExternalDependency {
+public final class LocalOExternalDependency extends OExternalDependency {
 
   @Nullable
   Path computeSourceFile(Project project) {
@@ -47,23 +47,10 @@ public final class LocalExternalDependency extends ExternalDependency {
     return optionalSourceFile;
   }
 
-  LocalExternalDependency(
-      String group,
-      String name,
-      String version,
-      @Nullable String classifier,
-      File dependencyFile,
-      @Nullable File dependencySourceFile,
+  LocalOExternalDependency(
+      OResolvedDependency resolvedDependency,
       ExternalDependenciesExtension externalDependenciesExtension,
       JetifierExtension jetifierExtension) {
-    super(
-        group,
-        name,
-        version,
-        classifier,
-        dependencyFile,
-        dependencySourceFile,
-        externalDependenciesExtension,
-        jetifierExtension);
+    super(resolvedDependency, externalDependenciesExtension, jetifierExtension);
   }
 }

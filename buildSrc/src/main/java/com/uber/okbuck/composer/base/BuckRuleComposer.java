@@ -1,6 +1,6 @@
 package com.uber.okbuck.composer.base;
 
-import com.uber.okbuck.core.dependency.ExternalDependency;
+import com.uber.okbuck.core.dependency.OExternalDependency;
 import com.uber.okbuck.core.model.base.Target;
 import com.uber.okbuck.core.model.jvm.JvmTarget;
 import java.nio.file.Path;
@@ -13,15 +13,19 @@ public abstract class BuckRuleComposer {
 
   public BuckRuleComposer() {}
 
-  public static Set<String> external(Set<ExternalDependency> deps) {
+  public static Set<String> external(Set<OExternalDependency> deps) {
     return deps.stream().map(BuckRuleComposer::external).collect(Collectors.toSet());
   }
 
-  public static String external(ExternalDependency dep) {
-    return String.format("//%s:%s", dep.getTargetPath(), dep.getTargetName());
+  public static String external(OExternalDependency dep) {
+    try {
+      return String.format("//%s:%s", dep.getTargetPath(), dep.getTargetName());
+    } catch (NullPointerException e) {
+      throw new RuntimeException(e);
+    }
   }
 
-  public static Set<String> externalApt(Set<ExternalDependency> deps) {
+  public static Set<String> externalApt(Set<OExternalDependency> deps) {
     return external(deps);
   }
 

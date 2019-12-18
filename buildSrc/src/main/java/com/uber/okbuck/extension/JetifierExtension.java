@@ -1,7 +1,7 @@
 package com.uber.okbuck.extension;
 
 import com.google.common.collect.ImmutableSet;
-import com.uber.okbuck.core.dependency.BaseExternalDependency;
+import com.uber.okbuck.core.dependency.OResolvedDependency;
 import com.uber.okbuck.core.manager.JetifierManager;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -81,7 +81,7 @@ public class JetifierExtension {
     if (!enableJetifier) {
       return false;
     }
-    if (aarOnly && packaging.equals(BaseExternalDependency.JAR)) {
+    if (aarOnly && packaging.equals(OResolvedDependency.JAR)) {
       return false;
     }
     return getExcludePatterns()

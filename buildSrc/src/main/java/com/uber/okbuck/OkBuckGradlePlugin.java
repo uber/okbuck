@@ -4,6 +4,7 @@ import com.facebook.infer.annotation.Initializer;
 import com.google.common.collect.Sets;
 import com.uber.okbuck.core.annotation.AnnotationProcessorCache;
 import com.uber.okbuck.core.dependency.DependencyCache;
+import com.uber.okbuck.core.dependency.DependencyFactory;
 import com.uber.okbuck.core.manager.BuckFileManager;
 import com.uber.okbuck.core.manager.BuckManager;
 import com.uber.okbuck.core.manager.DependencyManager;
@@ -209,6 +210,9 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
                 // the target cache is accessed by other projects and have to
                 // be available until okbuck tasks of all the projects finishes.
                 ProjectCache.resetTargetCacheForAll(rootProject);
+
+                // Cleanup static maps in dependency factory.
+                DependencyFactory.cleanup();
               });
 
           WrapperExtension wrapper = okbuckExt.getWrapperExtension();

@@ -1,7 +1,7 @@
 package com.uber.okbuck.composer.common;
 
 import com.google.common.base.Preconditions;
-import com.uber.okbuck.core.dependency.ExternalDependency;
+import com.uber.okbuck.core.dependency.OExternalDependency;
 import com.uber.okbuck.template.common.HttpFile;
 import com.uber.okbuck.template.core.Rule;
 import java.util.Collection;
@@ -18,14 +18,14 @@ public class HttpFileRuleComposer {
    * @return List of rules
    */
   public static List<Rule> compose(
-      Collection<ExternalDependency> dependencies, HashMap<String, String> shaSum256) {
+      Collection<OExternalDependency> dependencies, HashMap<String, String> shaSum256) {
     return dependencies
         .stream()
-        .sorted(ExternalDependency.compareByName)
+        .sorted(OExternalDependency.compareByName)
         .map(
             dependency -> {
               String sha256Key =
-                  ExternalDependency.getGradleSha(dependency.getRealDependencyFile());
+                  OExternalDependency.getGradleSha(dependency.getRealDependencyFile());
               String sha256 = Preconditions.checkNotNull(shaSum256.get(sha256Key));
 
               Rule rule =

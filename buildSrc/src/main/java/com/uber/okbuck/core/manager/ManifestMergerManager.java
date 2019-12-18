@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.base.BuckRuleComposer;
 import com.uber.okbuck.core.dependency.DependencyCache;
-import com.uber.okbuck.core.dependency.ExternalDependency;
+import com.uber.okbuck.core.dependency.OExternalDependency;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
@@ -39,7 +39,7 @@ public final class ManifestMergerManager {
   private final Project rootProject;
   private final BuckFileManager buckFileManager;
 
-  @Nullable private ImmutableSet<ExternalDependency> dependencies;
+  @Nullable private ImmutableSet<OExternalDependency> dependencies;
 
   public ManifestMergerManager(Project rootProject, BuckFileManager buckFileManager) {
     this.rootProject = rootProject;

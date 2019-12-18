@@ -2,7 +2,7 @@ package com.uber.okbuck.core.util;
 
 import com.uber.okbuck.composer.base.BuckRuleComposer;
 import com.uber.okbuck.core.dependency.DependencyCache;
-import com.uber.okbuck.core.dependency.ExternalDependency;
+import com.uber.okbuck.core.dependency.OExternalDependency;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
@@ -30,9 +30,9 @@ public final class ProguardUtil {
                     PROGUARD_GROUP, PROGUARD_MODULE, proguardVersion));
 
     DependencyCache cache = new DependencyCache(project, ProjectUtil.getDependencyManager(project));
-    Set<ExternalDependency> dependencies = cache.build(proguardConfiguration);
+    Set<OExternalDependency> dependencies = cache.build(proguardConfiguration);
 
-    Optional<ExternalDependency> proguardDependency =
+    Optional<OExternalDependency> proguardDependency =
         dependencies
             .stream()
             .filter(

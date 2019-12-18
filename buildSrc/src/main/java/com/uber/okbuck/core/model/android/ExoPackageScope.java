@@ -6,7 +6,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.Var;
-import com.uber.okbuck.core.dependency.ExternalDependency;
+import com.uber.okbuck.core.dependency.OExternalDependency;
 import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.model.base.Target;
 import com.uber.okbuck.core.util.FileUtil;
@@ -104,7 +104,7 @@ public class ExoPackageScope extends Scope {
             qualified = false;
           }
 
-          Optional<ExternalDependency> externalDepOptional =
+          Optional<OExternalDependency> externalDepOptional =
               base.getExternalDeps(false)
                   .stream()
                   .filter(
@@ -119,7 +119,9 @@ public class ExoPackageScope extends Scope {
                   .findFirst();
 
           if (externalDepOptional.isPresent()) {
-            this.external.add(externalDepOptional.get());
+            OExternalDependency externalDependency = externalDepOptional.get();
+            this.allExternal.put(externalDependency.getVersionless(), externalDependency);
+            this.firstLevelExternal.put(externalDependency.getVersionless(), externalDependency);
           } else {
             Optional<Target> variantDepOptional =
                 base.getTargetDeps(false)
@@ -135,7 +137,8 @@ public class ExoPackageScope extends Scope {
                         })
                     .findFirst();
 
-            variantDepOptional.ifPresent(targetDeps::add);
+            variantDepOptional.ifPresent(allTargetDeps::add);
+            variantDepOptional.ifPresent(firstLevelTargetDeps::add);
           }
         });
   }

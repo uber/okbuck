@@ -1,19 +1,17 @@
 package com.uber.okbuck.composer.jvm;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.model.base.SourceSetType;
 import com.uber.okbuck.core.model.jvm.JvmTarget;
 import com.uber.okbuck.template.core.Rule;
 import com.uber.okbuck.template.jvm.JvmRule;
-
-import java.util.List;
 import java.util.Set;
 
 public final class JvmIntegrationTestRuleComposer extends JvmBuckRuleComposer {
 
-  private static final ImmutableSet<String> JAVA_TEST_LABELS = ImmutableSet.of("integration", "java");
+  private static final ImmutableSet<String> JAVA_TEST_LABELS =
+      ImmutableSet.of("integration", "java");
 
   private JvmIntegrationTestRuleComposer() {
     // no instance

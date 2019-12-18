@@ -1,7 +1,7 @@
 package com.uber.okbuck.core.util;
 
-import static com.uber.okbuck.core.dependency.BaseExternalDependency.AAR;
-import static com.uber.okbuck.core.dependency.BaseExternalDependency.JAR;
+import static com.uber.okbuck.core.dependency.OResolvedDependency.AAR;
+import static com.uber.okbuck.core.dependency.OResolvedDependency.JAR;
 
 import com.android.build.gradle.AppPlugin;
 import com.android.build.gradle.LibraryPlugin;

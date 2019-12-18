@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.base.BuckRuleComposer;
 import com.uber.okbuck.core.dependency.DependencyCache;
-import com.uber.okbuck.core.dependency.ExternalDependency;
+import com.uber.okbuck.core.dependency.OExternalDependency;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.template.config.groovy.GroovyBuckFile;
@@ -31,7 +31,7 @@ public final class GroovyManager {
 
   private final Project rootProject;
   private final BuckFileManager buckFileManager;
-  @Nullable private Set<ExternalDependency> dependencies;
+  @Nullable private Set<OExternalDependency> dependencies;
 
   public GroovyManager(Project rootProject, BuckFileManager buckFileManager) {
     this.rootProject = rootProject;
@@ -68,7 +68,7 @@ public final class GroovyManager {
       new StartGroovy().groovyVersion(groovyVersion).render(startGroovy);
       startGroovy.setExecutable(true);
 
-      ExternalDependency groovyAll = dependencies.iterator().next();
+      OExternalDependency groovyAll = dependencies.iterator().next();
 
       Rule groovyHomeRule =
           new GroovyBuckFile()

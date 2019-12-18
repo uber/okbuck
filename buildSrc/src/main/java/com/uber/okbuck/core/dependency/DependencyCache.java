@@ -22,6 +22,7 @@ import org.apache.commons.io.IOUtils;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.DependencySet;
+import org.gradle.api.artifacts.ExternalDependency;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +32,7 @@ public class DependencyCache {
   private final Project rootProject;
   private final DependencyManager dependencyManager;
   private final boolean skipPrebuilt;
-  private final Map<VersionlessDependency, ExternalDependency> forcedDeps = new HashMap<>();
+  private final Map<VersionlessDependency, OExternalDependency> forcedDeps = new HashMap<>();
 
   public DependencyCache(
       Project project,
@@ -65,9 +66,9 @@ public class DependencyCache {
     this(project, dependencyManager, skipPrebuilt, null);
   }
 
-  public final ExternalDependency get(ExternalDependency externalDependency) {
+  public final OExternalDependency get(OExternalDependency externalDependency) {
     LOG.info("Requested dependency {}", externalDependency);
-    ExternalDependency dependency =
+    OExternalDependency dependency =
         forcedDeps.getOrDefault(externalDependency.getVersionless(), externalDependency);
     LOG.info("Picked dependency {}", dependency);
 
@@ -80,9 +81,9 @@ public class DependencyCache {
     this.dependencyManager.addDependencies(
         dependencySet
             .stream()
-            .filter(dependency -> dependency instanceof org.gradle.api.artifacts.ExternalDependency)
+            .filter(dependency -> dependency instanceof ExternalDependency)
             .filter(dependency -> dependency.getGroup() != null && dependency.getVersion() != null)
-            .map(dependency -> (org.gradle.api.artifacts.ExternalDependency) dependency)
+            .map(dependency -> (ExternalDependency) dependency)
             .collect(Collectors.toSet()));
   }
 
@@ -92,8 +93,8 @@ public class DependencyCache {
    * @param externalDependency The dependency
    * @return The list of annotation processor classes available in the manifest
    */
-  public Set<String> getAnnotationProcessors(ExternalDependency externalDependency) {
-    ExternalDependency dependency =
+  public Set<String> getAnnotationProcessors(OExternalDependency externalDependency) {
+    OExternalDependency dependency =
         forcedDeps.getOrDefault(externalDependency.getVersionless(), externalDependency);
 
     try {
@@ -115,8 +116,8 @@ public class DependencyCache {
    * @param externalDependency The dependency
    * @return Whether the dependency has auto value extension.
    */
-  public boolean hasAutoValueExtension(ExternalDependency externalDependency) {
-    ExternalDependency dependency =
+  public boolean hasAutoValueExtension(OExternalDependency externalDependency) {
+    OExternalDependency dependency =
         forcedDeps.getOrDefault(externalDependency.getVersionless(), externalDependency);
     try {
       String extensions =
@@ -159,7 +160,7 @@ public class DependencyCache {
    *
    * @param configuration The configuration to materialize into the dependency cache
    */
-  public Set<ExternalDependency> build(Configuration configuration) {
+  public Set<OExternalDependency> build(Configuration configuration) {
     OkBuckExtension okBuckExtension = ProjectUtil.getOkBuckExtension(rootProject);
 
     ExternalDependenciesExtension externalDependenciesExtension =
@@ -175,7 +176,7 @@ public class DependencyCache {
         .collect(Collectors.toSet());
   }
 
-  private Set<ExternalDependency> build(String configuration) {
+  private Set<OExternalDependency> build(String configuration) {
     Configuration useful = DependencyUtils.useful(configuration, rootProject);
 
     Preconditions.checkNotNull(useful);

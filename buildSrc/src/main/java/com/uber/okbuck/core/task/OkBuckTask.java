@@ -1,15 +1,15 @@
 package com.uber.okbuck.core.task;
 
+import static com.uber.okbuck.OkBuckGradlePlugin.OKBUCK_ANDROID_MODULES_FILE;
 import static com.uber.okbuck.OkBuckGradlePlugin.OKBUCK_PREBUILT_FILE;
 import static com.uber.okbuck.OkBuckGradlePlugin.OKBUCK_TARGETS_FILE;
-import static com.uber.okbuck.OkBuckGradlePlugin.OKBUCK_ANDROID_MODULES_FILE;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.TreeMultimap;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.base.BuckRuleComposer;
-import com.uber.okbuck.core.dependency.ExternalDependency;
+import com.uber.okbuck.core.dependency.OExternalDependency;
 import com.uber.okbuck.core.manager.BuckFileManager;
 import com.uber.okbuck.core.manager.GroovyManager;
 import com.uber.okbuck.core.manager.KotlinManager;
@@ -92,7 +92,7 @@ public class OkBuckTask extends DefaultTask {
             .stream()
             .anyMatch(project -> ProjectUtil.getType(project) == ProjectType.SCALA_LIB);
     if (hasScalaLib) {
-      Set<ExternalDependency> scalaDeps =
+      Set<OExternalDependency> scalaDeps =
           ProjectUtil.getScalaManager(getProject()).setupScalaHome(scalaExtension.version);
       scalaLibraryLocation =
           BuckRuleComposer.external(
@@ -219,19 +219,22 @@ public class OkBuckTask extends DefaultTask {
 
     // might be null as okbuck doesn't define a custom override for this.
     if (androidResourceSetting != null) {
-      unifiedLibsLoadStatements
-          .put(androidResourceSetting.getImportLocation(), androidResourceSetting.getNewRuleName());
+      unifiedLibsLoadStatements.put(
+          androidResourceSetting.getImportLocation(), androidResourceSetting.getNewRuleName());
     }
-    unifiedLibsLoadStatements.put(androidLibrarySetting.getImportLocation(), androidLibrarySetting.getNewRuleName());
-    unifiedLibsLoadStatements.put(manifestSetting.getImportLocation(), manifestSetting.getNewRuleName());
+    unifiedLibsLoadStatements.put(
+        androidLibrarySetting.getImportLocation(), androidLibrarySetting.getNewRuleName());
+    unifiedLibsLoadStatements.put(
+        manifestSetting.getImportLocation(), manifestSetting.getNewRuleName());
 
-    Rule okbuckAndroidModules = new OkbuckAndroidModules()
-        .androidLibraryRule(androidLibrarySetting.getNewRuleName())
-        .manifestRule(manifestSetting.getNewRuleName())
-        .androidResourceRule(
-            androidResourceSetting != null ?
-                androidResourceSetting.getNewRuleName() :
-                "native." + RuleType.ANDROID_RESOURCE.getBuckName());
+    Rule okbuckAndroidModules =
+        new OkbuckAndroidModules()
+            .androidLibraryRule(androidLibrarySetting.getNewRuleName())
+            .manifestRule(manifestSetting.getNewRuleName())
+            .androidResourceRule(
+                androidResourceSetting != null
+                    ? androidResourceSetting.getNewRuleName()
+                    : "native." + RuleType.ANDROID_RESOURCE.getBuckName());
 
     buckFileManager.writeToBuckFile(
         ImmutableList.of(okbuckAndroidModules), okbuckAndroidModules(), unifiedLibsLoadStatements);

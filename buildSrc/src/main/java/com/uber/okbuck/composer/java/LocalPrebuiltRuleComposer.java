@@ -1,10 +1,10 @@
 package com.uber.okbuck.composer.java;
 
-import static com.uber.okbuck.core.dependency.BaseExternalDependency.AAR;
-import static com.uber.okbuck.core.dependency.BaseExternalDependency.JAR;
+import static com.uber.okbuck.core.dependency.OResolvedDependency.AAR;
+import static com.uber.okbuck.core.dependency.OResolvedDependency.JAR;
 
 import com.uber.okbuck.composer.jvm.JvmBuckRuleComposer;
-import com.uber.okbuck.core.dependency.ExternalDependency;
+import com.uber.okbuck.core.dependency.OExternalDependency;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.template.core.Rule;
 import com.uber.okbuck.template.java.NativePrebuilt;
@@ -18,10 +18,10 @@ public class LocalPrebuiltRuleComposer extends JvmBuckRuleComposer {
    * @return List of rules
    */
   @SuppressWarnings("NullAway")
-  public static List<Rule> compose(Collection<ExternalDependency> dependencies) {
+  public static List<Rule> compose(Collection<OExternalDependency> dependencies) {
     return dependencies
         .stream()
-        .sorted(ExternalDependency.compareByName)
+        .sorted(OExternalDependency.compareByName)
         .map(
             dependency -> {
               RuleType ruleType;
