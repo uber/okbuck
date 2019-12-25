@@ -73,7 +73,7 @@ public class DependencyManager {
     this.sha256Cache = initSha256Cache(rootProject);
   }
 
-  public synchronized void addDependencies(Set<ExternalDependency> dependencies) {
+  public synchronized void addRawDependencies(Set<ExternalDependency> dependencies) {
     rawDependencies.addAll(dependencies);
   }
 
@@ -127,9 +127,9 @@ public class DependencyManager {
 
     resolved(dependenciesToResolveBuilder.build())
         .forEach(
-            OexternalDependency -> {
+            externalDependency -> {
               filteredDependencyMapBuilder.put(
-                  OexternalDependency.getVersionless(), ImmutableList.of(OexternalDependency));
+                  externalDependency.getVersionless(), ImmutableList.of(externalDependency));
             });
 
     return filteredDependencyMapBuilder.build();
@@ -174,10 +174,9 @@ public class DependencyManager {
 
       Map<String, Set<String>> singleDependencies =
           dependencyMap
-              .entrySet()
+              .values()
               .stream()
-              .filter(entry -> entry.getValue().size() == 1)
-              .map(Map.Entry::getValue)
+              .filter(externalDependencies -> externalDependencies.size() == 1)
               .flatMap(Collection::stream)
               .filter(
                   dependency ->
@@ -199,14 +198,9 @@ public class DependencyManager {
       Map<VersionlessDependency, Collection<OExternalDependency>> dependencyMap) {
 
     ExternalDependenciesExtension extension = ProjectUtil.getExternalDependencyExtension(project);
-    // Don't create exported deps if not enabled.
-    if (!extension.exportedDepsEnabled()) {
+    // This code-path is when versionless & exported deps is enabled
+    if (!extension.versionlessExportedDepsEnabled()) {
       return;
-    }
-
-    if (!extension.versionlessEnabled()) {
-      throw new RuntimeException(
-          "Exported deps only works when resolutionAction is latest or single");
     }
 
     Configuration config = project.getConfigurations().create("okbuckDependencyResolver");
@@ -237,7 +231,7 @@ public class DependencyManager {
                   .peek(
                       it -> {
                         if (!dependencyMap.containsKey(it)) {
-                          throw dependencyException(rDependency);
+                          dependencyException(rDependency);
                         }
                       })
                   .map(dependencyMap::get)
@@ -245,7 +239,8 @@ public class DependencyManager {
                       dependencies -> {
                         Preconditions.checkArgument(
                             dependencies.size() == 1,
-                            "Dependency having multiple versions can't have deps: " + dependencies);
+                            "Dependency having multiple versions can't have deps: m"
+                                + dependencies);
 
                         return dependencies.stream().findAny().get();
                       })
@@ -266,7 +261,7 @@ public class DependencyManager {
                     .peek(
                         it -> {
                           if (!dependencyMap.containsKey(it)) {
-                            throw dependencyException(cDependency);
+                            dependencyException(cDependency);
                           }
                         })
                     .map(dependencyMap::get)
@@ -283,8 +278,8 @@ public class DependencyManager {
         .collect(Collectors.toSet());
   }
 
-  private static RuntimeException dependencyException(ResolvedDependency dependency) {
-    return new RuntimeException(
+  private static void dependencyException(ResolvedDependency dependency) {
+    throw new RuntimeException(
         "Couldn't find "
             + dependency
             + " child of parents -> "

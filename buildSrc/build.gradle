@@ -54,6 +54,7 @@ dependencies {
     implementation deps.build.rockerRuntime
     implementation deps.build.jna
     implementation deps.build.jnaPlatform
+    implementation deps.build.mavenArtifact
     implementation deps.external.guava
 
     testImplementation deps.test.junit

@@ -9,6 +9,8 @@ import com.uber.okbuck.extension.ExternalDependenciesExtension;
 import com.uber.okbuck.extension.JetifierExtension;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -16,8 +18,10 @@ import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.ResolvedDependency;
 import org.gradle.api.artifacts.UnknownConfigurationException;
 import org.gradle.api.artifacts.component.ComponentIdentifier;
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier;
@@ -219,5 +223,68 @@ public final class DependencyUtils {
             + "See https://github.com/uber/okbuck/wiki/Known-caveats#could-not-resolve-all-"
             + "dependencies-for-configuration for more information.",
         e);
+  }
+
+  @Nullable
+  static OExternalDependency lowest(Collection<OExternalDependency> dependencyList) {
+    if (dependencyList.size() == 0) {
+      return null;
+    }
+
+    if (dependencyList.size() == 1) {
+      return dependencyList.iterator().next();
+    }
+
+    Set<VersionlessDependency> versionless =
+        dependencyList
+            .stream()
+            .map(OExternalDependency::getVersionless)
+            .collect(Collectors.toSet());
+    if (versionless.size() != 1) {
+      throw new RuntimeException(
+          String.format(
+              "Lowest could only be found for the same group:artifactID, found -> %s",
+              dependencyList));
+    }
+
+    return Collections.min(
+        dependencyList,
+        (t1, t2) -> {
+          ComparableVersion versionT1 = new ComparableVersion(t1.getVersion());
+          ComparableVersion versionT2 = new ComparableVersion(t2.getVersion());
+          return versionT1.compareTo(versionT2);
+        });
+  }
+
+  public static Set<String> filterProjectDeps(ResolvedDependency dependency) {
+    return dependency
+        .getModuleArtifacts()
+        .stream()
+        .map(artifact -> artifact.getId().getComponentIdentifier())
+        .filter(artifactId -> artifactId instanceof ProjectComponentIdentifier)
+        .map(artifactId -> (ProjectComponentIdentifier) artifactId)
+        .map(ProjectComponentIdentifier::getProjectPath)
+        .collect(Collectors.toSet());
+  }
+
+  public static Set<ComponentIdentifier> filterExternalDeps(ResolvedDependency dependency) {
+    return dependency
+        .getModuleArtifacts()
+        .stream()
+        .map(artifact -> artifact.getId().getComponentIdentifier())
+        .filter(artifactId -> !(artifactId instanceof ProjectComponentIdentifier))
+        .collect(Collectors.toSet());
+  }
+
+  public static boolean isExternal(ResolvedDependency dependency) {
+    return dependency
+        .getModuleArtifacts()
+        .stream()
+        .map(artifact -> artifact.getId().getComponentIdentifier())
+        .anyMatch(artifactId -> !(artifactId instanceof ProjectComponentIdentifier));
+  }
+
+  public static String versionlessGroupingKey(ResolvedDependency dependency) {
+    return dependency.getModuleGroup() + ":" + dependency.getModuleName();
   }
 }

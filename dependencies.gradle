@@ -52,6 +52,7 @@ def build = [
         sqlDelightPlugin : "com.squareup.sqldelight:gradle-plugin:1.0.0",
         jna              : "net.java.dev.jna:jna:5.2.0",
         jnaPlatform      : "net.java.dev.jna:jna-platform:5.2.0",
+        mavenArtifact    : "org.apache.maven:maven-artifact:3.6.2",
 ]
 
 def buildConfig = [
