@@ -38,7 +38,10 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.ExternalDependency;
 import org.gradle.api.artifacts.ProjectDependency;
+import org.gradle.api.artifacts.ResolvedConfiguration;
+import org.gradle.api.artifacts.ResolvedDependency;
 import org.gradle.api.artifacts.component.ComponentIdentifier;
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier;
 import org.gradle.api.artifacts.component.ProjectComponentIdentifier;
@@ -277,8 +280,11 @@ public class Scope {
     ExternalDependenciesExtension externalDependenciesExtension =
         ProjectUtil.getExternalDependencyExtension(project);
 
+    // Add raw dependency to dep cache. Used to resolved 3rdparty
+    // dependencies when versionless is enabled.
     depCache.addDependencies(configuration.getAllDependencies());
 
+    // Get first level project deps defined for the project's configuration
     Set<String> projectFirstLevel =
         configuration
             .getAllDependencies()
@@ -287,16 +293,125 @@ public class Scope {
             .map(dependency -> dependency.getDependencyProject().getPath())
             .collect(Collectors.toSet());
 
+    // Get first level external deps defined for the project's configuration
     Set<VersionlessDependency> externalFirstLevel =
         configuration
             .getAllDependencies()
-            .withType(org.gradle.api.artifacts.ExternalDependency.class)
+            .withType(ExternalDependency.class)
             .stream()
             .map(DependencyFactory::fromDependency)
             .flatMap(Collection::stream)
             .collect(Collectors.toSet());
 
+    @Var Set<ResolvedDependency> allModuleDependencies = null;
+
+    if (externalDependenciesExtension.versionedExportedDepsEnabled()) {
+      ResolvedConfiguration resolvedConfiguration = configuration.getResolvedConfiguration();
+      if (resolvedConfiguration.hasError()) {
+        // Throw failure if there was one during resolution
+        resolvedConfiguration.rethrowFailure();
+      }
+
+      Set<ResolvedDependency> firstLevelModuleDependencies =
+          resolvedConfiguration.getLenientConfiguration().getFirstLevelModuleDependencies();
+      allModuleDependencies =
+          resolvedConfiguration.getLenientConfiguration().getAllModuleDependencies();
+
+      // Infer first level project deps from the resolved graph and add to the projectFirstLevel
+      // list. This can happen if there are resolution rules which substitute a direct external
+      // dep with a project dep.
+      Set<String> directProjectDeps =
+          firstLevelModuleDependencies
+              .stream()
+              .map(DependencyUtils::filterProjectDeps)
+              .flatMap(Collection::stream)
+              .collect(Collectors.toSet());
+      projectFirstLevel.addAll(directProjectDeps);
+
+      // Infer transitive project deps of an external dependency from the resolved graph and add
+      // to the projectFirstLevel list. This can happen if there are resolution rules which
+      // substitute a transitive external dep with a project dep.
+      Set<String> transitiveProjectDeps =
+          allModuleDependencies
+              .stream()
+              .filter(DependencyUtils::isExternal)
+              .map(ResolvedDependency::getChildren)
+              .flatMap(Collection::stream)
+              .distinct()
+              .map(DependencyUtils::filterProjectDeps)
+              .flatMap(Collection::stream)
+              .collect(Collectors.toSet());
+      projectFirstLevel.addAll(transitiveProjectDeps);
+
+      Set<VersionlessDependency> firstLevelExternal =
+          firstLevelModuleDependencies
+              .stream()
+              .map(DependencyFactory::fromDependency)
+              .flatMap(Collection::stream)
+              .collect(Collectors.toSet());
+      externalFirstLevel.addAll(firstLevelExternal);
+    }
+
     extractConfigurationImpl(configuration, projectFirstLevel, externalFirstLevel);
+
+    if (externalDependenciesExtension.versionedExportedDepsEnabled()) {
+      Preconditions.checkNotNull(allModuleDependencies);
+
+      allModuleDependencies
+          .stream()
+          .collect(Collectors.groupingBy(DependencyUtils::versionlessGroupingKey))
+          .values()
+          .forEach(
+              rDeps -> {
+
+                // Get all child deps
+                Set<OExternalDependency> childEDeps =
+                    rDeps
+                        .stream()
+                        .map(ResolvedDependency::getChildren)
+                        .flatMap(Collection::stream)
+                        .map(DependencyFactory::fromDependency)
+                        .flatMap(Collection::stream)
+                        .map(allExternal::get)
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toSet());
+
+                // Update all matching external deps with this child deps
+                rDeps
+                    .stream()
+                    .map(DependencyFactory::fromDependency)
+                    .flatMap(Collection::stream)
+                    .map(allExternal::get)
+                    .filter(Objects::nonNull)
+                    .forEach(eDep -> eDep.addDeps(childEDeps));
+
+                // Add all child deps as first level deps if there are no self artifacts;
+                rDeps.forEach(
+                    rDep -> {
+                      if (rDep.getModuleArtifacts().size() == 0) {
+                        childEDeps.forEach(i -> firstLevelExternal.put(i.getVersionless(), i));
+                      }
+                    });
+              });
+
+      // Add exclude rule to the external dependency.
+      configuration
+          .getAllDependencies()
+          .stream()
+          .filter(dependency -> dependency instanceof ExternalDependency)
+          .map(dependency -> (ExternalDependency) dependency)
+          .forEach(
+              dependency -> {
+                Set<VersionlessDependency> vDeps = DependencyFactory.fromDependency(dependency);
+                vDeps.forEach(
+                    vDep -> {
+                      OExternalDependency eDep = allExternal.getOrDefault(vDep, null);
+                      if (eDep != null) {
+                        eDep.addExcludeRules(dependency.getExcludeRules());
+                      }
+                    });
+              });
+    }
   }
 
   private void extractConfigurationImpl(

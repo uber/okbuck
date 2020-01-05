@@ -10,12 +10,8 @@ import com.uber.okbuck.extension.JetifierExtension;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -34,7 +30,7 @@ public class OExternalDependency {
   private final Path cachePath;
 
   private boolean enableJetifier;
-  private Map<VersionlessDependency, Set<OExternalDependency>> dependencies = new HashMap<>();
+  private Set<OExternalDependency> dependencies = new HashSet<>();
   private Set<ExcludeRule> excludeRules = new HashSet<>();
 
   public static Comparator<OExternalDependency> compareByName =
@@ -168,25 +164,33 @@ public class OExternalDependency {
   }
 
   public synchronized void addDeps(Set<OExternalDependency> dependencies) {
-    Map<VersionlessDependency, List<OExternalDependency>> dependenciesMap =
-        dependencies.stream().collect(Collectors.groupingBy(OExternalDependency::getVersionless));
-
-    dependenciesMap.entrySet().forEach(entry -> addDep(entry.getKey(), entry.getValue()));
-  }
-
-  private void addDep(VersionlessDependency vDep, List<OExternalDependency> eDeps) {
-    Set<OExternalDependency> externalDependencies;
-    if (this.dependencies.containsKey(vDep)) {
-      externalDependencies = this.dependencies.get(vDep);
-    } else {
-      externalDependencies = new HashSet<>();
-      this.dependencies.put(vDep, externalDependencies);
-    }
-    externalDependencies.addAll(eDeps);
+    this.dependencies.addAll(dependencies);
   }
 
   public Set<OExternalDependency> getDeps() {
-    return dependencies.values().stream().flatMap(Collection::stream).collect(Collectors.toSet());
+    return dependencies
+        .stream()
+        .collect(Collectors.groupingBy(OExternalDependency::getVersionless))
+        .values()
+        .stream()
+        .map(
+            deps -> {
+              Optional<OExternalDependency> matching =
+                  deps.stream()
+                      .filter(
+                          d -> {
+                            // If the child's group and version matches with parent
+                            // prefer that children. Don't judge.
+                            if (d.getGroup().equals(this.getGroup())) {
+                              return d.getVersion().equals(this.getVersion());
+                            }
+                            return false;
+                          })
+                      .findAny();
+              return matching.orElseGet(() -> DependencyUtils.lowest(deps));
+            })
+        .filter(this::shouldInclude)
+        .collect(Collectors.toSet());
   }
 
   String getSourceFileNameFrom(String prebuiltName) {
@@ -194,6 +198,27 @@ public class OExternalDependency {
       return prebuiltName.replaceFirst("\\.(jar|aar)$", SOURCE_FILE);
     }
     throw new RuntimeException("Couldn't get sources file name for " + prebuiltName);
+  }
+
+  private boolean shouldInclude(OExternalDependency dependency) {
+    for (ExcludeRule rule : excludeRules) {
+      if (rule.getGroup() != null && rule.getModule() != null) {
+        if (dependency.getGroup().equals(rule.getGroup())
+            && dependency.getName().equals(rule.getModule())) {
+          return false;
+        } else {
+          return true;
+        }
+      } else {
+        if (dependency.getGroup().equals(rule.getGroup())) {
+          return false;
+        }
+        if (dependency.getName().equals(rule.getModule())) {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 
   protected OExternalDependency(

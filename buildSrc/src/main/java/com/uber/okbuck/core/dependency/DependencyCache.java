@@ -78,12 +78,11 @@ public class DependencyCache {
   }
 
   public final void addDependencies(DependencySet dependencySet) {
-    this.dependencyManager.addDependencies(
+    this.dependencyManager.addRawDependencies(
         dependencySet
+            .withType(ExternalDependency.class)
             .stream()
-            .filter(dependency -> dependency instanceof ExternalDependency)
             .filter(dependency -> dependency.getGroup() != null && dependency.getVersion() != null)
-            .map(dependency -> (ExternalDependency) dependency)
             .collect(Collectors.toSet()));
   }
 

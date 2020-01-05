@@ -88,6 +88,18 @@ public class ExternalDependenciesExtension {
     return useLatest() || useSingle();
   }
 
+  public boolean exportedDepsEnabled() {
+    return enableExportedDeps;
+  }
+
+  public boolean versionlessExportedDepsEnabled() {
+    return versionlessEnabled() && enableExportedDeps;
+  }
+
+  public boolean versionedExportedDepsEnabled() {
+    return !versionlessEnabled() && enableExportedDeps;
+  }
+
   public boolean isVersioned(VersionlessDependency versionlessDependency) {
     if (getAllowAllVersionsSet().contains(versionlessDependency)) {
       return true;
@@ -102,10 +114,6 @@ public class ExternalDependenciesExtension {
 
   public boolean shouldDownloadInBuck() {
     return downloadInBuck;
-  }
-
-  public boolean exportedDepsEnabled() {
-    return enableExportedDeps;
   }
 
   public Set<String> getAutoValueConfigurations() {
