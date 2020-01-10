@@ -172,6 +172,7 @@ public class DependencyCache {
             rootProject, configuration, externalDependenciesExtension, jetifierExtension)
         .stream()
         .map(this::get)
+        .peek(externalDependency -> externalDependency.updateFirstLevel(true))
         .collect(Collectors.toSet());
   }
 

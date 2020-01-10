@@ -1,6 +1,7 @@
 @args (
 String prebuiltJarRule,
 String prebuiltAarRule,
+String strictVisibilityScope,
 )
 
 def okbuck_prebuilt(
@@ -9,14 +10,20 @@ def okbuck_prebuilt(
     sha256,
     sources_sha256=None,
     deps=None,
-    visibility=None,
     enable_jetifier=False,
+    first_level=False,
     ):
-    if visibility == None:
-        visibility = ["PUBLIC"]
-
     if deps == None:
         deps = []
+
+@if (valid(strictVisibilityScope)) {
+    if first_level:
+      visibility = ["PUBLIC"]
+    else:
+      visibility = ["@(strictVisibilityScope)"]
+} else {
+    visibility = ["PUBLIC"]
+}
 
     prebuilt_type = maven_coords.split(":")[2]
 

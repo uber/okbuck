@@ -101,8 +101,20 @@ public class DependencyManager {
   }
 
   private Map<VersionlessDependency, Collection<OExternalDependency>> filterDependencies() {
+    Map<VersionlessDependency, Collection<OExternalDependency>> dependencies =
+        originalDependencyMap.asMap();
+
+    // Update first level of all versions of a dep if any one version has first level as true
+    dependencies
+        .values()
+        .forEach(
+            value -> {
+              boolean firstLevel = value.stream().anyMatch(OExternalDependency::isFirstLevel);
+              value.forEach(externalDependency -> externalDependency.updateFirstLevel(firstLevel));
+            });
+
     if (!externalDependenciesExtension.useLatest()) {
-      return originalDependencyMap.asMap();
+      return dependencies;
     }
 
     ImmutableMap.Builder<VersionlessDependency, Collection<OExternalDependency>>
@@ -111,19 +123,17 @@ public class DependencyManager {
     ImmutableList.Builder<OExternalDependency> dependenciesToResolveBuilder =
         ImmutableList.builder();
 
-    originalDependencyMap
-        .asMap()
-        .forEach(
-            (key, value) -> {
-              if (value.size() == 1) {
-                // Already has one dependency, no need to resolve different versions.
-                filteredDependencyMapBuilder.put(key, value);
-              } else if (externalDependenciesExtension.useLatest(key)) {
-                dependenciesToResolveBuilder.addAll(value);
-              } else {
-                filteredDependencyMapBuilder.put(key, value);
-              }
-            });
+    dependencies.forEach(
+        (key, value) -> {
+          if (value.size() == 1) {
+            // Already has one dependency, no need to resolve different versions.
+            filteredDependencyMapBuilder.put(key, value);
+          } else if (externalDependenciesExtension.useLatest(key)) {
+            dependenciesToResolveBuilder.addAll(value);
+          } else {
+            filteredDependencyMapBuilder.put(key, value);
+          }
+        });
 
     resolved(dependenciesToResolveBuilder.build())
         .forEach(
@@ -218,23 +228,39 @@ public class DependencyManager {
         .getAllModuleDependencies()
         .forEach(
             rDependency -> {
+              List<Collection<OExternalDependency>> oExternal =
+                  DependencyFactory.fromDependency(rDependency)
+                      .stream()
+                      .peek(
+                          it -> {
+                            if (!dependencyMap.containsKey(it)) {
+                              dependencyException(rDependency);
+                            }
+                          })
+                      .map(dependencyMap::get)
+                      .collect(Collectors.toList());
+
+              // Is a firstLevel dependency if it has a parent with no parents.
+              boolean firstLevel =
+                  rDependency
+                      .getParents()
+                      .stream()
+                      .anyMatch(parent -> parent.getParents().size() == 0);
+
+              // Update first level state.
+              oExternal
+                  .stream()
+                  .flatMap(Collection::stream)
+                  .forEach(external -> external.updateFirstLevel(firstLevel));
+
               Set<OExternalDependency> childDependencies =
                   childDependencies(rDependency, dependencyMap);
-
               if (childDependencies.size() == 0) {
                 return;
               }
 
-              DependencyFactory.fromDependency(rDependency)
+              oExternal
                   .stream()
-                  .filter(it -> !it.classifier().isPresent())
-                  .peek(
-                      it -> {
-                        if (!dependencyMap.containsKey(it)) {
-                          dependencyException(rDependency);
-                        }
-                      })
-                  .map(dependencyMap::get)
                   .map(
                       dependencies -> {
                         Preconditions.checkArgument(
@@ -244,7 +270,10 @@ public class DependencyManager {
 
                         return dependencies.stream().findAny().get();
                       })
-                  .forEach(dependency -> dependency.addDeps(childDependencies));
+                  .forEach(
+                      dependency -> {
+                        dependency.addDeps(childDependencies);
+                      });
             });
   }
 
