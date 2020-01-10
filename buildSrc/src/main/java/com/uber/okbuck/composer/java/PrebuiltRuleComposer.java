@@ -45,6 +45,7 @@ public class PrebuiltRuleComposer extends JvmBuckRuleComposer {
                   new Prebuilt()
                       .mavenCoords(dependency.getMavenCoords())
                       .enableJetifier(dependency.enableJetifier())
+                      .firstLevel(dependency.isFirstLevel())
                       .sha256(sha256);
 
               dependency

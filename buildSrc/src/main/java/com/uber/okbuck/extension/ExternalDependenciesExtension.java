@@ -24,6 +24,9 @@ public class ExternalDependenciesExtension {
   /** Specifies whether to enable exported_deps for external dependencies or not. */
   @Input private boolean enableExportedDeps = false;
 
+  /** Specifies whether to enable exported_deps for external dependencies or not. */
+  @Input private boolean strictVisibility = false;
+
   @Input private Set<String> autoValueConfigurations = new HashSet<>();
 
   /**
@@ -82,6 +85,10 @@ public class ExternalDependenciesExtension {
     }
 
     return useSingle();
+  }
+
+  public boolean strictVisibilityEnabled() {
+    return exportedDepsEnabled() && this.strictVisibility;
   }
 
   public boolean versionlessEnabled() {

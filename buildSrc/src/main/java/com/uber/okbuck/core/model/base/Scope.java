@@ -412,6 +412,9 @@ public class Scope {
                     });
               });
     }
+
+    // Mark first level external deps as same in the object
+    firstLevelExternal.values().forEach(external -> external.updateFirstLevel(true));
   }
 
   private void extractConfigurationImpl(

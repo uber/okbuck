@@ -18,6 +18,7 @@ import com.uber.okbuck.core.model.base.ProjectType;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.util.ProguardUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
+import com.uber.okbuck.extension.ExternalDependenciesExtension;
 import com.uber.okbuck.extension.KotlinExtension;
 import com.uber.okbuck.extension.OkBuckExtension;
 import com.uber.okbuck.extension.RuleOverridesExtension;
@@ -199,10 +200,14 @@ public class OkBuckTask extends DefaultTask {
     prebuiltLoadStatements.put(aarSetting.getImportLocation(), aarSetting.getNewRuleName());
     prebuiltLoadStatements.put(jarSetting.getImportLocation(), jarSetting.getNewRuleName());
 
-    Rule okbuckPrebuiltRule =
+    ExternalDependenciesExtension external = okbuckExt.getExternalDependenciesExtension();
+    OkbuckPrebuilt okbuckPrebuiltRule =
         new OkbuckPrebuilt()
             .prebuiltAarRule(aarSetting.getNewRuleName())
             .prebuiltJarRule(jarSetting.getNewRuleName());
+    if (external.strictVisibilityEnabled()) {
+      okbuckPrebuiltRule.strictVisibilityScope(String.format("//%s/...", external.getCache()));
+    }
 
     buckFileManager.writeToBuckFile(
         ImmutableList.of(okbuckPrebuiltRule), okbuckPrebuilt(), prebuiltLoadStatements);

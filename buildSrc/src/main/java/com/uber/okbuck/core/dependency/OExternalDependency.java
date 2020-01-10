@@ -33,6 +33,8 @@ public class OExternalDependency {
   private Set<OExternalDependency> dependencies = new HashSet<>();
   private Set<ExcludeRule> excludeRules = new HashSet<>();
 
+  private boolean firstLevel = false;
+
   public static Comparator<OExternalDependency> compareByName =
       (o1, o2) ->
           ComparisonChain.start()
@@ -191,6 +193,14 @@ public class OExternalDependency {
             })
         .filter(this::shouldInclude)
         .collect(Collectors.toSet());
+  }
+
+  public void updateFirstLevel(boolean firstLevel) {
+    this.firstLevel = this.firstLevel || firstLevel;
+  }
+
+  public boolean isFirstLevel() {
+    return this.firstLevel;
   }
 
   String getSourceFileNameFrom(String prebuiltName) {
