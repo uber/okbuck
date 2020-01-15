@@ -4,13 +4,13 @@ import com.google.common.base.Strings;
 import com.uber.okbuck.extension.ExternalDependenciesExtension;
 import com.uber.okbuck.extension.JetifierExtension;
 import java.io.File;
-import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.WeakHashMap;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FilenameUtils;
 import org.gradle.api.artifacts.ExternalDependency;
@@ -23,13 +23,13 @@ public final class DependencyFactory {
 
   private static final String LOCAL_DEP_VERSION = "1.0.0-LOCAL";
 
-  private static Map<ExternalDependency, Set<VersionlessDependency>> unresolvedToVersionless =
-      new WeakHashMap<>();
+  private final Map<ExternalDependency, Set<VersionlessDependency>> unresolvedToVersionless =
+      new HashMap<>();
 
-  private static Map<OResolvedDependency, OExternalDependency> externalDependencyCache =
-      new WeakHashMap<>();
+  private final Map<OResolvedDependency, OExternalDependency> externalDependencyCache =
+      new HashMap<>();
 
-  private DependencyFactory() {}
+  public DependencyFactory() {}
 
   /**
    * Create an External Dependency
@@ -42,7 +42,7 @@ public final class DependencyFactory {
    * @param jetifierExtension Jetifier Extension
    * @return External Dependency
    */
-  public static synchronized OExternalDependency from(
+  public synchronized OExternalDependency from(
       String group,
       String name,
       String version,
@@ -96,7 +96,7 @@ public final class DependencyFactory {
    * @param jetifierExtension Jetifier Extension
    * @return External Dependency
    */
-  public static LocalOExternalDependency fromLocal(
+  public LocalOExternalDependency fromLocal(
       File localDependency,
       @Nullable File localSourceDependency,
       ExternalDependenciesExtension externalDependenciesExtension,
@@ -114,8 +114,7 @@ public final class DependencyFactory {
             jetifierExtension);
   }
 
-  public static synchronized Set<VersionlessDependency> fromDependency(
-      ExternalDependency dependency) {
+  public synchronized Set<VersionlessDependency> fromDependency(ExternalDependency dependency) {
     if (unresolvedToVersionless.containsKey(dependency)) {
       return unresolvedToVersionless.get(dependency);
     } else {
@@ -129,8 +128,7 @@ public final class DependencyFactory {
         vDependencyBuilder.setGroup(group);
       }
 
-      Set<VersionlessDependency> vDeps = Collections.newSetFromMap(
-        new WeakHashMap<VersionlessDependency, Boolean>());
+      Set<VersionlessDependency> vDeps = new HashSet<>();
 
       if (dependency.getArtifacts().size() > 0) {
         vDeps.addAll(
@@ -179,6 +177,11 @@ public final class DependencyFactory {
         .collect(Collectors.toSet());
   }
 
+  public void finalizeDependencies() {
+    unresolvedToVersionless.clear();
+    externalDependencyCache.clear();
+  }
+
   /**
    * Returns whether the dependency should be marked local or not. These dependencies can't be
    * downloaded via buck. Snapshot dependencies with version suffixed with `-SNAPSHOT`. Local m2
@@ -194,10 +197,5 @@ public final class DependencyFactory {
    */
   private static boolean isLocalDependency(String dependencyFilePath) {
     return dependencyFilePath.contains("-SNAPSHOT") || dependencyFilePath.contains("-LOCAL");
-  }
-
-  public static void cleanup() {
-    unresolvedToVersionless.clear();
-    externalDependencyCache.clear();
   }
 }

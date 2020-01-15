@@ -212,12 +212,13 @@ public class JvmTarget extends Target {
     Configuration apiConfiguration = getApiConfiguration();
 
     if (apiConfiguration != null) {
+      DependencyFactory factory = ProjectUtil.getDependencyFactory(getProject());
       Set<VersionlessDependency> versionlessApiDependencies =
           apiConfiguration
               .getAllDependencies()
               .withType(org.gradle.api.artifacts.ExternalDependency.class)
               .stream()
-              .map(DependencyFactory::fromDependency)
+              .map(factory::fromDependency)
               .flatMap(Collection::stream)
               .collect(Collectors.toSet());
 
