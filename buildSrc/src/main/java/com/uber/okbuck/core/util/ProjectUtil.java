@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableList;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.core.annotation.AnnotationProcessorCache;
 import com.uber.okbuck.core.dependency.DependencyCache;
+import com.uber.okbuck.core.dependency.DependencyFactory;
 import com.uber.okbuck.core.dependency.DependencyUtils;
 import com.uber.okbuck.core.manager.DependencyManager;
 import com.uber.okbuck.core.manager.GroovyManager;
@@ -71,6 +72,10 @@ public final class ProjectUtil {
 
   public static AnnotationProcessorCache getAnnotationProcessorCache(Project project) {
     return getPlugin(project).annotationProcessorCache;
+  }
+
+  public static DependencyFactory getDependencyFactory(Project project) {
+    return getPlugin(project).dependencyFactory;
   }
 
   public static DependencyManager getDependencyManager(Project project) {

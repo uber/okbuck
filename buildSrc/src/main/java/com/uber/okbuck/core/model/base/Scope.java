@@ -277,6 +277,8 @@ public class Scope {
   }
 
   private void extractConfiguration(Configuration configuration) {
+    DependencyFactory factory = ProjectUtil.getDependencyFactory(project);
+
     ExternalDependenciesExtension externalDependenciesExtension =
         ProjectUtil.getExternalDependencyExtension(project);
 
@@ -299,7 +301,7 @@ public class Scope {
             .getAllDependencies()
             .withType(ExternalDependency.class)
             .stream()
-            .map(DependencyFactory::fromDependency)
+            .map(factory::fromDependency)
             .flatMap(Collection::stream)
             .collect(Collectors.toSet());
 
@@ -402,7 +404,7 @@ public class Scope {
           .map(dependency -> (ExternalDependency) dependency)
           .forEach(
               dependency -> {
-                Set<VersionlessDependency> vDeps = DependencyFactory.fromDependency(dependency);
+                Set<VersionlessDependency> vDeps = factory.fromDependency(dependency);
                 vDeps.forEach(
                     vDep -> {
                       OExternalDependency eDep = allExternal.getOrDefault(vDep, null);
@@ -421,6 +423,8 @@ public class Scope {
       Configuration configuration,
       Set<String> projectFirstLevel,
       Set<VersionlessDependency> externalFirstLevel) {
+    DependencyFactory factory = ProjectUtil.getDependencyFactory(project);
+
     Set<ResolvedArtifactResult> jarArtifacts =
         getArtifacts(configuration, PROJECT_FILTER, ImmutableList.of("jar"));
 
@@ -475,7 +479,7 @@ public class Scope {
 
             @Var
             OExternalDependency externalDependency =
-                DependencyFactory.from(
+                factory.from(
                     moduleIdentifier.getGroup(),
                     moduleIdentifier.getModule(),
                     moduleIdentifier.getVersion(),
@@ -508,7 +512,7 @@ public class Scope {
               }
               @Var
               OExternalDependency localExternalDependency =
-                  DependencyFactory.fromLocal(
+                  factory.fromLocal(
                       artifact.getFile(),
                       sourcesArtifact != null ? sourcesArtifact.getFile() : null,
                       externalDependenciesExtension,

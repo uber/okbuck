@@ -100,6 +100,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
   public final Set<String> exportedPaths = Sets.newConcurrentHashSet();
 
   public DependencyCache depCache;
+  public DependencyFactory dependencyFactory;
   public DependencyManager dependencyManager;
   public AnnotationProcessorCache annotationProcessorCache;
   public LintManager lintManager;
@@ -144,6 +145,8 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
           // Create buck file manager.
           BuckFileManager buckFileManager =
               new BuckFileManager(okbuckExt.getRuleOverridesExtension());
+
+          dependencyFactory = new DependencyFactory();
 
           // Create Annotation Processor cache
           annotationProcessorCache =
@@ -200,6 +203,8 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
                 transformManager.finalizeDependencies();
                 buckManager.finalizeDependencies();
                 manifestMergerManager.finalizeDependencies();
+                dependencyFactory.finalizeDependencies();
+
                 writeExportedFileRules(rootBuckProject, okbuckExt);
 
                 // Reset root project's scope cache at the very end
@@ -210,9 +215,6 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
                 // the target cache is accessed by other projects and have to
                 // be available until okbuck tasks of all the projects finishes.
                 ProjectCache.resetTargetCacheForAll(rootProject);
-
-                // Cleanup static maps in dependency factory.
-                DependencyFactory.cleanup();
               });
 
           WrapperExtension wrapper = okbuckExt.getWrapperExtension();

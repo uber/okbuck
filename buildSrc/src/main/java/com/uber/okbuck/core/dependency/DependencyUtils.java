@@ -158,20 +158,22 @@ public final class DependencyUtils {
                     && ((ModuleComponentIdentifier) identifier).getVersion().length() > 0) {
                   ModuleComponentIdentifier moduleIdentifier =
                       (ModuleComponentIdentifier) identifier;
-                  return DependencyFactory.from(
-                      moduleIdentifier.getGroup(),
-                      moduleIdentifier.getModule(),
-                      moduleIdentifier.getVersion(),
-                      artifact.getFile(),
-                      sourcesArtifact != null ? sourcesArtifact.getFile() : null,
-                      externalDependenciesExtension,
-                      jetifierExtension);
+                  return ProjectUtil.getDependencyFactory(project)
+                      .from(
+                          moduleIdentifier.getGroup(),
+                          moduleIdentifier.getModule(),
+                          moduleIdentifier.getVersion(),
+                          artifact.getFile(),
+                          sourcesArtifact != null ? sourcesArtifact.getFile() : null,
+                          externalDependenciesExtension,
+                          jetifierExtension);
                 } else {
-                  return DependencyFactory.fromLocal(
-                      artifact.getFile(),
-                      sourcesArtifact != null ? sourcesArtifact.getFile() : null,
-                      externalDependenciesExtension,
-                      jetifierExtension);
+                  return ProjectUtil.getDependencyFactory(project)
+                      .fromLocal(
+                          artifact.getFile(),
+                          sourcesArtifact != null ? sourcesArtifact.getFile() : null,
+                          externalDependenciesExtension,
+                          jetifierExtension);
                 }
               })
           .collect(Collectors.toSet());
