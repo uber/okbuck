@@ -4,12 +4,13 @@ import com.google.common.base.Strings;
 import com.uber.okbuck.extension.ExternalDependenciesExtension;
 import com.uber.okbuck.extension.JetifierExtension;
 import java.io.File;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.WeakHashMap;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FilenameUtils;
 import org.gradle.api.artifacts.ExternalDependency;
@@ -22,12 +23,11 @@ public final class DependencyFactory {
 
   private static final String LOCAL_DEP_VERSION = "1.0.0-LOCAL";
 
-  // Use instance of Dependency Factory and clean it up b/w runs
-  private static HashMap<ExternalDependency, Set<VersionlessDependency>> unresolvedToVersionless =
-      new HashMap<>();
+  private static Map<ExternalDependency, Set<VersionlessDependency>> unresolvedToVersionless =
+      new WeakHashMap<>();
 
-  private static HashMap<OResolvedDependency, OExternalDependency> externalDependencyCache =
-      new HashMap<>();
+  private static Map<OResolvedDependency, OExternalDependency> externalDependencyCache =
+      new WeakHashMap<>();
 
   private DependencyFactory() {}
 
@@ -129,7 +129,8 @@ public final class DependencyFactory {
         vDependencyBuilder.setGroup(group);
       }
 
-      Set<VersionlessDependency> vDeps = new HashSet<>();
+      Set<VersionlessDependency> vDeps = Collections.newSetFromMap(
+        new WeakHashMap<VersionlessDependency, Boolean>());
 
       if (dependency.getArtifacts().size() > 0) {
         vDeps.addAll(
@@ -196,7 +197,7 @@ public final class DependencyFactory {
   }
 
   public static void cleanup() {
-    unresolvedToVersionless = new HashMap<>();
-    externalDependencyCache = new HashMap<>();
+    unresolvedToVersionless.clear();
+    externalDependencyCache.clear();
   }
 }
