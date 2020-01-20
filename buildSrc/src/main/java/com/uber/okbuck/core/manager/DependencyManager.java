@@ -89,6 +89,31 @@ public class DependencyManager {
     }
   }
 
+  public void resolveCurrentRawDeps() {
+    if (!externalDependenciesExtension.resoleOnlyThirdParty()) {
+      return;
+    }
+
+    Set<ExternalDependency> rawDeps = new HashSet<>();
+    rawDeps.addAll(rawDependencies);
+
+    rawDeps
+        .stream()
+        .collect(Collectors.groupingBy(i -> i.getGroup() + ":" + i.getVersion()))
+        .entrySet()
+        .forEach(
+            e -> {
+              Configuration config =
+                  project
+                      .getConfigurations()
+                      .maybeCreate("resolve__" + e.getKey().replace(".", "__"));
+
+              System.out.println(config.getName());
+              config.getDependencies().addAll(e.getValue());
+              Scope.builder(project).configuration(config).build();
+            });
+  }
+
   public void finalizeDependencies() {
     Map<VersionlessDependency, Collection<OExternalDependency>> filteredDependencyMap =
         filterDependencies();

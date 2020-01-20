@@ -193,6 +193,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
           rootOkBuckTask.doLast(
               task -> {
                 annotationProcessorCache.finalizeProcessors();
+                dependencyManager.resolveCurrentRawDeps();
                 dependencyManager.finalizeDependencies();
                 jetifierManager.finalizeDependencies();
                 lintManager.finalizeDependencies();
