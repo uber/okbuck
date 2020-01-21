@@ -286,6 +286,15 @@ public class Scope {
     // dependencies when versionless is enabled.
     depCache.addDependencies(configuration.getAllDependencies());
 
+    // TODO: Move to generic way which defines the first level dependencies
+    // rather than collecting them from a global project which contains all.
+    // Skip resolving gradle configurations which contains all dependencies
+    // in the classpath to prevent doing un-needed work.
+    if (externalDependenciesExtension.resoleOnlyThirdParty()
+        && configuration.getName().toLowerCase().contains("classpath")) {
+      return;
+    }
+
     // Get first level project deps defined for the project's configuration
     Set<String> projectFirstLevel =
         configuration
