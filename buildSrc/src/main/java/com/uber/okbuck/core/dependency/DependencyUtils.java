@@ -285,8 +285,4 @@ public final class DependencyUtils {
         .map(artifact -> artifact.getId().getComponentIdentifier())
         .anyMatch(artifactId -> !(artifactId instanceof ProjectComponentIdentifier));
   }
-
-  public static String versionlessGroupingKey(ResolvedDependency dependency) {
-    return dependency.getModuleGroup() + ":" + dependency.getModuleName();
-  }
 }
