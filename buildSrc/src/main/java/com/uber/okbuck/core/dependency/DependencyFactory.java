@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import com.uber.okbuck.extension.ExternalDependenciesExtension;
 import com.uber.okbuck.extension.JetifierExtension;
 import java.io.File;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -14,8 +15,9 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FilenameUtils;
 import org.gradle.api.artifacts.ExternalDependency;
+import org.gradle.api.artifacts.ResolvedArtifact;
 import org.gradle.api.artifacts.ResolvedDependency;
-import org.gradle.api.artifacts.component.ProjectComponentIdentifier;
+import org.gradle.api.artifacts.component.ModuleComponentIdentifier;
 
 public final class DependencyFactory {
 
@@ -157,21 +159,44 @@ public final class DependencyFactory {
    * @return VersionlessDependency object
    */
   public static Set<VersionlessDependency> fromDependency(ResolvedDependency dependency) {
-    return dependency
-        .getModuleArtifacts()
+    Set<ResolvedArtifact> selfArtifacts = dependency.getModuleArtifacts();
+    return fromResolvedArtifacts(selfArtifacts);
+  }
+
+  /**
+   * Returns a set of versionless dependency from the given gradle resolved dependency.
+   *
+   * @param dependency gradle dependency
+   * @return VersionlessDependency object
+   */
+  public static Set<VersionlessDependency> childrenFromDependency(ResolvedDependency dependency) {
+    Set<ResolvedArtifact> childArtifacts =
+        dependency
+            .getChildren()
+            .stream()
+            .map(child -> child.getParentArtifacts(dependency))
+            .flatMap(Collection::stream)
+            .collect(Collectors.toSet());
+
+    return fromResolvedArtifacts(childArtifacts);
+  }
+
+  private static Set<VersionlessDependency> fromResolvedArtifacts(Set<ResolvedArtifact> artifacts) {
+    return artifacts
         .stream()
         .map(
             resolvedArtifact -> {
               if (resolvedArtifact.getId().getComponentIdentifier()
-                  instanceof ProjectComponentIdentifier) {
-                return null;
-              } else {
+                  instanceof ModuleComponentIdentifier) {
+                ModuleComponentIdentifier id =
+                    (ModuleComponentIdentifier) resolvedArtifact.getId().getComponentIdentifier();
                 return VersionlessDependency.builder()
-                    .setName(dependency.getModuleName())
-                    .setGroup(dependency.getModuleGroup())
+                    .setName(id.getModule())
+                    .setGroup(id.getGroup())
                     .setClassifier(Optional.ofNullable(resolvedArtifact.getClassifier()))
                     .build();
               }
+              return null;
             })
         .filter(Objects::nonNull)
         .collect(Collectors.toSet());

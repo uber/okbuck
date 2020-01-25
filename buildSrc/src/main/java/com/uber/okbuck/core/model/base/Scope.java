@@ -368,42 +368,28 @@ public class Scope {
     if (externalDependenciesExtension.versionedExportedDepsEnabled()) {
       Preconditions.checkNotNull(allModuleDependencies);
 
-      allModuleDependencies
-          .stream()
-          .collect(Collectors.groupingBy(DependencyUtils::versionlessGroupingKey))
-          .values()
-          .forEach(
-              rDeps -> {
-
-                // Get all child deps
-                Set<OExternalDependency> childEDeps =
-                    rDeps
-                        .stream()
-                        .map(ResolvedDependency::getChildren)
-                        .flatMap(Collection::stream)
-                        .map(DependencyFactory::fromDependency)
-                        .flatMap(Collection::stream)
-                        .map(allExternal::get)
-                        .filter(Objects::nonNull)
-                        .collect(Collectors.toSet());
-
-                // Update all matching external deps with this child deps
-                rDeps
+      allModuleDependencies.forEach(
+          rDep -> {
+            // Get all child deps
+            Set<OExternalDependency> childEDeps =
+                DependencyFactory.childrenFromDependency(rDep)
                     .stream()
-                    .map(DependencyFactory::fromDependency)
-                    .flatMap(Collection::stream)
                     .map(allExternal::get)
                     .filter(Objects::nonNull)
-                    .forEach(eDep -> eDep.addDeps(childEDeps));
+                    .collect(Collectors.toSet());
 
-                // Add all child deps as first level deps if there are no self artifacts;
-                rDeps.forEach(
-                    rDep -> {
-                      if (rDep.getModuleArtifacts().size() == 0) {
-                        childEDeps.forEach(i -> firstLevelExternal.put(i.getVersionless(), i));
-                      }
-                    });
-              });
+            // Update all matching external deps with this child deps
+            DependencyFactory.fromDependency(rDep)
+                .stream()
+                .map(allExternal::get)
+                .filter(Objects::nonNull)
+                .forEach(eDep -> eDep.addDeps(childEDeps));
+
+            // Add all child deps as first level deps if there are no self artifacts;
+            if (rDep.getModuleArtifacts().size() == 0) {
+              childEDeps.forEach(i -> firstLevelExternal.put(i.getVersionless(), i));
+            }
+          });
 
       // Add exclude rule to the external dependency.
       configuration

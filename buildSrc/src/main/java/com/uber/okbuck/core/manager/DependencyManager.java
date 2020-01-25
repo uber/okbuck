@@ -310,6 +310,8 @@ public class DependencyManager {
         .stream()
         .map(
             cDependency ->
+                // TODO:Replace with using childFromDependency instead
+                // which ensures that the right child deps are only fetched.
                 DependencyFactory.fromDependency(cDependency)
                     .stream()
                     .peek(
