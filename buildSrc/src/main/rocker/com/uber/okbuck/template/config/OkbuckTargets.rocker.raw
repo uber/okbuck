@@ -210,7 +210,7 @@ def okbuck_manifest(
         version_name = None,
         debuggable = False,
         secondary_manifests = None,
-        visibility = [])):
+        visibility = []):
     if not secondary_manifests:
         secondary_manifests = []
 
