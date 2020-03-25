@@ -209,7 +209,8 @@ def okbuck_manifest(
         version_code = None,
         version_name = None,
         debuggable = False,
-        secondary_manifests = None):
+        secondary_manifests = None,
+        visibility = [])):
     if not secondary_manifests:
         secondary_manifests = []
 
@@ -239,6 +240,7 @@ def okbuck_manifest(
         out = "AndroidManifest.xml",
         type = "okbuck_manifest",
         cmd = " ".join(cmds),
+        visibility = visibility,
     )
 
 def isLintEnabled(manifest):
