@@ -252,7 +252,7 @@ public class OkBuckTask extends DefaultTask {
             scalaCompiler,
             scalaLibrary,
             ProguardUtil.getProguardJarPath(getProject()),
-            repositoryMap(okbuckExt.getExternalDependenciesExtension().shouldDownloadInBuck()))
+            repositoryMap(okbuckExt.getExternalDependenciesExtension().shouldDownloadInBuck() && okBuckExtension.getExternalDependenciesExtension().getGenerateMavenRepositories()))
         .render(okbuckBuckConfig());
   }
 

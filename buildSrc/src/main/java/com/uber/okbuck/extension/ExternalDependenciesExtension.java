@@ -18,6 +18,9 @@ public class ExternalDependenciesExtension {
   /** Specifies whether the external dependencies should be downloaded by buck or not. */
   @Input private boolean downloadInBuck = true;
 
+  /** Specifies whether the maven_repositories block should be written to the okbuck.buckconfig file or not. */
+  @Input private boolean generateMavenRepositories = true;
+
   /** Specifies what resolution action to use for external dependencies. */
   @Input private ResolutionAction resolutionAction = ResolutionAction.ALL;
 
@@ -128,6 +131,10 @@ public class ExternalDependenciesExtension {
 
   public boolean shouldDownloadInBuck() {
     return downloadInBuck;
+  }
+
+  public boolean getGenerateMavenRepositories() {
+    return generateMavenRepositories;
   }
 
   public Set<String> getAutoValueConfigurations() {
