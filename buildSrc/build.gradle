@@ -101,7 +101,7 @@ task sourcesJar(type: Jar) {
     classifier = "sources"
 }
 
-def publishVersion = "0.50.6"
+def publishVersion = "0.50.7"
 
 group = "com.uber"
 version = publishVersion
