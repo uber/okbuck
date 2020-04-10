@@ -45,13 +45,16 @@ public class JetifierExtension {
   /** Path to file containing the custom mapping file to be used on jetifier */
   @Nullable public String customConfigFile;
 
+  /** Whether to enable jetified support */
+  public boolean enabled;
+
   private final boolean enableJetifier;
 
   @Nullable private List<Pattern> excludePatterns;
 
   JetifierExtension(Project project) {
     version = DEFAULT_JETIFIER_VERSION;
-    enableJetifier = JetifierManager.isJetifierEnabled(project);
+    enableJetifier = enabled || JetifierManager.isJetifierEnabled(project);
   }
 
   private List<Pattern> getExcludePatterns() {
