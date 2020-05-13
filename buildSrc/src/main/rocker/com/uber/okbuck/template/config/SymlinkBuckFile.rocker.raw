@@ -20,7 +20,7 @@ cmd_list = (
 
 genrule(
     name = "@name",
-    cmd = " ".join(cmd_list),
     out = ".",
-    visibility = [ "PUBLIC" ],
+    cmd = " ".join(cmd_list),
+    visibility = ["PUBLIC"],
 )

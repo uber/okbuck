@@ -8,6 +8,12 @@ boolean firstLevel,
 )
 @(ruleType)(
     name = "@name",
+@if (enableJetifier) {
+    enable_jetifier = True,
+}
+@if (firstLevel) {
+    first_level = True,
+}
     maven_coords = "@mavenCoords",
     sha256 = "@sha256",
 @if (valid(sourcesSha256)) {
@@ -19,11 +25,5 @@ boolean firstLevel,
         "@dep",
     }
     ],
-}
-@if (enableJetifier) {
-    enable_jetifier = True,
-}
-@if (firstLevel) {
-    first_level = True,
 }
 )

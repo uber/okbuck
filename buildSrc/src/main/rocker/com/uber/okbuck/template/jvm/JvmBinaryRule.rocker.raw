@@ -4,14 +4,14 @@ String mainClassName,
 Set excludes
 )
 @com.uber.okbuck.template.base.BuckRule.template() -> {
-@if (mainClassName != null) {
-    main_class = "@mainClassName",
-}
 @if (valid(excludes)) {
     blacklist = [
     @for (exclude : excludes) {
         "@exclude",
     }
     ],
+}
+@if (mainClassName != null) {
+    main_class = "@mainClassName",
 }
 }

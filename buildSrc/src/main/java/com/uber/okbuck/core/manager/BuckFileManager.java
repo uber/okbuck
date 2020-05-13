@@ -72,7 +72,8 @@ public class BuckFileManager {
         ruleOverridesExtension.getOverrides();
     for (Rule rule : rules) {
       // Android resource template requires res_glob function from buck defs
-      if (RuleType.ANDROID_MODULE.getBuckName().equals(rule.ruleType()) || RuleType.KOTLIN_ANDROID_MODULE.getBuckName().equals(rule.ruleType())) {
+      if (RuleType.ANDROID_MODULE.getBuckName().equals(rule.ruleType())
+          || RuleType.KOTLIN_ANDROID_MODULE.getBuckName().equals(rule.ruleType())) {
         loadStatements.put(OkBuckGradlePlugin.OKBUCK_TARGETS_TARGET, RES_GLOB);
         loadStatements.put(OkBuckGradlePlugin.OKBUCK_TARGETS_TARGET, SUBDIR_GLOB);
       }
@@ -93,7 +94,7 @@ public class BuckFileManager {
         .map(
             loadStatement ->
                 Stream.concat(Stream.of(loadStatement.getKey()), loadStatement.getValue().stream())
-                    .map(statement -> "'" + statement + "'")
+                    .map(statement -> "\"" + statement + "\"")
                     .collect(Collectors.joining(", ", "load(", ")")))
         .collect(Collectors.toList());
   }
