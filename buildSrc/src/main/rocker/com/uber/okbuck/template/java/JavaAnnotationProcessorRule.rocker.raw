@@ -9,6 +9,7 @@
     }
     ],
 }
+    visibility = ["PUBLIC"],
 @if (valid(deps)) {
     deps = [
     @for (dep : sorted(deps)) {
@@ -16,5 +17,4 @@
     }
     ],
 }
-    visibility = ["PUBLIC"],
 )

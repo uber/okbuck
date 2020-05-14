@@ -26,27 +26,25 @@ def okbuck_android_module(
         language = None,
         ## common args
         visibility = None,
-        package=None,
+        package = None,
         ## Manifest related args
         manifest_main_manifest = None,
         manifest_min_sdk = None,
         manifest_target_sdk = None,
-        manifest_version_code=None,
-        manifest_version_name=None,
-        manifest_debuggable=False,
-        manifest_secondary_manifests=None,
+        manifest_version_code = None,
+        manifest_version_name = None,
+        manifest_debuggable = False,
+        manifest_secondary_manifests = None,
         ## Resources related args
         res_res = None,
         res_project_res = None,
         res_assets = None,
-        res_resource_union=None,
+        res_resource_union = None,
         res_extra_deps = [],
         ## Android library related args
         deps = [],
         exported_deps = [],
-        **kwargs
-    ):
-
+        **kwargs):
     manifest_rule_name = name.replace("src", "manifest_lib", 1)
     @(manifestRule)(
         name = manifest_rule_name,
@@ -77,12 +75,12 @@ def okbuck_android_module(
         project_res = res_project_res,
         package = package,
         resource_union = res_resource_union,
-        visibility = visibility
+        visibility = visibility,
     )
     if res_deps:
-      res_kwargs.update({"deps" : sorted(res_deps)})
+        res_kwargs.update({"deps": sorted(res_deps)})
     if res_exported_deps:
-      res_kwargs.update({"exported_deps" : sorted(res_exported_deps)})
+        res_kwargs.update({"exported_deps": sorted(res_exported_deps)})
 
     @(androidResourceRule)(**res_kwargs)
 
@@ -98,18 +96,17 @@ def okbuck_android_module(
                res_exported_lib_deps + \
                [get_rule_dep(res_rule_name), get_rule_dep(manifest_rule_name)]
 
-    src_kwargs.update({"deps" : sorted(src_deps)})
+    src_kwargs.update({"deps": sorted(src_deps)})
     if exported_deps:
-        src_kwargs.update({"exported_deps" : sorted(exported_deps)})
+        src_kwargs.update({"exported_deps": sorted(exported_deps)})
     if language:
-        src_kwargs.update({"language" : language})
+        src_kwargs.update({"language": language})
 
     @(androidLibraryRule)(**src_kwargs)
 
 def okbuck_kotlin_android_module(
         language = "kotlin",
-        **kwargs
-    ):
+        **kwargs):
     okbuck_android_module(
         language = language,
         **kwargs

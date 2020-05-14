@@ -10,6 +10,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Map;
 
 @SuppressWarnings("unchecked")
@@ -111,11 +112,23 @@ public abstract class Rule<T extends Rule> extends DefaultRockerModel {
   }
 
   protected static ImmutableSortedSet<String> sorted(Collection c) {
-    ImmutableSortedSet.Builder<String> builder =
-        new ImmutableSortedSet.Builder<>(String::compareTo);
+    ImmutableSortedSet.Builder<String> builder = new ImmutableSortedSet.Builder<>(targetComparator);
     for (Object o : c) {
       builder.add(o.toString());
     }
     return builder.build();
   }
+
+  private static Comparator<String> targetComparator =
+      (String a, String b) -> {
+        // Buildifier sorting order   => "."      , ":"      , "-", "/"
+        // Java sorting order         => "-"      , "."      , "/", ":"
+        // Replace "." with "#" & replace ":" with "$"
+        // Java sorting order becomes => "." ("#"), ":" ("$"), "-", "/"
+
+        String aMod = a.replace(".", "#").replace(":", "$");
+        String bMod = b.replace(".", "#").replace(":", "$");
+
+        return aMod.compareTo(bMod);
+      };
 }

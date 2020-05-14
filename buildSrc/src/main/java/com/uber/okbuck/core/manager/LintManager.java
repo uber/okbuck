@@ -28,7 +28,7 @@ public final class LintManager {
   private static final String LINT_MODULE = "lint";
   private static final String LINT_DEPS_CONFIG = OkBuckGradlePlugin.BUCK_LINT + "_deps";
   private static final ImmutableSet<String> LINT_BINARY_EXCLUDES =
-      ImmutableSet.of("META-INF/.*\\.SF", "META-INF/.*\\.DSA", "META-INF/.*\\.RSA");
+      ImmutableSet.of("META-INF/.*\\\\.SF", "META-INF/.*\\\\.DSA", "META-INF/.*\\\\.RSA");
   private static final String LINT_CLI_CLASS = "com.uber.okbuck.android.lint.AndroidLintCli";
 
   private static final String ANDROID_LINT_CLI_JAR = "android-lint-cli.jar";

@@ -27,7 +27,7 @@ public final class ManifestMergerManager {
       OkBuckGradlePlugin.WORKSPACE_PATH + "/manifest-merger";
   private static final String CONFIGURATION_MANIFEST_MERGER = "manifest-merger";
   private static final ImmutableSet<String> MANIFEST_MERGER_EXCLUDES =
-      ImmutableSet.of("META-INF/.*\\.SF", "META-INF/.*\\.DSA", "META-INF/.*\\.RSA");
+      ImmutableSet.of("META-INF/.*\\\\.SF", "META-INF/.*\\\\.DSA", "META-INF/.*\\\\.RSA");
   private static final String MANIFEST_MERGER_CLI_CLASS =
       "com.uber.okbuck.manifmerger.ManifestMergerCli";
 

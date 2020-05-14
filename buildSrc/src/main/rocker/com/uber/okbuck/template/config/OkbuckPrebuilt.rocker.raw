@@ -5,22 +5,21 @@ String strictVisibilityScope,
 )
 
 def okbuck_prebuilt(
-    name,
-    maven_coords,
-    sha256,
-    sources_sha256=None,
-    deps=None,
-    enable_jetifier=False,
-    first_level=False,
-    ):
+        name,
+        maven_coords,
+        sha256,
+        sources_sha256 = None,
+        deps = None,
+        enable_jetifier = False,
+        first_level = False):
     if deps == None:
         deps = []
 
 @if (valid(strictVisibilityScope)) {
     if first_level:
-      visibility = ["PUBLIC"]
+        visibility = ["PUBLIC"]
     else:
-      visibility = ["@(strictVisibilityScope)"]
+        visibility = ["@(strictVisibilityScope)"]
 } else {
     visibility = ["PUBLIC"]
 }
@@ -39,7 +38,7 @@ def okbuck_prebuilt(
     prebuilt_file_name = name + "__downloaded"
     native.http_file(
         name = prebuilt_file_name,
-        urls = [ "mvn:" + maven_coords ],
+        urls = ["mvn:" + maven_coords],
         out = name,
         sha256 = sha256,
     )
@@ -49,7 +48,7 @@ def okbuck_prebuilt(
         prebuilt_sources_file_name = prebuilt_file_name + "_sources"
         native.http_file(
             name = prebuilt_sources_file_name,
-            urls = [ "mvn:" + sources_maven_coords ],
+            urls = ["mvn:" + sources_maven_coords],
             out = name_without_type + "-sources.jar",
             sha256 = sources_sha256,
         )
@@ -76,7 +75,6 @@ def okbuck_prebuilt(
         )
     else:
         fail("okbuck_prebuilt not supported for type {}".format(prebuilt_type))
-
 
 def _get_sources_maven_coords(maven_coords):
     parts = maven_coords.split(":")

@@ -6,6 +6,17 @@
     @extraBuckOpt,
 }
 }
+@if (fileConfiguredVisibility) {
+    visibility = module_visibility(),
+} else {
+    @if (valid(visibility)) {
+    visibility = [
+    @for (v : visibility) {
+        "@v",
+    }
+    ],
+    }
+}
 @if (valid(deps)) {
     deps = [
     @for (dep : sorted(deps)) {
@@ -19,16 +30,5 @@
         "@label",
     }
     ],
-}
-@if (fileConfiguredVisibility) {
-    visibility = module_visibility()
-} else {
-    @if (valid(visibility)) {
-    visibility = [
-    @for (v : visibility) {
-        "@v",
-    }
-    ],
-    }
 }
 )
