@@ -7,7 +7,7 @@
 }
 }
 @if (fileConfiguredVisibility) {
-    visibility = module_visibility()
+    visibility = module_visibility(),
 } else {
     @if (valid(visibility)) {
     visibility = [
