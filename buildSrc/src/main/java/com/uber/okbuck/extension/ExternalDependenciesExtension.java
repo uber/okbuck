@@ -18,7 +18,10 @@ public class ExternalDependenciesExtension {
   /** Specifies whether the external dependencies should be downloaded by buck or not. */
   @Input private boolean downloadInBuck = true;
 
-  /** Specifies whether the maven_repositories block should be written to the okbuck.buckconfig file or not. */
+  /**
+   * Specifies whether the maven_repositories block should be written to the okbuck.buckconfig file
+   * or not.
+   */
   @Input private boolean generateMavenRepositories = true;
 
   /** Specifies what resolution action to use for external dependencies. */
@@ -30,8 +33,10 @@ public class ExternalDependenciesExtension {
   /** Specifies whether to enable exported_deps for external dependencies or not. */
   @Input private boolean thirdPartyResolutionOnly = false;
 
-  /** Specifies whether to enable exported_deps for external dependencies or not. */
+  /** Specifies whether to mark deps of first level external dependencies visible or not. */
   @Input private boolean strictVisibility = false;
+
+  @Input private boolean markFirstLevelAllVersions = true;
 
   @Input private Set<String> autoValueConfigurations = new HashSet<>();
 
@@ -95,6 +100,10 @@ public class ExternalDependenciesExtension {
 
   public boolean strictVisibilityEnabled() {
     return exportedDepsEnabled() && this.strictVisibility;
+  }
+
+  public boolean shouldMarkFirstLevelAllVersions() {
+    return markFirstLevelAllVersions;
   }
 
   public boolean resoleOnlyThirdParty() {

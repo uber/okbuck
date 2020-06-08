@@ -130,13 +130,17 @@ public class DependencyManager {
         originalDependencyMap.asMap();
 
     // Update first level of all versions of a dep if any one version has first level as true
-    dependencies
-        .values()
-        .forEach(
-            value -> {
-              boolean firstLevel = value.stream().anyMatch(OExternalDependency::isFirstLevel);
-              value.forEach(externalDependency -> externalDependency.updateFirstLevel(firstLevel));
-            });
+
+    if (externalDependenciesExtension.shouldMarkFirstLevelAllVersions()) {
+      dependencies
+          .values()
+          .forEach(
+              value -> {
+                boolean firstLevel = value.stream().anyMatch(OExternalDependency::isFirstLevel);
+                value.forEach(
+                    externalDependency -> externalDependency.updateFirstLevel(firstLevel));
+              });
+    }
 
     if (!externalDependenciesExtension.useLatest()) {
       return dependencies;
