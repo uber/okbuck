@@ -210,6 +210,16 @@ setupBuckRun ( ) {
     fi
 
     setupBuckBinary
+
+    # Replace kotlin_home config with full path instead of source path
+    local kotlin_home
+    kotlin_home=$("$BUCK_BINARY" audit config kotlin.kotlin_home)
+    if [[ "$kotlin_home" == *":kotlin_home"* ]]; then
+        echo "changing kotlin home"
+        local resolved_kotlin_home
+        resolved_kotlin_home=$("$BUCK_BINARY" build //.okbuck/workspace/kotlin_home:kotlin_home --show-output | awk '{print $2}')
+        sed -i.bak "s://.okbuck/workspace/kotlin_home\:kotlin_home:${resolved_kotlin_home}:g" .okbuck/config/okbuck.buckconfig
+    fi
 }
 
 setupBuckFlags ( ) {

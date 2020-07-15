@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.base.BuckRuleComposer;
 import com.uber.okbuck.core.dependency.DependencyCache;
-import com.uber.okbuck.core.dependency.ExternalDependency;
+import com.uber.okbuck.core.dependency.OExternalDependency;
 import com.uber.okbuck.core.dependency.VersionlessDependency;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
@@ -33,7 +33,7 @@ public abstract class KotlinBaseManager {
 
   private boolean kotlinHomeEnabled;
   @Nullable private String kotlinVersion;
-  @Nullable private Set<ExternalDependency> dependencies;
+  @Nullable private Set<OExternalDependency> dependencies;
 
   public abstract String getTargetPath();
 
