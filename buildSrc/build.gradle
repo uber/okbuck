@@ -41,6 +41,8 @@ dependencies {
     annotationProcessor deps.build.nullaway
 
     errorprone deps.build.erroproneCompiler
+    errorproneJavac deps.build.errorproneJavac
+
     compileOnly deps.external.inferAnnotations
     compileOnly deps.apt.autoValueAnnotations
 
@@ -49,13 +51,15 @@ dependencies {
     implementation deps.build.androidPlugin
     implementation deps.build.commonsIo
     implementation deps.build.commonsLang3
-    implementation deps.build.kotlinPlugin
-    implementation deps.build.kotlinAllOpen
-    implementation deps.build.rockerRuntime
     implementation deps.build.jna
     implementation deps.build.jnaPlatform
+    implementation deps.build.kotlinAllOpen
+    implementation deps.build.kotlinPlugin
     implementation deps.build.mavenArtifact
+    implementation deps.build.rockerRuntime
+    implementation deps.external.gson
     implementation deps.external.guava
+    implementation deps.lint.lintGradle
 
     testImplementation deps.test.junit
 }
@@ -65,29 +69,40 @@ rocker {
     optimize true
     extendsClass "com.uber.okbuck.template.core.RuleTemplate"
     extendsModelClass "com.uber.okbuck.template.core.Rule"
+    markAsGenerated true
 }
 
 tasks.withType(JavaCompile) {
+    options.errorprone {
+      allDisabledChecksAsWarnings = true
+      disableWarningsInGeneratedCode = true
+
+      option("NullAway:AnnotatedPackages", "com.uber")
+      option("NullAway:TreatGeneratedAsUnannotated", "true")
+
+      error("NullAway")
+
+      disable("MissingSummary")
+      // disable("NullableDereference")
+      disable("BooleanParameter")
+      // disable("ReturnMissingNullable")
+      // disable("ConstructorInvokesOverridable")
+      disable("FieldCanBeFinal")
+      disable("RemoveUnusedImports")
+      disable("AndroidJdkLibsChecker")
+      disable("Java7ApiChecker")
+
+      warn("ConstantField")
+      warn("MixedArrayDimensions")
+      warn("MultipleTopLevelClasses")
+      warn("MultiVariableDeclaration")
+      warn("PackageLocation")
+      warn("ThrowsUncheckedException")
+      warn("UnnecessaryStaticImport")
+      warn("WildcardImport")
+    }
     options.compilerArgs += [
-            "-Werror",
-            "-XepAllDisabledChecksAsWarnings",
-            "-XepDisableWarningsInGeneratedCode",
-            "-Xep:NullAway:ERROR",
-            "-XepOpt:NullAway:AnnotatedPackages=com.uber",
-            "-XepOpt:NullAway:TreatGeneratedAsUnannotated=true",
-            "-Xep:BooleanParameter:OFF",
-            "-Xep:ReturnMissingNullable:OFF",
-            "-Xep:ConstructorInvokesOverridable:OFF",
-            "-Xep:FieldCanBeFinal:OFF",
-            "-Xep:ConstantField:WARN",
-            "-Xep:MixedArrayDimensions:WARN",
-            "-Xep:MultipleTopLevelClasses:WARN",
-            "-Xep:MultiVariableDeclaration:WARN",
-            "-Xep:PackageLocation:WARN",
-            "-Xep:RemoveUnusedImports:OFF",
-            "-Xep:ThrowsUncheckedException:WARN",
-            "-Xep:UnnecessaryStaticImport:WARN",
-            "-Xep:WildcardImport:WARN",
+        "-Werror"
     ]
 }
 
@@ -144,4 +159,13 @@ bintray {
             vcsTag = publishVersion
         }
     }
+}
+
+tasks.withType(com.fizzed.rocker.gradle.RockerTask).each { task ->
+  task.doLast {
+    def tree = fileTree(dir: task.outputDir, include: '**/*.java')
+    tree.each { file ->
+      file.text = file.text.replace("@com.fizzed.rocker.Generated", '@javax.annotation.Generated("Rocker")')
+    }
+  }
 }

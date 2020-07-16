@@ -7,6 +7,7 @@ import com.uber.okbuck.composer.base.BuckRuleComposer;
 import com.uber.okbuck.core.dependency.DependencyCache;
 import com.uber.okbuck.core.dependency.OExternalDependency;
 import com.uber.okbuck.core.util.FileUtil;
+import com.uber.okbuck.core.util.MoreCollectors;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.template.config.SymlinkBuckFile;
 import com.uber.okbuck.template.core.Rule;
@@ -65,7 +66,7 @@ public final class RobolectricManager {
             .stream()
             .map(dependencyCache::build)
             .flatMap(Set::stream)
-            .collect(com.uber.okbuck.core.util.MoreCollectors.toImmutableSet());
+            .collect(MoreCollectors.toImmutableSet());
   }
 
   public void finalizeDependencies() {
@@ -106,7 +107,8 @@ public final class RobolectricManager {
     API_26("8.0.0_r4", "r1"),
     API_27("8.1.0", "4611349"),
     API_P("P", "4651975"),
-    API_28("9", "4913185-2");
+    API_28("9", "4913185-2"),
+    API_29("10", "5803371");
 
     private final String androidVersion;
     private final String frameworkSdkBuildVersion;

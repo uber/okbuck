@@ -520,7 +520,7 @@ public class Scope {
               firstLevelExternal.put(
                   localExternalDependency.getVersionless(), localExternalDependency);
             } catch (IOException e) {
-              throw new RuntimeException(e);
+              throw new IllegalStateException(e);
             }
           }
         });
@@ -531,7 +531,7 @@ public class Scope {
     if (this == o) {
       return true;
     }
-    if (o == null || getClass() != o.getClass()) {
+    if (!(o instanceof Scope)) {
       return false;
     }
     Scope scope = (Scope) o;

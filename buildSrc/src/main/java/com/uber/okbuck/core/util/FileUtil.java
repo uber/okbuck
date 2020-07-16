@@ -49,7 +49,7 @@ public final class FileUtil {
     try {
       FileUtils.copyURLToFile(FileUtil.class.getResource(resource), destination);
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new IllegalStateException(e);
     }
   }
 
@@ -71,7 +71,7 @@ public final class FileUtil {
                       .iterator()
                       .hasNext();
                 } catch (IOException e) {
-                  throw new RuntimeException(e);
+                  throw new IllegalStateException(e);
                 }
               }
               return rootFile.exists();
@@ -80,6 +80,7 @@ public final class FileUtil {
         .collect(MoreCollectors.toImmutableSet());
   }
 
+  @SuppressWarnings("EmptyCatch")
   public static void deleteQuietly(Path p) {
     try {
       Files.walkFileTree(

@@ -105,7 +105,7 @@ public class DependencyCache {
       return ImmutableSet.copyOf(processors.split(","));
 
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new IllegalStateException(e);
     }
   }
 
@@ -125,7 +125,7 @@ public class DependencyCache {
               "META-INF/services/com.google.auto.value.extension.AutoValueExtension");
       return !extensions.isEmpty();
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new IllegalStateException(e);
     }
   }
 

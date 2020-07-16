@@ -64,6 +64,7 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinBasePluginWrapper;
 import org.jetbrains.kotlin.gradle.plugin.KotlinGradleSubplugin;
 import org.jetbrains.kotlin.gradle.plugin.SubpluginOption;
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile;
+import org.gradle.api.artifacts.ExternalDependency;
 
 public class JvmTarget extends Target {
 
@@ -216,7 +217,7 @@ public class JvmTarget extends Target {
       Set<VersionlessDependency> versionlessApiDependencies =
           apiConfiguration
               .getAllDependencies()
-              .withType(org.gradle.api.artifacts.ExternalDependency.class)
+              .withType(ExternalDependency.class)
               .stream()
               .map(factory::fromDependency)
               .flatMap(Collection::stream)
@@ -460,7 +461,7 @@ public class JvmTarget extends Target {
    * For Kotlin tests, a special extra friend-paths argument needs to be passed to read internal
    * elements. See https://github.com/uber/okbuck/issues/709
    *
-   * @param isTest
+   * @param isTest is test target
    * @return the list with all friend paths
    */
   public Map<String, List<String>> getKotlinFriendPaths(boolean isTest) {
@@ -586,6 +587,7 @@ public class JvmTarget extends Target {
     return null;
   }
 
+  @SuppressWarnings("NoFunctionalReturnType")
   private static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
     Set<Object> seen = ConcurrentHashMap.newKeySet();
     return t -> seen.add(keyExtractor.apply(t));

@@ -47,7 +47,7 @@ public class OExternalDependency {
     if (this == o) {
       return true;
     }
-    if (o == null || getClass() != o.getClass()) {
+    if (!(o instanceof OExternalDependency)) {
       return false;
     }
     OExternalDependency that = (OExternalDependency) o;
@@ -207,7 +207,7 @@ public class OExternalDependency {
     if (ImmutableList.of(JAR, AAR).contains(getPackaging())) {
       return prebuiltName.replaceFirst("\\.(jar|aar)$", SOURCE_FILE);
     }
-    throw new RuntimeException("Couldn't get sources file name for " + prebuiltName);
+    throw new IllegalStateException("Couldn't get sources file name for " + prebuiltName);
   }
 
   private boolean shouldInclude(OExternalDependency dependency) {

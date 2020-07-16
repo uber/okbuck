@@ -11,7 +11,7 @@ public abstract class AndroidInstrumentationTarget extends AndroidAppTarget {
 
   private static final String KAPT_ANDROID_TEST = "kaptAndroidTest";
 
-  public AndroidInstrumentationTarget(Project project, String name) {
+  protected AndroidInstrumentationTarget(Project project, String name) {
     super(project, name, true);
   }
 

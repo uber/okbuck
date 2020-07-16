@@ -74,7 +74,7 @@ public abstract class AndroidTarget extends JvmTarget {
   @Nullable private String originalPackageName;
   @Nullable private String resourceUnionPackageName;
 
-  public AndroidTarget(Project project, String name, boolean isTest) {
+  protected AndroidTarget(Project project, String name, boolean isTest) {
     super(project, name);
 
     this.isTest = isTest;
@@ -133,7 +133,7 @@ public abstract class AndroidTarget extends JvmTarget {
     }
   }
 
-  public AndroidTarget(Project project, String name) {
+  protected AndroidTarget(Project project, String name) {
     this(project, name, false);
   }
 

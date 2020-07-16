@@ -30,7 +30,7 @@ public abstract class Target {
   private final String identifier;
   private final String path;
 
-  public Target(Project project, String name) {
+  protected Target(Project project, String name) {
     this.project = project;
     this.name = name;
     identifier = project.getPath().replaceFirst(":", "");

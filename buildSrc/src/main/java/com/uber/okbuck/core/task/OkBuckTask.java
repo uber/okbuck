@@ -165,7 +165,7 @@ public class OkBuckTask extends DefaultTask {
     try {
       dotBuckConfig().createNewFile();
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new IllegalStateException(e);
     }
 
     Map<String, RuleOverridesExtension.OverrideSetting> overrides =
@@ -252,7 +252,11 @@ public class OkBuckTask extends DefaultTask {
             scalaCompiler,
             scalaLibrary,
             ProguardUtil.getProguardJarPath(getProject()),
-            repositoryMap(okbuckExt.getExternalDependenciesExtension().shouldDownloadInBuck() && okBuckExtension.getExternalDependenciesExtension().getGenerateMavenRepositories()))
+            repositoryMap(
+                okbuckExt.getExternalDependenciesExtension().shouldDownloadInBuck()
+                    && okBuckExtension
+                        .getExternalDependenciesExtension()
+                        .getGenerateMavenRepositories()))
         .render(okbuckBuckConfig());
   }
 

@@ -1,8 +1,8 @@
 package com.uber.okbuck.extension;
 
+import static com.uber.okbuck.OkBuckGradlePlugin.OKBUCK_ANDROID_MODULES_TARGET;
 import static com.uber.okbuck.OkBuckGradlePlugin.OKBUCK_PREBUILT_TARGET;
 import static com.uber.okbuck.OkBuckGradlePlugin.OKBUCK_TARGETS_TARGET;
-import static com.uber.okbuck.OkBuckGradlePlugin.OKBUCK_ANDROID_MODULES_TARGET;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -115,12 +115,12 @@ public class RuleOverridesExtension {
 
     // Add OkBuck defaults for rules not re-defined by user.
     OKBUCK_DEFINED_RULES.forEach(
-        ((ruleType, target) -> {
+        (ruleType, target) -> {
           String buckName = ruleType.getBuckName();
           configuredOverrides.computeIfAbsent(
               buckName,
               nativeRuleName -> new OverrideSetting(target, OKBUCK_PREFIX + nativeRuleName));
-        }));
+        });
 
     overridesMap = ImmutableMap.copyOf(configuredOverrides);
   }

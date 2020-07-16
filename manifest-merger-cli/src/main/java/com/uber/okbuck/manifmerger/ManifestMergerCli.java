@@ -151,7 +151,7 @@ public final class ManifestMergerCli {
             try {
               Files.write(mergedDocument, outFile, Charsets.UTF_8);
             } catch (IOException e) {
-              throw new RuntimeException(e);
+              throw new IllegalStateException(e);
             }
           } else {
             System.out.println(mergedDocument);

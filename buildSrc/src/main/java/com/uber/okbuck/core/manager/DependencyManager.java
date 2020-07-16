@@ -100,7 +100,7 @@ public class DependencyManager {
     Map<String, List<ExternalDependency>> rawDepsMap =
         rawDependencies
             .stream()
-            .collect(Collectors.groupingBy(i -> i.getGroup() + ":" + i.getVersion()));
+            .collect(Collectors.groupingBy(i -> i.getGroup() + "--" + i.getVersion()));
 
     List<Project> allProjects = new ArrayList<>(project.getAllprojects());
     int numberOfChunks = allProjects.size();
@@ -235,7 +235,7 @@ public class DependencyManager {
                       Collectors.mapping(OExternalDependency::getVersion, Collectors.toSet())));
 
       if (extraDependencies.size() > 0) {
-        throw new RuntimeException(
+        throw new IllegalStateException(
             "Multiple versions found for external dependencies: \n"
                 + mapJoiner.join(extraDependencies));
       }
@@ -255,7 +255,7 @@ public class DependencyManager {
                       Collectors.mapping(OExternalDependency::getVersion, Collectors.toSet())));
 
       if (singleDependencies.size() > 0) {
-        throw new RuntimeException(
+        throw new IllegalStateException(
             "Single version found for external dependencies, please remove them from external dependency extension: \n"
                 + mapJoiner.join(singleDependencies));
       }
@@ -368,7 +368,7 @@ public class DependencyManager {
   }
 
   private static void dependencyException(ResolvedDependency dependency) {
-    throw new RuntimeException(
+    throw new IllegalStateException(
         "Couldn't find "
             + dependency
             + " child of parents -> "
@@ -384,7 +384,7 @@ public class DependencyManager {
       try {
         FileUtils.deleteDirectory(cacheDir);
       } catch (IOException e) {
-        throw new RuntimeException("Could not delete dependency directory: " + cacheDir);
+        throw new IllegalStateException("Could not delete dependency directory: " + cacheDir, e);
       }
     }
 
@@ -457,7 +457,8 @@ public class DependencyManager {
 
   private static void createSymlinks(Path path, Collection<OExternalDependency> dependencies) {
     if (!path.toFile().exists() && !path.toFile().mkdirs()) {
-      throw new RuntimeException(String.format("Couldn't create %s when creating symlinks", path));
+      throw new IllegalStateException(
+          String.format("Couldn't create %s when creating symlinks", path));
     }
 
     SetMultimap<VersionlessDependency, OExternalDependency> nameToDependencyMap =
@@ -510,7 +511,7 @@ public class DependencyManager {
     try {
       FileUtil.persistMapToJsonFile(sha256Map, projectMappingFile);
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new IllegalStateException(e);
     }
   }
 }
