@@ -28,6 +28,7 @@ dependencies {
     implementation deps.external.dagger
     implementation deps.external.daggerAndroid
     implementation deps.external.gson
+    implementation deps.external.sqldelight
 
     kapt deps.apt.daggerCompiler
     kapt deps.apt.daggerAndroidProcessor

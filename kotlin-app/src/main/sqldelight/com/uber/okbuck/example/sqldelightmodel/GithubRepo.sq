@@ -1,11 +1,11 @@
-CREATE TABLE GithubRepos (
+CREATE TABLE GithubRepo (
   id INTEGER PRIMARY KEY,
   name TEXT NOT NULL,
   description TEXT NOT NULL
 );
 
 delete_all:
-DELETE FROM GithubRepos WHERE 1;
+DELETE FROM GithubRepo WHERE 1;
 
 get_all:
-SELECT * FROM GithubRepos;
+SELECT * FROM GithubRepo;

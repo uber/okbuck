@@ -60,10 +60,13 @@ dependencies {
     implementation deps.external.rxjava
     implementation deps.external.rxandroid
     implementation deps.external.rxPermissions
-    implementation deps.androidx.multidex
     implementation deps.external.butterKnife
+
+    implementation deps.androidx.multidex
     implementation deps.androidx.material
+    implementation deps.androidx.activity
     implementation deps.androidx.recyclerView
+
     implementation deps.external.leakCanary
     implementation deps.external.xlogAndroidIdle
 

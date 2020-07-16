@@ -13,6 +13,7 @@ dependencies {
     implementation deps.androidx.appCompat
     implementation deps.androidx.constraintLayout
     implementation deps.androidx.material
+    implementation deps.androidx.activity
 
     testImplementation deps.test.junit
     testImplementation deps.test.kotlinTest
