@@ -10,8 +10,8 @@ PRG="$0"
 # Need this for relative symlinks.
 while [ -h "$PRG" ] ; do
     ls=`ls -ld "$PRG"`
-    link=`expr "$ls" : '.*-> \(.*\)$'`
-    if expr "$link" : '/.*' > /dev/null; then
+    link=`expr "$ls" : ".*-> \(.*\)$"`
+    if expr "$link" : "/.*" > /dev/null; then
         PRG="$link"
     else
         PRG=`dirname "$PRG"`"/$link"
@@ -51,14 +51,14 @@ success ( ) {
 }
 
 ensure ( ) {
-    command -v $1 >/dev/null 2>&1 || die "ERROR: '$1' could be found in your PATH. Please install $1. $2"
+    command -v $1 >/dev/null 2>&1 || die "ERROR: "$1" could be found in your PATH. Please install $1. $2"
 }
 
 jsonq() {
     python -c "import sys,json; obj=json.load(sys.stdin); print($1)"
 }
 
-ensure python 'https://www.python.org'
+ensure python "https://www.python.org"
 INSTALLED_WATCHMAN=`command -v watchman`
 
 OKBUCK_SUCCESS="$SCRIPT_DIR/build/okbuck.success"
@@ -68,9 +68,11 @@ WATCHMAN_TIMEOUT=10
 WATCHMAN_FAILED="WATCHMAN FAILED"
 BUCK_BINARY_DIR="$OKBUCK_DIR/workspace/buck_binary"
 
+export JAVA_OPTS="${JAVA_OPTS:-\"-Xmx1g\" \"-Xms1g\"}"
+
 # Timeout a call and exit early. This can be called via timeout <time> <command>.
 timeout( ) {
-    perl -e 'alarm shift; exec @ARGV' "$@";
+    perl -e "alarm shift; exec @ARGV" "$@";
 }
 
 ensureWatch ( ) {
@@ -168,7 +170,7 @@ watchmanWorkflow ( ) {
 
         if [[ $NUM_CHANGES -gt 0 ]]; then
             info "CHANGES DETECTED IN:"
-            echo $CHANGES $NEW_OR_DELETED_SOURCE_ROOTS | tr ' ' '\n' | head -n $MAX_DISPLAY_CHANGES
+            echo $CHANGES $NEW_OR_DELETED_SOURCE_ROOTS | tr " " "\n" | head -n $MAX_DISPLAY_CHANGES
             if [[ $NUM_CHANGES -gt $MAX_DISPLAY_CHANGES ]]; then
                 DIFF=`expr $NUM_CHANGES - $MAX_DISPLAY_CHANGES`
                 echo "...and $DIFF more"
@@ -202,14 +204,25 @@ setupBuckRun ( ) {
     elif [[ ! -z "$INSTALLED_WATCHMAN" ]]; then
         watchmanWorkflow
     else
-        warn 'ALWAYS RUNNING OKBUCK SINCE WATCHMAN IS NOT INSTALLED'
-        warn 'INSTALL WATCHMAN FOR FASTER BUILDS'
-        warn 'https://facebook.github.io/watchman'
+        warn "ALWAYS RUNNING OKBUCK SINCE WATCHMAN IS NOT INSTALLED"
+        warn "INSTALL WATCHMAN FOR FASTER BUILDS"
+        warn "https://facebook.github.io/watchman"
         echo
         runOkBuck
     fi
 
     setupBuckBinary
+
+    # Replace kotlin_home config with full path instead of source path
+    local kotlin_home
+    kotlin_home=$("$BUCK_BINARY" audit config kotlin.kotlin_home)
+
+    if [[ "$kotlin_home" == *":kotlin_home"* ]]; then
+        echo "changing kotlin home"
+        local resolved_kotlin_home
+        resolved_kotlin_home=$("$BUCK_BINARY" build //.okbuck/workspace/kotlin_home:kotlin_home --show-output | awk '{print $2}')
+        sed -i.bak "s://.okbuck/workspace/kotlin_home\:kotlin_home:${resolved_kotlin_home}:g" .okbuck/config/okbuck.buckconfig
+    fi
 }
 
 setupBuckFlags ( ) {
@@ -218,7 +231,7 @@ setupBuckFlags ( ) {
 
 # Handle parameters and flags
 handleParams ( ) {
-   SKIP_FLAGS=''
+   SKIP_FLAGS=""
    for arg in "$@"
    do
        case "$arg" in

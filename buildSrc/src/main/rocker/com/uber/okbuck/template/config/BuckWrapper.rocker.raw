@@ -74,6 +74,8 @@ WATCHMAN_TIMEOUT=10
 WATCHMAN_FAILED="WATCHMAN FAILED"
 BUCK_BINARY_DIR="$OKBUCK_DIR/workspace/buck_binary"
 
+export JAVA_OPTS="${JAVA_OPTS:-\"-Xmx1g\" \"-Xms1g\"}"
+
 # Timeout a call and exit early. This can be called via timeout <time> <command>.
 timeout( ) {
     perl -e "alarm shift; exec @@ARGV" "$@@";
@@ -159,8 +161,8 @@ watchmanWorkflow ( ) {
         runOkBuck
     else
         # Format list for simpler output
-        CHANGES=$(echo $WATCHED_CHANGES | jsonq "" ".join(obj["files"])")
-        NEW_OR_DELETED_SOURCE_ROOTS=$(echo $SOURCE_ROOTS | jsonq "" ".join([f["name"] for f in obj["files"] if (not f["exists"] or f["new"])])")
+        CHANGES=$(echo $WATCHED_CHANGES | jsonq '" ".join(obj["files"])')
+        NEW_OR_DELETED_SOURCE_ROOTS=$(echo $SOURCE_ROOTS | jsonq '" ".join([f["name"] for f in obj["files"] if (not f["exists"] or f["new"])])')
         NUM_CHANGES=$(echo $CHANGES $NEW_OR_DELETED_SOURCE_ROOTS | wc -w)
 
         if [[ $NUM_CHANGES -gt 0 ]]; then
@@ -207,6 +209,17 @@ setupBuckRun ( ) {
     fi
 
     setupBuckBinary
+
+    # Replace kotlin_home config with full path instead of source path
+    local kotlin_home
+    kotlin_home=$("$BUCK_BINARY" audit config kotlin.kotlin_home)
+
+    if [[ "$kotlin_home" == *":kotlin_home"* ]]; then
+        echo "changing kotlin home"
+        local resolved_kotlin_home
+        resolved_kotlin_home=$("$BUCK_BINARY" build //.okbuck/workspace/kotlin_home:kotlin_home --show-output | awk '{print $2}')
+        sed -i.bak "s://.okbuck/workspace/kotlin_home\:kotlin_home:${resolved_kotlin_home}:g" .okbuck/config/okbuck.buckconfig
+    fi
 }
 
 setupBuckFlags ( ) {

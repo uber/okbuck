@@ -6,8 +6,6 @@ if [ -z "$BUILD_CMD" ]; then
 fi
 
 SKIP_OKBUCK= ./buckw --version
-export RESOLVED_KOTLIN_HOME=$(./buckw build //.okbuck/workspace/kotlin_home:kotlin_home --show-output | awk '{print $2}')
-sed -i.bak "s://.okbuck/workspace/kotlin_home\:kotlin_home:${RESOLVED_KOTLIN_HOME}:g" .okbuck/config/okbuck.buckconfig
 
 echo "Running BUILD_CMD: $BUILD_CMD"
 
