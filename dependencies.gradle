@@ -17,19 +17,20 @@ def exclude = { dep, String... excludes  ->
 }
 
 def versions = [
-        androidPlugin      : "3.2.0",
-        androidTools       : "26.2.0",
-        butterKnife        : "10.0.0",
-        dagger             : "2.16",
-        kotlin             : "1.3.21",
+        androidPlugin      : "3.6.1",
+        androidTools       : "26.6.1",
+        butterKnife        : "10.2.1",
+        dagger             : "2.28.1",
+        kotlin             : "1.3.72",
         leakCanary         : "1.5.4",
         rocker             : "0.23.0",
         support            : "28.0.0",
-        androidx           : "1.0.0",
+        androidx           : "1.1.0",
         androidxMultidex   : "2.0.0",
         constraintLayout   : "1.1.0",
         scalaMajor         : "2.11",
-        spark              : "2.1.0"
+        spark              : "2.1.0",
+        sqldelight         : "1.4.0",
 
 ]
 
@@ -49,17 +50,18 @@ def build = [
         rockerPlugin     : "gradle.plugin.com.fizzed:rocker-gradle-plugin:${versions.rocker}",
         rockerRuntime    : "com.fizzed:rocker-runtime:${versions.rocker}",
         shadowJar        : "com.github.jengelman.gradle.plugins:shadow:2.0.1",
-        sqlDelightPlugin : "com.squareup.sqldelight:gradle-plugin:1.0.0",
+        sqlDelightPlugin : "com.squareup.sqldelight:gradle-plugin:${versions.sqldelight}",
         jna              : "net.java.dev.jna:jna:5.2.0",
         jnaPlatform      : "net.java.dev.jna:jna-platform:5.2.0",
         mavenArtifact    : "org.apache.maven:maven-artifact:3.6.2",
+        proguard         : "net.sf.proguard:proguard-base:6.2.2",
 ]
 
 def buildConfig = [
-        buildTools: "28.0.3",
-        compileSdk: 28,
-        minSdk    : 16,
-        targetSdk : 28,
+        buildTools: "30.0.0",
+        compileSdk: 29,
+        minSdk    : 21,
+        targetSdk : 29,
 ]
 
 def apt = [
@@ -82,6 +84,7 @@ def external = [
         kotlinExtension : "org.jetbrains.kotlin:kotlin-android-extensions:${versions.kotlin}",
         kotlinStdlib    : "org.jetbrains.kotlin:kotlin-stdlib:${versions.kotlin}",
         leakCanary      : "com.squareup.leakcanary:leakcanary-android:${versions.leakCanary}",
+        sqldelight      : "com.squareup.sqldelight:android-driver:${versions.sqldelight}",
         rxandroid       : "io.reactivex.rxjava2:rxandroid:2.0.2",
         rxjava          : "io.reactivex.rxjava2:rxjava:2.1.12",
         rxPermissions   : "com.tbruyelle.rxpermissions2:rxpermissions:0.9.4",
@@ -107,7 +110,9 @@ def lint = [
 def androidx = [
         material         : "com.google.android.material:material:${versions.androidx}",
         annotations      : "androidx.annotation:annotation:${versions.androidx}",
+        activity         : "androidx.activity:activity:${versions.androidx}",
         appCompat        : "androidx.appcompat:appcompat:${versions.androidx}",
+        appCompatResource: "androidx.appcompat:appcompat-resources:${versions.androidx}",
         recyclerView     : "androidx.recyclerview:recyclerview:${versions.androidx}",
         multidex         : "androidx.multidex:multidex:${versions.androidxMultidex}",
         constraintLayout : "androidx.constraintlayout:constraintlayout:${versions.constraintLayout}"
@@ -121,7 +126,7 @@ def test = [
         junit         : "junit:junit:4.12",
         kotlinTest    : "org.jetbrains.kotlin:kotlin-test-junit:${versions.kotlin}",
         mockito       : "org.mockito:mockito-core:2.15.0",
-        robolectric   : "org.robolectric:robolectric:3.8",
+        robolectric   : "org.robolectric:robolectric:4.3.1",
         scalaTest     : "org.scalatest:scalatest_2.12:3.0.5"
 ]
 

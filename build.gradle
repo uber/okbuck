@@ -112,12 +112,12 @@ def addCommonConfigurationForAndroidModules(Project project) {
     if (project.plugins.hasPlugin("com.squareup.sqldelight")) {
         variants.all {
 
-            project.android.sourceSets."${it.name}".java.srcDir project.file("build/generated/source/sqldelight")
-            project.android.sourceSets."${it.name}".kotlin.srcDir project.file("build/generated/source/sqldelight")
+            project.android.sourceSets."${it.name}".java.srcDir project.file("build/generated/sqldelight/code/Database")
+            project.android.sourceSets."${it.name}".kotlin.srcDir project.file("build/generated/sqldelight/code/Database")
 
             project.afterEvaluate { proj ->
                 Task okbuckTask = proj.tasks.getByName("okbuck")
-                Task sqlDelightTask = proj.tasks.getByName("generate${it.name.capitalize()}SqlDelightInterface")
+                Task sqlDelightTask = proj.tasks.getByName("generate${it.name.capitalize()}DatabaseInterface")
                 okbuckTask.dependsOn(sqlDelightTask)
             }
         }
@@ -261,6 +261,8 @@ def autoValueParcelDeps = autoValueDeps + [deps.apt.autoValueParcel]
 afterEvaluate {
     dependencies {
         toolsExtraDepCache deps.external.saxon
+
+        toolsExtraDepCache deps.build.proguard
 
         autoValueAnnotations autoValueDeps
         autoValueGson autoValueGsonDeps
