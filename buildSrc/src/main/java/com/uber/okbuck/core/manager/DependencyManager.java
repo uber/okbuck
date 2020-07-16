@@ -23,6 +23,7 @@ import com.uber.okbuck.core.dependency.OExternalDependency;
 import com.uber.okbuck.core.dependency.VersionlessDependency;
 import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.util.FileUtil;
+import com.uber.okbuck.core.util.ProjectCache;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.extension.ExternalDependenciesExtension;
 import com.uber.okbuck.extension.JetifierExtension;
@@ -31,6 +32,7 @@ import com.uber.okbuck.template.core.Rule;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,6 +41,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
@@ -94,24 +97,50 @@ public class DependencyManager {
       return;
     }
 
-    Set<ExternalDependency> rawDeps = new HashSet<>();
-    rawDeps.addAll(rawDependencies);
+    Map<String, List<ExternalDependency>> rawDepsMap =
+        rawDependencies
+            .stream()
+            .collect(Collectors.groupingBy(i -> i.getGroup() + ":" + i.getVersion()));
 
-    rawDeps
-        .stream()
-        .collect(Collectors.groupingBy(i -> i.getGroup() + ":" + i.getVersion()))
-        .entrySet()
+    List<Project> allProjects = new ArrayList<>(project.getAllprojects());
+    int numberOfChunks = allProjects.size();
+
+    List<Map<String, List<ExternalDependency>>> chunksRawDepsMap =
+        rawDepsMap
+            .keySet()
+            .stream()
+            .collect(Collectors.groupingBy(key -> Math.abs(key.hashCode()) % numberOfChunks))
+            .values()
+            .stream()
+            .map(chunk -> chunk.stream().collect(Collectors.toMap(key -> key, rawDepsMap::get)))
+            .collect(Collectors.toList());
+
+    IntStream.range(0, allProjects.size())
+        .parallel()
         .forEach(
-            e -> {
-              Configuration config =
-                  project
-                      .getConfigurations()
-                      .maybeCreate("resolve__" + e.getKey().replace(".", "__"));
-
-              System.out.println(config.getName());
-              config.getDependencies().addAll(e.getValue());
-              Scope.builder(project).configuration(config).build();
+            i -> {
+              resolveDepsWithProject(allProjects.get(i), chunksRawDepsMap.get(i));
             });
+  }
+
+  private static void resolveDepsWithProject(
+      Project project, Map<String, List<ExternalDependency>> depsMap) {
+    if (project != project.getRootProject()) {
+      ProjectCache.initScopeCache(project);
+    }
+
+    for (Map.Entry<String, List<ExternalDependency>> e : depsMap.entrySet()) {
+      Configuration config =
+          project
+              .getConfigurations()
+              .maybeCreate("resolve__" + e.getKey().replace(".", "__").replace(":", "__"));
+      config.getDependencies().addAll(e.getValue());
+      Scope.builder(project).configuration(config).build();
+    }
+
+    if (project != project.getRootProject()) {
+      ProjectCache.resetScopeCache(project);
+    }
   }
 
   public void finalizeDependencies() {
