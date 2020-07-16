@@ -50,6 +50,7 @@ dependencies {
     testImplementation deps.test.junit
     testImplementation deps.test.kotlinTest
 
+    androidTestImplementation deps.test.testExt
     androidTestImplementation deps.test.espressoRunner
     androidTestImplementation deps.test.espressoCore
     androidTestImplementation deps.test.espressoRules

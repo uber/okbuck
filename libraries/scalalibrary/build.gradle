@@ -7,7 +7,7 @@ dependencies {
     compile deps.external.scalaLibrary
 
     testCompile deps.test.scalaTest
-    testCompile deps.test.junit
+    testCompile deps.test.scalaTestJunit
 }
 
 mainClassName = "com.uber.okbuck.scala.example.Hello"
