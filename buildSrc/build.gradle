@@ -83,10 +83,7 @@ tasks.withType(JavaCompile) {
       error("NullAway")
 
       disable("MissingSummary")
-      // disable("NullableDereference")
       disable("BooleanParameter")
-      // disable("ReturnMissingNullable")
-      // disable("ConstructorInvokesOverridable")
       disable("FieldCanBeFinal")
       disable("RemoveUnusedImports")
       disable("AndroidJdkLibsChecker")
