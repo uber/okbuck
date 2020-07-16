@@ -18,6 +18,7 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.internal.artifacts.dependencies.DefaultExternalModuleDependency;
 
 public final class ManifestMergerManager {
 
@@ -47,23 +48,25 @@ public final class ManifestMergerManager {
   }
 
   public void fetchManifestMergerDeps() {
-    Configuration manifestMergerConfiguration =
-        rootProject.getConfigurations().maybeCreate(CONFIGURATION_MANIFEST_MERGER);
-    rootProject
-        .getDependencies()
-        .add(
-            CONFIGURATION_MANIFEST_MERGER,
-            MANIFEST_MERGER_GROUP
-                + ":"
-                + MANIFEST_MERGER_MODULE
-                + ":"
-                + ProjectUtil.findVersionInClasspath(
-                    rootProject, MANIFEST_MERGER_GROUP, MANIFEST_MERGER_MODULE));
+    boolean hasAndroidProject =
+        rootProject.getAllprojects().stream().anyMatch(ProjectUtil::isAndroidType);
 
-    dependencies =
-        ImmutableSet.copyOf(
-            new DependencyCache(rootProject, ProjectUtil.getDependencyManager(rootProject))
-                .build(manifestMergerConfiguration));
+    if (hasAndroidProject) {
+      Configuration manifestMergerConfiguration =
+          rootProject
+              .getConfigurations()
+              .detachedConfiguration(
+                  new DefaultExternalModuleDependency(
+                      MANIFEST_MERGER_GROUP,
+                      MANIFEST_MERGER_MODULE,
+                      ProjectUtil.findVersionInClasspath(
+                          rootProject, MANIFEST_MERGER_GROUP, MANIFEST_MERGER_MODULE)));
+
+      dependencies =
+          ImmutableSet.copyOf(
+              new DependencyCache(rootProject, ProjectUtil.getDependencyManager(rootProject))
+                  .build(manifestMergerConfiguration));
+    }
   }
 
   public void finalizeDependencies() {

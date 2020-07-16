@@ -66,6 +66,11 @@ public final class ProjectUtil {
     }
   }
 
+  public static boolean isAndroidType(Project project) {
+    ProjectType type = getType(project);
+    return type == ProjectType.ANDROID_APP || type == ProjectType.ANDROID_LIB;
+  }
+
   public static DependencyCache getDependencyCache(Project project) {
     return getPlugin(project).depCache;
   }
