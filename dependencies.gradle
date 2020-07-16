@@ -53,6 +53,7 @@ def build = [
         jna              : "net.java.dev.jna:jna:5.2.0",
         jnaPlatform      : "net.java.dev.jna:jna-platform:5.2.0",
         mavenArtifact    : "org.apache.maven:maven-artifact:3.6.2",
+        proguard         : "net.sf.proguard:proguard-base:6.2.2",
 ]
 
 def buildConfig = [
@@ -121,7 +122,7 @@ def test = [
         junit         : "junit:junit:4.12",
         kotlinTest    : "org.jetbrains.kotlin:kotlin-test-junit:${versions.kotlin}",
         mockito       : "org.mockito:mockito-core:2.15.0",
-        robolectric   : "org.robolectric:robolectric:3.8",
+        robolectric   : "org.robolectric:robolectric:4.3.1",
         scalaTest     : "org.scalatest:scalatest_2.12:3.0.5"
 ]
 
