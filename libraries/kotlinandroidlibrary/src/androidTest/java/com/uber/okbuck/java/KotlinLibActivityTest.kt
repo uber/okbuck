@@ -17,12 +17,11 @@ class KotlinLibActivityTest {
     @get:Rule
     val activityRule = ActivityScenarioRule(KotlinLibActivity::class.java)
 
-
     @Test
     fun testTextView() {
-        activityRule.launchActivity(Intent())
-
-        onView(allOf(withId(R.id.titleTV), withText("I'm in an android library test!"))).check(matches(isDisplayed()))
+    	activityRule.getScenario().onActivity { _ ->
+        	onView(allOf(withId(R.id.titleTV), withText("I'm in an android library test!"))).check(matches(isDisplayed()))
+		}
     }
 
 }
