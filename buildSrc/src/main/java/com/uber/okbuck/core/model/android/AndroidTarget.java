@@ -401,9 +401,9 @@ public abstract class AndroidTarget extends JvmTarget {
   }
 
   static List<String> getJavaCompilerOptions(BaseVariant baseVariant) {
-    if (baseVariant != null && baseVariant.getJavaCompiler() instanceof JavaCompile) {
+    if (baseVariant != null && baseVariant.getJavaCompileProvider() instanceof JavaCompile) {
       List<String> options =
-          ((JavaCompile) baseVariant.getJavaCompiler()).getOptions().getCompilerArgs();
+          ((JavaCompile) baseVariant.getJavaCompileProvider()).getOptions().getCompilerArgs();
 
       // Remove options added by apt plugin since they are handled by apt scope separately
       filterOptions(options, ImmutableList.of("-s", "-processorpath"));

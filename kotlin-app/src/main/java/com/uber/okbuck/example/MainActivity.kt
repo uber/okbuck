@@ -21,7 +21,7 @@ class MainActivity : DaggerAppCompatActivity() {
             analytics.sendAnalyticsEvent("FAB Clicked")
         }
 
-        val repo = GithubRepo.create(100, "OkBuck", "auto buck")
+        val repo = GithubRepo(100, "OkBuck", "auto buck")
         Toast.makeText(this, repo.name + ": " + repo.description, Toast.LENGTH_SHORT).show()
     }
 

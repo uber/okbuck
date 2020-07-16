@@ -35,6 +35,8 @@ android {
 
 dependencies {
     api deps.androidx.appCompat
+    implementation deps.androidx.appCompatResource
+    implementation deps.androidx.activity
     implementation project(":libraries:javalibrary")
     implementation project(":libraries:emptylibrary")
     implementation project(":libraries:parcelable")
