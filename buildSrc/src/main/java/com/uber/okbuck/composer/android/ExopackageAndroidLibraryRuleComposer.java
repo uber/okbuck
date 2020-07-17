@@ -5,7 +5,7 @@ import com.uber.okbuck.core.model.android.AndroidAppTarget;
 import com.uber.okbuck.core.model.android.ExoPackageScope;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.model.base.SourceSetType;
-import com.uber.okbuck.core.util.D8Util;
+import com.uber.okbuck.core.manager.D8Manager;
 import com.uber.okbuck.template.android.AndroidRule;
 import com.uber.okbuck.template.core.Rule;
 import java.util.ArrayList;
@@ -38,7 +38,7 @@ public final class ExopackageAndroidLibraryRuleComposer extends AndroidBuckRuleC
     libraryAptDeps.addAll(targetsApt(target.getTargetAptDeps(SourceSetType.MAIN)));
 
     Set<String> providedDeps = new LinkedHashSet<>();
-    providedDeps.add(D8Util.RT_STUB_JAR_RULE);
+    providedDeps.add(D8Manager.RT_STUB_JAR_RULE);
 
     AndroidRule androidRule =
         new AndroidRule()

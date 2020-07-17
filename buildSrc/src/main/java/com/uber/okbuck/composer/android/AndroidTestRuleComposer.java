@@ -5,7 +5,7 @@ import com.uber.okbuck.core.manager.RobolectricManager;
 import com.uber.okbuck.core.model.android.AndroidLibTarget;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.model.base.SourceSetType;
-import com.uber.okbuck.core.util.D8Util;
+import com.uber.okbuck.core.manager.D8Manager;
 import com.uber.okbuck.template.android.AndroidTestRule;
 import com.uber.okbuck.template.core.Rule;
 import java.util.ArrayList;
@@ -42,7 +42,7 @@ public final class AndroidTestRuleComposer extends AndroidBuckRuleComposer {
     Set<String> providedDeps = new LinkedHashSet<>();
     providedDeps.addAll(external(target.getExternalProvidedDeps(SourceSetType.TEST)));
     providedDeps.addAll(targets(target.getTargetProvidedDeps(SourceSetType.TEST)));
-    providedDeps.add(D8Util.RT_STUB_JAR_RULE);
+    providedDeps.add(D8Manager.RT_STUB_JAR_RULE);
 
     AndroidTestRule androidTest =
         new AndroidTestRule()
