@@ -57,7 +57,7 @@ dependencies {
     implementation deps.build.kotlinPlugin
     implementation deps.build.mavenArtifact
     implementation deps.build.rockerRuntime
-    implementation deps.build.guava
+    implementation deps.external.guava
     implementation deps.external.gson
     implementation deps.lint.lintGradle
 
