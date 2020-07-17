@@ -27,7 +27,6 @@ env:
     - BUILD_CMD=test
 
 install:
-  - set -exo pipefail
   - mkdir python_tmp
   - wget https://github.com/kageiit/jitpack-python/releases/download/3.8/python-3.8-ubuntu-16.tar.gz -O python_tmp/python.tar.gz
   - tar -C python_tmp -xf python_tmp/python.tar.gz
