@@ -24,7 +24,7 @@ public final class D8Manager {
   }
 
   public void copyDeps(BuckFileManager buckFileManager) {
-    FileUtil.copyResourceToProject("d8/" + RT_STUB_JAR, rootProject.file(D8_CACHE + File.pathSeparator + RT_STUB_JAR));
+    FileUtil.copyResourceToProject("d8/" + RT_STUB_JAR, rootProject.file(D8_CACHE + File.separator + RT_STUB_JAR));
 
     List<Rule> d8 =
         Collections.singletonList(
@@ -34,6 +34,6 @@ public final class D8Manager {
                 .ruleType(RuleType.PREBUILT_JAR.getBuckName())
                 .name(RT_STUB_JAR));
 
-    buckFileManager.writeToBuckFile(d8, rootProject.file(D8_CACHE + File.pathSeparator + OkBuckGradlePlugin.BUCK));
+    buckFileManager.writeToBuckFile(d8, rootProject.file(D8_CACHE + File.separator + OkBuckGradlePlugin.BUCK));
   }
 }
