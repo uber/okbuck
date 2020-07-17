@@ -13,6 +13,7 @@ import com.uber.okbuck.template.core.Rule;
 import com.uber.okbuck.template.java.NativePrebuilt;
 import com.uber.okbuck.template.jvm.JvmBinaryRule;
 import java.io.File;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
@@ -69,6 +70,9 @@ public final class ManifestMergerManager {
   }
 
   public void finalizeDependencies() {
+    Path path = rootProject.file(MANIFEST_MERGER_BUCK_FILE).toPath();
+    FileUtil.deleteQuietly(path);
+
     if (dependencies != null && dependencies.size() > 0) {
       FileUtil.copyResourceToProject(
           "manifest/" + MANIFEST_MERGER_CLI_JAR,

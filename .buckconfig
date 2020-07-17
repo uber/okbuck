@@ -1,11 +1,9 @@
 [project]
-    glob_handler = watchman
     allow_symlinks = forbid
     ide = intellij
     ignore = .git, .idea, .gradle, local.properties, **/.DS_Store, **/*.iml
     temp_files = ^#.*#$, .*~$, .*.swp$
     parallel_parsing = true
-    build_file_search_method = watchman
     skip_build = true
 
 [httpserver]

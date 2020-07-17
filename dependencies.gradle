@@ -97,7 +97,7 @@ def external = [
         saxon           : "net.sf.saxon:Saxon-HE:10.1",
         scalaLibrary    : "org.scala-lang:scala-library:2.13.3",
         log4j           : exclude("log4j:log4j:1.2.15", "jline", "jms", "jmxtools", "jmxri"),
-        guava           : "com.google.guava:guava:26.0-jre",
+        guava           : "com.google.guava:guava:29.0-jre",
 ]
 
 def lint = [

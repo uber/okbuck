@@ -46,6 +46,7 @@ import org.gradle.api.Task;
 import org.gradle.api.UnknownDomainObjectException;
 import org.gradle.api.UnknownTaskException;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.ExternalDependency;
 import org.gradle.api.artifacts.ProjectDependency;
 import org.gradle.api.plugins.ApplicationPlugin;
 import org.gradle.api.plugins.ApplicationPluginConvention;
@@ -64,13 +65,13 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinBasePluginWrapper;
 import org.jetbrains.kotlin.gradle.plugin.KotlinGradleSubplugin;
 import org.jetbrains.kotlin.gradle.plugin.SubpluginOption;
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile;
-import org.gradle.api.artifacts.ExternalDependency;
 
 public class JvmTarget extends Target {
 
   public static final String MAIN = "main";
 
   protected static final String JAVA_COMPILER_EXTRA_ARGUMENTS = "extra_arguments";
+  protected static final String KOTLIN_COMPILER_PLUGINS = "kotlinc_plugins";
   protected static final String KOTLIN_COMPILER_EXTRA_ARGUMENTS = "extra_kotlinc_arguments";
 
   private static final String INTEGRATION_TEST_SOURCE_SET_NAME = "integrationTest";
@@ -339,6 +340,7 @@ public class JvmTarget extends Target {
             JAVA_COMPILER_EXTRA_ARGUMENTS, compileJavaTask.getOptions().getCompilerArgs())
         .customOptions(KOTLIN_COMPILER_EXTRA_ARGUMENTS, getKotlinCompilerOptions())
         .customOptions(getKotlinFriendPaths(false))
+        .customOptions(KOTLIN_COMPILER_PLUGINS, getKotlinCompilerPlugins())
         .build();
   }
 
@@ -353,6 +355,7 @@ public class JvmTarget extends Target {
             JAVA_COMPILER_EXTRA_ARGUMENTS, testCompileJavaTask.getOptions().getCompilerArgs())
         .customOptions(KOTLIN_COMPILER_EXTRA_ARGUMENTS, getKotlinCompilerOptions())
         .customOptions(getKotlinFriendPaths(true))
+        .customOptions(KOTLIN_COMPILER_PLUGINS, getKotlinCompilerPlugins())
         .build();
   }
 
@@ -375,6 +378,7 @@ public class JvmTarget extends Target {
             integrationTestCompileJavaTask.getOptions().getCompilerArgs())
         .customOptions(KOTLIN_COMPILER_EXTRA_ARGUMENTS, getKotlinCompilerOptions())
         .customOptions(getKotlinFriendPaths(true))
+        .customOptions(KOTLIN_COMPILER_PLUGINS, getKotlinCompilerPlugins())
         .build();
   }
 
@@ -472,24 +476,31 @@ public class JvmTarget extends Target {
     return ImmutableMap.of("friend_paths", ImmutableList.of(":" + JvmBuckRuleComposer.src(this)));
   }
 
+  protected List<String> getKotlinCompilerPlugins() {
+    ImmutableList.Builder<String> pluginBuilder = ImmutableList.builder();
+    if (getProject().getPlugins().hasPlugin(KotlinManager.KOTLIN_ALLOPEN_MODULE)) {
+      AllOpenKotlinGradleSubplugin subPlugin = getAllOpenKotlinGradleSubplugin();
+
+      if (subPlugin != null && fakeCompile != null) {
+        pluginBuilder.add(KotlinManager.KOTLIN_AO_PLUGIN_TARGET);
+      }
+    }
+    return pluginBuilder.build();
+  }
+
   protected List<String> getKotlinCompilerOptions() {
     if (!isKotlin) {
       return ImmutableList.of();
     }
+
     ImmutableList.Builder<String> optionBuilder = ImmutableList.builder();
     optionBuilder.addAll(readKotlinCompilerArguments());
     if (getProject().getPlugins().hasPlugin(KotlinManager.KOTLIN_ALLOPEN_MODULE)) {
-      AllOpenKotlinGradleSubplugin subplugin = getAllOpenKotlinGradleSubplugin();
+      AllOpenKotlinGradleSubplugin subPlugin = getAllOpenKotlinGradleSubplugin();
 
-      if (subplugin != null && fakeCompile != null) {
+      if (subPlugin != null && fakeCompile != null) {
         List<SubpluginOption> options =
-            subplugin.apply(getProject(), fakeCompile, fakeCompile, null, null, null);
-
-        optionBuilder.add(
-            "-Xplugin="
-                + KotlinManager.KOTLIN_LIBRARIES_LOCATION
-                + File.separator
-                + KotlinManager.KOTLIN_ALLOPEN_JAR);
+            subPlugin.apply(getProject(), fakeCompile, fakeCompile, null, null, null);
 
         for (SubpluginOption option : options) {
           optionBuilder.add("-P");

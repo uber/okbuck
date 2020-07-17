@@ -1,5 +1,6 @@
 package com.uber.okbuck.core.model.android;
 
+import static com.uber.okbuck.core.manager.KotlinManager.KOTLIN_AE_PLUGIN_TARGET;
 import static com.uber.okbuck.core.manager.KotlinManager.KOTLIN_ANDROID_EXTENSIONS_MODULE;
 import static com.uber.okbuck.core.manager.KotlinManager.KOTLIN_KAPT_PLUGIN;
 
@@ -18,7 +19,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.errorprone.annotations.Var;
 import com.uber.okbuck.core.annotation.AnnotationProcessorCache;
-import com.uber.okbuck.core.manager.KotlinManager;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.model.jvm.JvmTarget;
@@ -148,6 +148,7 @@ public abstract class AndroidTarget extends JvmTarget {
         .customOptions(JAVA_COMPILER_EXTRA_ARGUMENTS, getJavaCompilerOptions(getBaseVariant()))
         .customOptions(KOTLIN_COMPILER_EXTRA_ARGUMENTS, getKotlinCompilerOptions())
         .customOptions(getKotlinFriendPaths(false))
+        .customOptions(KOTLIN_COMPILER_PLUGINS, getKotlinCompilerPlugins())
         .build();
   }
 
@@ -162,6 +163,7 @@ public abstract class AndroidTarget extends JvmTarget {
       builder.customOptions(JAVA_COMPILER_EXTRA_ARGUMENTS, getJavaCompilerOptions(unitTestVariant));
       builder.customOptions(KOTLIN_COMPILER_EXTRA_ARGUMENTS, getKotlinCompilerOptions());
       builder.customOptions(getKotlinFriendPaths(true));
+      builder.customOptions(KOTLIN_COMPILER_PLUGINS, getKotlinCompilerPlugins());
     }
     return builder.build();
   }
@@ -414,6 +416,18 @@ public abstract class AndroidTarget extends JvmTarget {
   }
 
   @Override
+  protected List<String> getKotlinCompilerPlugins() {
+    ImmutableList.Builder<String> pluginBuilder = ImmutableList.builder();
+
+    if (getHasKotlinAndroidExtensions()) {
+      pluginBuilder.add(KOTLIN_AE_PLUGIN_TARGET);
+    }
+    pluginBuilder.addAll(super.getKotlinCompilerPlugins());
+
+    return pluginBuilder.build();
+  }
+
+  @Override
   protected List<String> getKotlinCompilerOptions() {
     if (!getHasKotlinAndroidExtensions()) {
       return super.getKotlinCompilerOptions();
@@ -421,7 +435,6 @@ public abstract class AndroidTarget extends JvmTarget {
 
     ImmutableList.Builder<String> extraKotlincArgs = ImmutableList.builder();
 
-    StringBuilder plugin = new StringBuilder();
     StringBuilder resDirs = new StringBuilder();
     StringBuilder options = new StringBuilder();
 
@@ -441,11 +454,6 @@ public abstract class AndroidTarget extends JvmTarget {
               resDirs.append(",");
             });
 
-    plugin.append("-Xplugin=");
-    plugin.append(KotlinManager.KOTLIN_LIBRARIES_LOCATION);
-    plugin.append(File.separator);
-    plugin.append("kotlin-android-extensions.jar");
-
     options.append(resDirs.toString());
     options.append(KOTLIN_EXTENSIONS_OPTION);
     options.append("package=");
@@ -457,7 +465,6 @@ public abstract class AndroidTarget extends JvmTarget {
       options.append("experimental=true");
     }
 
-    extraKotlincArgs.add(plugin.toString());
     extraKotlincArgs.add("-P");
     extraKotlincArgs.add(options.toString());
 

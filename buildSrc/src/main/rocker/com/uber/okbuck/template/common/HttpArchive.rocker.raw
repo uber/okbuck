@@ -1,0 +1,23 @@
+@import java.util.Collection
+
+@args (
+    String sha256,
+    String stripPrefix,
+    String type,
+    Collection urls,
+)
+
+http_archive(
+    name = "@(name)",
+    sha256 = "@(sha256)",
+@if (valid(stripPrefix)) {
+    strip_prefix = "@(stripPrefix)",
+}
+    type = "@(type)",
+    urls = [
+    @for (url : sorted(urls)) {
+        "@url",
+    }
+    ],
+    visibility = ["PUBLIC"],
+)

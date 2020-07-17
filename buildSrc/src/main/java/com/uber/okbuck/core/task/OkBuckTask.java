@@ -108,7 +108,7 @@ public class OkBuckTask extends DefaultTask {
 
     // Fetch Kotlin deps if needed
     if (kotlinExtension.version != null) {
-      ProjectUtil.getKotlinManager(getProject()).setupKotlinHome(kotlinExtension.version);
+      ProjectUtil.getKotlinManager(getProject()).setupKotlinHome(kotlinExtension);
     }
 
     generate(
