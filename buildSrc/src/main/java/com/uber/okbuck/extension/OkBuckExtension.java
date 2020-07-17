@@ -68,12 +68,6 @@ public class OkBuckExtension {
 
   /**
    * Additional dependency caches. Every value "entry" will create a new configuration
-   * "entryExtraDepCache" that can be used to fetch and cache dependencies.
-   */
-  @Deprecated @Input public Set<String> extraDepCaches = new HashSet<>();
-
-  /**
-   * Additional dependency caches. Every value "entry" will create a new configuration
    * "entryExtraDepCache" that can be used to fetch and cache dependencies. the boolean defines
    * weather a prebuilt rule needs to be skipped or not. { "tools": true } skips prebuilt rule for
    * all tools dependencies

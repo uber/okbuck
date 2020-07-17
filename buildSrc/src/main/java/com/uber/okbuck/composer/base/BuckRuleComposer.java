@@ -11,7 +11,7 @@ import javax.annotation.Nullable;
 
 public abstract class BuckRuleComposer {
 
-  public BuckRuleComposer() {}
+  protected BuckRuleComposer() {}
 
   public static Set<String> external(Set<OExternalDependency> deps) {
     return deps.stream().map(BuckRuleComposer::external).collect(Collectors.toSet());
@@ -21,7 +21,7 @@ public abstract class BuckRuleComposer {
     try {
       return String.format("//%s:%s", dep.getTargetPath(), dep.getTargetName());
     } catch (NullPointerException e) {
-      throw new RuntimeException(e);
+      throw new IllegalStateException(e);
     }
   }
 

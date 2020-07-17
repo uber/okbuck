@@ -15,7 +15,7 @@ public abstract class RuleTemplate extends DefaultRockerTemplate {
   protected Collection labels;
   protected Collection extraBuckOpts;
 
-  public RuleTemplate(RockerModel model) {
+  protected RuleTemplate(RockerModel model) {
     super(model);
     if (model instanceof Rule) {
       Rule rule = (Rule) model;

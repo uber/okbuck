@@ -18,7 +18,7 @@ public class ProjectCache {
 
     Map<String, Scope> scopeCache = (Map<String, Scope>) project.property(scopeCacheKey);
     if (scopeCache == null) {
-      throw new RuntimeException(
+      throw new IllegalStateException(
           "Scope cache external property '" + scopeCacheKey + "' is not set.");
     }
     return scopeCache;
@@ -29,7 +29,7 @@ public class ProjectCache {
 
     TargetCache targetCache = (TargetCache) project.property(targetCacheKey);
     if (targetCache == null) {
-      throw new RuntimeException(
+      throw new IllegalStateException(
           "Target cache external property '" + targetCacheKey + "' is not set.");
     }
     return targetCache;

@@ -107,7 +107,7 @@ public abstract class Rule<T extends Rule> extends DefaultRockerModel {
       file.getParentFile().mkdirs();
       render(new FileOutputStream(file));
     } catch (FileNotFoundException e) {
-      throw new RuntimeException(e);
+      throw new IllegalStateException(e);
     }
   }
 

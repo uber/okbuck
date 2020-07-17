@@ -18,6 +18,7 @@ dependencies {
     testImplementation deps.test.junit
     testImplementation deps.test.kotlinTest
 
+    androidTestImplementation deps.test.testExt
     androidTestImplementation deps.test.junit
     androidTestImplementation deps.test.espressoCore
     androidTestImplementation deps.test.espressoRules

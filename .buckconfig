@@ -48,4 +48,7 @@
     polyglot_parsing_enabled = true
     default_build_file_syntax = SKYLARK
 
+[scala]
+    target_level = jvm-1.8
+
 <file:.okbuck/config/okbuck.buckconfig>

@@ -35,7 +35,7 @@ public final class XmlUtil {
       doc.getDocumentElement().normalize();
       return doc;
     } catch (ParserConfigurationException | IOException | SAXException e) {
-      throw new RuntimeException(e);
+      throw new IllegalStateException(e);
     }
   }
 
@@ -46,7 +46,7 @@ public final class XmlUtil {
       doc.getDocumentElement().normalize();
       return doc;
     } catch (ParserConfigurationException | IOException | SAXException e) {
-      throw new RuntimeException(e);
+      throw new IllegalStateException(e);
     }
   }
 
@@ -83,7 +83,7 @@ public final class XmlUtil {
 
       writeText(xmlString, xmlFile);
     } catch (IOException | TransformerException e) {
-      throw new RuntimeException(e);
+      throw new IllegalStateException(e);
     }
   }
 

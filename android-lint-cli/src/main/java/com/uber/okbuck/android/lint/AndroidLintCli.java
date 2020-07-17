@@ -25,7 +25,7 @@ public class AndroidLintCli {
     File file = new File(filename);
 
     if (!file.isAbsolute()) {
-      throw new RuntimeException(String.format("%s should be absolute", file));
+      throw new IllegalStateException(String.format("%s should be absolute", file));
     }
 
     String librariesString = read(file.toPath()).trim();

@@ -23,7 +23,7 @@ class SystemClassLoader {
       this.addUrlMethod = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
       this.addUrlMethod.setAccessible(true);
     } catch (NoSuchMethodException e) {
-      throw new RuntimeException(e);
+      throw new IllegalStateException(e);
     }
   }
 
@@ -42,7 +42,7 @@ class SystemClassLoader {
       this.addUrlMethod.invoke(systemClassLoader, jarFileUrl);
       System.out.println("Added dependency: " + jarFileUrl.toString());
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      throw new IllegalStateException(e);
     }
   }
 

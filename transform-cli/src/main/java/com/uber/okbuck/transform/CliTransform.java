@@ -84,7 +84,7 @@ public class CliTransform {
 
               return runner;
             } catch (Exception e) {
-              throw new RuntimeException(e);
+              throw new IllegalStateException(e);
             }
           }
         });
@@ -99,7 +99,7 @@ public class CliTransform {
     try {
       provider.provide().runTransform();
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      throw new IllegalStateException(e);
     }
   }
 
@@ -121,7 +121,7 @@ public class CliTransform {
         String[] dependencies = line.split(DEPENDENCIES_SEPARATOR);
         return dependencies;
       } catch (IOException e) {
-        throw new RuntimeException(e);
+        throw new IllegalStateException(e);
       }
     } else {
       return new String[0];

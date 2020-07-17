@@ -21,13 +21,10 @@ import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.gradle.api.Project;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /** An Android app target */
 public class AndroidAppTarget extends AndroidLibTarget {
 
-  private static final Logger LOG = LoggerFactory.getLogger(AndroidAppTarget.class);
   private static final int DEFAULT_LINEARALLOC_LIMIT = 16777216;
   private final boolean multidexEnabled;
   @Nullable private final Keystore keystore;

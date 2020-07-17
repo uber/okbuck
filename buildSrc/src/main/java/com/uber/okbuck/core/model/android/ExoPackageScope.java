@@ -36,6 +36,7 @@ public class ExoPackageScope extends Scope {
   }
 
   @Nullable
+  @SuppressWarnings("EmptyCatch")
   public String getAppClass() {
     if (manifest == null) {
       return null;

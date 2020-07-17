@@ -60,7 +60,7 @@ public abstract class VersionlessDependency {
                 .build();
         break;
       default:
-        throw new RuntimeException("Invalid dependency specified: " + s);
+        throw new IllegalStateException("Invalid dependency specified: " + s);
     }
     return versionless;
   }

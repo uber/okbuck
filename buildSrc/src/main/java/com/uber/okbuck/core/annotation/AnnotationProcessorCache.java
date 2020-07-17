@@ -90,7 +90,7 @@ public class AnnotationProcessorCache {
       Map<Set<Dependency>, Scope> autoValueScopeMap = getAutoValueDependencyToScopeMap();
 
       if (!autoValueScopeMap.containsKey(autoValueDependencies)) {
-        throw new RuntimeException(
+        throw new IllegalStateException(
             "autoValueConfigurations should be present if adding autoValue dependencies. missing: "
                 + autoValueDependencies);
       }

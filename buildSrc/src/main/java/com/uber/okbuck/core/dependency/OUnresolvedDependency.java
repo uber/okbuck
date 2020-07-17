@@ -1,6 +1,7 @@
 package com.uber.okbuck.core.dependency;
 
 import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +15,7 @@ public abstract class OUnresolvedDependency {
 
   public abstract String version();
 
-  public abstract Set<ExcludeRule> excludeRules();
+  public abstract ImmutableSet<ExcludeRule> excludeRules();
 
   public static Builder builder() {
     return new AutoValue_OUnresolvedDependency.Builder();
