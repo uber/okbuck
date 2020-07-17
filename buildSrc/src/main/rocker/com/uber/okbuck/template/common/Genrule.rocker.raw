@@ -1,0 +1,17 @@
+@args (
+    String out,
+    String cmd,
+)
+
+genrule(
+    name = "@name",
+    out = "@out",
+    cmd = "@cmd",
+@if (valid(visibility)) {
+    visibility = [
+    @for (v : visibility) {
+        "@v",
+    }
+    ],
+}
+)

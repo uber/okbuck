@@ -57,6 +57,7 @@ def build = [
         jnaPlatform      : "net.java.dev.jna:jna-platform:${versions.jna}",
         mavenArtifact    : "org.apache.maven:maven-artifact:3.6.2",
         proguard         : "net.sf.proguard:proguard-base:6.2.2",
+        guava            : "com.google.guava:guava:29.0-jre",
 ]
 
 def buildConfig = [
@@ -97,7 +98,7 @@ def external = [
         saxon           : "net.sf.saxon:Saxon-HE:10.1",
         scalaLibrary    : "org.scala-lang:scala-library:2.13.3",
         log4j           : exclude("log4j:log4j:1.2.15", "jline", "jms", "jmxtools", "jmxri"),
-        guava           : "com.google.guava:guava:26.0-jre",
+        guava           : "com.google.guava:guava:29.0-android",
 ]
 
 def lint = [
