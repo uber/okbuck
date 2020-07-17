@@ -37,7 +37,7 @@ install:
   - python --version
   - mkdir -p $HOME/android-sdk-dl
   - mkdir -p $HOME/android-sdk
-  - curl https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip > $HOME/android-sdk-dl/sdk-tools.zip
+  - curl https://dl.google.com/android/repository/commandlinetools-linux-6609375_latest.zip > $HOME/android-sdk-dl/sdk-tools.zip
   - unzip -qq -n $HOME/android-sdk-dl/sdk-tools.zip -d $HOME/android-sdk
 
   - yes | $HOME/android-sdk/tools/bin/sdkmanager --licenses
