@@ -179,7 +179,7 @@ okbuck {
         espresso = true
         espressoForLibraries = true
         robolectric = true
-        robolectricApis = ["21", "27"]
+        robolectricApis = ["21", "27", "29"]
         enableIntegrationTests = true
     }
 
