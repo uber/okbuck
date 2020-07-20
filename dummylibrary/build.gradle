@@ -20,6 +20,8 @@ android {
 }
 
 dependencies {
+    compileOnly deps.external.annotationApi
+
     api deps.external.dagger
     api deps.external.gson
 

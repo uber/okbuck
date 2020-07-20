@@ -7,6 +7,7 @@ import com.uber.okbuck.core.dependency.DependencyCache;
 import com.uber.okbuck.core.dependency.DependencyFactory;
 import com.uber.okbuck.core.manager.BuckFileManager;
 import com.uber.okbuck.core.manager.BuckManager;
+import com.uber.okbuck.core.manager.D8Manager;
 import com.uber.okbuck.core.manager.DependencyManager;
 import com.uber.okbuck.core.manager.GroovyManager;
 import com.uber.okbuck.core.manager.JetifierManager;
@@ -19,7 +20,6 @@ import com.uber.okbuck.core.manager.TransformManager;
 import com.uber.okbuck.core.model.base.ProjectType;
 import com.uber.okbuck.core.task.OkBuckCleanTask;
 import com.uber.okbuck.core.task.OkBuckTask;
-import com.uber.okbuck.core.util.D8Util;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.MoreCollectors;
 import com.uber.okbuck.core.util.ProjectCache;
@@ -109,6 +109,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
   public GroovyManager groovyManager;
   public JetifierManager jetifierManager;
   public TransformManager transformManager;
+  public D8Manager d8Manager;
 
   ManifestMergerManager manifestMergerManager;
   RobolectricManager robolectricManager;
@@ -175,6 +176,9 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
 
           // Create Transform Manager
           transformManager = new TransformManager(rootBuckProject, buckFileManager);
+
+          // Create D8 Manager
+          d8Manager = new D8Manager(rootBuckProject);
 
           // Create Buck Manager
           buckManager = new BuckManager(rootBuckProject);
@@ -276,7 +280,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
                 }
 
                 // Setup d8 deps
-                D8Util.copyDeps(buckFileManager);
+                d8Manager.copyDeps(buckFileManager);
 
                 // Fetch robolectric deps if needed
                 if (okbuckExt.getTestExtension().robolectric) {

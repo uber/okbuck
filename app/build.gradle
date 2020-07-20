@@ -54,6 +54,7 @@ repositories {
 
 dependencies {
     compileOnly deps.apt.autoValueAnnotations
+    compileOnly deps.external.annotationApi
 
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation(name: "rxscreenshotdetector-1.2.0", ext: "aar")

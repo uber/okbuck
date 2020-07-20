@@ -1,6 +1,7 @@
 package com.uber.okbuck.core.manager;
 
 import com.google.common.base.Preconditions;
+import com.google.errorprone.annotations.Var;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
@@ -38,7 +39,7 @@ public final class BuckManager {
       rootProject
           .getRepositories()
           .maven(mavenArtifactRepository -> mavenArtifactRepository.setUrl(JITPACK_URL));
-      rootProject.getDependencies().add(BUCK_BINARY_CONFIGURATION, okbuckExt.buckBinary);
+      rootProject.getDependencies().add(BUCK_BINARY_CONFIGURATION, getJavaVersion() == 11 ? okbuckExt.buckBinaryJava11 : okbuckExt.buckBinary);
 
       Set<File> resolvedFiles = buckConfig.getResolvedConfiguration().getFiles();
       Preconditions.checkArgument(resolvedFiles.size() == 1);
@@ -59,5 +60,16 @@ public final class BuckManager {
 
       FileUtil.symlink(linkedBinaryPath, realBuckBinaryPath);
     }
+  }
+
+  private static int getJavaVersion() {
+    @Var String version = System.getProperty("java.version");
+    if(version.startsWith("1.")) {
+        version = version.substring(2, 3);
+    } else {
+        int dot = version.indexOf(".");
+        if(dot != -1) { version = version.substring(0, dot); }
+    }
+    return Integer.parseInt(version);
   }
 }

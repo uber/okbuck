@@ -2,6 +2,8 @@ apply plugin: "java-library"
 apply plugin: "application"
 
 dependencies {
+	compileOnly deps.external.annotationApi
+
     implementation deps.external.gson
     implementation deps.external.dagger
     implementation deps.external.avroIpc

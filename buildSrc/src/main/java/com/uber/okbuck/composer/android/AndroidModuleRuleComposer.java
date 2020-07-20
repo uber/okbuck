@@ -6,7 +6,7 @@ import com.uber.okbuck.core.model.android.AndroidLibTarget;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.model.base.SourceSetType;
 import com.uber.okbuck.core.model.jvm.JvmTarget;
-import com.uber.okbuck.core.util.D8Util;
+import com.uber.okbuck.core.manager.D8Manager;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.template.android.AndroidModuleRule;
@@ -43,7 +43,7 @@ public final class AndroidModuleRuleComposer extends AndroidBuckRuleComposer {
     Set<String> providedDeps = new HashSet<>();
     providedDeps.addAll(external(target.getExternalProvidedDeps(SourceSetType.MAIN)));
     providedDeps.addAll(targets(target.getTargetProvidedDeps(SourceSetType.MAIN)));
-    providedDeps.add(D8Util.RT_STUB_JAR_RULE);
+    providedDeps.add(D8Manager.RT_STUB_JAR_RULE);
 
     Set<String> libraryExportedDeps = new HashSet<>();
     libraryExportedDeps.addAll(external(target.getExternalExportedDeps(SourceSetType.MAIN)));

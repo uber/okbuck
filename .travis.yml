@@ -1,6 +1,7 @@
 language: java
 jdk:
   - openjdk8
+  - openjdk11
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
@@ -36,14 +37,14 @@ install:
   - python --version
   - mkdir -p $HOME/android-sdk-dl
   - mkdir -p $HOME/android-sdk
-  - curl https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip > $HOME/android-sdk-dl/sdk-tools.zip
-  - unzip -qq -n $HOME/android-sdk-dl/sdk-tools.zip -d $HOME/android-sdk
+  - curl https://dl.google.com/android/repository/commandlinetools-linux-6609375_latest.zip > $HOME/android-sdk-dl/sdk-tools.zip
+  - unzip -qq -n $HOME/android-sdk-dl/sdk-tools.zip -d $HOME/android-sdk/cmdline-tools
 
-  - yes | $HOME/android-sdk/tools/bin/sdkmanager --licenses
+  - yes | $HOME/android-sdk/cmdline-tools/tools/bin/sdkmanager --licenses
 
-  - $HOME/android-sdk/tools/bin/sdkmanager 'platform-tools' > /dev/null
-  - $HOME/android-sdk/tools/bin/sdkmanager 'build-tools;30.0.0' > /dev/null
-  - $HOME/android-sdk/tools/bin/sdkmanager 'platforms;android-29' > /dev/null
+  - $HOME/android-sdk/cmdline-tools/tools/bin/sdkmanager 'platform-tools' > /dev/null
+  - $HOME/android-sdk/cmdline-tools/tools/bin/sdkmanager 'build-tools;30.0.0' > /dev/null
+  - $HOME/android-sdk/cmdline-tools/tools/bin/sdkmanager 'platforms;android-29' > /dev/null
 
 script:
   - ./tooling/ci/build_cmd.sh

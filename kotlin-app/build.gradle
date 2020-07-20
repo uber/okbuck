@@ -38,8 +38,12 @@ dependencies {
     kapt deps.apt.autoValueGson
 
     compileOnly deps.apt.autoValueAnnotations
+    compileOnly deps.external.annotationApi
 
     kaptTest deps.apt.daggerCompiler
+
+    testCompileOnly deps.external.annotationApi
+    androidTestCompileOnly deps.external.annotationApi
 
     kaptAndroidTest deps.apt.daggerCompiler
     kaptAndroidTest deps.apt.daggerAndroidProcessor
