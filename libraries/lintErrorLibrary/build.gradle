@@ -2,6 +2,7 @@ apply plugin: "com.android.library"
 apply plugin: "com.jakewharton.butterknife"
 
 dependencies {
+	compileOnly deps.external.annotationApi
     buckLint project (":libraries:customLintLibrary")
 
     annotationProcessor deps.apt.butterKnifeCompiler
