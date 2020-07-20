@@ -151,6 +151,8 @@ public final class RobolectricManager {
           return API_27;
         case "28":
           return API_28;
+        case "29":
+          return API_29;
         case "P":
           return API_P;
         default:
