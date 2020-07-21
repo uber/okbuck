@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.gradle.api.Project;
@@ -80,7 +81,14 @@ public final class RobolectricManager {
           dependencies
               .stream()
               .collect(
-                  Collectors.toMap(BuckRuleComposer::external, OExternalDependency::getTargetName));
+                  Collectors.toMap(
+                      BuckRuleComposer::external,
+                      OExternalDependency::getTargetName,
+                      (v1, v2) -> {
+                        throw new IllegalStateException(
+                            String.format("Duplicate key for values %s and %s", v1, v2));
+                      },
+                      TreeMap::new));
 
       Rule fileGroup =
           new SymlinkBuckFile()
