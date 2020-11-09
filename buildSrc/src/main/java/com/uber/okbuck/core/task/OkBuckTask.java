@@ -7,6 +7,7 @@ import static com.uber.okbuck.OkBuckGradlePlugin.OKBUCK_TARGETS_FILE;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.TreeMultimap;
+import com.google.errorprone.annotations.Var;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.base.BuckRuleComposer;
 import com.uber.okbuck.core.dependency.OExternalDependency;
@@ -16,6 +17,7 @@ import com.uber.okbuck.core.manager.KotlinManager;
 import com.uber.okbuck.core.manager.ScalaManager;
 import com.uber.okbuck.core.model.base.ProjectType;
 import com.uber.okbuck.core.model.base.RuleType;
+import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProguardUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.extension.ExternalDependenciesExtension;
@@ -258,6 +260,17 @@ public class OkBuckTask extends DefaultTask {
                         .getExternalDependenciesExtension()
                         .getGenerateMavenRepositories()))
         .render(okbuckBuckConfig());
+
+    // Add entry of OkBuckBuckConfig to DotBuckConfig
+    String entry =
+        String.format(
+            "<file:%s>", FileUtil.getRelativePath(getProject().getRootDir(), okbuckBuckConfig()));
+
+    @Var String dotBuckContent = FileUtil.readString(dotBuckConfig());
+    if (!dotBuckContent.contains(entry)) {
+      dotBuckContent = entry + "\n\n" + dotBuckContent;
+      FileUtil.writeString(dotBuckConfig(), dotBuckContent);
+    }
   }
 
   private LinkedHashMap<String, String> repositoryMap(boolean downloadInBuck) {

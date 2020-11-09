@@ -45,6 +45,22 @@ public final class FileUtil {
     }
   }
 
+  public static String readString(File f) {
+    try {
+      return new String(Files.readAllBytes(f.toPath()), UTF_8);
+    } catch (IOException e) {
+      throw new IllegalStateException("Failed to read from file " + f + " due to exception: " + e);
+    }
+  }
+
+  public static void writeString(File f, String content) {
+    try {
+      Files.write(f.toPath(), content.getBytes(UTF_8));
+    } catch (IOException e) {
+      throw new IllegalStateException("Failed to write to file " + f + " due to exception: " + e);
+    }
+  }
+
   public static void copyResourceToProject(String resource, File destination) {
     try {
       FileUtils.copyURLToFile(FileUtil.class.getResource(resource), destination);
