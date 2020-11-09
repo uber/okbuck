@@ -12,8 +12,8 @@ public class KotlinExtension {
   @Nullable public String compilerZipSha256;
 
   KotlinExtension(Project project) {
-    this.version = "3.72.0";
-    this.compilerZipSha256 = "ccd0db87981f1c0e3f209a1a4acb6778f14e63fe3e561a98948b5317e526cc6c";
+    this.version = "1.4.10";
+    this.compilerZipSha256 = "bb1a21d70e521a01ae104e99a082a6e7bb58699b86347049da521d175d0dace7";
   }
 
   public String getCompilerZipDownloadUrl() {
