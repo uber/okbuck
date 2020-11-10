@@ -15,7 +15,7 @@ import org.gradle.api.tasks.Input;
 @SuppressWarnings("unused")
 public class OkBuckExtension {
 
-  private static final String DEFAULT_BUCK_BINARY_SHA = "0299f0ff54201b700c06f8892862e1109d9739eb";
+  private static final String DEFAULT_BUCK_BINARY_SHA = "a68ef0d834eec5fe381cb3e8e8612ba9fa42a09d";
 
   /** Build Tools Version */
   @Input public String buildToolVersion = "28.0.2";
@@ -83,9 +83,7 @@ public class OkBuckExtension {
   @Input public boolean legacyAnnotationProcessorSupport = true;
 
   /** The prebuilt buck binary to use */
-  @Input
-  public String buckBinary =
-      "com.github.facebook:buck:" + DEFAULT_BUCK_BINARY_SHA + "@pex";
+  @Input public String buckBinary = "com.github.facebook:buck:" + DEFAULT_BUCK_BINARY_SHA + "@pex";
 
   /** The prebuilt buck binary to use with java 11 */
   @Input

@@ -11,6 +11,7 @@ fun getGreeting(): String {
 }
 
 fun main(args: Array<String>) {
+    println(args)
     println(getGreeting())
     println(JavaClass().foo)
 }
