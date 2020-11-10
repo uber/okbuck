@@ -1,3 +1,5 @@
+<file:.okbuck/config/okbuck.buckconfig>
+
 [project]
     allow_symlinks = forbid
     ide = intellij
@@ -48,5 +50,3 @@
 
 [scala]
     target_level = jvm-1.8
-
-<file:.okbuck/config/okbuck.buckconfig>

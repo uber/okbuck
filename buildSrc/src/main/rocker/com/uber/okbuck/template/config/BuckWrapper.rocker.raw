@@ -222,10 +222,6 @@ setupBuckRun ( ) {
     fi
 }
 
-setupBuckFlags ( ) {
-    EXTRA_BUCK_CONFIG="$EXTRA_BUCK_CONFIG --config-file .okbuck/config/okbuck.buckconfig"
-}
-
 # Handle parameters and flags
 handleParams ( ) {
    SKIP_FLAGS=""
@@ -236,11 +232,6 @@ handleParams ( ) {
        --version) export SKIP_FLAGS=1;;
        esac;
    done
-
-   if [[ -z "$SKIP_FLAGS" ]]; then
-       # --help|-h|help|kill|--version do not support --config-file
-       setupBuckFlags
-   fi
 }
 
 handleParams "$@@"

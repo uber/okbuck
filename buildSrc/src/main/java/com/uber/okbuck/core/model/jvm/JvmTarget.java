@@ -33,7 +33,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -42,7 +41,6 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.gradle.api.JavaVersion;
 import org.gradle.api.Project;
-import org.gradle.api.Task;
 import org.gradle.api.UnknownDomainObjectException;
 import org.gradle.api.UnknownTaskException;
 import org.gradle.api.artifacts.Configuration;
@@ -55,15 +53,16 @@ import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
-import org.gradle.api.tasks.compile.AbstractCompile;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.api.tasks.testing.Test;
 import org.gradle.jvm.tasks.Jar;
-import org.jetbrains.kotlin.allopen.gradle.AllOpenKotlinGradleSubplugin;
+import org.jetbrains.kotlin.allopen.gradle.AllOpenGradleSubplugin;
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmOptions;
+import org.jetbrains.kotlin.gradle.dsl.KotlinSingleTargetExtension;
 import org.jetbrains.kotlin.gradle.plugin.KotlinBasePluginWrapper;
-import org.jetbrains.kotlin.gradle.plugin.KotlinGradleSubplugin;
+import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation;
 import org.jetbrains.kotlin.gradle.plugin.SubpluginOption;
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinCommonCompilation;
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile;
 
 public class JvmTarget extends Target {
@@ -91,8 +90,6 @@ public class JvmTarget extends Target {
   private final SourceSetContainer sourceSets;
   protected final boolean isKotlin;
 
-  @Nullable private final AbstractCompile fakeCompile;
-
   public JvmTarget(Project project, String name) {
     this(
         project,
@@ -115,10 +112,6 @@ public class JvmTarget extends Target {
     sourceSets = getProject().getConvention().getPlugin(JavaPluginConvention.class).getSourceSets();
     isKotlin =
         project.getPlugins().stream().anyMatch(plugin -> plugin instanceof KotlinBasePluginWrapper);
-
-    Optional<Task> compileTask =
-        project.getTasks().stream().filter(it -> it instanceof AbstractCompile).findFirst();
-    fakeCompile = (AbstractCompile) compileTask.orElse(null);
   }
 
   /**
@@ -477,15 +470,13 @@ public class JvmTarget extends Target {
   }
 
   protected List<String> getKotlinCompilerPlugins() {
-    ImmutableList.Builder<String> pluginBuilder = ImmutableList.builder();
-    if (getProject().getPlugins().hasPlugin(KotlinManager.KOTLIN_ALLOPEN_MODULE)) {
-      AllOpenKotlinGradleSubplugin subPlugin = getAllOpenKotlinGradleSubplugin();
+    List<SubpluginOption> subpluginOptions = getAllOpenSubpluginOptions();
 
-      if (subPlugin != null && fakeCompile != null) {
-        pluginBuilder.add(KotlinManager.KOTLIN_AO_PLUGIN_TARGET);
-      }
+    if (subpluginOptions.size() > 0) {
+      return ImmutableList.of(KotlinManager.KOTLIN_AO_PLUGIN_TARGET);
+    } else {
+      return ImmutableList.of();
     }
-    return pluginBuilder.build();
   }
 
   protected List<String> getKotlinCompilerOptions() {
@@ -495,20 +486,13 @@ public class JvmTarget extends Target {
 
     ImmutableList.Builder<String> optionBuilder = ImmutableList.builder();
     optionBuilder.addAll(readKotlinCompilerArguments());
-    if (getProject().getPlugins().hasPlugin(KotlinManager.KOTLIN_ALLOPEN_MODULE)) {
-      AllOpenKotlinGradleSubplugin subPlugin = getAllOpenKotlinGradleSubplugin();
 
-      if (subPlugin != null && fakeCompile != null) {
-        List<SubpluginOption> options =
-            subPlugin.apply(getProject(), fakeCompile, fakeCompile, null, null, null);
-
-        for (SubpluginOption option : options) {
-          optionBuilder.add("-P");
-          optionBuilder.add(
-              "plugin:org.jetbrains.kotlin.allopen:" + option.getKey() + "=" + option.getValue());
-        }
-      }
+    for (SubpluginOption option : getAllOpenSubpluginOptions()) {
+      optionBuilder.add("-P");
+      optionBuilder.add(
+          "plugin:org.jetbrains.kotlin.allopen:" + option.getKey() + "=" + option.getValue());
     }
+
     return optionBuilder.build();
   }
 
@@ -587,15 +571,25 @@ public class JvmTarget extends Target {
     }
   }
 
-  @Nullable
-  private AllOpenKotlinGradleSubplugin getAllOpenKotlinGradleSubplugin() {
-    for (KotlinGradleSubplugin subplugin :
-        ServiceLoader.load(KotlinGradleSubplugin.class, getClass().getClassLoader())) {
-      if (subplugin instanceof AllOpenKotlinGradleSubplugin) {
-        return (AllOpenKotlinGradleSubplugin) subplugin;
-      }
+  private ImmutableList<SubpluginOption> getAllOpenSubpluginOptions() {
+    if (!getProject().getPlugins().hasPlugin(KotlinManager.KOTLIN_ALLOPEN_MODULE)) {
+      return ImmutableList.of();
     }
-    return null;
+
+    KotlinSingleTargetExtension extension =
+        getProject().getExtensions().findByType(KotlinSingleTargetExtension.class);
+    if (extension == null) {
+      return ImmutableList.of();
+    }
+
+    AllOpenGradleSubplugin subPlugin =
+        (AllOpenGradleSubplugin)
+            getProject().getPlugins().getPlugin(KotlinManager.KOTLIN_ALLOPEN_MODULE);
+    KotlinCompilation fakeCompilation =
+        new KotlinCommonCompilation(extension.getTarget(), "fakeCompilation");
+    return new ImmutableList.Builder<SubpluginOption>()
+        .addAll(subPlugin.applyToCompilation(fakeCompilation).get())
+        .build();
   }
 
   @SuppressWarnings("NoFunctionalReturnType")
