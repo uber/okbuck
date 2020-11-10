@@ -83,4 +83,5 @@ interface CoffeeShop {
 fun main(args: Array<String>) {
     val coffee = DaggerCoffeeShop.builder().build()
     coffee.maker().brew()
+    println(args)
 }
