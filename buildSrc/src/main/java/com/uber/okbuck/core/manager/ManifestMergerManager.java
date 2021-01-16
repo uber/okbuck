@@ -34,7 +34,6 @@ public final class ManifestMergerManager {
       "com.uber.okbuck.manifmerger.ManifestMergerCli";
 
   private static final String MANIFEST_MERGER_RULE_NAME = "okbuck_manifest_merger";
-  private static final String MANIFEST_MERGER_BUCK_FILE = MANIFEST_MERGER_CACHE + "/BUILD.bazel";
   private static final String MANIFEST_MERGER_CLI_JAR = "manifest-merger-cli.jar";
   private static final String MANIFEST_MERGER_CLI_RULE_NAME = "manifest-merger-cli";
 
@@ -97,7 +96,7 @@ public final class ManifestMergerManager {
                   .ruleType(RuleType.PREBUILT_JAR.getBuckName())
                   .name(MANIFEST_MERGER_CLI_RULE_NAME));
 
-      buckFileManager.writeToBuckFile(rules, rootProject.file(MANIFEST_MERGER_BUCK_FILE));
+      buckFileManager.writeToBuckFile(rules, path.toFile());
     }
   }
 }
