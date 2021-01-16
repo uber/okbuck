@@ -27,6 +27,7 @@ public final class OkbuckBuckConfigGenerator {
         .scalaCompiler(scalaCompiler)
         .scalaLibrary(scalaLibrary)
         .proguardJar(proguardJar)
-        .mavenRepositories(repositories);
+        .mavenRepositories(repositories)
+        .buildFileName(okbuck.buildFileName);
   }
 }
