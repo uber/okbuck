@@ -45,13 +45,11 @@ public final class JetifierManager {
   @Nullable private Set<OExternalDependency> dependencies;
   private final Project project;
   private final BuckFileManager buckFileManager;
-  private final OkBuckExtension okBuckExtension;
 
   public JetifierManager(
-      Project project, BuckFileManager buckFileManager, OkBuckExtension okBuckExtension) {
+      Project project, BuckFileManager buckFileManager) {
     this.project = project;
     this.buckFileManager = buckFileManager;
-    this.okBuckExtension = okBuckExtension;
   }
 
   public static boolean isJetifierEnabled(Project project) {

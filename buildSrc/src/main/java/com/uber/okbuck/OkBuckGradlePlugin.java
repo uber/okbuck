@@ -170,7 +170,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
           groovyManager = new GroovyManager(rootBuckProject, buckFileManager);
 
           // Create Jetifier Manager
-          jetifierManager = new JetifierManager(rootBuckProject, buckFileManager, okbuckExt);
+          jetifierManager = new JetifierManager(rootBuckProject, buckFileManager);
 
           // Create Robolectric Manager
           robolectricManager = new RobolectricManager(rootBuckProject, buckFileManager);
