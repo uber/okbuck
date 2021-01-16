@@ -7,6 +7,7 @@ import com.uber.okbuck.core.dependency.DependencyCache;
 import com.uber.okbuck.core.dependency.OExternalDependency;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
+import com.uber.okbuck.extension.OkBuckExtension;
 import com.uber.okbuck.template.config.groovy.GroovyBuckFile;
 import com.uber.okbuck.template.config.groovy.Groovyc;
 import com.uber.okbuck.template.config.groovy.StartGroovy;
@@ -49,7 +50,7 @@ public final class GroovyManager {
             .build(groovyConfig);
   }
 
-  public void finalizeDependencies() {
+  public void finalizeDependencies(OkBuckExtension okBuckExtension) {
     File groovyHome = rootProject.file(GROOVY_HOME_LOCATION);
     FileUtil.deleteQuietly(groovyHome.toPath());
 
@@ -78,7 +79,7 @@ public final class GroovyManager {
 
       buckFileManager.writeToBuckFile(
           ImmutableList.of(groovyHomeRule),
-          groovyHome.toPath().resolve(OkBuckGradlePlugin.BUCK).toFile());
+          groovyHome.toPath().resolve(okBuckExtension.buildFileName).toFile());
     }
   }
 }

@@ -143,13 +143,13 @@ public class DependencyManager {
     }
   }
 
-  public void finalizeDependencies() {
+  public void finalizeDependencies(OkBuckExtension okBuckExtension) {
     Map<VersionlessDependency, Collection<OExternalDependency>> filteredDependencyMap =
         filterDependencies();
 
     validateDependencies(filteredDependencyMap);
     updateDependencies(filteredDependencyMap);
-    processDependencies(filteredDependencyMap);
+    processDependencies(filteredDependencyMap, okBuckExtension);
 
     persistSha256Cache(project, sha256Cache);
   }
@@ -377,7 +377,8 @@ public class DependencyManager {
   }
 
   private void processDependencies(
-      Map<VersionlessDependency, Collection<OExternalDependency>> dependencyMap) {
+      Map<VersionlessDependency, Collection<OExternalDependency>> dependencyMap,
+      OkBuckExtension okBuckExtension) {
     Path rootPath = project.getRootDir().toPath();
     File cacheDir = rootPath.resolve(externalDependenciesExtension.getCache()).toFile();
     if (cacheDir.exists()) {
@@ -444,7 +445,7 @@ public class DependencyManager {
           }
 
           buckFileManager.writeToBuckFile(
-              rulesBuilder.build(), basePath.resolve(OkBuckGradlePlugin.BUCK).toFile());
+              rulesBuilder.build(), basePath.resolve(okBuckExtension.buildFileName).toFile());
 
           createSymlinks(basePath, localPrebuiltDependencies.build());
         });

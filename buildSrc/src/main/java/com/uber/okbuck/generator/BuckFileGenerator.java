@@ -28,6 +28,7 @@ import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.model.jvm.JvmTarget;
 import com.uber.okbuck.core.util.ProjectCache;
 import com.uber.okbuck.core.util.ProjectUtil;
+import com.uber.okbuck.extension.OkBuckExtension;
 import com.uber.okbuck.extension.TestExtension;
 import com.uber.okbuck.extension.VisibilityExtension;
 import com.uber.okbuck.template.android.AndroidModuleRule;
@@ -49,8 +50,11 @@ public final class BuckFileGenerator {
   public static void generate(
       Project project,
       BuckFileManager buckFileManager,
-      VisibilityExtension visibilityExtension,
-      TestExtension testExtension) {
+      OkBuckExtension okBuckExtension) {
+
+    VisibilityExtension visibilityExtension = okBuckExtension.getVisibilityExtension();
+    TestExtension testExtension = okBuckExtension.getTestExtension();
+
     File moduleDir = project.getBuildFile().getParentFile();
     File visibilityFile = new File(moduleDir, visibilityExtension.visibilityFileName);
     boolean hasVisibilityFile = visibilityFile.isFile();
@@ -66,7 +70,7 @@ public final class BuckFileGenerator {
           ":" + visibilityExtension.visibilityFileName, visibilityExtension.visibilityFunction);
     }
 
-    File buckFile = project.file(OkBuckGradlePlugin.BUCK);
+    File buckFile = project.file(okBuckExtension.buildFileName);
     buckFileManager.writeToBuckFile(rules, buckFile, extraLoadStatements);
   }
 

@@ -12,6 +12,7 @@ import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
+import com.uber.okbuck.extension.OkBuckExtension;
 import com.uber.okbuck.template.core.Rule;
 import com.uber.okbuck.template.java.NativePrebuilt;
 import com.uber.okbuck.template.jvm.JvmBinaryRule;
@@ -77,7 +78,7 @@ public final class TransformManager {
             .build();
   }
 
-  public void finalizeDependencies() {
+  public void finalizeDependencies(OkBuckExtension okBuckExtension) {
     if (dependencies != null && dependencies.size() > 0) {
       Path cacheDir = rootProject.file(TRANSFORM_CACHE).toPath();
       FileUtil.deleteQuietly(cacheDir);
@@ -85,7 +86,7 @@ public final class TransformManager {
       cacheDir.toFile().mkdirs();
 
       copyFiles(cacheDir);
-      composeBuckFile(cacheDir);
+      composeBuckFile(cacheDir, okBuckExtension.buildFileName);
     }
   }
 
@@ -94,7 +95,7 @@ public final class TransformManager {
         TRANSFORM_FOLDER + TRANSFORM_JAR, new File(cacheDir.toFile(), TRANSFORM_JAR));
   }
 
-  private void composeBuckFile(Path cacheDir) {
+  private void composeBuckFile(Path cacheDir, String buildFileName) {
     ImmutableList.Builder<Rule> rulesBuilder = new ImmutableList.Builder<>();
 
     if (dependencies != null) {
@@ -115,7 +116,7 @@ public final class TransformManager {
     }
 
     buckFileManager.writeToBuckFile(
-        rulesBuilder.build(), cacheDir.resolve(OkBuckGradlePlugin.BUCK).toFile());
+        rulesBuilder.build(), cacheDir.resolve(buildFileName).toFile());
   }
 
   public Pair<String, List<String>> getBashCommandAndTransformDeps(AndroidAppTarget target) {

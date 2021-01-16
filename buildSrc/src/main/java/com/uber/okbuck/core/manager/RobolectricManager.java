@@ -9,6 +9,7 @@ import com.uber.okbuck.core.dependency.OExternalDependency;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.MoreCollectors;
 import com.uber.okbuck.core.util.ProjectUtil;
+import com.uber.okbuck.extension.OkBuckExtension;
 import com.uber.okbuck.template.config.SymlinkBuckFile;
 import com.uber.okbuck.template.core.Rule;
 import java.nio.file.Path;
@@ -70,7 +71,7 @@ public final class RobolectricManager {
             .collect(MoreCollectors.toImmutableSet());
   }
 
-  public void finalizeDependencies() {
+  public void finalizeDependencies(OkBuckExtension okBuckExtension) {
     Path robolectricCache = rootProject.file(ROBOLECTRIC_CACHE).toPath();
     FileUtil.deleteQuietly(robolectricCache);
 
@@ -97,7 +98,7 @@ public final class RobolectricManager {
               .name(ROBOLECTRIC_TARGET_NAME);
 
       buckFileManager.writeToBuckFile(
-          ImmutableList.of(fileGroup), robolectricCache.resolve(OkBuckGradlePlugin.BUCK).toFile());
+          ImmutableList.of(fileGroup), robolectricCache.resolve(okBuckExtension.buildFileName).toFile());
     }
   }
 

@@ -7,6 +7,7 @@ String kotlinHome,
 String scalaCompiler,
 String scalaLibrary,
 String proguardJar,
+String buildFileName,
 Map mavenRepositories,
 )
 @if (valid(buildToolsVersion) && valid(target)) {
@@ -46,4 +47,9 @@ Map mavenRepositories,
 [download]
     in_build = true
     max_number_of_retries = 3
+}
+@if (valid(buildFileName)) {
+
+[buildfile]
+    name = @buildFileName
 }

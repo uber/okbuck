@@ -62,7 +62,6 @@ import org.gradle.api.artifacts.Configuration;
 //
 
 public class OkBuckGradlePlugin implements Plugin<Project> {
-  public static final String BUCK = "BUCK";
   public static final String OKBUCK = "okbuck";
   private static final String DOT_OKBUCK = "." + OKBUCK;
   public static final String WORKSPACE_PATH = DOT_OKBUCK + "/workspace";
@@ -91,8 +90,8 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
   private static final String OKBUCK_CLEAN = "okbuckClean";
   private static final String BUCK_WRAPPER = "buckWrapper";
   private static final String FORCED_OKBUCK = "forcedOkbuck";
-  private static final String PROCESSOR_BUCK_FILE = WORKSPACE_PATH + "/processor/BUCK";
-  private static final String LINT_BUCK_FILE = WORKSPACE_PATH + "/lint/BUCK";
+  private static final String PROCESSOR_BUILD_FOLDER = WORKSPACE_PATH + "/processor";
+  private static final String LINT_BUILD_FOLDER = WORKSPACE_PATH + "/lint";
 
   public static final String OKBUCK_STATE = OKBUCK_STATE_DIR + "/STATE";
   public static final String OKBUCK_SHA256 = OKBUCK_STATE_DIR + "/SHA256";
@@ -150,14 +149,16 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
           dependencyFactory = new DependencyFactory();
 
           // Create Annotation Processor cache
+          String processorBuildFile = PROCESSOR_BUILD_FOLDER + "/" + okbuckExt.buildFileName;
           annotationProcessorCache =
-              new AnnotationProcessorCache(rootBuckProject, buckFileManager, PROCESSOR_BUCK_FILE);
+              new AnnotationProcessorCache(rootBuckProject, buckFileManager, processorBuildFile);
 
           // Create Dependency manager
           dependencyManager = new DependencyManager(rootBuckProject, okbuckExt, buckFileManager);
 
           // Create Lint Manager
-          lintManager = new LintManager(rootBuckProject, LINT_BUCK_FILE, buckFileManager);
+          String lintBuildFile = LINT_BUILD_FOLDER + "/" + okbuckExt.buildFileName;
+          lintManager = new LintManager(rootBuckProject, lintBuildFile, buckFileManager);
 
           // Create Kotlin Manager
           kotlinManager = new KotlinManager(rootBuckProject, buckFileManager);
@@ -169,7 +170,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
           groovyManager = new GroovyManager(rootBuckProject, buckFileManager);
 
           // Create Jetifier Manager
-          jetifierManager = new JetifierManager(rootBuckProject, buckFileManager, okbuckExt);
+          jetifierManager = new JetifierManager(rootBuckProject, buckFileManager);
 
           // Create Robolectric Manager
           robolectricManager = new RobolectricManager(rootBuckProject, buckFileManager);
@@ -198,16 +199,16 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
               task -> {
                 annotationProcessorCache.finalizeProcessors();
                 dependencyManager.resolveCurrentRawDeps();
-                dependencyManager.finalizeDependencies();
-                jetifierManager.finalizeDependencies();
+                dependencyManager.finalizeDependencies(okbuckExt);
+                jetifierManager.finalizeDependencies(okbuckExt);
                 lintManager.finalizeDependencies();
-                kotlinManager.finalizeDependencies();
-                scalaManager.finalizeDependencies();
-                groovyManager.finalizeDependencies();
-                robolectricManager.finalizeDependencies();
-                transformManager.finalizeDependencies();
+                kotlinManager.finalizeDependencies(okbuckExt);
+                scalaManager.finalizeDependencies(okbuckExt);
+                groovyManager.finalizeDependencies(okbuckExt);
+                robolectricManager.finalizeDependencies(okbuckExt);
+                transformManager.finalizeDependencies(okbuckExt);
                 buckManager.finalizeDependencies();
-                manifestMergerManager.finalizeDependencies();
+                manifestMergerManager.finalizeDependencies(okbuckExt);
                 dependencyFactory.finalizeDependencies();
 
                 writeExportedFileRules(rootBuckProject, okbuckExt);
@@ -280,7 +281,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
                 }
 
                 // Setup d8 deps
-                d8Manager.copyDeps(buckFileManager);
+                d8Manager.copyDeps(buckFileManager, okbuckExt);
 
                 // Fetch robolectric deps if needed
                 if (okbuckExt.getTestExtension().robolectric) {
@@ -327,8 +328,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
                           BuckFileGenerator.generate(
                               bp,
                               buckFileManager,
-                              okbuckExt.getVisibilityExtension(),
-                              okbuckExt.getTestExtension());
+                              okbuckExt);
                           ProjectCache.resetScopeCache(bp);
                         });
                     okbuckProjectTask.dependsOn(setupOkbuck);
@@ -361,8 +361,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
       pathToRules.put(containingPath, rules);
     }
     for (Map.Entry<String, Set<Rule>> entry : pathToRules.entrySet()) {
-      File buckFile =
-          rootBuckProject.getRootDir().toPath().resolve(entry.getKey()).resolve(BUCK).toFile();
+      File buckFile = rootBuckProject.getRootDir().toPath().resolve(entry.getKey()).resolve(okBuckExtension.buildFileName).toFile();
       try (OutputStream os =
           new FileOutputStream(buckFile, currentProjectPaths.contains(entry.getKey()))) {
         entry

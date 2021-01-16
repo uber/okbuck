@@ -3,6 +3,7 @@ package com.uber.okbuck.core.manager;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.core.manager.BuckFileManager;
 import com.uber.okbuck.core.model.base.RuleType;
+import com.uber.okbuck.extension.OkBuckExtension;
 import com.uber.okbuck.template.core.Rule;
 import com.uber.okbuck.template.java.NativePrebuilt;
 import com.uber.okbuck.core.util.FileUtil;
@@ -23,7 +24,7 @@ public final class D8Manager {
     this.rootProject = rootProject;
   }
 
-  public void copyDeps(BuckFileManager buckFileManager) {
+  public void copyDeps(BuckFileManager buckFileManager, OkBuckExtension okBuckExtension) {
     FileUtil.copyResourceToProject("d8/" + RT_STUB_JAR, rootProject.file(D8_CACHE + File.separator + RT_STUB_JAR));
 
     List<Rule> d8 =
@@ -34,6 +35,6 @@ public final class D8Manager {
                 .ruleType(RuleType.PREBUILT_JAR.getBuckName())
                 .name(RT_STUB_JAR));
 
-    buckFileManager.writeToBuckFile(d8, rootProject.file(D8_CACHE + File.separator + OkBuckGradlePlugin.BUCK));
+    buckFileManager.writeToBuckFile(d8, rootProject.file(D8_CACHE + File.separator + okBuckExtension.buildFileName));
   }
 }

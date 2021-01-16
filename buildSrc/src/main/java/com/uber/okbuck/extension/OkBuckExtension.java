@@ -50,6 +50,9 @@ public class OkBuckExtension {
   /** Set of projects to generate buck configs for. Default is all subprojects of root project. */
   @Input public Set<Project> buckProjects;
 
+  /** Name of the build file where generated build rules will be written. */
+  @Input public String buildFileName = "BUCK";
+
   /** Extra buck options */
   @Input public Map<String, Map<String, Collection<String>>> extraBuckOpts = new HashMap<>();
 
@@ -79,7 +82,7 @@ public class OkBuckExtension {
   /** Forces okbuck to fail if the project is using dynamic or snapshot dependencies */
   @Input public boolean failOnChangingDependencies = false;
 
-  /** Controls output of legacy annotation processor dependencies in generated BUCK files */
+  /** Controls output of legacy annotation processor dependencies in generated build files */
   @Input public boolean legacyAnnotationProcessorSupport = true;
 
   /** The prebuilt buck binary to use */

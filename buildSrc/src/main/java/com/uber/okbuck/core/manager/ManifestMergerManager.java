@@ -10,6 +10,7 @@ import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.template.core.Rule;
+import com.uber.okbuck.extension.OkBuckExtension;
 import com.uber.okbuck.template.java.NativePrebuilt;
 import com.uber.okbuck.template.jvm.JvmBinaryRule;
 import java.io.File;
@@ -33,7 +34,6 @@ public final class ManifestMergerManager {
       "com.uber.okbuck.manifmerger.ManifestMergerCli";
 
   private static final String MANIFEST_MERGER_RULE_NAME = "okbuck_manifest_merger";
-  private static final String MANIFEST_MERGER_BUCK_FILE = MANIFEST_MERGER_CACHE + "/BUCK";
   private static final String MANIFEST_MERGER_CLI_JAR = "manifest-merger-cli.jar";
   private static final String MANIFEST_MERGER_CLI_RULE_NAME = "manifest-merger-cli";
 
@@ -69,8 +69,8 @@ public final class ManifestMergerManager {
     }
   }
 
-  public void finalizeDependencies() {
-    Path path = rootProject.file(MANIFEST_MERGER_BUCK_FILE).toPath();
+  public void finalizeDependencies(OkBuckExtension okBuckExtension) {
+    Path path = rootProject.file(MANIFEST_MERGER_CACHE + "/" + okBuckExtension.buildFileName).toPath();
     FileUtil.deleteQuietly(path);
 
     if (dependencies != null && dependencies.size() > 0) {
@@ -96,7 +96,7 @@ public final class ManifestMergerManager {
                   .ruleType(RuleType.PREBUILT_JAR.getBuckName())
                   .name(MANIFEST_MERGER_CLI_RULE_NAME));
 
-      buckFileManager.writeToBuckFile(rules, rootProject.file(MANIFEST_MERGER_BUCK_FILE));
+      buckFileManager.writeToBuckFile(rules, path.toFile());
     }
   }
 }
