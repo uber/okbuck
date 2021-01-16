@@ -6,6 +6,7 @@ import com.uber.okbuck.core.dependency.DependencyCache;
 import com.uber.okbuck.core.dependency.OExternalDependency;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.util.ProjectUtil;
+import com.uber.okbuck.extension.OkBuckExtension;
 import com.uber.okbuck.template.core.Rule;
 import com.uber.okbuck.template.jvm.JvmBinaryRule;
 import java.io.File;
@@ -45,7 +46,7 @@ public final class ScalaManager {
     return dependencies;
   }
 
-  public void finalizeDependencies() {
+  public void finalizeDependencies(OkBuckExtension okBuckExtension) {
     if (dependencies != null && dependencies.size() > 0) {
       List<Rule> scalaCompiler =
           Collections.singletonList(
@@ -60,7 +61,7 @@ public final class ScalaManager {
           rootProject
               .file(SCALA_COMPILER_LOCATION)
               .toPath()
-              .resolve(OkBuckGradlePlugin.BUCK)
+              .resolve(okBuckExtension.buildFileName)
               .toFile();
       buckFileManager.writeToBuckFile(scalaCompiler, buckFile);
     }

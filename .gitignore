@@ -16,3 +16,7 @@ buck-out
 **/BUCK
 
 buildSrc/bintray.properties
+
+# Bazel
+bazel-*
+.ijwb

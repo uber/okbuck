@@ -20,7 +20,7 @@ import org.gradle.api.Project;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
 
-/** A task to cleanup stale BUCK files */
+/** A task to cleanup stale build files */
 @SuppressWarnings({"WeakerAccess", "CanBeFinal", "unused", "ResultOfMethodCallIgnored", "NewApi"})
 public class OkBuckCleanTask extends DefaultTask {
 
@@ -70,10 +70,10 @@ public class OkBuckCleanTask extends DefaultTask {
 
     Sets.SetView<String> difference = Sets.difference(lastProjectPaths, currentProjectPaths);
 
-    // Delete stale project's BUCK file
+    // Delete stale project's build file
     difference
         .stream()
-        .map(p -> rootProjectPath.resolve(p).resolve(OkBuckGradlePlugin.BUCK))
+        .map(p -> rootProjectPath.resolve(p).resolve(ProjectUtil.getOkBuckExtension(rootProject).buildFileName))
         .forEach(FileUtil::deleteQuietly);
 
     // Delete old .okbuck/cache dir
@@ -85,7 +85,7 @@ public class OkBuckCleanTask extends DefaultTask {
     // Delete old .buckconfig.local
     FileUtil.deleteQuietly(rootProjectPath.resolve(".buckconfig.local"));
 
-    // Save generated project's BUCK file path
+    // Save generated project's build file path
     Files.write(
         okbuckState.toPath(),
         currentProjectPaths.stream().sorted().collect(MoreCollectors.toImmutableList()));

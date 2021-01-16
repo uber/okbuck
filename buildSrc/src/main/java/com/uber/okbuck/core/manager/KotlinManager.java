@@ -5,6 +5,7 @@ import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.extension.KotlinExtension;
+import com.uber.okbuck.extension.OkBuckExtension;
 import com.uber.okbuck.template.common.Genrule;
 import com.uber.okbuck.template.common.HttpArchive;
 import com.uber.okbuck.template.core.Rule;
@@ -49,7 +50,7 @@ public final class KotlinManager {
     this.kotlinExtension = kotlinExtension;
   }
 
-  public void finalizeDependencies() {
+  public void finalizeDependencies(OkBuckExtension okBuckExtension) {
     Path path = project.file(KOTLIN_HOME_LOCATION).toPath();
     FileUtil.deleteQuietly(path);
 
@@ -77,7 +78,7 @@ public final class KotlinManager {
             .addAll(getRules(KOTLIN_AO_NAME))
             .build();
 
-    buckFileManager.writeToBuckFile(rules, path.resolve(OkBuckGradlePlugin.BUCK).toFile());
+    buckFileManager.writeToBuckFile(rules, path.resolve(okBuckExtension.buildFileName).toFile());
   }
 
   private static ImmutableList<Rule> getRules(String name) {

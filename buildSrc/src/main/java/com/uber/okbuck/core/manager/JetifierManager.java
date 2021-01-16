@@ -30,7 +30,6 @@ public final class JetifierManager {
   private static final Logger LOG = LoggerFactory.getLogger(JetifierManager.class);
 
   private static final String JETIFIER_LOCATION = OkBuckGradlePlugin.WORKSPACE_PATH + "/jetifier";
-  private static final String JETIFIER_BUCK_FILE = JETIFIER_LOCATION + "/BUCK";
   private static final String JETIFIER_DEPS_CONFIG = "okbuck_jetifier_deps";
   private static final String JETIFIER_GROUP = "com.android.tools.build.jetifier";
   private static final String JETIFIER_CLI_CLASS =
@@ -80,7 +79,7 @@ public final class JetifierManager {
             .build(jetifierConfig);
   }
 
-  public void finalizeDependencies() {
+  public void finalizeDependencies(OkBuckExtension okBuckExtension) {
     Path jetifierCache = project.file(JETIFIER_LOCATION).toPath();
     FileUtil.deleteQuietly(jetifierCache);
 
@@ -120,7 +119,10 @@ public final class JetifierManager {
       }
 
       buckFileManager.writeToBuckFile(
-          rulesBuilder.build(), project.getRootProject().file(JETIFIER_BUCK_FILE));
+          rulesBuilder.build(),
+          project.getRootProject()
+              .file(JETIFIER_LOCATION + "/" + okBuckExtension.buildFileName)
+      );
     }
   }
 }
