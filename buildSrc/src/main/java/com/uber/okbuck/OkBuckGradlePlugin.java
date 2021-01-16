@@ -208,7 +208,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
                 robolectricManager.finalizeDependencies(okbuckExt);
                 transformManager.finalizeDependencies(okbuckExt);
                 buckManager.finalizeDependencies();
-                manifestMergerManager.finalizeDependencies();
+                manifestMergerManager.finalizeDependencies(okbuckExt);
                 dependencyFactory.finalizeDependencies();
 
                 writeExportedFileRules(rootBuckProject, okbuckExt);
