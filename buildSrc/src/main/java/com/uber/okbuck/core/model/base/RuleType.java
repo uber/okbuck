@@ -35,7 +35,9 @@ public enum RuleType {
   PREBUILT_JAR("binary_jar"),
   PREBUILT,
   PREBUILT_NATIVE_LIBRARY,
-  ROBOLECTRIC_TEST("java");
+  ROBOLECTRIC_TEST("java"),
+  OKBUCK_PREBUILT,
+  HTTP_FILE;
 
   private final ImmutableList<String> properties;
 

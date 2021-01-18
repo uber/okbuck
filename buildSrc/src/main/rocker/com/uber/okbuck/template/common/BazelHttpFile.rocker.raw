@@ -1,0 +1,8 @@
+@option discardLogicWhitespace=false
+@import java.util.Collection
+@args (
+    String ruleType,
+    String mavenCoords,
+    String sha256,
+    String sourcesSha256,
+)    @(ruleType)(maven_coords = "@(mavenCoords)", sha256 = "@(sha256)"@if (valid(sourcesSha256)) {, sources_sha256 = "@(sourcesSha256)"})

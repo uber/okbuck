@@ -1,7 +1,11 @@
 package com.uber.okbuck.core.manager;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.TreeMultimap;
+import com.google.common.io.CharSink;
+import com.google.common.io.FileWriteMode;
+import com.google.common.io.Files;
 import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.extension.RuleOverridesExtension;
@@ -29,6 +33,21 @@ public class BuckFileManager {
 
   public BuckFileManager(RuleOverridesExtension ruleOverridesExtension) {
     this.ruleOverridesExtension = ruleOverridesExtension;
+  }
+
+  public void writeToBuckFile(String content, File buckFile, boolean append) {
+    CharSink sink;
+    if (append) {
+      sink = Files.asCharSink(buckFile, Charsets.UTF_8, FileWriteMode.APPEND);
+    } else {
+      sink = Files.asCharSink(buckFile, Charsets.UTF_8);
+    }
+
+    try {
+      sink.write(content);
+    } catch (IOException e) {
+      throw new IllegalStateException("Couldn't create the buck file", e);
+    }
   }
 
   public void writeToBuckFile(List<Rule> rules, File buckFile) {

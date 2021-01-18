@@ -20,3 +20,4 @@ buildSrc/bintray.properties
 # Bazel
 bazel-*
 .ijwb
+BUILD.bazel
