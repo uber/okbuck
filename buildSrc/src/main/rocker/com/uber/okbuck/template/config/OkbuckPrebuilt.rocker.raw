@@ -1,17 +1,19 @@
 @args (
+String okbuckPrebuiltRule,
 String prebuiltJarRule,
 String prebuiltAarRule,
 String strictVisibilityScope,
 )
 
-def okbuck_prebuilt(
+def @(okbuckPrebuiltRule)(
         name,
         maven_coords,
         sha256,
         sources_sha256 = None,
         deps = None,
         enable_jetifier = False,
-        first_level = False):
+        first_level = False,
+        testonly = False):
     if deps == None:
         deps = []
 

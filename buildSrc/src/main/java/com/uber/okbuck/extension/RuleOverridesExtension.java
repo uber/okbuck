@@ -63,6 +63,7 @@ public class RuleOverridesExtension {
       ImmutableMap.<RuleType, String>builder()
           .put(RuleType.AIDL, OKBUCK_TARGETS_TARGET)
           .put(RuleType.PREBUILT, OKBUCK_PREBUILT_TARGET)
+          .put(RuleType.HTTP_FILE, OKBUCK_PREBUILT_TARGET)
           .put(RuleType.PREBUILT_JAR, OKBUCK_TARGETS_TARGET)
           .put(RuleType.ANDROID_LIBRARY, OKBUCK_TARGETS_TARGET)
           .put(RuleType.ANDROID_MODULE, OKBUCK_ANDROID_MODULES_TARGET)

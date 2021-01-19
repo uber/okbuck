@@ -2,6 +2,7 @@ package com.uber.okbuck.core.task;
 
 import static com.uber.okbuck.OkBuckGradlePlugin.OKBUCK_ANDROID_MODULES_FILE;
 import static com.uber.okbuck.OkBuckGradlePlugin.OKBUCK_PREBUILT_FILE;
+import static com.uber.okbuck.OkBuckGradlePlugin.OKBUCK_PREBUILT_FOLDER;
 import static com.uber.okbuck.OkBuckGradlePlugin.OKBUCK_TARGETS_FILE;
 
 import com.google.common.collect.ImmutableList;
@@ -142,6 +143,11 @@ public class OkBuckTask extends DefaultTask {
   }
 
   @OutputFile
+  public File okbuckPrebuiltBuildFile() {
+    return getProject().file(OKBUCK_PREBUILT_FOLDER + "/" + okBuckExtension.buildFileName);
+  }
+
+  @OutputFile
   public File okbuckAndroidModules() {
     return getProject().file(OKBUCK_ANDROID_MODULES_FILE);
   }
@@ -194,6 +200,8 @@ public class OkBuckTask extends DefaultTask {
     // Setup okbuck_prebuilt.bzl
     Multimap<String, String> prebuiltLoadStatements = TreeMultimap.create();
 
+    RuleOverridesExtension.OverrideSetting prebuiltSetting =
+        overrides.get(RuleType.PREBUILT.getBuckName());
     RuleOverridesExtension.OverrideSetting aarSetting =
         overrides.get(RuleType.ANDROID_PREBUILT_AAR.getBuckName());
     RuleOverridesExtension.OverrideSetting jarSetting =
@@ -205,6 +213,7 @@ public class OkBuckTask extends DefaultTask {
     ExternalDependenciesExtension external = okbuckExt.getExternalDependenciesExtension();
     OkbuckPrebuilt okbuckPrebuiltRule =
         new OkbuckPrebuilt()
+            .okbuckPrebuiltRule(prebuiltSetting.getNewRuleName())
             .prebuiltAarRule(aarSetting.getNewRuleName())
             .prebuiltJarRule(jarSetting.getNewRuleName());
     if (external.strictVisibilityEnabled()) {
@@ -213,6 +222,9 @@ public class OkBuckTask extends DefaultTask {
 
     buckFileManager.writeToBuckFile(
         ImmutableList.of(okbuckPrebuiltRule), okbuckPrebuilt(), prebuiltLoadStatements);
+
+    // Ensure that a build file is present where bzl files are
+    buckFileManager.writeToBuckFile("", okbuckPrebuiltBuildFile(), false);
 
     // Setup okbuck_android_modules.bzl
     Multimap<String, String> unifiedLibsLoadStatements = TreeMultimap.create();

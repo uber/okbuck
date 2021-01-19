@@ -11,6 +11,7 @@ import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.SetMultimap;
 import com.uber.okbuck.OkBuckGradlePlugin;
+import com.uber.okbuck.composer.common.BazelHttpFileRuleComposer;
 import com.uber.okbuck.composer.common.HttpFileRuleComposer;
 import com.uber.okbuck.composer.java.JavaAnnotationProcessorRuleComposer;
 import com.uber.okbuck.composer.java.LocalPrebuiltRuleComposer;
@@ -28,6 +29,7 @@ import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.extension.ExternalDependenciesExtension;
 import com.uber.okbuck.extension.JetifierExtension;
 import com.uber.okbuck.extension.OkBuckExtension;
+import com.uber.okbuck.template.common.BazelFunctionRule;
 import com.uber.okbuck.template.core.Rule;
 import java.io.File;
 import java.io.IOException;
@@ -406,6 +408,9 @@ public class DependencyManager {
     Map<Path, List<Scope>> basePathToScopeMap =
         annotationProcessorCache.getBasePathToExternalDependencyScopeMap();
 
+    ImmutableList.Builder<Rule> bazelRulesBuilder = ImmutableList.builder();
+    bazelRulesBuilder.add(new BazelFunctionRule());
+
     groupToDependencyMap.forEach(
         (basePath, dependencies) -> {
           ImmutableList.Builder<OExternalDependency> localPrebuiltDependencies =
@@ -438,6 +443,11 @@ public class DependencyManager {
           rulesBuilder.addAll(
               HttpFileRuleComposer.compose(httpFileDependencies.build(), sha256Cache));
 
+          bazelRulesBuilder.addAll(
+              BazelHttpFileRuleComposer.compose(prebuiltDependencies.build(), sha256Cache));
+          bazelRulesBuilder.addAll(
+              BazelHttpFileRuleComposer.compose(httpFileDependencies.build(), sha256Cache));
+
           // Add annotation processor rules
           List<Scope> scopeList = basePathToScopeMap.get(basePath);
           if (scopeList != null) {
@@ -449,6 +459,13 @@ public class DependencyManager {
 
           createSymlinks(basePath, localPrebuiltDependencies.build());
         });
+
+    if (okBuckExtension.getExternalDependenciesExtension().bazelDepsEnabled()) {
+      buckFileManager.writeToBuckFile("", cacheDir.toPath().resolve(okBuckExtension.buildFileName).toFile(), false);
+      File defs_bzl = cacheDir.toPath().resolve("defs.bzl").toFile();
+      buckFileManager.writeToBuckFile(bazelRulesBuilder.build(), defs_bzl);
+      buckFileManager.writeToBuckFile("\n", defs_bzl, true);
+    }
   }
 
   private boolean isPrebuiltDependency(OExternalDependency dependency) {

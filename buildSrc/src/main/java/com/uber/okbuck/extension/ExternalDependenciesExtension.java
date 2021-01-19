@@ -59,6 +59,11 @@ public class ExternalDependenciesExtension {
    */
   @Input private Set<String> dynamicDependenciesToIgnore = new HashSet<>();
 
+  /**
+   * Set to true to enable creation of http_file rules needed by bazel build system
+   */
+  @Input private boolean bazelDeps = false;
+
   @Nullable private Set<VersionlessDependency> allowAllVersionsSet;
 
   public ExternalDependenciesExtension() {}
@@ -156,5 +161,9 @@ public class ExternalDependenciesExtension {
 
   public Set<String> getDynamicDependenciesToIgnore() {
     return dynamicDependenciesToIgnore;
+  }
+
+  public boolean bazelDepsEnabled() {
+    return bazelDeps;
   }
 }

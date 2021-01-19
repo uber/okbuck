@@ -38,6 +38,7 @@ public class OExternalDependency {
   public static Comparator<OExternalDependency> compareByName =
       (o1, o2) ->
           ComparisonChain.start()
+              .compare(o1.base.basePath(), o2.base.basePath())
               .compare(o1.getPackaging(), o2.getPackaging())
               .compare(o1.getTargetName(), o2.getTargetName())
               .result();
