@@ -273,15 +273,17 @@ public class OkBuckTask extends DefaultTask {
                         .getGenerateMavenRepositories()))
         .render(okbuckBuckConfig());
 
-    // Add entry of OkBuckBuckConfig to DotBuckConfig
-    String entry =
-        String.format(
-            "<file:%s>", FileUtil.getRelativePath(getProject().getRootDir(), okbuckBuckConfig()));
+    if (okbuckExt.okBuckBuckConfig) {
+      // Add entry of OkBuckBuckConfig to DotBuckConfig
+      String entry =
+          String.format(
+              "<file:%s>", FileUtil.getRelativePath(getProject().getRootDir(), okbuckBuckConfig()));
 
-    @Var String dotBuckContent = FileUtil.readString(dotBuckConfig());
-    if (!dotBuckContent.contains(entry)) {
-      dotBuckContent = entry + "\n\n" + dotBuckContent;
-      FileUtil.writeString(dotBuckConfig(), dotBuckContent);
+      @Var String dotBuckContent = FileUtil.readString(dotBuckConfig());
+      if (!dotBuckContent.contains(entry)) {
+        dotBuckContent = entry + "\n\n" + dotBuckContent;
+        FileUtil.writeString(dotBuckConfig(), dotBuckContent);
+      }
     }
   }
 

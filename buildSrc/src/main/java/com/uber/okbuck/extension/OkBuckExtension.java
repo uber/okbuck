@@ -53,6 +53,9 @@ public class OkBuckExtension {
   /** Name of the build file where generated build rules will be written. */
   @Input public String buildFileName = "BUCK";
 
+  /** Whether to add OkBuckBuckConfig to top level .buckconfig */
+  @Input public boolean okBuckBuckConfig = true;
+
   /** Extra buck options */
   @Input public Map<String, Map<String, Collection<String>>> extraBuckOpts = new HashMap<>();
 
