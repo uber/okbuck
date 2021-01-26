@@ -75,7 +75,7 @@ public class DependencyManager {
     this.externalDependenciesExtension = okBuckExtension.getExternalDependenciesExtension();
     this.jetifierExtension = okBuckExtension.getJetifierExtension();
     this.buckFileManager = buckFileManager;
-    this.sha256Cache = initSha256Cache(rootProject);
+    this.sha256Cache = initSha256Cache(rootProject, externalDependenciesExtension);
   }
 
   public synchronized void addRawDependencies(Set<ExternalDependency> dependencies) {
@@ -153,7 +153,7 @@ public class DependencyManager {
     updateDependencies(filteredDependencyMap);
     processDependencies(filteredDependencyMap, okBuckExtension);
 
-    persistSha256Cache(project, sha256Cache);
+    persistSha256Cache(project, sha256Cache, externalDependenciesExtension);
   }
 
   private Map<VersionlessDependency, Collection<OExternalDependency>> filterDependencies() {
@@ -515,8 +515,8 @@ public class DependencyManager {
     sha256Map.computeIfAbsent(key, k -> DependencyUtils.shaSum256(file));
   }
 
-  private static HashMap<String, String> initSha256Cache(Project rootProject) {
-    File projectMappingFile = rootProject.file(OkBuckGradlePlugin.OKBUCK_SHA256);
+  private static HashMap<String, String> initSha256Cache(Project rootProject, ExternalDependenciesExtension externalDependenciesExtension) {
+    File projectMappingFile = rootProject.file(externalDependenciesExtension.getSha256Cache());
     try {
       return FileUtil.readMapFromJsonFile(projectMappingFile);
     } catch (IOException e) {
@@ -524,8 +524,8 @@ public class DependencyManager {
     }
   }
 
-  private static void persistSha256Cache(Project rootProject, HashMap<String, String> sha256Map) {
-    File projectMappingFile = rootProject.file(OkBuckGradlePlugin.OKBUCK_SHA256);
+  private static void persistSha256Cache(Project rootProject, HashMap<String, String> sha256Map, ExternalDependenciesExtension externalDependenciesExtension) {
+    File projectMappingFile = rootProject.file(externalDependenciesExtension.getSha256Cache());
     try {
       FileUtil.persistMapToJsonFile(sha256Map, projectMappingFile);
     } catch (IOException e) {

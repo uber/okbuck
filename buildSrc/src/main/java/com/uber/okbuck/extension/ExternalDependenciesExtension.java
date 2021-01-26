@@ -1,6 +1,7 @@
 package com.uber.okbuck.extension;
 
 import com.google.common.collect.ImmutableSet;
+import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.core.dependency.VersionlessDependency;
 import java.util.Collections;
 import java.util.HashMap;
@@ -63,6 +64,11 @@ public class ExternalDependenciesExtension {
    * Set to true to enable creation of http_file rules needed by bazel build system
    */
   @Input private boolean bazelDeps = false;
+
+  /**
+   * Set the path to the sha256sum caches of external dependency artifacts
+   */
+  @Input private String sha256Cache = OkBuckGradlePlugin.DEFAULT_OKBUCK_SHA256;
 
   @Nullable private Set<VersionlessDependency> allowAllVersionsSet;
 
@@ -165,5 +171,9 @@ public class ExternalDependenciesExtension {
 
   public boolean bazelDepsEnabled() {
     return bazelDeps;
+  }
+
+  public String getSha256Cache() {
+    return sha256Cache;
   }
 }
