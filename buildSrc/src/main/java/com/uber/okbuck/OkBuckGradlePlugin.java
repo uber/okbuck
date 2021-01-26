@@ -95,7 +95,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
   private static final String LINT_BUILD_FOLDER = WORKSPACE_PATH + "/lint";
 
   public static final String OKBUCK_STATE = OKBUCK_STATE_DIR + "/STATE";
-  public static final String OKBUCK_SHA256 = OKBUCK_STATE_DIR + "/SHA256";
+  public static final String DEFAULT_OKBUCK_SHA256 = OKBUCK_STATE_DIR + "/SHA256";
 
   public final Set<String> exportedPaths = Sets.newConcurrentHashSet();
 
