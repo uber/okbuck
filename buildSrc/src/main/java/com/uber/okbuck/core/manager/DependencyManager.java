@@ -10,7 +10,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.SetMultimap;
-import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.common.BazelHttpFileRuleComposer;
 import com.uber.okbuck.composer.common.HttpFileRuleComposer;
 import com.uber.okbuck.composer.java.JavaAnnotationProcessorRuleComposer;
@@ -408,8 +407,7 @@ public class DependencyManager {
     Map<Path, List<Scope>> basePathToScopeMap =
         annotationProcessorCache.getBasePathToExternalDependencyScopeMap();
 
-    ImmutableList.Builder<Rule> bazelRulesBuilder = ImmutableList.builder();
-    bazelRulesBuilder.add(new BazelFunctionRule());
+    ImmutableList.Builder<OExternalDependency> bazelDependencies = ImmutableList.builder();
 
     groupToDependencyMap.forEach(
         (basePath, dependencies) -> {
@@ -425,8 +423,10 @@ public class DependencyManager {
                     localPrebuiltDependencies.add(dependency);
                   } else if (isPrebuiltDependency(dependency)) {
                     prebuiltDependencies.add(dependency);
+                    bazelDependencies.add(dependency);
                   } else {
                     httpFileDependencies.add(dependency);
+                    bazelDependencies.add(dependency);
                   }
                 });
           } else {
@@ -443,11 +443,6 @@ public class DependencyManager {
           rulesBuilder.addAll(
               HttpFileRuleComposer.compose(httpFileDependencies.build(), sha256Cache));
 
-          bazelRulesBuilder.addAll(
-              BazelHttpFileRuleComposer.compose(prebuiltDependencies.build(), sha256Cache));
-          bazelRulesBuilder.addAll(
-              BazelHttpFileRuleComposer.compose(httpFileDependencies.build(), sha256Cache));
-
           // Add annotation processor rules
           List<Scope> scopeList = basePathToScopeMap.get(basePath);
           if (scopeList != null) {
@@ -461,10 +456,16 @@ public class DependencyManager {
         });
 
     if (okBuckExtension.getExternalDependenciesExtension().bazelDepsEnabled()) {
-      buckFileManager.writeToBuckFile("", cacheDir.toPath().resolve(okBuckExtension.buildFileName).toFile(), false);
-      File defs_bzl = cacheDir.toPath().resolve("defs.bzl").toFile();
-      buckFileManager.writeToBuckFile(bazelRulesBuilder.build(), defs_bzl);
-      buckFileManager.writeToBuckFile("\n", defs_bzl, true);
+      ImmutableList.Builder<Rule> bazelRulesBuilder = ImmutableList.builder();
+      bazelRulesBuilder.add(new BazelFunctionRule());
+      bazelRulesBuilder.addAll(
+          BazelHttpFileRuleComposer.compose(bazelDependencies.build(), sha256Cache));
+
+      buckFileManager.writeToBuckFile(
+          "", cacheDir.toPath().resolve(okBuckExtension.buildFileName).toFile(), false);
+      File defsBzl = cacheDir.toPath().resolve("defs.bzl").toFile();
+      buckFileManager.writeToBuckFile(bazelRulesBuilder.build(), defsBzl);
+      buckFileManager.writeToBuckFile("\n", defsBzl, true);
     }
   }
 
@@ -515,7 +516,8 @@ public class DependencyManager {
     sha256Map.computeIfAbsent(key, k -> DependencyUtils.shaSum256(file));
   }
 
-  private static HashMap<String, String> initSha256Cache(Project rootProject, ExternalDependenciesExtension externalDependenciesExtension) {
+  private static HashMap<String, String> initSha256Cache(
+      Project rootProject, ExternalDependenciesExtension externalDependenciesExtension) {
     File projectMappingFile = rootProject.file(externalDependenciesExtension.getSha256Cache());
     try {
       return FileUtil.readMapFromJsonFile(projectMappingFile);
@@ -524,7 +526,10 @@ public class DependencyManager {
     }
   }
 
-  private static void persistSha256Cache(Project rootProject, HashMap<String, String> sha256Map, ExternalDependenciesExtension externalDependenciesExtension) {
+  private static void persistSha256Cache(
+      Project rootProject,
+      HashMap<String, String> sha256Map,
+      ExternalDependenciesExtension externalDependenciesExtension) {
     File projectMappingFile = rootProject.file(externalDependenciesExtension.getSha256Cache());
     try {
       FileUtil.persistMapToJsonFile(sha256Map, projectMappingFile);
