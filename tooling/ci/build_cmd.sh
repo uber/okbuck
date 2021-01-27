@@ -1,5 +1,6 @@
 #!/bin/bash
 
+BUILD_CMD="$1"
 if [ -z "$BUILD_CMD" ]; then
 	echo "BUILD_CMD is not set"
 	exit 1
