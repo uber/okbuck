@@ -1,6 +1,10 @@
 name: CI
 
-on: [push, pull_request]
+on:
+  pull_request:
+  push:
+    branches:
+      - master
 
 jobs:
   build:
@@ -9,7 +13,7 @@ jobs:
       SKIP_OKBUCK: true
       EXTRA_OKBUCK_ARGS: "--quiet --stacktrace"
       EXTRA_BUCK_ARGS: "-v 0"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         java_version: [1.8, 11]
@@ -21,9 +25,5 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: ${{ matrix.java_version }}
-      - name: Install Android SDK
-        uses: malinskiy/action-android/install-sdk@release/0.1.1
-      - name: Update Android SDK Components
-        run: sdkmanager platform-tools build-tools;30.0.0 platforms;android-29
       - name: Run ${{ matrix.build_cmd }}
         run: ./tooling/ci/build_cmd.sh ${{ matrix.build_cmd }}
