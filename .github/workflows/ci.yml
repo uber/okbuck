@@ -23,5 +23,7 @@ jobs:
           java-version: ${{ matrix.java_version }}
       - name: Install Android SDK
         uses: malinskiy/action-android/install-sdk@release/0.1.1
+      - name: Update Android SDK Components
+        run: sdkmanager platform-tools build-tools;30.0.0 platforms;android-29
       - name: Run ${{ matrix.build_cmd }}
         run: ./tooling/ci/build_cmd.sh ${{ matrix.build_cmd }}
