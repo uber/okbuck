@@ -15,7 +15,10 @@ import org.gradle.api.tasks.Input;
 @SuppressWarnings("unused")
 public class OkBuckExtension {
 
-  private static final String DEFAULT_BUCK_BINARY_SHA = "a68ef0d834eec5fe381cb3e8e8612ba9fa42a09d";
+  // Forked buck which works on bigsur
+  // https://github.com/raviagarwal7/buck/commits/8369cecf8b4a8d628f7852f0030587944f01bc19
+  private static final String DEFAULT_BUCK_BINARY_REPO = "com.github.raviagarwal7:buck";
+  private static final String DEFAULT_BUCK_BINARY_SHA = "8369cecf8b4a8d628f7852f0030587944f01bc19";
 
   /** Build Tools Version */
   @Input public String buildToolVersion = "28.0.2";
@@ -89,12 +92,13 @@ public class OkBuckExtension {
   @Input public boolean legacyAnnotationProcessorSupport = true;
 
   /** The prebuilt buck binary to use */
-  @Input public String buckBinary = "com.github.facebook:buck:" + DEFAULT_BUCK_BINARY_SHA + "@pex";
+  @Input
+  public String buckBinary = DEFAULT_BUCK_BINARY_REPO + ":" + DEFAULT_BUCK_BINARY_SHA + "@pex";
 
   /** The prebuilt buck binary to use with java 11 */
   @Input
   public String buckBinaryJava11 =
-      "com.github.facebook:buck:" + DEFAULT_BUCK_BINARY_SHA + ":java11@pex";
+      DEFAULT_BUCK_BINARY_REPO + ":" + DEFAULT_BUCK_BINARY_SHA + ":java11@pex";
 
   private WrapperExtension wrapperExtension = new WrapperExtension();
   private KotlinExtension kotlinExtension;
