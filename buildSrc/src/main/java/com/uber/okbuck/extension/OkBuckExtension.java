@@ -17,6 +17,7 @@ public class OkBuckExtension {
 
   // Forked buck which works on bigsur
   // https://github.com/raviagarwal7/buck/commits/5516bef40c669b88f134aed6ff6f4289b9b73923
+  private static final String DEFAULT_BUCK_BINARY_REPO = "com.github.raviagarwal7:buck";
   private static final String DEFAULT_BUCK_BINARY_SHA = "5516bef40c669b88f134aed6ff6f4289b9b73923";
 
   /** Build Tools Version */
@@ -91,12 +92,13 @@ public class OkBuckExtension {
   @Input public boolean legacyAnnotationProcessorSupport = true;
 
   /** The prebuilt buck binary to use */
-  @Input public String buckBinary = "com.github.facebook:buck:" + DEFAULT_BUCK_BINARY_SHA + "@pex";
+  @Input
+  public String buckBinary = DEFAULT_BUCK_BINARY_REPO + ":" + DEFAULT_BUCK_BINARY_SHA + "@pex";
 
   /** The prebuilt buck binary to use with java 11 */
   @Input
   public String buckBinaryJava11 =
-      "com.github.facebook:buck:" + DEFAULT_BUCK_BINARY_SHA + ":java11@pex";
+      DEFAULT_BUCK_BINARY_REPO + ":" + DEFAULT_BUCK_BINARY_SHA + ":java11@pex";
 
   private WrapperExtension wrapperExtension = new WrapperExtension();
   private KotlinExtension kotlinExtension;
