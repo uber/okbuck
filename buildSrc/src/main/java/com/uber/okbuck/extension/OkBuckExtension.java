@@ -15,7 +15,9 @@ import org.gradle.api.tasks.Input;
 @SuppressWarnings("unused")
 public class OkBuckExtension {
 
-  private static final String DEFAULT_BUCK_BINARY_SHA = "a68ef0d834eec5fe381cb3e8e8612ba9fa42a09d";
+  // Forked buck which works on bigsur
+  // https://github.com/raviagarwal7/buck/commits/5516bef40c669b88f134aed6ff6f4289b9b73923
+  private static final String DEFAULT_BUCK_BINARY_SHA = "5516bef40c669b88f134aed6ff6f4289b9b73923";
 
   /** Build Tools Version */
   @Input public String buildToolVersion = "28.0.2";
