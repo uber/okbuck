@@ -12,15 +12,23 @@ analyze:
     type: gradle
     target: 'android-lint-cli:'
     path: .
+    options:
+      online: true
   - name: manifest-merger-cli
     type: gradle
     target: 'manifest-merger-cli:'
     path: .
+    options:
+      online: true
   - name: okbuck
     type: gradle
     target: 'plugin:'
     path: .
+    options:
+      online: true
   - name: transform-cli
     type: gradle
     target: 'transform-cli:'
     path: .
+    options:
+      online: true
