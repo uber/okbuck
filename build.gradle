@@ -3,7 +3,7 @@ buildscript {
     repositories {
         google()
         maven { url "https://plugins.gradle.org/m2/" }
-        jcenter()
+        mavenCentral()
     }
     dependencies {
         classpath deps.build.androidPlugin
@@ -29,7 +29,7 @@ allprojects { project ->
     repositories {
         google()
         maven { url "https://plugins.gradle.org/m2/" }
-        jcenter()
+        mavenCentral()
     }
     configurations.all {
         exclude group:"com.android.tools.build", module: "transform-api"

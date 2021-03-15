@@ -55,8 +55,6 @@ public abstract class AndroidTarget extends JvmTarget {
   private static final String DEFAULT_SDK = "1";
   private final String applicationId;
   private final String applicationIdSuffix;
-  private final String versionName;
-  private final Integer versionCode;
   private final String minSdk;
   private final String targetSdk;
   private final boolean debuggable;
@@ -73,6 +71,8 @@ public abstract class AndroidTarget extends JvmTarget {
   @Nullable private List<String> secondaryManifests;
   @Nullable private String originalPackageName;
   @Nullable private String resourceUnionPackageName;
+  @Nullable private final String versionName;
+  @Nullable private final Integer versionCode;
 
   protected AndroidTarget(Project project, String name, boolean isTest) {
     super(project, name);
@@ -626,11 +626,11 @@ public abstract class AndroidTarget extends JvmTarget {
   }
 
   public final String getVersionName() {
-    return versionName;
+    return versionName == null ? "" : versionName;
   }
 
   public final Integer getVersionCode() {
-    return versionCode;
+    return versionCode == null ? 0 : versionCode;
   }
 
   public final boolean getDebuggable() {

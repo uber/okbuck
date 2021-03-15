@@ -117,7 +117,8 @@ public final class RobolectricManager {
     API_27("8.1.0", "4611349"),
     API_P("P", "4651975"),
     API_28("9", "4913185-2"),
-    API_29("10", "5803371");
+    API_29("10", "5803371"),
+    API_30("11", "6757853");
 
     private final String androidVersion;
     private final String frameworkSdkBuildVersion;
@@ -162,6 +163,8 @@ public final class RobolectricManager {
           return API_28;
         case "29":
           return API_29;
+        case "30":
+          return API_30;
         case "P":
           return API_P;
         default:
