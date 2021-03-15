@@ -17,4 +17,4 @@ jobs:
         with:
           java-version: 11
       - name: Run Fossa License Check
-        run: ./tooling/fossa.sh
+        run: ./tooling/fossa/fossa.sh
