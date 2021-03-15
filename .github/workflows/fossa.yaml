@@ -17,4 +17,6 @@ jobs:
         with:
           java-version: 11
       - name: Run Fossa License Check
+        env:
+          FOSSA_API_KEY: ${{ secrets.FOSSA_API_KEY }}
         run: ./tooling/fossa/fossa.sh
