@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    name: JDK ${{ matrix.java_version }}
+    name: Okbuck CI Checks
     env:
       SKIP_OKBUCK: true
       EXTRA_OKBUCK_ARGS: "--quiet --stacktrace"
@@ -16,14 +16,13 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        java_version: [1.8, 11]
         build_cmd: [build, lint, test]
     steps:
       - name: Checkout
         uses: actions/checkout@v1
-      - name: Install JDK ${{ matrix.java_version }}
+      - name: Install JDK
         uses: actions/setup-java@v1
         with:
-          java-version: ${{ matrix.java_version }}
+          java-version: 11
       - name: Run ${{ matrix.build_cmd }}
         run: ./tooling/ci/build_cmd.sh ${{ matrix.build_cmd }}
