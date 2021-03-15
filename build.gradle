@@ -12,6 +12,7 @@ buildscript {
         classpath deps.build.kotlinAllOpen
         classpath deps.build.sqlDelightPlugin
         classpath deps.build.shadowJar
+        classpath "com.github.ben-manes:gradle-versions-plugin:0.38.0"
     }
     configurations.all {
         exclude group:"com.android.tools.build", module: "transform-api"
@@ -24,6 +25,7 @@ allprojects {
 
 allprojects { project ->
     project.apply from: rootProject.file("dependencies.gradle")
+    apply plugin: "com.github.ben-manes.versions"
     repositories {
         google()
         maven { url "https://plugins.gradle.org/m2/" }
