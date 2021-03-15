@@ -32,3 +32,7 @@
 -keep class * extends dagger.internal.Binding
 -keep class * extends dagger.internal.ModuleAdapter
 -keep class * extends dagger.internal.StaticInjection
+
+# Androidx
+-dontwarn androidx.tracing.Trace
+-dontwarn androidx.annotation.experimental.**
