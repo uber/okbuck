@@ -33,6 +33,12 @@ allprojects { project ->
     }
     configurations.all {
         exclude group:"com.android.tools.build", module: "transform-api"
+        resolutionStrategy {
+            force deps.build.bcprov
+            force deps.build.commonsCompress
+            force deps.build.httpclient
+            force deps.external.guava
+        }
     }
 }
 

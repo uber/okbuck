@@ -75,7 +75,8 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
 
   private static final String OKBUCK_PREBUILT_BZL = "okbuck_prebuilt.bzl";
   public static final String OKBUCK_PREBUILT_FOLDER = DOT_OKBUCK + "/defs";
-  public static final String OKBUCK_PREBUILT_FILE = OKBUCK_PREBUILT_FOLDER + "/" + OKBUCK_PREBUILT_BZL;
+  public static final String OKBUCK_PREBUILT_FILE =
+      OKBUCK_PREBUILT_FOLDER + "/" + OKBUCK_PREBUILT_BZL;
   public static final String OKBUCK_PREBUILT_TARGET =
       "//" + DOT_OKBUCK + "/defs:" + OKBUCK_PREBUILT_BZL;
 
@@ -326,10 +327,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
                     okbuckProjectTask.doLast(
                         task -> {
                           ProjectCache.initScopeCache(bp);
-                          BuckFileGenerator.generate(
-                              bp,
-                              buckFileManager,
-                              okbuckExt);
+                          BuckFileGenerator.generate(bp, buckFileManager, okbuckExt);
                           ProjectCache.resetScopeCache(bp);
                         });
                     okbuckProjectTask.dependsOn(setupOkbuck);
@@ -362,7 +360,13 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
       pathToRules.put(containingPath, rules);
     }
     for (Map.Entry<String, Set<Rule>> entry : pathToRules.entrySet()) {
-      File buckFile = rootBuckProject.getRootDir().toPath().resolve(entry.getKey()).resolve(okBuckExtension.buildFileName).toFile();
+      File buckFile =
+          rootBuckProject
+              .getRootDir()
+              .toPath()
+              .resolve(entry.getKey())
+              .resolve(okBuckExtension.buildFileName)
+              .toFile();
       try (OutputStream os =
           new FileOutputStream(buckFile, currentProjectPaths.contains(entry.getKey()))) {
         entry

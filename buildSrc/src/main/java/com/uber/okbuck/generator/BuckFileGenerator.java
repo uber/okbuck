@@ -2,7 +2,6 @@ package com.uber.okbuck.generator;
 
 import com.google.common.collect.Multimap;
 import com.google.common.collect.TreeMultimap;
-import com.uber.okbuck.OkBuckGradlePlugin;
 import com.uber.okbuck.composer.android.AndroidBinaryRuleComposer;
 import com.uber.okbuck.composer.android.AndroidBuckRuleComposer;
 import com.uber.okbuck.composer.android.AndroidBuildConfigRuleComposer;
@@ -48,9 +47,7 @@ public final class BuckFileGenerator {
 
   /** generate {@code BUCKFile} */
   public static void generate(
-      Project project,
-      BuckFileManager buckFileManager,
-      OkBuckExtension okBuckExtension) {
+      Project project, BuckFileManager buckFileManager, OkBuckExtension okBuckExtension) {
 
     VisibilityExtension visibilityExtension = okBuckExtension.getVisibilityExtension();
     TestExtension testExtension = okBuckExtension.getTestExtension();
@@ -160,7 +157,9 @@ public final class BuckFileGenerator {
 
     // Aidl
     List<Rule> aidlRules =
-        target.getAidl().stream()
+        target
+            .getAidl()
+            .stream()
             .map(aidlDir -> GenAidlRuleComposer.compose(target, aidlDir, manifestRuleName))
             .collect(Collectors.toList());
 
@@ -176,7 +175,9 @@ public final class BuckFileGenerator {
 
     // Jni
     androidLibRules.addAll(
-        target.getJniLibs().stream()
+        target
+            .getJniLibs()
+            .stream()
             .map(jniLib -> PreBuiltNativeLibraryRuleComposer.compose(target, jniLib))
             .collect(Collectors.toList()));
 
@@ -288,7 +289,8 @@ public final class BuckFileGenerator {
   // android rules now accept only other android rules as deps, and okbuck_android_module
   // macro infers what resources rules to depend on
   private static List<String> filterAndroidDepRules(List<Rule> rules) {
-    return rules.stream()
+    return rules
+        .stream()
         .filter(rule -> rule instanceof AndroidRule || rule instanceof AndroidModuleRule)
         .map(Rule::buckName)
         .collect(Collectors.toList());
@@ -296,7 +298,8 @@ public final class BuckFileGenerator {
 
   // Same logic as above, so to get the actual resource rule, we derive from the src one
   private static List<String> filterAndroidResDepRules(List<Rule> rules) {
-    return rules.stream()
+    return rules
+        .stream()
         .filter(rule -> rule instanceof AndroidRule || rule instanceof AndroidModuleRule)
         .map(Rule::buckName)
         .map(ruleName -> ruleName.replace(":src_", ":res_"))

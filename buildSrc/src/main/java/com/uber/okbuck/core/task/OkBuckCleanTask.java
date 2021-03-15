@@ -73,7 +73,11 @@ public class OkBuckCleanTask extends DefaultTask {
     // Delete stale project's build file
     difference
         .stream()
-        .map(p -> rootProjectPath.resolve(p).resolve(ProjectUtil.getOkBuckExtension(rootProject).buildFileName))
+        .map(
+            p ->
+                rootProjectPath
+                    .resolve(p)
+                    .resolve(ProjectUtil.getOkBuckExtension(rootProject).buildFileName))
         .forEach(FileUtil::deleteQuietly);
 
     // Delete old .okbuck/cache dir

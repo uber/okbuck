@@ -2,11 +2,11 @@ package com.uber.okbuck.composer.android;
 
 import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.composer.base.BuckRuleComposer;
+import com.uber.okbuck.core.manager.D8Manager;
 import com.uber.okbuck.core.model.android.AndroidLibTarget;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.model.base.SourceSetType;
 import com.uber.okbuck.core.model.jvm.JvmTarget;
-import com.uber.okbuck.core.manager.D8Manager;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.template.android.AndroidRule;
@@ -107,13 +107,10 @@ public final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
               .collect(Collectors.toSet());
 
       if (lintConfigPath != null) {
-        androidRule
-          .lintConfigXml(fileRule(lintConfigPath));
+        androidRule.lintConfigXml(fileRule(lintConfigPath));
       }
 
-      androidRule
-          .customLints(customLintTargets)
-          .lintOptions(target.getLintOptions());
+      androidRule.customLints(customLintTargets).lintOptions(target.getLintOptions());
     } else {
       androidRule.disableLint(true);
     }

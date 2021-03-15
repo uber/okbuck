@@ -21,17 +21,16 @@ public final class ProguardUtil {
 
   @Nullable
   public static String getProguardJarPath(Project project) {
-    @Var String proguardVersion =
+    @Var
+    String proguardVersion =
         ProjectUtil.findVersionInClasspath(project, PROGUARD_NEW_GROUP, PROGUARD_MODULE);
     @Var String currentGroup = PROGUARD_NEW_GROUP;
 
     if (proguardVersion == null) {
       proguardVersion =
-        ProjectUtil.findVersionInClasspath(project, PROGUARD_GROUP, PROGUARD_MODULE);
+          ProjectUtil.findVersionInClasspath(project, PROGUARD_GROUP, PROGUARD_MODULE);
       currentGroup = PROGUARD_GROUP;
     }
-
-
 
     Configuration proguardConfiguration =
         project
@@ -48,7 +47,8 @@ public final class ProguardUtil {
             .stream()
             .filter(
                 dependency ->
-                    (dependency.getGroup().equals(PROGUARD_GROUP) || dependency.getGroup().equals(PROGUARD_NEW_GROUP))
+                    (dependency.getGroup().equals(PROGUARD_GROUP)
+                            || dependency.getGroup().equals(PROGUARD_NEW_GROUP))
                         && dependency.getName().equals(PROGUARD_MODULE))
             .findAny();
 

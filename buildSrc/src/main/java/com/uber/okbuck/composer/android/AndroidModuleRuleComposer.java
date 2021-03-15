@@ -2,22 +2,21 @@ package com.uber.okbuck.composer.android;
 
 import com.google.common.collect.ImmutableSet;
 import com.uber.okbuck.composer.base.BuckRuleComposer;
+import com.uber.okbuck.core.manager.D8Manager;
 import com.uber.okbuck.core.model.android.AndroidLibTarget;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.model.base.SourceSetType;
 import com.uber.okbuck.core.model.jvm.JvmTarget;
-import com.uber.okbuck.core.manager.D8Manager;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
 import com.uber.okbuck.template.android.AndroidModuleRule;
 import com.uber.okbuck.template.core.Rule;
-
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 
 public final class AndroidModuleRuleComposer extends AndroidBuckRuleComposer {
 
@@ -98,15 +97,12 @@ public final class AndroidModuleRuleComposer extends AndroidBuckRuleComposer {
               .filter(t -> (t instanceof JvmTarget))
               .map(BuckRuleComposer::binTargets)
               .collect(Collectors.toSet());
-              
+
       if (lintConfigPath != null) {
-        unifiedAndroid
-          .lintConfigXml(fileRule(lintConfigPath));
+        unifiedAndroid.lintConfigXml(fileRule(lintConfigPath));
       }
 
-      unifiedAndroid
-          .customLints(customLintTargets)
-          .lintOptions(target.getLintOptions());
+      unifiedAndroid.customLints(customLintTargets).lintOptions(target.getLintOptions());
     } else {
       unifiedAndroid.disableLint(true);
     }

@@ -53,8 +53,6 @@ dependencies {
     implementation deps.build.androidPlugin
     implementation deps.build.commonsIo
     implementation deps.build.commonsLang3
-    implementation deps.build.jna
-    implementation deps.build.jnaPlatform
     implementation deps.build.kotlinAllOpen
     implementation deps.build.kotlinPlugin
     implementation deps.build.mavenArtifact

@@ -60,14 +60,10 @@ public class ExternalDependenciesExtension {
    */
   @Input private Set<String> dynamicDependenciesToIgnore = new HashSet<>();
 
-  /**
-   * Set to true to enable creation of http_file rules needed by bazel build system
-   */
+  /** Set to true to enable creation of http_file rules needed by bazel build system */
   @Input private boolean bazelDeps = false;
 
-  /**
-   * Set the path to the sha256sum caches of external dependency artifacts
-   */
+  /** Set the path to the sha256sum caches of external dependency artifacts */
   @Input private String sha256Cache = OkBuckGradlePlugin.DEFAULT_OKBUCK_SHA256;
 
   @Nullable private Set<VersionlessDependency> allowAllVersionsSet;

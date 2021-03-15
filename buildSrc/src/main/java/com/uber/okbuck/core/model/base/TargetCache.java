@@ -54,11 +54,7 @@ public final class TargetCache {
               ImmutableMap.of(
                   JvmTarget.MAIN,
                   new JvmTarget(
-                      project,
-                      JvmTarget.MAIN,
-                      "kapt",
-                      "kaptTest",
-                      "kaptIntegrationTest"));
+                      project, JvmTarget.MAIN, "kapt", "kaptTest", "kaptIntegrationTest"));
           break;
         case GROOVY_LIB:
         case SCALA_LIB:

@@ -115,8 +115,7 @@ public final class TransformManager {
                   .defaultVisibility());
     }
 
-    buckFileManager.writeToBuckFile(
-        rulesBuilder.build(), cacheDir.resolve(buildFileName).toFile());
+    buckFileManager.writeToBuckFile(rulesBuilder.build(), cacheDir.resolve(buildFileName).toFile());
   }
 
   public Pair<String, List<String>> getBashCommandAndTransformDeps(AndroidAppTarget target) {
