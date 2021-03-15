@@ -57,6 +57,7 @@ def build = [
         jnaPlatform      : "net.java.dev.jna:jna-platform:${versions.jna}",
         mavenArtifact    : "org.apache.maven:maven-artifact:3.6.3",
         proguard         : "net.sf.proguard:proguard-base:6.2.2",
+        versionsPlugin   : "com.github.ben-manes:gradle-versions-plugin:0.38.0",
 ]
 
 def buildConfig = [
