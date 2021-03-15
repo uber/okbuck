@@ -20,8 +20,9 @@ apply plugin: "net.ltgt.errorprone"
 apply from: "../dependencies.gradle"
 
 repositories {
-    jcenter()
+    mavenCentral()
     google()
+    gradlePluginPortal()
 }
 
 jar {
