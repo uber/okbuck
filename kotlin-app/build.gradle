@@ -59,4 +59,8 @@ dependencies {
     androidTestImplementation deps.test.espressoRunner
     androidTestImplementation deps.test.espressoCore
     androidTestImplementation deps.test.espressoRules
+
+    compileOnly fileTree(dir: "libs", include: ["*.jar"])
+    testCompileOnly fileTree(dir: "libs", include: ["*.jar"])
+    androidTestCompileOnly fileTree(dir: "libs", include: ["*.jar"])
 }
