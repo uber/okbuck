@@ -9,8 +9,8 @@ import com.uber.okbuck.core.dependency.OExternalDependency;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectUtil;
-import com.uber.okbuck.template.core.Rule;
 import com.uber.okbuck.extension.OkBuckExtension;
+import com.uber.okbuck.template.core.Rule;
 import com.uber.okbuck.template.java.NativePrebuilt;
 import com.uber.okbuck.template.jvm.JvmBinaryRule;
 import java.io.File;
@@ -70,7 +70,8 @@ public final class ManifestMergerManager {
   }
 
   public void finalizeDependencies(OkBuckExtension okBuckExtension) {
-    Path path = rootProject.file(MANIFEST_MERGER_CACHE + "/" + okBuckExtension.buildFileName).toPath();
+    Path path =
+        rootProject.file(MANIFEST_MERGER_CACHE + "/" + okBuckExtension.buildFileName).toPath();
     FileUtil.deleteQuietly(path);
 
     if (dependencies != null && dependencies.size() > 0) {

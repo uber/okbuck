@@ -98,7 +98,8 @@ public final class RobolectricManager {
               .name(ROBOLECTRIC_TARGET_NAME);
 
       buckFileManager.writeToBuckFile(
-          ImmutableList.of(fileGroup), robolectricCache.resolve(okBuckExtension.buildFileName).toFile());
+          ImmutableList.of(fileGroup),
+          robolectricCache.resolve(okBuckExtension.buildFileName).toFile());
     }
   }
 

@@ -25,7 +25,6 @@ allprojects {
 
 allprojects { project ->
     project.apply from: rootProject.file("dependencies.gradle")
-    apply plugin: "com.github.ben-manes.versions"
     repositories {
         google()
         maven { url "https://plugins.gradle.org/m2/" }
@@ -33,7 +32,14 @@ allprojects { project ->
     }
     configurations.all {
         exclude group:"com.android.tools.build", module: "transform-api"
+        resolutionStrategy {
+            force deps.build.bcprov
+            force deps.build.commonsCompress
+            force deps.build.httpclient
+            force deps.external.guava
+        }
     }
+    apply plugin: "com.github.ben-manes.versions"
 }
 
 apply plugin: "com.uber.okbuck"

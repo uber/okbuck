@@ -5,7 +5,6 @@ import com.uber.okbuck.core.dependency.OExternalDependency;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.template.common.BazelHttpFile;
 import com.uber.okbuck.template.core.Rule;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -31,9 +30,7 @@ public class BazelHttpFileRuleComposer {
               String sha256 = Preconditions.checkNotNull(shaSum256.get(sha256Key));
 
               BazelHttpFile rule =
-                  new BazelHttpFile()
-                      .mavenCoords(dependency.getMavenCoords())
-                      .sha256(sha256);
+                  new BazelHttpFile().mavenCoords(dependency.getMavenCoords()).sha256(sha256);
 
               dependency
                   .getRealSourceFile()

@@ -46,8 +46,7 @@ public final class JetifierManager {
   private final Project project;
   private final BuckFileManager buckFileManager;
 
-  public JetifierManager(
-      Project project, BuckFileManager buckFileManager) {
+  public JetifierManager(Project project, BuckFileManager buckFileManager) {
     this.project = project;
     this.buckFileManager = buckFileManager;
   }
@@ -118,9 +117,7 @@ public final class JetifierManager {
 
       buckFileManager.writeToBuckFile(
           rulesBuilder.build(),
-          project.getRootProject()
-              .file(JETIFIER_LOCATION + "/" + okBuckExtension.buildFileName)
-      );
+          project.getRootProject().file(JETIFIER_LOCATION + "/" + okBuckExtension.buildFileName));
     }
   }
 }

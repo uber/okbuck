@@ -23,7 +23,6 @@ def versions = [
         avro               : "1.10.1",
         butterKnife        : "10.2.3",
         dagger             : "2.33",
-        jna                : "5.7.0",
         kotlin             : "1.4.10",
         leakCanary         : "2.6",
         rocker             : "1.3.0",
@@ -37,13 +36,16 @@ def versions = [
 def build = [
         androidPlugin    : "com.android.tools.build:gradle:${versions.androidPlugin}",
         androidPluginApi : "com.android.tools.build:gradle-api:${versions.androidPlugin}",
+        bcprov           : "org.bouncycastle:bcprov-jdk15on:1.60",
         bintrayPlugin    : "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.5",
         butterKnifePlugin: "com.jakewharton:butterknife-gradle-plugin:${versions.butterKnife}",
+        commonsCompress  : "org.apache.commons:commons-compress:1.18",
         commonsIo        : "commons-io:commons-io:2.8.0",
         commonsLang3     : "org.apache.commons:commons-lang3:3.12.0",
         erroproneCompiler: "com.google.errorprone:error_prone_core:2.4.0",
         errorproneJavac  : "com.google.errorprone:javac:9+181-r4173-1",
         errorpronePlugin : "net.ltgt.gradle:gradle-errorprone-plugin:1.3.0",
+        httpclient       : "org.apache.httpcomponents:httpclient:4.5.13",
         kotlinPlugin     : "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}",
         kotlinAllOpen    : "org.jetbrains.kotlin:kotlin-allopen:${versions.kotlin}",
         manifestMerger   : "com.android.tools.build:manifest-merger:${versions.androidTools}",
@@ -52,8 +54,6 @@ def build = [
         rockerRuntime    : "com.fizzed:rocker-runtime:${versions.rocker}",
         shadowJar        : "com.github.jengelman.gradle.plugins:shadow:6.1.0",
         sqlDelightPlugin : "com.squareup.sqldelight:gradle-plugin:${versions.sqldelight}",
-        jna              : "net.java.dev.jna:jna:${versions.jna}",
-        jnaPlatform      : "net.java.dev.jna:jna-platform:${versions.jna}",
         mavenArtifact    : "org.apache.maven:maven-artifact:3.6.3",
         proguard         : "net.sf.proguard:proguard-base:6.2.2",
         versionsPlugin   : "com.github.ben-manes:gradle-versions-plugin:0.38.0",
@@ -78,7 +78,7 @@ def apt = [
 ]
 
 def external = [
-        annotationApi   : ["javax.annotation:javax.annotation-api:1.3.2", "com.github.pengrad:jdk9-deps:1.0"],
+        annotationApi   : "javax.annotation:javax.annotation-api:1.3.2",
         butterKnife     : "com.jakewharton:butterknife:${versions.butterKnife}",
         dagger          : "com.google.dagger:dagger:${versions.dagger}",
         daggerAndroid   : "com.google.dagger:dagger-android-support:${versions.dagger}",

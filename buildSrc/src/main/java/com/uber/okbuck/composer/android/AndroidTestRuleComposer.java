@@ -1,11 +1,11 @@
 package com.uber.okbuck.composer.android;
 
 import com.google.common.collect.ImmutableSet;
+import com.uber.okbuck.core.manager.D8Manager;
 import com.uber.okbuck.core.manager.RobolectricManager;
 import com.uber.okbuck.core.model.android.AndroidLibTarget;
 import com.uber.okbuck.core.model.base.RuleType;
 import com.uber.okbuck.core.model.base.SourceSetType;
-import com.uber.okbuck.core.manager.D8Manager;
 import com.uber.okbuck.template.android.AndroidTestRule;
 import com.uber.okbuck.template.core.Rule;
 import java.util.ArrayList;
