@@ -88,11 +88,15 @@ public class AnnotationProcessorCache {
 
     if (autoValueDependencies.size() > 0) {
       Map<Set<Dependency>, Scope> autoValueScopeMap = getAutoValueDependencyToScopeMap();
-
-      if (!autoValueScopeMap.containsKey(autoValueDependencies)) {
+      if (autoValueScopeMap.size() == 0) {
         throw new IllegalStateException(
             "autoValueConfigurations should be present if adding autoValue dependencies. missing: "
                 + autoValueDependencies);
+      }
+      if (!autoValueScopeMap.containsKey(autoValueDependencies)) {
+        throw new IllegalStateException(
+            "autoValueConfigurations declared mismatch the autoValue dependencies. missing: "
+                + autoValueDependencies + " found: " + autoValueScopeMap.keySet());
       }
       scopesBuilder.add(autoValueScopeMap.get(autoValueDependencies));
 
