@@ -250,6 +250,22 @@ def isLintEnabled(manifest):
     return False
 }
 
+def okbuck_project_properties(
+        target_sdk,
+        visibility = []):
+
+    cmds = []
+    cmds.append("touch \"$OUT/project.properties\"")
+    cmds.append("echo \"target={}\\njava.compilerargs=-Xlint:all -Werror\" > \"$OUT/project.properties\"".format(target_sdk))
+
+    native.genrule(
+        name = name,
+        out = "project.properties",
+        type = "okbuck_project_properties",
+        cmd = " ".join(cmds),
+        visibility = visibility,
+    )
+
 def okbuck_android_library(
         name,
         manifest = None,
