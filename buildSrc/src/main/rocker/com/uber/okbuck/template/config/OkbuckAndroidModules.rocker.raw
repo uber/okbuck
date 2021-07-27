@@ -41,6 +41,8 @@ def okbuck_android_module(
         res_assets = None,
         res_resource_union = None,
         res_extra_deps = [],
+        res_deps = None,
+        res_exported_deps = None,
         ## Android library related args
         deps = [],
         exported_deps = [],
@@ -58,13 +60,25 @@ def okbuck_android_module(
         secondary_manifests = manifest_secondary_manifests,
     )
 
-    res_ext_aar_deps = get_exts_aar_deps(deps)
-    res_lib_deps = get_libs_res_deps(deps)
-    res_deps = res_ext_aar_deps + res_lib_deps + res_extra_deps
+    # Let targets possibly specify their own res dependencies, to avoid over-depping and 
+    # and possibly hitting java compilation error due to too many resources ids declared.
+    if res_deps == None:
+        res_ext_aar_deps = get_exts_aar_deps(deps)
+        res_lib_deps = get_libs_res_deps(deps)
+        res_deps = res_ext_aar_deps + res_lib_deps + res_extra_deps
+    else:
+        res_ext_aar_deps = get_exts_aar_deps(res_deps)
+        res_lib_deps = get_libs_res_deps(res_deps)
+        res_deps = res_ext_aar_deps + res_lib_deps + res_extra_deps
 
-    res_exported_ext_aar_deps = get_exts_aar_deps(exported_deps)
-    res_exported_lib_deps = get_libs_res_deps(exported_deps)
-    res_exported_deps = res_exported_ext_aar_deps + res_exported_lib_deps
+    if res_exported_deps == None:
+        res_exported_ext_aar_deps = get_exts_aar_deps(exported_deps)
+        res_exported_lib_deps = get_libs_res_deps(exported_deps)
+        res_exported_deps = res_exported_ext_aar_deps + res_exported_lib_deps
+    else:
+        res_exported_ext_aar_deps = get_exts_aar_deps(res_exported_deps)
+        res_exported_lib_deps = get_libs_res_deps(res_exported_deps)
+        res_exported_deps = res_exported_ext_aar_deps + res_exported_lib_deps
 
     res_rule_name = name.replace("src", "res", 1)
     res_kwargs = dict(
