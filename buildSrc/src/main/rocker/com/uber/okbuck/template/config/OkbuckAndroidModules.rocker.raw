@@ -39,6 +39,8 @@ def okbuck_android_module(
         res_res = None,
         res_project_res = None,
         res_assets = None,
+        res_resource_union = None,
+        res_extra_deps = [],
         ## Android library related args
         deps = [],
         exported_deps = [],
