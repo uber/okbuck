@@ -12,11 +12,10 @@ buildscript {
     }
 }
 
-apply plugin: "maven-publish"
-apply plugin: "com.jfrog.bintray"
 apply plugin: "com.fizzed.rocker"
 apply plugin: "net.ltgt.errorprone"
 
+apply from: '../gradle/gradle-mvn-push.gradle'
 apply from: "../dependencies.gradle"
 
 repositories {
@@ -101,61 +100,6 @@ tasks.withType(JavaCompile) {
     options.compilerArgs += [
         "-Werror"
     ]
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = "javadoc"
-    from "build/docs/javadoc"
-}
-
-task sourcesJar(type: Jar) {
-    from sourceSets.main.allSource
-    classifier = "sources"
-}
-
-def publishVersion = "0.52.3"
-
-group = "com.uber"
-version = publishVersion
-def siteUrl = "https://github.com/uber/okbuck"
-def gitUrl = "https://github.com/uber/okbuck.git"
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
-
-            artifact sourcesJar
-            artifact javadocJar
-
-            artifactId "okbuck"
-        }
-    }
-}
-
-bintray {
-    user = project.properties.get("bintray.user")
-    key = project.properties.get("bintray.apikey")
-    publications = ["mavenJava"]
-    dryRun = false
-    publish = true
-    pkg {
-        repo = "gradle-plugins"
-        name = "okbuck"
-        userOrg = "uber"
-        desc = "Gradle plugin that lets developers utilize the Buck build system on a Gradle project"
-        websiteUrl = siteUrl
-        issueTrackerUrl = siteUrl + "/issues"
-        vcsUrl = gitUrl
-        licenses = ["MIT"]
-        labels = ["buck", "okbuck", "uber"]
-        publicDownloadNumbers = true
-        version {
-            name = publishVersion
-            released = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZ").format(new Date())
-            vcsTag = publishVersion
-        }
-    }
 }
 
 tasks.withType(com.fizzed.rocker.gradle.RockerTask).each { task ->
