@@ -60,7 +60,7 @@ def okbuck_android_module(
         secondary_manifests = manifest_secondary_manifests,
     )
 
-    # Let targets possibly specify their own res dependencies, to avoid over-depping and 
+    # Let targets possibly specify their own res dependencies, to avoid over-depping
     # and possibly hitting java compilation error due to too many resources ids declared.
     if res_deps == None:
         res_ext_aar_deps = get_exts_aar_deps(deps)
