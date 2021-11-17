@@ -151,10 +151,6 @@ def okbuck_lint(
 
     cmd += "export ANDROID_LINT_JARS=\"$PREBUILT_AAR_LINT_JARS{}\"; PROJECT_ROOT=`echo '{}' | sed 's|buck-out.*||'`; ".format(":".join([toLocation(custom_lint) for custom_lint in custom_lints]), toLocation(manifest))
 
-    # Create project.properties file so Android lint CLI jar respects our target SDK version when running lint.
-    target_sdk = native.read_config("android", "target")
-    cmd += "echo \"target={}\njava.compilerargs=-Xlint:all -Werror\" > \"`dirname {}`/project.properties\"; ".format(target_sdk, toLocation(manifest))
-
     cmd += "CP_FILE=`mktemp`; "
     if has_srcs:
         cmd += "ORIGINAL_CP_FILE=`sed 's/@@//' <<< $(@@@(classpathMacro) :src_{})`; ".format(variant)
