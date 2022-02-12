@@ -46,7 +46,7 @@ public class ExternalDependenciesExtension {
    * dependencies like robolectric runtime deps.
    */
   @Input
-  private List<String> allowAllVersions = Collections.singletonList("org.robolectric:android-all");
+  private List<String> allowAllVersions = Collections.singletonList("org.robolectric:android-all-instrumented");
 
   /**
    * Stores the dependency versions to be used for dynamic notations that have , or + in their

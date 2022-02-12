@@ -216,7 +216,7 @@ okbuck {
     externalDependencies {
         resolutionAction = "latest"
         allowAllVersions = [
-                "org.robolectric:android-all",
+                "org.robolectric:android-all-instrumented",
         ]
         autoValueConfigurations = [
             "autoValueAnnotations",
