@@ -89,7 +89,7 @@ public final class JetifierManager {
       binaryDependencies.addAll(BuckRuleComposer.external(dependencies));
 
       for (String module : INTERNAL_MODULES) {
-        FileUtil.copyResourceToProject("jetifier/" + module, new File(JETIFIER_LOCATION, module));
+        FileUtil.copyResourceToProject("jetifier/" + module, new File(jetifierCache.toFile(), module));
         rulesBuilder.add(
             new NativePrebuilt()
                 .prebuiltType(RuleType.PREBUILT_JAR.getProperties().get(0))
