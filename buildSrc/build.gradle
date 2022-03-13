@@ -3,7 +3,9 @@ import java.text.SimpleDateFormat
 buildscript {
     apply from: "../dependencies.gradle"
     repositories {
+        mavenLocal()
         gradlePluginPortal()
+        mavenLocal()
     }
     dependencies {
         classpath deps.build.bintrayPlugin
@@ -22,6 +24,7 @@ repositories {
     mavenCentral()
     google()
     gradlePluginPortal()
+    mavenLocal()
 }
 
 jar {

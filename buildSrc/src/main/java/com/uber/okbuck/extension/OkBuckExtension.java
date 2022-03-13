@@ -11,6 +11,9 @@ import javax.annotation.Nullable;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.Internal;
+import org.gradle.api.tasks.Nested;
+import org.gradle.api.tasks.Optional;
 
 @SuppressWarnings("unused")
 public class OkBuckExtension {
@@ -51,7 +54,7 @@ public class OkBuckExtension {
   @Input public Map<String, List<String>> testExclude = new HashMap<>();
 
   /** Set of projects to generate buck configs for. Default is all subprojects of root project. */
-  @Input public Set<Project> buckProjects;
+  @Internal public Set<Project> buckProjects;
 
   /** Name of the build file where generated build rules will be written. */
   @Input public String buildFileName = "BUCK";
@@ -93,6 +96,7 @@ public class OkBuckExtension {
 
   /** The prebuilt buck binary to use */
   @Input
+  @Optional
   public String buckBinary = DEFAULT_BUCK_BINARY_REPO + ":" + DEFAULT_BUCK_BINARY_SHA + "@pex";
 
   /** The prebuilt buck binary to use with java 11 */
@@ -100,19 +104,21 @@ public class OkBuckExtension {
   public String buckBinaryJava11 =
       DEFAULT_BUCK_BINARY_REPO + ":" + DEFAULT_BUCK_BINARY_SHA + ":java11@pex";
 
-  private WrapperExtension wrapperExtension = new WrapperExtension();
-  private KotlinExtension kotlinExtension;
-  private ScalaExtension scalaExtension = new ScalaExtension();
-  private IntellijExtension intellijExtension = new IntellijExtension();
+  @Internal private WrapperExtension wrapperExtension = new WrapperExtension();
+  @Internal private KotlinExtension kotlinExtension;
+  @Internal private ScalaExtension scalaExtension = new ScalaExtension();
+  @Internal private IntellijExtension intellijExtension = new IntellijExtension();
+  @Internal
   private ExperimentalExtension experimentalExtension = new ExperimentalExtension();
-  private TestExtension testExtension = new TestExtension();
-  private TransformExtension transformExtension = new TransformExtension();
-  private LintExtension lintExtension;
-  private JetifierExtension jetifierExtension;
+  @Internal private TestExtension testExtension = new TestExtension();
+  @Internal private TransformExtension transformExtension = new TransformExtension();
+  @Internal private LintExtension lintExtension;
+  @Internal private JetifierExtension jetifierExtension;
+  @Internal
   private ExternalDependenciesExtension externalDependenciesExtension =
       new ExternalDependenciesExtension();
-  private VisibilityExtension visibilityExtension = new VisibilityExtension();
-  private RuleOverridesExtension ruleOverridesExtension;
+  @Internal private VisibilityExtension visibilityExtension = new VisibilityExtension();
+  @Internal private RuleOverridesExtension ruleOverridesExtension;
 
   public OkBuckExtension(Project project) {
     buckProjects = project.getSubprojects();
@@ -220,5 +226,98 @@ public class OkBuckExtension {
 
   public boolean useResourceUnion() {
     return resourceUnionPackage != null || resourceUnion;
+  }
+
+  public Map<String, List<String>> getAnnotationProcessors() {
+    return annotationProcessors;
+  }
+
+  public String getBuildToolVersion() {
+    return buildToolVersion;
+  }
+
+  public String getTarget() {
+    return target;
+  }
+
+  public Map<String, Integer> getLinearAllocHardLimit() {
+    return linearAllocHardLimit;
+  }
+
+  public Map<String, List<String>> getPrimaryDexPatterns() {
+    return primaryDexPatterns;
+  }
+
+  public Map<String, Boolean> getExopackage() {
+    return exopackage;
+  }
+
+  public Map<String, File> getProguardMappingFile() {
+    return proguardMappingFile;
+  }
+
+  public Map<String, List<String>> getLintExclude() {
+    return lintExclude;
+  }
+
+  public Map<String, List<String>> getTestExclude() {
+    return testExclude;
+  }
+
+  public String getBuildFileName() {
+    return buildFileName;
+  }
+
+  public boolean isOkBuckBuckConfig() {
+    return okBuckBuckConfig;
+  }
+
+  public Map<String, Map<String, Collection<String>>> getExtraBuckOpts() {
+    return extraBuckOpts;
+  }
+
+  public boolean isResourceUnion() {
+    return resourceUnion;
+  }
+
+  @Nullable
+  public String getResourceUnionPackage() {
+    return resourceUnionPackage;
+  }
+
+  public boolean isLibraryBuildConfig() {
+    return libraryBuildConfig;
+  }
+
+  public Set<String> getExcludeResources() {
+    return excludeResources;
+  }
+
+  public Map<String, List<String>> getAppLibDependencies() {
+    return appLibDependencies;
+  }
+
+  public Set<Project> getBuckProjects() {
+    return buckProjects;
+  }
+
+  public String getBuckBinary() {
+    return buckBinary;
+  }
+
+  public String getBuckBinaryJava11() {
+    return buckBinaryJava11;
+  }
+
+  public Map<String, Boolean> getExtraDepCachesMap() {
+    return extraDepCachesMap;
+  }
+
+  public boolean isFailOnChangingDependencies() {
+    return failOnChangingDependencies;
+  }
+
+  public boolean isLegacyAnnotationProcessorSupport() {
+    return legacyAnnotationProcessorSupport;
   }
 }
