@@ -17,7 +17,7 @@ def exclude = { dep, String... excludes  ->
 }
 
 def versions = [
-        androidPlugin      : "4.1.0",
+        androidPlugin      : "4.2.2",
         androidTools       : "27.1.0",
         autovalue          : "1.7.4",
         avro               : "1.10.1",

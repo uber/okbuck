@@ -13,6 +13,10 @@ android {
         // If app doesn"t specify dimensions, use missingDimensionStrategy
         // https://developer.android.com/studio/build/gradle-plugin-3-0-0-migration.html#resolve_matching_errors
         missingDimensionStrategy "tier", "free", "paid"
+
+        lintOptions {
+            checkReleaseBuilds false
+        }
     }
 
     flavorDimensions "default"
@@ -42,6 +46,8 @@ android {
         release {
             buildConfigField "boolean", "CAN_JUMP", "true"
             buildConfigField "boolean", "DEBUG_CONFIG", "false"
+            minifyEnabled true
+            proguardFiles "proguard-rules.pro"
         }
     }
 }

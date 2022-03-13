@@ -30,6 +30,7 @@ android {
 
     lintOptions {
         disable "HardcodedDebugMode"
+        checkReleaseBuilds false
     }
 }
 

@@ -133,6 +133,11 @@ class TransformInvocationBuilder {
     }
 
     @Override
+    public String getProjectName() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
     public String getVariantName() {
       throw new UnsupportedOperationException();
     }
