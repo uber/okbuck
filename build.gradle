@@ -1,7 +1,6 @@
 buildscript {
     apply from: rootProject.file("dependencies.gradle")
     repositories {
-        mavenLocal()
         google()
         maven { url "https://plugins.gradle.org/m2/" }
         mavenCentral()
@@ -27,7 +26,6 @@ allprojects {
 allprojects { project ->
     project.apply from: rootProject.file("dependencies.gradle")
     repositories {
-        mavenLocal()
         google()
         maven { url "https://plugins.gradle.org/m2/" }
         mavenCentral()
