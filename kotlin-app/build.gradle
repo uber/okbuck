@@ -41,6 +41,7 @@ dependencies {
     compileOnly deps.external.annotationApi
 
     kaptTest deps.apt.daggerCompiler
+    kaptTest deps.apt.daggerAndroidProcessor
 
     testCompileOnly deps.external.annotationApi
     androidTestCompileOnly deps.external.annotationApi
