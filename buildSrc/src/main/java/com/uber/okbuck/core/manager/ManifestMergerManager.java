@@ -70,14 +70,15 @@ public final class ManifestMergerManager {
   }
 
   public void finalizeDependencies(OkBuckExtension okBuckExtension) {
-    Path path =
-        rootProject.file(MANIFEST_MERGER_CACHE + "/" + okBuckExtension.buildFileName).toPath();
-    FileUtil.deleteQuietly(path);
+    Path manfistMergerCache = rootProject.file(MANIFEST_MERGER_CACHE).toPath();
+    FileUtil.deleteQuietly(manfistMergerCache);
 
     if (dependencies != null && dependencies.size() > 0) {
+      manfistMergerCache.toFile().mkdirs();
+
       FileUtil.copyResourceToProject(
           "manifest/" + MANIFEST_MERGER_CLI_JAR,
-          new File(MANIFEST_MERGER_CACHE, MANIFEST_MERGER_CLI_JAR));
+          new File(manfistMergerCache.toFile(), MANIFEST_MERGER_CLI_JAR));
 
       Set<String> deps = BuckRuleComposer.external(dependencies);
       deps.add(":" + MANIFEST_MERGER_CLI_RULE_NAME);
@@ -97,7 +98,8 @@ public final class ManifestMergerManager {
                   .ruleType(RuleType.PREBUILT_JAR.getBuckName())
                   .name(MANIFEST_MERGER_CLI_RULE_NAME));
 
-      buckFileManager.writeToBuckFile(rules, path.toFile());
+      buckFileManager.writeToBuckFile(rules,
+          new File(manfistMergerCache.toFile(), okBuckExtension.buildFileName));
     }
   }
 }
