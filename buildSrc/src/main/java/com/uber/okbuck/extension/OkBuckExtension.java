@@ -72,7 +72,7 @@ public class OkBuckExtension {
   @Input public boolean resourceUnion;
 
   /** Set to use buck's resource_union behavior with an specific package name */
-  @Nullable @Input public String resourceUnionPackage;
+  @Nullable @Optional @Input public String resourceUnionPackage;
 
   /** Whether to generate android_build_config rules for library projects */
   @Input public boolean libraryBuildConfig = true;
