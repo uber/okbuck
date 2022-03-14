@@ -13,6 +13,13 @@ public class TestExtension {
    */
   @Nullable public Set<String> robolectricApis = null;
 
+  /**
+   * Specify the preinstrumented version of artifacts to be used.
+   * Hardcoded in Robolectric
+   * https://github.com/robolectric/robolectric/blob/master/robolectric/src/main/java/org/robolectric/plugins/DefaultSdkProvider.java#L50
+   */
+  public String robolectricPreinstrumentedVersion = "i3";
+
   /** Enable generation of espresso test rules. */
   public boolean espresso = false;
 
