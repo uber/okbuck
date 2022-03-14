@@ -58,7 +58,6 @@ dependencies {
     implementation deps.build.rockerRuntime
     implementation deps.external.guava
     implementation deps.external.gson
-    implementation deps.lint.lintGradle
 
     testImplementation deps.test.junit
 }

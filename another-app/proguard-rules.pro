@@ -3,6 +3,9 @@
 # removes such information by default, so configure it to keep all of it.
 -keepattributes Signature
 
+#Required from R8 in newer versions of Gradle
+-keepattributes EnclosingMethod
+
 # For using GSON @Expose annotation
 -keepattributes *Annotation*
 

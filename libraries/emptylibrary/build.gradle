@@ -4,6 +4,11 @@ android {
     lintOptions {
         disable "HardcodedDebugMode"
     }
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
 }
 
 dependencies {
