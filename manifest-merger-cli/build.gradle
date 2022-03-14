@@ -22,6 +22,7 @@ mainClassName = "com.uber.okbuck.manifmerger.ManifestMergerCli"
 
 dependencies {
     compileOnly deps.build.manifestMerger
+    compileOnly deps.build.androidCommon
 }
 
 File copyTo = project(pluginProjectPath).file("src/main/resources/com/uber/okbuck/core/util/manifest/")

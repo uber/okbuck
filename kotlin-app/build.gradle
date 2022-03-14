@@ -13,10 +13,6 @@ android {
     }
 
     flavorDimensions "default"
-
-    lintOptions {
-        checkReleaseBuilds false
-    }
 }
 
 tasks.withType(KotlinCompile).all {
