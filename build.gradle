@@ -37,6 +37,8 @@ allprojects { project ->
             force deps.build.commonsCompress
             force deps.build.httpclient
             force deps.external.guava
+            force deps.external.jna
+            force deps.external.jnaPlatform
         }
     }
     apply plugin: "com.github.ben-manes.versions"

@@ -43,6 +43,7 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository;
 import org.gradle.api.specs.Specs;
+import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
@@ -123,43 +124,58 @@ public class OkBuckTask extends DefaultTask {
   }
 
   @Override
+  @Internal
   public String getGroup() {
     return OkBuckGradlePlugin.GROUP;
   }
 
   @Override
+  @Internal
   public String getDescription() {
     return "Okbuck task for the root project. Also sets up groovy and kotlin if required.";
   }
 
   @OutputFile
-  public File okbuckTargets() {
+  public File getOkbuckTargets() {
     return getProject().file(OKBUCK_TARGETS_FILE);
   }
 
   @OutputFile
-  public File okbuckPrebuilt() {
+  public File getOkbuckPrebuilt() {
     return getProject().file(OKBUCK_PREBUILT_FILE);
   }
 
   @OutputFile
-  public File okbuckPrebuiltBuildFile() {
+  public File getOkbuckPrebuiltBuildFile() {
     return getProject().file(OKBUCK_PREBUILT_FOLDER + "/" + okBuckExtension.buildFileName);
   }
 
   @OutputFile
-  public File okbuckAndroidModules() {
+  public File getOkbuckAndroidModules() {
     return getProject().file(OKBUCK_ANDROID_MODULES_FILE);
   }
 
   @OutputFile
-  public File dotBuckConfig() {
+  public File getDotBuckConfig() {
     return getProject().file(".buckconfig");
   }
 
   @OutputFile
-  public File okbuckBuckConfig() {
+  public File getOkbuckBuckConfig() {
     return getProject().file(OkBuckGradlePlugin.OKBUCK_CONFIG + "/okbuck.buckconfig");
+  }
+
+
+  public OkBuckExtension getOkBuckExtension() {
+    return okBuckExtension;
+  }
+
+  public KotlinExtension getKotlinExtension() {
+    return kotlinExtension;
+  }
+
+  public ScalaExtension getScalaExtension() {
+    return scalaExtension;
   }
 
   @SuppressWarnings("NullAway")
@@ -171,7 +187,7 @@ public class OkBuckTask extends DefaultTask {
       @Nullable String scalaLibrary) {
     // generate empty .buckconfig if it does not exist
     try {
-      dotBuckConfig().createNewFile();
+      getDotBuckConfig().createNewFile();
     } catch (IOException e) {
       throw new IllegalStateException(e);
     }
@@ -195,7 +211,7 @@ public class OkBuckTask extends DefaultTask {
         .externalDependencyCache(okbuckExt.getExternalDependenciesExtension().getCache())
         .classpathExclusionRegex(okbuckExt.getLintExtension().classpathExclusionRegex)
         .useCompilationClasspath(okbuckExt.getLintExtension().useCompilationClasspath)
-        .render(okbuckTargets());
+        .render(getOkbuckTargets());
 
     // Setup okbuck_prebuilt.bzl
     Multimap<String, String> prebuiltLoadStatements = TreeMultimap.create();
@@ -221,10 +237,10 @@ public class OkBuckTask extends DefaultTask {
     }
 
     buckFileManager.writeToBuckFile(
-        ImmutableList.of(okbuckPrebuiltRule), okbuckPrebuilt(), prebuiltLoadStatements);
+        ImmutableList.of(okbuckPrebuiltRule), getOkbuckPrebuilt(), prebuiltLoadStatements);
 
     // Ensure that a build file is present where bzl files are
-    buckFileManager.writeToBuckFile("", okbuckPrebuiltBuildFile(), false);
+    buckFileManager.writeToBuckFile("", getOkbuckPrebuiltBuildFile(), false);
 
     // Setup okbuck_android_modules.bzl
     Multimap<String, String> unifiedLibsLoadStatements = TreeMultimap.create();
@@ -256,7 +272,7 @@ public class OkBuckTask extends DefaultTask {
                     : "native." + RuleType.ANDROID_RESOURCE.getBuckName());
 
     buckFileManager.writeToBuckFile(
-        ImmutableList.of(okbuckAndroidModules), okbuckAndroidModules(), unifiedLibsLoadStatements);
+        ImmutableList.of(okbuckAndroidModules), getOkbuckAndroidModules(), unifiedLibsLoadStatements);
 
     // generate .buckconfig.okbuck
     OkbuckBuckConfigGenerator.generate(
@@ -271,18 +287,18 @@ public class OkBuckTask extends DefaultTask {
                     && okBuckExtension
                         .getExternalDependenciesExtension()
                         .getGenerateMavenRepositories()))
-        .render(okbuckBuckConfig());
+        .render(getOkbuckBuckConfig());
 
     if (okbuckExt.okBuckBuckConfig) {
       // Add entry of OkBuckBuckConfig to DotBuckConfig
       String entry =
           String.format(
-              "<file:%s>", FileUtil.getRelativePath(getProject().getRootDir(), okbuckBuckConfig()));
+              "<file:%s>", FileUtil.getRelativePath(getProject().getRootDir(), getOkbuckBuckConfig()));
 
-      @Var String dotBuckContent = FileUtil.readString(dotBuckConfig());
+      @Var String dotBuckContent = FileUtil.readString(getDotBuckConfig());
       if (!dotBuckContent.contains(entry)) {
         dotBuckContent = entry + "\n\n" + dotBuckContent;
-        FileUtil.writeString(dotBuckConfig(), dotBuckContent);
+        FileUtil.writeString(getDotBuckConfig(), dotBuckContent);
       }
     }
   }

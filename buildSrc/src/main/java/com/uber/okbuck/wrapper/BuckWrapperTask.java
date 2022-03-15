@@ -15,6 +15,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.TaskAction;
 
 @SuppressWarnings({"WeakerAccess", "CanBeFinal", "unused", "ResultOfMethodCallIgnored", "NewApi"})
@@ -57,11 +58,13 @@ public class BuckWrapperTask extends DefaultTask {
   }
 
   @Override
+  @Internal
   public String getDescription() {
     return "Create buck wrapper";
   }
 
   @Override
+  @Internal
   public String getGroup() {
     return OkBuckGradlePlugin.GROUP;
   }
@@ -126,5 +129,21 @@ public class BuckWrapperTask extends DefaultTask {
     return Stream.of(suffixExprs, nameExpr, matchExprs)
         .filter(StringUtils::isNotEmpty)
         .collect(Collectors.joining(",\n"));
+  }
+
+  public String getRepo() {
+    return repo;
+  }
+
+  public Set<String> getWatch() {
+    return watch;
+  }
+
+  public Set<String> getSourceRoots() {
+    return sourceRoots;
+  }
+
+  public Set<String> getIgnoredDirs() {
+    return ignoredDirs;
   }
 }
