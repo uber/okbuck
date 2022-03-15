@@ -27,8 +27,5 @@ jobs:
       - name: Run ${{ matrix.build_cmd }}
         run: ./tooling/ci/build_cmd.sh ${{ matrix.build_cmd }}
       - name: Upload snapshot
-        run: ./gradlew publish --no-daemon --no-parallel -PSONATYPE_NEXUS_USERNAME="$SONATYPE_NEXUS_USERNAME" -PSONATYPE_NEXUS_PASSWORD="$SONATYPE_NEXUS_PASSWORD" && ./gradlew closeAndReleaseRepository
-        env:
-          SONATYPE_NEXUS_USERNAME: ${{ secrets.SonatypeUsername }}
-          SONATYPE_NEXUS_PASSWORD: ${{ secrets.SonatypePassword }}
-        if: success() && github.ref == 'refs/heads/master' && github.event_name != 'pull_request' && matrix.java_version == '8'
+        run: ./gradlew publish -PmavenCentralUsername="${{ secrets.SonatypeUsername }}" -PmavenCentralPassword="${{ secrets.SonatypePassword }}"
+        if: success() && github.ref == 'refs/heads/master' && github.event_name != 'pull_request' && matrix.java_version == '11'
