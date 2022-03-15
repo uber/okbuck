@@ -26,3 +26,6 @@ jobs:
           java-version: 11
       - name: Run ${{ matrix.build_cmd }}
         run: ./tooling/ci/build_cmd.sh ${{ matrix.build_cmd }}
+      - name: Upload snapshot
+        run: ./gradlew publish -PmavenCentralUsername="${{ secrets.SonatypeUsername }}" -PmavenCentralPassword="${{ secrets.SonatypePassword }}"
+        if: success() && github.ref == 'refs/heads/master' && github.event_name != 'pull_request' && matrix.java_version == '11'

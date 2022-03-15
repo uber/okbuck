@@ -6,7 +6,7 @@ buildscript {
         gradlePluginPortal()
     }
     dependencies {
-        classpath deps.build.bintrayPlugin
+        classpath deps.build.gradleMavenPublish
         classpath deps.build.errorpronePlugin
         classpath deps.build.rockerPlugin
     }
@@ -15,7 +15,7 @@ buildscript {
 apply plugin: "com.fizzed.rocker"
 apply plugin: "net.ltgt.errorprone"
 
-apply from: '../gradle/gradle-mvn-push.gradle'
+apply plugin: "com.vanniktech.maven.publish"
 apply from: "../dependencies.gradle"
 
 repositories {
