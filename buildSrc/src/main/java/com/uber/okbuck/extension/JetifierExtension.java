@@ -13,7 +13,7 @@ import org.gradle.api.Project;
 
 public class JetifierExtension {
 
-  public static final String DEFAULT_JETIFIER_VERSION = "1.0.0-beta02";
+  public static final String DEFAULT_JETIFIER_VERSION = "1.0.0-beta03";
 
   /**
    * This is the mandatory dependencies to be excluded from being jetified, as the jetifier rule
