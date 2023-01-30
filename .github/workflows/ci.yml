@@ -24,6 +24,8 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11
+      - name: Build OkBuck
+        run: ./gradlew okbuck -Dokbuck.wrapper=true --stacktrace
       - name: Run ${{ matrix.build_cmd }}
         run: ./tooling/ci/build_cmd.sh ${{ matrix.build_cmd }}
       - name: Upload snapshot
