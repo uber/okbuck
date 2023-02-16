@@ -104,8 +104,6 @@ public class DependencyManager {
       return;
     }
 
-    dependencyExporter.export(rawDependencies);
-
     Map<String, List<ExternalDependency>> rawDepsMap =
         rawDependencies
             .stream()
@@ -153,6 +151,8 @@ public class DependencyManager {
   }
 
   public void finalizeDependencies(OkBuckExtension okBuckExtension) {
+    dependencyExporter.export(rawDependencies);
+
     Map<VersionlessDependency, Collection<OExternalDependency>> filteredDependencyMap =
         filterDependencies();
 

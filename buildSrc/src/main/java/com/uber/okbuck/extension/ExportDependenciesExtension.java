@@ -7,14 +7,10 @@ import org.gradle.api.tasks.Optional;
 import java.nio.file.Paths;
 
 public class ExportDependenciesExtension {
+  @Input private boolean enabled = false;
+  @Input @Optional private String file = ".okbuck/raw-deps";
 
-  @Input private final boolean enabled = false;
-
-  @Input
-  @Optional
-  private final String file = ".okbuck/raw-deps";
-
-  private String projectRoot = "";
+  private final String projectRoot;
 
   public ExportDependenciesExtension(Project project) {
     projectRoot = project.getProjectDir().getAbsolutePath();

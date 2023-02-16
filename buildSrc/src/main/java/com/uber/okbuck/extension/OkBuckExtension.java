@@ -1,19 +1,19 @@
 package com.uber.okbuck.extension;
 
+import org.gradle.api.Action;
+import org.gradle.api.Project;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.Internal;
+import org.gradle.api.tasks.Optional;
+
+import javax.annotation.Nullable;
 import java.io.File;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.annotation.Nullable;
-import org.gradle.api.Action;
-import org.gradle.api.Project;
-import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.Internal;
-import org.gradle.api.tasks.Optional;
 
 @SuppressWarnings("unused")
 public class OkBuckExtension {
@@ -95,8 +95,7 @@ public class OkBuckExtension {
   @Input public boolean legacyAnnotationProcessorSupport = true;
 
   /** The prebuilt buck binary to use */
-  @Input
-  @Optional
+  @Input @Optional
   public String buckBinary = DEFAULT_BUCK_BINARY_REPO + ":" + DEFAULT_BUCK_BINARY_SHA + "@pex";
 
   /** The prebuilt buck binary to use with java 11 */
@@ -104,27 +103,26 @@ public class OkBuckExtension {
   public String buckBinaryJava11 =
       DEFAULT_BUCK_BINARY_REPO + ":" + DEFAULT_BUCK_BINARY_SHA + ":java11@pex";
 
-  @Internal private Project project;
-  @Internal private WrapperExtension wrapperExtension = new WrapperExtension();
-  @Internal private KotlinExtension kotlinExtension;
-  @Internal private ScalaExtension scalaExtension = new ScalaExtension();
-  @Internal private IntellijExtension intellijExtension = new IntellijExtension();
-  @Internal
-  private ExperimentalExtension experimentalExtension = new ExperimentalExtension();
-  @Internal private TestExtension testExtension = new TestExtension();
-  @Internal private TransformExtension transformExtension = new TransformExtension();
-  @Internal private LintExtension lintExtension;
-  @Internal private JetifierExtension jetifierExtension;
-  @Internal
-  private ExternalDependenciesExtension externalDependenciesExtension =
-      new ExternalDependenciesExtension();
-  @Internal private VisibilityExtension visibilityExtension = new VisibilityExtension();
-  @Internal private RuleOverridesExtension ruleOverridesExtension;
+  @Internal private final WrapperExtension wrapperExtension = new WrapperExtension();
+  @Internal private final KotlinExtension kotlinExtension;
+  @Internal private final ScalaExtension scalaExtension = new ScalaExtension();
+  @Internal private final IntellijExtension intellijExtension = new IntellijExtension();
+  @Internal private final ExperimentalExtension experimentalExtension = new ExperimentalExtension();
+  @Internal private final TestExtension testExtension = new TestExtension();
+  @Internal private final TransformExtension transformExtension = new TransformExtension();
+  @Internal private final LintExtension lintExtension;
+  @Internal private final JetifierExtension jetifierExtension;
 
-  @Internal private ExportDependenciesExtension exportDependenciesExtension;
+  @Internal
+  private final ExternalDependenciesExtension externalDependenciesExtension =
+      new ExternalDependenciesExtension();
+
+  @Internal private final VisibilityExtension visibilityExtension = new VisibilityExtension();
+  @Internal private final RuleOverridesExtension ruleOverridesExtension;
+
+  @Internal private final ExportDependenciesExtension exportDependenciesExtension;
 
   public OkBuckExtension(Project project) {
-    this.project = project;
     buckProjects = project.getSubprojects();
     kotlinExtension = new KotlinExtension(project);
     lintExtension = new LintExtension(project);

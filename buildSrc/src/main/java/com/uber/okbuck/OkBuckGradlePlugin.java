@@ -34,24 +34,21 @@ import com.uber.okbuck.generator.BuckFileGenerator;
 import com.uber.okbuck.template.common.ExportFile;
 import com.uber.okbuck.template.core.Rule;
 import com.uber.okbuck.wrapper.BuckWrapperTask;
+import org.gradle.api.Plugin;
+import org.gradle.api.Project;
+import org.gradle.api.Task;
+import org.gradle.api.artifacts.Configuration;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import org.gradle.api.Plugin;
-import org.gradle.api.Project;
-import org.gradle.api.Task;
-import org.gradle.api.artifacts.Configuration;
-
-import javax.annotation.Nullable;
 
 // Dependency Tree
 //
@@ -162,7 +159,9 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
               new AnnotationProcessorCache(rootBuckProject, buckFileManager, processorBuildFile);
 
           // Create Dependency manager
-          dependencyManager = new DependencyManager(rootBuckProject, okbuckExt, buckFileManager, createDependencyExporter(okbuckExt));
+          dependencyManager =
+              new DependencyManager(
+                  rootBuckProject, okbuckExt, buckFileManager, createDependencyExporter(okbuckExt));
 
           // Create Lint Manager
           String lintBuildFile = LINT_BUILD_FOLDER + "/" + okbuckExt.buildFileName;
@@ -244,10 +243,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
                   wrapper.ignoredDirs);
 
           Map<String, Configuration> extraConfigurations =
-              okbuckExt
-                  .extraDepCachesMap
-                  .keySet()
-                  .stream()
+              okbuckExt.extraDepCachesMap.keySet().stream()
                   .collect(
                       Collectors.toMap(
                           Function.identity(),
@@ -321,9 +317,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
           rootOkBuckTask.dependsOn(okBuckClean);
 
           // Create okbuck task on each project to generate their buck file
-          okbuckExt
-              .buckProjects
-              .stream()
+          okbuckExt.buckProjects.stream()
               .filter(p -> p.getBuildFile().exists())
               .forEach(
                   bp -> {
@@ -344,9 +338,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
 
   private void writeExportedFileRules(Project rootBuckProject, OkBuckExtension okBuckExtension) {
     Set<String> currentProjectPaths =
-        okBuckExtension
-            .buckProjects
-            .stream()
+        okBuckExtension.buckProjects.stream()
             .filter(project -> ProjectUtil.getType(project) != ProjectType.UNKNOWN)
             .map(
                 project ->
@@ -375,9 +367,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
               .toFile();
       try (OutputStream os =
           new FileOutputStream(buckFile, currentProjectPaths.contains(entry.getKey()))) {
-        entry
-            .getValue()
-            .stream()
+        entry.getValue().stream()
             .sorted((rule1, rule2) -> rule1.name().compareToIgnoreCase(rule2.name()))
             .forEach(rule -> rule.render(os));
       } catch (IOException e) {
@@ -386,7 +376,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
     }
   }
 
-  private static DependencyExporter createDependencyExporter(OkBuckExtension okbuckExt){
+  private static DependencyExporter createDependencyExporter(OkBuckExtension okbuckExt) {
     return new JsonDependencyExporter(okbuckExt.getExportDependenciesExtension());
   }
 }

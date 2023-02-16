@@ -10,36 +10,39 @@ import java.util.stream.Collectors;
 
 public class DependencyExporterModel {
 
-  @Nullable
-  private final String name;
-  @Nullable
-  private final String version;
-  @Nullable
-  private final String group;
+  @Nullable private final String name;
+  @Nullable private final String version;
+  @Nullable private final String group;
   private final boolean force;
-  @Nullable
-  private Set<String> excludeRules = new TreeSet<>();
-  private final boolean transitive;
+  @Nullable private Set<String> excludeRules = new TreeSet<>();
 
   public DependencyExporterModel(ExternalDependency externalDependency) {
     name = externalDependency.getName();
     version = externalDependency.getVersion();
     group = externalDependency.getGroup();
     force = externalDependency.isForce();
-    transitive = externalDependency.isTransitive();
 
     if (externalDependency.getExcludeRules() != null) {
-      excludeRules = externalDependency.getExcludeRules().stream().flatMap(e -> {
-        Set<String> set = new TreeSet<>();
-        if (StringUtils.isNotBlank(e.getGroup()) && StringUtils.isNotBlank(e.getModule())) {
-          set.add(String.format("%s:%s", e.getGroup(), e.getModule()));
-        } else if (StringUtils.isNotBlank(e.getGroup())) {
-          set.add(e.getGroup());
-        } else if (StringUtils.isNotBlank(e.getModule())) {
-          set.add(e.getModule());
-        }
-        return set.stream();
-      }).collect(Collectors.toSet());
+      excludeRules =
+          externalDependency.getExcludeRules()
+              .stream()
+              .map(
+                  e -> {
+                    if (StringUtils.isNotBlank(e.getGroup())
+                        && StringUtils.isNotBlank(e.getModule())) {
+                      return String.format("%s:%s", e.getGroup(), e.getModule());
+                    }
+
+                    if (StringUtils.isNotBlank(e.getGroup())) {
+                      return e.getGroup();
+                    }
+
+                    if (StringUtils.isNotBlank(e.getModule())) {
+                      return e.getModule();
+                    }
+                    return null;
+                  })
+              .collect(Collectors.toSet());
     }
   }
 
@@ -65,9 +68,5 @@ public class DependencyExporterModel {
   @Nullable
   public Set<String> getExcludeRules() {
     return excludeRules;
-  }
-
-  public boolean isTransitive() {
-    return transitive;
   }
 }
