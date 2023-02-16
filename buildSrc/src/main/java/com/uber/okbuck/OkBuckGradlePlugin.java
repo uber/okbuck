@@ -5,6 +5,8 @@ import com.google.common.collect.Sets;
 import com.uber.okbuck.core.annotation.AnnotationProcessorCache;
 import com.uber.okbuck.core.dependency.DependencyCache;
 import com.uber.okbuck.core.dependency.DependencyFactory;
+import com.uber.okbuck.core.dependency.exporter.DependencyExporter;
+import com.uber.okbuck.core.dependency.exporter.JsonDependencyExporter;
 import com.uber.okbuck.core.manager.BuckFileManager;
 import com.uber.okbuck.core.manager.BuckManager;
 import com.uber.okbuck.core.manager.D8Manager;
@@ -36,16 +38,20 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
+
+import javax.annotation.Nullable;
 
 // Dependency Tree
 //
@@ -156,7 +162,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
               new AnnotationProcessorCache(rootBuckProject, buckFileManager, processorBuildFile);
 
           // Create Dependency manager
-          dependencyManager = new DependencyManager(rootBuckProject, okbuckExt, buckFileManager);
+          dependencyManager = new DependencyManager(rootBuckProject, okbuckExt, buckFileManager, createDependencyExporter(rootBuckProject));
 
           // Create Lint Manager
           String lintBuildFile = LINT_BUILD_FOLDER + "/" + okbuckExt.buildFileName;
@@ -378,5 +384,14 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
         throw new IllegalStateException(e);
       }
     }
+  }
+
+  @Nullable
+  private static DependencyExporter createDependencyExporter(Project project){
+    boolean exportDependencies = ProjectUtil.getPropertyAsBoolean(project,"exportDependencies");
+    String exportDependenciesFile = ProjectUtil.getPropertyAsString(project, "exportDependenciesFile",
+        DOT_OKBUCK + "/raw-deps");
+
+    return new JsonDependencyExporter(Paths.get(project.getRootDir().getAbsolutePath(), exportDependenciesFile).toString(), exportDependencies);
   }
 }
