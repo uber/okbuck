@@ -162,7 +162,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
               new AnnotationProcessorCache(rootBuckProject, buckFileManager, processorBuildFile);
 
           // Create Dependency manager
-          dependencyManager = new DependencyManager(rootBuckProject, okbuckExt, buckFileManager, createDependencyExporter(rootBuckProject));
+          dependencyManager = new DependencyManager(rootBuckProject, okbuckExt, buckFileManager, createDependencyExporter(okbuckExt));
 
           // Create Lint Manager
           String lintBuildFile = LINT_BUILD_FOLDER + "/" + okbuckExt.buildFileName;
@@ -386,12 +386,7 @@ public class OkBuckGradlePlugin implements Plugin<Project> {
     }
   }
 
-  @Nullable
-  private static DependencyExporter createDependencyExporter(Project project){
-    boolean exportDependencies = ProjectUtil.getPropertyAsBoolean(project,"exportDependencies");
-    String exportDependenciesFile = ProjectUtil.getPropertyAsString(project, "exportDependenciesFile",
-        DOT_OKBUCK + "/raw-deps");
-
-    return new JsonDependencyExporter(Paths.get(project.getRootDir().getAbsolutePath(), exportDependenciesFile).toString(), exportDependencies);
+  private static DependencyExporter createDependencyExporter(OkBuckExtension okbuckExt){
+    return new JsonDependencyExporter(okbuckExt.getExportDependenciesExtension());
   }
 }

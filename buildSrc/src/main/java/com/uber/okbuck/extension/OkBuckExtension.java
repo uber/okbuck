@@ -1,6 +1,7 @@
 package com.uber.okbuck.extension;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,7 +13,6 @@ import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Internal;
-import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.Optional;
 
 @SuppressWarnings("unused")
@@ -104,6 +104,7 @@ public class OkBuckExtension {
   public String buckBinaryJava11 =
       DEFAULT_BUCK_BINARY_REPO + ":" + DEFAULT_BUCK_BINARY_SHA + ":java11@pex";
 
+  @Internal private Project project;
   @Internal private WrapperExtension wrapperExtension = new WrapperExtension();
   @Internal private KotlinExtension kotlinExtension;
   @Internal private ScalaExtension scalaExtension = new ScalaExtension();
@@ -120,12 +121,16 @@ public class OkBuckExtension {
   @Internal private VisibilityExtension visibilityExtension = new VisibilityExtension();
   @Internal private RuleOverridesExtension ruleOverridesExtension;
 
+  @Internal private ExportDependenciesExtension exportDependenciesExtension;
+
   public OkBuckExtension(Project project) {
+    this.project = project;
     buckProjects = project.getSubprojects();
     kotlinExtension = new KotlinExtension(project);
     lintExtension = new LintExtension(project);
     jetifierExtension = new JetifierExtension(project);
     ruleOverridesExtension = new RuleOverridesExtension(project);
+    exportDependenciesExtension = new ExportDependenciesExtension(project);
   }
 
   public void wrapper(Action<WrapperExtension> container) {
@@ -319,5 +324,13 @@ public class OkBuckExtension {
 
   public boolean isLegacyAnnotationProcessorSupport() {
     return legacyAnnotationProcessorSupport;
+  }
+
+  public void exportDependencies(Action<ExportDependenciesExtension> container) {
+    container.execute(exportDependenciesExtension);
+  }
+
+  public ExportDependenciesExtension getExportDependenciesExtension() {
+    return exportDependenciesExtension;
   }
 }

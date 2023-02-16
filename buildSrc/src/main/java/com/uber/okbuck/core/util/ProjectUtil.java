@@ -224,19 +224,4 @@ public final class ProjectUtil {
         && ImmutableList.of(JAR, AAR)
             .contains(FilenameUtils.getExtension(dependencyFile.getName()));
   }
-
-  public static boolean getPropertyAsBoolean(Project project, String propertyName){
-    if(project.hasProperty(propertyName)){
-      return Boolean.parseBoolean((String)project.getProperties().get(propertyName));
-    }
-    return false;
-  }
-
-  @Nullable
-  public static String getPropertyAsString(Project project, String propertyName, String defaultValue){
-    if(project.hasProperty(propertyName)){
-      return (String)project.getProperties().get(propertyName);
-    }
-    return defaultValue;
-  }
 }

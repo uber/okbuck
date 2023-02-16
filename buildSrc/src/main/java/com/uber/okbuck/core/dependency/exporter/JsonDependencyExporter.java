@@ -2,6 +2,7 @@ package com.uber.okbuck.core.dependency.exporter;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.uber.okbuck.extension.ExportDependenciesExtension;
 import org.gradle.api.artifacts.ExternalDependency;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,17 +18,15 @@ public class JsonDependencyExporter implements DependencyExporter {
 
   private static final Logger LOG = LoggerFactory.getLogger(JsonDependencyExporter.class);
 
-  private final String filePath;
-  private final boolean enable;
+  private final ExportDependenciesExtension exportDependenciesExtension;
 
-  public JsonDependencyExporter(String filePath, boolean enable) {
-    this.filePath = filePath;
-    this.enable = enable;
+  public JsonDependencyExporter(ExportDependenciesExtension exportDependenciesExtension) {
+    this.exportDependenciesExtension = exportDependenciesExtension;
   }
 
   @Override
   public void export(Set<ExternalDependency> dependencies) {
-    if (!enable) {
+    if (!exportDependenciesExtension.isEnabled()) {
       LOG.info("Exporting dependencies is disabled");
       return;
     }
@@ -38,8 +37,9 @@ public class JsonDependencyExporter implements DependencyExporter {
 
     Gson gson = new GsonBuilder().setPrettyPrinting().create();
     try {
-      LOG.info("Exporting dependencies to JSON at " + Paths.get(filePath).toAbsolutePath());
-      gson.toJson(dependencyModels, Files.newBufferedWriter(Paths.get(filePath), StandardCharsets.UTF_8));
+      LOG.info("Exporting dependencies to JSON at " + exportDependenciesExtension.getFile());
+      gson.toJson(dependencyModels,
+          Files.newBufferedWriter(Paths.get(exportDependenciesExtension.getFile()), StandardCharsets.UTF_8));
     } catch (IOException e) {
       throw new ExporterException(e);
     }

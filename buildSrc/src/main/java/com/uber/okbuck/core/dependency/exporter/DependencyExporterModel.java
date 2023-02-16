@@ -1,11 +1,12 @@
 package com.uber.okbuck.core.dependency.exporter;
 
-import org.gradle.api.artifacts.ExcludeRule;
+import org.codehaus.plexus.util.StringUtils;
 import org.gradle.api.artifacts.ExternalDependency;
 
 import javax.annotation.Nullable;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 public class DependencyExporterModel {
 
@@ -17,7 +18,7 @@ public class DependencyExporterModel {
   private final String group;
   private final boolean force;
   @Nullable
-  private final Set<String> excludeRules;
+  private Set<String> excludeRules = new TreeSet<>();
   private final boolean transitive;
 
   public DependencyExporterModel(ExternalDependency externalDependency) {
@@ -27,17 +28,18 @@ public class DependencyExporterModel {
     force = externalDependency.isForce();
     transitive = externalDependency.isTransitive();
 
-    excludeRules = new TreeSet<>();
-
     if (externalDependency.getExcludeRules() != null) {
-      for (ExcludeRule excludeRule : externalDependency.getExcludeRules()) {
-        if (excludeRule.getGroup() != null) {
-          excludeRules.add(excludeRule.getGroup());
+      excludeRules = externalDependency.getExcludeRules().stream().flatMap(e -> {
+        Set<String> set = new TreeSet<>();
+        if (StringUtils.isNotBlank(e.getGroup()) && StringUtils.isNotBlank(e.getModule())) {
+          set.add(String.format("%s:%s", e.getGroup(), e.getModule()));
+        } else if (StringUtils.isNotBlank(e.getGroup())) {
+          set.add(e.getGroup());
+        } else if (StringUtils.isNotBlank(e.getModule())) {
+          set.add(e.getModule());
         }
-        if (excludeRule.getModule() != null) {
-          excludeRules.add(excludeRule.getModule());
-        }
-      }
+        return set.stream();
+      }).collect(Collectors.toSet());
     }
   }
 
