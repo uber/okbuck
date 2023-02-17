@@ -1,8 +1,5 @@
 package com.uber.okbuck.core.manager;
 
-import static com.uber.okbuck.core.dependency.OResolvedDependency.AAR;
-import static com.uber.okbuck.core.dependency.OResolvedDependency.JAR;
-
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -21,6 +18,7 @@ import com.uber.okbuck.core.dependency.DependencyUtils;
 import com.uber.okbuck.core.dependency.LocalOExternalDependency;
 import com.uber.okbuck.core.dependency.OExternalDependency;
 import com.uber.okbuck.core.dependency.VersionlessDependency;
+import com.uber.okbuck.core.dependency.exporter.DependencyExporter;
 import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectCache;
@@ -30,6 +28,14 @@ import com.uber.okbuck.extension.JetifierExtension;
 import com.uber.okbuck.extension.OkBuckExtension;
 import com.uber.okbuck.template.common.BazelFunctionRule;
 import com.uber.okbuck.template.core.Rule;
+import org.apache.commons.io.FileUtils;
+import org.gradle.api.Project;
+import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.artifacts.ExternalDependency;
+import org.gradle.api.artifacts.ResolvedConfiguration;
+import org.gradle.api.artifacts.ResolvedDependency;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -43,13 +49,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import org.apache.commons.io.FileUtils;
-import org.gradle.api.Project;
-import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.artifacts.Dependency;
-import org.gradle.api.artifacts.ExternalDependency;
-import org.gradle.api.artifacts.ResolvedConfiguration;
-import org.gradle.api.artifacts.ResolvedDependency;
+
+import static com.uber.okbuck.core.dependency.OResolvedDependency.AAR;
+import static com.uber.okbuck.core.dependency.OResolvedDependency.JAR;
 
 public class DependencyManager {
 
@@ -67,13 +69,17 @@ public class DependencyManager {
 
   private final HashMap<String, String> sha256Cache;
 
+  private final DependencyExporter dependencyExporter;
+
   public DependencyManager(
-      Project rootProject, OkBuckExtension okBuckExtension, BuckFileManager buckFileManager) {
+      Project rootProject, OkBuckExtension okBuckExtension, BuckFileManager buckFileManager,
+      DependencyExporter dependencyExporter) {
 
     this.project = rootProject;
     this.externalDependenciesExtension = okBuckExtension.getExternalDependenciesExtension();
     this.jetifierExtension = okBuckExtension.getJetifierExtension();
     this.buckFileManager = buckFileManager;
+    this.dependencyExporter = dependencyExporter;
     this.sha256Cache = initSha256Cache(rootProject, externalDependenciesExtension);
   }
 
@@ -145,6 +151,8 @@ public class DependencyManager {
   }
 
   public void finalizeDependencies(OkBuckExtension okBuckExtension) {
+    dependencyExporter.export(rawDependencies);
+
     Map<VersionlessDependency, Collection<OExternalDependency>> filteredDependencyMap =
         filterDependencies();
 
