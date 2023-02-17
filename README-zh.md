@@ -9,7 +9,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.uber:okbuck:0.52.4'
+        classpath 'com.uber:okbuck:0.53.1'
     }
 }
 
