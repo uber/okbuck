@@ -11,6 +11,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -23,6 +24,14 @@ public class JsonDependencyExporter implements DependencyExporter {
 
   public JsonDependencyExporter(ExportDependenciesExtension exportDependenciesExtension) {
     this.exportDependenciesExtension = exportDependenciesExtension;
+  }
+
+  private static void createParent(Path path){
+    try{
+      Files.createDirectories(path.getParent());
+    } catch (IOException e) {
+      throw new ExporterException(e);
+    }
   }
 
   @Override
@@ -38,10 +47,12 @@ public class JsonDependencyExporter implements DependencyExporter {
             .collect(Collectors.toSet());
 
     Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    String file = exportDependenciesExtension.getFile();
+    Path path = Paths.get(file);
+    createParent(path);
     try (BufferedWriter writer =
-        Files.newBufferedWriter(
-            Paths.get(exportDependenciesExtension.getFile()), StandardCharsets.UTF_8)) {
-      LOG.info("Exporting dependencies to JSON at " + exportDependenciesExtension.getFile());
+        Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
+      LOG.info("Exporting dependencies to JSON at " + file);
       gson.toJson(dependencyModels, writer);
     } catch (IOException e) {
       throw new ExporterException(e);
