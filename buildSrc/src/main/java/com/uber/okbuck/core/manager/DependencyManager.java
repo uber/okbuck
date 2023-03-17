@@ -1,5 +1,8 @@
 package com.uber.okbuck.core.manager;
 
+import static com.uber.okbuck.core.dependency.OResolvedDependency.AAR;
+import static com.uber.okbuck.core.dependency.OResolvedDependency.JAR;
+
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -28,14 +31,6 @@ import com.uber.okbuck.extension.JetifierExtension;
 import com.uber.okbuck.extension.OkBuckExtension;
 import com.uber.okbuck.template.common.BazelFunctionRule;
 import com.uber.okbuck.template.core.Rule;
-import org.apache.commons.io.FileUtils;
-import org.gradle.api.Project;
-import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.artifacts.Dependency;
-import org.gradle.api.artifacts.ExternalDependency;
-import org.gradle.api.artifacts.ResolvedConfiguration;
-import org.gradle.api.artifacts.ResolvedDependency;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -49,9 +44,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import static com.uber.okbuck.core.dependency.OResolvedDependency.AAR;
-import static com.uber.okbuck.core.dependency.OResolvedDependency.JAR;
+import org.gradle.api.Project;
+import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.artifacts.ExternalDependency;
+import org.gradle.api.artifacts.ResolvedConfiguration;
+import org.gradle.api.artifacts.ResolvedDependency;
 
 public class DependencyManager {
 
@@ -72,9 +70,10 @@ public class DependencyManager {
   private final DependencyExporter dependencyExporter;
 
   public DependencyManager(
-      Project rootProject, OkBuckExtension okBuckExtension, BuckFileManager buckFileManager,
+      Project rootProject,
+      OkBuckExtension okBuckExtension,
+      BuckFileManager buckFileManager,
       DependencyExporter dependencyExporter) {
-
     this.project = rootProject;
     this.externalDependenciesExtension = okBuckExtension.getExternalDependenciesExtension();
     this.jetifierExtension = okBuckExtension.getJetifierExtension();
@@ -390,17 +389,10 @@ public class DependencyManager {
       OkBuckExtension okBuckExtension) {
     Path rootPath = project.getRootDir().toPath();
     File cacheDir = rootPath.resolve(externalDependenciesExtension.getCache()).toFile();
-    if (cacheDir.exists()) {
-      try {
-        FileUtils.deleteDirectory(cacheDir);
-      } catch (IOException e) {
-        throw new IllegalStateException("Could not delete dependency directory: " + cacheDir, e);
-      }
-    }
-
-    if (!cacheDir.mkdirs()) {
-      throw new IllegalStateException("Couldn't create dependency directory: " + cacheDir);
-    }
+    FileUtil.deleteQuitelyAndCreate(
+        cacheDir,
+        externalDependenciesExtension.shouldCleanCacheDir(),
+        okBuckExtension.buildFileName);
 
     Map<Path, List<OExternalDependency>> groupToDependencyMap =
         dependencyMap

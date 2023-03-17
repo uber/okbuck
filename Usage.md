@@ -62,6 +62,11 @@ okbuck {
     experimental {
         transform = true
     }
+    
+    externalDependencies {
+        cache = "3rdparty/jvm"
+        cleanCacheDir = true
+    }
 }
 
 dependencies {
