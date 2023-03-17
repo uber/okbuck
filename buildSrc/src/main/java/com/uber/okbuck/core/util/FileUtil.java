@@ -169,10 +169,9 @@ public final class FileUtil {
           throw new IllegalStateException("Could not delete dependency directory: " + dir, e);
         }
       } else {
-        Collection<File> files = FileUtils.listFiles(dir, new NameFileFilter(fileName), null);
-        for (File file : files) {
-          FileUtils.deleteQuietly(file);
-        }
+        FileUtils.listFiles(dir, new NameFileFilter(fileName), null)
+            .parallelStream()
+            .forEach(FileUtils::deleteQuietly);
       }
     }
 
