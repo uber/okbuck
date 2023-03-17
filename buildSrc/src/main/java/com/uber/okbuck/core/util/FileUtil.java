@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.NameFileFilter;
+import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.gradle.api.Project;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -169,7 +170,7 @@ public final class FileUtil {
           throw new IllegalStateException("Could not delete dependency directory: " + dir, e);
         }
       } else {
-        FileUtils.listFiles(dir, new NameFileFilter(fileName), null)
+        FileUtils.listFiles(dir, new NameFileFilter(fileName), TrueFileFilter.INSTANCE)
             .parallelStream()
             .forEach(FileUtils::deleteQuietly);
       }
