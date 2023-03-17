@@ -22,6 +22,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.NameFileFilter;
+import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.gradle.api.Project;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -155,5 +157,27 @@ public final class FileUtil {
     gson.toJson(map, writer);
     writer.flush();
     writer.close();
+  }
+
+  public static void deleteQuitelyAndCreate(File dir, boolean deleteDir, String fileName) {
+
+    // Clean the dir, if it exists, based on deleteDir config
+    if (dir.exists()) {
+      if (deleteDir) {
+        try {
+          FileUtils.deleteDirectory(dir);
+        } catch (IOException e) {
+          throw new IllegalStateException("Could not delete dependency directory: " + dir, e);
+        }
+      } else {
+        FileUtils.listFiles(dir, new NameFileFilter(fileName), TrueFileFilter.INSTANCE)
+            .parallelStream()
+            .forEach(FileUtils::deleteQuietly);
+      }
+    }
+
+    if (!dir.exists() && !dir.mkdirs()) {
+      throw new IllegalStateException("Couldn't create dependency directory: " + dir);
+    }
   }
 }
