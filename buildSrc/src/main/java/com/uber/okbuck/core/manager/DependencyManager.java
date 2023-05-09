@@ -21,6 +21,7 @@ import com.uber.okbuck.core.dependency.DependencyUtils;
 import com.uber.okbuck.core.dependency.LocalOExternalDependency;
 import com.uber.okbuck.core.dependency.OExternalDependency;
 import com.uber.okbuck.core.dependency.VersionlessDependency;
+import com.uber.okbuck.core.dependency.exporter.DependencyExporter;
 import com.uber.okbuck.core.model.base.Scope;
 import com.uber.okbuck.core.util.FileUtil;
 import com.uber.okbuck.core.util.ProjectCache;
@@ -43,7 +44,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import org.apache.commons.io.FileUtils;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
@@ -67,13 +67,18 @@ public class DependencyManager {
 
   private final HashMap<String, String> sha256Cache;
 
-  public DependencyManager(
-      Project rootProject, OkBuckExtension okBuckExtension, BuckFileManager buckFileManager) {
+  private final DependencyExporter dependencyExporter;
 
+  public DependencyManager(
+      Project rootProject,
+      OkBuckExtension okBuckExtension,
+      BuckFileManager buckFileManager,
+      DependencyExporter dependencyExporter) {
     this.project = rootProject;
     this.externalDependenciesExtension = okBuckExtension.getExternalDependenciesExtension();
     this.jetifierExtension = okBuckExtension.getJetifierExtension();
     this.buckFileManager = buckFileManager;
+    this.dependencyExporter = dependencyExporter;
     this.sha256Cache = initSha256Cache(rootProject, externalDependenciesExtension);
   }
 
@@ -145,6 +150,8 @@ public class DependencyManager {
   }
 
   public void finalizeDependencies(OkBuckExtension okBuckExtension) {
+    dependencyExporter.export(rawDependencies);
+
     Map<VersionlessDependency, Collection<OExternalDependency>> filteredDependencyMap =
         filterDependencies();
 
@@ -382,17 +389,10 @@ public class DependencyManager {
       OkBuckExtension okBuckExtension) {
     Path rootPath = project.getRootDir().toPath();
     File cacheDir = rootPath.resolve(externalDependenciesExtension.getCache()).toFile();
-    if (cacheDir.exists()) {
-      try {
-        FileUtils.deleteDirectory(cacheDir);
-      } catch (IOException e) {
-        throw new IllegalStateException("Could not delete dependency directory: " + cacheDir, e);
-      }
-    }
-
-    if (!cacheDir.mkdirs()) {
-      throw new IllegalStateException("Couldn't create dependency directory: " + cacheDir);
-    }
+    FileUtil.deleteQuitelyAndCreate(
+        cacheDir,
+        externalDependenciesExtension.shouldCleanCacheDir(),
+        okBuckExtension.buildFileName);
 
     Map<Path, List<OExternalDependency>> groupToDependencyMap =
         dependencyMap
