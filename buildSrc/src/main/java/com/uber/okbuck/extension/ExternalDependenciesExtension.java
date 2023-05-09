@@ -16,6 +16,12 @@ public class ExternalDependenciesExtension {
   /** Specifies the folder where all external dependency rules gets generated. */
   @Input private String cache = ".okbuck/ext";
 
+  /**
+   * Specifies to delete the cache dir, before generating dependency rules If set to false, only
+   * deletes the existing dependency rules files.
+   */
+  @Input private boolean cleanCacheDir = true;
+
   /** Specifies whether the external dependencies should be downloaded by buck or not. */
   @Input private boolean downloadInBuck = true;
 
@@ -46,7 +52,8 @@ public class ExternalDependenciesExtension {
    * dependencies like robolectric runtime deps.
    */
   @Input
-  private List<String> allowAllVersions = Collections.singletonList("org.robolectric:android-all-instrumented");
+  private List<String> allowAllVersions =
+      Collections.singletonList("org.robolectric:android-all-instrumented");
 
   /**
    * Stores the dependency versions to be used for dynamic notations that have , or + in their
@@ -171,5 +178,9 @@ public class ExternalDependenciesExtension {
 
   public String getSha256Cache() {
     return sha256Cache;
+  }
+
+  public boolean shouldCleanCacheDir() {
+    return cleanCacheDir;
   }
 }
