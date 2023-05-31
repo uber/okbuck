@@ -6,7 +6,7 @@ if [ -z "$BUILD_CMD" ]; then
 	exit 1
 fi
 
-SKIP_OKBUCK= ./buckw --version
+export SKIP_OKBUCK=$(./buckw --version)
 
 echo "Running BUILD_CMD: $BUILD_CMD"
 
