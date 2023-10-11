@@ -151,11 +151,11 @@ def okbuck_lint(
 
     cmd += "export ANDROID_LINT_JARS=\"$PREBUILT_AAR_LINT_JARS{}\"; PROJECT_ROOT=`echo '{}' | sed 's|buck-out.*||'`; ".format(":".join([toLocation(custom_lint) for custom_lint in custom_lints]), toLocation(manifest))
 
-    cmd += "CP_FILE=`mktemp`; "
+    cmd += "CP_FILE=`mktemp --tmpdir=$TMP`; "
     if has_srcs:
         cmd += "ORIGINAL_CP_FILE=`sed 's/@@//' <<< $(@@@(classpathMacro) :src_{})`; ".format(variant)
 @if(classpathExclusionRegex != null) {
-        cmd += "TMP_CP_FILE=`mktemp`; "
+        cmd += "TMP_CP_FILE=`mktemp --tmpdir=$TMP`; "
         cmd += "tr ':' '\\n' < $ORIGINAL_CP_FILE | sed -e '/@classpathExclusionRegex/d' > $TMP_CP_FILE; tr '\\n' ':' < $TMP_CP_FILE > $CP_FILE; "
         cmd += "rm $TMP_CP_FILE; "
 } else {
