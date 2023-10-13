@@ -11,4 +11,7 @@
   just the existing dependency rules files
 
   ### Version 0.54.0
-* Stop using /tmp for Android Lint gen-rule and use buck-out/tmp instead
+* Stop using /tmp for Android Lint gen-rule and use buck-out tmp instead
+
+  ### Version 0.54.1
+* Clean up leftover tmp file for Android Lint genrule
