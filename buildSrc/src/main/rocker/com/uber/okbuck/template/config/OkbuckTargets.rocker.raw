@@ -187,7 +187,9 @@ def okbuck_lint(
     cmd += "--fullpath "
 
     cmd += "{} `dirname {}` >$LOGFILE 2>/dev/null; ".format(" ".join(lint_options), toLocation(manifest))
-    cmd += "rm $CP_FILE; "
+    
+    #Delete tmp file and tmp.bak file
+    cmd += "rm $CP_FILE*; "
 
     native.genrule(
         name = name,
