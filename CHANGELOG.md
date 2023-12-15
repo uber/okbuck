@@ -15,3 +15,7 @@
 
   ### Version 0.54.1
 * Clean up leftover tmp file for Android Lint genrule
+
+  ### Version 0.54.2
+* Signing certificate is invalid, replacement release with new signature.
+* No other code changes
