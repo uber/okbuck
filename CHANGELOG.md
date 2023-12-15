@@ -10,12 +10,15 @@
 * Add configuration cleanCacheDir to conditionally delete the cache directory or 
   just the existing dependency rules files
 
-  ### Version 0.54.0
+### Version 0.54.0
 * Stop using /tmp for Android Lint gen-rule and use buck-out tmp instead
 
-  ### Version 0.54.1
+### Version 0.54.1
 * Clean up leftover tmp file for Android Lint genrule
 
-  ### Version 0.54.2
+### Version 0.54.2
 * Signing certificate is invalid, replacement release with new signature.
 * No other code changes
+
+### Version 0.54.3
+* Added support for Android API 32, 33, and 34
