@@ -15,3 +15,6 @@
 
   ### Version 0.54.1
 * Clean up leftover tmp file for Android Lint genrule
+
+  ### Version 0.54.2
+* Added support for Android API 32, 33, and 34
