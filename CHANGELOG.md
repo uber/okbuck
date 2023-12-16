@@ -22,4 +22,3 @@
 
 ### Version 0.54.3
 * Added support for Android API 32, 33, and 34
-
