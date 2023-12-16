@@ -18,7 +18,7 @@ public class TestExtension {
    * Hardcoded in Robolectric
    * https://github.com/robolectric/robolectric/blob/master/robolectric/src/main/java/org/robolectric/plugins/DefaultSdkProvider.java#L50
    */
-  public String robolectricPreinstrumentedVersion = "i4";
+  public String robolectricPreinstrumentedVersion = "i3";
 
   /** Enable generation of espresso test rules. */
   public boolean espresso = false;
