@@ -21,3 +21,4 @@ buildSrc/bintray.properties
 bazel-*
 .ijwb
 BUILD.bazel
+buildSrc/secring.gpg
