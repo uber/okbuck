@@ -22,3 +22,5 @@
 
 ### Version 0.54.3
 * Added support for Android API 32, 33, and 34
+* Bumped robolectric dependency to 4.8.2
+* Bumped pre-instrumented version to i4
