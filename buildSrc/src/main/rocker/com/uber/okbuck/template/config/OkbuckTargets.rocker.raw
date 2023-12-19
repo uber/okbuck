@@ -187,7 +187,7 @@ def okbuck_lint(
     cmd += "--fullpath "
 
     cmd += "{} `dirname {}` >$LOGFILE 2>/dev/null; ".format(" ".join(lint_options), toLocation(manifest))
-    
+
     #Delete tmp file and tmp.bak file
     cmd += "rm $CP_FILE*; "
 
