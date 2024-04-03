@@ -2,15 +2,19 @@ package com.uber.okbuck.example
 
 import android.os.Bundle
 import android.widget.Toast
+import androidx.appcompat.widget.Toolbar
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.uber.okbuck.example.sqldelightmodel.GithubRepo
 import dagger.android.support.DaggerAppCompatActivity
-import kotlinx.android.synthetic.main.activity_main.*
 import javax.inject.Inject
 
 class MainActivity : DaggerAppCompatActivity() {
 
     @Inject
     lateinit var analytics: Analytics
+
+    private val fab by lazy { findViewById<FloatingActionButton>(R.id.fab) }
+    private val toolbar by lazy { findViewById<Toolbar>(R.id.toolbar) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
