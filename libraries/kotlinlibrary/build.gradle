@@ -8,6 +8,7 @@ dependencies {
 
   implementation deps.external.kotlinStdlib
   implementation deps.external.dagger
+  implementation deps.external.kotlinMetadata
   kapt deps.apt.daggerCompiler
   kaptTest deps.apt.daggerCompiler
   testImplementation deps.test.junit

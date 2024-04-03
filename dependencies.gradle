@@ -88,6 +88,7 @@ def external = [
         gson            : "com.google.code.gson:gson:2.8.6",
         kotlinExtension : "org.jetbrains.kotlin:kotlin-android-extensions:${versions.kotlin}",
         kotlinStdlib    : "org.jetbrains.kotlin:kotlin-stdlib:${versions.kotlin}",
+        kotlinMetadata  : "org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.3.0",
         leakCanary      : "com.squareup.leakcanary:leakcanary-android:${versions.leakCanary}",
         sqldelight      : "com.squareup.sqldelight:android-driver:${versions.sqldelight}",
         rxandroid       : "io.reactivex.rxjava2:rxandroid:2.1.1",
