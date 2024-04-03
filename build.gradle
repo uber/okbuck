@@ -32,6 +32,11 @@ allprojects { project ->
     }
     configurations.all {
         exclude group:"com.android.tools.build", module: "transform-api"
+        resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+            if (details.requested.group == 'org.jetbrains.kotlin') {
+                details.useVersion deps.versions.kotlin
+            }
+        }
         resolutionStrategy {
             force deps.build.bcprov
             force deps.build.commonsCompress
