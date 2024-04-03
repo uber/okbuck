@@ -87,7 +87,7 @@ public class DummyTransform extends Transform {
 
             File inputFile = changedInput.getKey();
             File outputFile =
-                new File(outputDir, FileUtils.relativePossiblyNonExistingPath(inputFile, inputDir));
+                new File(outputDir, relativePossiblyNonExistingPath(inputFile, inputDir));
 
             switch (changedInput.getValue()) {
               case REMOVED:
@@ -107,11 +107,27 @@ public class DummyTransform extends Transform {
           Iterable<File> files = FileUtils.getAllFiles(inputDir);
           for (File inputFile : files) {
 
-            File outputFile = new File(outputDir, FileUtils.relativePath(inputFile, inputDir));
+            File outputFile = new File(outputDir, relativePath(inputFile, inputDir));
             FileUtils.copyFile(inputFile, outputFile);
           }
         }
       }
     }
+  }
+
+  private static String relativePath(File file, File dir) {
+    return relativePossiblyNonExistingPath(file, dir);
+  }
+
+  private static String relativePossiblyNonExistingPath(File file, File dir) {
+    String path = dir.toURI().relativize(file.toURI()).getPath();
+    return toSystemDependentPath(path);
+  }
+
+  private static String toSystemDependentPath(String path) {
+    if (File.separatorChar != '/') {
+        path = path.replace('/', File.separatorChar);
+    }
+    return path;
   }
 }
