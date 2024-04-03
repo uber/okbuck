@@ -4,7 +4,7 @@ evaluationDependsOn(pluginProjectPath)
 apply plugin: "application"
 
 group = "com.uber.okbuck.transform"
-version = "1.0.0"
+version = "1.0.1"
 
 tasks.withType(JavaCompile) {
     sourceCompatibility = JavaVersion.VERSION_1_8
