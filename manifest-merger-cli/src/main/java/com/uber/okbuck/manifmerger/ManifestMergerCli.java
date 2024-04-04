@@ -120,7 +120,7 @@ public final class ManifestMergerCli {
               "Invalid property name "
                   + value.substring(0, value.indexOf('='))
                   + ", allowed properties are : "
-                  + Joiner.on(',').join(ManifestSystemProperty.values()));
+                  + Joiner.on(',').join(ManifestSystemProperty.getValues()));
           return 1;
         }
       }
@@ -184,7 +184,7 @@ public final class ManifestMergerCli {
     System.out.println("\t--libs [path separated list of lib's manifests]");
     System.out.println("\t--overlays [path separated list of overlay's manifests]");
     System.out.println(
-        "\t--property [" + Joiner.on(" | ").join(ManifestSystemProperty.values()) + "=value]");
+        "\t--property [" + Joiner.on(" | ").join(ManifestSystemProperty.getValues()) + "=value]");
     System.out.println("\t--placeholder [name=value]");
     System.out.println("\t--out [path of the output file]");
   }

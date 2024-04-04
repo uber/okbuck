@@ -3,7 +3,6 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 apply plugin: "com.android.application"
 apply plugin: "com.squareup.sqldelight"
 apply plugin: "kotlin-android"
-apply plugin: "kotlin-android-extensions"
 apply plugin: "kotlin-kapt"
 
 android {
@@ -13,6 +12,14 @@ android {
     }
 
     flavorDimensions "default"
+
+    lintOptions {
+        // Turn off Dagger lints
+        disable "JvmStaticProvidesInObjectDetector"
+        disable "FieldSiteTargetOnQualifierAnnotation"
+        disable "ModuleCompanionObjects"
+        disable "ModuleCompanionObjectsNotInModuleParent"
+    }
 }
 
 tasks.withType(KotlinCompile).all {
