@@ -24,3 +24,6 @@
 * Added support for Android API 32, 33, and 34
 * Bump robolectric to 4.8.2
 * Bump pre-instrumented JARs to i4
+
+### Version 0.54.4
+* Added support for using Android Lint 31.3+
