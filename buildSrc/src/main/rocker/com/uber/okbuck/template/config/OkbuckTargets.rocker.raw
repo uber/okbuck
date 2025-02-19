@@ -140,12 +140,18 @@ def okbuck_lint(
         res_dirs,
         aar_deps,
         custom_lints,
-        lint_options):
+        lint_options,
+        lib):
     name = "lint_{}".format(variant)
 
     has_srcs = len(srcs) > 0
 
-    cmd = 'AAR_DEPS="{}"; '.format(";".join([toLocation(aar_dep + "#aar_unzip") for aar_dep in aar_deps]))
+    # Buck does not include the underlying library as part of the rule key, but Bazel does.
+    # The following is just to add the lib as a rule key to the Buck rule so both are invalidated
+    # when the underlying lib is invalidated.
+    cmd = "echo $(classpath {}) >> /dev/null ; ".format(lib)
+
+    cmd += 'AAR_DEPS="{}"; '.format(";".join([toLocation(aar_dep + "#aar_unzip") for aar_dep in aar_deps]))
 
     cmd += 'for aar in ${AAR_DEPS//;/ }; do if [[ -e $aar/lint.jar ]]; then PREBUILT_AAR_LINT_JARS="$aar/lint.jar:$PREBUILT_AAR_LINT_JARS"; fi ; done; '
 
@@ -295,6 +301,7 @@ def okbuck_android_library(
             aar_deps = aar_deps,
             custom_lints = custom_lints,
             lint_options = lint_options,
+            lib = ":" + name,
         )
 
 def okbuck_keystore(
