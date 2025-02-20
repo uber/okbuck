@@ -10,7 +10,7 @@ android {
         buildConfigField "int", "EXOPACKAGE_FLAGS", "0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        // If app doesn"t specify dimensions, use missingDimensionStrategy
+        // If app doesn't specify dimensions, use missingDimensionStrategy
         // https://developer.android.com/studio/build/gradle-plugin-3-0-0-migration.html#resolve_matching_errors
         missingDimensionStrategy "tier", "free", "paid"
     }
@@ -60,7 +60,6 @@ dependencies {
     implementation(name: "rxscreenshotdetector-1.2.0", ext: "aar")
     implementation deps.external.rxjava
     implementation deps.external.rxandroid
-    implementation deps.external.rxPermissions
     implementation deps.external.butterKnife
 
     implementation deps.androidx.multidex
