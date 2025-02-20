@@ -6,7 +6,6 @@ android {
         applicationId "com.uber.okbuck.app"
         multiDexEnabled true
         buildConfigField "boolean", "CAN_JUMP", "true"
-        buildConfigField "boolean", "XLOG_ENABLED", "true"
         buildConfigField "int", "EXOPACKAGE_FLAGS", "0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -68,7 +67,6 @@ dependencies {
     implementation deps.androidx.recyclerView
 
     implementation deps.external.leakCanary
-    implementation deps.external.xlogAndroidIdle
 
     implementation project(":libraries:emptylibrary")
     implementation project(":libraries:kotlinandroidlibrary")

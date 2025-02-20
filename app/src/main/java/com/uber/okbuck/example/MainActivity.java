@@ -13,7 +13,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import com.github.piasy.rxscreenshotdetector.RxScreenshotDetector;
-import com.promegu.xlog.base.XLog;
 import com.uber.okbuck.example.common.Calc;
 import com.uber.okbuck.example.common.CalcMonitor;
 import com.uber.okbuck.example.common.IMyAidlInterface;
@@ -28,7 +27,6 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import javax.inject.Inject;
 
-@XLog
 public class MainActivity extends AppCompatActivity {
   @Inject DummyJavaClass mDummyJavaClass;
   @Inject DummyAndroidClass mDummyAndroidClass;
