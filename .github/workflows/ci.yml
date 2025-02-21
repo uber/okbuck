@@ -25,6 +25,10 @@ jobs:
         with:
           java-version: 11
           distribution: temurin
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.8'
       - name: Run ${{ matrix.build_cmd }}
         run: ./tooling/ci/build_cmd.sh ${{ matrix.build_cmd }}
       - name: Upload snapshot
