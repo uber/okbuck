@@ -15,7 +15,6 @@ okbuck {
                     '^com/uber/okbuck/example/BuildConfig^',
                     '^android/support/multidex/',
                     '^com/facebook/buck/android/support/exopackage/',
-                    '^com/github/promeg/xlog_android/lib/XLogConfig^',
                     '^com/squareup/leakcanary/LeakCanary^',
             ]
     ]
