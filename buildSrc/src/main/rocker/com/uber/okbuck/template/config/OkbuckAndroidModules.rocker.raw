@@ -46,6 +46,7 @@ def okbuck_android_module(
         ## Android library related args
         deps = [],
         exported_deps = [],
+        labels = [],
         **kwargs):
     manifest_rule_name = name.replace("src", "manifest_lib", 1)
     @(manifestRule)(
@@ -90,6 +91,7 @@ def okbuck_android_module(
         package = package,
         resource_union = res_resource_union,
         visibility = visibility,
+        labels = labels + ["buck_resource_target"],
     )
     if res_deps:
         res_kwargs.update({"deps": sorted(res_deps)})
@@ -102,6 +104,7 @@ def okbuck_android_module(
         name = name,
         visibility = visibility,
         manifest = get_rule_dep(manifest_rule_name),
+        labels = labels,
     )
     src_kwargs.update(kwargs)
 
