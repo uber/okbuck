@@ -2,4 +2,5 @@ apply plugin: "java-library"
 
 dependencies {
     implementation deps.test.robolectric
+    implementation deps.test.junit
 }
