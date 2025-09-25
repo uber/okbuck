@@ -7,7 +7,7 @@
 * Bug fix to handle export dependencies file path correctly.
 
 ### Version 0.53.3
-* Add configuration cleanCacheDir to conditionally delete the cache directory or 
+* Add configuration cleanCacheDir to conditionally delete the cache directory or
   just the existing dependency rules files
 
 ### Version 0.54.0
@@ -27,3 +27,16 @@
 
 ### Version 0.54.4
 * Added support for using Android Lint 31.3+
+
+### Version 0.54.5
+* Added `labelsMap` configuration to `externalDependencies` block for adding custom labels to prebuilt dependency rules
+* Migrated Robolectric's deprecated code to recommended alternatives:
+  - Added `:libraries:robolectric-base` to Gradle modules
+  - Added missing jUnit dependency to robolectric-base
+  - Replaced deprecated `getAppManifest()` with `getManifestFactory()` and created `BuckManifestFactory`
+* Updated GitHub Actions workflows:
+  - Updated runner image to `ubuntu-24.04` (ubuntu-20.04 is deprecated)
+  - Updated `actions/checkout` to v4
+  - Updated `actions/setup-java` to v4 with temurin distribution
+  - Removed rxPermissions and XLog dependencies
+  - Updated to Python 3.8

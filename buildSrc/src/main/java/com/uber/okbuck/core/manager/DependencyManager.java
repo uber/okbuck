@@ -438,8 +438,11 @@ public class DependencyManager {
 
           ImmutableList.Builder<Rule> rulesBuilder = ImmutableList.builder();
           rulesBuilder.addAll(LocalPrebuiltRuleComposer.compose(localPrebuiltDependencies.build()));
+
+          Map<String, List<String>> labelsMap = externalDependenciesExtension.getLabelsMap();
+
           rulesBuilder.addAll(
-              PrebuiltRuleComposer.compose(prebuiltDependencies.build(), sha256Cache));
+              PrebuiltRuleComposer.compose(prebuiltDependencies.build(), sha256Cache, labelsMap));
           rulesBuilder.addAll(
               HttpFileRuleComposer.compose(httpFileDependencies.build(), sha256Cache));
 
