@@ -43,7 +43,6 @@ import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.api.tasks.testing.Test;
-import org.jetbrains.kotlin.gradle.internal.AndroidExtensionsExtension;
 import org.jetbrains.kotlin.gradle.plugin.KotlinAndroidPluginWrapper;
 import org.w3c.dom.Document;
 
@@ -74,6 +73,7 @@ public abstract class AndroidTarget extends JvmTarget {
   @Nullable private final String versionName;
   @Nullable private final Integer versionCode;
 
+  @SuppressWarnings("UnnecessarilyFullyQualified")
   protected AndroidTarget(Project project, String name, boolean isTest) {
     super(project, name);
 
@@ -112,10 +112,10 @@ public abstract class AndroidTarget extends JvmTarget {
 
     @Var boolean hasKotlinExtension;
     try {
-      AndroidExtensionsExtension androidExtensions =
-          project.getExtensions().getByType(AndroidExtensionsExtension.class);
+      org.jetbrains.kotlin.gradle.internal.AndroidExtensionsExtension androidExtensions =
+          project.getExtensions().getByType(org.jetbrains.kotlin.gradle.internal.AndroidExtensionsExtension.class);
       hasKotlinExtension = hasKotlinAndroidExtensions && androidExtensions.isExperimental();
-    } catch (Exception ignored) {
+    } catch (Throwable ignored) {
       hasKotlinExtension = false;
     }
     hasExperimentalKotlinAndroidExtensions = hasKotlinExtension;
