@@ -113,8 +113,7 @@ public abstract class AndroidTarget extends JvmTarget {
     @Var boolean hasKotlinExtension;
     try {
       org.jetbrains.kotlin.gradle.internal.AndroidExtensionsExtension androidExtensions =
-          project.getExtensions()
-              .getByType(org.jetbrains.kotlin.gradle.internal.AndroidExtensionsExtension.class);
+          project.getExtensions().getByType(org.jetbrains.kotlin.gradle.internal.AndroidExtensionsExtension.class);
       hasKotlinExtension = hasKotlinAndroidExtensions && androidExtensions.isExperimental();
     } catch (Throwable ignored) {
       hasKotlinExtension = false;
@@ -135,7 +134,6 @@ public abstract class AndroidTarget extends JvmTarget {
   }
 
   protected AndroidTarget(Project project, String name) {
-    this(project, name, false);
   }
 
   protected abstract BaseVariant getBaseVariant();
