@@ -7,7 +7,7 @@
 * Bug fix to handle export dependencies file path correctly.
 
 ### Version 0.53.3
-* Add configuration cleanCacheDir to conditionally delete the cache directory or 
+* Add configuration cleanCacheDir to conditionally delete the cache directory or
   just the existing dependency rules files
 
 ### Version 0.54.0
@@ -27,3 +27,6 @@
 
 ### Version 0.54.4
 * Added support for using Android Lint 31.3+
+
+### Version 0.54.4-UBER-bazel-migration-5
+* Added support for Kotlin 2.1.20
