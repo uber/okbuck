@@ -7,8 +7,7 @@
 * Bug fix to handle export dependencies file path correctly.
 
 ### Version 0.53.3
-* Add configuration cleanCacheDir to conditionally delete the cache directory or
-  just the existing dependency rules files
+* Add configuration cleanCacheDir to conditionally delete the cache directory or just the existing dependency rules files
 
 ### Version 0.54.0
 * Stop using /tmp for Android Lint gen-rule and use buck-out tmp instead
@@ -40,3 +39,4 @@
   - Updated `actions/setup-java` to v4 with temurin distribution
   - Removed rxPermissions and XLog dependencies
   - Updated to Python 3.8
+* Added support for Kotlin 2.2.0
