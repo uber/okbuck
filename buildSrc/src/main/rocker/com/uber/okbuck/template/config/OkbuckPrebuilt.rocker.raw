@@ -13,7 +13,8 @@ def @(okbuckPrebuiltRule)(
         deps = None,
         enable_jetifier = False,
         first_level = False,
-        testonly = False):
+        testonly = False,
+        labels = None):
     if deps == None:
         deps = []
 
@@ -64,6 +65,7 @@ def @(okbuckPrebuiltRule)(
             deps = deps,
             visibility = visibility,
             enable_jetifier = enable_jetifier,
+            labels = labels,
         )
     elif prebuilt_type == "jar":
         @(prebuiltJarRule)(
@@ -74,6 +76,7 @@ def @(okbuckPrebuiltRule)(
             deps = deps,
             visibility = visibility,
             enable_jetifier = enable_jetifier,
+            labels = labels,
         )
     else:
         fail("okbuck_prebuilt not supported for type {}".format(prebuilt_type))

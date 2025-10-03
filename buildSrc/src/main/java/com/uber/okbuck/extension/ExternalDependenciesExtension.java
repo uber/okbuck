@@ -73,6 +73,9 @@ public class ExternalDependenciesExtension {
   /** Set the path to the sha256sum caches of external dependency artifacts */
   @Input private String sha256Cache = OkBuckGradlePlugin.DEFAULT_OKBUCK_SHA256;
 
+  /** Map of dependency coordinates to labels for prebuilt rules */
+  @Input private Map<String, List<String>> labelsMap = new HashMap<>();
+
   @Nullable private Set<VersionlessDependency> allowAllVersionsSet;
 
   public ExternalDependenciesExtension() {}
@@ -182,5 +185,9 @@ public class ExternalDependenciesExtension {
 
   public boolean shouldCleanCacheDir() {
     return cleanCacheDir;
+  }
+
+  public Map<String, List<String>> getLabelsMap() {
+    return labelsMap;
   }
 }
