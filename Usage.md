@@ -62,10 +62,20 @@ okbuck {
     experimental {
         transform = true
     }
-    
+
     externalDependencies {
         cache = "3rdparty/jvm"
         cleanCacheDir = true
+        labelsMap = [
+            "com.example:library:1.0.0": [
+                "category=utility",
+                "license=apache-2.0"
+            ],
+            "junit:junit:4.13.2": [
+                "category=testing",
+                "test_framework=true"
+            ]
+        ]
     }
 }
 
@@ -86,6 +96,10 @@ please read the [Exopackage wiki](https://github.com/uber/okbuck/wiki/Exopackage
 +  `extraBuckOpts` provides a hook to add additional configuration options for buck [android_binary](https://buckbuild.com/rule/android_binary.html) rules
 +  `wrapper` is used to configure creation of the buck wrapper script.
  - `repo` - The git url of any custom buck fork. Default is none.
++  `externalDependencies` block configures external dependency resolution and generation:
++ - `cache` - Specifies the folder where external dependency rules are generated. Default is `.okbuck/ext`
++ - `cleanCacheDir` - Whether to delete the cache directory before generating dependency rules. Default is `true`
++ - `labelsMap` - Map of dependency coordinates to labels for prebuilt rules. Keys are Maven coordinates in format `"groupId:artifactId:version"`, values are lists of arbitrary strings. An example usecase could be to tag all test dependencies to easily be able to query them.
 + The keys used to configure various options can be for
  - All buildTypes and flavors i.e `app`
  - All buildTypes of a particular flavor i.e 'appDemo'

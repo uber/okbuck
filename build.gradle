@@ -238,6 +238,17 @@ okbuck {
             "autoValueGson",
             "autoValueParcel",
         ]
+        // Example: Add labels for specific dependencies
+        labelsMap = [
+            "com.example:library:1.0.0": [
+                "category=utility",
+                "license=apache-2.0"
+            ],
+            "junit:junit:4.13.2": [
+                "category=testing",
+                "test_framework=true"
+            ]
+        ]
     }
 
     dependencies {

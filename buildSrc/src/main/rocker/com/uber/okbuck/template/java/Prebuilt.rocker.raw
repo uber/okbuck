@@ -14,6 +14,13 @@ boolean firstLevel,
 @if (firstLevel) {
     first_level = True,
 }
+@if (valid(labels)) {
+    labels = [
+    @for (label : sorted(labels)) {
+        "@label",
+    }
+    ],
+}
     maven_coords = "@mavenCoords",
     sha256 = "@sha256",
 @if (valid(sourcesSha256)) {
