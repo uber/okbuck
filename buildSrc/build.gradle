@@ -112,3 +112,109 @@ tasks.withType(com.fizzed.rocker.gradle.RockerTask).each { task ->
     }
   }
 }
+
+// Custom task to publish to Maven Central Portal
+/**
+ * Custom publishing task for Maven Central Portal.
+ * 
+ * This task creates a deployment bundle with all required artifacts (JAR, sources, javadoc, POM, 
+ * module metadata) along with their PGP signatures and checksums (MD5/SHA1), then uploads to
+ * Maven Central Portal's REST API.
+ * 
+ * Usage:
+ *   ./gradlew publishToCentralPortal -PmavenCentralUsername=<user> -PmavenCentralPassword=<token>
+ * 
+ * Or set environment variables: MAVEN_CENTRAL_USERNAME, MAVEN_CENTRAL_PASSWORD
+ * 
+ * To build without uploading: ./gradlew publishToCentralPortal -PskipUpload=true
+ * 
+ * See RELEASING.md for complete publishing instructions.
+ */
+task publishToCentralPortal {
+    dependsOn 'generatePomFileForMavenPublication', 'jar', 'javaSourcesJar', 'simpleJavadocJar', 'signMavenPublication'
+    
+    doLast {
+        def version = findProperty('VERSION_NAME')
+        if (!version) {
+            throw new GradleException("VERSION_NAME property is required. Set it in buildSrc/gradle.properties")
+        }
+        def targetDir = file("${buildDir}/deployment/com/uber/okbuck/${version}")
+        targetDir.mkdirs()
+        
+        // Copy artifacts
+        copy {
+            from "${buildDir}/libs"
+            into targetDir
+            include "plugin-${version}*.jar", "plugin-${version}*.jar.asc"
+            rename "plugin-${version}", "okbuck-${version}"
+        }
+        copy {
+            from "${buildDir}/publications/maven"
+            into targetDir
+            include 'pom-default.xml*', 'module.json*'
+            rename 'pom-default.xml', "okbuck-${version}.pom"
+            rename 'pom-default.xml.asc', "okbuck-${version}.pom.asc"
+            rename 'module.json', "okbuck-${version}.module"
+            rename 'module.json.asc', "okbuck-${version}.module.asc"
+        }
+        
+        // Generate checksums
+        targetDir.listFiles().each { file ->
+            if (file.isFile() && !file.name.endsWith('.md5') && !file.name.endsWith('.sha1')) {
+                ['MD5', 'SHA-1'].each { algorithm ->
+                    def digest = java.security.MessageDigest.getInstance(algorithm)
+                    file.withInputStream { is -> 
+                        def buffer = new byte[8192]
+                        int read
+                        while ((read = is.read(buffer)) != -1) digest.update(buffer, 0, read)
+                    }
+                    def ext = algorithm == 'MD5' ? '.md5' : '.sha1'
+                    new File(targetDir, "${file.name}${ext}").text = digest.digest().encodeHex().toString()
+                }
+            }
+        }
+        
+        // Create bundle
+        def bundleFile = file("${buildDir}/okbuck-${version}.zip")
+        ant.zip(destfile: bundleFile) { fileset(dir: file("${buildDir}/deployment")) }
+        println "Created: ${bundleFile.absolutePath} (${bundleFile.length()} bytes)"
+        
+        // Upload if credentials provided
+        def username = findProperty("mavenCentralUsername") ?: System.getenv("MAVEN_CENTRAL_USERNAME")
+        def password = findProperty("mavenCentralPassword") ?: System.getenv("MAVEN_CENTRAL_PASSWORD")
+        
+        if (!username || !password || findProperty("skipUpload") == "true") {
+            println "Skipping upload. Use -PmavenCentralUsername=... -PmavenCentralPassword=... to upload"
+            return
+        }
+        
+        // Upload
+        println "Uploading to Maven Central Portal..."
+        def connection = new URL("https://central.sonatype.com/api/v1/publisher/upload?publishingType=USER_MANAGED")
+            .openConnection() as HttpURLConnection
+        connection.requestMethod = "POST"
+        connection.doOutput = true
+        connection.setRequestProperty("Authorization", "UserToken ${"${username}:${password}".bytes.encodeBase64().toString()}")
+        connection.connectTimeout = 60000
+        connection.readTimeout = 60000
+        
+        def boundary = "----WebKitFormBoundary${System.currentTimeMillis()}"
+        connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=${boundary}")
+        
+        connection.outputStream.withWriter("UTF-8") { w ->
+            w << "--${boundary}\r\n"
+            w << "Content-Disposition: form-data; name=\"bundle\"; filename=\"${bundleFile.name}\"\r\n"
+            w << "Content-Type: application/octet-stream\r\n\r\n"
+            w.flush()
+            connection.outputStream << bundleFile.bytes
+            w << "\r\n--${boundary}--\r\n"
+        }
+        
+        def code = connection.responseCode
+        if (code >= 200 && code < 300) {
+            println "✓ Upload successful! Response: ${connection.inputStream.text}"
+        } else {
+            throw new GradleException("Upload failed (${code}): ${connection.errorStream?.text ?: connection.inputStream?.text}")
+        }
+    }
+}
