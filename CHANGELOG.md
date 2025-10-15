@@ -40,3 +40,7 @@
   - Removed rxPermissions and XLog dependencies
   - Updated to Python 3.8
 * Added support for Kotlin 2.2.0
+* Upgraded to Gradle 7.6
+* **Breaking change for contributors**: Java 11+ is now required to build the plugin (plugin runtime still targets Java 8)
+* Upgraded Rocker plugin from 1.3.0 to 2.2.1
+* Upgraded gradle-maven-publish-plugin from 0.18.0 to 0.27.0

@@ -23,13 +23,13 @@ mainClassName = "com.uber.okbuck.transform.CliTransform"
 
 dependencies {
     compileOnly gradleApi()
-    compile(deps.build.androidPluginApi) {
+    implementation(deps.build.androidPluginApi) {
         transitive = false
     }
 
-    testCompile deps.test.junit
-    testCompile deps.test.mockito
-    testCompile deps.test.assertj
+    testImplementation deps.test.junit
+    testImplementation deps.test.mockito
+    testImplementation deps.test.assertj
 }
 
 shadowJar {
