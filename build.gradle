@@ -13,9 +13,25 @@ buildscript {
         classpath deps.build.sqlDelightPlugin
         classpath deps.build.shadowJar
         classpath deps.build.versionsPlugin
+        classpath deps.build.gradleNexusPublish
     }
     configurations.all {
         exclude group:"com.android.tools.build", module: "transform-api"
+    }
+}
+
+apply plugin: "io.github.gradle-nexus.publish-plugin"
+
+// Configure Nexus publishing for automatic repository closing
+nexusPublishing {
+    packageGroup = "com.uber"
+    repositories {
+        sonatype {
+            nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
+            snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
+            username.set(providers.gradleProperty('mavenCentralUsername').forUseAtConfigurationTime().orElse(''))
+            password.set(providers.gradleProperty('mavenCentralPassword').forUseAtConfigurationTime().orElse(''))
+        }
     }
 }
 
