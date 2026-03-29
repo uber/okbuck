@@ -125,7 +125,8 @@ public final class RobolectricManager {
     API_31("12", "7732740"),
     API_32("12.1", "8229987"),
     API_33("13", "9030017"),
-    API_34("14", "10818077");
+    API_34("14", "10818077"),
+    API_35("15", "12650502");
 
     private final String androidVersion;
     private final String frameworkSdkBuildVersion;
@@ -182,6 +183,8 @@ public final class RobolectricManager {
           return API_33;
         case "34":
           return API_34;
+        case "35":
+          return API_35;
         default:
           throw new IllegalStateException("Unknown Robolectric API Level: " + apiLevel);
       }
