@@ -12,11 +12,53 @@ Releasing
 
 
 ## Push New Release
-1. Using github UI to create a release from a tag (https://github.com/uber/okbuck/releases/new?tag=vX.Y.Z)
-	1. Click on Tags
-	2. Find your new tag and select "Create Release" from the context menu.
-	3. Auto-generate and edit release notes as necessary.
-2. `./gradlew clean publish --no-daemon --no-parallel && ./gradlew closeAndReleaseRepository`
+
+### 1. Create GitHub Release
+Using github UI to create a release from a tag (https://github.com/uber/okbuck/releases/new?tag=vX.Y.Z)
+1. Click on Tags
+2. Find your new tag and select "Create Release" from the context menu.
+3. Auto-generate and edit release notes as necessary.
+
+### 2. Publish to Maven Central
+
+The plugin uses a custom publishing task that uploads to Maven Central Portal.
+
+**Prerequisites:**
+- Maven Central Portal credentials (username and token)
+- Get credentials from: https://central.sonatype.com/account
+- Ensure PGP signing is configured (see buildSrc/gradle.properties)
+
+**Publish command:**
+```bash
+./gradlew publishToCentralPortal \
+  -PmavenCentralUsername=<your-username> \
+  -PmavenCentralPassword=<your-token>
+```
+
+Alternatively, set environment variables to avoid passing credentials on command line:
+```bash
+export MAVEN_CENTRAL_USERNAME=<your-username>
+export MAVEN_CENTRAL_PASSWORD=<your-token>
+./gradlew publishToCentralPortal
+```
+
+**What happens:**
+- Builds all artifacts (JAR, sources, javadoc, POM, module metadata)
+- Signs all artifacts with PGP
+- Generates MD5 and SHA1 checksums
+- Creates a deployment bundle (ZIP file)
+- Uploads to Maven Central Portal
+
+**After upload:**
+- Log into https://central.sonatype.com/publishing
+- Review and publish the deployment (Manual step required)
+- Publication typically takes 15-30 minutes to sync to Maven Central
+
+**Verify locally before uploading:**
+```bash
+./gradlew publishToCentralPortal -PskipUpload=true
+```
+This creates the bundle at `buildSrc/build/okbuck-X.Y.Z.zip` without uploading.
 
 
 ## Prepare for Next Release
