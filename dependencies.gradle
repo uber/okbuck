@@ -39,6 +39,7 @@ def build = [
         androidPluginApi : "com.android.tools.build:gradle-api:${versions.androidPlugin}",
         bcprov           : "org.bouncycastle:bcprov-jdk15on:1.60",
         gradleMavenPublish: "com.vanniktech:gradle-maven-publish-plugin:0.18.0",
+        gradleNexusPublish: "io.github.gradle-nexus:publish-plugin:1.3.0",
         butterKnifePlugin: "com.jakewharton:butterknife-gradle-plugin:${versions.butterKnife}",
         commonsCompress  : "org.apache.commons:commons-compress:1.18",
         commonsIo        : "commons-io:commons-io:2.8.0",

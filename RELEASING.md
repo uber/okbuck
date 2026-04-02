@@ -16,7 +16,28 @@ Releasing
 	1. Click on Tags
 	2. Find your new tag and select "Create Release" from the context menu.
 	3. Auto-generate and edit release notes as necessary.
-2. `./gradlew clean publish --no-daemon --no-parallel && ./gradlew closeAndReleaseRepository`
+2. Publish to Maven Central via Sonatype Central Portal:
+	```bash
+	./gradlew clean :plugin:publishToSonatype closeSonatypeStagingRepository --no-daemon --no-parallel
+	```
+	This will upload the artifacts to a staging repository and close it for review.
+
+3. Review and release the deployment:
+	- Go to https://central.sonatype.com/publishing
+	- Review the staged deployment
+	- Click "Publish" to release to Maven Central
+	
+	**Alternative:** To publish automatically without manual review:
+	```bash
+	./gradlew clean :plugin:publishToSonatype closeAndReleaseSonatypeStagingRepository --no-daemon --no-parallel
+	```
+
+**Note:** Publishing requires Central Portal User Tokens in `~/.gradle/gradle.properties`:
+```properties
+mavenCentralUsername=<your-user-token-username>
+mavenCentralPassword=<your-user-token-password>
+```
+Generate User Tokens at: https://central.sonatype.com/account
 
 
 ## Prepare for Next Release
