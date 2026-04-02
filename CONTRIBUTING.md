@@ -4,6 +4,13 @@ Contributing to okbuck
 The Uber team welcomes contributions of all kinds, from simple bug reports through documentation, test cases,
 bugfixes, and features.
 
+Requirements
+------------
+
+For building:
+- **Java 11+** is required for building the plugin (the plugin itself still targets Java 8 runtime)
+- Gradle 7.6 (via wrapper)
+
 Workflow
 --------
 

@@ -3,6 +3,6 @@ plugins {
 }
 
 dependencies {
-    compile deps.external.groovyAll
-    testCompile deps.test.junit
+    implementation deps.external.groovyAll
+    testImplementation deps.test.junit
 }

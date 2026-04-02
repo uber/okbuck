@@ -72,6 +72,15 @@ See the [Usage](https://github.com/uber/okbuck/blob/master/Usage.md) page for co
 
 To speed up your builds even more, you can use an implementation of [Buck's HTTP Cache API](https://github.com/uber/buck-http-cache) to take advantage of building once and using the same build artifacts on all machines.
 
+## Development
+
+To build OkBuck from source:
+- **Java 11+** is required (the plugin itself still targets Java 8 runtime)
+- Run `./gradlew build` to build the plugin
+- Run `./gradlew publishToMavenLocal` to publish to your local Maven repository for testing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed contribution guidelines.
+
 ## Contributors
 
 We'd love for you to contribute to our open source projects. Before we can accept your contributions, we kindly ask you to sign our [Uber Contributor License Agreement](https://docs.google.com/a/uber.com/forms/d/1pAwS_-dA1KhPlfxzYLBqK6rsSWwRwH95OCCZrcsY5rk/viewform).
